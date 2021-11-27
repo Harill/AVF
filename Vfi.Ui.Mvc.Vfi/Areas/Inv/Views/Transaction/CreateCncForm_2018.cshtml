@@ -1,0 +1,294 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ImportSX1Model
+@{
+    ViewBag.Title = "Phiếu Cnc";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+
+    <script type="text/javascript">
+
+        function grid_OnSubmitChanges(e) {
+            var importDate = $("#ImportDate").data("tDatePicker").value();
+            if (importDate === null)
+                importDate = "";
+            else
+                importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+            var materialUseDate = $("#MaterialUseDate").data("tDatePicker").value();
+            if (materialUseDate === null)
+                materialUseDate = "";
+            else
+                materialUseDate = $.telerik.formatString('{0:dd/MM/yyyy}', materialUseDate);
+
+            var ca1 = $("#Ca1").data("tAutoComplete").value();
+            var ca2 = $("#Ca2").data("tAutoComplete").value();
+            var message = "Ngày báo cáo: " + importDate;
+            message += "\nNgày làm: " + materialUseDate;
+            message += "\nCa: " + ca1 + " || " + ca2;
+            message += "\nĐồng ý lưu ??";
+            if (confirm(message)) {
+                e.values = $.extend(e.values,
+                    {
+                        importDate: importDate,
+                        materialUseDate:materialUseDate,
+                        ca1: ca1,
+                        ca2: ca2,
+                    }
+                );
+            } else {
+                e.preventDefault();
+            }
+        }
+
+        function grid_OnSave(e) {
+            var $productInvCode = $(e.cell).find('#ProductInvCode');
+            if ($productInvCode.length > 0) {
+                var productInvCode = $productInvCode.data("tComboBox"),
+                    productInvCodeSelectItem = productInvCode.selectedIndex > -1 ? productInvCode.data[productInvCode.selectedIndex] : null;
+
+                if (productInvCodeSelectItem) {
+                    e.values["ProductInvCode"] = productInvCodeSelectItem.Text;
+                    e.values["ProductInvId"] = productInvCodeSelectItem.Value;
+                    $.ajax({
+                        type: 'post',
+                        data: { productInvId: productInvCodeSelectItem.Value },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductInventory", "Transaction",new{area="Inv"})',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm ! Liên hệ admin");
+                            } else if (data == 'e') {
+                                alert("Lỗi!");
+                            } else if (data == '0') {
+                                alert("Sản phẩm không có tồn kho");
+                            } else {
+                                e.cell.parentElement.childNodes[2].innerHTML = data[0];
+                                e.cell.parentElement.childNodes[2].innerHTML = data[0];
+                                e.cell.parentElement.childNodes[2].innerHTML = data[0];
+                                e.cell.parentElement.childNodes[2].innerHTML = data[0];
+
+                            }
+                        }
+                    });
+                }
+            }
+            //var $warehouseName = $(e.cell).find('#WarehouseExportName');
+            //if ($warehouseName.length > 0) {
+            //    var warehouseName = $warehouseName.data("tComboBox"),
+            //        warehouseNameSelectItem = warehouseName.selectedIndex > -1 ? warehouseName.data[warehouseName.selectedIndex] : null;
+
+            //    if (warehouseNameSelectItem) {
+            //        e.values["WarehouseExportName"] = warehouseNameSelectItem.Text;
+            //        e.values["WarehouseExportId"] = warehouseNameSelectItem.Value;
+            //    }
+            //}
+            var number;
+            var sumNumber = 0;
+            var spanNumber = null;
+            var i = 0;
+            var innerText = "";
+            //tong number1
+            number = $(e.cell).find('#QuantityExport1').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+                spanNumber = $("span[name='QuantityExport1']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityExport1").text(sumNumber);
+
+            }
+
+            //tong number2
+            number = $(e.cell).find('#QuantityExport2').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+
+                spanNumber = $("span[name='QuantityExport2']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityExport2").text(sumNumber);
+
+            }
+
+            //tong defectProduct1
+            number = $(e.cell).find('#QuantityDefect1').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+
+                spanNumber = $("span[name='QuantityDefect1']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityDefect1").text(sumNumber);
+
+            }
+
+            //tong defectProduct2
+            number = $(e.cell).find('#QuantityDefect2').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+
+                spanNumber = $("span[name='QuantityDefect2']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityDefect2").text(sumNumber);
+
+            }
+            //tong quantityPending1
+            number = $(e.cell).find('#QuantityPending1').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+
+                spanNumber = $("span[name='QuantityPending1']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityPending1").text(sumNumber);
+
+            }
+
+            //tong quantityPending2
+            number = $(e.cell).find('#QuantityPending2').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+
+                spanNumber = $("span[name='QuantityPending2']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityPending2").text(sumNumber);
+
+            }
+        }
+
+    </script>
+}
+
+<div class="title">Tạo phiếu nhập sản xuất 1</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu</legend> 
+    <div>
+
+        <div class="grid_4">Ngày báo cáo</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("ImportDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="clear" style ="margin-bottom: 10px"></div>
+         <div class="grid_4">Ngày sản xuất</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("MaterialUseDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+    </div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("Ca1")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new {style = "width: 40px"})
+                    .Render();
+            }
+
+        </div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("Ca2")
+                    .HtmlAttributes(new {style = "width: 40px"})
+                    .DropDownHtmlAttributes(new {style = "width: 40px"})
+                    .Render();
+            }
+
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<CncFormDetailModel>()
+            .Name("gridPurchaseOrderDetailPartial")
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .ToolBar(bar =>
+            {
+                bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm dòng mới");
+                bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Trở về ban đầu");
+
+            })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectCreateCncForm", "Transaction", new {area = "Inv"})
+                .Update("UpdateCncForm", "Transaction")
+            )
+            .Columns(columns =>
+            {
+                columns.Bound(f => f.MachineName).Width(100).Title("Máy").ReadOnly(true);
+                columns.Bound(f => f.ProductInvCode).Width(200).Title("Sản Phẩm - Lô");
+                columns.Bound(f => f.InvQuantity).Width(100).Title("Tồn kho").ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+                columns.Bound(f => f.WarehouseExportName).Title("Kho xuất");
+
+                columns.Bound(f => f.Number1).Width(100).Title("OK 1")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+                columns.Bound(f => f.Processing1).Width(100).Title("CXL 1")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+                columns.Bound(f => f.DefectProduct1).Width(100).Title("NG 1")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+
+                columns.Bound(f => f.Number2).Width(100).Title("OK 2")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+                columns.Bound(f => f.Processing2).Width(100).Title("CXL 2")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+                columns.Bound(f => f.DefectProduct2).Width(100).Title("NG 2")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align:right;"});
+
+            })
+            .ClientEvents(events => events
+                .OnError("grid_OnError")
+                .OnSave("grid_OnSave")
+                .OnSubmitChanges("grid_OnSubmitChanges")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation(keys => keys.EditOnTab(true))
+            .Resizable(resizing => resizing.Columns(true))
+            .Footer(true)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

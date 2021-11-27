@@ -1,0 +1,285 @@
+﻿@using System.Collections
+@using Telerik.Reporting
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@model Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.OrderModel
+@{
+    ViewBag.Title = "Quản Lý Đổi/Trả Hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function grid_OnDataBound(args) {
+
+        }
+
+        function Grid_OnDataBinding(args) {
+            var type = $("#Type").data("tComboBox").value();
+            if (type === "")
+                type = 0;
+            var status = $("#Status").data("tComboBox").value();
+            if (status === "")
+                status = 0;
+            var fromDate = $("#fromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#toDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+            }
+
+            //    if (customerId == 0)
+            //        customerId = 0;
+
+            args.data = $.extend(args.data, {
+                fromDate: fromDate,
+                toDate: toDate,
+                type: type,
+                status: status,
+            });
+        }
+
+        function Status_onChange() {
+            RefreshGrid("gridOrderNotes");
+        }
+
+        function Type_OnChange() {
+            RefreshGrid("gridOrderNotes");
+        }
+        
+
+        //function status_onload() {
+        //    var combobox = $('#Status').data('tComboBox');
+        //    var dataSource =
+        //    [
+        //        { Text: "Chưa xuất HĐ", Value: "1" },
+        //        { Text: "Đã xuất HĐ", Value: "2" },
+        //        { Text: "Huỷ", Value: "3" }
+        //    ];
+
+        //    combobox.dataBind(dataSource);
+        //}
+
+        function Type_Onload() {
+            var combobox = $('#Type').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "Trả hàng", Value: "1" },
+                { Text: "Đổi hàng", Value: "2" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+        function Print(val) {
+            $('#result').load('@Url.Action("PrintOrderNote", "Inv",new{ area  = "Inv" })',
+                {
+                    noteId: val
+                }, function (data) {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+    </script>
+}
+<div class="title">Quản lý thông tin đổi/trả hàng</div>
+<div id="pnlInvPeriod">
+     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+        <div class="grid_4 prefix_14">
+            <div class="grid_1">
+             
+            </div>
+        </div>
+         
+            <fieldset>
+                <legend>Tiêu chí trích lọc</legend>
+                <div class="grid_2">
+                    Loại phiếu
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("Type")
+                            //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
+                            .HtmlAttributes(new {style = "width: 150px"})
+                            .DropDownHtmlAttributes(new {style = "width: 250px"})
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .HighlightFirstMatch(true)
+                            .AutoFill(true)
+                            .ClientEvents(events => events.OnChange("Type_OnChange").OnLoad("Type_Onload"))
+                            .Render();
+                    }
+                </div>
+                <div class="grid_2">
+                    Tình trạng
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("Status")
+                            .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTransactionStatus", "Transaction", new {area = "Inv"}))
+                            .HtmlAttributes(new {style = "width: 150px"})
+                            .DropDownHtmlAttributes(new {style = "width: 250px"})
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .HighlightFirstMatch(true)
+                            .AutoFill(true)
+                            .ClientEvents(events => events.OnChange("Status_onChange"))
+                            .Render();
+                    }
+                </div>
+            
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("fromDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1))
+                            .Render();
+                    } 
+                </div>
+                <div class="grid_2">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("toDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+                            .Render();
+                    }
+                </div>
+
+            </fieldset>
+    </div>
+    <div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<OrderNoteModel>()
+            .Name("gridOrderNotes")
+            .DataKeys(key => key.Add(f => f.NoteId).RouteKey("noteId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectOrderNoteByStatus", "Orders", new {area = "Sales"}))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.CreatedDate).Width(50).Title("Ngày trả").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy}");
+
+                    columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true).Title("Mã KH");
+                    columns.Bound(f => f.NoteNumber).Width(50).ReadOnly(true).Title("Số Phiếu");
+                    columns.Bound(f => f.InvoiceNumber).Width(50).ReadOnly(true).Title("Số Invoice");
+                    //columns.Bound(f => f.OrderNumber).Width(50).ReadOnly(true).Title("Số Đơn Hàng");
+                    columns.Bound(f => f.TypeName).Title("Loại").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.StatusName).Title("Tình trạng").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.TotalNumber).Title("Tổng SL").Width(70)
+                           .Format("'{0:n0}")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                           .HtmlAttributes(new {style = "text-align:right;"})
+                           .FooterHtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true).Title("Người làm");
+
+                    columns.Bound(f => f.ModifiedDate).Width(70).ReadOnly(true).Title("Ngày làm")
+                           .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                    columns.Bound(f => f.NoteId).Title("In").Width(45).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='id_<#= NoteId #>' value='In' class='t-button' onclick=Print(<#= NoteId #>) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= NoteId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<OrderNoteDetailModel>()
+                                   .Name("gridTransactionDetail_<#= NoteId #>")
+                                   .DataKeys(key => key.Add(f => f.DetailId).RouteKey("DetailId"))
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                            .Select("SelectOrderNoteDetailDetail", "Orders", new {noteId = "<#= NoteId #>"})
+                                   )
+                                   .Columns(columns =>
+                                       {
+                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
+                                           columns.Bound(f => f.Quantity).Width(50).ReadOnly(true).Title("Số lượng")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n0}");
+                                           //columns.Bound(f => f.Weight).ReadOnly(true).Width(50).Title("Trọng lượng")
+                                           //       .HtmlAttributes(new { style = "text-align: right;" })
+                                           //       .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n}', Weight) #>");
+                                           columns.Bound(f => f.Note).Width(100).Title("Ghi chú").ReadOnly(true)
+                                                  .HtmlAttributes(new {style = "text-align: left;"});
+                                       })
+                                   .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()
+                               )
+                    )
+                    .ToHtmlString()
+                                       ))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnError("grid_OnError")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnDataBinding("Grid_OnDataBinding"))
+            .Scrollable(f => f.Height("auto"))
+            //.HtmlAttributes(new {style = "width: 950px;"})
+            .Sortable()
+            .Filterable()
+            .Groupable()
+            .Scrollable(f => f.Height(310))
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();
+    }
+</div>
+    </div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

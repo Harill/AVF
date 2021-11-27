@@ -1,0 +1,135 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model TransactionModel
+@{
+    ViewBag.Title = "Phiếu SX2";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <script type="text/javascript">
+        function grid_OnSave(e) {
+            var $productCode = $(e.cell).find('#ProductCode');
+            var $errorName = $(e.cell).find('#ErrorName');
+            if ($productCode.length > 0) {
+                var productCode = $productCode.data("tComboBox"),
+                    productSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+                if (productSelectItem) {
+                    e.values["ProductCode"] = productSelectItem.Text;
+                    e.values["ProductId"] = productSelectItem.Value;
+                }
+            } else if ($errorName.length > 0) {
+
+                if ($errorName.length > 0) {
+                    var errorName = $errorName.data("tComboBox"),
+                        errorSelectItem = errorName.selectedIndex > -1 ? errorName.data[errorName.selectedIndex] : null;
+
+                    if (errorSelectItem) {
+                        e.values["ErrorName"] = errorSelectItem.Text;
+                        e.values["ErrorId"] = errorSelectItem.Value;
+                    }
+                }
+            }
+        }
+
+        function grid_OnSubmitChanges(e) {
+
+            var date = $("#MonthlyDate").data("tDatePicker").value();
+            if (date === null)
+                date = "";
+            else {
+                date = $.telerik.formatString('{0:dd/MM/yyyy}', date);
+            }
+            var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+            var msg = "Cập nhật ngày:" + date;
+            if ($.telerik.formatString('{0:dd/MM/yyyy}', new Date()) == date)
+                msg += "\n\n(Trùng ngày hiện tại)";
+            //if()
+            if (confirm(msg)) {
+                e.values = $.extend(e.values,
+                    {
+                        warehouseId: warehouseIssueName,
+                        date: date
+                    }
+                );
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+    </script>
+
+
+<div class="title">Tạo gia công sản xuất 2</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu</legend>
+        <div class="grid_2">
+            @Html.LabelFor(f => f.WarehouseIssueName)
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseIssueName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxImportWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .Render();                                              
+            }
+        </div>
+             <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("MonthlyDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductInventoryRotateModel>()
+            .Name("gridProduction2")
+            .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectExportProcessing", "Transaction")
+                                                     .Update("UpdateExportProcessing", "Transaction")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ProductCode).Width(150).Title("Mã SP")
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+                    columns.Bound(f => f.ErrorName).Width(200).Title("Lỗi")
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+                    columns.Bound(f => f.Quantity).Width(65)
+                        .HeaderTemplate("Số lượng")
+                        .HtmlAttributes(new { style = "text-align:right;border-bottom:black 1px dotted;" })
+                           .Format("{0:n3}");
+                    columns.Bound(f => f.Note).Title("Ghi chú")
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+
+                    columns.Command(commands => commands.Delete().Text("").ButtonType(GridButtonType.Image)).Width(50).Title("");
+                })
+            .ClientEvents(events => events.OnSave("grid_OnSave")
+                                          .OnSubmitChanges("grid_OnSubmitChanges")
+                                          .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation(keys => keys.Enabled(true))
+            .KeyboardNavigation()
+            .Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

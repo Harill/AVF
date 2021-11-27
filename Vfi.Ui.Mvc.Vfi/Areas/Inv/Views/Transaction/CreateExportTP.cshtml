@@ -1,0 +1,262 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model ExportFormTP_KD
+@{
+    ViewBag.Title = "Lập Phiếu Xuất Kho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function TextBoxChange() {
+            var transporter = $("#Transporter").val();
+            $.ajax({
+                type: 'post',
+                data: { transporter: transporter },
+                dataType: 'json',
+                url: '@Url.Action("SelectAutofillExportTp", "Orders", new {area = "Sales"})',
+                timeout: 20000,
+                success: function (data) {
+                    if (data != null) {
+                        var companyTransporter = $("#CompanyTransporter");
+                        if (companyTransporter.val() === "") {
+                            companyTransporter.val(data[0]);
+                        }
+                        var carNumber = $("#CarNumber");
+                        if (carNumber.val() === "") {
+                            carNumber.val(data[1]);
+                        }
+                        
+                    }
+                }
+             });
+        }
+        
+    </script>
+    <!-- client event grid material inventory -->
+    <script type="text/javascript">
+
+        var productIds = {};
+        productIds[0] = 0;
+        function gridProductInventoryDetail_onSave(e) {
+
+            var row = e.cell.parentElement;
+            var dataItem = e.dataItem;
+
+            var $productCode = $(e.cell).find('#ProductCode');
+            if ($productCode.length > 0) {
+                var productCode = $productCode.data("tComboBox"),
+                    productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+                if (productCodeSelectItem) {
+                    e.values["ProductCode"] = productCodeSelectItem.Text;
+                    e.values["ProductId"] = productCodeSelectItem.Value;
+                    // AvailableQty
+                    e.values["AvailableQty"] = productCodeSelectItem.Value;
+                    var flag = true;
+                    for (var obj in productIds) {
+                        if (obj === productCodeSelectItem.Value) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag === true) {
+                        productIds[productCodeSelectItem.Value] = productCodeSelectItem.Value;
+                    } else {
+                        //e.preventDefault();
+                        alert("đã tồn tại sản phẩm trong danh sách");
+                    }
+                    if (productCodeSelectItem.Value !== 0) {
+                        $.ajax({
+                            type: 'post',
+                            data: { productId: productCodeSelectItem.Value },
+                            dataType: 'json',
+                            url: '@Url.Action("GetFinishWeightById", "Product", new {area = ""})',
+                        timeout: 20000,
+                        success: function (data) {
+                            e.cell.parentElement.childNodes[1].innerHTML = data[0];
+                            dataItem.ProductWeight = data[0];
+                            e.cell.parentElement.childNodes[2].innerHTML = data[1];
+                            dataItem.TotalQuantity = data[1];
+                        }
+                    });
+                }
+                }
+            }
+            var quanlity = $(e.cell).find('#Quality').val();
+            var i, innerText;
+            if (!isNaN(parseInt(quanlity))) {
+                var sumQuality = 0;
+                var spanRequests = $("span[name='Quality']");
+                for (i = 0; i < spanRequests.length; i++) {
+                    innerText = spanRequests[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumQuality = sumQuality + parseInt(innerText);
+                }
+                sumQuality = sumQuality + parseInt(quanlity);
+                $("#TotalQuantity").text(sumQuality.format(0));
+
+                var quantityKg = parseFloat(parseInt(quanlity) * e.dataItem.ProductWeight);
+                row.getElementsByClassName("SentWeight")[0].textContent = quantityKg;
+                e.dataItem.SentWeight = quantityKg;
+            }
+
+            //tong weight
+            var totalWeight = $(e.cell).find('#Weight').val();
+            if (!isNaN(parseInt(totalWeight))) {
+                var sumWeight = 0.0;
+                var spanWeights = $("span[name='Weight']");
+                for (i = 0; i < spanWeights.length; i++) {
+                    innerText = spanWeights[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumWeight = sumWeight + parseFloat(innerText);
+                }
+                sumWeight = sumWeight + parseFloat(totalWeight);
+                $("#TotalWeight").text(sumWeight.format(0));
+            }
+        }
+
+        function gridProductInventoryDetail_onSubmitChanges(e) {
+            var customerId = $("#cboCustomer").data('tComboBox').value();
+            var transporter = $("#Transporter").val();
+            var companyTransporter = $("#CompanyTransporter").val();
+            var carNumber = $("#CarNumber").val();
+            var totalBox = $("#TotalBox").val();
+
+            var transportDate = $("#TransportDate").data("tDatePicker").value();
+            if (transportDate === null)
+                transportDate = "";
+            else
+                transportDate = $.telerik.formatString('{0:dd/MM/yyyy}', transportDate);
+
+            e.values = $.extend(e.values,
+                {
+                    customerId: customerId,
+                    transporter: transporter,
+                    companyTransporter: companyTransporter,
+                    carNumber: carNumber,
+                    transportDate: transportDate,
+                    totalBox: totalBox
+                }
+            );
+
+            productIds = {};
+        }
+    </script>
+}
+
+<div class="title">Phiếu xuất kho thành phẩm</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+    
+    <fieldset>
+        <legend>Thông tin phiếu xuất</legend>
+          <div class="grid_3">Khách hàng</div>
+            <div class="grid_8">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("cboCustomer")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
+                    .HtmlAttributes(new {style = "width: 250px"})
+                    .DropDownHtmlAttributes(new {style = "width: 325px;"})
+                    //.ClientEvents(events => events.OnChange("customer_onChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">Ngày chuyển</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("TransportDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+        <div class="clear"></div><br />
+        <div class="grid_3">Người vận chuyển</div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.Transporter, new {style ="color: maroon;", @onchange = "TextBoxChange();"})
+        </div>
+        <div class="grid_3">Công ty vận chuyển</div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.CompanyTransporter, new {style ="color: maroon;"})
+        </div>
+    <div class="clear"></div><br />
+        <div class="grid_3">Biển số xe</div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.CarNumber, new {style ="color: maroon;"})
+        </div>
+         <div class="grid_3">Tổng số thùng</div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.TotalBox, new {style ="color: maroon;"})
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ExportFormTP_KDDetailsModel>()
+            .Name("gridOrderDetail")
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm SP mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("InputProductInOrder", "Inv", new { productIds = "", id = 0, type = 0 })
+                                                   .Update("ProductExportTP_NewType3", "Transaction"))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ProductCode).Width(175).Title("Mã SP")
+                               .HeaderHtmlAttributes(new { @class = "edit-column" });
+                    columns.Bound(f => f.ProductWeight).Width(75).ReadOnly(true)
+                           .HeaderTemplate("Trọng lượng(g/pcs)")
+                           .ClientTemplate("<span class='ProductWeight'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.TotalQuantity).Width(75).ReadOnly(true)
+                           .HeaderTemplate("Tồn kho(pcs)")
+                           .ClientTemplate("<span class='TotalQuantity'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Quality).Width(150)
+                           .HeaderTemplate("Số lượng chuyển(pcs)")
+                               .HeaderHtmlAttributes(new { @class = "edit-column" })
+                           .ClientTemplate("<span name='Quality'><#= Quality == null ? 0 : $.telerik.formatString('{0:n0}', Quality) #></span>")
+                           .FooterTemplate("<span id='TotalQuantity'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" })
+                            .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Weight).Width(150)
+                           .HeaderTemplate("Trọng lượng chuyển(g)")
+                               .HeaderHtmlAttributes(new { @class = "edit-column" })
+                           .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #></span>")
+                           .FooterTemplate("<span id='TotalWeight'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" })
+                            .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.SentWeight).Width(150).ReadOnly(true)
+                           .HeaderTemplate("Trọng lượng tương ứng SL(g)")
+                           .ClientTemplate("<span class='SentWeight'><#= SentWeight == null ? 0 : $.telerik.formatString('{0:n0}', SentWeight) #></span>")
+                           .FooterTemplate("<span id='TotalSentWeight'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" })
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                    columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                })
+            .ClientEvents(events => events
+                                        //.OnDataBinding("gridPurchaseOrderDetailPartial_onDataBinding")
+                //.OnEdit("gridOrderDetailPartial_onEdit")
+                                    .OnSave("gridProductInventoryDetail_onSave")
+                                        .OnSubmitChanges("gridProductInventoryDetail_onSubmitChanges")
+                                        .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            //.Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div><br/>

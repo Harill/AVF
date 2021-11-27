@@ -1,0 +1,24 @@
+﻿<script>
+    function vendor_OnDataBinding(e) {
+        var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+        if (classifiedId > 0)
+            classified = classifiedId;
+        e.data = $.extend(e.data, {
+            classified: classified,
+        });
+    }
+</script>
+
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxVendorByClasstified", "Vendor", new { classified = 0 })
+            .Delay(350))
+        .HtmlAttributes(new { style = "width: 150px" })
+        .DropDownHtmlAttributes(new { style = "width: 250px" })
+        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .ClientEvents(events => events.OnDataBinding("vendor_OnDataBinding"))
+        .Render();
+}

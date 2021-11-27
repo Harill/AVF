@@ -1,0 +1,61 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "UnitMeasure Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<script type="text/javascript">
+    //function gridUnitMeasure_onEdit(e) {
+        ////var dataItem = e.dataItem;
+        //var mode = e.mode;
+        //var form = e.form;
+
+        //var unitMeasureCode = $(form).find('#UnitMeasureCode');
+        //if (mode == 'insert') {
+        //    unitMeasureCode.attr("style", "color: blue;");
+        //}
+        //if (mode == 'edit') {
+        //    unitMeasureCode.attr("readonly", "readonly");
+        //    unitMeasureCode.attr("style", "color: red;");
+        //}
+    //}
+</script>
+}
+
+<div class="title">Quản lý thông tin loại tiền tệ</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<UnitMeasureModel>()
+        .Name("gridUnitMeasure")
+        .DataKeys(key => key.Add(f => f.UnitId).RouteKey("unitId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                                      .Select("SelectUnitMeasure", "UnitMeasure")
+                                      .Insert("InsertUnitMeasure", "UnitMeasure")
+                                      .Update("UpdateUnitMeasure", "UnitMeasure"))
+        .Columns(columns =>
+            {
+                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)
+                    ).Width(98).Title("").HtmlAttributes(new {style = "text-align:center"});
+                columns.Bound(f => f.UnitMeasureCode).Width(150);
+                columns.Bound(f => f.UnitMeasureName);
+                //columns.Bound(f => f.Active).Width(45)
+                //    .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                //    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.IsPlatingUnit).Width(45)
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPlatingUnit' <#=IsPlatingUnit? checked='checked' : '' #> />")
+                       .HtmlAttributes(new {style = "text-align:center"});
+            })
+        //.ClientEvents(events => events.OnEdit("gridUnitMeasure_onEdit"))
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Pageable(page => page.PageSize(15))
+        .Sortable()
+        .Render();
+}
+
+</div>

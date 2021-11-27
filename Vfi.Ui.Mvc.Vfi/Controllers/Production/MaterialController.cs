@@ -1,0 +1,1373 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Web.Mvc;
+using Microsoft.Practices.Unity;
+using Telerik.Web.Mvc;
+using Vfi.Client.Module.Production.Interfaces;
+using Vfi.Server.Core.CrossCutting.UnitOfWork;
+using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
+using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
+using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
+using Vfi.Ui.Mvc.Vfi.Utilities;
+using System.Web;
+
+namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
+    public class MaterialController : Controller {
+        private readonly IUnitOfWork _unitOfWork;
+        [InjectionConstructor]
+        public MaterialController(IUnitOfWork unitOfWork) {
+            if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
+
+            _unitOfWork = unitOfWork;
+        }
+
+        // Viewup
+        public ActionResult MaterialClassifiedManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
+        public ActionResult MaterialTypeManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
+        public ActionResult MaterialManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
+        public ActionResult ToolManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
+        public ActionResult FuelManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
+        // Data
+        public IEnumerable<MaterialClassifiedModel> GetMaterialClassifiedModels() {
+            var model = new List<MaterialClassifiedModel>();
+            using (var vfi =new tammaContext()) {
+                model.AddRange(vfi.MaterialClassifieds.Select(
+                    entity => new MaterialClassifiedModel {
+                        MaterialClassifiedId = entity.MaterialClassifiedId,
+                        MaterialClassifiedName = entity.MaterialClassifiedName,
+                        Active = entity.Active,
+                        ModifiedUser = entity.ModifiedUser,
+                        ModifiedDate = entity.ModifiedDate
+                    }));
+            }
+            return model.OrderByDescending(x => x.Active).ThenBy(x => x.MaterialClassifiedName);
+        }
+
+        public List<MaterialTypeModel> GetMaterialTypeModels() {
+            var model = new List<MaterialTypeModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    model = vfi.MaterialTypes.Select(
+                        entity => new MaterialTypeModel {
+                            MaterialTypeId = entity.MaterialTypeId,
+                            MaterialClassifiedId = entity.MaterialClassifiedId,
+                            MaterialClassifiedName = entity.MaterialClassified != null
+                                                         ? entity.MaterialClassified.
+                                                               MaterialClassifiedName
+                                                         : "",
+                            MaterialTypeName = entity.MaterialTypeName,
+                            Active = entity.Active,
+                            ModifiedUser = entity.ModifiedUser,
+                            ModifiedDate = entity.ModifiedDate,
+                            IdentityCode = entity.IdentityCode,
+
+                        }).ToList();
+
+                }
+            }
+            catch (Exception ex) {
+                throw new AggregateException(ex);
+            }
+            return model;
+        }
+
+        #region Material Classified
+
+        [GridAction]
+        public ActionResult SelectMaterialClassified() {
+            return View(new GridModel(GetMaterialClassifiedModels()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertMaterialClassified(MaterialClassifiedModel insert) {
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("InsertMaterialClassified",
+                                         @"Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         @"1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         @"Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(GetMaterialClassifiedModels()));
+            }
+            try {
+                var entity = new MaterialClassified {
+                    MaterialClassifiedName = insert.MaterialClassifiedName,
+                    Active = true,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedUser = HttpContext.User.Identity.Name,
+                };
+                using (var vfi = new tammaContext()) {
+                    vfi.MaterialClassifieds.Add(entity);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception) {
+                ModelState.AddModelError("InsertMaterialClassified", @"Lỗi giá trị nhập. (try-catch)");
+            }
+
+            return View(new GridModel(GetMaterialClassifiedModels()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateMaterialClassified(MaterialClassifiedModel update) {
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("UpdateMaterialClassified",
+                                         @"Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         @"1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         @"Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(GetMaterialClassifiedModels()));
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = vfi.MaterialClassifieds.FirstOrDefault(x => x.MaterialClassifiedId == update.MaterialClassifiedId);
+                    if (entity == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy giá trị cập nhật");
+                    }
+                    entity.Active = update.Active;
+                    entity.MaterialClassifiedName = update.MaterialClassifiedName;
+                    entity.ModifiedDate = DateTime.Now;
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception) {
+                ModelState.AddModelError("UpdateMaterialClassified", @"Lỗi giá trị nhập. (try-catch)");
+            }
+            return View(new GridModel(GetMaterialClassifiedModels()));
+        }
+
+        public ActionResult SelectComboBoxWorkpieceMaterial() {
+            return new JsonResult {
+                Data = new SelectList(MaterialIdentityCode.GetMaterialIdentityCodes(0).OrderBy(l => l.IdentityCode), "IdentityCode", "MaterialTypeName")
+            };
+        }
+
+        public ActionResult SelectComboBoxMaterialClassified() {
+            var model = GetMaterialClassifiedModels().Where(x=> x.Active).ToList();
+            return new JsonResult {
+                Data = new SelectList(model, "MaterialClassifiedId", "MaterialClassifiedName")
+            };
+        }
+
+        public ActionResult SelectAllComboBoxMaterialClassified() {
+            var model = new List<Vfi.Models.MaterialClassified>();
+            using (var vfi = new tammaContext()) {
+                model.Add(new Vfi.Models.MaterialClassified { MaterialClassifiedId = 0, MaterialClassifiedName = "All" });
+                model.AddRange(vfi.MaterialClassifieds);
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "MaterialClassifiedId", "MaterialClassifiedName")
+            };
+        }
+
+        #endregion
+
+        #region Material Type
+
+        [GridAction]
+        public ActionResult SelectMaterialType() {
+            var model = new List<MaterialTypeModel>();
+            try {
+                model = GetMaterialTypeModels();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectMaterialType", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertMaterialType(MaterialTypeModel insertModel) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    int classtifiedId = 1;
+                    try {
+                        classtifiedId = Convert.ToInt32(insertModel.MaterialClassifiedName);
+                    }
+                    catch (Exception) {
+                        classtifiedId =
+                            vfi.MaterialClassifieds.FirstOrDefault(
+                                c => c.MaterialClassifiedName.Equals(insertModel.MaterialClassifiedName))
+                               .MaterialClassifiedId;
+                    }
+                    var newM = new Vfi.Models.MaterialType {
+                        Active = true,
+                        MaterialTypeName = insertModel.MaterialTypeName.Trim(),
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        ModifiedDate = DateTime.Now,
+                        IdentityCode = insertModel.IdentityCode.Trim().ToUpper(),
+                        MaterialClassifiedId = classtifiedId,
+                    };
+                    vfi.MaterialTypes.Add(newM);
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("MaterialTypeName", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+
+            return View(new GridModel(GetMaterialTypeModels()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateMaterialType(MaterialTypeModel updateModel) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    int classtifiedId = 1;
+                    try {
+                        classtifiedId = Convert.ToInt32(updateModel.MaterialClassifiedName);
+                    }
+                    catch (Exception) {
+                        classtifiedId =
+                            vfi.MaterialClassifieds.FirstOrDefault(
+                                c => c.MaterialClassifiedName.Equals(updateModel.MaterialClassifiedName))
+                               .MaterialClassifiedId;
+                    }
+                    var update = vfi.MaterialTypes.FirstOrDefault(mt => mt.MaterialTypeId == updateModel.MaterialTypeId);
+                    update.Active = updateModel.Active;
+                    update.MaterialTypeName = updateModel.MaterialTypeName.Trim();
+                    update.ModifiedUser = HttpContext.User.Identity.Name;
+                    update.ModifiedDate = DateTime.Now;
+                    update.IdentityCode = updateModel.IdentityCode.Trim().ToUpper();
+                    update.MaterialClassifiedId = classtifiedId;
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("MaterialTypeName", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+            return View(new GridModel(GetMaterialTypeModels()));
+        }
+
+        public ActionResult SelectComboBoxMaterialTypeByClassified(int? classifiedId) {
+            if (classifiedId == null || classifiedId == 0) {
+                return new JsonResult {
+                    Data = new SelectList(new List<MaterialType>(), "MaterialTypeId", "MaterialTypeName")
+                };
+            }
+            var model = GetMaterialTypeModels().Where(x => x.Active && x.MaterialClassifiedId == classifiedId)
+                .OrderBy(x => x.IdentityCode).ThenBy(x => x.MaterialTypeName);
+            return new JsonResult {
+                Data = new SelectList(model, "MaterialTypeId", "MaterialTypeName"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+        public ActionResult SelectComboBoxAllMaterialType() {
+            using (var vfi = new tammaContext()) {
+                var materialType = (from mt in vfi.MaterialTypes
+                                    where mt.MaterialClassifiedId == 1 && mt.Active
+                                    select new {
+                                        mt.MaterialTypeId,
+                                        mt.MaterialTypeName
+                                    }).ToList();
+                materialType.Add(new { MaterialTypeId = 0, MaterialTypeName = "Tất cả" });
+                return new JsonResult {
+                    Data =
+                        new SelectList(materialType.OrderBy(mt => mt.MaterialTypeId), "MaterialTypeId",
+                                       "MaterialTypeName"),
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+            }
+
+        }
+        public ActionResult SelectAllMaterialTypeByClassified(int? classifiedId) {
+            var model = new List<Vfi.Models.MaterialType>();
+            if (classifiedId == null) {
+                return new JsonResult {
+                    Data = new SelectList(model, "MaterialTypeId", "MaterialTypeName")
+                };
+            }
+            using (var vfi = new tammaContext()) {
+
+                if (classifiedId == 0) {
+                    model.Add(new Vfi.Models.MaterialType { MaterialTypeId = 0, MaterialTypeName = "All Type" });
+                    model.AddRange(vfi.MaterialTypes);
+                }
+                else {
+                    model = vfi.MaterialTypes.Where(mt => mt.MaterialClassifiedId == classifiedId).ToList();
+                }
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "MaterialTypeId", "MaterialTypeName"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
+        #endregion
+
+        #region Material
+
+        public List<MaterialModel> GetMaterialModels(string productCode) {
+            var model = new List<MaterialModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    var productIds = string.IsNullOrWhiteSpace(productCode)
+                                       ? new List<int>()
+                                       : vfi.Products.Where(p => p.ProductCode.Contains(productCode))
+                                            .Select(p => p.ProductId)
+                                            .ToList();
+                    var materialIds = productIds.Count == 0
+                                          ? new List<int>()
+                                          : vfi.ProductionMaterials.Where(rp => productIds.Contains(rp.ProductId))
+                                               .Select(p => p.MaterialId)
+                                               .ToList();
+                    var materials = !string.IsNullOrWhiteSpace(productCode) && materialIds.Count == 0
+                                        ? new List<Models.Material>()
+                                        : materialIds.Count == 0
+                                              ? vfi.Materials.ToList()
+                                              : vfi.Materials.Where(m => materialIds.Contains(m.MaterialId)).ToList();
+
+                    model = materials.Select(entity => new MaterialModel {
+                        MaterialId = entity.MaterialId,
+                        MaterialCode = entity.MaterialCode,
+                        MaterialName = entity.MaterialName,
+                        MaterialTypeId = entity.MaterialTypeId,
+                        MaterialTypeName = entity.MaterialType != null ? entity.MaterialType.MaterialTypeName : "",
+                        IdentityCode = entity.MaterialType != null ? entity.MaterialType.IdentityCode : "",
+                        OutDiameter = entity.OutDiameter,
+                        InDiameter = entity.InDiameter,
+                        Shape = entity.Shape.Trim(),
+                        DiameterType = entity.DiameterType,
+                        Weight = entity.Weight,
+                        UnitPrice = entity.UnitPrice,
+                        Active = entity.Active,
+                        ModifiedUser = entity.ModifiedUser,
+                        ModifiedDate = entity.ModifiedDate,
+                    }).ToList();
+                }
+            }
+            catch (Exception ex) {
+                throw new AggregateException(ex);
+            }
+            return model.OrderBy(m => m.IdentityCode)
+                            .ThenBy(m => m.MaterialName)
+                            .ThenBy(m => m.Shape)
+                            .ThenBy(m => m.DiameterType)
+                            .ThenBy(m => m.InDiameter)
+                            .ThenBy(m => m.OutDiameter).ToList();
+        }
+        [GridAction]
+        public ActionResult SelectMaterial(string productCode) {
+            var model = new List<MaterialModel>();
+            try {
+                model = GetMaterialModels(productCode).ToList();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectMaterial", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertMaterial(MaterialModel inserted) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var material =
+                        vfi.Materials.FirstOrDefault(
+                            m =>
+                            m.MaterialName.Equals(inserted.MaterialName) &&
+                            m.DiameterType == inserted.DiameterType &&
+                            m.OutDiameter == inserted.OutDiameter &&
+                            m.InDiameter == inserted.InDiameter &&
+                            m.Shape == inserted.Shape);
+                    if (material == null) {
+                        int typeId = 1;
+                        try {
+                            typeId = Convert.ToInt32(inserted.MaterialTypeName);
+                        }
+                        catch (FormatException) {
+                            typeId =
+                                vfi.MaterialTypes.FirstOrDefault(c => c.MaterialTypeName.Equals(inserted.MaterialTypeName)).MaterialTypeId;
+                        }
+                        material = new Vfi.Models.Material {
+                            MaterialId = inserted.MaterialId,
+                            MaterialName = inserted.MaterialName,
+                            //MaterialCode = inserted.MaterialName + MyUtilities.Material.GetMaterialDesignNo(
+                            //    inserted.OutDiameter, inserted.InDiameter,
+                            //    inserted.DiameterType, inserted.Shape),
+                            MaterialTypeId = typeId,
+                            OutDiameter = inserted.OutDiameter,
+                            InDiameter = inserted.InDiameter,
+                            Shape = inserted.Shape.Trim(),
+                            DiameterType = inserted.DiameterType.Trim(),
+                            Weight = inserted.Weight,
+                            UnitPrice = inserted.UnitPrice,
+                            Active = true,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            ModifiedDate = DateTime.Now,
+                        };
+                        material.MaterialCode = inserted.MaterialName +
+                                                MyUtilities.Material.GetMaterialDesignNo(material);
+                        vfi.Materials.Add(material);
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Mã nguyên liệu đã tồn tại ! \nVui lòng dùng mã khác !");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertMaterial", ex.Message);
+            }
+
+            return View(new GridModel(GetMaterialModels("")));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateMaterial(MaterialModel updateMaterial) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var material =
+                        vfi.Materials.FirstOrDefault(
+                            m =>
+                            m.MaterialName.Equals(updateMaterial.MaterialName) &&
+                            m.DiameterType == updateMaterial.DiameterType &&
+                            m.OutDiameter == updateMaterial.OutDiameter &&
+                            m.InDiameter == updateMaterial.InDiameter &&
+                            m.Shape == updateMaterial.Shape &&
+                            m.MaterialId != updateMaterial.MaterialId);
+                    if (material == null) {
+                        material = vfi.Materials.FirstOrDefault(m => m.MaterialId == updateMaterial.MaterialId);
+                        if (material == null)
+                            throw new AggregateException("Cập nhật lỗi");
+                        int typeId = 1;
+                        try {
+                            typeId = Convert.ToInt32(updateMaterial.MaterialTypeName);
+                        }
+                        catch (Exception) {
+                            typeId =
+                                vfi.MaterialTypes.FirstOrDefault(c => c.MaterialTypeName.Equals(updateMaterial.MaterialTypeName)).MaterialTypeId;
+                        }
+
+                        material.MaterialName = updateMaterial.MaterialName;
+                        material.MaterialTypeId = typeId;
+                        material.OutDiameter = updateMaterial.OutDiameter;
+                        material.InDiameter = updateMaterial.InDiameter;
+                        material.Shape = updateMaterial.Shape.Trim();
+                        material.DiameterType = updateMaterial.DiameterType.Trim();
+                        material.Weight = updateMaterial.Weight;
+                        material.UnitPrice = updateMaterial.UnitPrice;
+                        if (!updateMaterial.Active && updateMaterial.Active != material.Active) {
+                            var materialInvs = vfi.MaterialInventories.Where(mi => mi.MaterialId == material.MaterialId && mi.TotalQty > 0);
+                            if (materialInvs.Any())
+                                throw new AggregateException("Lỗi! Vui lòng huỷ tồn kho trước khi tắt active");
+                            material.Active = updateMaterial.Active;
+                        }
+                        material.ModifiedUser = HttpContext.User.Identity.Name;
+                        material.ModifiedDate = DateTime.Now;
+                        material.MaterialCode = updateMaterial.MaterialName +
+                            MyUtilities.Material.GetMaterialDesignNo(material);
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Mã nguyên liệu đã tồn tại ! /nVui lòng dùng mã khác !");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateMaterial", ex.Message);
+            }
+            return View(new GridModel(GetMaterialModels("")));
+        }
+
+        public ActionResult SelectComboBoxMaterial() {
+            using (var vfi = new tammaContext()) {
+                return new JsonResult {
+                    Data =
+                        new SelectList(
+                            vfi.Materials.Where(f => f.Active)
+                               .OrderBy(m => m.MaterialName)
+                               .ThenBy(m => m.Shape)
+                               .ThenBy(m => m.DiameterType)
+                               .ThenBy(m => m.OutDiameter)
+                               .ThenBy(m => m.InDiameter)
+                               .ToList(), "MaterialId",
+                            "MaterialCode")
+                };
+            }
+        }
+
+        public ActionResult SelectComboBoxMaterialInventory() {
+            using (var vfi = new tammaContext()) {
+                var materialInvs =
+                    vfi.MaterialInventories.Where(m => m.Active && m.LotNumber != "" && m.LotNumber != null);
+                var model = materialInvs.Select(m => new MaterialInventoryModel {
+                    MaterialInventoryId = m.MaterialInventoryId,
+                    MaterialCode = m.Material.MaterialCode,
+                    LotNumber = m.LotNumber,
+                    Length = m.Length,
+                    VendorCode = m.Vendor.VendorCode,
+                    MaterialName = m.Material.MaterialName,
+                    OutDiameter = m.Material.OutDiameter,
+                    InDiameter = m.Material.InDiameter,
+                    Shape = m.Material.Shape,
+                    DiameterType = m.Material.DiameterType,
+                }).OrderBy(m => m.MaterialName).ThenBy(m => m.OutDiameter).ThenBy(m => m.InDiameter).ThenBy(m => m.Length);
+                return new JsonResult {
+                    Data =
+                        new SelectList(model.ToList(), "MaterialInventoryId", "MaterialCodeLotNumber")
+                };
+            }
+        }
+
+        public ActionResult SelectComboBoxMaterialInvCodeByTrack(int? trackId) {
+            if (trackId == 0 || trackId == null) ;
+            using (var vfi = new tammaContext()) {
+                var track = vfi.TrackUpMachines.FirstOrDefault(t => t.TrackId == trackId);
+                var materialInvs = vfi.MaterialInventories.Where(mi => mi.MaterialId == track.MaterialId);
+                var model = materialInvs.Select(m => new MaterialInventoryModel {
+                    MaterialInventoryId = m.MaterialInventoryId,
+                    MaterialCode = m.Material.MaterialCode,
+                    LotNumber = m.LotNumber,
+                    Length = m.Length,
+                    VendorCode = m.Vendor.VendorCode,
+                    MaterialName = m.Material.MaterialName,
+                    OutDiameter = m.Material.OutDiameter,
+                    InDiameter = m.Material.InDiameter,
+                    Shape = m.Material.Shape,
+                    DiameterType = m.Material.DiameterType,
+                }).OrderBy(m => m.MaterialName).ThenBy(m => m.OutDiameter).ThenBy(m => m.InDiameter).ThenBy(m => m.Length);
+                return new JsonResult {
+                    Data =
+                        new SelectList(model.ToList(), "MaterialInventoryId", "MaterialCodeLotNumber")
+                };
+            }
+        }
+        public ActionResult GetMaterialInvTotal(int materialInventoryId) {
+            try {
+                //var intRevisionNumber = Convert.ToInt32(revisionNumber);
+                using (var vfi = new tammaContext()) {
+                    vfi.Configuration.LazyLoadingEnabled = false;
+                    var materialInv =
+                        vfi.MaterialInventories.FirstOrDefault(mi => mi.MaterialInventoryId == materialInventoryId);
+                    return Json(materialInv.TotalQty);
+                }
+            }
+            catch (FormatException) {
+                return Json(0);
+            }
+        }
+
+
+        [HttpPost]
+        public ActionResult GetAssignMaterial(int machineId, int materialInventoryId) {
+            try {
+
+                using (var vfi = new tammaContext()) {
+                    var materialInv =
+                        vfi.MaterialInventories.FirstOrDefault(mi => mi.MaterialInventoryId == materialInventoryId);
+                    if (materialInv == null)
+                        return Json("9");
+
+                    var materialInvOnMachine =
+                        vfi.MaterialInvOnMachines.FirstOrDefault(
+                            mim => mim.MachineId == machineId && mim.MaterialInvId == materialInventoryId);
+                    return
+                        Json(new object[]
+                            {
+                                string.Format("{0:n2}", materialInv.TotalQty),
+                                materialInvOnMachine == null
+                                    ? "0"
+                                    : string.Format("{0:n2}", materialInvOnMachine.TotalQuantity)
+                            });
+                }
+            }
+            catch (Exception ex) {
+                return Json("0");
+            }
+            return Json("0");
+        }
+
+        public ActionResult SelectComboBoxMaterialType() {
+            return new JsonResult {
+                Data = new SelectList(GetMaterialTypeModels()
+                    .Where(f => f.Active && f.MaterialClassifiedId == 1), "MaterialTypeId", "MaterialTypeName")
+            };
+        }
+
+        public ActionResult SelectComboBoxToolType() {
+            return new JsonResult {
+                Data = new SelectList(GetMaterialTypeModels()
+                    .Where(f => f.Active && f.MaterialClassifiedId == 3), "MaterialTypeId", "MaterialTypeName")
+            };
+        }
+        public ActionResult SelectComboBoxToolUseType() {
+            var val = from MyUtilities.Tool.ExportType stt in Enum.GetValues(typeof(MyUtilities.Tool.ExportType))
+                      select new {
+                          Value = (int)Enum.Parse(typeof(MyUtilities.Tool.ExportType), stt.ToString()),
+                          Text = MyUtilities.Tool.GetTypeText((int)Enum.Parse(typeof(MyUtilities.Tool.ExportType), stt.ToString()))
+                      };
+
+            return new JsonResult {
+                Data = new SelectList(val, "Value", "Text")
+            };
+        }
+        public ActionResult SelectComboBoxMaterialByType(int? materialTypeId) {
+            if (materialTypeId == 0 || materialTypeId == null) {
+                return new JsonResult {
+                    Data = new SelectList(new List<MaterialModel>(), "MaterialId", "MaterialCode")
+                };
+            }
+
+            var model = GetMaterialModels("").Where(m => m.MaterialTypeId == materialTypeId && m.Active).ToList();
+            return new JsonResult {
+                Data = new SelectList(model, "MaterialId", "MaterialCode")
+            };
+        }
+
+
+        [HttpPost]
+        public ActionResult CheckMaterialUnitPrice(int materialId) {
+            try {
+                //var intRevisionNumber = Convert.ToInt32(revisionNumber);
+                using (var vfi = new tammaContext()) {
+                    vfi.Configuration.LazyLoadingEnabled = false;
+                    var unitPrice = vfi.Materials.FirstOrDefault(p => p.MaterialId == materialId).UnitPrice;
+                    return Json(unitPrice);
+                }
+            }
+            catch (FormatException) {
+                return Json(0);
+            }
+        }
+
+        [GridAction]
+        public ActionResult SelectProductionMaterialById(int materialId) {
+            var model = new List<ProductionMaterialModel>();
+            try {
+                model = GetMaterialListByProductId(materialId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionMaterialById", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionMaterialModel> GetMaterialListByProductId(int materialId) {
+            var model = new List<ProductionMaterialModel>();
+            using (var vfi = new tammaContext()) {
+                var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
+                if (user == null)
+                    throw new AggregateException("Lỗi! Mất đăng nhập! Vui lòng đăng nhập lại!");
+                var materials = vfi.ProductionMaterials
+                                   .Where(ps => ps.MaterialId == materialId && ps.Product.Active)
+                                   .OrderBy(m => m.Priority);
+                foreach (var material in materials) {
+                    var entity = new ProductionMaterialModel {
+                        RealMaterialId = material.RealMaterialId,
+                        CustomerId = material.Product.CustomerId,
+                        CustomerCode = material.Product.Customer.CustomerCode,
+                        MaterialId = material.MaterialId,
+                        MaterialCode = material.Material.MaterialCode,
+                        ProductId = material.ProductId,
+                        ProductCode = material.Product.ProductCode,
+                        Priority = material.Priority,
+                        Note = material.Note,
+                        UnitWeightByMaterial =
+                            MyUtilities.Product.GetProductWeight(material.Material.MaterialName,
+                                                                 material.Material.OutDiameter,
+                                                                 material.Material.InDiameter,
+                                                                 material.Product.Length ?? 0,
+                                                                 material.Product.KnifeCut ?? 0,
+                                                                 material.Material.Shape + ""),
+                        ForecastInYear = material.Product.ForecastsQuality ?? 0,
+                        Active = material.Active,
+                        ModifiedDate = material.ModifiedDate,
+                        ModifiedUser = material.ModifiedUser,
+                    };
+                    model.Add(entity);
+                }
+            }
+            return model.OrderBy(m => m.ProductCode).ToList();
+        }
+
+        [GridAction]
+        public ActionResult UpdateProductionMaterial(ProductionMaterialModel update) {
+            try {
+                if (!Request.IsAuthenticated) {
+                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+                }
+                using (var vfi = new tammaContext()) {
+                    var entity = vfi.ProductionMaterials.FirstOrDefault(ps => ps.RealMaterialId == update.RealMaterialId);
+                    if (entity != null) {
+                        int productId = 1;
+                        try {
+                            productId = Convert.ToInt32(update.ProductCode);
+                        }
+                        catch (Exception) {
+                            productId =
+                                vfi.Products.FirstOrDefault(p => p.ProductCode.Equals(update.ProductCode)).ProductId;
+                        }
+                        var product = vfi.Products.FirstOrDefault(m => m.ProductId == productId);
+                        product.ForecastsQuality = update.ForecastInYear;
+                        entity.Active = update.Active;
+                        if (entity.Active) {
+                            var materials =
+                                vfi.Materials.Where(
+                                    m => m.MaterialName.Equals(entity.Material.MaterialName) &&
+                                         m.Shape.Equals(entity.Material.Shape) &&
+                                         m.DiameterType.Equals(entity.Material.DiameterType) &&
+                                         m.OutDiameter == entity.Material.OutDiameter &&
+                                         m.InDiameter == entity.Material.InDiameter &&
+                                         m.MaterialTypeId == entity.Material.MaterialTypeId);
+                            //var materialIds = materials.Select(m => m.MaterialId);
+                            foreach (var material1 in materials) {
+                                var productionMaterial =
+                                    vfi.ProductionMaterials.FirstOrDefault(
+                                        pm => pm.MaterialId == material1.MaterialId && pm.ProductId == productId);
+                                if (productionMaterial == null) {
+                                    productionMaterial = new ProductionMaterial {
+                                        ProductId = productId,
+                                        Priority = 0,
+                                        Note = update.Note + "",
+                                        MaterialId = material1.MaterialId,
+                                        UnitWeightByMaterial = MyUtilities.Product
+                                            .GetProductWeight(material1.MaterialName,
+                                                              material1.OutDiameter,
+                                                              material1.InDiameter,
+                                                              product.Length ?? 0,
+                                                              product.KnifeCut ?? 0,
+                                                              material1.Shape + ""),
+                                        Active = true,
+                                        ModifiedDate = DateTime.Now,
+                                        ModifiedUser = HttpContext.User.Identity.Name,
+                                    };
+                                    vfi.ProductionMaterials.Add(productionMaterial);
+                                }
+                            }
+                        }
+                    }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionMaterial", ex.Message);
+            }
+            return View(new GridModel(GetMaterialListByProductId(update.MaterialId)));
+        }
+
+        [GridAction]
+        public ActionResult InsertProductionMaterial(ProductionMaterialModel insert,
+            int materialId) {
+            try {
+                if (!Request.IsAuthenticated) {
+                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+                }
+                if (string.IsNullOrWhiteSpace(insert.ProductCode))
+                    throw new AggregateException("Lỗi! Nhập mã sản phẩm!");
+                int productId = 1;
+                try {
+                    productId = Convert.ToInt32(insert.ProductCode);
+                }
+                catch (Exception) {
+                    throw new AggregateException("Lỗi mã nguyên liệu ! Chọn lại sản phẩm");
+                }
+                using (var vfi = new tammaContext()) {
+                    var entity =
+                        vfi.ProductionMaterials.FirstOrDefault(
+                            pm => pm.ProductId == productId && pm.MaterialId == materialId);
+                    var material = vfi.Materials.FirstOrDefault(m => m.MaterialId == materialId);
+                    var materials =
+                        vfi.Materials.Where(
+                            m => m.MaterialName.Equals(material.MaterialName) &&
+                                 m.Shape.Equals(material.Shape) &&
+                                 m.DiameterType.Equals(material.DiameterType) &&
+                                 m.OutDiameter == material.OutDiameter &&
+                                 m.InDiameter == material.InDiameter &&
+                                 m.MaterialTypeId == material.MaterialTypeId &&
+                                 m.Active);
+                    var product = vfi.Products.FirstOrDefault(m => m.ProductId == productId);
+                    if (entity == null) {
+                        foreach (var material1 in materials) {
+                            entity = new ProductionMaterial {
+                                ProductId = productId,
+                                Priority = 0,
+                                Note = insert.Note + "",
+                                MaterialId = material1.MaterialId,
+                                UnitWeightByMaterial = MyUtilities.Product
+                                    .GetProductWeight(material1.MaterialName,
+                                        material1.OutDiameter,
+                                        material1.InDiameter,
+                                        product.Length ?? 0,
+                                        product.KnifeCut ?? 0,
+                                        material1.Shape + ""),
+                                Active = true,
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                            };
+                            vfi.ProductionMaterials.Add(entity);
+                        }
+                    }
+                    else {
+                        if (!entity.Active) {
+                            //entity.MaterialId = materialId;
+                            entity.Priority = 0;
+                            entity.Note = insert.Note + "";
+                            entity.UnitWeightByMaterial = MyUtilities.Product
+                                .GetProductWeight(material.MaterialName,
+                                                  material.OutDiameter,
+                                                  material.InDiameter,
+                                                  entity.Product.Length ?? 0,
+                                                  entity.Product.KnifeCut ?? 0,
+                                                  material.Shape + "");
+                            entity.Active = true;
+                            entity.ModifiedDate = DateTime.Now;
+                            entity.ModifiedUser = HttpContext.User.Identity.Name;
+                        }
+                        else {
+                            throw new AggregateException("Lỗi! Sản phẩm đã được nguyên liệu sử dụng.");
+                        }
+                    }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductionMaterial", ex.Message);
+            }
+            return View(new GridModel(GetMaterialListByProductId(materialId)));
+        }
+        #endregion
+
+        #region Tool
+
+        [HttpPost]
+        public ActionResult SaveToolImg(IEnumerable<HttpPostedFileBase> ToolImg) {
+            // The Name of the Upload component is "attachments"       
+            try {
+                var attachments = new List<HttpPostedFileBase>();
+                if (ToolImg != null && ToolImg.Any()) {
+                    attachments.AddRange(ToolImg.ToList());
+                }
+                if (attachments.Any()) {
+                    foreach (var file in attachments) {
+                        // Some browsers send file names with full path. We only care about the file name.
+                        var fileName = Path.GetFileName(file.FileName);
+                        if (fileName == null) continue;
+                        var destinationPath = Path.Combine(Server.MapPath("~/Content/FileUpload/ToolImg"), fileName);
+                        // giam kich thuoc
+                        Image bm = Image.FromStream(file.InputStream);
+                        var designWidth = 3000.0;
+                        var designHeight = 1500.0;
+                        var ratioW = designWidth / (double)bm.Width;
+                        var ratioH = designHeight / (double)bm.Height;
+                        var ratio = ratioH < ratioW ? ratioH : ratioW;
+                        var newWidth = Convert.ToInt32(bm.Width * ratio);
+                        var newHeight = Convert.ToInt32(bm.Height * ratio);
+                        bm = ResizeBitmap((Bitmap)bm, newWidth, newHeight);
+                        bm.Save(destinationPath, bm.RawFormat);
+                        //bm.Save(destinationPath);
+                    }
+                    return Json("Upload thành công !");
+                }
+                else {
+                    throw new AggregateException("attachments null");
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UploadSave", ex.Message);
+                return Json(ex.Message);
+            }
+            // Redirect to a view showing the result of the form submissSaveion.    
+            return Json("False");
+        }
+
+        private Bitmap ResizeBitmap(Bitmap b, int nWidth, int nHeight) {
+            Bitmap result = new Bitmap(nWidth, nHeight);
+            using (Graphics g = Graphics.FromImage((Image)result))
+                g.DrawImage(b, 0, 0, nWidth, nHeight);
+            return result;
+        }
+        public ActionResult CheckUploadImage(string upload) {
+            try {
+
+                using (var vfi = new tammaContext()) {
+                    var toolCodes = "";
+                    var tools = vfi.Tools.Where(p => p.Img.Equals(upload));
+                    if (tools.Any()) {
+                        foreach (var tool in tools) {
+                            toolCodes += tool.ToolFullCode + " | ";
+                        }
+                        return Json("9! " + toolCodes);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                return Json("0! " + ex.Message);
+            }
+            return Json("");
+        }
+
+        [GridAction]
+        public ActionResult SelectAllTool(int toolTypeId, int useType, string toolName) {
+            if (toolTypeId == 0 && useType == 0 && string.IsNullOrWhiteSpace(toolName))
+                return View(new GridModel(new List<ToolModel>()));
+            var model = new List<ToolModel>();
+            try {
+                model = GetAllTools(toolTypeId, useType, toolName);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectAllTool", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        private List<ToolModel> GetAllTools(int toolTypeId, int useType, string toolName) {
+            var model = new List<ToolModel>();
+            using (var vfi = new tammaContext()) {
+                var tools = (from t in vfi.Tools
+                             where (toolTypeId == 0 || t.MaterialTypeId == toolTypeId) &&
+                                   (useType == 0 || t.ToolTypeId == useType) &&
+                                   t.IsDeleted != true
+                             //&& t.ToolId == 1337
+                             orderby t.ToolFullCode
+                             select t).ToList();
+                if (!string.IsNullOrWhiteSpace(toolName))
+                    tools = tools.Where(t => t.ToolFullCode.Contains(toolName)).ToList();
+                foreach (var tool in tools) {
+                    var entity = new ToolModel {
+                        ToolId = tool.ToolId,
+                        ToolName = tool.ToolName,
+                        ToolCode = tool.ToolCode,
+                        Active = tool.Active,
+                        Description = tool.Description,
+                        ModifiedDate = tool.ModifiedDate,
+                        ModifiedUser = tool.ModifiedUser,
+                        ToolFullCode = tool.ToolFullCode,
+                        UnitPrice = tool.UnitPrice,
+                        ToolDesignNo = tool.ToolDesignNo,
+                        ToolMaterial = tool.ToolMaterial,
+                        MaterialTypeId = tool.MaterialTypeId,
+                        MaterialTypeName = tool.MaterialType.MaterialTypeName,
+                        ToolType = tool.ToolTypeId,
+                        ToolTypeName = MyUtilities.Tool.GetTypeText(tool.ToolTypeId),
+                        Img = tool.Img,
+                        UploadDate = tool.ModifiedDate.ToString("yyyyMMddhhmmss"),
+                        ToolProduction = tool.ToolProduction,
+                        IsDeleted = tool.IsDeleted ?? false
+                    };
+                    if (string.IsNullOrWhiteSpace(entity.Img))
+                        entity.Img = "askquestion.jpg";
+                    model.Add(entity);
+                }
+            }
+
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult InsertTool(ToolModel newTool) {
+            int typeId = 0;
+            var useType = 0;
+            try {
+                if (string.IsNullOrWhiteSpace(newTool.ToolCode))
+                    throw new AggregateException("Thêm công cụ thất bại! Thiếu mã công cụ.");
+                //if (string.IsNullOrWhiteSpace(newTool.ToolMaterial))
+                //    throw new AggregateException("Thêm công cụ thất bại! Thiếu nguyên liệu.");
+                if (string.IsNullOrWhiteSpace(newTool.ToolDesignNo))
+                    throw new AggregateException("Thêm công cụ thất bại! Thiếu quy cách.");
+                using (var vfi = new tammaContext()) {
+                    //var tool =
+                    //    vfi.Tools.FirstOrDefault(
+                    //        t =>
+                    //        t.ToolCode.Equals(newTool.ToolCode.Trim()) &&
+                    //        t.ToolMaterial.Equals(newTool.ToolMaterial.Trim()) &&
+                    //        t.ToolDesignNo.Equals(newTool.ToolDesignNo.Trim()) &&
+                    //        t.ToolProduction.Equals(newTool.ToolProduction.Trim()));
+                    var tool =
+                        vfi.Tools.FirstOrDefault(
+                            t =>
+                            t.ToolCode.Equals(newTool.ToolCode.Trim()));
+                    if (tool == null) {
+                        try {
+                            typeId = Convert.ToInt32(newTool.MaterialTypeName);
+                        }
+                        catch (FormatException) {
+                            typeId =
+                                vfi.MaterialTypes.FirstOrDefault(c => c.MaterialTypeName.Equals(newTool.MaterialTypeName)).MaterialTypeId;
+                        }
+                        try {
+                            useType = Convert.ToInt32(newTool.ToolTypeName);
+                        }
+                        catch (FormatException) {
+                        }
+                        tool = new Tool {
+                            ToolName = newTool.ToolName + "",
+                            ToolCode = newTool.ToolCode.Trim(),
+                            Active = true,
+                            Description = newTool.Description + "",
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            ToolDesignNo = newTool.ToolDesignNo.Trim(),
+                            UnitPrice = 0,
+                            ToolFullCode = newTool.GetFullToolCode(),
+                            ToolMaterial = newTool.ToolMaterial.Trim(),
+                            MaterialTypeId = typeId,
+                            ToolTypeId = useType,
+                            ToolProduction = newTool.ToolProduction,
+                            IsDeleted = false
+                        };
+                        if (!string.IsNullOrWhiteSpace(newTool.Img))
+                            tool.Img = newTool.Img;
+                        vfi.Tools.Add(tool);
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Thêm công cụ thất bại! Mã công cụ đã tồn tại !  Vui lòng đặt tên khác!");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertTool", ex.Message);
+            }
+            return View(new GridModel(GetAllTools(typeId, useType, "")));
+        }
+        [GridAction]
+        public ActionResult UpdateTool(ToolModel updateTool) {
+            try {
+                if (string.IsNullOrWhiteSpace(updateTool.ToolCode))
+                    throw new AggregateException("Thêm công cụ thất bại! Thiếu mã công cụ.");
+                //if (string.IsNullOrWhiteSpace(updateTool.ToolMaterial))
+                //    throw new AggregateException("Thêm công cụ thất bại! Thiếu nguyên liệu.");
+                if (string.IsNullOrWhiteSpace(updateTool.ToolDesignNo))
+                    throw new AggregateException("Thêm công cụ thất bại! Thiếu quy cách.");
+                using (var vfi = new tammaContext()) {
+                    //var tool =
+                    //    vfi.Tools.FirstOrDefault(
+                    //        t =>
+                    //        t.ToolCode.Equals(updateTool.ToolCode.Trim()) &&
+                    //        t.ToolMaterial.Equals(updateTool.ToolMaterial.Trim()) &&
+                    //        t.ToolDesignNo.Equals(updateTool.ToolDesignNo.Trim()) &&
+                    //        t.ToolProduction.Equals(updateTool.ToolProduction.Trim()) &&
+                    //        t.ToolId != updateTool.ToolId);
+                    var tool =
+                        vfi.Tools.FirstOrDefault(
+                            t =>
+                            t.ToolCode.Equals(updateTool.ToolCode.Trim()) && t.ToolId != updateTool.ToolId);
+                    if (tool == null) {
+                        tool = vfi.Tools.FirstOrDefault(t => t.ToolId == updateTool.ToolId);
+                        if (tool == null)
+                            throw new AggregateException("Sửa công cụ thất bại! Lỗi!");
+                        updateTool.MaterialTypeId = tool.MaterialTypeId;
+                        updateTool.ToolType = tool.ToolTypeId;
+                        int typeId = 1;
+                        try {
+                            typeId = Convert.ToInt32(updateTool.MaterialTypeName);
+                        }
+                        catch (Exception) {
+                            typeId =
+                                vfi.MaterialTypes.FirstOrDefault(c => c.MaterialTypeName.Equals(updateTool.MaterialTypeName)).MaterialTypeId;
+                        }
+                        var useType = 1;
+                        try {
+                            useType = Convert.ToInt32(updateTool.ToolTypeName);
+                        }
+                        catch (FormatException) {
+                        }
+                        tool.ToolName = updateTool.ToolName + "";
+                        tool.ToolCode = updateTool.ToolCode.Trim();
+                        if (!updateTool.Active && tool.Active != updateTool.Active) {
+                            var toolInvs = vfi.ToolInventories.Where(ti => ti.ToolId == tool.ToolId && ti.TotalQuantity > 0);
+                            if (toolInvs.Any())
+                                throw new AggregateException("Lỗi! Công cụ còn tồn kho! Vui lòng huỷ hết tồn kho trước khi tắt active");
+
+                            tool.Active = updateTool.Active;
+                        }
+                        else {
+                            tool.Active = updateTool.Active;
+                        }
+                        tool.Description = updateTool.Description + "";
+                        tool.ModifiedDate = DateTime.Now;
+                        tool.ModifiedUser = HttpContext.User.Identity.Name;
+                        tool.ToolDesignNo = updateTool.ToolDesignNo.Trim();
+                        tool.ToolMaterial = updateTool.ToolMaterial + "" ;
+                        tool.UnitPrice = 0;
+                        tool.MaterialTypeId = typeId;
+                        tool.ToolTypeId = useType;
+                        tool.ToolProduction = updateTool.ToolProduction + "";
+                        tool.ToolFullCode = updateTool.GetFullToolCode();
+                        tool.IsDeleted = updateTool.IsDeleted;
+                        if (!string.IsNullOrWhiteSpace(updateTool.Img))
+                            tool.Img = updateTool.Img;
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Sửa công cụ thất bại! Mã công cụ đã tồn tại ! Vui lòng đặt tên khác!");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateTool", ex.Message);
+            }
+            return View(new GridModel(GetAllTools(updateTool.MaterialTypeId, updateTool.ToolType, "")));
+        }
+
+        public ActionResult SelectComboBoxTool() {
+            using (var vfi = new tammaContext()) {
+                return new JsonResult {
+                    Data =
+                        new SelectList(vfi.Tools.Where(f => f.Active).ToList(), "ToolId",
+                                       "ToolFullCode")
+                };
+            }
+        }
+
+        [GridAction]
+        public ActionResult SelectChest() {
+            var model = new List<DepartmentModel>();
+            try {
+                model = GetDepartments();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectChest", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        private List<DepartmentModel> GetDepartments() {
+            var model = new List<DepartmentModel>();
+            using (var vfi = new tammaContext()) {
+                var departments = (from t in vfi.Departments
+                                   select t).ToList();
+                foreach (var department in departments) {
+                    var entity = new DepartmentModel {
+                        DepartmentId = department.DepartmentId,
+                        DepartmentName = department.DepartmentName,
+                        Active = department.Active,
+                        ModifiedUser = department.ModifiedUser,
+                        ModifiedDate = department.ModifiedDate,
+                    };
+                    model.Add(entity);
+                }
+            }
+
+            return model.OrderBy(m => m.DepartmentName).ToList();
+        }
+
+        [GridAction]
+        public ActionResult InsertDepartment(DepartmentModel insert) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var department = new Department {
+                        DepartmentName = insert.DepartmentName,
+                        Active = true,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        ModifiedDate = DateTime.Now,
+                    };
+                    vfi.Departments.Add(department);
+
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertDepartment", ex.Message);
+            }
+            return View(new GridModel(GetDepartments()));
+        }
+        [GridAction]
+        public ActionResult UpdateDepartment(DepartmentModel update) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var department = vfi.Departments.FirstOrDefault(c => c.DepartmentId == update.DepartmentId);
+                    if (department == null) {
+                        throw new AggregateException("Không tìm thấy tủ !");
+                    }
+                    department.DepartmentName = update.DepartmentName;
+                    department.Active = update.Active;
+                    department.ModifiedUser = HttpContext.User.Identity.Name;
+                    department.ModifiedDate = DateTime.Now;
+
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateDepartment", ex.Message);
+            }
+            return View(new GridModel(GetDepartments()));
+        }
+
+        public ActionResult SelectComboBoxDepartment() {
+            using (var vfi = new tammaContext()) {
+                return new JsonResult {
+                    Data = new SelectList(vfi.Departments.Where(f => f.Active).ToList(), "DepartmentId", "DepartmentName")
+                };
+            }
+        }
+
+        #endregion
+
+        #region Fuel
+
+
+        public ActionResult SelectComboBoxAllFuel() {
+            using (var vfi = new tammaContext()) {
+                return new JsonResult {
+                    Data =
+                        new SelectList(vfi.Fuels.Where(f => f.Active).Select(entity => new FuelModel {
+                            FuelId = entity.FuelId,
+                            FuelFullCode = entity.FuelFullCode,
+                            FuelName = entity.FuelName
+                        }).ToList(), "FuelId", "FuelFullCode")
+                };
+            }
+        }
+        [GridAction]
+        public ActionResult SelectAllFuel() {
+            var model = GetAllFuels();
+            return View(new GridModel(model));
+        }
+        List<FuelModel> GetAllFuels() {
+            var model = new List<FuelModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    foreach (var fuel in vfi.Fuels) {
+                        var entity = new FuelModel {
+                            FuelId = fuel.FuelId,
+                            FuelName = fuel.FuelName,
+                            FuelCode = fuel.FuelCode,
+                            Active = fuel.Active,
+                            FuelDesctiption = fuel.FuelDesctiption,
+                            FuelDesignNo = fuel.FuelDesignNo,
+                            FuelFullCode = fuel.FuelFullCode,
+                            //Description = Fuel.Description,
+                            ModifiedDate = fuel.ModifiedDate,
+                            ModifiedUser = fuel.ModifiedUser,
+                            UnitWeight = fuel.UnitWeight
+                        };
+                        model.Add(entity);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("GetAllFuels", ex.Message);
+            }
+            return model.OrderBy(m => m.FuelCode).ThenBy(m => m.FuelDesignNo).ToList();
+        }
+
+        [GridAction]
+        public ActionResult InsertFuel(FuelModel newFuel) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var fuel =
+                        vfi.Fuels.FirstOrDefault(
+                            t =>
+                            t.FuelCode.Equals(newFuel.FuelCode.Trim()) &&
+                            t.FuelDesignNo.Equals(newFuel.FuelDesignNo.Trim()));
+                    if (fuel == null) {
+                        fuel = new Fuel {
+                            FuelName = newFuel.FuelName.Trim(),
+                            FuelCode = (newFuel.FuelCode + "").Trim(),
+                            Active = true,
+                            //Description = newFuel.Description,
+                            FuelDesctiption = (newFuel.FuelDesctiption + "").Trim(),
+                            FuelDesignNo = (newFuel.FuelDesignNo + "").Trim(),
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            FuelFullCode = newFuel.GetFuelFullCode(),
+                            UnitPrice = 0,
+                            UnitWeight = newFuel.UnitWeight,
+                        };
+                        vfi.Fuels.Add(fuel);
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Thêm nhiên liệu thất bại! Mã nhiên liệu đã tồn tại !  Vui lòng đặt tên khác!");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertFuel", ex.Message);
+            }
+            return View(new GridModel(GetAllFuels()));
+        }
+        [GridAction]
+        public ActionResult UpdateFuel(FuelModel updateFuel) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var fuel =
+                        vfi.Fuels.FirstOrDefault(
+                            t =>
+                            t.FuelCode.Equals(updateFuel.FuelCode.Trim()) &&
+                            t.FuelDesignNo.Equals(updateFuel.FuelDesignNo.Trim()) &&
+                            t.FuelId != updateFuel.FuelId);
+                    if (fuel == null) {
+                        fuel = vfi.Fuels.FirstOrDefault(t => t.FuelId == updateFuel.FuelId);
+                        if (fuel == null)
+                            throw new AggregateException("Sửa nhiên liệu thất bại! Lỗi!");
+                        fuel.FuelName = updateFuel.FuelName;
+                        fuel.FuelCode = updateFuel.FuelCode.Trim();
+                        if (!updateFuel.Active && fuel.Active != updateFuel.Active) {
+                            var fuelInvs = vfi.FuelInventories.Where(fi => fi.FuelId == fuel.FuelId && fi.TotalQuantity > 0);
+                            if (fuelInvs.Any())
+                                throw new AggregateException("Lỗi! Vui lòng huỷ tồn kho trước khi tắt active");
+                            fuel.Active = updateFuel.Active;
+                        }
+                        fuel.FuelDesctiption = updateFuel.FuelDesctiption;
+                        fuel.FuelDesignNo = updateFuel.FuelDesignNo.Trim();
+                        fuel.FuelFullCode = updateFuel.GetFuelFullCode();
+                        fuel.UnitWeight = updateFuel.UnitWeight;
+                        fuel.ModifiedDate = DateTime.Now;
+                        fuel.ModifiedUser = HttpContext.User.Identity.Name;
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Sửa nhiên liệu thất bại! Mã nhiên liệu đã tồn tại ! Vui lòng đặt tên khác!");
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateFuel", ex.Message);
+            }
+            return View(new GridModel(GetAllFuels()));
+        }
+
+        public ActionResult SelectComboBoxFuel() {
+            using (var vfi = new tammaContext()) {
+                return new JsonResult {
+                    Data = new SelectList(vfi.Fuels.Where(f => f.Active).ToList(), "FuelId", "FuelFullCode"),
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+            }
+        }
+        #endregion
+    }
+}

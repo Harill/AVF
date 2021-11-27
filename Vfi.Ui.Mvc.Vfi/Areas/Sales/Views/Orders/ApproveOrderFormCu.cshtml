@@ -1,0 +1,304 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Duyệt Đơn Hàng ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@{
+    var strSplitOrderDetails = Url.RouteUrl(new { controller = "SalesOrder", action = "SplitOrderDetails" });    
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function gridProduct_onEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+            //alert(e.dataItem['DueDate']);
+            /* var materialCodeName = $(form).find('#MaterialCode');
+            var materialCodeNameData = $(form).find('#MaterialCode').data('tComboBox');
+
+            var customerCodeName = $(form).find('#CustomerCodeName');
+            var customerCodeNameData = $(form).find('#CustomerCodeName').data('tComboBox');
+*/
+            if (mode == 'insert') {
+
+            } else if (mode == 'edit') {
+                //var monthlyDate = e.dataItem['DueDate'];
+                //if (monthlyDate === null)
+                //    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', new Date());
+                //else
+                //    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+                //e.dataItem['DueDate'] = monthlyDate;
+                //var a = e;
+                //alert(e.dataItem['DueDate']);
+                /*materialCodeNameData.reload();
+                materialCodeName.bind('dataBound', function () { // your code 
+                    materialCodeNameData.select(function (item) {
+                        return item.Value == e.dataItem['MaterialId'];
+                    });
+                });
+
+                customerCodeNameData.reload();
+                customerCodeName.bind('dataBound', function () { // your code 
+                    customerCodeNameData.select(function (item) {
+                        return item.Value == e.dataItem['CustomerId'];
+                    });
+                });*/
+            }
+
+        }
+
+        var index = 0;
+        var count = 0;
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            if (dataItem.DetailStatus == 1) {
+                //var btnEdit = document.getElementsByClassName("t-button t-grid-edit t-button-icon");
+                //var btnDelete = document.getElementsByClassName("t-button t-grid-delete t-button-icon");
+                document.getElementsByClassName("t-button t-grid-edit t-button-icon")[index - count].parentNode.innerHTML = "";
+                //document.getElementsByClassName("t-button t-grid-delete t-button-icon")[index - count].parentNode.innerHTML = "";
+                count++;
+            }
+            index++;
+            if (dataItem.StatusColor == 2) {
+                e.row.style.backgroundColor = "#FA5858";
+            }
+        }
+
+        function Grid_OnSave(e) {
+            var value = e.values;
+            var dueDate = value.DueDate;
+            dueDate = $.telerik.formatString('{0:dd/MM/yyyy}', dueDate);
+            var orderId = value.OrderId;
+            e.data = $.extend(e.data, {
+                orderId: orderId,
+                dueDate: dueDate
+            });
+            index = 0;
+            count = 0;
+        }
+
+        function Grid_OnDataBinding(e) {
+            //  var value = e.values;
+
+           index = 0;
+            count = 0;
+        }
+        function Grid_OnDelete() {
+
+            index = 0;
+            count = 0;
+        }
+        
+        function GridDetail_OnSave(e) {
+            var value = e.values;
+            var vfiDueDate = value.VFIDueDate;
+            vfiDueDate = $.telerik.formatString('{0:dd/MM/yyyy}', vfiDueDate);
+            var orderDetailId = value.OrderDetailId;
+            var orderId = value.OrderId;
+            e.data = $.extend(e.data, {
+                orderId: orderId,
+                orderDetailId: orderDetailId,
+                vfiDueDate: vfiDueDate
+            });
+        }
+        function SplitOrderDetails(orderId) {
+            var $detailIds = $("input[name='chkOrderDetailIds']:checked");
+            if ($detailIds.length == 0) {
+                alert("Vui lòng chọn SP nhân bản");
+                return false;
+            }
+            var ids = {};
+            for (var i = 0; i < $detailIds.length; i++) {
+                ids[i] = $detailIds[i].value;
+            }
+            try {
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        orderId: orderId,
+                        orderDetailIds: ids,
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("SplitOrderDetails", "SalesOrder")',
+                    timeout: 20000,
+                    success: function (data) {
+                        //alert(data);
+                        if (data == 1) {
+                            alert("Tách thành công!");
+                            $('#gridProduct').data('tGrid').ajaxRequest();
+                        } else if (data == 0) {
+                            alert("Không tách được đơn hàng");
+                        } else if (data == 2) {
+                            alert("Không được chọn tách tất cả chi tiết");
+                        }
+                        //else if (data == 2) {
+                        //    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                        //    $('#txtTransactionCodeHidden').val(0);
+                        //}
+                    }
+                });
+            } catch (err) { alert("Co Loi !"); }
+            return false;
+        }
+        function GridDetail_OnDataBinding() {
+            index = 0;
+            count = 0;
+        }
+        var index = 0;
+        var count = 0;
+        function GridDetail_OnRowDataBound(e) {
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            if (dataItem.IsProductionManager != 1 ) {
+                //var btnEdit = document.getElementsByClassName("t-button t-grid-edit t-button-icon");
+                //var btnDelete = document.getElementsByClassName("t-button t-grid-delete t-button-icon");
+                e.currentTarget.getElementsByClassName("t-button t-grid-edit t-button-icon")[index - count].parentNode.innerHTML = "";
+                count++;
+            }
+            index++;
+            if (dataItem.StatusColor == 2) {
+                e.row.style.backgroundColor = "#FA5858";
+            }
+        }
+    </script>
+}
+
+<div class="title">Duyệt đơn hàng</div>
+
+              <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridOrder'); ">
+                    <span class='t-icon t-insert'></span>
+                   Làm mới
+                </button>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<OrderModel>()
+            .Name("gridOrder")
+            .DataKeys(key => key.Add(f => f.OrderId).RouteKey("orderId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectOrder", "Orders", new { area = "Sales" })
+                    //.Insert("InsertOrder", "Orders", new { area = "Sales" })
+                                          .Update("ApproveOrder", "Orders", new { area = "Sales" })
+                                          .Delete("CancelOrder", "Orders", new { area = "Sales" }))
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Duyệt").CancelText("Trở lại")
+                        ).Width(50).Title("Duyệt").HtmlAttributes(new { style = "text-align:center" });
+
+                    columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(75).ReadOnly(true)
+                           .Aggregate(agg => agg.Count())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(30).ReadOnly(true);
+                    //columns.Bound(f => f.PoNumber).Width(125).ReadOnly(true);
+                    columns.Bound(f => f.SalesPersonName).Width(75).ReadOnly(true);
+                    columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.Area).Title("Khu vực").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.TotalQuality).Width(75).ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right" })
+                           .ClientTemplate("<#= TotalQuality == null ? 0 :$.telerik.formatString('{0:n0}', TotalQuality) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.DueDate).Width(125)
+                           .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                    columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true)
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+                    columns.Bound(f => f.Note).Title("Ghi Chú").Width(150).ReadOnly(true);
+                    columns.Command(commands => commands.Delete().Text("Huỷ")).Width(50).Title("Huỷ ĐH");
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= OrderId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<OrderDetailModel>()
+                                   .Name("gridTransactionDetail_<#= OrderId #>")
+                                   .DataKeys(key => key.Add(f => f.OrderDetailId).RouteKey("orderDetailId"))
+                                   .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_7">
+            <button class="t-button" id="btnSplit" name="btnSplit" onclick=" SplitOrderDetails('<#= OrderId #>') ">
+                <span class='t-icon t-insert'></span>
+                Tách các đơn hàng đã chọn
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                            .Select("SelectOrderDetailByOrderId", "SalesOrder", new { orderId = "<#= OrderId #>" })
+                                                                            .Update("UpdateOrderDetailByOrderId", "SalesOrder", new { orderId = "<#= OrderId #>" })
+                                   )
+                                   .Columns(columns =>
+                                       {
+                                           columns.Bound(f => f.OrderDetailId).Title("Tách").Width(30)
+                                                  .ClientTemplate("<input type='checkbox' name='chkOrderDetailIds' value='<#= OrderDetailId #>' />")
+                                                  .HtmlAttributes(new { style = "text-align:center" }).ReadOnly(true);
+                                           columns.Command(command =>
+                                                           command.Edit().ButtonType(GridButtonType.Image)
+                                                                  .UpdateText("Sửa").CancelText("Huỷ").Text("Cập Nhật")
+                                               ).Width(30).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                           // columns.Bound(f => f.OrderDetailId);
+                                           // columns.Bound(f => f.OrderId);
+                                           columns.Bound(f => f.IsApprove).Width(40).Title("").ReadOnly(true)
+                                                  .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                                                                  "<#= IsApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='40' width='40'/>");
+                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(75).ReadOnly(true);
+                                           columns.Bound(f => f.PONumber).Title("Lệnh mua").Width(120).ReadOnly(true);
+                                           columns.Bound(f => f.AvailableQty).Width(60).ReadOnly(true).Title("Tồn Kho TP")
+                                                  .HtmlAttributes(new { style = "text-align: right;" })
+                                                  .ClientTemplate("<#= AvailableQty == null ? 0 : $.telerik.formatString('{0:n0}', AvailableQty) #>");
+                                           columns.Bound(f => f.TotalInventory).Width(60).ReadOnly(true).Title("Tổng tồn")
+                                                  .HtmlAttributes(new { style = "text-align: right;" })
+                                                  .ClientTemplate("<#= TotalInventory == null ? 0 : $.telerik.formatString('{0:n0}', TotalInventory) #>");
+                                           columns.Bound(f => f.OrderQty).Width(50).Title("Số lượng").ReadOnly(true)
+                                                  .HtmlAttributes(new { style = "text-align: right;" })
+                                                  .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n0}', OrderQty) #>");
+                                           columns.Bound(f => f.UnitPrice).ReadOnly(true).Width(50)
+                                                  .HtmlAttributes(new { style = "text-align: right;" });
+                                           columns.Bound(f => f.CustomerDueDate).Width(80).Title("KH yêu cầu").Format("{0:dd/MM/yyyy}").ReadOnly(true);
+                                           columns.Bound(f => f.VFIDueDate).Width(80).Title("Ngày giao được")
+                                                  .ClientTemplate("<#= VFIDueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', VFIDueDate) #>");
+                                           columns.Bound(f => f.Note).Title("Ghi chú").Width(150).ReadOnly(true);
+                                           //columns.Command(commands => commands.Delete().Text("Tách")).Width(50).Title("Tách ĐH");
+                                           //columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                                           //       .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                                           //       .HtmlAttributes(new { style = "text-align:center" });
+                                       })
+                                   .ClientEvents(events => events
+                                       .OnRowDataBound("GridDetail_OnRowDataBound")
+                                                               .OnSave("GridDetail_OnSave")
+                                                               .OnDataBinding("GridDetail_OnDataBinding")
+                                   )
+                                   .Scrollable(f => f.Height("auto"))
+                                   .Resizable(f => f.Columns(true))
+
+                                   .ToHtmlString()
+                               )
+
+                    )
+                //.ClientEvents(events => events. ("gridProduct_onEdit"))
+                    .ToHtmlString()
+                                       ))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnEdit("gridProduct_onEdit")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnRowDataBound("grid_OnRowDataBound")
+                                          .OnSave("Grid_OnSave")
+                                          .OnDelete("Grid_OnDelete")
+                                          .OnDataBinding("Grid_OnDataBinding"))
+            //.Pageable(page => page.PageSize(7))
+                .Scrollable(f => f.Height(510))
+            //.HtmlAttributes(new {style = "width: 950px;"})
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();
+    }
+</div>

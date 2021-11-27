@@ -1,0 +1,267 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Duyệt luân chuyển kho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Scripts{
+    <!-- approve stockorder -->
+    <script type="text/javascript">
+        function ApproveTransaction() {
+            $("#btnApproveTransaction").attr('disabled', 'disabled');
+
+            var $checkedRecords = $("input[name='chkTransactionIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+            $.post('@Url.Action("ApproveTransactionForProduct", "Transaction")',
+                {
+                    //checkedRecords: $checkedRecords.map(function () { return value; })
+                    checkedRecords: $checkedRecords.eq(0).val()
+                },
+                function(data) {
+
+                    if (data === "okie") {
+                        RefreshGrid("gridTransaction");
+                    } else
+                        alert(data);
+                });
+            $("#btnApproveTransaction").removeAttr('disabled');
+        }
+
+        var indexSignature1 = 0;
+        var countSignature1 = 0;
+
+        var index1 = 0;
+        var count1 = 0;
+
+        function Grid_OnRowDataBound(e) {
+            var color = e.dataItem.AlertColor;
+            if (color == 1)
+                e.row.style.backgroundColor = "#F4FA58";
+            else if (color == 2)
+                e.row.style.backgroundColor = "#FA5858";
+            // chu ky nhap GCN
+            //var dataItem = e.dataItem;
+            //if (dataItem.PurchasingSignatureType == 0) {
+            //    document.getElementsByClassName("t-button purchasing")[indexSignature1 - countSignature1].parentNode.innerHTML = "<span class='t-icon t-cancel'></span>";
+            //    document.getElementsByClassName("chkCheck")[index1 - count1].parentNode.innerHTML = "";
+            //    countSignature1++;
+            //    count1++;
+            //} else if (dataItem.PurchasingSignatureType == 1) {
+            //    document.getElementsByClassName("t-button purchasing")[indexSignature1 - countSignature1].parentNode.innerHTML = "<span class='t-icon t-insert'></span>";
+            //    countSignature1++;
+            //} else if (dataItem.PurchasingSignatureType == 2) {
+            //    document.getElementsByClassName("chkCheck")[index1 - count1].parentNode.innerHTML = "";
+            //    count1++;
+            //} else {
+            //    document.getElementsByClassName("t-button purchasing")[indexSignature1 - countSignature1].parentNode.innerHTML = "";
+            //    countSignature1++;
+            //}
+            //indexSignature1++;
+            //index1++;
+        }
+
+        function PrintForm(val) {
+            //alert(val);
+            $('#result').load('@Url.Action("PrintTransactionForm", "Inv")',
+                {
+                    transactionId: val
+                }, function() {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+    </script>
+
+    <!-- grid Transaction -->
+    <script type="text/javascript">
+
+        function gridTransaction_onDataBinding(args) {
+            var txtTransactionCodeSearch = $("#txtTransactionCodeSearch").val();
+
+            args.data = $.extend(args.data, {
+                status: Number("@((byte) MyUtilities.Transaction.Status.Open)"),
+                transactionCode: txtTransactionCodeSearch,
+                mop: false
+            });
+            indexSignature1 = 0;
+            countSignature1 = 0;
+            index1 = 0;
+            count1 = 0;
+        }
+        function ImportNcuSignature(transactionId) {
+            $.ajax({
+                type: 'post',
+                data: { transactionId: transactionId },
+                dataType: 'json',
+                url: '@Url.Action("ImportNcuSignature", "Transaction", new {area = "Inv"})',
+                timeout: 20000,
+                success: function(data) {
+                    if (data == 9)
+                        alert("Lỗi không tìm thấy phiếu !");
+                    else {
+                        alert("Thêm chữ ký thành công !");
+                        RefreshGrid("gridTransaction");
+                        indexSignature1 = 0;
+                        countSignature1 = 0;
+                        index1 = 0;
+                        count1 = 0;
+                    }
+                }
+            });
+            return false;
+        }
+
+    </script>
+
+}
+
+    <div class="title">Duyệt phiếu xuất nhập thành phẩm</div>
+
+    <div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Sổ lệnh</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionModel>()
+            .Name("gridTransaction")
+            .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("transactionId"))
+            .ToolBar(bar => bar.Template(
+                @<text>
+                    
+                     <div class="grid_7">
+                         <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
+                             <span class='t-icon t-insert'></span>
+                             Duyệt các sổ lệnh
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectTransactionByStatus", "Transaction",
+                                                             new { status = (byte)MyUtilities.Transaction.Status.Open, transactionCode = "", mop = false })
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.TransactionId).Title("Chọn").Width(50)
+                           .ClientTemplate("<input type='radio' name='chkTransactionIds' class='chkCheck' value='<#= TransactionId #>' />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.TransactionCode);
+                    columns.Bound(f => f.CreatedDate).Title("Ngày báo cáo").Width(100)
+                           .ClientTemplate("<strong><#= CreatedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', CreatedDate) #></strong>");
+                    //columns.Bound(f => f.StockOrderCode);
+                    columns.Bound(f => f.WarehouseIssueName);
+                    columns.Bound(f => f.WarehouseReceiptName);
+                    columns.Bound(f => f.TotalQuality).Title("Tổng SL")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right" });
+                    //columns.Bound(f => f.EoI).ClientTemplate("<#= EoI ? 'Xuất' : 'Nhập' #>");
+                    columns.Bound(f => f.EoIName);
+                    columns.Bound(f => f.StatusName);
+                    columns.Bound(f => f.CreatedUser);
+                    columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100)
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
+                    columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                           .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                })
+            .DetailView(details => details.ClientTemplate(
+
+                //Html.Telerik().TabStrip()
+                //    .Name("TabStrip_<#= TransactionId #>")
+                //    .SelectedIndex(0)
+                //    .Items(items =>
+
+                //           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<TransactionDetailModel>()
+                                   .Name("gridTransactionDetail_<#= TransactionId #>")
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                            .Select("SelectTransactionDetailByTransactionId", "Transaction",
+                                                                                    new { transactionId = "<#= TransactionId #>" }))
+                                   .Columns(columns =>
+                                       {
+                                           columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50);
+                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100);
+                                           columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50);
+                                           columns.Bound(f => f.AvailableQuantity).Width(75).Title("Tồn kho")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n0}");
+                                           columns.Bound(f => f.Quantity).Width(75).Title("SL (PCS)")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n0}").Aggregate(agg => agg.Sum())
+                                                  .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                                                  .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                                           columns.Bound(f => f.QuantityKg).Width(75).Title("SL (g)")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n0}")
+                                                  .Aggregate(agg => agg.Sum())
+                                                  .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                                                  .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                                           columns.Bound(f => f.Note).Title("Ghi chú");
+                                           columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu");
+                                           columns.Bound(f => f.MaterialTypeName).Width(75).Title("Loại");
+                                           columns.Bound(f => f.Identity).Width(50).Title("Code");
+                                       })
+                                       .Groupable()
+                                   .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()))
+            //.ToHtmlString()
+            //                   ))
+            .Selectable()
+            .ClientEvents(events => events
+                                        .OnRowSelect("grid_OnRowSelect")
+                                        .OnDataBinding("gridTransaction_onDataBinding")
+                                        .OnRowDataBound("Grid_OnRowDataBound")
+                                        .OnError("grid_OnError"))
+            //.Pageable(f=>f.PageSize(5))
+            .Render();
+    }
+</div>
+
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

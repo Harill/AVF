@@ -1,0 +1,305 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@model OrderModel
+@{
+    ViewBag.Title = "Tạo hóa đơn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">             
+            function customer_onChange() {
+            var customerId = $(this).data('tComboBox').value();
+
+            $.ajax({
+                type: 'post',
+                data: { customerId: customerId },
+                dataType: 'json',
+                url: '@Url.Action("GetCustomerTaxInvoiceById", "SalesOrder")',
+                timeout: 20000,
+                success: function(data) {
+                    if (data == '-9') {
+                        alert("Lỗi! Không tìm thấy khách hàng ! Liên hệ admin");
+                    } else if (data == '-1') {
+                        alert("Lỗi!");
+                    } else {
+                        $("#CurrencyCode").val(data.CurrencyCode);
+                        $("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = data.CurrencyCode;
+
+                        $("#ExchangeRate").val(data.ExchangeRate);
+                        $("#ExchangeRate").data("tTextBox").$text[0].innerHTML = data.ExchangeRate;
+                        $("#Tax").val(data.Tax);
+                        $("#Tax").data("tTextBox").$text[0].innerHTML = data.Tax;
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+  
+    <script type="text/javascript">
+
+        var Quantity = {};
+        var unitPrice = 0.0;
+        var productIds = {};
+        productIds[0] = 0;
+
+        function grid_OnSave(e) {
+            // bind data
+            var $productCode = $(e.cell).find('#ProductCode');
+
+            if ($productCode.length > 0) {
+                var productCode = $productCode.data("tComboBox"),
+                    productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+                if (productCodeSelectItem) {
+                    e.values["ProductCode"] = productCodeSelectItem.Text;
+                    e.values["ProductId"] = productCodeSelectItem.Value;
+                    var flag = true;
+                    for (var obj in productIds) {
+                        if (obj == productCodeSelectItem.Value) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag == true) {
+                        productIds[productCodeSelectItem.Value] = productCodeSelectItem.Value;
+                    } else {
+                        //e.preventDefault();
+                        alert("đã tồn tại sản phẩm trong danh sách");
+                    }
+                    productId = productCodeSelectItem.Value;
+                    $.ajax({
+                        type: 'post',
+                        data: { productId: productCodeSelectItem.Value },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductUnitPrice", "SalesOrder", new {area = "Sales"})',
+                        timeout: 20000,
+                        success: function(data) {
+                            if (data == '-9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm ! Liên hệ admin");
+                            } else if (data == '-1') {
+                                alert("Lỗi!");
+                            } else {
+                                e.cell.parentElement.childNodes[1].textContent = data[0];
+                                e.dataItem.UnitPrice = data[0];
+                            }
+                        }
+                    });
+
+                }
+            }
+
+
+            var quantity = $(e.cell).find('#Quantity').val();
+            if (!isNaN(parseInt(quantity))) {
+                //tong so luong
+                var sumQuantity = 0;
+                var spanQuantitys = $("span[name='Quantity']");
+                for (var i = 0; i < spanQuantitys.length; i++) {
+                    var innerText = spanQuantitys[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumQuantity = sumQuantity + parseInt(innerText);
+                }
+                sumQuantity = sumQuantity + parseInt(quantity);
+                $("#TotalQuantity").text(sumQuantity.format(0));
+
+                var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+                var tax = $("#Tax").val();
+                var exchangeRate = $("#ExchangeRate").val();
+                // tong tien
+                var sumAmount = 0;
+                var spanAmounts = $("span[name='Amount']");
+                for (i = 0; i < spanAmounts.length; i++) {
+                    innerText = spanAmounts[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumAmount = sumAmount + parseFloat(innerText);
+                }
+                sumAmount = sumAmount - e.dataItem.Amount + (parseInt(quantity) * e.dataItem.UnitPrice);
+                e.dataItem.Amount = parseInt(quantity) * e.dataItem.UnitPrice;
+                //tong tien vnd
+                var sumAmountVnd = 0;
+                var spanAmountVnds = $("span[name='AmountVnd']");
+                for (i = 0; i < spanAmountVnds.length; i++) {
+                    innerText = spanAmountVnds[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumAmountVnd = sumAmountVnd + parseFloat(innerText);
+                }
+                sumAmountVnd = sumAmountVnd - e.dataItem.AmountVnd +
+                    e.dataItem.Amount * exchangeRate * (1 + (tax / 100));
+                e.dataItem.AmountVnd = e.dataItem.Amount * exchangeRate * (1 + (tax / 100));
+                if (currencyCode == "VND") {
+                    e.cell.parentNode.childNodes[3].childNodes[0].textContent =
+                        e.dataItem.Amount.format(0);
+                    $("#TotalAmount").text(sumAmount.format(0));
+                } else {
+                    e.cell.parentNode.childNodes[3].childNodes[0].textContent =
+                        e.dataItem.Amount.format(2);
+                    $("#TotalAmount").text(sumAmount.format(2));
+                }
+                e.cell.parentNode.childNodes[4].childNodes[0].textContent =
+                    e.dataItem.AmountVnd.format(0);
+                $("#TotalAmountVnd").text(sumAmountVnd.format(0));
+            }
+        }
+
+        function grid_OnSubmitChanges(e) {
+            var customerId = $('#cboCustomer').data('tComboBox').value(),
+                taxInvoiceCode = $("#TaxInvoiceCode").val(),
+                currencyCode = $('#CurrencyCode').data('tDropDownList').value(),
+                tax = $("#Tax").val(),
+                exchangeRate = $("#ExchangeRate").val();
+
+            var taxInvoiceDate = $("#TaxInvoiceDate").data("tDatePicker").value();
+            if (taxInvoiceDate === null)
+                taxInvoiceDate = "";
+            else
+                taxInvoiceDate = $.telerik.formatString('{0:dd/MM/yyyy}', taxInvoiceDate);
+            e.values = $.extend(e.values,
+                {
+                    customerId: customerId,
+                    taxInvoiceCode: taxInvoiceCode,
+                    taxInvoiceDate: taxInvoiceDate,
+                    currencyCode: currencyCode,
+                    tax: tax,
+                    exchangeRate: exchangeRate
+                }
+            );
+            productIds = {};
+        }
+
+    </script>
+}
+
+    <div class="title">Tạo phiếu</div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+        <fieldset>
+            <legend>Thông tin phiếu</legend>
+        
+            <div class="grid_3">@Html.LabelFor(f => f.CustomerCodeName)</div>
+            <div class="grid_8">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("cboCustomer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
+                        .HtmlAttributes(new {style = "width: 250px"})
+                        .DropDownHtmlAttributes(new {style = "width: 325px;"})
+                        .ClientEvents(events => events.OnChange("customer_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+        
+       
+            <div class="grid_1"></div>
+
+            <div class="grid_3">Ngày lập HĐ</div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("TaxInvoiceDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+            
+        <div class="clear"></div>
+        <!-- -->
+            <div class="grid_4">Số hóa đơn</div>
+            <div class="grid_4">@Html.LabelFor(f => f.CurrencyCode)</div>
+        <div class="grid_3">Thuế</div>
+        <div class="grid_3">Tỉ giá</div>
+        <div class="clear"></div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("TaxInvoiceCode")
+                        .DropDownHtmlAttributes(new {style = "width: 200px"})
+                        .Render();
+                }
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("CurrencyCode")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                        .DropDownHtmlAttributes(new {style = "width: 200px"})
+                        .Render();
+                }
+            </div>
+        <div class="grid_3">   @{
+                Html.Telerik().IntegerTextBox()
+                    .Name("Tax")
+                    .Value(0)
+                    .InputHtmlAttributes(new { style = "width: 50px" })
+                    .MinValue(0)
+                    .Render();
+            }</div>
+        <div class="grid_3">   @{
+                Html.Telerik().IntegerTextBox()
+                    .Name("ExchangeRate")
+                    .Value(1)
+                    .InputHtmlAttributes(new { style = "width: 50px" })
+                    .MinValue(1)
+                    .Render();
+            }</div>
+        <div class="clear"></div>
+
+        </fieldset>
+    </div>
+    <div class="clear"></div>
+<br />
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InvoiceDetailTempModel>()
+            .Name("gridTaxInvoiceProduct")
+            .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm SP mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectTaxInvoiceProduct", "SalesOrder")
+                                                     .Update("UpdateTaxInvoiceProduct", "SalesOrder")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ProductCode).Width(300).Title("Sản phẩm");
+                    columns.Bound(f => f.UnitPrice).Width(100).Title("Đơn giá")
+                           .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.Quantity).Width(85).Title("Số lượng")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .ClientTemplate("<span name='Quantity'><#= $.telerik.formatString('{0:n0}', Quantity) #></span>")
+                           .FooterTemplate("<span id='TotalQuantity'></span>")
+                           .FooterHtmlAttributes(new {style = "text-align: right;"})
+                        ;
+                    columns.Bound(f => f.Amount).Width(85).ReadOnly(true).Title("Thành tiền")
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .ClientTemplate("<span name='Amount'><#= Amount #></span>")
+                           .FooterTemplate("<span id='TotalAmount'></span>")
+                           .FooterHtmlAttributes(new {style = "text-align: right;"})
+                        ;
+                    columns.Bound(f => f.AmountVnd).Width(100).ReadOnly(true).Title("Thành tiền(VND)+Tax")
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .ClientTemplate("<span name='AmountVnd'><#= AmountVnd #></span>")
+                           .FooterTemplate("<span id='TotalAmountVnd'></span>")
+                           .FooterHtmlAttributes(new {style = "text-align: right;"})
+                        ;
+                    columns.Bound(f => f.Note);
+                    columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                })
+            .ClientEvents(events => events
+                                        .OnSave("grid_OnSave")
+                                        .OnSubmitChanges("grid_OnSubmitChanges")
+                                        .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            //.Footer(false)
+            .Render();
+    }
+</div>

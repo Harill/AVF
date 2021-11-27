@@ -1,0 +1,131 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "Quản lý sản phẩm (tổng hợp)";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<script type="text/javascript">
+    function gridProduct_onEdit(e) {
+        var mode = e.mode;
+        var form = e.form;
+
+        var materialCodeName = $(form).find('#MaterialCode');
+        var materialCodeNameData = $(form).find('#MaterialCode').data('tComboBox');
+
+        var customerCodeName = $(form).find('#CustomerCodeName');
+        var customerCodeNameData = $(form).find('#CustomerCodeName').data('tComboBox');
+
+        if (mode == 'insert') {
+
+        }
+        else if (mode == 'edit') {
+            materialCodeNameData.reload();
+            materialCodeName.bind('dataBound', function () { // your code 
+                materialCodeNameData.select(function (item) {
+                    return item.Value == e.dataItem['MaterialId'];
+                });
+            });
+
+            customerCodeNameData.reload();
+            customerCodeName.bind('dataBound', function () { // your code 
+                customerCodeNameData.select(function (item) {
+                    return item.Value == e.dataItem['CustomerId'];
+                });
+            });
+        }
+    }
+
+    function gridProduct_OnError(args) {
+        if (args.textStatus == "modelstateerror" && args.modelState) {
+            var message = "Errors:\n";
+            $.each(args.modelState, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            args.preventDefault();
+            alert(message);
+        }
+    }
+</script>
+}
+
+<div class="title">Quản lý thông tin sản phẩm</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProductModel>()
+        .Name("gridProduct")
+        .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                                      .Select("SelectProduct", "Product", new {area = "", active = false, productName = ""})
+                                      //.Insert("InsertProduct", "Product", new {area = ""})
+                                      //.Update("UpdateProduct", "Product", new {area = ""})
+                                      )
+        .Columns(columns =>
+            {
+                columns.Command(command =>
+                                command.Edit().ButtonType(GridButtonType.ImageAndText)
+                    ).Width(98).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
+
+                columns.Bound(f => f.CustomerCodeName).Width(200)
+                       .ClientTemplate("<strong><#= CustomerCodeName #></strong>");
+
+                columns.Bound(f => f.DesignNo).Width(100);
+                columns.Bound(f => f.ProductName).Width(100);
+                columns.Bound(f => f.ProductCode).Width(100)
+                       .ClientTemplate("<strong><#= ProductCode #></strong>");
+
+                columns.Bound(f => f.MaterialCode).Width(175)
+                       .ClientTemplate("<strong><#= MaterialCode #></strong>");
+
+                columns.Bound(f => f.Diameter).Width(50)
+                       .HeaderTemplate("Đường</br>kính");
+                columns.Bound(f => f.Length).Width(50)
+                       .HeaderTemplate("Chiều</br>Dài");
+                columns.Bound(f => f.Weight).Width(50)
+                       .HeaderTemplate("Trọng</br>lượng");
+                columns.Bound(f => f.UnitPrice).Width(50)
+                       .HeaderTemplate("Đơn</br>giá");
+                //.ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>")
+                ;
+                columns.Bound(f => f.ForecastsQuality).Width(70)
+                       .HeaderTemplate("Dự báo</br>SX");
+                columns.Bound(f => f.ProductionWeight).Width(70)
+                       .HeaderTemplate("Trọng lượng</br>SX");
+                columns.Bound(f => f.ProductionRate).Width(70)
+                       .HeaderTemplate("Định mức SP</br>(pcs/cây)");
+                columns.Bound(f => f.OutsideProcessWeight).Width(70)
+                       .HeaderTemplate("Trọng lượng</br>GCN");
+                columns.Bound(f => f.Productivity).Width(70)
+                       .HeaderTemplate("Năng suất SX</br>(giây/con)");
+
+
+                columns.Bound(f => f.MaterialId).Width(98).Hidden(true);
+                columns.Bound(f => f.CustomerId).Width(98).Hidden(true);
+
+
+                columns.Bound(f => f.Active).Width(75)
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                       .HtmlAttributes(new {style = "text-align:center"});
+
+            })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(events => events.OnEdit("gridProduct_onEdit").OnError("gridProduct_OnError"))
+        //.Pageable(page => page.PageSize(7))
+        .Scrollable(f => f.Height(500))
+        .Sortable()
+        .Resizable(f => f.Columns(true))
+        .Reorderable(f => f.Columns(true))
+        .Filterable()
+        .Resizable(resizing => resizing.Columns(true))
+        .Render();
+}
+</div>

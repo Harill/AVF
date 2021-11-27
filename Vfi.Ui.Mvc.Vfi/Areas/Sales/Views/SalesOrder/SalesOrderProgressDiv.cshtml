@@ -1,0 +1,299 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model List<ProductState>
+<script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script><script type="text/javascript">
+    $(function() {
+        var $container = $("#container");
+        $container.isotope({
+            itemSelector: '.element',
+        });
+        $container.delegate('.element', 'click', function() {
+            $(this).toggleClass('large');
+            $container.isotope('reLayout');
+        });
+    });
+</script>
+
+
+<style media="screen,print">
+    .element {
+    }
+    .isotope-item {
+        z-index: 2;
+    }
+    .isotope-hidden.isotope-item {
+        pointer-events: none;
+        z-index: 1;
+    }
+    .isotope,
+    .isotope .isotope-item {
+        -webkit-transition-duration: 0.8s;
+        -moz-transition-duration: 0.8s;
+        -ms-transition-duration: 0.8s;
+        -o-transition-duration: 0.8s;
+        transition-duration: 0.8s;
+    }
+    .isotope {
+        -webkit-transition-property: height, width;
+        -moz-transition-property: height, width;
+        -ms-transition-property: height, width;
+        -o-transition-property: height, width;
+        transition-property: height, width;
+    }
+    .isotope .isotope-item {
+        -webkit-transition-property: -webkit-transform, opacity;
+        -moz-transition-property:    -moz-transform, opacity;
+        -ms-transition-property:     -ms-transform, opacity;
+        -o-transition-property:      -o-transform, opacity;
+        transition-property:         transform, opacity;
+    }
+
+    .entity.machine {
+        background: #F00;
+        background: hsl( 0, 100%, 50%);
+    }
+    #revok1 {
+        background-size:cover;
+        background-position:center;
+    }
+    .entity * {margin: 0;}
+    .entity .name {
+        left: 0.5em;        bottom: 1.6em;        font-size: 1.05em;    }
+    .clickable .entity:hover {
+        cursor: pointer;
+        border: 1px aquamarine;
+    }    .clickable .entity:hover h3 {
+        text-shadow:0 0 10px white,0 0 10px white;
+    }    /*a:hover{
+        text-shadow:0 0 10px white,0 0 10px white;
+        font-size: 14px;
+    }*/    .clickable .entity:hover h1 {
+        text-shadow:0 0 5px white,0 0 5px white;
+        font-weight: bold;
+        font-size: 17px;
+    }
+    .clickable .entity:hover h2 {color: white;}
+
+    .entity {
+        width: 99%;
+        height: 80px;
+        margin: 5px;        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .entity.large{
+        width: 100%;
+        height: 210px;
+        z-index: 100;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .itemInfo {
+        width:100%;
+        display:block;
+    }
+    .itemLeft {
+        text-align: left;
+    }
+    .itemRight {
+        text-align: Right;
+    }
+    .column {
+        text-align: Right;
+    }
+</style>
+<style>
+
+    @@-webkit-keyframes progress-bar-stripes {
+        from {
+                 background-position: 40px 0;
+             }
+        to {
+               background-position: 0 0;
+           }
+    }
+    @@-o-keyframes progress-bar-stripes {
+        from {
+                 background-position: 40px 0;
+             }
+        to {
+               background-position: 0 0;
+           }
+    }
+    @@keyframes progress-bar-stripes {
+        from {
+                 background-position: 40px 0;
+             }
+        to {
+               background-position: 0 0;
+           }
+    }
+    .progress {
+        height: 20px;
+        margin-bottom: 2px;
+        overflow: hidden;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+    }
+    .progress-bar {
+        float: left;
+        width: 0;
+        height: 100%;
+        font-size: 12px;
+        line-height: 20px;
+        font-weight: bold;
+        /*color: #fff;*/
+        text-align: center;
+        background-color: #337ab7;
+        -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+        -webkit-transition: width .6s ease;
+        -o-transition: width .6s ease;
+        transition: width .6s ease;
+    }
+    .progress-striped .progress-bar,
+    .progress-bar-striped {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        -webkit-background-size: 40px 40px;
+        background-size: 40px 40px;
+    }
+    .progress.active .progress-bar,
+    .progress-bar.active {
+        -webkit-animation: progress-bar-stripes 2s linear infinite;
+        -o-animation: progress-bar-stripes 2s linear infinite;
+        animation: progress-bar-stripes 2s linear infinite;
+    }
+    .progress-bar-success {
+        background-color: #5cb85c;
+    }
+    .progress-striped .progress-bar-success {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    }
+    .progress-bar-info {
+        background-color: #5bc0de;
+    }
+    .progress-striped .progress-bar-info {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    }
+    .progress-bar-warning {
+        background-color: #f0ad4e;
+    }
+    .progress-striped .progress-bar-warning {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    }
+    .progress-bar-danger {
+        background-color: #d9534f;
+    }
+    .progress-striped .progress-bar-danger {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    }
+</style>
+
+  
+<div id='container' class="clickable clearfix isotope" style="position: relative; overflow: hidden; 
+                                       height: auto; width: 100%;
+                                       float: left;padding-right: 5px">
+   
+    @{
+        foreach (var entity in Model)
+        {
+            <div class='element entity   isotope-item'  id="revok" data-symbol="1" data-category="CNC" 
+                 style="position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
+                <div style="width: 100%; height: 80px; display: block;">
+                    <div style="height: 20px; text-align: center"><b>@entity.CustomerCode -  @entity.ProductCode</b></div>
+               
+                    @{
+                        foreach (var detail in entity.Details)
+                        {
+                            <div style="float: left; width: @entity.Width">
+                                <div style="height: 20px; width: 100%;border-left: 1px solid black;border-right: 1px solid black;">
+                                    <div style="float: left; padding-left: 5px;">@detail.StartDateString</div>
+                                    <div style="float: right; padding-right: 5px;">@detail.OrderDueDateString</div>
+                                </div>
+                                @*<div class="clear"></div>*@
+                                <div class="progress" style="@detail.RedAltert">
+                                    <div class="progress-bar @detail.TypeString progress-bar-striped active"  
+                                         role="progressbar" aria-valuenow="@detail.Percent" aria-valuemin="0" 
+                                         aria-valuemax="100" style="width: @detail.Percent%;">
+                                        TP:@detail.WarehouseInvString
+                                    </div>
+                                </div>
+                                <div style="height: 20px; width: 100%;">
+                                    <div style="float: left; padding-left: 5px;">Tồn tổng:<b>@detail.TotalInvString</b></div>
+                                    <div style="float: right; padding-right: 5px;">Đơn hàng:<b>@detail.OrderQuantityString</b></div>
+                                </div>
+                            </div>
+                        }
+                    }   
+                </div>
+
+                <div style="width: 100%; height: 100%; display: block; padding-top: 5px;">
+                    
+                    @{
+                        foreach (var detail in entity.Details)
+                        {
+                    <div style="float: left; width: @entity.Width">
+                        @{
+                            Html.Telerik().Grid<OrderProgressDetailModel>()
+                                .Name("gridInventory" + @detail.OrderDetailId)
+                                .DataKeys(key => key.Add(f => f.OrderDetailId).RouteKey("orderDetailId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectSalesOrderProgressDetail", "SalesOrder", new { area = "Sales", orderDetailId = @detail.OrderDetailId })
+                                                              //.Update("UpdateSalesOrderProgressDetail", "SalesOrder", new { area = "Sales", orderDetailId = @detail.OrderDetailId })
+                                )
+                                .Columns(columns =>
+                                {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(30).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.ProcessName).Width(85)
+                                               .Title("Kho");
+                                        columns.Bound(f => f.WarehouseInv).Width(85).ReadOnly(true)
+                                               .Title("SL tồn kho")
+                                               .Format("{0:n0}")
+                                               .HtmlAttributes(new { style = "text-align:right;" });
+                                        columns.Bound(f => f.StartDate).Width(85).Title("BĐ")
+                                               .Format("{0:dd/MM/yyyy}");
+                                        columns.Bound(f => f.CompleteDate).Width(85).Title("KT")
+                                               .Format("{0:dd/MM/yyyy}");
+                                        columns.Bound(f => f.OrderRequired).Width(85).ReadOnly(true)
+                                               .Format("{0:n0}")
+                                               .Title("SL");
+                                    })
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                //.HtmlAttributes(new {style = "width: 950px;"})
+                                //.Resizable(resizing => resizing.Columns(true))
+                                .Footer(false)
+                                .Render();
+                        }
+                    </div>
+                        }
+                    }   
+                </div>
+
+            </div>
+
+        }
+    }
+    
+    </div>
+    <div class="clear"></div><br/>

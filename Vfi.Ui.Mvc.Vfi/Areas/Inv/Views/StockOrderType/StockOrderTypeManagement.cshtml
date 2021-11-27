@@ -1,0 +1,40 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "StockOrderTypeManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Thông tin các loại trình đơn</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<StockOrderTypeModel>()
+        .Name("gridStockOrderType")
+        .DataKeys(key => key.Add(f => f.StockOrderTypeId).RouteKey("stockOrderTypeId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectStockOrderType", "StockOrderType")
+                .Insert("InsertStockOrderType", "StockOrderType")
+                .Update("UpdateStockOrderType", "StockOrderType"))
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.StockOrderTypeName);
+            columns.Bound(f => f.EoI).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='EoI' <#=EoI? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        //.Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Render();
+}
+</div>

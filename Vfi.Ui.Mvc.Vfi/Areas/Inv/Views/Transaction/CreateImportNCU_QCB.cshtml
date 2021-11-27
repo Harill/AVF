@@ -1,0 +1,476 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models
+@model ImportNCU_QCB
+@{
+    ViewBag.Title = "Nhập GCN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <style>
+        .highslide-container div {
+            font-family: Verdana, Helvetica;
+            font-size: 10pt;
+        }
+        .highslide-container table {
+            background: none;
+        }
+        .highslide {
+            outline: none;
+            text-decoration: none;
+        }
+        .highslide img {
+            border: 2px solid silver;
+        }
+        .highslide:hover img {
+            border-color: gray;
+        }
+        .highslide-active-anchor img {
+            visibility: hidden;
+        }
+        .highslide-gallery .highslide-active-anchor img {
+            border-color: black;
+            visibility: visible;
+            cursor: default;
+        }
+        .highslide-image {
+            border-width: 2px;
+            border-style: solid;
+            border-color: white;
+        }
+        .highslide-wrapper, .highslide-outline {
+            background: white;
+        }
+        .glossy-dark {
+            background: #111;
+        }
+
+        .highslide-image-blur {
+        }
+        .highslide-number {
+            display: none;
+            font-weight: bold;
+            color: gray;
+            font-size: .9em;
+        }
+        .highslide-caption {
+            display: none;
+            font-size: 1em;
+            padding: 5px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            /*background: white;*/
+        }
+        .highslide-heading {
+            display: none;
+            font-weight: bold;
+            margin: 0.4em;
+        }
+        .highslide-dimming {
+            /*position: absolute;*/
+            background: black;
+        }
+        a.highslide-full-expand {
+            display: block;
+            margin: 0 10px 10px 0;
+            width: 34px;
+            height: 34px;
+        }
+        .highslide-loading {
+            display: block;
+            color: black;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 3px;
+            border: 1px solid white;
+            background-color: white;
+            padding-left: 22px;
+            background-repeat: no-repeat;
+            background-position: 3px 1px;
+        }
+        a.highslide-credits,
+        a.highslide-credits i {
+            padding: 2px;
+            color: silver;
+            text-decoration: none;
+            font-size: 10px;
+            display: none;
+        }
+        a.highslide-credits:hover,
+        a.highslide-credits:hover i {
+            color: white;
+            background-color: gray;
+        }
+        .highslide-move, .highslide-move * {
+            cursor: move;
+        }
+
+        .highslide-viewport {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: none;
+            left: 0;
+            top: 0;
+        }
+        .highslide-overlay {
+            display: none;
+        }
+        .hidden-container {
+            display: none;
+        }
+/* Example of a semitransparent, offset closebutton */
+        .closebutton {
+            position: relative;
+            top: -15px;
+            left: 15px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+        }
+        .highslide-controls {
+            display: none 
+        }
+
+    </style>
+
+    <script type="text/javascript">
+        hs.graphicsDir = '';
+        hs.align = 'center';
+        hs.transitions = ['expand', 'crossfade'];
+        hs.outlineType = '';
+        hs.fadeInOut = true;
+        hs.numberPosition = 'caption';
+        hs.dimmingOpacity = 0.75;
+
+        // Add the controlbar
+        if (hs.addSlideshow)
+            hs.addSlideshow({
+                //slideshowGroup: 'group1',
+                interval: 5000,
+                repeat: false,
+                useControls: true,
+                fixedControls: 'fit',
+                overlayOptions: {
+                    opacity: .75,
+                    position: 'bottom center',
+                    hideOnMouseOut: true
+                }
+            });
+    </script>
+
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        function grid_OnDataBound(args) {
+            //GenCode();
+            $("#BoxNumber").val(0);
+
+        }
+
+        function grid_onEdit(e) {
+
+            var dataItem = e.dataItem;
+            var mode = e.mode;
+            var form = e.form;
+
+            var lineTotal = $(form).find("#LineTotal").data("tTextBox");
+            if (mode == 'insert') {
+            }
+            if (mode == 'edit') {
+            }
+            dataItem.LineTotal = dataItem.OrderQty * dataItem.UnitPrice;
+            if (lineTotal != null) {
+                lineTotal.value(dataItem.LineTotal);
+            }
+        }
+
+        var spanReals, i, innerText, sumReal = 0, sumRealKg = 0;
+        function grid_onSave(e) {
+            var productId = e.dataItem.ProductId;
+            //tong realnumber
+            sumReal = 0, sumRealKg = 0;
+            var productQuantity = 0;
+            var isRotateAll = $("input[name='IsRotateAll']");
+            var quantityKg = $(e.cell).find('#Weight').val();
+            var quantity = $(e.cell).find('#RealNumber').val();
+            var spanIsRotateAll = e.cell.parentElement.getElementsByClassName("IsRotateAll_" + e.dataItem.ProductInvId)[0];
+            var spanQuantity = e.cell.parentElement.getElementsByClassName("RealNumber")[0];
+            var spanQuantityKg = e.cell.parentElement.getElementsByClassName("Weight")[0];
+            if (isRotateAll.attr('checked')) {
+                e.dataItem.RealNumber = e.dataItem.ExportQuantity;
+                spanQuantity.textContent = e.dataItem.RealNumber.format(0);
+                e.dataItem.Weight = e.dataItem.ExportWeight;
+                spanQuantityKg.textContent = e.dataItem.Weight.format(0);
+                calculateSumKg(0);
+                calculateSum(0);
+            }
+            else if (!isNaN(parseInt(quantityKg))) {
+                if (e.dataItem.ProductWeight == 0 && parseFloat(quantityKg) != 0) {
+                    alert("Lỗi! Sản phẩm chưa có trọng lượng! Không thể nhập khối lượng chuyển");
+                } else {
+                    productQuantity = parseInt(parseInt(quantityKg) / e.dataItem.ProductWeight);
+                    spanQuantity.textContent = productQuantity.format(0);
+                    e.dataItem.RealNumber = productQuantity;
+                    if (e.dataItem.ProductInventory < e.dataItem.RealNumber) {
+                        alert("Số lượng bạn nhập với các giao dịch trước đó có thể đã quá so với sản phẩm tồn kho\n" +
+                            "Kho thiếu " + (e.dataItem.RealNumber - e.dataItem.ProductInventory));
+                        e.cell.style.background = "red";
+                    } else {
+                        e.cell.style.background = "none";
+                    }
+                    if (e.dataItem.Quantity === e.dataItem.ProductInventory) {
+                        spanIsRotateAll.checked = true;
+                    } else {
+                        spanIsRotateAll.checked = false;
+                    }
+                    calculateSumKg(quantityKg);
+                    calculateSum(0);
+                }
+            }else    if (!isNaN(parseInt(quantity))) {
+                productQuantity = parseInt(quantity);
+                quantityKg = parseFloat(parseInt(productQuantity) * e.dataItem.ProductWeight);
+                spanQuantityKg.textContent = quantityKg.format(0);
+                e.dataItem.Weight = quantityKg;
+                if (e.dataItem.ProductInventory < productQuantity) {
+                    alert("Số lượng bạn nhập với các giao dịch trước đó có thể đã quá so với sản phẩm tồn kho\n" +
+                       "Kho thiếu " + (productQuantity - e.dataItem.ProductInventory));
+                    e.cell.style.background = "red";
+                } else {
+                    e.cell.style.background = "none";
+                }
+                if (quantity === e.dataItem.ProductInventory) {
+                    spanIsRotateAll.checked = true;
+                } else {
+                    spanIsRotateAll.checked = false;
+                }
+                calculateSumKg(0);
+                calculateSum(quantity);
+            }
+        }
+        function calculateSumKg(quantityKg) {
+            spanReals = $("span[name='Weight']");
+            for (i = 0; i < spanReals.length; i++) {
+                innerText = spanReals[i].innerText;
+                innerText = innerText.replace(/,/g, '');
+                sumRealKg = sumRealKg + parseInt(innerText);
+            }
+            sumRealKg = sumRealKg + parseInt(quantityKg);
+            $("#TotalWeight").text(sumRealKg.format(0));
+        }
+
+        function calculateSum(quantity) {
+            spanReals = $("span[name='RealNumber']");
+            for (i = 0; i < spanReals.length; i++) {
+                innerText = spanReals[i].innerText;
+                innerText = innerText.replace(/,/g, '');
+                sumReal = sumReal + parseInt(innerText);
+            }
+            sumReal = sumReal + parseInt(quantity);
+            $("#TotalReal").text(sumReal.format(0));
+        }
+
+        function grid_onSubmitChanges(e) {
+
+            var formId = $("#PlatingForm").data("tComboBox").value();
+            if (formId == "")
+                formId = 0;
+            var eDate = $("#ImportDate").data("tDatePicker").value();
+            if (eDate === null)
+                eDate = "";
+            else
+                eDate = $.telerik.formatString('{0:dd/MM/yyyy}', eDate);
+
+            //var boxNumber = $("#BoxNumber").val();
+            e.values = $.extend(e.values,
+                {
+                    formId: formId,
+                    importDate: eDate,
+                    boxNumber: 0,
+                }
+            );
+        }
+
+
+        function grid_onComplete(args) {
+            alert(args.response.modelState);
+            if (args.response.modelState != null) {
+                alert(args.response.modelState);
+            }
+
+        }
+
+        function PlatingFormNumber_OnChange() {
+            RefreshGrid("gridExportPartial");
+        }
+
+        function grid_OnDataBinding(e) {
+            var formId = $("#PlatingForm").data("tComboBox").value();
+            if (formId == "")
+                formId = 0;
+            e.data = $.extend(e.data, {
+                platingFormId: formId
+            });
+            if (formId != 0) {
+                $.ajax({
+                    type: 'post',
+                    data: { formId: formId },
+                    dataType: 'json',
+                    url: '@Url.Action("SelectPlatingFormInfo", "PurchaseOrder", new { area = "Purchasing" })',
+                    timeout: 20000,
+                    success: function (data) {
+                        $('#VendorCodeName').val(data.VendorCodeName);
+                    }
+                });
+            }
+        }
+
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            if (dataItem.ProductWeight == 0)
+                e.row.childNodes[5].style.backgroundColor = "#F4FA58";
+            if (dataItem.RequestNumberString !== dataItem.ImportString)
+                e.row.childNodes[9].style.backgroundColor = "#F4FA58";
+
+        }
+
+    </script>
+}
+
+<div class="title">Nhập kho gia công ngoài</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu nhập</legend>
+        <div class="grid_2">Mã lệnh:</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("PlatingForm")
+                    .DataBinding(binding => binding.Ajax().Select("SelectPlatingFormForImport", "PurchaseOrder", new { area = "Purchasing" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(events => events.OnChange("PlatingFormNumber_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">Ngày nhập kho</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("ImportDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="clear" style="margin-bottom: 10px"></div>
+        <div class="grid_3">Nhà cung ứng</div>
+        <div class="grid_4">
+            @Html.TextBox("VendorCodeName", "", new { style = "width:100%", @readonly = "true" })
+        </div>
+        @*<div class="clear" style="margin-bottom: 10px"></div>
+            <div class="grid_3">Số thùng</div>
+            <div class="grid_4">
+                @Html.TextBoxFor(f => f.BoxNumber, new {style = "color: maroon;"})
+            </div>*@
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ImportNCU_QCBDetailModel>()
+            .Name("gridExportPartial")
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectImportPlating", "Transaction")
+                                                     .Update("CreateImportPlatingDetail", "Transaction")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.TransactionCode).Width(100).Title("Mã xuất").ReadOnly(true);
+                    columns.Bound(f => f.ExportDate).Width(50).Title("Ngày xuất").ReadOnly(true)
+                        .Format("{0:dd/MM/yyyy}");
+
+                    columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
+                           .ClientTemplate("<a id='<#=DetailId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    columns.Bound(f => f.ProductCode).Width(100).Title("Sản Phẩm").ReadOnly(true);
+                    columns.Bound(f => f.LotNumber).Width(100).Title("Lô").ReadOnly(true);
+                    columns.Bound(f => f.ProductWeight).Width(70).ReadOnly(true)
+                           .HeaderTemplate("TL</br>(g/pc)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n3}");
+                    columns.Bound(f => f.ProductInventoryG).Width(70)
+                           .HeaderTemplate("Tồn kho</br>(g)").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n0}");
+                    columns.Bound(f => f.ProductInventory).Width(70)
+                           .HeaderTemplate("Tồn kho</br>(pcs)").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n0}");
+
+                    columns.Bound(f => f.RequestNumberString).Width(70).Title("Số yêu cầu").ReadOnly(true)
+                        .HtmlAttributes(new { style = "border-left:1px solid black;" });
+                    columns.Bound(f => f.ImportString).Width(70).Title("Đã nhập").ReadOnly(true)
+                        .HtmlAttributes(new { style = "" });
+                    columns.Bound(f => f.IsRotateAll).Width(50).Title("All")
+                            .HeaderHtmlAttributes(new { @class = "edit-column" })
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= ProductInvId #>' class='IsRotateAll_<#= ProductInvId #>' <#=IsRotateAll? checked='checked' : '' #> />")
+                            .HtmlAttributes(new { style = "text-align: center;border-left:1px solid black;" });
+                    columns.Bound(f => f.Weight).Width(70)
+                           .HeaderTemplate("TL</br>(g)")
+                            .HeaderHtmlAttributes(new { @class = "edit-column" })
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<span name='Weight' class='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #></span>")
+                           .FooterTemplate("<span id='TotalWeight'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.RealNumber).Width(70)
+                           .HeaderTemplate("SL thực</br>(pcs)")
+                            .HeaderHtmlAttributes(new { @class = "edit-column" })
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<span name='RealNumber' class='RealNumber'><#= RealNumber == null ? 0 : $.telerik.formatString('{0:n0}', RealNumber) #></span>")
+                           .FooterTemplate("<span id='TotalReal'></span>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Package).Width(100).Title("Đóng gói")
+                            .HeaderHtmlAttributes(new { @class = "edit-column" })
+                            .HtmlAttributes(new { style = "border-left:1px solid black;" });
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                    columns.Bound(f => f.ExportWeight).Width(70).ReadOnly(true)
+                           .HeaderTemplate("Xuất</br>(g)")
+                           .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" })
+                           .Format("{0:n0}");
+                    columns.Bound(f => f.ExportQuantity).Width(70).ReadOnly(true)
+                           .HeaderTemplate("Xuất</br>(pcs)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n0}");
+                    //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                })
+            .ClientEvents(events => events
+                                        .OnEdit("grid_onEdit")
+                                        .OnSave("grid_onSave")
+                                        .OnSubmitChanges("grid_onSubmitChanges")
+                                        .OnError("grid_OnError")
+                                        .OnDataBound("grid_OnDataBound")
+                                        .OnRowDataBound("grid_OnRowDataBound")
+                                        .OnDataBinding("grid_OnDataBinding")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            .Groupable()
+            //.Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

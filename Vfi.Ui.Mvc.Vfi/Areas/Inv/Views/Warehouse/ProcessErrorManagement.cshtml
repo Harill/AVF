@@ -1,0 +1,66 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Machines State Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    
+    
+    
+    <script type="text/javascript">
+
+    </script>
+}
+
+
+<div class="title">Quản lý lỗi sản phẩm</div>
+            <div class="grid_3 prefix_1">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('griState'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                </button>
+            </div>
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<ProcessErrorModel>()
+                .Name("griState")
+                .DataKeys(key => key.Add(f => f.ErrorId).RouteKey("errorId"))
+                .ToolBar(
+                    toolbar =>
+                    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+                .DataBinding(
+                    dataBinding => dataBinding.Ajax()
+                                              .Select("SelectProcessError", "Warehouse")
+                                              .Insert("InsertProcessError", "Warehouse")
+                                              .Update("UpdateProcessError", "Warehouse"))
+                .Columns(columns =>
+                    {
+                        columns.Command(command =>
+                                        command.Edit().ButtonType(GridButtonType.Image)
+                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.Description).Title("Mô tả lỗi")
+                               .ClientTemplate("<strong><#= Description #></strong>");
+                        //columns.Bound(f => f.Timing).Width(175).Title("Thời gian sửa(m)");
+                        //columns.Bound(f => f.WarrningColor).Width(175);
+
+                        columns.Bound(f => f.Active).Width(75)
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày tạo").ReadOnly(true)
+                               .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                        columns.Bound(f => f.ModifiedUser).Width(85).Title("Người tạo").ReadOnly(true);
+                    }) 
+                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                //.Pageable(page => page.PageSize(20))
+                .Scrollable(f => f.Height("auto"))
+                //.HtmlAttributes(new {style = "width: 950px;"})
+                .Sortable()
+                .Filterable()
+                .Resizable(resizing => resizing.Columns(true))
+                .ClientEvents(e => e.OnError("grid_OnError"))
+                .Render();
+        }
+    </div>

@@ -1,0 +1,87 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Đổi trạng thái đơn hàng ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+
+    </script>
+}
+
+<div class="title">Đổi trạng thái đơn hàng</div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ManageOrderModel>()
+            .Name("gridChangeOrer")
+            .DataKeys(key => key.Add(f => f.OrderId).RouteKey("orderId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                    .Select("SelectApprovedOrder", "SalesOrder", new {area = "Sales"})
+                    .Update("UpdateOrderStatus", "SalesOrder", new {area = "Sales"})
+            )
+            .Columns(columns =>
+            {
+                columns.Command(command =>
+                    command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Duyệt").CancelText("Trở lại")
+                    ).Width(98).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+
+                columns.Bound(f => f.DueDate).Title("Ngày giao").Width(100).Format("{0:dd/MM/yyyy}").ReadOnly(true);
+                columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(50).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(50);
+                columns.Bound(f => f.SalesPersonName).Width(150).ReadOnly(true);
+                columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(75).ReadOnly(true);
+                columns.Bound(f => f.Area).Title("Khu Vực").Width(75).ReadOnly(true);
+                columns.Bound(f => f.TotalQuality).Width(100).ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                columns.Bound(f => f.TotalRequired).Width(100).ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+            })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= OrderId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                        items.Add().Text("Thông tin chi tiết").Content(
+                            Html.Telerik().Grid<OrderDetailModel>()
+                                .Name("gridTransactionDetail_<#= OrderId #>")
+                                .DataBinding(dataDindings => dataDindings.Ajax()
+                                    .Select("SelectOrderDetailByOrderId", "SalesOrder",
+                                        new {orderId = "<#= OrderId #>"}))
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(f => f.ProductCode);
+                                    columns.Bound(f => f.PONumber).Title("Lệnh mua");
+                                    columns.Bound(f => f.OrderQty).Width(98).Title("Đơn hàng")
+                                        .HtmlAttributes(new {style = "text-align: right;"})
+                                        .Format("{0:n0}");
+                                    columns.Bound(f => f.RequiredNumber).Width(98).Title("Còn lại")
+                                        .HtmlAttributes(new {style = "text-align: right;"})
+                                        .Format("{0:n0}");
+                                    columns.Bound(f => f.UnitPrice);
+                                    columns.Bound(f => f.CustomerDueDate).Width(150).Format("{0:dd/MM/yyyy}");
+                                })
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString())
+                    )
+                    .ToHtmlString())
+            )
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events .OnRowSelect("grid_OnRowSelect")
+                .OnError("grid_OnError"))
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();
+    }
+</div>

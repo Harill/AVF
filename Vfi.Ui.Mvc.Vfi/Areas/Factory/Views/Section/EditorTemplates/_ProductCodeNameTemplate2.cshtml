@@ -1,0 +1,61 @@
+﻿
+    <script type="text/javascript">
+        function product_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { productId: e.currentTarget.value },
+                dataType: 'json',
+                url: '@Url.Action("GetProductionMaterial", "Machine", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var material = $('#MaterialCode').data('tComboBox');
+                    material.dataBind(data);
+                    if (material.selectedIndex > -1) {
+
+                        var selected = material.data[material.selectedIndex];
+
+                        if (selected != undefined) {
+                            material.value(selected.value);
+                            //$("#MaterialCode").data("tDropDownList").$text[0].innerHTML = selected.Text;
+                            material.text(selected.Text);
+                            material.selectedIndex = material.selectedIndex;
+                            material.previousValue = selected.value;
+                        } else {
+                            material.value(-1);
+                            material.text("");
+                        }
+                    } else {
+                        material.value(-1);
+                        material.text("");
+                    }
+
+                    //if (data == '9') {
+                    //alert(data);
+                    //} else if (data == '8') {
+                    //    alert("Lỗi! Sản phẩm không có xi mạ ! Liên hệ admin");
+                    //} else if (data == '0') {
+                    //    alert("Lỗi!");
+                    //} else {
+                    //    //e.cell.parentElement.getElementsByClassName("PlatingCode")[0].textContent = data;
+                    //    //e.dataItem.MaterialId = data.MaterialId;
+                    //    //e.dataItem.MaterialCode = data.MaterialCode;
+                    //}
+                    //}
+                }
+            });
+        }
+    </script>
+@using Telerik.Web.Mvc.UI
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductCodeName", "Product", new {area = ""}).Delay(350))
+        .HtmlAttributes(new {style = "width: 175"})
+        .DropDownHtmlAttributes(new {style = "width: 250px"})
+        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .ClientEvents(e => e.OnClose("product_OnChange"))
+        .Render();
+}

@@ -1,0 +1,503 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model TransactionModel
+@{
+    ViewBag.Title = "Xuất SP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+    <script type="text/javascript">
+        function customer_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+
+        function warehouseIssueName_onChange() {
+
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            $.ajax({
+                type: 'post',
+                data: {
+                    warehouseId: warehouseIssue,
+                },
+                dataType: 'json',
+                url: '@Url.Action("SelectComboBoxWarehouseRotateById", "Warehouse", new { area = "Inv" })',
+                timeout: 20000,
+                success: function (data) {
+                    $("#WarehouseReceiptName").data('tDropDownList').dataBind(data);
+                    RefreshGrid("gridProductInventory");
+                }
+            });
+        }
+
+        function warehouseReceiptName_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+        function gridProductInventory_onDataBinding(args) {
+
+            var customerId = $("#Customer").data('tComboBox').value();
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+
+            if (warehouseIssue == 0) {
+                args.preventDefault();
+            }
+            if (customerId == 0) {
+                customerId = 0;
+            }
+
+            args.data = $.extend(args.data, {
+                customerId: customerId,
+                warehouseId: warehouseIssue,
+                //   warehouseReceipt: warehouseReceipt,
+                eoi: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Rotate)",
+                productName: productCodeName
+            });
+
+        }
+
+        function autoComplete_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+    </script>
+
+    <script type="text/javascript">
+        function PickupProductId() {
+
+            var $checkedRecords = $(':checked');
+            //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+
+            //$.ajaxSettings.traditional = false;
+            var a = {};
+            var ids = "";
+            //var $b = (a);
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] == "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+
+            var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+            if (monthlyDate === null)
+                monthlyDate = "";
+            else
+                monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            var warehouseReceipt = $("#WarehouseReceiptName").data('tDropDownList').value();
+            $("#gridProductInventoryDetail").data("tGrid").rebind({
+                //checkedRecords: $checkedRecords.map(function () { return value; }) 
+                //checkedRecords: a
+                productIds: ids,
+                warehouseIssue: warehouseIssue,
+                warehouseReceipt: warehouseReceipt,
+                monthlyDate: monthlyDate
+            });
+        }
+    </script>
+
+    <!-- client event grid material inventory -->
+    <script type="text/javascript">
+        function gridProductInventoryDetail_onDataBound() {
+
+            //for (var i = 7; i <= 18; i++) {
+            //    var total = 0;
+            //    $("span[name='cot" + i + "']").each(function () {
+            //        total = total + parseInt($(this).text());
+            //    });
+            //    $("#tongcot" + i).text(total);
+            //}
+            //GenCode();
+        }
+        function gridProductInventoryDetail_onSave(e) {
+            var productId = e.dataItem.ProductId;
+            //tong realnumber
+            var spanReals, i, innerText, sumReal = 0, sumRealKg = 0;
+            var productQuantity = 0;
+            var quantityKg = $(e.cell).find('#QuantityKg').val();
+            if (!isNaN(parseInt(quantityKg))) {
+                if (e.dataItem.ProductWeight == 0 && parseFloat(quantityKg) != 0) {
+                    alert("Lỗi! Sản phẩm chưa có trọng lượng! Không thể nhập khối lượng chuyển");
+                } else {
+                    spanReals = $("span[name='QuantityKg']");
+                    for (i = 0; i < spanReals.length; i++) {
+                        innerText = spanReals[i].innerText;
+                        innerText = innerText.replace(/,/g, '');
+                        sumRealKg = sumRealKg + parseInt(innerText);
+                    }
+                    sumRealKg = sumRealKg + parseInt(quantityKg);
+                    $("#TotalQtyKg").text(sumRealKg.format(0));
+                    productQuantity = parseInt(parseInt(quantityKg) / e.dataItem.ProductWeight);
+                    e.cell.parentElement.getElementsByClassName("Quantity")[0].textContent = productQuantity.format(0);
+                    e.dataItem.Quantity = productQuantity;
+                    //quantityCell.textContent = productQuantity.format(0);
+
+                    spanReals = $("span[name='Quantity']");
+                    for (i = 0; i < spanReals.length; i++) {
+                        innerText = spanReals[i].innerText;
+                        innerText = innerText.replace(/,/g, '');
+                        sumReal = sumReal + parseInt(innerText);
+                    }
+                    //sumReal = sumReal + parseInt(quantity);
+                    $("#TotalQty").text(sumReal.format(0));
+                }
+            }
+
+            var quantity = $(e.cell).find('#Quantity').val();
+            if (!isNaN(parseInt(quantity))) {
+                // var quantity = $(e.cell).find('#Quantity').val();
+                spanReals = $("span[name='Quantity']");
+                for (i = 0; i < spanReals.length; i++) {
+                    innerText = spanReals[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumReal = sumReal + parseInt(innerText);
+                }
+                sumReal = sumReal + parseInt(quantity);
+                $("#TotalQty").text(sumReal.format(0));
+                productQuantity = parseInt(quantity);
+                e.cell.parentElement.getElementsByClassName("QuantityKg")[0].textContent = 0;
+                e.dataItem.QuantityKg = 0;
+
+                spanReals = $("span[name='QuantityKg']");
+                for (i = 0; i < spanReals.length; i++) {
+                    innerText = spanReals[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumRealKg = sumRealKg + parseInt(innerText);
+                }
+                $("#TotalQtyKg").text(sumRealKg.format(0));
+            }
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            $.ajax({
+                type: 'post',
+                data: {
+                    warehouseId: warehouseIssue,
+                    productId: productId,
+                    quality: productQuantity
+                },
+                dataType: 'json',
+                url: '@Url.Action("CheckProductInventory", "Transaction")',
+                timeout: 20000,
+                success: function (data) {
+                    //alert(data);
+                    if (data[0] == 1) {
+                        //alert("");
+                    } else if (data[0] == 0) {
+                        alert("Số lượng bạn nhập với các giao dịch trước đó có thể đã quá so với sản phẩm tồn kho\n" +
+                            "Kho thiếu " + ((data[1]) * -1));
+                    }
+                    //else if (data == 2) {
+                    //    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                    //    $('#txtTransactionCodeHidden').val(0);
+                    //}
+                }
+            });
+        }
+
+        function gridProductInventoryDetail_onSubmitChanges(e) {
+
+            var flag = InputValidation();
+
+            if (flag == false)
+                e.preventDefault();
+            else {
+
+                var transactionCode = $("#TransactionCode").val();
+
+                var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+                var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                e.values = $.extend(e.values,
+                    {
+                        transactionCode: transactionCode,
+
+                        warehouseIssueId: warehouseIssueName,
+                        warehouseReceiptId: warehouseReceiptName,
+                        warehouseId: warehouseReceiptName,
+
+                        materialOrProduct: false,
+                        exportOrImport: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Rotate)",
+                        date: monthlyDate
+                    }
+                );
+                }
+            }
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            if (dataItem.ProductWeight == 0)
+                e.row.childNodes[2].style.backgroundColor = "#F4FA58";
+            if (dataItem.AvailableQty == 0 && dataItem.AvailableQty != dataItem.TotalQty)
+                e.row.childNodes[4].style.backgroundColor = "#F4FA58";
+        }
+
+            function gridProduct_OnRowDataBound(e) {
+                var dataItem = e.dataItem; //FA5858 F4FA58
+                if (dataItem.ProductWeight == 0)
+                    e.row.childNodes[2].style.backgroundColor = "#F4FA58";
+            }
+
+    </script>
+
+    <!-- input validation -->
+    <script type="text/javascript">
+        function InputValidation() {
+            var strMsgAlert = "";
+
+            //        var materialClassifiedName = $('#MaterialClassifiedName').data('tDropDownList').value();
+            //        var materialTypeName = $('#MaterialTypeName').data('tDropDownList').value();
+
+            // var txtTransactionCodeHidden = $("#txtTransactionCodeHidden").val();
+
+            var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+            var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+
+            //        if (materialClassifiedName === "") {
+            //            strMsgAlert += "Vui lòng chọn phân loại nguyên liệu.\t\r\n";
+            //        }
+            //        if (materialTypeName === "") {
+            //            strMsgAlert += "Vui lòng chọn loại nguyên liệu.\t\r\n";
+            ////        }
+
+            //        if (txtTransactionCodeHidden === "0") {
+            //            strMsgAlert += "Số đơn không hợp lệ.\t\r\n";
+            //        }
+
+            if (warehouseIssueName === "") {
+                strMsgAlert += "Vui lòng chọn kho xuất.\t\r\n";
+            }
+            if (warehouseReceiptName === "") {
+                strMsgAlert += "Vui lòng chọn kho nhập.\t\r\n";
+            }
+            if (warehouseIssueName === warehouseReceiptName) {
+                strMsgAlert += "Không thể cùng kho xuất nhập.\t\r\n";
+            }
+
+            if (strMsgAlert === "")
+                return true;
+
+            alert(strMsgAlert);
+            return false;
+        }
+    </script>
+
+
+<div class="title">Luân chuyển kho</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <div class="grid_3">Khách hàng:</div>
+    <div class="grid_7">
+        @{
+            Html.Telerik().ComboBox()
+                .Name("Customer")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                .HtmlAttributes(new { style = "width: 250px" })
+                .DropDownHtmlAttributes(new { style = "width: 325px" })
+                .ClientEvents(events => events.OnChange("customer_onChange"))
+                .AutoFill(true)
+                .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                .Render();
+        }
+    </div>
+    <div class="grid_2">Sản phẩm:</div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().AutoComplete()
+                .Name("ProductCodeName")
+                .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv"))
+                .HtmlAttributes(new { style = "width: 200px; " })
+                .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                .Encode(false)
+                .AutoFill(true)
+                .HighlightFirstMatch(true)
+                .ClientEvents(events => events
+                    .OnChange("autoComplete_onChange")
+                )
+                .Render();
+        }
+    </div>
+    <div class="clear"></div>
+    <br />
+
+    <fieldset>
+        <legend>Thông tin phiếu lệnh nhập</legend>
+
+        @*        <div class="grid_2">@Html.LabelFor(f=>f.TransactionCode)</div>
+        <div class="grid_1"><div id="lookupTransactionCodeExisted">&nbsp;</div></div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.TransactionCode, new {style ="color: maroon;"})
+            @Html.Hidden("txtTransactionCodeHidden")
+        </div> *@
+
+
+        <div class="grid_2">
+            @Html.LabelFor(f => f.WarehouseIssueName)
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseIssueName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxImportWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .ClientEvents(events => events.OnChange("warehouseIssueName_onChange"))
+                    .Render();                                              
+            }
+        </div>
+
+        <div class="grid_2">@Html.LabelFor(f => f.WarehouseReceiptName)</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseReceiptName")
+                    //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxRotateWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .ClientEvents(events => events.OnChange("warehouseReceiptName_onChange"))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("MonthlyDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductInventoryRotateModel>()
+            .Name("gridProductInventory")
+            .ToolBar(bar => bar.Template(
+                @<text>
+                     <div class="grid_7">
+                         <button class="t-button" id="btnPickupProductId" name="btnPickupProductId" onclick=" PickupProductId() ">
+                             <span class='t-icon t-insert'></span>
+                             Chọn các sản phẩm vào lưới
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+                                ))
+            .DataKeys(keys => keys.Add(f => f.ProductInventoryIssueId).RouteKey("productInventoryIssueId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectProductInventoryByCustomerAndWarehouse", "Inv",
+                                                             new { customerId = 0, warehouseId = 0, eoi = MyUtilities.Transaction.EoIEnum.Rotate, productName = "" })
+
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ProductInventoryId).Title("Chọn").Width(75)
+                           .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductInventoryId #>' />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.ProductCode).Width(250);
+                    columns.Bound(f => f.ProductWeight).Width(100).Title("TL sản phẩm (g/pc)")
+                        //.HeaderTemplate("TL sản phẩm</br>(g/pc)")
+                           .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>");
+                    //columns.Bound(f => f.TotalQtyExport);
+                    //columns.Bound(f => f.TotalQtyImport);
+                    //columns.Bound(f => f.ProductId).Width(250);
+                    columns.Bound(f => f.TotalQty).Title("Tồn kho xuất (pcs)").Width(100)
+                           .ClientTemplate("<#= TotalQty == null ? 0 : $.telerik.formatString('{0:n0}', TotalQty) #>");
+                    columns.Bound(f => f.AvailableQty).Title("Có thể xuất (pcs)").Width(100)
+                           .ClientTemplate("<#= AvailableQty == null ? 0 : $.telerik.formatString('{0:n0}', AvailableQty) #>");
+                    //columns.Bound(f => f.AvailableQty);
+                    //columns.Bound(f => f.UnavailableQty);
+                    //columns.Bound(f => f.Active).Width(75)
+                    //   .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                    //   .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.Note).Title("");
+                })
+            .Scrollable(f => f.Height("auto"))
+            .Scrollable(f => f.Height(200))
+            .Resizable(f => f.Columns(true))
+            //.Pageable(f => f.Style(GridPagerStyles.Status))
+            .ClientEvents(events => events.OnError("grid_OnError").OnDataBinding("gridProductInventory_onDataBinding").OnRowDataBound("grid_OnRowDataBound"))
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh xuất nhập sản phẩm</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductInventoryRotateModel>()
+            .Name("gridProductInventoryDetail")
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .DataKeys(keys => keys.Add(f => f.ProductInventoryId).RouteKey("productInventoryId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("InputProductInventoryByRotate", "Inv",
+                new {  warehouseIssue = 0, warehouseReceipt = 0 })
+                .Update("UpdateTransactionProductInventory", "Transaction"))
+            .Columns(columns =>
+            {
+                columns.Bound(f => f.CustomerCode).Width(50).Title("Mã KH").ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
+                    .Aggregate(agg => agg.Count())
+                                   .ClientGroupFooterTemplate("<div style='text-align: center; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: center; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                                   ;
+                columns.Bound(f => f.ProductWeight).Title("TL sản phẩm (g/pc)").Width(100).ReadOnly(true)
+                    //.HeaderTemplate("TL sản phẩm</br>(g/pc)")
+                    .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                //columns.Bound(f => f.TotalQty).Width(125).ReadOnly(true);
+                //columns.Bound(f => f.UnavailableQty).Width(125).ReadOnly(true);
+                columns.Bound(f => f.TotalQtyExport).Title("Tồn kho xuất (pcs)").ReadOnly(true).Width(100)
+                    .ClientTemplate("<#= TotalQtyExport == null ? 0 : $.telerik.formatString('{0:n0}', TotalQtyExport) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.TotalQtyExportKg).Title("Tồn kho xuất (g)").ReadOnly(true).Width(100)
+                    .ClientTemplate("<#= TotalQtyExportKg == null ? 0 : $.telerik.formatString('{0:n0}', TotalQtyExportKg) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.AvailableQty).Width(125).ReadOnly(true).Title("SL có thể chuyển")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.TotalQtyImport).Title("Tồn kho nhập (pcs)").ReadOnly(true).Width(100)
+                    .ClientTemplate("<#= TotalQtyImport == null ? 0 : $.telerik.formatString('{0:n0}', TotalQtyImport) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                //columns.Bound(f => f.TotalQtyImport).ReadOnly(true);
+                columns.Bound(f => f.QuantityKg).Width(100).Title("TL xuất (g)")
+                       .ClientTemplate("<span name='QuantityKg' class='QuantityKg' ><#= QuantityKg == null ? 0 : $.telerik.formatString('{0:n0}', QuantityKg) #></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .FooterTemplate("<span id='TotalQtyKg'></span>");
+                columns.Bound(f => f.Quantity).Width(100).Title("SL xuất (pcs)")
+                       .ClientTemplate("<span name='Quantity' class='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #></span>")
+                              .HtmlAttributes(new { style = "text-align: right;" })
+                       .FooterTemplate("<span id='TotalQty'></span>");
+
+                columns.Bound(f => f.Note).Title("Ghi Chú");
+                columns.Bound(f => f.ProductInventoryId).Title("Ghi Chú").Hidden(true);
+                columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image).Text("")).Width(50).Title("");
+            })
+            .ClientEvents(events => events
+                .OnSave("gridProductInventoryDetail_onSave")
+                .OnSubmitChanges("gridProductInventoryDetail_onSubmitChanges")
+                .OnError("grid_OnError")
+                .OnDataBound("gridProductInventoryDetail_onDataBound")
+                .OnRowDataBound("gridProduct_OnRowDataBound")
+            )
+            .Editable(f => f.Mode(GridEditMode.InCell))
+            // .Footer(true)
+            .Resizable(f => f.Columns(true))
+            .Render();   
+    }
+</div>

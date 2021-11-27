@@ -1,0 +1,450 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model GroupMachineDiagram
+@{
+    ViewBag.Title = "Sơ đồ máy CNC";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+   
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/easytimer.min.js")"   ></script>    <script type="text/javascript">
+        $(function() {
+            var $container = $("#container-1");
+            //khoang cach giua cac item
+            $container.isotope({
+                itemSelector: '.element-1',
+                //masonry: {
+                //    columnWidth: 10
+                //},
+                //masonryHorizontal: {
+                //    rowHeight: 120
+                //},
+                //cellsByRow: {
+                //    columnWidth: 240,
+                //    rowHeight: 240
+                //},
+                //cellsByColumn: {
+                //    columnWidth: 240,
+                //    rowHeight: 240
+                //},
+                //getSortData: {
+                //    symbol: function($elem) {
+                //        return $elem.attr('data-symbol');
+                //    },
+                //    category: function($elem) {
+                //        return $elem.attr('data-category');
+                //    },
+                //    number: function($elem) {
+                //        return parseInt($elem.find('.number').text(), 10);
+                //    },
+                //    weight: function($elem) {
+                //        return parseFloat($elem.find('.weight').text().replace(/[\(\)]/g, ''));
+                //    },
+                //    name: function($elem) {
+                //        return $elem.find('.name').text();
+                //    }
+                //}
+            });
+            //var $optionSets = $('#options .option-set'),
+            //    $optionLinks = $optionSets.find('a');
+            //$optionLinks.click(function() {
+            //    var $this = $(this); // don't proceed if already selected
+            //    if ($this.hasClass('selected')) {
+            //        return false;
+            //    }
+            //    var $optionSet = $this.parents('.option-set');
+            //    $optionSet.find('.selected').removeClass('selected');
+            //    $this.addClass('selected');
+            //    // make option object dynamically, i.e. { filter: '.my-filter-class' }
+            //    var options = {},
+            //        key = $optionSet.attr('data-option-key'),
+            //        value = $this.attr('data-option-value');
+            //    // parse 'false' as false boolean
+            //    value = value === 'false' ? false : value;
+            //    options[key] = value;
+            //    if (key === 'layoutMode' && typeof changeLayoutMode === 'function') {
+            //        // changes in layout modes need extra logic
+            //        changeLayoutMode($this, options);
+            //    } else {
+            //        // otherwise, apply new options
+            //        $container.isotope(options);
+            //    }
+            //    return false;
+            //});
+            // change layout
+            //var isHorizontal = false;
+
+            //function changeLayoutMode($link, options) {
+            //    var wasHorizontal = isHorizontal;
+            //    isHorizontal = $link.hasClass('horizontal');
+            //    if (wasHorizontal !== isHorizontal) {
+            //        // orientation change
+            //        // need to do some clean up for transitions and sizes
+            //        var style = isHorizontal ?
+            //            { height: '80%', width: $container.width() } :
+            //            { width: 'auto' };
+            //        // stop any animation on container height / width
+            //        $container.filter(':animated').stop();
+            //        // disable transition, apply revised style
+            //        $container.addClass('no-transition').css(style);
+            //        setTimeout(function() {
+            //            $container.removeClass('no-transition').isotope(options);
+            //        }, 100);
+            //    } else {
+            //        $container.isotope(options);
+            //    }
+            //}
+
+            // change size of clicked element
+            $container.delegate('.element-1', 'click', function() {
+                $(this).toggleClass('large');
+                $container.isotope('reLayout');
+            });
+            // toggle variable sizes of all elements
+            //$('#toggle-sizes').find('a').click(function() {
+            //    $container.toggleClass('variable-sizes').isotope('reLayout');
+            //    return false;
+            //});
+            //var $sortBy = $('#sort-by');
+            //$('#shuffle a').click(function() {
+            //    $container.isotope('shuffle');
+            //    $sortBy.find('.selected').removeClass('selected');
+            //    $sortBy.find('[data-option-value="random"]').addClass('selected');
+            //    return false;
+            //});
+            var $container2 = $("#container-2");
+            //khoang cach giua cac item
+            $container2.isotope({
+                itemSelector: '.element-2',
+            });
+            $container2.delegate('.element-2', 'click', function () {
+                $(this).toggleClass('large');
+                $container2.isotope('reLayout');
+            });
+            var $container3 = $("#container-3");
+            //khoang cach giua cac item
+            $container3.isotope({
+                itemSelector: '.element-3',
+            });
+            $container3.delegate('.element-3', 'click', function () {
+                $(this).toggleClass('large');
+                $container3.isotope('reLayout');
+            });
+
+            $('#filters a').click(function () {
+                var selector = $(this).attr('data-filter');
+                $container.isotope({ filter: selector });
+                $container2.isotope({ filter: selector });
+                $container3.isotope({ filter: selector });
+                return false;
+            });
+        });
+
+        $(document).ready(function () {
+            //timerTarget(1);
+            //timerTarget(2);
+            //timerTarget(3);
+            var machineTimings = document.getElementsByClassName('machineTiming');
+            console.log(machineTimings.length);
+            for (var i = 0; i < machineTimings.length; i++) {
+                var element = machineTimings[i];
+                //console.log(element);
+                var machineId = element.getAttribute('machineid');
+                //console.log(machineId);
+                timerTarget2(machineId);
+            }
+        });
+        function timerTarget2(target) {
+            var timer = new easytimer.Timer();
+            var seconds = $('#machine-' + target).attr('seconds');
+            var sec_num = Math.floor(seconds);
+            timer.start({ startValues: { seconds: sec_num } });
+            timer.addEventListener('secondsUpdated', function (e) {
+                $('#machine-' + target + ' .timing').html(timer.getTimeValues().toString(['hours', 'minutes']));
+                $('#machine-' + target + ' .totalDays').html(dayStr(timer.getTotalTimeValues().days));
+            });
+        }
+        function dayStr(days) {
+            if (days > 0)
+                return days + 'N';
+            return '';
+        }
+    </script>
+}
+<style>
+    body {
+        background-image:url("")
+    }
+
+    .container_24 {
+        width:100%;
+    }
+    .title {
+        padding: 0 15px;
+    }
+.isotope-item {
+  z-index: 2;
+}
+.isotope-hidden.isotope-item {
+  pointer-events: none;
+  z-index: 1;
+}
+.isotope,
+.isotope .isotope-item {
+  -webkit-transition-duration: 0.8s;
+     -moz-transition-duration: 0.8s;
+      -ms-transition-duration: 0.8s;
+       -o-transition-duration: 0.8s;
+          transition-duration: 0.8s;
+}
+.isotope {
+  -webkit-transition-property: height, width;
+     -moz-transition-property: height, width;
+      -ms-transition-property: height, width;
+       -o-transition-property: height, width;
+          transition-property: height, width;
+}
+.isotope .isotope-item {
+  -webkit-transition-property: -webkit-transform, opacity;
+     -moz-transition-property:    -moz-transform, opacity;
+      -ms-transition-property:     -ms-transform, opacity;
+       -o-transition-property:      -o-transform, opacity;
+          transition-property:         transform, opacity;
+}
+.entity.machine          { background: #F00; background: hsl(   0, 100%, 50%); }
+#revok1 {
+	background-size:cover;
+	background-position:center;
+}
+.entity * {margin: 0;}
+.entity .name {
+  left: 0.5em;  bottom: 1.6em;  font-size: 1.05em;  }
+.clickable .entity:hover {cursor: pointer;
+    border: 1px aquamarine;}.clickable .entity:hover h3 {
+  text-shadow:0 0 10px white,0 0 10px white;
+}.isotope a:hover{
+  text-shadow:0 0 10px white,0 0 10px white;
+    font-size: 14px;
+}.clickable .entity:hover h1 {
+  text-shadow:0 0 5px white,0 0 5px white;
+  font-weight: bold;
+    font-size: 17px;
+}
+.clickable .entity:hover h2 {color: white;}
+
+.entity {
+  width: 260px;
+  height: 40px;
+  margin: 5px;  float: left;
+  overflow: hidden;
+  position: relative;
+  background: #888;
+  color: #222;
+  -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+          border-radius: 10px;
+}
+.entity.large{
+  width: 260px;
+  height: 120px;
+  z-index: 100;
+  -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+          border-radius: 10px;
+}
+
+.itemInfo {
+    width:100%;
+    display:block;
+}
+.itemLeft {
+    text-align: left;
+}
+.itemRight {
+    text-align: Right;
+}
+.column {
+    text-align: Right;
+}
+#container-1 {
+    margin-right: 100px;
+}
+    #filters {
+        margin: 0;
+    }
+
+        #options li {
+            float: left;
+            display: list-item;
+        }
+
+        #options .selected {
+            background-color: #13F;
+            text-shadow: none;
+            color: white;
+        }
+
+        #options li a {
+            display: block;
+            padding: 0.4em 0.5em;
+            background-color: #DDD;
+            color: #222;
+            font-weight: bold;
+            text-shadow: 0 1px hsla( 0, 0%, 100%, 0.5 );
+            background: none;
+        }
+
+            #options li a:hover {
+                background-color: cornflowerblue;
+                font-weight: bolder;
+            }
+
+            #options li a:active {
+                background-color: cornflowerblue;
+                font-weight: bolder;
+            }
+</style>
+
+<div class="title">Sơ đồ máy CNC</div>
+<div class="clear"></div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_2">
+                &nbsp;
+            </div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+            <li><a href="#" data-filter="*" class="selected t-button" onclick="li_OnClick()">Tất cả</a></li>
+                        </ul>
+
+                </section>
+            <div class="grid_2">
+                Tình trạng
+            </div>
+
+            <div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var state in Model.ListState) {
+                        <li><a href="#" data-filter=".@state.StateCode" class="t-button" 
+                            style="background-color: #@state.WarrningColor;">
+                            (@state.WarrningPoint) @state.Description
+                            </a></li>
+    }
+}
+
+                       @* <li><a href="#" data-filter=".M-01" class="t-button">Bình thường</a></li>
+                        <li><a href="#" data-filter=":not(.M-01)" class="t-button">Không bình thường</a></li>*@
+                    </ul>
+                </section>
+            </div>
+            <div class="clear"></div>
+            <div class="grid_2">
+                Tính năng
+            </div>
+
+            <div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var func in Model.ListFunction) {
+                        <li><a href="#" data-filter=".@func.Code" class="t-button">(@func.Count) @func.Code</a></li>
+    }
+}
+                        </div>
+            <div class="clear"></div>
+
+            <div>
+            <div class="grid_2">
+                Loại máy
+            </div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var type in Model.ListType) {
+                        <li><a href="#" data-filter=".@type.Code" class="t-button">(@type.Count) @type.Code</a></li>
+    }
+}
+                        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+@{
+    int i = 0;
+    foreach (var list in Model.ListMachineDiagram)
+        {
+            i++;
+<div id='container-@i' class="clickable clearfix isotope" style="position: relative; overflow: hidden; height: auto; width: 270px;float: left;padding-right: 5px">
+                 @{
+            foreach (var entity in list)
+                     {
+                         <div class='element-@i machine-@entity.MachineType entity isotope-item @entity.StateCode @entity.MachineFunction @entity.MachineType' id="revok" data-symbol="@entity.MachineState" data-category="@entity.MachineType" 
+                              style="position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
+                             <div style="height: 40px; display: block; text-align: center">
+                                 <div style='width: 60%; height: 18px; float: left; text-align: left; padding-top: 2px; background-color: #@entity.WarrningColor'>
+                                     <h1 class="name" style="margin-left: 10px">@entity.MachineName | @entity.MachineType | @entity.MachineFunction</h1>
+                                 </div>
+                                 <div style='width: 40%; height: 18px; float: left; text-align: right; padding-top: 2px; background-color: #ccc2d6; color: #3333cc;'>
+                                     <span class="itemRight" style="padding-top: 5px; margin-right: 10px; font-weight: bold" >@entity.ProductCode</span>
+                                 </div>
+                                 
+                                
+                                <div style='width: 35%; height: 18px; float: left; padding-top: 2px; text-align:center; font-weight:bold; background-color: #@entity.WarrningColor; color: #3333cc;'>
+                                    <div class="machineTiming" id="machine-@entity.MachineId" machineid ="@entity.MachineId" seconds="@entity.Seconds">
+                                        <timing>
+                                            <day  class="totalDays"></day>
+                                            <time  class="timing">0</time>
+                                        </timing>
+                                    </div>
+                                </div>
+                                 <div style="width: 65%; height: 20px; float: left; text-align: center;  background-color: #996600; color: white; padding-top: 2px">
+                                     <span class="itemLeft">@entity.MaterialCode</span>
+                                 </div>
+                             </div>
+
+                             <div style="width: 200px; height: 100%; display: block; padding-top: 5px;padding-left: 5px;">
+                                 <div style="width: 100%; display: block;">
+                                     <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
+                                         <span class="itemLeft">Tình trạng:</span>
+                                         <span class="itemRight">@entity.StateName</span>
+                                     </div>
+                                     <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
+                                         <span class="itemLeft">Ngày lên máy:</span>
+                                         <span class="itemRight">@entity.StartDateString</span>
+                                     </div>
+                                     <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
+                                         <span class="itemLeft">Ngày kết thúc:</span>
+                                         <span class="itemRight">@entity.EndDateString</span>
+                                     </div>
+                                     <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
+                                         <span class="itemLeft">Năng suất máy:</span>
+                                         <span class="itemRight">@entity.ProductionPerDayFormat</span>
+                                     </div>
+                                     <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
+                                        <span class="itemLeft">Tổng sản lượng:</span>
+                                        <span class="itemRight">@entity.ProductionStr</span>
+                                     </div>
+                                    @* <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
+                                         <span class="itemLeft">Dự báo sản xuất:</span>
+                                         <span class="itemRight">@entity.ForecastsQualityFormat</span>
+                                     </div>*@
+                                 </div>
+                                  <div style="width: 100%; height: 10px; float: left; text-align: center;">
+                                     <span class="itemRight">@{ @Html.ActionLink("Chi tiết hơn", "MachineLog", "Machine", new {id = entity.MachineId}, null)}</span>
+                                 </div>
+                             </div>
+
+                         </div>
+
+                     }
+
+                 }
+    
+            </div>
+        }
+    }   
+
+    <div class="clear"></div><br/>

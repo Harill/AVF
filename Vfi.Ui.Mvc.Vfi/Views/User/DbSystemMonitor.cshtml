@@ -1,0 +1,175 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@{
+    ViewBag.Title = "Theo dõi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title"></div>
+
+<div class="cover-div" style="width: 49%; float: left;">
+
+    <div>
+
+        <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('grid'); ">
+            <span class='t-icon t-insert'></span>
+            Làm mới
+        </button>
+    </div>
+    @{
+        Html.Telerik().Grid<DbSystemMonitorModel>()
+            .Name("grid")
+            .DataKeys(key => key.Add(f => f.Type).RouteKey("type"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectMonitor", "User")
+            )
+            .Columns(columns =>
+                {
+                    //columns.Bound(f => f.Type).Title("").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.TypeName).Title("Loại").Width(200).ReadOnly(true);
+                    columns.Bound(f => f.Count).Width(50).ReadOnly(true)
+                           .HeaderTemplate("Số lượng")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                })
+            .DetailView(details2 => details2.ClientTemplate(
+                //Html.Telerik().TabStrip()
+                //    .Name("TabStrip_<#= CustomerId #>")
+                //    .SelectedIndex(0)
+                //    .Items(items => items.Add().Text("Địa chỉ").Content(
+                Html.Telerik().Grid<MonitorDetailModel>()
+                    .Name("grid_<#= Type #>")
+                    .DataKeys(key => key.Add(f => f.Id).RouteKey("id"))
+                    .DataBinding(dataDindings => dataDindings
+                                                     .Ajax()
+                                                     .Select("SelectMonitorDetail", "User", new { type = "<#= Type #>" }))
+                    .Columns(columns =>
+                        {
+                            columns.Bound(f => f.Type).Title("").Width(70);
+                            columns.Bound(f => f.Code).Title("Mã SP").Width(150);
+                            columns.Bound(f => f.Value).Title("");
+                        })
+                    .Resizable(f => f.Columns(true))
+                    .ClientEvents(events => events.OnError("grid_OnError")
+                    )
+                    .ToHtmlString()
+                                        )
+            //                    )
+            //.ClientEvents(e => e.OnError("grid_OnError"))
+            //.ToHtmlString())
+
+            )
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                                .OnRowSelect("grid_OnRowSelect")
+            )
+            .Scrollable(f => f.Height("auto"))
+            .Sortable(s => s.Enabled(false))
+            .Filterable(f => f.Enabled(false))
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>
+
+<div class="cover-div" style="width: 49%; float: right;">
+
+    <div>
+
+        <button id="btnRefresh2" class='t-button' onclick=" return RefreshGrid('grid2'); ">
+            <span class='t-icon t-insert'></span>
+            Làm mới
+        </button>
+    </div>
+    @{
+        Html.Telerik().Grid<DbSystemMonitorModel>()
+            .Name("grid2")
+            .DataKeys(key => key.Add(f => f.Type).RouteKey("type"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectWeightMonitor", "User")
+            )
+            .Columns(columns =>
+                {
+                    //columns.Bound(f => f.Type).Title("").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.WaresouseName).Title("Kho").Width(100).ReadOnly(true);
+                    columns.Bound(f => f.Count).Width(50).ReadOnly(true)
+                           .HeaderTemplate("Số lượng")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                })
+            .DetailView(details2 => details2.ClientTemplate(
+                //Html.Telerik().TabStrip()
+                //    .Name("TabStrip_<#= CustomerId #>")
+                //    .SelectedIndex(0)
+                //    .Items(items => items.Add().Text("Địa chỉ").Content(
+                Html.Telerik().Grid<MonitorDetailModel>()
+                    .Name("grid2_<#= Type #>")
+                    .DataKeys(key => key.Add(f => f.Id).RouteKey("id"))
+                    .DataBinding(dataDindings => dataDindings
+                                                     .Ajax()
+                                                     .Select("SelectMonitorWeightDetail", "User", new { type = "<#= Type #>" }))
+                    .Columns(columns =>
+                        {
+                            columns.Bound(f => f.Type).Title("");
+                            columns.Bound(f => f.Code).Title("Mã SP");
+                        })
+                    .Resizable(f => f.Columns(true))
+                    .ClientEvents(events => events.OnError("grid_OnError")
+                    )
+                    .ToHtmlString()
+                                        )
+            //                    )
+            //.ClientEvents(e => e.OnError("grid_OnError"))
+            //.ToHtmlString())
+            )
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                                .OnRowSelect("grid_OnRowSelect")
+            )
+            .Scrollable(f => f.Height("auto"))
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+
+<div class="cover-div" style="width: 49%; float: right;">
+    <div>
+        <button id="btnRefresh3" class='t-button' onclick=" return RefreshGrid('grid3'); ">
+            <span class='t-icon t-insert'></span>
+            Làm mới
+        </button>
+    </div>
+    @{
+        Html.Telerik().Grid<MonitorDetailModel>()
+            .Name("grid3")
+            .DataKeys(key => key.Add(f => f.Type).RouteKey("type"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectWrongOrderProduct", "User")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.Id).Title("");
+                    columns.Bound(f => f.Code).Title("Mã SP");
+                    columns.Bound(f => f.Value).Title("Lệch");
+                })
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                                .OnRowSelect("grid_OnRowSelect")
+            )
+            .Scrollable(f => f.Height("auto"))
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>

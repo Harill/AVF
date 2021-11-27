@@ -1,0 +1,245 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Đóng gói";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+
+
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+
+        var fileName = "";
+        var list;
+        var cancel = false;
+        var isParse = false;
+        var index = 0;
+
+        function upload_OnUpload(e) {
+            var files = e.files;
+            $.each(files,
+                function() {
+                    fileName = this.name;
+                    if (this.extension !== ".xls" && this.extension !== ".xlsx") {
+                        alert("Only excel files can be uploaded");
+                        e.preventDefault();
+                        cancel = true;
+                    }
+                    cancel = true;
+                });
+            $.extend(e.data);
+            cancel = false;
+        }
+
+        function upload_OnError(args) {
+            if (args.textStatus === "modelstateerror" && args.modelState) {
+                var message = "Errors:\n";
+                $.each(args.modelState,
+                    function(key, value) {
+                        if ('errors' in value) {
+                            $.each(value.errors,
+                                function() {
+                                    message += this + "\n";
+                                });
+                        }
+                    });
+                args.preventDefault();
+                alert(message);
+                cancel = true;
+            }
+        }
+
+        function upload_OnSuccess(e) {
+            alert(e.response);
+        }
+
+
+        function grid_OnDataBinding(args) {
+            if (!cancel) {
+                args.data = $.extend(args.data,
+                {
+                    fileName: fileName
+                });
+                list = args.data;
+                isParse = true;
+            }
+        }
+
+
+        function grid_OnComplete() {
+            if (isParse) {
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("GetExcelParseStatus", "Reporting")',
+                    timeout: 20000,
+                    success: function(data) {
+                        var message = "Tổng dòng: " + data[0];
+                        message += "\nĐạt: " + data[1];
+                        message += "\nLỗi: " + data[2];
+                        message += "\nTrùng: " + data[3];
+                        message += "\nMô tả: " + data[4];
+                        alert(message);
+                        isParse = false;
+                    }
+                });
+            }
+        }
+
+        function grid_OnCommand() {
+            cancel = true;
+            isParse = false;
+        }
+
+        function RefreshGrid2() {
+            cancel = false;
+            RefreshGrid("gridTransactionDetail");
+            // $(".t-comboBox .t-refresh").trigger('click');
+        }
+    </script>
+}
+
+    <div class="title">Báo cáo dự kiến đơn hàng</div>
+    <div class="clear"></div>
+    <br />
+
+    <div id="pnlInvMonthly">
+        <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+            <fieldset>
+                <legend>Test upload</legend>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().Upload().Name("attachments")
+                            .Async(async => async
+                                                .Save("Save", "Transaction")
+                                                .AutoUpload(false))
+                            .ClientEvents(events => events
+                                                        .OnUpload("upload_OnUpload")
+                                                        .OnSuccess("upload_OnSuccess")
+                                                        .OnError("upload_OnError"))
+                            .Multiple(false)
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div>
+                
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
+                <span class='t-icon t-insert'></span>
+                Lấy dữ liệu
+            </button>
+            </fieldset>
+        </div>
+        <div class="clear">
+        </div>
+
+        <div class="cover-div">
+            @{
+                Html.Telerik().Grid<ProductInventoryRotateModel>()
+                    .Name("gridTransactionDetail")
+                    .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+                    .DataBinding(dataBindings => dataBindings.Ajax()
+                        .Select("SelectTransactionPacking", "Transaction", new {fileName = ""})
+                        .Update("PrintForecastOrder", "Reporting"))
+                    .Columns(columns =>
+                    {
+                        columns.Bound(f => f.ProductId).Width(30)
+                            .ClientTemplate("<#= ++index #>")
+                            .HeaderTemplate("<strong>STT</strong>");
+                        columns.Bound(f => f.CustomerCode).Width(70).HeaderTemplate("Khách</br>hàng");
+                        columns.Bound(f => f.ProductCode).Width(120)
+                            .Aggregate(agg => agg.Count())
+                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                            ;
+                        columns.Bound(f => f.LotNumber).Width(100).Title("Lô");
+                        columns.Bound(f => f.ProductWeight).Width(70)
+                            .HeaderTemplate("TL sản phẩm</br>(g/pc)")
+                            .Format("{0:n3}")
+                            .HtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.TotalQtyExport).Width(70)
+                            .HeaderTemplate("Tồn kho</br>(pcs)")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.TotalQtyExportKg).Width(70)
+                            .HeaderTemplate("Tồn kho</br>(g)")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.QuantityKg).Width(100).HeaderTemplate("TL xuất</br>(g)")
+                           .Format("{0:n2}")
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                            .Aggregate(agg => agg.Sum())
+                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Quantity).Width(100).HeaderTemplate("SL xuất</br>(pcs)")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                            .Aggregate(agg => agg.Sum())
+                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ModifiedDate).Width(100).HeaderTemplate("Thời gian")
+                            .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+
+                        //columns.Bound(f => f.Note).Title("Ghi Chú");
+                    })
+                    .ClientEvents(events => events
+                        .OnDataBinding("grid_OnDataBinding")
+                        .OnError("upload_OnError")
+                        .OnComplete("grid_OnComplete")
+                        .OnCommand("grid_OnCommand")
+                    )
+                    .Scrollable(f => f.Height(510))
+                    .Editable(f => f.Mode(GridEditMode.InCell))
+                    // .Footer(false)
+                    .Groupable()
+                    .Resizable(f => f.Columns(true))
+                    .Render();
+            }
+        </div>
+    </div>
+
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReport")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(960)
+            .Render();
+    }
+    <style type="text/css">
+        #windowReport {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .tb-witdh td {
+            width: 55px;
+        }
+    </style>

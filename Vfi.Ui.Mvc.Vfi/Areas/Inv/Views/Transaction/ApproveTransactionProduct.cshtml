@@ -1,0 +1,424 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Duyệt luân chuyển kho SP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .highslide-container div {
+        font-family: Verdana, Helvetica;
+        font-size: 10pt;
+    }
+
+    .highslide-container table {
+        background: none;
+    }
+
+    .highslide {
+        outline: none;
+        text-decoration: none;
+    }
+
+        .highslide img {
+            border: 2px solid silver;
+        }
+
+        .highslide:hover img {
+            border-color: gray;
+        }
+
+    .highslide-active-anchor img {
+        visibility: hidden;
+    }
+
+    .highslide-gallery .highslide-active-anchor img {
+        border-color: black;
+        visibility: visible;
+        cursor: default;
+    }
+
+    .highslide-image {
+        border-width: 2px;
+        border-style: solid;
+        border-color: white;
+    }
+
+    .highslide-wrapper, .highslide-outline {
+        background: white;
+    }
+
+    .glossy-dark {
+        background: #111;
+    }
+
+    .highslide-image-blur {
+    }
+
+    .highslide-number {
+        display: none;
+        font-weight: bold;
+        color: gray;
+        font-size: .9em;
+    }
+
+    .highslide-caption {
+        display: none;
+        font-size: 1em;
+        padding: 5px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        /*background: white;*/
+    }
+
+    .highslide-heading {
+        display: none;
+        font-weight: bold;
+        margin: 0.4em;
+    }
+
+    .highslide-dimming {
+        /*position: absolute;*/
+        background: black;
+    }
+
+    a.highslide-full-expand {
+        display: block;
+        margin: 0 10px 10px 0;
+        width: 34px;
+        height: 34px;
+    }
+
+    .highslide-loading {
+        display: block;
+        color: black;
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        border: 1px solid white;
+        background-color: white;
+        padding-left: 22px;
+        background-repeat: no-repeat;
+        background-position: 3px 1px;
+    }
+
+    a.highslide-credits,
+    a.highslide-credits i {
+        padding: 2px;
+        color: silver;
+        text-decoration: none;
+        font-size: 10px;
+        display: none;
+    }
+
+        a.highslide-credits:hover,
+        a.highslide-credits:hover i {
+            color: white;
+            background-color: gray;
+        }
+
+    .highslide-move, .highslide-move * {
+        cursor: move;
+    }
+
+    .highslide-viewport {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: none;
+        left: 0;
+        top: 0;
+    }
+
+    .highslide-overlay {
+        display: none;
+    }
+
+    .hidden-container {
+        display: none;
+    }
+    /* Example of a semitransparent, offset closebutton */
+    .closebutton {
+        position: relative;
+        top: -15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+    }
+
+    .highslide-controls {
+        display: none;
+    }
+</style>
+
+<script type="text/javascript">
+    hs.graphicsDir = '';
+    hs.align = 'center';
+    hs.transitions = ['expand', 'crossfade'];
+    hs.outlineType = '';
+    hs.fadeInOut = true;
+    hs.numberPosition = 'caption';
+    hs.dimmingOpacity = 0.75;
+
+    // Add the controlbar
+    if (hs.addSlideshow)
+        hs.addSlideshow({
+            //slideshowGroup: 'group1',
+            interval: 5000,
+            repeat: false,
+            useControls: true,
+            fixedControls: 'fit',
+            overlayOptions: {
+                opacity: .75,
+                position: 'bottom center',
+                hideOnMouseOut: true
+            }
+        });
+</script>
+
+@section Scripts{
+    <!-- approve stockorder -->
+    <script type="text/javascript">
+
+        function grid_OnRowDataBound(e) {
+            var color = e.dataItem.AlertColor;
+            if (color === 1)
+                e.row.style.backgroundColor = "#F4FA58";
+            else if (color === 2)
+                e.row.style.backgroundColor = "#FA5858";
+            if (!e.dataItem.IsApprove) {
+                e.row.childNodes[1].innerHTML = "";
+            }
+            if (!e.dataItem.SpecialFormType > 0) {
+                e.row.childNodes[12].innerHTML = "";
+            }
+        }
+
+        function PrintForm(val) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintTransactionForm", "Inv")',
+                {
+                    transactionId: val
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function PrintSpecialForm(val, formType) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintImportExportForm", "Inv")',
+                {
+                    transactionId: val,
+                    formType: formType,
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function gridDetail_OnRowDataBound(e) {
+            if (e.dataItem.AvailableQuantity < e.dataItem.Quantity)
+                e.row.childNodes[6].bgColor = "#F4FA58";
+            if (!e.dataItem.IsManagerLv2) {
+                e.row.childNodes[0].innerHTML = "";
+            }
+        }
+
+        function grid_OnDataBound() {
+            var btn = document.querySelector('#twoToneButton');
+            if (btn && btn.className.includes("loading")) {
+                btn.classList.remove('loading');
+                btn.innerHTML = "<span></span>";
+            }
+        }
+
+        function grid_OnSave(e) {
+            var btn = document.querySelector('#twoToneButton');
+            if (btn) {
+                if (btn.className.includes("loading")) {
+                    return false;
+                } else {
+                    btn.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Đang duyệt)";
+                    btn.classList.add('loading');
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }
+    </script>
+
+    <script type="text/javascript">
+
+        function ImportNcuSignature(transactionId) {
+            $.ajax({
+                type: 'post',
+                data: { transactionId: transactionId },
+                dataType: 'json',
+                url: '@Url.Action("ImportNcuSignature", "Transaction", new { area = "Inv" })',
+                timeout: 20000,
+                success: function (data) {
+                    if (data === 9)
+                        alert("Lỗi không tìm thấy phiếu !");
+                    else {
+                        alert("Thêm chữ ký thành công !");
+                        RefreshGrid("gridTransaction");
+                    }
+                }
+            });
+            return false;
+        }
+
+    </script>
+
+}
+
+<div class="title">Duyệt phiếu xuất nhập kho</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionModel>()
+            .Name("gridTransaction")
+            .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("transactionId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectWaitingProductTransactions", "Transaction")
+                .Update("ApproveProductTransaction", "Transaction"))
+            .Columns(columns => {
+                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.TransactionCode).Width(120).ReadOnly(true);
+                columns.Bound(f => f.CreatedDate).Title("Ngày báo cáo").Width(100).ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy}");
+                columns.Bound(f => f.WarehouseIssueName).Width(130).ReadOnly(true);
+                columns.Bound(f => f.WarehouseReceiptName).Width(130).ReadOnly(true);
+                columns.Bound(f => f.TotalQuality).Title("Tổng SL").ReadOnly(true).Width(90)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right" });
+                //columns.Bound(f => f.EoIName).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Width(100).ReadOnly(true);
+                columns.Bound(f => f.SpecialNote).Title("Ghi chú").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(100).ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100).ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy}");
+                columns.Bound(f => f.TransactionId).Title("In").Width(45).ReadOnly(true)
+                    .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.TransactionId).Title("In ĐB").Width(45).ReadOnly(true)
+                    .ClientTemplate("<input type='button' id='db_id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintSpecialForm(<#= TransactionId #>,<#= SpecialFormType #>) />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+
+            })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().Grid<TransactionDetailModel>()
+                    .Name("gridTransactionDetail_<#= TransactionId #>")
+            .DataKeys(keys => keys.Add(f => f.TransactionDetailId).RouteKey("transactionDetailId"))
+                    .DataBinding(dataDindings => dataDindings.Ajax()
+                        .Select("SelectTransactionDetailByTransactionId", "Transaction",
+                            new { transactionId = "<#= TransactionId #>" })
+                            .Update("UpdateTransactionDetail", "Transaction")
+                //.Delete("DeleteTransactionDetail", "Transaction")
+                            )
+                    .Columns(columns => {
+                        columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
+                            .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50).ReadOnly(true);
+
+                        columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
+                               .ClientTemplate("<a id='<#=TransactionDetailId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                               "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                               "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100).ReadOnly(true);
+                        columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true);
+                        columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50).ReadOnly(true);
+                        columns.Bound(f => f.AvailableQuantity).Width(75).Title("Tồn kho").ReadOnly(true)
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                            .Format("{0:n0}");
+                        columns.Bound(f => f.Quantity).Width(75).Title("SL (PCS)")
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                            .Format("{0:n0}").Aggregate(agg => agg.Sum())
+                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.QuantityKg).Width(75).Title("SL (g)").ReadOnly(true)
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                            .Format("{0:n0}")
+                            .Aggregate(agg => agg.Sum())
+                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.StoreCode).Title("Vị trí").Width(70).ReadOnly(true);
+                        columns.Bound(f => f.Note).Title("Ghi chú").ReadOnly(true);
+                        columns.Bound(f => f.MaterialCode).Width(250).Title("Nguyên liệu").ReadOnly(true);
+                        columns.Bound(f => f.MaterialTypeName).Width(75).Title("Loại").ReadOnly(true);
+                        columns.Bound(f => f.Identity).Width(50).Title("Code").ReadOnly(true);
+                        //columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
+                        //       .Width(50);
+                    })
+                    .Groupable()
+                    .ClientEvents(events => events.OnError("grid_OnError")
+                                                  .OnRowDataBound("gridDetail_OnRowDataBound")
+                    )
+                    .ToHtmlString()))
+            .Selectable()
+            .ClientEvents(events => events
+                .OnSave("grid_OnSave")
+                .OnRowSelect("grid_OnRowSelect")
+                .OnDataBound("grid_OnDataBound")
+                .OnRowDataBound("grid_OnRowDataBound")
+                .OnError("grid_OnError"))
+            .Render();
+    }
+</div>
+
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

@@ -1,0 +1,138 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Tiêu chuẩn xử lý nhiệt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        function gridProduct_OnDataBinding(args) {
+            var customer = $("#Customer").data("tComboBox").value();
+            if (customer === "")
+                customer = 0;
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+            args.data = $.extend(args.data, {
+                customerId: customer,
+                productId: 0,
+                productCode: productCodeName
+            });
+            var index = 0;
+        }
+
+        var index = 0;
+
+        function customer_onChange() {
+            var index = 0;
+            RefreshGrid("gridProduct");
+        }
+    </script>
+}
+
+<div class="title">Quản lý thông tin sản phẩm</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+
+            <div class="grid_1">
+                Mã KH
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .ClientEvents(events => events.OnChange("customer_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 150px; " })
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Value("")
+                        //.ClientEvents(events => events.OnClose("ProductCodeName_OnClose"))
+                        .Render();
+                }
+            </div>
+            <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductionHeatTreatmentModel>()
+            .Name("gridProduct")
+            .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+            //.ToolBar(
+            //                            toolbar =>
+            //                            toolbar.Insert().Text("Thêm công đoạn mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                        .Select("SelectProductionHeatTreatment", "Production", new { area = "Factory", customerId = 0, productId = 0, productCode = "" })
+                                          )
+            .Columns(columns => {
+                //columns.Command(command =>
+                //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "font-weight: bold" })
+                    .ClientTemplate("<#= ++index #>")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.CustomerCode).Width(70)
+                       .HeaderTemplate("Mã KH");
+                columns.Bound(f => f.ProductCode).Width(100)
+                       .HeaderTemplate("Mã SP");
+                columns.Bound(f => f.Section).Width(50)
+                       .HeaderTemplate("CĐ");
+                columns.Bound(f => f.Name).Width(100)
+                       .HeaderTemplate("Tên");
+                columns.Bound(f => f.Rate).Width(75)
+                       .HeaderTemplate("SL/Lần")
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.Temperature).Width(75)
+                       .HeaderTemplate("Nhiệt độ");
+                columns.Bound(f => f.Timing).Width(75)
+                       .HeaderTemplate("Thời gian (s)")
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.Stiffness).Width(120)
+                       .HeaderTemplate("Độ cứng sau GG");
+                columns.Bound(f => f.Note)
+                       .HeaderTemplate("Ghi chú");
+                columns.Bound(f => f.Active).Width(40)
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                       .Format("{0:dd/MM/yyyy}");
+                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+            })
+            .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
+                                          .OnError("grid_OnError"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

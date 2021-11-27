@@ -1,0 +1,260 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Yêu cầu tồn kho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        var startGrid = false;
+
+        function grid_OnDataBinding(args) {
+
+            if (startGrid) {
+                var toolType = $("#ToolType").data('tComboBox').value();
+                if (toolType === "")
+                    toolType = 0;
+
+                var toolName = $("#ToolName").data('tAutoComplete').value();
+
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                }
+                args.data = $.extend(args.data,
+                {
+                    toolName: toolName,
+                    toolTypeId: toolType,
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+            }
+        }
+
+        function grid_OnSave(e) {
+            var toolType = $("#ToolType").data('tComboBox').value();
+            if (toolType === "")
+                toolType = 0;
+
+            var toolName = $("#ToolName").data('tAutoComplete').value();
+
+            var fromDate = $("#fromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+
+            var toDate = $("#toDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+            e.values = $.extend(e.values,
+                {
+                    toolName: toolName,
+                    toolTypeId: toolType,
+                    fromDate: fromDate,
+                    toDate: toDate
+                }
+            );
+        }
+    </script>
+
+    <!-- report -->
+    <script type="text/javascript">
+
+       @* function printMaterialInvTotalInMonth() {
+            var fromDate = $("#fromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#toDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+            $('#result').load('@Url.Action("PrintToolInvTotalInMonth", "Tool")',
+                {
+                    fromDate: fromDate,
+                    toDate: toDate
+                },
+                function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }*@
+
+        function RefreshGrid2() {
+            startGrid = true;
+            RefreshGrid("grid");
+        }
+
+@*        function printAssignProductionTool() {
+            $('#result').load('@Url.Action("PrintAssignProductionTool", "Tool")',
+                {
+
+                },
+                function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function printProductionTool() {
+            $('#result').load('@Url.Action("PrintProductionTool", "Tool")',
+                {
+
+                },
+                function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }*@
+    </script>
+
+}
+
+<div class="title">Báo cáo tổng hợp công cụ</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1020px;">
+    @*<div class="grid_7">
+        <button id="btnAssignTool" class="t-button" onclick=" return printAssignProductionTool(); ">
+            <span class='t-icon t-insert'></span>
+            In phát công cụ sản xuất
+        </button>
+    </div>
+    <div class="grid_7">
+        <button id="btnProductionTool" class="t-button" onclick=" return printProductionTool(); ">
+            <span class='t-icon t-insert'></span>
+            In sản phẩm dùng công cụ sản xuất
+        </button>
+    </div>
+    <div class="clear"></div>*@
+    <br />
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
+        <div class="grid_3">Loại công cụ</div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("ToolType")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxToolType", "Tool", new { area = "Purchasing" }))
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    //.DropDownHtmlAttributes(new { style = "width: 100%" })
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("fromDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("toDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddSeconds(-1))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2_5">Tên công cụ</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ToolName")
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </div>
+    </fieldset>
+
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ToolInvRequirementModel>()
+            .Name("grid")
+            .DataKeys(keys => keys.Add(f => f.RequirementId).RouteKey("requirementId"))
+            .ToolBar(
+                    toolbar =>
+                        toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới")
+                        .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectToolInvRequirement", "Machine",
+                    new {
+                        toolName = "",
+                        toolTypeId = -1,
+                        fromDate = 1 + "/" + DateTime.Now.Month + "/" + DateTime.Now.Year,
+                        toDate = DateTime.Now.ToString("dd/MM/yyyy")
+                    })
+                .Insert("InsertToolInventoryRequirement", "Machine")
+                .Update("UpdateToolInventoryRequirement", "Machine")
+            )
+
+            .Columns(columns => {
+                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                columns.Bound(f => f.ToolTypeName).Width(125).ReadOnly(true)
+                    .HeaderTemplate("Loại");
+                columns.Bound(f => f.StartDate).Width(100).Title("Ngày thực hiện").ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy}");
+                columns.Bound(f => f.ToolFullCode).Width(250).Title("Mã công cụ")
+                    .HtmlAttributes(new { style = "font-weight:bold;" })
+                    .Aggregate(agg => agg.Count())
+                    .ClientGroupFooterTemplate("<#= Count #>")
+                    .ClientFooterTemplate("<#= Count #>");
+                columns.Bound(f => f.RequireQuantity).Width(100)
+                    .HeaderTemplate("SL yêu cầu")
+                    .HtmlAttributes(new { style = "text-align:right;" })
+                    .Format("{0:n0}");
+                columns.Bound(f => f.Note).Title("Ghi chú");
+                
+                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy HH:mm}");
+            })
+            .Scrollable(f => f.Height(510))
+            //.HtmlAttributes(new { style = "width: 950px;" })
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Groupable()
+            .ClientEvents(events => events.OnError("grid_OnError")
+                .OnDataBinding("grid_OnDataBinding")
+                .OnSave("grid_OnSave"))
+            .Render();
+    }
+</div>
+

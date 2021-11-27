@@ -1,0 +1,258 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model ExportFormTP_KD
+@{
+    ViewBag.Title = "Biên bảng đổi hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        function OrderNote_OnChange() {
+            RefreshGrid("gridProductInventory");
+        }
+
+        function gridProductInInvoice_onDataBinding(args) {
+            var noteId = $("#OrderNote").data('tComboBox').value();
+            if (noteId != 0) {
+                args.data = $.extend(args.data, {
+                    noteId: noteId
+                });
+            }
+        }
+
+
+        function autoComplete_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+    </script>
+
+    <script type="text/javascript">
+        function PickupProductId() {
+
+            var $checkedRecords = $(':checked');
+            //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+                return;
+            }
+
+            //$.ajaxSettings.traditional = false;
+            var a = {};
+            var ids = "";
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+
+            var noteId = $("#OrderNote").data('tComboBox').value();
+            if (noteId != 0) {
+                $("#gridProductInventoryDetail").data("tGrid").rebind({
+                    //checkedRecords: $checkedRecords.map(function () { return value; }) 
+                    //checkedRecords: a
+                    productIds: ids,
+                    noteId: noteId
+                });
+            }
+
+        }
+    </script>
+
+    <!-- client event grid material inventory -->
+    <script type="text/javascript">
+        function gridProductInventoryDetail_onDataBound() {
+            // GenCode();
+        }
+
+        function gridProductInventoryDetail_onSave(e) {
+            var quanlity = $(e.cell).find('#Quality').val();
+            if (!isNaN(parseInt(quanlity))) {
+                var sumQuality = 0;
+                var spanRequests = $("span[name='Quality']");
+                for (var i = 0; i < spanRequests.length; i++) {
+                    var innerText = spanRequests[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumQuality = sumQuality + parseInt(innerText);
+                }
+                sumQuality = sumQuality + parseInt(quanlity);
+                $("#TotalSendQuantity").text(sumQuality);
+            }
+            var weight = $(e.cell).find('#Weight').val();
+            if (!isNaN(parseInt(weight))) {
+                var sumWeight = 0.0;
+                var spanWeights = $("span[name='Weight']");
+                for (i = 0; i < spanWeights.length; i++) {
+                    innerText = spanWeights[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumWeight = sumWeight + parseFloat(innerText);
+                }
+                sumWeight = sumWeight + parseFloat(weight);
+                $("#TotalSendWeight").text(sumWeight);
+            }
+        }
+
+        function gridProductInventoryDetail_onSubmitChanges(e) {
+
+            var createdDate = $("#CreatedDate").data("tDatePicker").value();
+            if (createdDate === null)
+                createdDate = "";
+            else
+                createdDate = $.telerik.formatString('{0:dd/MM/yyyy}', createdDate);
+
+            var noteId = $("#OrderNote").data('tComboBox').value();
+            e.values = $.extend(e.values,
+                {
+                    noteId: noteId,
+                    createdDate: createdDate
+                }
+            );
+        }
+
+    </script>
+
+}
+
+<div class="title">Trả hàng</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+    <fieldset>
+        <div class="grid_2">Số phiếu:</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("OrderNote")
+                    .DataBinding(binding => binding.Ajax().Select("SelectOrderNoteToChange", "Orders", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 200px" })
+                    .ClientEvents(events => events.OnChange("OrderNote_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">Ngày tạo</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("CreatedDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+    </fieldset>
+
+</div>
+
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ExportFormTP_KDDetailsModel>()
+            .Name("gridProductInventory")
+            .ToolBar(bar => bar.Template(
+                @<text>
+                     <div class="grid_7">
+                         <button class="t-button" id="btnPickupProductId" name="btnPickupProductId" onclick=" PickupProductId() ">
+                             <span class='t-icon t-insert'></span>
+                             Chọn các sản phẩm vào lưới
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+                                ))
+            .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                             // .Select("SelectProductInventoryRotateByCustomer", "Inv",
+                                                     .Select("SelectProductInOrderNote", "Inv", new {area = "Inv", noteId = 0}))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ProductId).Title("Chọn").Width(75)
+                           .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductId #>' />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.ProductCode)
+                           .HeaderTemplate("Mã Sản Phẩm").Width(250);
+                    columns.Bound(f => f.SentNumber)
+                           .HeaderTemplate("Số lượng trả").Width(150)
+                           .ClientTemplate("<span name='cot3'><#= SentNumber == null ? 0 : $.telerik.formatString('{0:n0}', SentNumber) #></span>")
+                           .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.SentWeight)
+                           .HeaderTemplate("Trọng lượng trả").Width(150)
+                           .ClientTemplate("<span name='cot3'><#= SentWeight == null ? 0 : $.telerik.formatString('{0:n0}', SentWeight) #></span>")
+                           .HtmlAttributes(new {style = "text-align: right;"});
+                    //columns.Bound(f => f.CustomerCode)
+                    //       .HeaderTemplate("Mã Khách Hàng").Width(250);
+                    //columns.Bound(f => f.TotalQtyExport)
+                    //       .HeaderTemplate("Tồn kho thành phẩm");
+                })
+            .Scrollable(f => f.Height("auto"))
+            .Scrollable(f => f.Height(200))
+            .Resizable(f => f.Columns(true))
+            //.Pageable(f => f.Style(GridPagerStyles.Status))
+            .ClientEvents(events => events.OnDataBinding("gridProductInInvoice_onDataBinding").OnError("grid_OnError"))
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ExportFormTP_KDDetailsModel>()
+            .Name("gridProductInventoryDetail")
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Huỷ tất cả"))
+            .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("InputProductInOrderNote", "Inv", new { area = "Inv" })
+                                                     .Update("ChangeOrderDetailProduct", "Orders", new { area = "Sales" }))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ProductCode)
+                           .HeaderTemplate("Mã SP").Width(100).ReadOnly(true).Sortable(true);
+                    columns.Bound(f => f.TotalQuantity)
+                           .HeaderTemplate("Tồn kho").Width(100)
+                           .ClientTemplate("<span name='cot1'><#= TotalQuantity == null ? 0 : $.telerik.formatString('{0:n0}', TotalQuantity) #></span>")
+                           .HtmlAttributes(new { style = "text-align: right;" }).ReadOnly(true);
+                    columns.Bound(f => f.SentNumber)
+                           .HeaderTemplate("SL cần đổi").Width(100)
+                           .ClientTemplate("<span name='cot1'><#= SentNumber == null ? 0 : $.telerik.formatString('{0:n0}', SentNumber) #></span>")
+                           .HtmlAttributes(new { style = "text-align: right;" }).ReadOnly(true);
+                    columns.Bound(f => f.Quality)
+                           .HeaderTemplate("Số lượng đổi").Width(100)
+                           .ClientTemplate("<span name='Quality'><#= Quality == null ? 0 : $.telerik.formatString('{0:n0}', Quality) #></span>")
+                           .FooterTemplate("<span id='TotalSendQuantity'></span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.SentWeight)
+                           .HeaderTemplate("TL cần đổi").Width(100)
+                           .ClientTemplate("<span name='cot1'><#= SentWeight == null ? 0 : $.telerik.formatString('{0:n0}', SentWeight) #></span>")
+                           .HtmlAttributes(new { style = "text-align: right;" }).ReadOnly(true);
+                    columns.Bound(f => f.Weight)
+                           .HeaderTemplate("Trọng lượng đổi").Width(100)
+                           .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #></span>")
+                           .FooterTemplate("<span id='TotalSendWeight'></span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Note)
+                           .HeaderTemplate("Lý do")
+                           .HtmlAttributes(new { style = "text-align: left;" });
+                    columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Title("").Width(30);
+                })
+            .ClientEvents(events => events
+                                        .OnSave("gridProductInventoryDetail_onSave")
+                                        .OnSubmitChanges("gridProductInventoryDetail_onSubmitChanges")
+                                        .OnError("grid_OnError")
+                                        .OnDataBound("gridProductInventoryDetail_onDataBound")
+            )
+            .Editable(f => f.Mode(GridEditMode.InCell))
+            // .Footer(false)
+            .Resizable(f => f.Columns(true))
+             .Render()
+            ;
+    }
+</div>

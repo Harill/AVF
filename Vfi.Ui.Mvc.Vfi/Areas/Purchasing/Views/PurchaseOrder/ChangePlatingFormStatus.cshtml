@@ -1,0 +1,285 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@{
+    ViewBag.Title = "Đổi trạng thái phiếu GCN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+      
+        function PrintExportForm(val) {
+            var $item = $('#id_' + val);
+            var $formType = $item.attr('ftype');
+            $('#result').load('@Url.Action("PrintImportExportForm", "Inv",new{area="Inv"})',
+                {
+                    transactionId: val,
+                    formType: $formType,
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem;
+
+            if (dataItem.TotalExportPrice > dataItem.TotalImportPrice)
+                e.row.style.backgroundColor = "#F4FA58";
+        }
+    </script>
+}
+
+<div class="title">Đổi trạng thái phiếu GCN</div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<PlatingFormModel>()
+            .Name("gridChangeStatus")
+            .DataKeys(key => key.Add(f => f.FormId).RouteKey("formId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectPlatingFormUnfinish", "PurchaseOrder")
+                                          .Update("UpdatePlatingFormStatus", "PurchaseOrder")
+                                          )
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Duyệt").CancelText("Trở lại")
+                        ).Width(50).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.VendorCodeName).Width(130).Title("Nhà cung cấp").ReadOnly(true);
+                    columns.Bound(f => f.PlatingFormNumber).Title("Mã lệnh").Width(100).ReadOnly(true);
+                    columns.Bound(f => f.StatusName).Title("Tình trạng").Width(100);
+                    columns.Bound(f => f.TotalPrice).Width(80).Title("Tổng tiền").ReadOnly(true)
+                           .Filterable(false)
+                           .HtmlAttributes(new {style = "text-align:right"})
+                           .Format("{0:n0}");
+
+                    columns.Bound(f => f.TotalExportPrice).Width(80).Title("Tổng tiền xuất").ReadOnly(true)
+                           .Filterable(false)
+                           .HtmlAttributes(new {style = "text-align:right"})
+                           .Format("{0:n0}");
+
+                    columns.Bound(f => f.TotalImportPrice).Width(80).Title("Tổng tiền nhập").ReadOnly(true)
+                           .Filterable(false)
+                           .HtmlAttributes(new {style = "text-align:right"})
+                           .Format("{0:n0}");
+
+                    columns.Bound(f => f.CreateDate).Title("Ngày tạo").Width(100).Format("{0:dd/MM/yyyy HH:mm:ss}").ReadOnly(true);
+                    columns.Bound(f => f.CreateUser).Title("Người tạo").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.Note).Title("Ghi chú").ReadOnly(true)
+                           .Filterable(false);
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= FormId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                    {
+                        items.Add().Text("Thông tin chi tiết").Content(
+                            Html.Telerik().Grid<PlatingDetailModel>()
+                                .Name("gridDetail_<#= FormId #>")
+                                .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                         .Select("SelectPlatingFormDetail", "PurchaseOrder",
+                                                                                 new { formId = "<#= FormId #>" }))
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(f => f.ProductCode).Width(100).Title("Mã SP");
+                                    columns.Bound(f => f.UnitPriceString).Width(65).Title("Đơn giá")
+                                           .HtmlAttributes(new { style = "text-align:right" });
+                                    columns.Bound(f => f.Unit).Width(50).Title("ĐVT");
+                                    columns.Bound(f => f.QuantityRequirement).Width(50).Title("SL yêu cầu")
+                                           .HtmlAttributes(new { style = "text-align:right" })
+                                           .ClientTemplate("<#= QuantityRequirement == null ? 0 : $.telerik.formatString('{0:n0}', QuantityRequirement) #>");
+                                    columns.Bound(f => f.ExportString).Width(50).Title("SL xuất")
+                                           .HtmlAttributes(new { style = "text-align:right" });
+                                    //.ClientTemplate("<#= Export == null ? 0 : $.telerik.formatString('{0:n0}', Export) #>");
+                                    columns.Bound(f => f.ImportString).Width(50).Title("SL nhập")
+                                           .HtmlAttributes(new { style = "text-align:right" });
+                                    //.ClientTemplate("<#= Import == null ? 0 : $.telerik.formatString('{0:n0}', Import) #>");
+
+                                    columns.Bound(f => f.ExportDateRequirement).Width(70).Title("Ngày xuất")
+                                           .ClientTemplate("<#= ExportDateRequirement == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ExportDateRequirement) #>");
+
+                                    columns.Bound(f => f.ImportDateRequirement).Width(70).Title("Ngày giao")
+                                           .ClientTemplate("<#= ImportDateRequirement == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ImportDateRequirement) #>");
+                                    columns.Bound(f => f.Note).Width(70).Title("Ghi chú");
+                                })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Phiếu xuất kho").Content(
+                            Html.Telerik().Grid<ExportGCN_NCUModel>()
+                                .Name("gridExport_<#= FormId #>")
+                                .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                         .Select("SelectExportPlating", "PurchaseOrder",
+                                                                                 new { formId = "<#= FormId #>" }))
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(f => f.TransactionCode).Width(120).Title("Mã giao dịch");
+                                    columns.Bound(f => f.ExportDate).Width(100).Title("Ngày xuất")
+                                         .ClientTemplate("<#= ExportDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ExportDate) #>");
+                                    //columns.Bound(f => f.BoxNumber).Width(50).Title("Số thùng")
+                                    //       .HtmlAttributes(new { style = "text-align:right" });
+                                    //columns.Bound(f => f.BlockNumber).Width(70).Title("Số lốc")
+                                    //       .HtmlAttributes(new { style = "text-align:right" });
+                                    columns.Bound(f => f.TotalNumber).Width(70).Title("Tổng SL (pcs)")
+                                           .HtmlAttributes(new { style = "text-align:right" })
+                                        .ClientTemplate("<#= TotalNumber == null ? '' : $.telerik.formatString('{0:n0}', TotalNumber) #>");
+                                    columns.Bound(f => f.TotalWeight).Width(70).Title("Tổng TL (g)")
+                                           .HtmlAttributes(new { style = "text-align:right" })
+                                        .ClientTemplate("<#= TotalWeight == null ? '' : $.telerik.formatString('{0:n0}', TotalWeight) #>");
+                                    columns.Bound(f => f.ModifiedDate).Width(80).Title("Ngày lập")
+                                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
+                                    columns.Bound(f => f.ModifiedUser).Width(80).Title("Người lập");
+                                    columns.Bound(f => f.TransactionId).Title("Biễu mẫu").Width(45)
+                           .ClientTemplate("<input type='button' id='id_<#= ExportFormId #>' value='In'  class='t-button' onclick=PrintPlatingForm(<#= ExportFormId #>) />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                           .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' ftype='7' class='t-button' onclick=PrintExportForm(<#= TransactionId #>) />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                                })
+                                .DetailView(exportDetails => exportDetails.ClientTemplate(
+                //Html.Telerik().TabStrip()
+                //    .Name("TabStrip_<#= TransactionId #>")
+                //    .SelectedIndex(0)
+                //    .Items(exportItems =>
+                //           exportItems.Add().Text("Chi tiết xuất").Content(
+                               Html.Telerik().Grid<ManageImportExportDetailModel>()
+                               //.DataKeys(keys => keys.Add(f => f.ProductCode).RouteKey("ProductCode"))
+                               .Name("gridExportDetail_<#= TransactionId #>")
+                               //.Name("gridTransactionDetail")
+                               .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                        .Select("SelectFormDetailByTransactionId", "Transaction",
+                               new { area = "Inv", transactionId = "<#= TransactionId #>", formType = 7 }))
+                                   .Columns(columns =>
+                                   {
+                                       columns.Bound(f => f.ProductCode).Width(100);
+                                       columns.Bound(f => f.Number).Width(98).Title("Số lượng (PCS)")
+                                           .HtmlAttributes(new { style = "text-align: right;" })
+                                           .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>");
+                                       columns.Bound(f => f.Weight).Width(98).Title("Số lượng (g)")
+                                           .HtmlAttributes(new { style = "text-align: right;" })
+                                           .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #>");
+                                       columns.Bound(f => f.Package).Width(98).Title("Đóng gói");
+
+                                       columns.Bound(f => f.Note).Title("Ghi chú");
+                                   })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()
+                               )
+                    )
+                    //.ToHtmlString()
+                    //                   ))
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+
+                        items.Add().Text("Phiếu nhập kho").Content(
+                            Html.Telerik().Grid<ImportNCU_QCBModel>()
+                                .Name("gridImport_<#= FormId #>")
+                                .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                         .Select("SelectImportPlating", "PurchaseOrder",
+                                                                                 new { formId = "<#= FormId #>" }))
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(f => f.TransactionCode).Width(120).Title("Mã giao dịch");
+                                    columns.Bound(f => f.ImportDate).Width(100).Title("Ngày nhập")
+                                         .ClientTemplate("<#= ImportDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ImportDate) #>");
+
+                                    //columns.Bound(f => f.BoxNumber).Width(50).Title("Số thùng")
+                                    //       .HtmlAttributes(new { style = "text-align:right" });
+                                    columns.Bound(f => f.TotalNumber).Width(70).Title("Tổng SL (pcs)")
+                                           .HtmlAttributes(new { style = "text-align:right" })
+                                           .ClientTemplate("<#= TotalNumber == null ? '' : $.telerik.formatString('{0:n0}', TotalNumber) #>");
+                                    columns.Bound(f => f.TotalWeight).Width(70).Title("Tổng TL (g)")
+                                           .HtmlAttributes(new { style = "text-align:right" })
+                                        .ClientTemplate("<#= TotalWeight == null ? '' : $.telerik.formatString('{0:n0}', TotalWeight) #>");
+                                    columns.Bound(f => f.ModifiedDate).Width(80).Title("Ngày lập")
+                                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
+                                    columns.Bound(f => f.ModifiedUser).Width(80).Title("Người lập");
+                                    columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                           .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' ftype='8' class='t-button' onclick=PrintExportForm(<#= TransactionId #>) />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+
+                                })
+                                .DetailView(exportDetails => exportDetails.ClientTemplate(
+               @* Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= TransactionId #>")
+                    .SelectedIndex(0)*@
+                    //.Items(exportItems =>
+                    //       exportItems.Add().Text("Chi tiết nhập").Content(
+                               Html.Telerik().Grid<ManageImportExportDetailModel>()
+                               //.DataKeys(keys => keys.Add(f => f.ProductCode).RouteKey("ProductCode"))
+                               .Name("gridImportDetail_<#= TransactionId #>")
+                               //.Name("gridTransactionDetail")
+                               .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                        .Select("SelectFormDetailByTransactionId", "Transaction",
+                               new { area = "Inv", transactionId = "<#= TransactionId #>", formType = 8 }))
+                                   .Columns(columns =>
+                                   {
+                                       columns.Bound(f => f.ProductCode).Width(100);
+                                       columns.Bound(f => f.Number).Width(98).Title("Số lượng (PCS)")
+                                           .HtmlAttributes(new { style = "text-align: right;" })
+                                           .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>");
+                                       columns.Bound(f => f.Weight).Width(98).Title("Số lượng (g)")
+                                           .HtmlAttributes(new { style = "text-align: right;" })
+                                           .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #>");
+                                       columns.Bound(f => f.Package).Width(98).Title("Đóng gói");
+                                       columns.Bound(f => f.Note).Title("Ghi chú");
+                                   })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()
+                               )
+                    )
+                    //.ToHtmlString()
+                    //                   ))
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Thông tin kỹ thuật").Content(
+                            Html.Telerik().Grid<PlatingDetailModel>()
+                                .Name("gridDetailInfo_<#= FormId #>")
+                                .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                         .Select("SelectPlatingFormDetail", "PurchaseOrder",
+                                                                                 new { formId = "<#= FormId #>" }))
+                                .Columns(columns =>
+                                {
+                                    columns.Bound(f => f.ProductCode).Width(120).Title("Mã SP");
+                                    columns.Bound(f => f.PlatingCode).Width(100).Title("Mã xi mạ");
+
+                                    columns.Bound(f => f.Thickness).Width(50)
+                                           .HeaderTemplate("Độ dày (µm)");
+                                    columns.Bound(f => f.SaltSprayTime).Width(70)
+                                           .HeaderTemplate("Phun muối (h)");
+                                    columns.Bound(f => f.SpecialRequest).Width(100).Title("Yêu cầu");
+                                    columns.Bound(f => f.Sample).Width(50)
+                                           .HeaderTemplate("Mẫu SP (pcs)");
+                                    columns.Bound(f => f.TestingEquipment).Width(70).Title("Thiết bị KT");
+                                    columns.Bound(f => f.Note).Width(50).Title("Ghi chú");
+                                })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                    }
+                    )
+                    .ToHtmlString()
+                                       ))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnError("grid_OnError")
+                //.OnEdit("gridProduct_onEdit")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnRowDataBound("grid_OnRowDataBound")
+                //.OnSave("Grid_OnSave")
+                //.OnDataBinding("Grid_OnDataBinding")
+                                          )
+            //.Pageable(page => page.PageSize(7))
+            //.HtmlAttributes(new {style = "width: 950px;"})
+                .Scrollable(f => f.Height(510))
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();
+    }
+</div>

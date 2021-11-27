@@ -1,0 +1,11 @@
+﻿@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxPlatingUnit", "UnitMeasure", new { area = "" }))
+        .HtmlAttributes(new { style = "width: 100px" })
+        .DropDownHtmlAttributes(new { style = "width: 150px" })
+        .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .Render();
+}

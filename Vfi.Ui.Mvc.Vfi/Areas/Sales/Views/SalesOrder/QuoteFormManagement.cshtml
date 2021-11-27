@@ -1,0 +1,246 @@
+﻿@using System.Collections
+@using Telerik.Reporting
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@model Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.OrderModel
+@{
+    ViewBag.Title = "Quotation Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function grid_onDataBinding(args) {
+
+            var status = $("#Status").data("tComboBox").value();
+            if (status === "")
+                status = 0;
+            var fromDate = $("#fromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#toDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+            }
+            args.data = $.extend(args.data, {
+                status: status,
+                fromDate: fromDate,
+                toDate: toDate
+            });
+
+        }
+
+        function Status_onChange() {
+            RefreshGrid("gridQuotation");
+        }
+
+        function Status_onload() {
+            var combobox = $('#Status').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "Chưa duyệt", Value: "1" },
+                { Text: "Đã duyệt", Value: "2" },
+                { Text: "Huỷ", Value: "3" },
+                { Text: "Làm lại", Value: "4" }
+            ];
+
+            combobox.dataBind(dataSource);
+        }
+
+
+        function PrintForm(val) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintQuotation", "SalesOrder")',
+                {
+                    importId: val
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+    </script>
+}
+
+<div class="title">Quản lý thông tin báo giá</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
+        
+        <div class="grid_4">
+            Tình trạng
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Status")
+                    //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
+                    .HtmlAttributes(new {style = "width: 150px"})
+                    .DropDownHtmlAttributes(new {style = "width: 250px"})
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .HighlightFirstMatch(true)
+                    .AutoFill(true)
+                    .ClientEvents(events => events.OnChange("Status_onChange").OnLoad("Status_onload"))
+                    .Render();
+            }
+        </div>
+        <div style="float:left">
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("fromDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1))
+                            .Render();
+                    } 
+                </div>
+    <div class="clear"></div>
+            <div class="grid_3" style="padding-top: 5px">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("toDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+                        .Render();
+                }
+            </div>
+                </div>
+        <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridQuotation'); ">
+            <span class='t-icon t-insert'></span>
+            Làm mới
+        </button>
+    </fieldset>
+</div>
+    <div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<QuoteFormModel>()
+            .Name("gridQuotation")
+            .DataKeys(key => key.Add(f => f.QuoteId).RouteKey("quoteId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectQuoteByStatus", "SalesOrder", new { area = "Sales" })
+            //.Insert("InsertOrder", "Orders", new { area = "Sales" })
+            //.Update("ApproveQuotation", "SalesOrder", new { area = "Sales" })
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.QuoteNumber).Title("Lệnh bán").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(45).ReadOnly(true);
+                    columns.Bound(f => f.QuoteCount).Title("Rev").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.ProductCount).Title("SL báo giá").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.QuoteDate).Width(70).Title("Ngày báo giá").ReadOnly(true)
+                           .ClientTemplate("<#= QuoteDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', QuoteDate) #>");
+                    columns.Bound(f => f.OutOfDate).Width(70).Title("Ngày hết hạn").ReadOnly(true)
+                           .ClientTemplate("<#= OutOfDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OutOfDate) #>");
+                    columns.Bound(f => f.Note).Title("Ghi Chú").Width(125).ReadOnly(true);
+                    columns.Bound(f => f.QuoteId).Title("").Width(60).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='re_<#= QuoteId #>' value='BG lại' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,4) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.QuoteId).Title("Hủy BG").Width(60).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='del_<#= QuoteId #>' value='Hủy' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,3) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.QuoteId).Title("In BG").Width(45).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='print_<#= QuoteId #>' value='In' class='t-button' onclick=PrintForm(<#= QuoteId #>) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày tạo").ReadOnly(true)
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= QuoteId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                           items.Add().Text("Thông tin chi tiết").Content(
+                               Html.Telerik().Grid<ProductQuotationModel>()
+                                   .Name("gridQuotation_<#= QuoteId #>")
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                            .Select("SelectQuodeDetailById", "SalesOrder",
+                                                                                    new { area = "Sales", quoteId = "<#= QuoteId #>" }))
+                                   .Columns(columns =>
+                                       {
+                                          columns.Bound(f => f.ProductName).Width(100).Title("Tên SP").ReadOnly(true);
+                                           columns.Bound(f => f.ProductCustomerCode).Width(100).Title("Mã SP KH");
+                                           columns.Bound(f => f.Dimension).Width(75).Title("Quy cách").ReadOnly(true);
+                                           columns.Bound(f => f.Quantity).Width(75).Title("SL đặt")
+                                                  .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #>");
+                                           columns.Bound(f => f.MaterialDesign).Width(100).Title("Nguyên liệu").ReadOnly(true);
+                                           columns.Bound(f => f.ProcessingPrice).Width(75).Title("Giá gia công")
+                                                  .ClientTemplate("<#= ProcessingPrice == null ? 0 : $.telerik.formatString('{0:n0}', ProcessingPrice) #>");
+                                           columns.Bound(f => f.MaterialPrice).Width(75).Title("Giá NL(kg)")
+                                                  .ClientTemplate("<#= MaterialPrice == null ? 0 : $.telerik.formatString('{0:n0}', MaterialPrice) #>");
+                                           columns.Bound(f => f.MaterialUnitPrice).Width(75).Title("Giá NL(pc)")
+                                                  .ClientTemplate("<#= MaterialUnitPrice == null ? 0 : $.telerik.formatString('{0:n2}', MaterialUnitPrice) #>");
+                                           columns.Bound(f => f.LastDiff).Width(75).Title("Điều chỉnh(+/-)");
+                                           columns.Bound(f => f.QuotationCost).Width(75).Title("Giá báo(pc)")
+                                                  .ClientTemplate("<#= QuotationCost == null ? 0 : $.telerik.formatString('{0:n2}', QuotationCost) #>");
+                                           columns.Bound(f => f.Note).Width(75).Title("Ghi chú");
+                                       })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()))
+                    .ToHtmlString()))
+            .Selectable()
+            .Scrollable(f => f.Height(500))
+            .Groupable()
+            .Reorderable(f => f.Columns(true))
+            .Resizable(f => f.Columns(true))
+            .Sortable()
+            .Filterable()
+            .ClientEvents(events => events.OnError("grid_OnError")
+                .OnDataBinding("grid_onDataBinding")
+                                          .OnRowSelect("grid_OnRowSelect"))
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

@@ -1,0 +1,236 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Duyệt luân chuyển kho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Scripts{
+    <!-- approve stockorder -->
+    <script type="text/javascript">
+        function ApproveTransaction() {
+            $("#btnApproveTransaction").attr('disabled', 'disabled');
+
+            var $checkedRecords = $("input[name='chkTransactionIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+            $.post('@Url.Action("ApproveDefectTransaction", "Defect")',
+                {
+                    //checkedRecords: $checkedRecords.map(function () { return value; })
+                    checkedRecords: $checkedRecords.eq(0).val()
+                },
+                function (data) {
+                    alert(data);
+                    if (data === "Hoàn thành") {
+                        RefreshGrid("gridTransaction");
+                    }
+                });
+            $("#btnApproveTransaction").removeAttr('disabled');
+        }
+
+        var indexSignature1 = 0;
+        var countSignature1 = 0;
+
+        var index1 = 0;
+        var count1 = 0;
+
+        function grid_OnRowDataBound(e) {
+            var color = e.dataItem.Status;
+            if (color == 3)
+                e.row.childNodes[4].style.backgroundColor = "#F4FA58";
+            else if (color == 1)
+                e.row.childNodes[4].style.backgroundColor = "#FA5858";
+        }
+        function PrintForm(val) {
+            //alert(val);
+            $('#result').load('@Url.Action("PrintDefectTransactionForm", "Defect",new {area="Factory"})',
+                {
+                    transactionId: val,
+                    defectTransactionId: 0,
+                    fromDate: "",
+                    toDate: "",
+                }, function() {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+    </script>
+
+}
+
+    <div class="title">Duyệt phiếu xuất nhập thành phẩm</div>
+
+    <div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Sổ lệnh</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionModel>()
+            .Name("gridTransaction")
+            .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("transactionId"))
+            .ToolBar(bar => bar.Template(
+                @<text>
+                     <div class="grid_7">
+                         <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
+                             <span class='t-icon t-insert'></span>
+                             Duyệt các sổ lệnh
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+                                ))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectTransactionDefect", "Defect",
+                                                             new {status = (byte) MyUtilities.Transaction.Status.Open})
+                                                     .Delete("CancelTransactionDefect", "Defect")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.TransactionId).Title("Chọn").Width(50)
+                           .ClientTemplate("<input type='radio' name='chkTransactionIds' class='chkCheck' value='<#= TransactionId #>' />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.TransactionCode);
+                    columns.Bound(f => f.CreatedDate).Title("Ngày báo cáo").Width(100)
+                           .ClientTemplate("<strong><#= CreatedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', CreatedDate) #></strong>");
+                    columns.Bound(f => f.WarehouseIssueName);
+                    columns.Bound(f => f.WarehouseReceiptName);
+                    columns.Bound(f => f.TotalQuality).Title("Tổng SL")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new {style = "text-align: right"});
+                    columns.Bound(f => f.EoIName);
+                    columns.Bound(f => f.StatusName);
+                    columns.Bound(f => f.ModifiedUser);
+                    columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100)
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
+                    columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                           .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(50);
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().Grid<TransactionDetailModel>()
+                    .Name("gridTransactionDetail_<#= TransactionId #>")
+                    .DataKeys(keys => keys.Add(f => f.TransactionDetailId).RouteKey("transactionDetailId"))
+                    .DataBinding(bd => bd.Ajax()
+                                         .Select("SelectImportTransactionDetail", "Defect",
+                                                 new {transactionId = "<#= TransactionId #>"})
+                                         .Delete("CancelTransactionDefectDetail", "Defect",
+                                                 new {transactionId = "<#= TransactionId #>"}))
+
+                    .Columns(columns =>
+                        {
+                            //columns.Bound(f => f.ReferenceId).Title("Chọn").Width(75)
+                            //       .ClientTemplate("<input type='radio' name='chkIds' value='<#= TransactionDetailId #>' />")
+                            //       .HtmlAttributes(new { style = "text-align:center" });
+                            //columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50);
+                            columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100);
+                            columns.Bound(f => f.AvailableQuantity).Width(100).Title("Số lượng tồn")
+                                   .HtmlAttributes(new {style = "text-align: right;"})
+                                   .Format("{0:n0}");
+                            columns.Bound(f => f.Quantity).Width(100).Title("Số lượng (PCS)")
+                                   .HtmlAttributes(new {style = "text-align: right;"})
+                                   .Format("{0:n0}");
+                            columns.Bound(f => f.StatusName).Title("");
+                            columns.Bound(f => f.Note).Title("Ghi chú");
+                            columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(50);
+                        })
+                    .DetailView(details2 => details2.ClientTemplate(
+                        Html.Telerik().Grid<DefectTransactionDetailModel>()
+                            .Name("gridDefectTransactionDetail_<#= TransactionDetailId #>")
+                            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+                            .DataBinding(bd => bd.Ajax()
+                                                 .Select("SelectDefectTransactionDetail", "Defect",
+                                                         new
+                                                         {
+                                                             transactionId = "<#= TransactionId #>",
+                                                             transactionDetailId = "<#= TransactionDetailId #>"
+                                                         }).Update("UpdateDefectTransactionDetail", "Defect"))
+
+                            .Columns(columns =>
+                            {
+                                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50);
+                                    columns.Bound(f => f.DefectName).Title("Mã SP").Width(100).ReadOnly(true);
+                                    columns.Bound(f => f.QuantityDefect).Width(100).ReadOnly(true).Title("Số lượng (PCS)")
+                                           .HtmlAttributes(new {style = "text-align: right;"})
+                                           .Format("{0:n0}");
+                                    columns.Bound(f => f.Recheck).Width(100).Title("Kiểm tra lại")
+                                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='Recheck' <#=Recheck? checked='checked' : '' #> />")
+                                           .HtmlAttributes(new {style = "text-align:center"});
+
+                                    columns.Bound(f => f.Reprocess).Width(100).Title("Xử lý lại")
+                                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='Reprocess' <#=Reprocess? checked='checked' : '' #> />")
+                                           .HtmlAttributes(new {style = "text-align:center"});
+
+                                    columns.Bound(f => f.Destroy).Width(100).Title("Hủy phế phẩm")
+                                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='Destroy' <#=Destroy? checked='checked' : '' #> />")
+                                           .HtmlAttributes(new {style = "text-align:center"});
+
+                                    columns.Bound(f => f.Note).Title("Ghi chú");
+                                })
+                            .ClientEvents(events => events.OnError("grid_OnError"))
+                            .ToHtmlString())
+                    )
+                    .Selectable()
+                    .ClientEvents(events => events
+                                                .OnRowSelect("grid_OnRowSelect")
+                                                .OnError("grid_OnError")
+                                                .OnRowDataBound("grid_OnRowDataBound"))
+                    .ToHtmlString())
+            )
+            .Selectable()
+            .ClientEvents(events => events
+                                        .OnRowSelect("grid_OnRowSelect")
+                                        .OnError("grid_OnError"))
+            //.Pageable(f=>f.PageSize(5))
+            .Render();
+    }
+</div>
+
+
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

@@ -1,0 +1,11 @@
+﻿@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductCodePlating", "Product", new { area = "" }).Delay(350))
+        .HtmlAttributes(new { style = "width: 175" })
+        .DropDownHtmlAttributes(new { style = "width: 250px" })
+        .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .Render();
+}

@@ -1,0 +1,70 @@
+﻿<script type="text/javascript">
+    function product_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { productId: e.currentTarget.value },
+                dataType: 'json',
+                url: '@Url.Action("GetProductionMaterial", "Machine", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var material = $('#MaterialCode').data('tComboBox');
+                    material.dataBind(data);
+                    if (material.selectedIndex > -1) {
+
+                        var selected = material.data[material.selectedIndex];
+
+                        if (selected != undefined) {
+                            material.value(selected.value);
+                            material.text(selected.Text);
+                            material.selectedIndex = material.selectedIndex;
+                            material.previousValue = selected.value;
+                        } else {
+                            material.value(-1);
+                            material.text("");
+                        }
+                    } else {
+                        material.value(-1);
+                        material.text("");
+                    }
+                }
+            });
+            $.ajax({
+                type: 'post',
+                data: { productId: e.currentTarget.value },
+                dataType: 'json',
+                url: '@Url.Action("GetTrackUpDesign", "Machine", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    //var track = data;
+                    //alert(track.toArray().toString());
+                    if (data != "9") {
+                        $("#RealProductivity").val(data.RealProductivity);
+                        $("#RealProductivity").data("tTextBox").$text[0].innerHTML = data.RealProductivity;
+                        $("#RealRate").val(data.RealRate);
+                        $("#RealRate").data("tTextBox").$text[0].innerHTML = data.RealRate;
+                        $("#RoundPerMinute").val(data.RoundPerMinute);
+                        $("#RoundPerMinute").data("tTextBox").$text[0].innerHTML = data.RoundPerMinute;
+                        $("#WorkPiece").val(data.WorkPiece);
+                        $("#WorkPiece").data("tTextBox").$text[0].innerHTML = data.WorkPiece;
+                        $("#KnifeCut").val(data.KnifeCut);
+                        $("#KnifeCut").data("tTextBox").$text[0].innerHTML = data.KnifeCut;
+                    }
+                }
+            });
+        }
+</script>
+@using Telerik.Web.Mvc.UI
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductCodeName", "Product", new { area = "" }).Delay(350))
+        .HtmlAttributes(new { style = "width: 175" })
+        .DropDownHtmlAttributes(new { style = "width: 250px" })
+        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .ClientEvents(e => e.OnClose("product_OnChange"))
+        .Render();
+}

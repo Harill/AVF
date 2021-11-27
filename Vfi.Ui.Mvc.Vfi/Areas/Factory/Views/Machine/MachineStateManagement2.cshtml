@@ -1,0 +1,168 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Machines State Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jscolor.js")"   ></script>
+    
+    <script type="text/javascript">
+
+        function grid_OnSubmitChanges(e) {
+            var colorPick = $("#ColorPick").text();
+            e.values = $.extend(e.values,
+                {
+                    colorPick: colorPick
+                }
+            );
+        }
+
+        function grid_OnEdit(e) {
+            var mode = e.mode;
+            //var form = e.form;
+            if (mode == 'edit') {
+                document.getElementById("ColorPick").value = e.dataItem.WarrningColor;
+            }
+        }
+
+        function grid_OnSave(e) {
+            var colorPick = $("#ColorPick")[0].value;
+            //colorPick
+            e.values = $.extend(e.values,
+                {
+                    colorPick: colorPick
+                }
+            );
+        }
+
+        function grid_OnRowDataBound(e) {
+            e.row.childNodes[2].style.backgroundColor = "#" + e.dataItem.WarrningColor;
+            e.row.childNodes[2].style.borderBottom = "1px #d6e5f3 solid";
+        }
+    </script>
+}
+    <style></style>
+
+    <div class="title">Quản lý thông tin tình trạng máy</div>
+            @Html.TextBox("ColorPick",null,new { @class = "ColorTool"})
+    @*Click here: <input id='ColorPick' class="ColorTool" value="66ff00"/>*@
+
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<MachineStateModel>()
+                .Name("griState")
+                .DataKeys(key => key.Add(f => f.StateId).RouteKey("stateId"))
+                .ToolBar(
+                    toolbar =>
+                    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+                .DataBinding(
+                    dataBinding => dataBinding.Ajax()
+                                              .Select("SelectMachineState", "Machine")
+                                              .Insert("InsertMachineState", "Machine")
+                                              .Update("UpdateMachineState", "Machine"))
+                .Columns(columns =>
+                    {
+                        columns.Command(command =>
+                                        command.Edit().ButtonType(GridButtonType.Image)
+                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.StateCode).Width(50).Title("Code");
+                        columns.Bound(f => f.Description).Title("Mô tả lỗi")
+                               .ClientTemplate("<strong><#= Description #></strong>");
+                        //columns.Bound(f => f.Timing).Width(175).Title("Thời gian sửa(m)");
+                        //columns.Bound(f => f.WarrningColor).Width(175);
+
+                        columns.Bound(f => f.Active).Width(75)
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày tạo").ReadOnly(true)
+                               .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                        columns.Bound(f => f.ModifiedUser).Width(85).Title("Người tạo").ReadOnly(true);
+
+                    }) .DetailView(details => details.ClientTemplate(
+
+                Html.Telerik().TabStrip()
+                     .Name("TabStrip_<#= StateId #>")
+                     .SelectedIndex(0)
+                     .Items(items =>
+                         {
+                             items.Add().Text("Nguyên Nhân").Content(
+
+                                 Html.Telerik().Grid<MachineErrorCauseModel>()
+                                     .Name("gridErrorCause_<#= StateId #>")
+                  .DataKeys(key => key.Add(f => f.ErrorCauseId).RouteKey("errorCauseId"))
+                                     .ToolBar(
+                      toolbar =>
+                      toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+
+                      .DataBinding(dataDindings => dataDindings.Ajax()
+
+                                                .Select("SelectMachineErrorCause", "Machine", new { stateId = "<#= StateId #>" })
+                                                .Insert("InsertMachineErrorCause", "Machine", new { stateId = "<#= StateId #>" })
+                                                .Update("UpdateMachineErrorCause", "Machine", new { stateId = "<#= StateId #>" }))
+                                     .Columns(columns => {
+                                         columns.Command(command =>
+                                                         command.Edit().ButtonType(GridButtonType.Image)
+                                             ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                         columns.Bound(f => f.StateCode).Width(50).Title("Code");
+                                         columns.Bound(f => f.Name).Title("Nguyên Nhân").Width(100);
+                                         columns.Bound(f => f.Description).Title("Mô tả");
+                                         columns.Bound(f => f.Active).Width(75)
+                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                                .HtmlAttributes(new { style = "text-align:center" });
+                                         columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày tạo").ReadOnly(true)
+                                                .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                                         columns.Bound(f => f.ModifiedUser).Width(85).Title("Người tạo").ReadOnly(true);
+                                     }).Selectable()
+                                     .ToHtmlString());
+
+                             items.Add().Text("Khắc Phục").Content(
+
+                                 Html.Telerik().Grid<MachineStateDetailModel>()
+                                     .Name("gridStateDetail_<#= StateId #>")
+                  .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
+                                     .ToolBar(
+                      toolbar =>
+                      toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+
+                      .DataBinding(dataDindings => dataDindings.Ajax()
+
+                                                .Select("SelectMachineStateDetail", "Machine", new { stateId = "<#= StateId #>" })
+                                                .Insert("InsertMachineStateDetail", "Machine", new { stateId = "<#= StateId #>" })
+                                                .Update("UpdateMachineStateDetail", "Machine", new { stateId = "<#= StateId #>" }))
+                                     .Columns(columns => {
+                                         columns.Command(command =>
+                                                         command.Edit().ButtonType(GridButtonType.Image)
+                                             ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                         columns.Bound(f => f.StateCode).Width(50).Title("Code");
+                                         columns.Bound(f => f.Description).Title("Biện pháp chỉnh");
+                                         columns.Bound(f => f.Timing).Title("Định mức TG").Width(100);
+                                         columns.Bound(f => f.Active).Width(75)
+                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                                .HtmlAttributes(new { style = "text-align:center" });
+                                         columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày tạo").ReadOnly(true)
+                                                .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                                         columns.Bound(f => f.ModifiedUser).Width(85).Title("Người tạo").ReadOnly(true);
+                                     }).Selectable()
+                                     .ToHtmlString());
+                         })
+                                   .ToHtmlString()))
+                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                //.Pageable(page => page.PageSize(20))
+                .Scrollable(f => f.Height("auto"))
+                //.HtmlAttributes(new {style = "width: 950px;"})
+                .Sortable()
+                .Filterable()
+                .Resizable(resizing => resizing.Columns(true))
+                .ClientEvents(e => e.OnError("grid_OnError")
+                                    .OnSubmitChanges("grid_OnSubmitChanges")
+                                    .OnRowSelect("grid_OnRowSelect")
+                                    .OnEdit("grid_OnEdit")
+                                    .OnSave("grid_OnSave")
+                                    .OnRowDataBound("grid_OnRowDataBound"))
+                .Render();
+        }
+    </div>

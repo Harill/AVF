@@ -1,0 +1,500 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Xuất GCN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .highslide-container div {
+        font-family: Verdana, Helvetica;
+        font-size: 10pt;
+    }
+
+    .highslide-container table {
+        background: none;
+    }
+
+    .highslide {
+        outline: none;
+        text-decoration: none;
+    }
+
+        .highslide img {
+            border: 2px solid silver;
+        }
+
+        .highslide:hover img {
+            border-color: gray;
+        }
+
+    .highslide-active-anchor img {
+        visibility: hidden;
+    }
+
+    .highslide-gallery .highslide-active-anchor img {
+        border-color: black;
+        visibility: visible;
+        cursor: default;
+    }
+
+    .highslide-image {
+        border-width: 2px;
+        border-style: solid;
+        border-color: white;
+    }
+
+    .highslide-wrapper, .highslide-outline {
+        background: white;
+    }
+
+    .glossy-dark {
+        background: #111;
+    }
+
+    .highslide-image-blur {
+    }
+
+    .highslide-number {
+        display: none;
+        font-weight: bold;
+        color: gray;
+        font-size: .9em;
+    }
+
+    .highslide-caption {
+        display: none;
+        font-size: 1em;
+        padding: 5px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        /*background: white;*/
+    }
+
+    .highslide-heading {
+        display: none;
+        font-weight: bold;
+        margin: 0.4em;
+    }
+
+    .highslide-dimming {
+        /*position: absolute;*/
+        background: black;
+    }
+
+    a.highslide-full-expand {
+        display: block;
+        margin: 0 10px 10px 0;
+        width: 34px;
+        height: 34px;
+    }
+
+    .highslide-loading {
+        display: block;
+        color: black;
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        border: 1px solid white;
+        background-color: white;
+        padding-left: 22px;
+        background-repeat: no-repeat;
+        background-position: 3px 1px;
+    }
+
+    a.highslide-credits,
+    a.highslide-credits i {
+        padding: 2px;
+        color: silver;
+        text-decoration: none;
+        font-size: 10px;
+        display: none;
+    }
+
+        a.highslide-credits:hover,
+        a.highslide-credits:hover i {
+            color: white;
+            background-color: gray;
+        }
+
+    .highslide-move, .highslide-move * {
+        cursor: move;
+    }
+
+    .highslide-viewport {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: none;
+        left: 0;
+        top: 0;
+    }
+
+    .highslide-overlay {
+        display: none;
+    }
+
+    .hidden-container {
+        display: none;
+    }
+    /* Example of a semitransparent, offset closebutton */
+    .closebutton {
+        position: relative;
+        top: -15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+    }
+
+    .highslide-controls {
+        display: none;
+    }
+</style>
+
+<script type="text/javascript">
+    hs.graphicsDir = '';
+    hs.align = 'center';
+    hs.transitions = ['expand', 'crossfade'];
+    hs.outlineType = '';
+    hs.fadeInOut = true;
+    hs.numberPosition = 'caption';
+    hs.dimmingOpacity = 0.75;
+
+    // Add the controlbar
+    if (hs.addSlideshow)
+        hs.addSlideshow({
+            //slideshowGroup: 'group1',
+            interval: 5000,
+            repeat: false,
+            useControls: true,
+            fixedControls: 'fit',
+            overlayOptions: {
+                opacity: .75,
+                position: 'bottom center',
+                hideOnMouseOut: true
+            }
+        });
+</script>
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        var spanReals, i, innerText, sumReal = 0, sumRealKg = 0;
+        function grid_onSave(e) {
+            //tong realnumber
+            var productQuantity = 0;
+            var isRotateAll = $("input[name='IsRotateAll']");
+            var quantityKg = $(e.cell).find('#Weight').val();
+            var quantity = $(e.cell).find('#RealNumber').val();
+            var spanIsRotateAll = e.cell.parentElement.getElementsByClassName("IsRotateAll_" + e.dataItem.ProductInvId)[0];
+            var spanQuantity = e.cell.parentElement.getElementsByClassName("RealNumber")[0];
+            var spanQuantityKg = e.cell.parentElement.getElementsByClassName("Weight")[0];
+            if (typeof spanIsRotateAll === 'undefined') {
+                if (isRotateAll.attr('checked')) {
+                    productQuantity = e.dataItem.AvailableInventory;
+                    spanQuantity.textContent = productQuantity.format(0);
+                    quantityKg = e.dataItem.AvailableInventoryG;
+                    spanQuantityKg.textContent = quantityKg.format(0);
+                    e.dataItem.RealNumber = productQuantity;
+                    e.dataItem.Weight = quantityKg;
+                } else {
+                    // is editing rotate all
+                    productQuantity = e.dataItem.RealNumber;
+                    quantityKg = e.dataItem.Weight;
+                }
+            }
+            else if (!isNaN(parseInt(quantityKg))) {
+                if (e.dataItem.ProductWeight === 0 && parseFloat(quantityKg) != 0) {
+                    alert("Lỗi! Sản phẩm chưa có trọng lượng! Không thể nhập khối lượng chuyển");
+                } else {
+                    quantityKg = parseFloat(quantityKg);
+                    productQuantity = parseInt(parseInt(quantityKg) / e.dataItem.ProductWeight);
+                    spanQuantity.textContent = productQuantity.format(0);
+                    if (productQuantity === e.dataItem.AvailableInventory) {
+                        spanIsRotateAll.checked = true;
+                    } else {
+                        spanIsRotateAll.checked = false;
+                    }
+                    e.dataItem.IsRotateAll = spanIsRotateAll.checked;
+                    e.dataItem.RealNumber = productQuantity;
+                }
+            }
+            else if (!isNaN(parseInt(quantity))) {
+                productQuantity = parseInt(quantity);
+                quantityKg = parseFloat(productQuantity * e.dataItem.ProductWeight);
+                spanQuantityKg.textContent = quantityKg.format(0);
+                if (productQuantity === e.dataItem.AvailableInventory) {
+                    spanIsRotateAll.checked = true;
+                } else {
+                    spanIsRotateAll.checked = false;
+                }
+                e.dataItem.IsRotateAll = spanIsRotateAll.checked;
+                e.dataItem.Weight = quantityKg;
+            }
+
+            if (e.dataItem.AvailableInventory < e.dataItem.RealNumber) {
+                alert("Số lượng bạn nhập với các giao dịch trước đó có thể đã quá so với sản phẩm tồn kho\n" +
+                    "Kho thiếu " + (productQuantity - e.dataItem.ProductInventory));
+                e.cell.style.background = "red";
+            } else {
+                e.cell.style.background = "none";
+            }
+
+            var entity = gridData.filter(function (dataRow) {
+                return dataRow["id"] === e.dataItem.ProductInvId;
+            });
+            if (entity.length > 0) {
+                entity = entity[0];
+                entity.quantity = productQuantity;
+                entity.quantityKg = quantityKg;
+            }
+            calculateTotalSum();
+            calculateSumGroup(e.dataItem.GroupIndex);
+        }
+
+        function calculateSumGroup(groupIndex) {
+            sumReal = 0, sumRealKg = 0;
+            var data = gridData.filter(function (dataRow) {
+                return dataRow["groupIndex"] === groupIndex && dataRow.quantityKg + dataRow.quantity > 0;
+            });
+            if (data.length <= 0) { }
+            else {
+                for (i = 0; i < data.length; i++) {
+                    sumRealKg = sumRealKg + data[i].quantityKg;
+                    sumReal = sumReal + data[i].quantity;
+                }
+            }
+            $("#GroupQuantityKg_" + groupIndex).text(sumRealKg.format(0));
+            $("#GroupQuantity_" + groupIndex).text(sumReal.format(0));
+        }
+
+        function calculateTotalSum() {
+            sumReal = 0, sumRealKg = 0;
+            var data = gridData.filter(function (dataRow) {
+                return dataRow.quantityKg + dataRow.quantity > 0;
+            });
+            if (data.length <= 0) { }
+            else {
+                for (i = 0; i < gridData.length; i++) {
+                    sumRealKg = sumRealKg + gridData[i].quantityKg;
+                    sumReal = sumReal + gridData[i].quantity;
+                }
+            }
+            $("#TotalQuantityKg").text(sumRealKg.format(0));
+            $("#TotalQuantity").text(sumReal.format(0));
+        }
+
+        function grid_onSubmitChanges(e) {
+            var eDate = $("#ExportDate").data("tDatePicker").value();
+            if (eDate === null)
+                eDate = "";
+            else
+                eDate = $.telerik.formatString('{0:dd/MM/yyyy}', eDate);
+
+            var formId = $("#PlatingForm").data("tComboBox").value();
+            if (formId === "")
+                formId = 0;
+
+            e.values = $.extend(e.values,
+                {
+                    exportDate: eDate,
+                    formId: formId
+                }
+            );
+
+        }
+
+        function PlatingFormNumber_OnChange() {
+            RefreshGrid("gridExportPartial");
+        }
+
+        function grid_OnDataBinding(e) {
+            groupIndex = 1;
+            gridData = [];
+            var formId = $("#PlatingForm").data("tComboBox").value();
+            if (formId === "")
+                formId = 0;
+            e.data = $.extend(e.data, {
+                platingFormId: formId
+            });
+            if (formId !== 0) {
+                $.ajax({
+                    type: 'post',
+                    data: { formId: formId },
+                    dataType: 'json',
+                    url: '@Url.Action("SelectPlatingFormInfo", "PurchaseOrder", new { area = "Purchasing" })',
+                    timeout: 20000,
+                    success: function (data) {
+                        $('#VendorCodeName').val(data.VendorCodeName);
+                    }
+                });
+            }
+        }
+
+        var groupIndex = 1;
+        var gridData = [];
+        var productCode = "";
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem;
+            if (dataItem.ProductCode !== productCode) {
+                groupIndex++;
+                productCode = dataItem.ProductCode;
+            }
+            gridData.push({
+                id: dataItem.ProductInvId,
+                groupIndex: dataItem.GroupIndex,
+                quantity: 0,
+                quantityKg: 0,
+            });
+            if (dataItem.ProductWeight === 0)
+                e.row.childNodes[2].style.backgroundColor = "#F4FA58";
+            if (dataItem.AvailableInventory === 0)
+                e.row.childNodes[1].style.backgroundColor = "#F4FA58";
+        }
+    </script>
+
+}
+
+<div class="title">Xuất kho gia công ngoài</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu nhập</legend>
+        <div class="grid_2">Mã lệnh:</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("PlatingForm")
+                    .DataBinding(binding => binding.Ajax().Select("SelectPlatingFormForExport", "PurchaseOrder", new { area = "Purchasing" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(events => events.OnChange("PlatingFormNumber_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+
+        <div class="grid_3">Ngày xuất kho</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("ExportDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="clear" style="margin-bottom: 10px"></div>
+        <div class="grid_3">Nhà cung ứng</div>
+        <div class="grid_4">
+            @Html.TextBox("VendorCodeName", "", new { style = "width:100%", @readonly = "true" })
+        </div>
+        <div class="clear" style="margin-bottom: 10px"></div>
+        @* <div class="grid_3">Số thùng</div>
+            <div class="grid_4">
+                @Html.TextBoxFor(f => f.BoxNumber, new {style = "color: maroon;"})
+            </div>
+            <div class="grid_3">Số lốc</div>
+            <div class="grid_4">
+                @Html.TextBoxFor(f => f.BlockNumber, new {style = "color: maroon;"})
+            </div>*@
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ExportGCN_NCUDetailModel>()
+            .Name("gridExportPartial")
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectExportPlating", "Transaction", new { platingFormId = 0 })
+                                                     .Update("CreateExportPlatingDetail", "Transaction")
+            )
+            .Columns(columns => {
+
+                columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
+                       .ClientTemplate("<a id='<#=DetailId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                columns.Bound(f => f.ProductCode).Width(100).Title("Sản Phẩm").ReadOnly(true);
+                columns.Bound(f => f.LotNumber).Width(100).Title("Lô").ReadOnly(true);
+
+                columns.Bound(f => f.ProductWeight).Width(50).ReadOnly(true)
+                       .HeaderTemplate("Trọng lượng</br>(g/pc)")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .Format("{0:n3}");
+                columns.Bound(f => f.ProductInventory).Width(70).ReadOnly(true)
+                       .HeaderTemplate("Tồn kho</br>(pcs)")
+                       .HtmlAttributes(new { style = "text-align: right;border-left:1px black solid;" })
+                       .Format("{0:n0}");
+                columns.Bound(f => f.ProductInventoryG).Width(70).ReadOnly(true)
+                       .HeaderTemplate("Tồn kho</br>(g)")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .Format("{0:n0}");
+                columns.Bound(f => f.AvailableInventoryG).Width(70).ReadOnly(true)
+                       .HeaderTemplate("Có thể</br>xuất (g)")
+                       .HtmlAttributes(new { style = "text-align: right;border-left:1px black solid;" })
+                       .Format("{0:n0}")
+                       //.Aggregate(agg => agg.Sum())
+                       //.ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.AvailableInventory).Width(70).ReadOnly(true)
+                       .HeaderTemplate("Có thể</br>xuất (pcs)")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .Format("{0:n0}")
+                       //.Aggregate(agg => agg.Sum())
+                       //.ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.RequestNumberString).Width(50).ReadOnly(true).Title("SL Yêu cầu")
+                       .HtmlAttributes(new { style = "text-align: center;background-color: yellow;border-left:1px black solid;" });
+                columns.Bound(f => f.IsRotateAll).Width(50).Title("All")
+                        .HeaderHtmlAttributes(new { @class = "edit-column" })
+                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= ProductInvId #>' class='IsRotateAll_<#= ProductInvId #>' <#=IsRotateAll? checked='checked' : '' #> />")
+                        .HtmlAttributes(new { style = "text-align: center;border-left:1px black solid;" });
+                columns.Bound(f => f.Weight).Width(70)
+                       .HeaderTemplate("TL xuất</br>(g)")
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantityKg_<#= groupIndex #>'>0</span></div>")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .ClientTemplate("<span name='Weight' class='Weight weight_<#= GroupIndex #>' group='weight_<#= GroupIndex #>'><#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #></span>")
+                       .FooterTemplate("<span id='TotalQuantityKg'></span>")
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.RealNumber).Width(70)
+                       .HeaderTemplate("SL xuất</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantity_<#= groupIndex++ #>'>0</span></div")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .ClientTemplate("<span name='RealNumber' class='RealNumber'><#= RealNumber == null ? 0 : $.telerik.formatString('{0:n0}', RealNumber) #></span>")
+                       .FooterTemplate("<span id='TotalQuantity'></span>")
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Package).Width(120).Title("Đóng gói")
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .HtmlAttributes(new { style = "text-align: center;border-left:1px black solid;" });
+                columns.Bound(f => f.Note).Title("Ghi chú");
+                //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+            })
+            .ClientEvents(events => events
+                                        .OnSave("grid_onSave")
+                                        .OnSubmitChanges("grid_onSubmitChanges")
+                                        .OnError("grid_OnError")
+                                        .OnDataBinding("grid_OnDataBinding")
+                                        .OnRowDataBound("grid_OnRowDataBound")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            .Groupable(group => group.Groups(g => g.Add(model => model.ProductCode)))
+            .Render();
+    }
+</div>

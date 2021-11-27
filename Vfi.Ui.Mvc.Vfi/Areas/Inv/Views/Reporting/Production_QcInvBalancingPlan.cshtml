@@ -1,0 +1,463 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@model ProductInventoryModel
+@{
+    ViewBag.Title = "Cân đối";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+        var startGrid = false;
+        var index = 0;
+
+        function grid_OnDataBinding(args) {
+            index = 0;
+            if (startGrid && !onLoading) {
+
+                OnLoadingData();
+                var productCodeNameForMonthly = $("#ProductCode").data("tAutoComplete").value();
+
+                var customerId = $("#Customer").data('tComboBox').value();
+                if (customerId == 0)
+                    customerId = 0;
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+                var invDate = $("#invDate").data("tDatePicker").value();
+                if (invDate === null)
+                    invDate = "";
+                else
+                    invDate = $.telerik.formatString('{0:dd/MM/yyyy}', invDate);
+                var type = $("#Type").data('tDropDownList').value();
+                if (type == 0)
+                    type = 0;
+                var isAllOrder = $("input[name='chkAllOrder']").attr('checked');
+                args.data = $.extend(args.data, {
+                    customerId: customerId,
+                    productCode: productCodeNameForMonthly,
+                    fromPoDate: fromDate,
+                    toPoDate: toDate,
+                    invDate: invDate,
+                    type: type,
+                    isAllOrder: isAllOrder,
+                });
+            }
+        }
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+        var startGrid = false;
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+    </script>
+    <!-- report -->
+    <script type="text/javascript">
+
+        function type_onLoad() {
+            var combobox = $('#Type').data('tDropDownList');
+            var dataSource =
+            [
+                { Text: "Đơn hàng KD", Value: "1" },
+                { Text: "Dự báo KD", Value: "2" }
+            ];
+
+            combobox.dataBind(dataSource);
+            combobox.value("Đơn hàng KD");
+        }
+
+    </script>
+}
+
+<div class="title">Tiến độ công việc</div>
+<div class="clear"></div>
+<br />
+
+<div id="pnlInvMonthly">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1180px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_2">
+                @Html.Label("Khách hàng")
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250%" })
+                        //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @Html.Label("Sản phẩm")
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                    .Name("ProductCode")
+                    .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250%" })
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+                }
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("Type")
+                        .HtmlAttributes(new { style = "width: 100px" })
+                        .DropDownHtmlAttributes(new { style = "width: 100px" })
+                        .ClientEvents(events => events.OnLoad("type_onLoad"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_9">
+                <div class="grid_2">
+                    @Html.Label("Ngày PO")
+
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("fromDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Now)
+                            .Render();
+                    }
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("toDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(4).AddSeconds(-1))
+                            .Render();
+                    }
+                </div>
+                <div class="grid_2">
+                    @Html.Label("Ngày báo cáo")
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("invDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Now)
+                            .Render();
+                    }
+                </div>
+
+            </div>
+
+            <div class="grid_2_5">
+                <label>
+                    <input type="checkbox" id="chkAllOrder" name="chkAllOrder" />
+                    Lấy tất cả
+                </label>
+                <br />
+            </div>
+
+            <div class="grid_3">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+		            <span class="twoToneButton"></span>
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductionBalancingModel>()
+                .Name("grid")
+                .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectProductionBalancingPlan", "Reporting",
+                                                                 new { customerId = 0, productCode = "", fromPoDate = "", toPoDate = "", invDate = "", type = 1, isAllOrder = false })
+                                                         )
+                .Columns(columns => {
+                        columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                               .HeaderHtmlAttributes(new { style = "font-weight: bold" })
+                            .ClientTemplate("<#= ++index #>")
+                               .HtmlAttributes(new { style = "font-weight: center;" });
+                        columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true)
+                               .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                               .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(120).ReadOnly(true)
+                               .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                               .Aggregate(agg => agg.Count())
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>");
+                        columns.Bound(f => f.Type).Width(100)
+                               .HeaderTemplate("Loại").ReadOnly(true)
+                               .HtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" });
+                        // so lieu
+                        columns.Bound(f => f.PoQuantity).Width(65)
+                               .HeaderTemplate("PO").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.PoDate).Width(85).Title("Ngày PO")
+                               .Format("{0:dd/MM/yyyy}")
+                               .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.TotalInv).Width(70)
+                               .HeaderTemplate("Tổng tồn").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.RequireQuantity).Width(65)
+                               .HeaderTemplate("PO x 1.1").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
+
+                        // sx1
+                        columns.Bound(f => f.Production1.TotalProductionQuantity).Width(65)
+                               .HeaderTemplate("SL TT").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.AfterInvQuantity).Width(65)
+                               .HeaderTemplate("TK Sau").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.ProductionRatePerDay).Width(65)
+                               .HeaderTemplate("ĐM/n").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.RequireQuantity).Width(65)
+                               .HeaderTemplate("KH/PO").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.PlanProductionDay).Width(65)
+                               .HeaderTemplate("Ngày").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.RequirePerDay).Width(65)
+                               .HeaderTemplate("KH/n").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.RequireProduction).Width(75)
+                               .HeaderTemplate("TT - KH").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
+
+                        //// cnc
+                        columns.Bound(f => f.Cnc.TotalProductionQuantity).Width(65)
+                               .HeaderTemplate("SL TT").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.InvQuantity).Width(65)
+                               .HeaderTemplate("TK").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.AfterInvQuantity).Width(65)
+                               .HeaderTemplate("TK Sau").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.ProductionRatePerDay).Width(65)
+                               .HeaderTemplate("ĐM/n").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.RequireQuantity).Width(65)
+                               .HeaderTemplate("KH/PO").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.PlanProductionDay).Width(65)
+                               .HeaderTemplate("Ngày").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.RequirePerDay).Width(65)
+                               .HeaderTemplate("KH/n").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.RequireProduction).Width(75)
+                               .HeaderTemplate("TT - KH").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
+
+                        //// sx2
+                        columns.Bound(f => f.Production2.TotalProductionQuantity).Width(65)
+                               .HeaderTemplate("SL TT").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.InvQuantity).Width(65)
+                               .HeaderTemplate("TK").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.AfterInvQuantity).Width(65)
+                               .HeaderTemplate("TK Sau").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.ProductionRatePerDay).Width(65)
+                               .HeaderTemplate("ĐM/n").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.RequireQuantity).Width(65)
+                               .HeaderTemplate("KH/PO").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.PlanProductionDay).Width(65)
+                               .HeaderTemplate("Ngày").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.RequirePerDay).Width(65)
+                               .HeaderTemplate("KH/n").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.RequireProduction).Width(75)
+                               .HeaderTemplate("TT - KH").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
+
+                        // 
+
+
+                        columns.Bound(f => f.PlanImportQcDateString).Width(90).Title("Ngày TT")
+                               .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.RequireImportQcDate).Width(85).Title("Ngày YC")
+                               .HeaderTemplate("Nhập QC").ReadOnly(true)
+                               .Format("{0:dd/MM/yyyy}")
+                               .HtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" });
+                        columns.Bound(f => f.FinishInv).Width(100)
+                               .HeaderTemplate("Tồn TP").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.PackingInv).Width(100)
+                               .HeaderTemplate("Tồn Đóng gói").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.QcInv).Width(100)
+                               .HeaderTemplate("Tồn QC").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.PlatingInv).Width(100)
+                               .HeaderTemplate("Tồn GCN").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.PenaltyDay).Width(70)
+                               .HeaderTemplate("Số ngày</br>sau SX2").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                    //
+                        columns.Bound(f => f.Production1.TotalRequireQuantity).Width(70)
+                               .HeaderTemplate("PO tăng</br>dần SX1").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production1.ProductionDay).Width(70)
+                               .HeaderTemplate("Số ngày</br>KH SX1").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                    //
+                        columns.Bound(f => f.Cnc.TotalRequireQuantity).Width(70)
+                               .HeaderTemplate("PO tăng</br>dần CNC").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Cnc.ProductionDay).Width(70)
+                               .HeaderTemplate("Số ngày</br>KH CNC").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.Production2.TotalRequireQuantity).Width(70)
+                               .HeaderTemplate("PO tăng</br>dần SX2").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2.ProductionDay).Width(70)
+                               .HeaderTemplate("Số ngày</br>KH SX2").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.DayCount).Width(55)
+                               .HeaderTemplate("Ngày LK").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.AvgProduction1).Width(70)
+                               .HeaderTemplate("BQ SX1").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.AvgProduction2).Width(70)
+                               .HeaderTemplate("BQ SX2").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.AvgCnc).Width(70)
+                               .HeaderTemplate("BQ CNC").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                    })
+
+                .Scrollable(f => f.Height(510))
+            //.HtmlAttributes(new { style = "width: 950px;" })
+                .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
+            //.Editable(f => f.Mode(GridEditMode.InCell))
+                .Filterable()
+            //.Groupable(group => group.Groups(g => g.Add(model => model.Type))) // hjx hjx
+                .Sortable()
+                .Selectable()
+                .ClientEvents(events => events
+                                            .OnDataBinding("grid_OnDataBinding")
+                                            .OnDataBound("grid_OnDataBound")
+                                            .OnRowSelect("grid_OnRowSelect")
+                                            .OnError("grid_OnError"))
+                .Groupable()
+                .Render();
+    }
+</div>

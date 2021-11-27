@@ -1,0 +1,632 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@model ProductInventoryModel
+@{
+    ViewBag.Title = "Tiến độ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+
+
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+        var startGrid = false;
+
+        function grid_OnDataBinding(args) {
+            if (startGrid) {
+
+                var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+
+                var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+                if (customerId == 0)
+                    customerId = 0;
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+                var invDate = $("#invDate").data("tDatePicker").value();
+                if (invDate === null)
+                    invDate = "";
+                else
+                    invDate = $.telerik.formatString('{0:dd/MM/yyyy}', invDate);
+                var month = $("#Month").data("tDropDownList").value();
+                if (month === null)
+                    month = new Date().getMonth() + 1;
+                var year = $("#Year").val();
+                if (year === null || year == "")
+                    month = new Date().getYear() + 1;
+                var isAllOrder = $("input[name='chkAllOrder']").attr('checked');
+                args.data = $.extend(args.data, {
+                    customerId: customerId,
+                    productCode: productCodeNameForMonthly,
+                    toDate: toDate,
+                    invDate: invDate,
+                    month: month,
+                    year: year,
+                    isAllOrder: isAllOrder,
+                });
+            }
+        }
+    </script>
+    <!-- report -->
+    <script type="text/javascript">
+
+        function printOrderProgressInMonth() {
+
+            var toDate = $("#toDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+            var invDate = $("#invDate").data("tDatePicker").value();
+            if (invDate === null)
+                invDate = "";
+            else
+                invDate = $.telerik.formatString('{0:dd/MM/yyyy}', invDate);
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = new Date().getMonth() + 1;
+            var year = $("#Year").val();
+            if (year === null || year == "")
+                month = new Date().getYear() + 1;
+            var isAllOrder = $("input[name='chkAllOrder']").attr('checked');
+            $('#result').load('@Url.Action("PrintOrderProgressInMonth", "Reporting")',
+                {
+                    toDate: toDate,
+                    invDate: invDate,
+                    month: month,
+                    year: year,
+                    isAllOrder: isAllOrder
+                }, function (data) {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function printProductionProgressInMonth() {
+
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = new Date().getMonth() + 1;
+            var year = $("#Year").val();
+            if (year === null || year == "")
+                month = new Date().getYear() + 1;
+            //var type = $("#Type").data("tDropDownList").value();
+            //if (type === "")
+            //    type = 1;
+            $('#result').load('@Url.Action("PrintOrderProgressProduction", "Reporting")',
+                {
+                    month: month,
+                    year: year
+                }, function (data) {
+
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function printProductState() {
+
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = new Date().getMonth() + 1;
+            var year = $("#Year").val();
+            if (year === null || year == "")
+                month = new Date().getYear() + 1;
+            //var type = $("#Type").data("tDropDownList").value();
+            //if (type === "")
+            //    type = 1;
+            $('#result').load('@Url.Action("PrintOrderProgress", "Reporting")',
+                {
+                    month: month,
+                    year: year
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function printExpecedSalesReport() {
+
+            var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+
+            var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+            if (customerId == 0)
+                customerId = 0;
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = new Date().getMonth() + 1;
+            var year = $("#Year").val();
+            if (year === null || year == "")
+                month = new Date().getYear() + 1;
+            $('#result').load('@Url.Action("PrintExpectedSalesReport", "Reporting")',
+                {
+                    customerId: customerId,
+                    productCode: productCodeNameForMonthly,
+                    month: month,
+                    year: year
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function type_onLoad() {
+            var combobox = $('#Type').data('tDropDownList');
+            var dataSource =
+            [
+                { Text: "Tất cả", Value: "1" },
+                { Text: "Trong tháng", Value: "2" }
+            ];
+
+            combobox.dataBind(dataSource);
+            combobox.value("Trong tháng");
+        }
+
+        function month_onLoad() {
+            var combobox = $('#Month').data('tDropDownList');
+            var dataSource =
+            [
+                { Text: "1", Value: "1" },
+                { Text: "2", Value: "2" },
+                { Text: "3", Value: "3" },
+                { Text: "4", Value: "4" },
+                { Text: "5", Value: "5" },
+                { Text: "6", Value: "6" },
+                { Text: "7", Value: "7" },
+                { Text: "8", Value: "8" },
+                { Text: "9", Value: "9" },
+                { Text: "10", Value: "10" },
+                { Text: "11", Value: "11" },
+                { Text: "12", Value: "12" }
+            ];
+
+            combobox.dataBind(dataSource);
+            combobox.value(new Date().getMonth() + 1);
+        }
+
+        function RefreshGrid2() {
+            startGrid = true;
+            RefreshGrid("gridExpectedSales");
+        }
+    </script>
+}
+
+<div class="title">Tiến độ công việc</div>
+<div class="clear"></div>
+<br />
+
+<div id="pnlInvMonthly">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+
+        @* <div class="grid_8 prefix_15">
+
+            <button id="btnOrderProgress" class="t-button" onclick=" return printProductState(); ">
+                <span class='t-icon t-insert'></span>
+                Tiến độ thực hiện dự báo đơn hàng
+            </button>
+        </div>*@
+        <div class="grid_2">Lấy đơn hàng</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("toDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddSeconds(-1))
+                    .Render();
+            }
+        </div>
+        <div class="grid_4">
+            <label>
+                <input type="checkbox" id="chkAllOrder" name="chkAllOrder" />
+                Lấy tất cả đơn hàng 
+            </label>
+            <br />
+        </div>
+        <div class="grid_2">Lấy xuất kho</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("invDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Now)
+                    .Render();
+            }
+        </div>
+
+        <div class="grid_8">
+
+            <button id="btnOrderProgressInMonth" class="t-button" onclick=" return printOrderProgressInMonth(); ">
+                <span class='t-icon t-insert'></span>
+                Tiến độ thực hiện đơn hàng trong tháng
+            </button>
+        </div>
+
+        <div class="grid_8 prefix_15">
+            <button id="btnProductionProgressInMonth" class="t-button" onclick=" return printProductionProgressInMonth(); ">
+                <span class='t-icon t-insert'></span>
+                Tiến độ thực hiện sản xuất
+            </button>
+        </div>
+        <br />
+
+        <div class="clear"></div>
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_2">
+                @Html.Label("Mã KH")
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("CustomerForMonthly")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 275px" })
+                        //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @Html.LabelFor(f => f.ProductCodeName)
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeNameForMonthly")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv"))
+                        .DropDownHtmlAttributes(new { style = "width: 200px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Tháng")
+            </div>
+            <div class="grid_1">
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("Month")
+                        .HtmlAttributes(new { style = "width: 40px" })
+                        .DropDownHtmlAttributes(new { style = "width: 40px" })
+                        //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        // .HighlightFirstMatch(true)
+                        //.AutoFill(true)
+                        .ClientEvents(events => events.OnLoad("month_onLoad"))
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Năm")
+            </div>
+            <div class="grid_1">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("Year")
+                        .Value(DateTime.Now.Year + "")
+                        .HtmlAttributes(new { style = "width: 42px" })
+                        .Render();
+                }
+            </div>
+            <div class="grid_3 prefix_1">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+            Html.Telerik().Grid<ProductState>()
+                .Name("gridExpectedSales")
+                .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectOrderProgressInMonth", "Reporting",
+                                                                 new { customerId = 0, productCode = "", toDate = DateTime.Now, month = 0, invDate = DateTime.Now.Month, year = DateTime.Now.Year, isAllOrder = false })
+                                                         )
+                .Columns(columns =>
+                    {
+                        columns.Bound(f => f.Index).Title("STT").Width(30).ReadOnly(true)
+                               .HeaderHtmlAttributes(new {style = "font-weight: bold"})
+                               .HtmlAttributes(new {style = "font-weight: center;"});
+                        columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true)
+                               .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
+                               .HtmlAttributes(new {style = "text-align: center;"});
+                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(70).ReadOnly(true)
+                               .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
+                               .HtmlAttributes(new {style = "text-align: left;border-right:black 3px double;"})
+                               .Aggregate(agg => agg.Count())
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>");
+                        // so lieu
+                        columns.Bound(f => f.RequirementOrderInMonth).Width(65)
+                               .HeaderTemplate("Tổng ĐH<br/>trong tháng").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= RequirementOrderInMonth == null ? 0 : $.telerik.formatString('{0:n0}', RequirementOrderInMonth) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.RequirementOrderNextMonth).Width(65)
+                               .HeaderTemplate("DB tháng<br/>kế").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= RequirementOrderNextMonth == null ? 0 : $.telerik.formatString('{0:n0}', RequirementOrderNextMonth) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
+                        // sx1
+                        columns.Bound(f => f.ProductionRequirement).Width(65)
+                               .HeaderTemplate("SL cần<br/>sản xuất").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= ProductionRequirement == null ? 0 : $.telerik.formatString('{0:n0}', ProductionRequirement) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        // cnc
+                        columns.Bound(f => f.CncInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>Cnc").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.CncProgress.Export).Width(65)
+                               .HeaderTemplate("Xuất kho<br/>CNC").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.CncProgress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>CNC").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.Production2Inv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>SX 2").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.Production2Progress.Export).Width(65)
+                               .HeaderTemplate("Xuất kho<br/>SX 2").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Production2Progress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>SX2").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.HeatInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>NL").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.HeatProgress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>NL").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.SurfaceInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>RB").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.SurfaceProgress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>RB").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.WaitingPlatingInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>chờ GCN").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.WaitingPlatingProgress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>chờ GCN").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.PlatingInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>GCN").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.PlatingProgress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>GCN").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.QcInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>QC").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        columns.Bound(f => f.QcProgress.Requirement).Width(65)
+                               .HeaderTemplate("Yêu cầu<br/>QC").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //
+                        columns.Bound(f => f.FinishInv).Width(65)
+                               .HeaderTemplate("Tồn kho<br/>TP").ReadOnly(true)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
+                        //columns.Bound(f => f.FinishProgress.Requirement).Width(65)
+                        //       .HeaderTemplate("Yêu cầu<br/>TP").ReadOnly(true)
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .Format("{0:n0}")
+                        //       .HtmlAttributes(new { style = "text-align: right;" });
+                    })
+                //.DetailView(details => details.ClientTemplate(
+                //    Html.Telerik().TabStrip()
+                //        .Name("TabStrip_<#= ProductId #>")
+                //        .SelectedIndex(1)
+                //        .Items(items =>
+                //            {
+                //                items.Add().Text("Nguyên liệu sử dụng").Content(
+                //                    Html.Telerik().Grid<ProductionMaterialModel>()
+                //                        .Name("gridProductionMaterial_<#= ProductId #>")
+                //                        .DataKeys(key => key.Add(f => f.RealMaterialId).RouteKey("realMaterialId"))
+                //                        .DataBinding(
+                //                            dataBinding => dataBinding.Ajax()
+                //                                                      .Select("SelectMaterialInventoryByProductId", "Inv", new {area = "Inv", productId = "<#= ProductId #>"})
+                //                        )
+                //                        .Columns(columns =>
+                //                            {
+                //                                columns.Bound(f => f.MaterialCode).Width(100).Title("Mã NL");
+                //                                columns.Bound(f => f.Priority).Width(65).Title("Độ ưu tiên");
+                //                                columns.Bound(f => f.MaterialInv).Width(65).Title("Tồn kho (cây)")
+                //                                       .ClientTemplate("<#= MaterialInv == null ? 0 : $.telerik.formatString('{0:n2}', MaterialInv) #>");
+                //                                columns.Bound(f => f.MaterialInvKg).Width(65).Title("Tồn kho (kg)")
+                //                                       .ClientTemplate("<#= MaterialInvKg == null ? 0 : $.telerik.formatString('{0:n2}', MaterialInvKg) #>");
+                //                                columns.Bound(f => f.Note).Width(65).Title("Ghi chú");
+                //                            })
+                //                        .Editable(editing => editing.Mode(GridEditMode.InLine))
+                //                        .ClientEvents(e => e.OnError("grid_OnError"))
+                //                        .ToHtmlString()
+                //                    );
+                //                items.Add().Text("Quy trình kho").Content(
+                //                    Html.Telerik().Grid<OrderProgressModel>()
+                //                        .Name("gridOrderProgress_<#= ProductId #>")
+                //                        .DataKeys(key => key.Add(f => f.WarehouseId).RouteKey("warehouseId"))
+                //                        .DataKeys(key => key.Add(f => f.ProgressId).RouteKey("progressId"))
+                //                        .DataBinding(
+                //                            dataBinding => dataBinding.Ajax()
+                //                                                      .Select("SelectProductionExpectedProcessById", "Reporting",
+                //                                                              new
+                //                                                                  {
+                //                                                                      area = "Inv",
+                //                                                                      productId = "<#= ProductId #>",
+                //                                                                      month = "<#= Month #>",
+                //                                                                      year = "<#= Year #>",
+                //                                                                      requirementInventory = "<#= RequirementInventory #>",
+                //                                                                      requirementOrder = "<#= RequirementOrder #>"
+                //                                                                  })
+                //                                                      .Update("UpdateProductionExpectedProcessById", "Reporting",
+                //                                                              new
+                //                                                                  {
+                //                                                                      area = "Inv",
+                //                                                                      productId = "<#= ProductId #>",
+                //                                                                      month = "<#= Month #>",
+                //                                                                      year = "<#= Year #>",
+                //                                                                      requirementInventory = "<#= RequirementInventory #>",
+                //                                                                      requirementOrder = "<#= RequirementOrder #>"
+                //                                                                  })
+                //                        )
+                //                        .Columns(columns =>
+                //                            {
+                //                                columns.Command(command =>
+                //                                                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                //                                    ).Width(65).Title("").HtmlAttributes(new {style = "text-align:center"});
+                //                                columns.Bound(f => f.WarehouseName).Width(200).Title("Tên kho").ReadOnly(true)
+                //                                       .ClientTemplate("<#= WarehouseName #>");
+                //                                columns.Bound(f => f.InvQuantity).Width(65).Title("Tồn kho").ReadOnly(true)
+                //                                       .HtmlAttributes(new {style = "text-align: right;"})
+                //                                       .ClientTemplate("<#= InvQuantity == null ? 0 : $.telerik.formatString('{0:n0}', InvQuantity) #>");
+                //                                columns.Bound(f => f.NumberProcess).Width(70).Title("SL cần").ReadOnly(true)
+                //                                       .HtmlAttributes(new {style = "text-align: right;"})
+                //                                       .ClientTemplate("<#= NumberProcess == null ? 0 : $.telerik.formatString('{0:n0}', NumberProcess) #>");
+
+                //                                columns.Bound(f => f.StartDate).Width(100).Title("Ngày BĐ")
+                //                                       .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', StartDate) #>");
+                //                                columns.Bound(f => f.ExpectedDay).Width(75).Title("Ngày làm")
+                //                                       .ClientTemplate("<#= ExpectedDay == null ? 0 : $.telerik.formatString('{0:n0}', ExpectedDay) #>")
+                //                                       .HtmlAttributes(new {style = "text-align:center"});
+                //                                columns.Bound(f => f.ExpectedFactor).Width(55).Title("Hệ số")
+                //                                       .ClientTemplate("<#= ExpectedFactor == null ? 1.0 : $.telerik.formatString('{0:n1}', ExpectedFactor) #>")
+                //                                       .HtmlAttributes(new {style = "text-align:center"});
+                //                                columns.Bound(f => f.FinishDate).Width(100).Title("Ngày hoàn thành").ReadOnly(true)
+                //                                       .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', FinishDate) #>");
+                //                                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                //                                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày cập nhật").ReadOnly(true)
+                //                                       .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
+                //                            })
+                //                        .Resizable(f => f.Columns(true))
+                //                        .Editable(editing => editing.Mode(GridEditMode.InLine))
+                //                        .ClientEvents(e => e.OnError("grid_OnError"))
+                //                        .ToHtmlString()
+                //                    );
+                //            })
+                //        .ToHtmlString()))
+                .Scrollable(f => f.Height(510))
+                //.HtmlAttributes(new { style = "width: 950px;" })
+                .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
+                .Editable(f => f.Mode(GridEditMode.InCell))
+                .Filterable()
+                .Sortable()
+                .Selectable()
+                .ClientEvents(events => events
+                                            .OnDataBinding("grid_OnDataBinding")
+                                            .OnRowSelect("grid_OnRowSelect")
+                                            .OnError("grid_OnError"))
+                .Groupable()
+                .Render();
+        }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(1100)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

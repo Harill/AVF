@@ -1,0 +1,136 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Dự báo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+    function DisplayForecastOrderProgress() {
+        $('#result').empty();
+        var customerId = $('#cboCustomer').data('tComboBox').value();
+        if (customerId == "")
+            customerId = 0;
+        var status = $('#cboStatus').data('tComboBox').value();
+        if (status == "")
+            status = -9;
+        var month = $('#Month').data('tComboBox').value();
+        var year = $('#Year').data('tAutoComplete').text();
+        $('#result').load('@Url.Action("GetForecastOrderProgressDiv", "SalesOrder")',
+            {
+                customerId: customerId,
+                month: month,
+                year:year,
+                status: status
+            }, function(e) {
+                alert("Hoàn thành làm mới");
+            });
+    }
+
+    function cboStatus_OnLoad() {
+        var dataSource =
+        [
+            { Text: "Sẽ trễ", Value: "1" },
+            { Text: "Đã trễ", Value: "2" },
+            { Text: "Đủ SL", Value: "-1" },
+            { Text: "Bình thường", Value: "0" }
+        ];
+
+        var combobox = $('#cboStatus').data('tComboBox');
+        combobox.dataBind(dataSource);
+    }
+
+    function month_onLoad() {
+        var dataSource =
+        [
+            { Text: "1", Value: "1" },
+            { Text: "2", Value: "2" },
+            { Text: "3", Value: "3" },
+            { Text: "4", Value: "4" },
+            { Text: "5", Value: "5" },
+            { Text: "6", Value: "6" },
+            { Text: "7", Value: "7" },
+            { Text: "8", Value: "8" },
+            { Text: "9", Value: "9" },
+            { Text: "10", Value: "10" },
+            { Text: "11", Value: "11" },
+            { Text: "12", Value: "12" }
+        ];
+        var combobox = $('#Month').data('tComboBox');
+        combobox.dataBind(dataSource);
+        if (new Date().getMonth() == 12)
+            combobox.value = "1";
+        else combobox.value(new Date().getMonth() + 1);
+    }
+
+</script>
+<br/>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_1">KH</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("cboCustomer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
+                        .HtmlAttributes(new {style = "width: 190px"})
+                        .DropDownHtmlAttributes(new {style = "width: 275px;"})
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">Tình trạng</div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("cboStatus")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
+                        .HtmlAttributes(new {style = "width: 100px"})
+                        .DropDownHtmlAttributes(new {style = "width: 100px;"})
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .ClientEvents(e => e.OnLoad("cboStatus_OnLoad"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">
+                @Html.Label("Tháng")
+            </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Month")
+                        .HtmlAttributes(new { style = "width: 40px" })
+                        .DropDownHtmlAttributes(new { style = "width: 40px" })
+                        //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        // .HighlightFirstMatch(true)
+                        //.AutoFill(true)
+                        .ClientEvents(events => events.OnLoad("month_onLoad"))
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Năm")
+            </div>
+            <div class="grid_2">
+
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("Year")
+                        .Value(DateTime.Now.Year + "")
+                        .HtmlAttributes(new { style = "width: 40px" })
+                        .Render();
+                }
+            </div>
+            <button id="btnRefesh2" class="t-button" onclick=" DisplayForecastOrderProgress()">
+                <span class='t-icon t-refresh'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div id="result"></div>

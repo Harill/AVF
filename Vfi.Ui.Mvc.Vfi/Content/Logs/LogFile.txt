@@ -1,0 +1,76 @@
+07/11/18 01:57:14: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+07/11/18 01:57:15: SelectOrderDetailByExcel: Row count: 1998
+07/11/18 01:57:27: SelectOrderDetailByExcel: Exception: System.Object[]
+20/12/19 02:32:12: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:32:12: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:32:12: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:32:12: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:32:16: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:32:16: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:32:16: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:32:16: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:32:33: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:32:33: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:32:33: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:32:33: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:32:53: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:32:53: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:32:53: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:32:53: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:32:56: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:32:56: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:32:56: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:32:56: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:34:53: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:34:53: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:34:53: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:34:53: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:35:01: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:35:01: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:35:01: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:35:01: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:37:16: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:37:16: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:37:16: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:37:16: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:38:47: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:42:42: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:42:42: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:42:42: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:42:50: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:47:44: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.ACE.OLEDB.12.0' provider is not registered on the local machine.
+20/12/19 02:47:44: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+20/12/19 02:47:44: SelectOrderDetailByExcel: Finish: System.Object[]
+20/12/19 02:48:40: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+20/12/19 02:48:40: SelectOrderDetailByExcel: Row count: 1245
+20/12/19 02:48:40: SelectOrderDetailByExcel: Finish: System.Object[]
+31/03/20 10:10:03: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+31/03/20 10:10:04: SelectOrderDetailByExcel: Row count: 1000
+31/03/20 10:10:05: SelectOrderDetailByExcel: Finish: System.Object[]
+31/03/20 10:10:22: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa-20190824.xls
+31/03/20 10:10:22: SelectOrderDetailByExcel: Row count: 1304
+31/03/20 10:10:24: SelectOrderDetailByExcel: Finish: System.Object[]
+31/03/20 10:19:16: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa-20190824.xls
+31/03/20 10:19:16: SelectOrderDetailByExcel: Row count: 1304
+31/03/20 10:19:17: SelectOrderDetailByExcel: Finish: System.Object[]
+29/04/20 03:00:27: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 1.xls
+29/04/20 03:00:28: SelectOrderDetailByExcel: Row count: 999
+29/04/20 03:00:41: SelectOrderDetailByExcel: Finish: System.Object[]
+29/04/20 03:11:17: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 1.xls
+29/04/20 03:11:17: SelectOrderDetailByExcel: Row count: 999
+29/04/20 03:11:34: SelectOrderDetailByExcel: Finish: System.Object[]
+29/04/20 03:19:51: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 1.xls
+29/04/20 03:19:51: SelectOrderDetailByExcel: Row count: 999
+29/04/20 03:20:08: SelectOrderDetailByExcel: Finish: System.Object[]
+29/04/20 03:33:53: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 1.xls
+29/04/20 03:33:54: SelectOrderDetailByExcel: Row count: 999
+29/04/20 03:34:09: SelectOrderDetailByExcel: Finish: System.Object[]
+29/04/20 03:39:31: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 1.xls
+29/04/20 03:39:31: SelectOrderDetailByExcel: Row count: 999
+29/04/20 03:39:46: SelectOrderDetailByExcel: Finish: System.Object[]
+29/04/20 03:44:17: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa-Tam.xls
+29/04/20 03:44:17: SelectOrderDetailByExcel: Row count: 1000
+29/04/20 03:44:20: SelectOrderDetailByExcel: Finish: System.Object[]
+30/10/21 03:36:35: SelectOrderDetailByExcel: destinationPath: C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xlsx
+30/10/21 03:36:35: SelectOrderDetailByExcel: Row count: 354
+30/10/21 03:36:36: SelectOrderDetailByExcel: Finish: System.Object[]

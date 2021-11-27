@@ -1,0 +1,326 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model PurchaseOrderModel
+@{
+    ViewBag.Title = "Duyệt yêu cầu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+
+        function materialClassified_OnChange() {
+            var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+            $.ajax({
+                type: 'post',
+                data: { classified: classified },
+                dataType: 'json',
+                url: '@Url.Action("SelectComboBoxVendorByClassified", "PurchaseOrder", new { area = "Purchasing" })',
+                timeout: 20000,
+                success: function (data) {
+                    RefreshGrid("grid");
+                }
+            });
+        }
+        var classifiedId = 0;
+        function grid_OnEdit(e) {
+            classifiedId = e.dataItem.ClassifiedId;
+        }
+
+        function grid_OnDataBinding(args) {
+            //var statusValue = $("#Status").data("tComboBox").value();
+            //if (statusValue === "")
+            //    statusValue = 0;
+
+            var classified = $("#MaterialClassifiedName").data("tDropDownList").value();
+            if (classified === "")
+                classified = 0;
+            var vendor = $("#VendorCodeName").data("tDropDownList").value();
+            if (vendor === "")
+                vendor = 0;
+
+            //var fromDate = $("#fromDate").data("tDatePicker").value();
+            //if (fromDate === null)
+            //    fromDate = "";
+            //else {
+            //    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            //}
+            //var toDate = $("#toDate").data("tDatePicker").value();
+            //if (toDate === null)
+            //    toDate = "";
+            //else {
+            //    toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+            //}
+            args.data = $.extend({}, args.data, {
+                classified: classified,
+                vendorId: vendor
+            });
+
+            
+
+
+        }
+
+    </script>
+
+
+    <script type="text/javascript">
+        function printInquiryForm() {
+
+            var $checkedRecords = $("input[name='chkIds']:checked")
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+
+            var a = {};
+            var ids = "";
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] === "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+            //alert(ids);
+            $('#result').load('@Url.Action("PrintInquiryForm", "PurchaseOrder", new { area = "Purchasing" })',
+                {
+                    ids: ids,
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function printTransform() {
+
+            var $checkedRecords = $("input[name='chkIds']:checked")
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+
+            var a = {};
+            var ids = "";
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] === "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+            $.ajax({
+                type: 'post',
+                data: { ids: ids },
+                dataType: 'json',
+                url: '@Url.Action("TransformToPo", "PurchaseOrder", new { area = "Purchasing" })',
+                timeout: 20000,
+                success: function (data) {
+                    alert(data);
+                    RefreshGrid("grid");
+                }
+             });
+        }
+    </script>
+
+
+}
+
+
+<div class="title">Duyệt phiếu yêu cầu</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1080px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu yêu cầu</legend>
+
+        <div class="grid_5">@Html.LabelFor(f => f.MaterialClasstifiedName)</div>
+        <div class="grid_6">@Html.LabelFor(f => f.VendorCodeName)
+           @* <button class="t-button" id="btnTypeRefresh" name="btnPickupMaterialId" onclick=" TypeRefresh() ">
+                <span class='t-icon t-refresh'></span>
+            </button>*@
+        </div>
+
+        @*<div class="grid_5">@Html.LabelFor(f => f.CurrencyCode)</div>*@
+
+        <div class="clear"></div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("MaterialClassifiedName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new { area = "" }))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(e => e.OnChange("materialClassified_OnChange"))
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("VendorCodeName")
+                    //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialVendor", "Vendor"))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    //.ClientEvents(e => e.OnChange("vendor_OnChange"))
+                    .Render();                                              
+            }
+        </div>
+       @* <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("CurrencyCode")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new { area = "" }))
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Render();
+            }
+        </div>*@
+
+        <div class="grid_1">
+            <button class="t-button" id="btnGridRefresh" name="btnPickupMaterialId" onclick=" RefreshGrid('grid') ">
+                <span class='t-icon t-refresh'>Làm mới</span>
+            </button>
+        </div>
+        <div class="grid_6">
+            <button class="t-button" id="btnPrintForm" name="btnPickupId" onclick=" printInquiryForm() ">
+                <span class='t-icon t-insert'></span>
+                In Phiếu Yêu Cầu
+            </button>
+            <button class="t-button" id="btnTransform" name="btnPickupId" onclick=" printTransform() ">
+                <span class='t-icon t-insert'></span>
+                Chuyển thành mua hàng
+            </button>
+
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InquiryPoModel>()
+            .Name("grid")
+            .DataKeys(keys => keys.Add(f => f.InquiryId).RouteKey("inquiryId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectInquiryPo", "PurchaseOrder", new
+                {
+                    classified = 0,
+                    type = 0,
+                    vendorId = 0,
+                    status = (byte)MyUtilities.PurchaseOrder.InquiryEnum.Pending,
+                    fromDate = "",
+                    toDate = ""
+                })
+                .Update("UpdateInquiryPo", "PurchaseOrder", new
+                {
+                    classified = 0,
+                    type = 0,
+                    vendorId = 0,
+                })
+                .Delete("CancelInquiryPo", "PurchaseOrder", new
+                {
+                    classified = 0,
+                    type = 0,
+                    vendorId = 0,
+                })
+            )
+            .Columns(columns =>
+            {
+                columns.Bound(f => f.InquiryId).Title("Chọn").Width(50).ReadOnly(true)
+                    .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= InquiryId #>' />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
+                    .Width(50).Title("Sửa")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ClassifiedName).Width(100).Title("Phân loại").ReadOnly(true);
+                columns.Bound(f => f.TypeName).Width(100).Title("Loại").ReadOnly(true);
+                columns.Bound(f => f.VendorCode).Width(120).Title("NCC");
+                columns.Bound(f => f.ReferenceCode).Width(150).Title("Mã").ReadOnly(true);
+                columns.Bound(f => f.Unit).Width(50).Title("ĐVT");
+                columns.Bound(f => f.Currency).Width(70).Title("Tiền tệ");
+                columns.Bound(f => f.OrderQty).Width(70).Title("SL")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Format("{0:n0}")
+                    .Aggregate(agg => agg.Sum())
+                    .FooterHtmlAttributes(new { style = "text-align: right;" })
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                
+                columns.Bound(f => f.UnitPrice).Width(100).Title("ĐG")
+                    .ClientTemplate("<#= UnitPriceStr #>")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                
+                columns.Bound(f => f.Price).Width(100).Title("TT").ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Format("{0:n0}")
+                    .Aggregate(agg => agg.Sum())
+                    .FooterHtmlAttributes(new { style = "text-align: right;" })
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+
+                columns.Bound(f => f.DueDate).Width(100).Title("Ngày giao")
+                       .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                columns.Bound(f => f.TotalInv).Width(70).Title("Tồn kho").ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Format("{0:n2}");
+                columns.Bound(f => f.Note).Width(100);
+                columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(70).Title("");
+                columns.Bound(f => f.ModifiedDate).Width(90).Title("Ngày làm").ReadOnly(true)
+                       .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
+                columns.Bound(f => f.ModifiedUser).Width(90).Title("Người làm").ReadOnly(true);
+            })
+            .ClientEvents(events => events
+                .OnDataBinding("grid_OnDataBinding")
+                .OnEdit("grid_OnEdit")
+                .OnError("grid_OnError")
+            )
+                .Groupable()
+        .Scrollable(f => f.Height("auto"))
+            .Footer(true)
+            .Render();
+    }
+</div>
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+<style type="text/css">
+    #windowReport {
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

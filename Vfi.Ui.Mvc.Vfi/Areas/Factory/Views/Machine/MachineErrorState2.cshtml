@@ -1,0 +1,168 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Tình trạng máy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function section_OnDataBinding(e) {
+            e.data = $.extend(e.data, {
+                productId: productId
+            });
+        }
+
+        function cbo_OnChange(e) {
+            productId = parseInt(e.value);
+            RefreshCombobox("SectionName");
+        }
+        var productId = 0;
+
+        function grid_OnEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+
+            //var machineName = $(form).find('#MachineName');
+            //var machineNameData = $(form).find('#MachineName').data('tComboBox');
+
+            //var stateName = $(form).find('#StateName');
+            //var stateNameData = $(form).find('#StateName').data('tComboBox');
+
+            if (mode == 'insert') {
+                var nodes = $(form).find('#EmployeeName2');
+                nodes[0].parentNode.innerHTML = "";
+                nodes = $(form).find('#HowToFix');
+                nodes[0].parentNode.innerHTML = "";
+                nodes = $(form).find("#StartDate");
+                nodes[0].parentNode.innerHTML = "";
+                nodes = $(form).find("#StatusName");
+                nodes[0].parentNode.innerHTML = "";
+                nodes = $(form).find("#FinishDate");
+                nodes[0].parentNode.innerHTML = "";
+                //nodes = $(form).find("#Shift");
+                //nodes[0].parentNode.innerHTML = "";
+                //nodes = $(form).find("#MoreTime");
+                //nodes[0].parentNode.innerHTML = "";
+            } else if (mode == 'edit') {
+                nodes = $(form).find('#MachineName2');
+                nodes[0].parentNode.parentNode.innerHTML = "<b>" + e.dataItem.MachineName2 + "</b>";
+                nodes = $(form).find('#StateName');
+                nodes[0].parentNode.parentNode.innerHTML = "<b>" + e.dataItem.StateName + "</b>";
+                nodes = $(form).find('#ProductCode2');
+                nodes[0].parentNode.parentNode.innerHTML = "<b>" + e.dataItem.ProductCode2 + "</b>";
+                nodes = $(form).find('#SectionName');
+                nodes[0].parentNode.parentNode.innerHTML = "<b>" + e.dataItem.SectionName + "</b>";
+                //nodes = $(form).find('#ErrorCause');
+                //nodes[0].parentNode.innerHTML = e.dataItem.ErrorCause;
+                if (e.dataItem.EmployeeId != 0) {
+                    nodes = $(form).find('#EmployeeName2');
+                    nodes[0].parentNode.parentNode.innerHTML = e.dataItem.EmployeeName2;
+                    nodes = $(form).find('#HowToFix');
+                    nodes[0].parentNode.parentNode.innerHTML = e.dataItem.HowToFix;
+                    nodes = $(form).find("#StartDate");
+                    nodes[0].parentNode.innerHTML = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', e.dataItem.StartDate);
+                    //nodes = $(form).find("#Shift");
+                    //nodes[0].parentNode.innerHTML = e.dataItem.Shift;
+                } else {
+                    $.ajax({
+                        type: 'post',
+                        data: { stateId: e.dataItem.StateId },
+                        dataType: 'json',
+                        url: '@Url.Action("GetMachineStateDetailById", "Machine", new { area = "Factory" })',
+                        timeout: 20000,
+                        success: function(data) {
+                            //a
+                            var stateDetail = $('#HowToFix').data('tComboBox');
+                            stateDetail.dataBind(data);
+                        }
+                    });
+                    //var date = new Date().getTime();
+                    //nodes = $(form).find("#Shift");
+                    //nodes[0].parentNode.innerHTML = e.dataItem.StatusName;
+                    nodes = $(form).find("#StatusName");
+                    nodes[0].parentNode.parentNode.innerHTML = e.dataItem.StatusName;
+                    nodes = $(form).find("#FinishDate");
+                    nodes[0].parentNode.innerHTML = "";
+                    //nodes = $(form).find("#MoreTime");
+                    //nodes[0].parentNode.innerHTML = "";
+                    
+                }
+            }
+        }
+
+    </script>
+}
+
+
+<div class="title">Quản lý thông tin máy</div>
+
+            <div class="grid_3 prefix_1">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMachine'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                </button>
+            </div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MachineRepairFormModel>()
+            .Name("gridMachine")
+            .DataKeys(key => key.Add(f => f.FormId).RouteKey("formId"))
+            .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+            .DataKeys(key => key.Add(f => f.HowToFix).RouteKey("howToFix"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                    .Select("SelectMachine2ErrorState", "Machine", new { machineId = 0, fromDate = "", toDate = "", status = 1 })
+                    .Insert("InsertMachine2ErrorState", "Machine")
+                    .Update("UpdateMachine2ErrorState", "Machine")
+                    .Delete("DeleteMachine2ErrorState", "Machine"))
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm")
+                        ).Width(40).Title("").HtmlAttributes(new {style = "text-align:center", id = "btnCommand"});
+
+                    columns.Bound(f => f.MachineName2).Width(70).Title("Máy")
+                           .ClientTemplate("<strong><#= MachineName2 #></strong>");
+                    columns.Bound(f => f.ProductCode2).Width(90).Title("Sản phẩm")
+                           .ClientTemplate("<strong><#= ProductCode2 #></strong>");
+                    columns.Bound(f => f.SectionName).Width(90).Title("Công đoạn")
+                           .ClientTemplate("<strong><#= SectionName #></strong>");
+                    columns.Bound(f => f.StateName).Width(100).Title("Lỗi")
+                           .ClientTemplate("<strong><#= StateName #></strong>");
+                    
+                    columns.Bound(f => f.ErrorCause).Width(125).Title("Nguyên nhân");
+                    columns.Bound(f => f.CreateDate).Width(85).Title("Ngày tạo").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}");
+                    columns.Bound(f => f.CreateUser).Width(85).Title("Người tạo").ReadOnly(true)
+                           .HtmlAttributes(new {style = "border-right:1px solid black;"});
+                    
+                    columns.Bound(f => f.EmployeeName2).Width(85).Title("CN sửa");
+                    //columns.Bound(f => f.Shift).Width(85).Title("Ca");
+                    columns.Bound(f => f.HowToFix).Title("Khắc phục").Width(125);
+                    columns.Bound(f => f.StartDate).Width(185).Title("Bắt đầu sửa")
+                           .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', StartDate) #>")
+                           .HtmlAttributes(new {style = "border-right:1px solid black;"});
+                    
+                    columns.Bound(f => f.StatusName).Width(75).Title("");
+                    columns.Bound(f => f.FinishDate).Width(185).Title("Kết thúc sửa")
+                           .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', FinishDate) #>");
+
+                    //columns.Bound(f => f.MoreTime).Width(75).Title("Bù ĐM");
+                    columns.Bound(f => f.Note).Width(125).Title("Ghi chú");
+                    columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("").Width(40);
+                })
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            //.Scrollable(f => f.Height(310))
+            .ClientEvents(e => e.OnError("grid_OnError").OnEdit("grid_OnEdit"))
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();    
+    }
+</div>

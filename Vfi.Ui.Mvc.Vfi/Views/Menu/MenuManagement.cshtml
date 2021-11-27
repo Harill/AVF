@@ -1,0 +1,276 @@
+﻿@using Vfi.Server.Core.DataModel.Models.System
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@{
+    ViewBag.Title = "Menu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+
+    function gridMenu_OnRowDataBound(e) {
+
+        //if (e.dataItem.ControllerName || e.dataItem.MenuName.includes("-----"))
+        if (e.dataItem.ChildrenCount === 0) {
+            //TabStrip_<#= MenuId #>
+            //e.row.childNodes[0].innerHTML = "";
+        }
+    }
+</script>
+
+<div class="clear"></div>
+<div class="title">Quản lý menu</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MenuManagementModel>()
+            .Name("gridMenuLevel0")
+            .DataKeys(key => key.Add(f => f.MenuId).RouteKey("menuId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectMenu", "Menu", new { area = "", parentId = 0 })
+                                          .Update("UpdateMenu", "Menu", new { area = "" })
+            )
+            .Columns(columns => {
+                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image))
+                       .Width(30).Title("")
+                       .HtmlAttributes(new { style = "text-align:center" });
+
+                columns.Bound(f => f.MenuName).Width(100);
+                columns.Bound(f => f.Area).Width(50);
+                columns.Bound(f => f.Index).Width(50);
+            })
+            //.DetailView(details => details.ClientTemplate(
+            //    Html.Telerik().Grid<MenuManagementModel>()
+            //        .Name("gridMenuChild_<#= MenuId #>")
+            //        .ToolBar(
+            //            toolbar =>
+            //            toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText)
+            //                   .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            //        .DataKeys(key => key.Add(f => f.MenuId).RouteKey("menuId"))
+            //        .DataBinding(
+            //            dataBinding => dataBinding
+            //                               .Ajax()
+            //                               .Select("SelectMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+            //                               .Insert("InsertMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+            //                               .Update("UpdateMenu", "Menu", new { area = "" }))
+            //        .Columns(columns =>
+            //            {
+            //                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image))
+            //                       .Width(30).Title("")
+            //                       .HtmlAttributes(new { style = "text-align:center" });
+            //                columns.Bound(f => f.MenuName).Width(100);
+            //                columns.Bound(f => f.ControllerName).Width(50);
+            //                columns.Bound(f => f.ActionName).Width(100);
+            //                columns.Bound(f => f.Area).Width(50);
+            //                columns.Bound(f => f.Index).Width(35);
+            //                columns.Bound(f => f.ParentName).Width(50);
+            //            })
+            //        .DetailView(details2 => details2.ClientTemplate(
+            //            Html.Telerik().Grid<MenuManagementModel>()
+            //        .Name("gridMenuChild_<#= MenuId #>")
+            //        .ToolBar(
+            //            toolbar =>
+            //            toolbar.Insert().Text("Thêm SP mới").ButtonType(GridButtonType.ImageAndText)
+            //                   .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            //        .DataKeys(key => key.Add(f => f.MenuId).RouteKey("menuId"))
+            //        .DataBinding(
+            //            dataBinding => dataBinding
+            //                               .Ajax()
+            //                               .Select("SelectMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+            //                               .Insert("InsertMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+            //                               .Update("UpdateMenu", "Menu", new { area = "" }))
+            //                .Columns(columns =>
+            //                    {
+            //                        columns.Command(c => c.Edit().ButtonType(GridButtonType.Image))
+            //                               .Width(30).Title("")
+            //                               .HtmlAttributes(new { style = "text-align:center" });
+            //                        columns.Bound(f => f.MenuName).Width(100);
+            //                        columns.Bound(f => f.ControllerName).Width(50);
+            //                        columns.Bound(f => f.ActionName).Width(100);
+            //                        columns.Bound(f => f.Area).Width(50);
+            //                        columns.Bound(f => f.Index).Width(35);
+            //                        columns.Bound(f => f.ParentName).Width(50);
+            //                    })
+            //                .ClientEvents(e => e.OnError("grid_OnError"))
+            //                .ToHtmlString())
+            //        )
+
+
+            //        .Selectable()
+            //        .ClientEvents(e => e.OnRowSelect("grid_OnRowSelect")
+            //                            .OnError("grid_OnError"))
+            //        .ToHtmlString())
+            //)
+
+
+
+        .DetailView(details => details.ClientTemplate(
+            Html.Telerik().TabStrip()
+                .Name("TabStrip_<#= MenuId #>")
+                .SelectedIndex(0)
+                .Items(items => {
+                    items.Add().Text("Child Menu").Content(Html.Telerik().Grid<MenuManagementModel>()
+                         .Name("gridMenuChild_<#= MenuId #>")
+                         .ToolBar(
+                             toolbar =>
+                             toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText)
+                                    .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                         .DataKeys(key => key.Add(f => f.MenuId).RouteKey("menuId"))
+                         .DataBinding(
+                             dataBinding => dataBinding.Ajax()
+                                                .Select("SelectMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+                                                .Insert("InsertMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+                                                .Update("UpdateMenu", "Menu", new { area = "" }))
+                         .Columns(columns => {
+                             columns.Command(c => c.Edit().ButtonType(GridButtonType.Image))
+                                    .Width(30).Title("")
+                                    .HtmlAttributes(new { style = "text-align:center" });
+                             columns.Bound(f => f.MenuName).Width(100);
+                             columns.Bound(f => f.ControllerName).Width(50);
+                             columns.Bound(f => f.ActionName).Width(100);
+                             columns.Bound(f => f.Area).Width(40);
+                             columns.Bound(f => f.Index).Width(30);
+                             columns.Bound(f => f.ParentName).Width(60);
+                         })
+
+    .DetailView(details2 => details2.ClientTemplate(
+        Html.Telerik().TabStrip()
+            .Name("TabStrip_<#= MenuId #>")
+            .SelectedIndex(0)
+            .Items(items2 => {
+                items2.Add().Text("Child Menu").Content(Html.Telerik().Grid<MenuManagementModel>()
+                     .Name("gridMenuChild_<#= MenuId #>")
+                     .ToolBar(
+                         toolbar =>
+                         toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText)
+                                .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                     .DataKeys(key => key.Add(f => f.MenuId).RouteKey("menuId"))
+                     .DataBinding(
+                         dataBinding => dataBinding.Ajax()
+                                            .Select("SelectMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+                                            .Insert("InsertMenu", "Menu", new { area = "", parentId = "<#= MenuId #>" })
+                                            .Update("UpdateMenu", "Menu", new { area = "" }))
+                     .Columns(columns => {
+                         columns.Command(c => c.Edit().ButtonType(GridButtonType.Image))
+                                .Width(30).Title("")
+                                .HtmlAttributes(new { style = "text-align:center" });
+                         columns.Bound(f => f.MenuName).Width(100);
+                         columns.Bound(f => f.ControllerName).Width(50);
+                         columns.Bound(f => f.ActionName).Width(100);
+                         columns.Bound(f => f.Area).Width(40);
+                         columns.Bound(f => f.Index).Width(30);
+                         columns.Bound(f => f.ParentName).Width(60);
+                     })
+    .DetailView(details3 => details3.ClientTemplate(
+
+        Html.Telerik().TabStrip()
+            .Name("TabStrip_<#= MenuId #>")
+            .SelectedIndex(0)
+            .Items(items3 => {
+                items3.Add().Text("User List").Content(Html.Telerik().Grid<PermissionNewModel>()
+                     .Name("gridFunctionUserList_<#= FunctionId #>_<#= MenuId #>")
+                     .DataKeys(key => key.Add(f => f.PermissionId).RouteKey("permissionId"))
+                     .DataBinding(
+                         dataBinding => dataBinding.Ajax().Select("SelectFunctionUserList", "Permission",
+                                                            new { area = "", functionId = "<#= FunctionId #>" }))
+                             .Columns(columns => {
+                                 columns.Bound(f => f.UserLogin);
+                                 columns.Bound(f => f.UserName);
+                                 columns.Bound(f => f.ModifiedDate);
+                             })
+                     .Editable(editing => editing.Mode(GridEditMode.InLine))
+                     .ClientEvents(e => e.OnError("grid_OnError"))
+                     .ToHtmlString());
+            })
+            .ToHtmlString())
+        )
+                .Selectable()
+                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                .ClientEvents(e => e.OnError("grid_OnError"))
+                .ToHtmlString());
+
+                items2.Add().Text("User List").Content(Html.Telerik().Grid<PermissionNewModel>()
+                     .Name("gridFunctionUserList_<#= FunctionId #>_<#= MenuId #>")
+                     .DataKeys(key => key.Add(f => f.PermissionId).RouteKey("permissionId"))
+                     .DataBinding(
+                         dataBinding => dataBinding.Ajax().Select("SelectFunctionUserList", "Permission",
+                                                            new { area = "", functionId = "<#= FunctionId #>" }))
+                             .Columns(columns => {
+                                 columns.Bound(f => f.UserLogin);
+                                 columns.Bound(f => f.UserName);
+                                 columns.Bound(f => f.ModifiedDate);
+                             })
+                     .Editable(editing => editing.Mode(GridEditMode.InLine))
+                     .ClientEvents(e => e.OnError("grid_OnError"))
+                     .ToHtmlString());
+            })
+
+            .ToHtmlString())
+            )
+                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                    .ClientEvents(e => e.OnError("grid_OnError")
+                                        .OnRowDataBound("gridMenu_OnRowDataBound"))
+                    .ToHtmlString());
+                })
+
+                .ToHtmlString())
+            )
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect")
+                                          .OnError("grid_OnError"))
+            .Scrollable(f => f.Height("auto"))
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>
+
+<div class="title">Quản lý quyền</div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<FunctionNewModel>()
+            .Name("gridFunction")
+            .DataKeys(key => key.Add(f => f.FunctionId).RouteKey("functionId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectFunctionPermission", "Permission", new { area = "" })
+                                           .Insert("InsertFunction", "Permission", new { area = "" })
+                                          .Update("UpdateFunction", "Permission", new { area = "" })
+            )
+            .Columns(columns => {
+                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image))
+                       .Width(30).Title("")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.FunctionId).ReadOnly(true);
+                columns.Bound(f => f.FunctionName);
+                columns.Bound(f => f.Description);
+                columns.Bound(f => f.Active);
+                columns.Bound(f => f.ModifiedDate).ReadOnly(true);
+            })
+            .DetailView(details2 => details2.ClientTemplate(
+                        Html.Telerik().Grid<PermissionNewModel>()
+                    .Name("gridFunctionUserList_<#= FunctionId #>")
+                    .DataKeys(key => key.Add(f => f.PermissionId).RouteKey("permissionId"))
+                    .DataBinding(
+                        dataBinding => dataBinding
+                                           .Ajax()
+                                           .Select("SelectFunctionUserList", "Permission", new { area = "", functionId = "<#= FunctionId #>" }))
+                            .Columns(columns => {
+                                columns.Bound(f => f.UserLogin);
+                                columns.Bound(f => f.UserName);
+                                columns.Bound(f => f.ModifiedDate);
+                            })
+                            .ClientEvents(e => e.OnError("grid_OnError"))
+                            .ToHtmlString()))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect")
+                                          .OnError("grid_OnError"))
+            .Scrollable(f => f.Height("auto"))
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>

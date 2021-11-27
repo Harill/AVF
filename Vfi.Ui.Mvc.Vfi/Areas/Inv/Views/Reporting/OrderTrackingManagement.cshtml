@@ -1,0 +1,489 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Order tracking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        var startGrid = false;
+        var index = 0;
+
+        function grid_OnDataBinding(args) {
+
+            if (startGrid) {
+
+                var customerId = $("#cboCustomer").data('tComboBox').value();
+                if (customerId === 0 || customerId === "")
+                    customerId = 0;
+                var poStatus = $("#PoStatus").data("tComboBox").value();
+                if (poStatus === "")
+                    poStatus = 1;
+                var productInvStatus = $("#ProductInvStatus").data("tComboBox").value();
+                if (productInvStatus === "")
+                    productInvStatus = 0;
+                var deliveryStatus = $("#DeliveryStatus").data("tComboBox").value();
+                if (deliveryStatus === "")
+                    deliveryStatus = 0;
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+                }
+
+                var productCode = $("#ProductCode").data("tAutoComplete").value();
+                var chkAll = $("input[name='chkAll']").attr('checked');
+
+                args.data = $.extend(args.data,
+                {
+                    customerId: customerId,
+                    productCode: productCode,
+                    fromDate: fromDate,
+                    toDate: toDate,
+                    poStatus: poStatus,
+                    productInvStatus: productInvStatus,
+                    deliveryStatus: deliveryStatus,
+                    chkAll: chkAll
+                });
+            }
+            index = 0;
+            warning = 0, notApprove = 0, normal = 0, customerLate = 0, vfLate = 0, warningPlan = 0, latePlan = 0;
+        }
+
+        function RefreshGrid2() {
+            startGrid = true;
+            RefreshGrid("grid");
+        }
+
+        function poStatus_onload() {
+            var combobox = $('#PoStatus').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "On Process", Value: "1" },
+                { Text: "Finish", Value: "2" },
+                { Text: "All", Value: "3" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+        function productInvStatus_onload() {
+            var combobox = $('#ProductInvStatus').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "Standby", Value: "1" },
+                { Text: "Not Finish", Value: "2" },
+                { Text: "Not Produced", Value: "3" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+        function deliveryStatus_onload() {
+            var combobox = $('#DeliveryStatus').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "On Time", Value: "0" },
+                { Text: "Too Late", Value: "1" },
+                { Text: "Will Be Late", Value: "2" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+        function status_onChange() {
+            RefreshGrid("grid");
+        }
+
+        function grid_OnDataBound() {
+
+            $("#CountingAvailableStatus")[0].innerHTML =
+            (" <img src='/vfi/Resources/approve_icon.jpg' height='15' width='15'> " +
+                normal +
+                " <img src='/vfi/Resources/warning_icon.jpg' height='15' width='15'> " +
+                warning +
+                " <img src='/vfi/Resources/notapprove_icon.jpg' height='15' width='15'> " +
+                notApprove);
+
+            $("#CustomerLateCount")[0].innerHTML = (" <img style='background-color:#FA5858;' height='15' width='15'> " + customerLate);
+            //$("#CustomerLateCount").text(customerLate);
+            $("#VfLateCount")[0].innerHTML = (" <img style='background-color:#F4FA58;' height='15' width='15'> " + vfLate);
+            //$("#VfLateCount").text(vfLate);
+
+            //$("#PlanCount")[0].innerHTML =
+            //(" <img style='background-color:#FA5858;' height='15' width='15'> " +
+            //    latePlan +
+            //    " <img style='background-color:#F4FA58;' height='15' width='15'> " +
+            //    warningPlan);
+        }
+
+        var warning = 0, notApprove = 0, normal = 0, customerLate = 0, vfLate = 0,warningPlan = 0,latePlan = 0;
+
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem;
+            if (!dataItem.SalesManager || dataItem.ExpectDate == null ) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
+            }
+            var toDay = new Date();
+            if (dataItem.AvailableStatus === 1)
+                warning ++;
+            else if (dataItem.AvailableStatus === 2)
+                notApprove ++;
+            else normal ++;
+            //
+            //e.row.childNodes[11].style.backgroundColor = "#F4FA58";
+            if (dataItem.RequireQuantity > 0) {
+                var row = 0;
+                if (e.row.childNodes[0].className === "t-group-cell")
+                    row++;
+
+                if (dataItem.CustomerDeliveryDate <= toDay) {
+                    customerLate++;
+                    e.row.childNodes[row + 14].style.backgroundColor = "#FA5858";
+                }
+                if (dataItem.VfDeliveryDate <= toDay) {
+                    vfLate++;
+                    e.row.childNodes[row + 15].style.backgroundColor = "#F4FA58";
+                }
+
+                if (dataItem.DayLateStatus === 1)
+                    e.row.childNodes[row + 3].style.backgroundColor = "#FA5858";
+                else if (dataItem.DayLateStatus === 2)
+                    e.row.childNodes[row + 3].style.backgroundColor = "#F4FA58";
+
+                if (dataItem.PlanStatus === 1) {
+                    latePlan++; e.row.childNodes[row + 16].style.backgroundColor = "#FA5858";
+                }
+                else if (dataItem.PlanStatus === 2) {
+                    warningPlan++; e.row.childNodes[row + 16].style.backgroundColor = "#F4FA58";
+                }
+                
+            }
+        }
+    </script>
+}
+
+    <div class="title">Order tracking</div>
+    <div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+        <fieldset>
+            <legend>Filter condition</legend>
+
+            <div style="float: left">
+                <div class="grid_2">
+                    Customer
+                </div>
+                <div class="grid_7">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("cboCustomer")
+                            .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomerAccess", "Customer", new { area = "Sales" }))
+                            .HtmlAttributes(new {style = "width: 250px"})
+                            .DropDownHtmlAttributes(new {style = "width: 325px;"})
+                            .AutoFill(true)
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Render();
+                    }
+                </div>
+                <br/>
+                <div class="grid_2">
+                   Product
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("ProductCode")
+                            .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new {area = "Inv"}))
+                            .DropDownHtmlAttributes(new {style = "width: 250px; "})
+                            .Encode(false)
+                            .AutoFill(true)
+                            .HighlightFirstMatch(true)
+                            .Render();
+                    }
+                </div>
+            </div>
+            <div style="float: left">
+                <div class="grid_4">
+                    Order status
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("PoStatus")
+                            //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
+                            .HtmlAttributes(new {style = "width: 100%"})
+                            .DropDownHtmlAttributes(new {style = "width: 150%"})
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .HighlightFirstMatch(true)
+                            .AutoFill(true)
+                            .ClientEvents(events => events.OnChange("status_onChange").OnLoad("poStatus_onload"))
+                            //.Enable(false)
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div>
+                <div class="grid_4">
+                    Inventory status
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("ProductInvStatus")
+                            //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
+                            .HtmlAttributes(new {style = "width: 100%"})
+                            .DropDownHtmlAttributes(new {style = "width: 150%"})
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .HighlightFirstMatch(true)
+                            .AutoFill(true)
+                            .ClientEvents(events => events.OnChange("status_onChange").OnLoad("productInvStatus_onload"))
+                            //.Enable(false)
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div>
+                <div class="grid_4">
+                    Delivery status
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("DeliveryStatus")
+                            //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
+                            .HtmlAttributes(new {style = "width: 100%"})
+                            .DropDownHtmlAttributes(new {style = "width: 150%"})
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .HighlightFirstMatch(true)
+                            .AutoFill(true)
+                            .ClientEvents(events => events.OnChange("status_onChange").OnLoad("deliveryStatus_onload"))
+                            //.Enable(false)
+                            .Render();
+                    }
+                </div>
+            </div>
+            <div style="float: left">
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("fromDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1))
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div>
+                <div class="grid_3" style="padding-top: 5px">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("toDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+                            .Render();
+                    }
+                </div>
+            </div>
+            <div class="grid_2" style="float: left">
+                <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2(); ">
+                    <span class='t-icon t-insert'></span>
+                    Refresh
+                </button>
+            </div>
+        </fieldset>
+    </div>
+    <div class="clear"></div>
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<OrderTrackingModel>()
+                .Name("grid")
+                .DataKeys(keys => keys.Add(f => f.OrderDetailId).RouteKey("orderDetailId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                    .Select("SelectOrderTrackingManagement", "Reporting",
+                        new
+                        {
+                            customerId = 0,
+                            productCode = "",
+                            poStatus = 0,
+                            productInvStatus = 0,
+                            deliveryStatus = 0,
+                            fromDate = "",
+                            toDate = ""
+                        })
+                    .Update("UpdateOrderTracking", "Reporting")
+                )
+                .Columns(columns =>
+                {
+                    columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(45).Title("")
+                        .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.OrderDetailId).Width(40).Title("STT").ReadOnly(true)
+                        .ClientTemplate("<#= ++index #>");
+                    columns.Bound(f => f.OrderNumber).Width(90).ReadOnly(true)
+                        .HeaderTemplate("<strong>PO VF</strong>")
+                        .FooterTemplate("<span id='TotalNormal'></span>");
+                    columns.Bound(f => f.StatusName).Width(65).ReadOnly(true)
+                        .HeaderTemplate("<strong>PO<br/>Status</strong>")
+                        .FooterTemplate("<span id='TotalWarning'></span>");
+                    //columns.Bound(f => f.AvailableStatus).Width(100)
+                    //    .HeaderTemplate("<strong>Product<br/>Status</strong>");
+                    columns.Bound(f => f.AvailableStatus).Width(70).ReadOnly(true)
+                        .HeaderTemplate("<strong>Product<br/>Status</strong>")
+                        .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                                        "<#= AvailableStatus == 0 ? 'approve_icon.jpg' : AvailableStatus == 1 ? 'warning_icon.jpg' : 'notapprove_icon.jpg' #>' height='30' width='30'/>")
+                        ;
+                    columns.Bound(f => f.DayLate).Width(70).ReadOnly(true)
+                        .HeaderTemplate("<strong>Delivery<br/>Status</strong>");
+                    columns.Bound(f => f.ProductPoNo).Width(150).ReadOnly(true)
+                        .HeaderTemplate("<strong>Lot No</strong>")
+                        .FooterTemplate("<span id='CountingAvailableStatus'></span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.ProductCustomerCode).Width(100).ReadOnly(true)
+                        .HeaderTemplate("<strong>Part No</strong>")
+                        .HtmlAttributes(new { style = "text-align: center;" })
+                        .Aggregate(agg => agg.Count())
+                        .ClientGroupFooterTemplate("<#= Count #>")
+                        .ClientFooterTemplate("<#= Count #>");
+                    columns.Bound(f => f.ProductVfCode).Width(100).ReadOnly(true)
+                        .Title("VF Code")
+                        .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
+                        .HtmlAttributes(new {style = "text-align: center;"});
+                    //
+                    columns.Bound(f => f.OrderQuantity).Width(70).ReadOnly(true)
+                        .HeaderTemplate("<strong>Order<br/>Quantity</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new {style = "text-align: right;"})
+                        .Aggregate(agg => agg.Sum())
+                        .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.UnitPriceStr).Width(70).ReadOnly(true)
+                        .HeaderTemplate("<strong>Unit<br/>Price</strong>")
+                        .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.Amount).Width(80).ReadOnly(true)
+                        .HeaderTemplate("<strong>Amount</strong>")
+                        .Format("{0:n2}")
+                        .HtmlAttributes(new {style = "text-align: right;"})
+                        .Aggregate(agg => agg.Sum())
+                        .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                        .FooterHtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.ExportQuantity).Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HeaderTemplate("<strong>Export</br>Quantity</br></strong>")
+                        .HtmlAttributes(new {style = "text-align: right;"})
+                        .Aggregate(agg => agg.Sum())
+                        .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.RequireQuantity).Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HeaderTemplate("<strong>Remain</br>Quantity</br></strong>")
+                        .HtmlAttributes(new {style = "text-align: right;"})
+                        .Aggregate(agg => agg.Sum())
+                        .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    //
+                    columns.Bound(f => f.CustomerDeliveryDate).Width(90).ReadOnly(true)
+                        //.Column.
+                        .Format("{0:dd/MM/yyyy}")
+                        .Title("Customer<br/>Request")
+                        .FooterTemplate("<span id='CustomerLateCount'></span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.VfDeliveryDate).Width(90).ReadOnly(true)
+                        .Format("{0:dd/MM/yyyy}")
+                        .Title("VF<br/>Plan")
+                        .FooterTemplate("<span id='VfLateCount'></span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.PlanDeliveryDateStr).Width(90).ReadOnly(true)
+                        .Title("Finish<br/>Plan")
+                        //.Format("{0:dd/MM/yyyy}")
+                        .FooterTemplate("<span id='PlanCount'></span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.ExpectDate).Width(90)
+                        .Title("Expect<br/>Date")
+                        //.Format("{0:dd/MM/yyyy}")
+                        .ClientTemplate("<#= ExpectDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ExpectDate) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    //
+                    columns.Bound(f => f.Note).Width(200).ReadOnly(true)
+                        .HeaderTemplate("<strong>Note</strong>");
+                    //columns.Bound(f => f.ExportDateString).Width(90)
+                    //    .HeaderTemplate("<strong>Ngày</br>hết NL</strong>")
+                    //    .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
+                    //
+                    columns.Bound(f => f.AvailableTotalInv).Width(80).ReadOnly(true)
+                        .HeaderTemplate("<strong>Available<br/>Total<br/>Inventory</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.AvailableFinishInv).Width(80).ReadOnly(true)
+                        .HeaderTemplate("<strong>Available<br/>Finish<br/>Inventory</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.PlanDay).Width(80).ReadOnly(true)
+                        .HeaderTemplate("<strong>Process<br/>Day</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new {style = "text-align: right;"});
+                })
+
+                .Scrollable(f => f.Height(510))
+                .Footer(true)
+                .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
+                .Filterable()
+                .Sortable()
+                .Groupable(group => group.Groups(g => g.Add(model => model.ProductVfCode)))
+                .ClientEvents(events => events.OnError("grid_OnError")
+                    .OnRowDataBound("grid_OnRowDataBound")
+                    .OnDataBound("grid_OnDataBound")
+                    .OnDataBinding("grid_OnDataBinding"))
+                .Render();
+        }
+    </div>
+    </div>
+
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReport")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                    <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(960)
+            .Render();
+    }
+
+    <style type="text/css">
+        #windowReport {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .tb-witdh td {
+            width: 55px;
+        }
+    </style>
+

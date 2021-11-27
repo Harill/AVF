@@ -1,0 +1,372 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Production
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@model PurchaseOrderModel
+@{
+    ViewBag.Title = "Mua hàng công cụ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+ <script type="text/javascript">
+     function gridPurchaseOrderDetailPartial_onEdit(e) {
+
+            @*var dataItem = e.dataItem;
+            var mode = e.mode;
+            var form = e.form;
+            //var cell = e.cell;
+
+            //var orderQty = $(form).find("#OrderQty").data("tTextBox");
+            //var unitPrice = $(form).find("#UnitPrice").data("tTextBox");
+            if (mode == 'insert') {
+
+            }
+            if (mode == 'edit') {
+
+            }
+
+            var lineTotal = $(form).find("#LineTotal").data("tTextBox");
+            dataItem.LineTotal = dataItem.OrderQty * dataItem.UnitPrice;
+            if (lineTotal != null) {
+                lineTotal.value(dataItem.LineTotal);
+            }
+
+            var price = dataItem.UnitPrice;
+            if (price == 0) {
+                var materialId = dataItem.MaterialId;
+                if (materialId != 0) {
+                    $.ajax({
+                        type: 'post',
+                        data: { materialId: materialId },
+                        dataType: 'json',
+                        url: '@Url.Action("CheckMaterialUnitPrice", "Material", new {area = ""})',
+                        timeout: 20000,
+                        success: function(data) {
+                            var linePrice = $(form).find("#UnitPrice").data("tTextBox");
+                            if (linePrice != null) {
+                                linePrice.value(data);
+                            }
+                            dataItem.UnitPrice = data;
+                        }
+                    });
+                }
+            }*@
+        }
+
+        var orderQty = {};
+        var unitPrice = {};
+        var materialIds = {};
+        materialIds[0] = 0;
+
+        function gridPurchaseOrderDetailPartial_onSave(e) {
+            // bind data
+            var $toolCodeName = $(e.cell).find('#ToolCodeName');
+
+            if ($toolCodeName.length > 0) {
+                var toolCodeName = $toolCodeName.data("tComboBox"),
+                    toolCodeNameSelectItem = toolCodeName.selectedIndex > -1 ? toolCodeName.data[toolCodeName.selectedIndex] : null;
+
+                if (toolCodeNameSelectItem) {
+                    e.values["ToolCodeName"] = toolCodeNameSelectItem.Text;
+                    e.values["ToolId"] = toolCodeNameSelectItem.Value;
+
+                    var flag = true;
+                    for (var obj in materialIds) {
+                        if (obj == toolCodeNameSelectItem.Value) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag == true) {
+                        materialIds[toolCodeNameSelectItem.Value] = toolCodeNameSelectItem.Value;
+                    } else {
+                        //e.preventDefault();
+                        alert("đã tồn tại công cụ trong danh sách");
+                    }
+                }
+            }
+
+            // // 
+            var $lineTotal = $(e.cell).find('#LineTotal');
+            if ($lineTotal.length > 0) {
+                var lineTotal = $lineTotal.data("tTextBox");
+
+
+                e.values["LineTotal"] = lineTotal.value();
+
+                //lineTotal.value(e.values["LineTotal"]);
+            }
+
+            // bind data
+        }
+
+        function gridPurchaseOrderDetailPartial_onSubmitChanges(e) {
+
+            var flag = InputValidation();
+
+            if (flag == false)
+                e.preventDefault();
+            else {
+
+               // var shipDate = $("#ShipDate").data("tDatePicker").value();
+
+                var vendorCodeName = $('#VendorCodeName').data('tDropDownList').value();
+                var shipMethodName = $('#ShipMethodName').data('tDropDownList').value();
+                var deliveryMethodName = $('#DeliveryMethodName').data('tDropDownList').value();
+                var packagedMethodName = $('#PackagedMethodName').data('tDropDownList').value();
+                var paymentMethodName = $('#PaymentMethodName').data('tDropDownList').value();
+                var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+                var employeeName = $('#EmployeeName').val();
+                var tolerance = $('#Tolerance').val();
+                var note = $('#Note').val();
+
+                e.values = $.extend(e.values,
+                    {
+                        shipDate: "",
+                        vendorId: vendorCodeName,
+                        shipMethodId: shipMethodName,
+                        deliveryMethodId: deliveryMethodName,
+                        packagedMethodId: packagedMethodName,
+                        paymentMethodId: paymentMethodName,
+                        employeeName: employeeName,
+                        tolerance: tolerance,
+                        currencyCode:currencyCode,
+                        note: note
+                    }
+                );
+            }
+        }
+        function gridPurchaseOrderDetailPartial_OnLoad() {
+            $('#Tolerance').val(10);
+        }
+    </script>
+
+    <script type="text/javascript">
+        function InputValidation() {
+            var strMsgAlert = "";
+
+            //var shipDate = $("#ShipDate").data("tDatePicker").value();
+
+            var vendorCodeName = $('#VendorCodeName').data('tDropDownList').value();
+            var shipMethodName = $('#ShipMethodName').data('tDropDownList').value();
+            var deliveryMethodName = $('#DeliveryMethodName').data('tDropDownList').value();
+            var packagedMethodName = $('#PackagedMethodName').data('tDropDownList').value();
+            var paymentMethodName = $('#PaymentMethodName').data('tDropDownList').value();
+            var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+            var employeeName = $('#EmployeeName').val();
+            var tolerance = $('#Tolerance').val();
+
+            //if (shipDate == null || shipDate === "") {
+            //    strMsgAlert += "Vui lòng chọn ngày giao hàng.\t\r\n";
+            //}
+            if (vendorCodeName === "") {
+                strMsgAlert += "Vui lòng chọn nhà cung cấp.\t\r\n";
+            }
+            if (shipMethodName === "") {
+                strMsgAlert += "Vui lòng chọn phương thức vận chuyển.\t\r\n";
+            }
+            if (deliveryMethodName === "") {
+                strMsgAlert += "Vui lòng chọn phương thức giao hàng.\t\r\n";
+            }
+            if (packagedMethodName === "") {
+                strMsgAlert += "Vui lòng chọn phương thức đóng gói.\t\r\n";
+            }
+            if (currencyCode === "") {
+                strMsgAlert += "Vui lòng chọn đơn vị tính.\t\r\n";
+            }
+            if (paymentMethodName === "") {
+                strMsgAlert += "Vui lòng chọn phương thức thanh toán.\t\r\n";
+            }
+            if (employeeName === "") {
+                strMsgAlert += "Vui lòng điền tên nhân viên.\t\r\n";
+            }
+            if (tolerance === "") {
+                strMsgAlert += "Vui lòng nhập dung sai.\t\r\n";
+            }
+
+            if (strMsgAlert === "")
+                return true;
+
+            alert(strMsgAlert);
+            return false;
+        }
+    </script>
+
+}
+
+
+<div class="title">Tạo phiếu mua hàng công cụ</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    @* <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialClassifiedName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new {area = ""}))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events=>events.OnChange("materialClassified_onChange"))
+                .Render();                                              
+        }
+    </div>
+    <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialTypeName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialTypeByClassified", "Material", new { classifiedId = 0, area = "" }))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events => events.OnDataBinding("materialTypeName_onDataBinding")
+                   //.OnChange("materialTypeName_onChange")
+                )
+                .Render();
+        }
+    </div>
+    <div class="clear"></div><br/>*@
+
+    <fieldset>
+        <legend>Thông tin phiếu mua hàng</legend>
+        
+        <div class="clear"></div>
+        <div class="grid_5">@Html.LabelFor(f => f.ShipMethodName)</div>
+        <div class="grid_5">@Html.LabelFor(f => f.DeliveryMethodName)</div>
+        <div class="grid_5">@Html.LabelFor(f => f.PackagedMethodName)</div>
+        <div class="grid_5">@Html.LabelFor(f => f.PaymentMethodName)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("ShipMethodName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.DeliveryBy? }))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px;" })
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("DeliveryMethodName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.DeliveryMethod }))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px;" })
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("PackagedMethodName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.PackageMethod }))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px;" })
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("PaymentMethodName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMethodByType", "Method", new {area = "", typeId = MethodEnumTypeId.PaymentMethod}))
+                    .HtmlAttributes(new {style = "width: 175px"})
+                    .DropDownHtmlAttributes(new {style = "width: 250px;"})
+                    .Render();                                       
+            }
+        </div>
+          
+        <div class="clear"></div>
+        
+        <div class="grid_5">@Html.LabelFor(f => f.VendorCodeName)</div>
+        <div class="grid_5">Nhân viên</div>
+        
+          <div class="grid_5">@Html.LabelFor(f => f.CurrencyCode)</div>
+        <div class="grid_5">@Html.LabelFor(f => f.Tolerance)</div>
+
+        <div class="clear"></div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("VendorCodeName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxToolVendor", "Vendor"))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_5">
+            @Html.TextBoxFor(f => f.EmployeeName, new { @class = "t-textbox", width = "color: maroon;" })
+        </div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("CurrencyCode")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                    .DropDownHtmlAttributes(new {style = "width: 250px"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_5">@Html.TextBoxFor(f => f.Tolerance, new {style = "width: 15px" })%</div>
+        <div class="clear"></div>
+        <div class="grid_5">Ghi Chú</div>
+        <div class="grid_5">@Html.TextAreaFor(f => f.Note, new {@class = "multi-line"})</div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<PurchaseOrderDetailModel>()
+            .Name("gridPurchaseOrderDetailPartial")
+            .DataKeys(keys => keys.Add(f => f.PurchaseOrderDetailId).RouteKey("purchaseOrderDetailId"))
+            .ToolBar(bar =>
+                         {
+                             bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                             bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).Text("Lưu lại");
+                         })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectPurchaseOrderDetail", "PurchaseOrder")
+                .Update("UpdateToolPurchaseOrderDetail", "PurchaseOrder")
+            )
+            .Columns(columns =>
+            {
+                //columns.Bound(f => f.MaterialClassifiedName).Width(175);
+                //columns.Bound(f => f.MaterialTypeName).Width(175);
+                columns.Bound(f => f.ToolCodeName).Width(275);
+                columns.Bound(f => f.OrderQty).Width(115)
+                    .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n}', OrderQty) #>");
+
+                columns.Bound(f => f.UnitPrice).Width(115)
+                    .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>");
+                columns.Bound(f => f.LineTotal).Width(115)
+                    .ClientTemplate("<#= LineTotal == null ? 0 : $.telerik.formatString('{0:n}', LineTotal) #>");
+
+                columns.Bound(f => f.Unit).Width(115);
+                columns.Bound(f => f.DueDate).Width(98)
+                       .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                //columns.Bound(f => f.Active).Width(45)
+                //    .ClientTemplate("<input type='checkbox' name='Active' <#=Active? checked='checked' : '' #> />")
+                //    .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Command(command =>
+                //    command.Edit().ButtonType(GridButtonType.ImageAndText)
+                //).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+                columns.Command(commands => commands.Delete()).Width(98).Title("Commands");
+            })
+            .ClientEvents(events => events
+                .OnLoad("gridPurchaseOrderDetailPartial_OnLoad")
+                .OnEdit("gridPurchaseOrderDetailPartial_onEdit")
+                .OnSave("gridPurchaseOrderDetailPartial_onSave")
+                .OnSubmitChanges("gridPurchaseOrderDetailPartial_onSubmitChanges")
+                .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            .Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />
+
+

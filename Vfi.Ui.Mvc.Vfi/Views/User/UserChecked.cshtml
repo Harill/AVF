@@ -1,0 +1,15 @@
+﻿@inherits WebViewPage<IEnumerable<Vfi.Server.Core.DataModel.Models.System.UserModel>>
+
+@{
+    Html.Telerik().Grid(Model)
+        .Name("UserChecked")
+        .Columns(columns =>
+            {
+                columns.Bound(u => u.UserId).Hidden(true);
+                columns.Bound(u => u.Username).Width(75);
+                columns.Bound(u => u.FullName).Width(250);
+            })
+        .Footer(false)
+        .Sortable(f => f.Enabled(false))
+        .Render();
+}

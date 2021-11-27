@@ -1,0 +1,224 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model ExportFormTP_KD
+@{
+    ViewBag.Title = "Phân sản phẩm hóa đơn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function customer_OnChange() {
+            RefreshCombobox('TaxInvoiceList');
+        }
+
+        function PickupId() {
+
+            //var $checkedRecords = $(':checked');
+            var $checkedRecords = $("input[name='chkProductIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+                return;
+            }
+
+            var a = {};
+            var ids = "";
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+            $("#gridTaxInvoiceProductDetail").data("tGrid").rebind({
+                detailId: ids
+            });
+
+        }
+
+        function taxInvoiceList_OnChange() {
+            RefreshGrid("gridTaxInvoicePrduct");
+        }
+
+        function grid_OnDataBinding(args) {
+            var taxInvoiceId = $("#TaxInvoiceList").data('tComboBox').value();
+            if (taxInvoiceId == "")
+                taxInvoiceId = 0;
+
+            args.data = $.extend(args.data,
+            {
+                taxInvoiceId: taxInvoiceId
+            });
+
+        }
+
+        function grid_OnRowDataBound(e) {
+            if (e.dataItem.Quantity > e.dataItem.Receive) {
+                e.row.childNodes[3].style.backgroundColor = "#F4FA58";
+            } else {
+                e.row.childNodes[0].innerHTML = "";
+            }
+        }
+
+    </script>
+
+    <!-- client event grid material inventory -->
+    <script type="text/javascript">
+
+        function cbo_OnDataBinding(args) {
+            var customerId = $('#cboCustomer').data('tComboBox').value();
+            if (customerId == "")
+                customerId = 0;
+
+            args.data = $.extend(args.data,
+            {
+                customerId: customerId
+            });
+
+        }
+
+
+    </script>
+
+}
+
+<div class="title">Phân sản phẩm hoá đơn</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin hóa đơn</legend>
+        <div class="grid_3">Khách hàng</div>
+        <div class="grid_8">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("cboCustomer")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
+                    .HtmlAttributes(new {style = "width: 250px"})
+                    .DropDownHtmlAttributes(new {style = "width: 325px;"})
+                    .ClientEvents(events => events.OnChange("customer_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">Số hóa đơn</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("TaxInvoiceList")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxAddTaxInvoiceProductDetail", "SalesOrder", new { area = "Sales", customerId =0}))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .ClientEvents(events => events.OnChange("taxInvoiceList_OnChange").OnDataBinding("cbo_OnDataBinding"))
+                    .Render();
+            }
+        </div>
+       
+        <button class="t-button" id="btnRefresh" onclick=" RefreshCombobox('TaxInvoiceList') ">
+            <span class='t-icon t-refresh'></span>
+        </button>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InvoiceDetailTempModel>()
+            .Name("gridTaxInvoicePrduct")
+            .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_7">
+            <button class="t-button" id="btnPickupProductId" name="btnPickupId" onclick="PickupId()">
+                <span class='t-icon t-insert'></span>
+                Chọn các sản phẩm vào lưới
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectTaxInvoiceProductById", "SalesOrder", new { area = "Sales", taxInvoiceId = 0 }))
+            .Columns(columns =>
+                         {
+                             columns.Bound(f => f.DetailId).Title("Chọn").Width(75)
+                                 .ClientTemplate("<input type='radio' name='chkProductIds' value='<#= DetailId #>' />")
+                                 .HtmlAttributes(new { style = "text-align:center" });
+                             columns.Bound(f => f.ProductCode)
+                                    .HeaderTemplate("Mã Sản Phẩm").Width(200);
+                             columns.Bound(f => f.Quantity)
+                                    .HeaderTemplate("Số lượng").Width(100)
+                                     .Format("{0:n0}")
+                                    .HtmlAttributes(new { style = "text-align: right;" });
+                             columns.Bound(f => f.Receive)
+                                    .HeaderTemplate("Đã nhập").Width(100)
+                                     .Format("{0:n0}")
+                                    .HtmlAttributes(new { style = "text-align: right;" });
+                             columns.Bound(f => f.UnitPriceFormat)
+                                    .HeaderTemplate("Đơn giá").Width(100)
+                                    .HtmlAttributes(new { style = "text-align: right;" });
+                             columns.Bound(f => f.AmountFormat).Width(100).ReadOnly(true).Title("Thành tiền")
+                                    .HtmlAttributes(new { style = "text-align: right;" });
+
+                             columns.Bound(f => f.CurrencyCode)
+                                    .HeaderTemplate("Tiền tệ").Width(75)
+                                    .HtmlAttributes(new { style = "text-align: center;" });
+                             columns.Bound(f => f.TaxPercent)
+                                    .HeaderTemplate("Thuế").Width(75)
+                                    .HtmlAttributes(new { style = "text-align: right;" });
+
+                             columns.Bound(f => f.ExchangeRate)
+                                    .HeaderTemplate("Tỉ giá").Width(100)
+                                 .Format("{0:n0}")
+                                    .HtmlAttributes(new { style = "text-align: right;" });
+                         })
+            .Scrollable(f => f.Height("auto"))
+            .Scrollable(f => f.Height(200))
+            .Resizable(f => f.Columns(true))
+            .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding").OnError("grid_OnError").OnRowDataBound("grid_OnRowDataBound"))
+            .Render();
+
+    }
+</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh xuất nhập sản phẩm</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InvoiceDetailTempModel>()
+            .Name("gridTaxInvoiceProductDetail")
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu thay đổi").CancelText("Huỷ tất cả"))
+            .DataKeys(keys => keys.Add(f => f.ExportDetailId).RouteKey("exportDetailId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectInvoiceDetailById", "SalesOrder", new { detailId = ""})
+                                                     .Update("UpdateProductTaxInvoiceDetail", "SalesOrder"))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.IsAdd).Title("Chọn").Width(25)
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsAdd' <#=IsAdd? checked='checked' : '' #> />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.InvoiceNumber).Title("Số Invoice").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.ExportedDateStr).Title("Ngày xuất").Width(50).ReadOnly(true);
+                           //.Format("{0:dd/MM/yyyy}")
+                           //;
+                    columns.Bound(f => f.Quantity).Width(70).Title("Số lượng").ReadOnly(true)
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .Format("{0:n0}");
+                    columns.Bound(f => f.UnitPriceFormat).ReadOnly(true).Width(50).Title("Đơn giá")
+                           .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.AmountFormat).Width(70).Title("Tổng tiền").ReadOnly(true)
+                           .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.Note).Width(200).ReadOnly(true)
+                           .HeaderTemplate("Ghi chú ĐH");
+                })
+            .ClientEvents(events => events.OnError("grid_OnError")
+            )
+            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Resizable(f => f.Columns(true))
+            .Render()
+            ;
+    }
+</div>

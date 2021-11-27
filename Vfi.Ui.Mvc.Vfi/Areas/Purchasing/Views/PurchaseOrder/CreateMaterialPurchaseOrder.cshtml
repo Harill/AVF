@@ -1,0 +1,366 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@model PurchaseOrderModel
+@{
+    ViewBag.Title = "Phiếu mua hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        
+        function gridPurchaseOrderDetailPartial_onEdit(e) {
+
+            var dataItem = e.dataItem;
+            var mode = e.mode;
+            var form = e.form;
+            //var cell = e.cell;
+
+            //var orderQty = $(form).find("#OrderQty").data("tTextBox");
+            //var unitPrice = $(form).find("#UnitPrice").data("tTextBox");
+            if (mode == 'insert') {
+
+            }
+            if (mode == 'edit') {
+
+            }
+
+            var lineTotal = $(form).find("#LineTotal").data("tTextBox");
+            dataItem.LineTotal = dataItem.OrderQty * dataItem.UnitPrice;
+            if (lineTotal != null) {
+                lineTotal.value(dataItem.LineTotal);
+            }
+
+            var price = dataItem.UnitPrice;
+
+            var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+            if (classified == 1) {
+                if (price == 0) {
+                    var materialId = dataItem.MaterialId;
+                    if (materialId != 0) {
+                        $.ajax({
+                            type: 'post',
+                            data: { materialId: materialId },
+                            dataType: 'json',
+                            url: '@Url.Action("CheckMaterialUnitPrice", "Material", new {area = ""})',
+                            timeout: 20000,
+                            success: function(data) {
+                                var linePrice = $(form).find("#UnitPrice").data("tTextBox");
+                                if (linePrice != null) {
+                                    linePrice.value(data);
+                                }
+                                dataItem.UnitPrice = data;
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        var orderQty = {};
+        var unitPrice = {};
+        var materialIds = {};
+        materialIds[0] = 0;
+
+        function gridPurchaseOrderDetailPartial_onSave(e) {
+            // bind data
+            var $materialCodeName = $(e.cell).find('#MaterialCodeName');
+
+            if ($materialCodeName.length > 0) {
+                var materialCodeName = $materialCodeName.data("tComboBox"),
+                    materialCodeNameSelectItem = materialCodeName.selectedIndex > -1 ? materialCodeName.data[materialCodeName.selectedIndex] : null;
+
+                if (materialCodeNameSelectItem) {
+                    e.values["MaterialCodeName"] = materialCodeNameSelectItem.Text;
+                    e.values["MaterialId"] = materialCodeNameSelectItem.Value;
+
+                    //var flag = true;
+                    //for (var obj in materialIds) {
+                    //    if (obj == materialCodeNameSelectItem.Value) {
+                    //        flag = false;
+                    //        break;
+                    //    }
+                    //}
+                    //if (flag == true) {
+                    //    materialIds[materialCodeNameSelectItem.Value] = materialCodeNameSelectItem.Value;
+                    //} else {
+                    //    //e.preventDefault();
+                    //    alert("đã tồn tại nguyên liệu trong danh sách");
+                    //}
+                }
+            }
+
+            // // 
+            var $lineTotal = $(e.cell).find('#LineTotal');
+            if ($lineTotal.length > 0) {
+                var lineTotal = $lineTotal.data("tTextBox");
+
+
+                e.values["LineTotal"] = lineTotal.value();
+
+                //lineTotal.value(e.values["LineTotal"]);
+            }
+            var quantity = $(e.cell).find('#OrderQty').val();
+            var text = "";
+            if (!isNaN(parseInt(quantity))) {
+                var sumOrderQty = 0;
+                var spanOrderQtys = $("span[name='OrderQty']");
+                for (var i = 0; i < spanOrderQtys.length; i++) {
+                    var innerText = spanOrderQtys[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumOrderQty = sumOrderQty + parseFloat(innerText);
+                }
+                sumOrderQty = sumOrderQty + parseFloat(quantity);
+                $("#TotalOrderQty").text(sumOrderQty.format(2));
+            }
+            var total = $(e.cell).find('#LineTotal').val();
+            if (!isNaN(parseFloat(total))) {
+                var sumLineTotal = 0;
+                var spanlineTotals = $("span[name='LineTotal']");
+                for (i = 0; i < spanlineTotals.length; i++) {
+                    innerText = spanlineTotals[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumLineTotal = sumLineTotal + parseFloat(innerText);
+                }
+                sumLineTotal = sumLineTotal + parseFloat(total);
+                $("#TotalLineTotal").text(sumLineTotal.format(2));
+            }
+            // bind data
+        }
+
+        function gridPurchaseOrderDetailPartial_onSubmitChanges(e) {
+
+            var flag = InputValidation();
+
+            if (flag == false)
+                e.preventDefault();
+            else {
+
+                // var shipDate = $("#ShipDate").data("tDatePicker").value();
+
+                var materialClassified = $('#MaterialClassifiedName').data('tDropDownList').value();
+                var vendor = $('#VendorCodeName').data('tComboBox').value();
+                var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+                var employeeName = $('#EmployeeName').val();
+                var tolerance = $('#Tolerance').val();
+                var contractNumber = $('#ContractNumber').val();
+                var note = $('#Note').val();
+                var orderDate = $("#OrderDate").data("tDatePicker").value();
+                if (orderDate === null)
+                    orderDate = "";
+                else
+                    orderDate = $.telerik.formatString('{0:dd/MM/yyyy}', orderDate);
+
+                e.values = $.extend(e.values,
+                    {
+                        shipDate: "",
+                        materialClassifiedId: materialClassified,
+                        vendorId: vendor,
+                        contractNumber: contractNumber,
+                        orderDate: orderDate,
+                        employeeName: employeeName,
+                        tolerance: tolerance,
+                        currencyCode: currencyCode,
+                        note: note
+                    }
+                );
+            }
+        }
+
+        function gridPurchaseOrderDetailPartial_OnLoad() {
+            $('#Tolerance').val(10);
+        }
+
+        function InputValidation() {
+            var strMsgAlert = "";
+
+            //var shipDate = $("#ShipDate").data("tDatePicker").value();
+
+            var vendorCodeName = $('#VendorCodeName').data('tComboBox').value();
+            var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+            var employeeName = $('#EmployeeName').val();
+            var tolerance = $('#Tolerance').val();
+
+            //if (shipDate == null || shipDate === "") {
+            //    strMsgAlert += "Vui lòng chọn ngày giao hàng.\t\r\n";
+            //}
+            if (vendorCodeName === "") {
+                strMsgAlert += "Vui lòng chọn nhà cung cấp.\t\r\n";
+            }
+            if (currencyCode === "") {
+                strMsgAlert += "Vui lòng chọn đơn vị tính.\t\r\n";
+            }
+            if (employeeName === "") {
+                strMsgAlert += "Vui lòng điền tên nhân viên.\t\r\n";
+            }
+            if (tolerance === "") {
+                strMsgAlert += "Vui lòng nhập dung sai.\t\r\n";
+            }
+
+            if (strMsgAlert === "")
+                return true;
+
+            alert(strMsgAlert);
+            return false;
+        }
+
+        function materialClassified_OnChange() {
+            var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+            var vendor = $('#VendorCodeName').data('tComboBox');
+            $.ajax({
+                type: 'post',
+                data: { classified: classified },
+                dataType: 'json',
+                url: '@Url.Action("SelectComboBoxVendorByClassified", "PurchaseOrder", new {area = "Purchasing"})',
+                timeout: 20000,
+                success: function(data) {
+                    //$('#Invoice').data('tConbobox').dataBind(data);
+                    vendor.dataBind(data);
+                    RefreshGrid("gridPurchaseOrderDetailPartial");
+                }
+            });
+        }
+
+        function TypeRefresh() {
+            var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+            var vendor = $('#VendorCodeName').data('tComboBox');
+            $.ajax({
+                type: 'post',
+                data: { classified: classified },
+                dataType: 'json',
+                url: '@Url.Action("SelectComboBoxVendorByClassified", "PurchaseOrder", new {area = "Purchasing"})',
+                timeout: 20000,
+                success: function (data) {
+                    //$('#Invoice').data('tConbobox').dataBind(data);
+                    vendor.dataBind(data);
+                    //RefreshGrid("gridPurchaseOrderDetailPartial");
+                }
+            });
+        }
+    </script>
+}
+
+
+<div class="title">Tạo phiếu mua hàng</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu mua hàng</legend>
+        
+        <div class="grid_5">@Html.LabelFor(f => f.MaterialClasstifiedName)</div>
+        <div class="grid_6">@Html.LabelFor(f => f.VendorCodeName)
+            <button class="t-button" id="btnRefresh" name="btnPickupMaterialId" onclick=" TypeRefresh() ">
+                <span class='t-icon t-refresh'></span>
+            </button></div>
+        
+          <div class="grid_5">@Html.LabelFor(f => f.CurrencyCode)</div>
+          <div class="grid_5">@Html.LabelFor(f => f.ContractNumber)</div>
+          <div class="grid_5">@Html.LabelFor(f => f.OrderDate)</div>
+
+        <div class="clear"></div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("MaterialClassifiedName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material",new {area=""}))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(e => e.OnChange("materialClassified_OnChange"))
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("VendorCodeName")
+                    //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialVendor", "Vendor"))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    //.ClientEvents(e => e.OnChange("vendor_OnChange"))
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("CurrencyCode")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                    .DropDownHtmlAttributes(new {style = "width: 250px"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_5">@Html.TextBoxFor(f => f.ContractNumber)</div>
+        
+        <div class="grid_5">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("OrderDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <br/>
+        <div class="grid_5">
+        <div class="grid_4">Nhân viên</div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f => f.EmployeeName, new { @class = "t-textbox", width = "color: maroon;" })
+        </div>
+        </div>
+        <div class="grid_6">
+        <div class="grid_4">@Html.LabelFor(f => f.Tolerance)</div>
+        <div class="grid_4">@Html.TextBoxFor(f => f.Tolerance, new {style = "width: 15px" })%</div>
+        </div>
+        <div class="grid_2">Ghi Chú</div>
+        <div class="grid_5">@Html.TextAreaFor(f => f.Note, new {@class = "multi-line"})</div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<PurchaseOrderDetailModel>()
+            .Name("gridPurchaseOrderDetailPartial")
+            .DataKeys(keys => keys.Add(f => f.PurchaseOrderDetailId).RouteKey("purchaseOrderDetailId"))
+            .ToolBar(bar =>
+                         {
+                             bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                             bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Hủy");
+                         })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectPurchaseOrderDetail", "PurchaseOrder")
+                .Update("UpdateMaterialPurchaseOrderDetail", "PurchaseOrder")
+            )
+            .Columns(columns =>
+            {
+                columns.Bound(f => f.MaterialCodeName).Width(275).Title("Mã");
+                columns.Bound(f => f.Unit).Width(90).Title("ĐVT");
+                columns.Bound(f => f.OrderQty).Width(115)
+                    .ClientTemplate("<span name='OrderQty'><#= OrderQty == null ? 0 : $.telerik.formatString('{0:n}', OrderQty) #></span>")
+                           .FooterTemplate("<span id='TotalOrderQty'></span>");
+                columns.Bound(f => f.UnitPrice).Width(115)
+                    .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>");
+                columns.Bound(f => f.LineTotal).Width(115)
+                       .ClientTemplate("<span name='LineTotal'><#= LineTotal == null ? 0 : $.telerik.formatString('{0:n}', LineTotal) #></span>")
+                           .FooterTemplate("<span id='TotalLineTotal'></span>");
+                    
+
+                columns.Bound(f => f.DueDate).Width(98)
+                       .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                columns.Command(commands => commands.Delete()).Width(98).Title("");
+            })
+            .ClientEvents(events => events
+                .OnLoad("gridPurchaseOrderDetailPartial_OnLoad")
+                .OnEdit("gridPurchaseOrderDetailPartial_onEdit")
+                .OnSave("gridPurchaseOrderDetailPartial_onSave")
+                .OnSubmitChanges("gridPurchaseOrderDetailPartial_onSubmitChanges")
+                .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            .Footer(true)
+            .Render();
+    }
+</div>

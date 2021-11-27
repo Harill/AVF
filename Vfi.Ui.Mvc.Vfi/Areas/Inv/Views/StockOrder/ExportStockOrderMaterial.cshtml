@@ -1,0 +1,390 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model StockOrderModel
+@{
+    ViewBag.Title = "Export StockOrder Material";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<!-- $.() -->
+<script type="text/javascript">
+    $(function () {
+        $('#lookupStockOrderCodeExisted').attr('class', 'imgUnAvailable');
+        $('#txtStockOrderCodeHidden').val(0);
+
+        $("#StockOrderCode").change(function () {
+            CheckStockOrderCode($(this).val());
+        });
+
+        //GenCode();
+    });
+</script>
+
+<!-- check code-->
+<script type="text/javascript">
+    function GenCode() {
+        $.ajax({
+            type: 'post',
+            data: {},
+            dataType: 'json',
+            url: '@Url.Action("GenStockOrderParam", "StockOrder")',
+            timeout: 20000,
+            success: function (data) {
+                $("#StockOrderCode").val(data);
+                CheckStockOrderCode(data);
+            }
+        });
+    }
+    
+    function CheckStockOrderCode(value) {
+        if (value.length === 0) {
+            $('#lookupStockOrderCodeExisted').attr('class', 'imgUnAvailable');
+            $('#txtStockOrderCodeHidden').val(0);
+            return false;
+        }
+        $('#lookupStockOrderCodeExisted').attr('class', 't-loading');
+
+        $.ajax({
+            type: 'post',
+            data: { stockOrderCode: value },
+            dataType: 'json',
+            url: '@Url.Action("CheckStockOrderCode", "StockOrder")',
+            timeout: 20000,
+            success: function (data) {
+                if (data == 1) {
+                    $('#lookupStockOrderCodeExisted').attr('class', 'imgUnAvailable');
+                    $('#txtStockOrderCodeHidden').val(0);
+                }
+                else if (data == 0) {
+                    $('#lookupStockOrderCodeExisted').attr('class', 'imgAvailable');
+                    $('#txtStockOrderCodeHidden').val(1);
+                }
+                else if (data == 2) {
+                    $('#lookupStockOrderCodeExisted').attr('class', 'imgUnAvailable');
+                    $('#txtStockOrderCodeHidden').val(0);
+                }
+            }
+        });
+
+        return false;
+    }
+</script>
+
+<!-- binding -->
+<script type="text/javascript">
+    function materialClassified_onChange() {
+        $("#MaterialTypeName").data('tDropDownList').reload();
+    }
+    
+    function materialTypeName_onDataBinding(args) {
+        var materialClassifiedId = $("#MaterialClassifiedName").data('tDropDownList').value();
+        args.data = $.extend({}, args.data, { classifiedId: materialClassifiedId });
+    }
+    
+
+    function gridMaterialInventory_onDataBinding(args) {
+
+        var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
+        var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+        //var warehouseReceipt = $("#WarehouseReceiptName").data('tDropDownList').value();
+
+        //if (materialTypeId == 0 || warehouseIssue == 0 || warehouseReceipt == 0)
+        if (materialTypeId == 0 || warehouseIssue == 0)
+            args.preventDefault();
+        
+        else {
+            args.data = $.extend(args.data, {
+                materialTypeId: materialTypeId,
+                //warehouseIssue: warehouseIssue,
+                //warehouseReceipt: warehouseReceipt,
+                warehouseId: warehouseIssue,
+                eoi: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export)"
+            });
+        }
+    }
+</script>
+
+<!-- pickup material -->
+<script type="text/javascript">
+    function PickupMaterialId() {
+
+        var $checkedRecords = $(':checked');
+        //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+        if ($checkedRecords.length < 1) {
+            alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+            return;
+        }
+
+        //$.ajaxSettings.traditional = false;
+        var a = {};
+        var ids = "";
+
+        for (var i = 0; i < $checkedRecords.length; i++) {
+            a[i] = $checkedRecords[i].value;
+
+            ids += $checkedRecords[i].value;
+            if (i < ($checkedRecords.length - 1))
+                ids += ":";
+        }
+
+        var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+        
+        $("#gridMaterialInventoryDetail").data("tGrid").rebind({
+            materialIds: ids,
+            warehouseId: warehouseIssue
+        });
+    }
+</script>
+
+<!-- input validation -->
+<script type="text/javascript">
+    function InputValidation() {
+        var strMsgAlert = "";
+
+        var materialClassifiedName = $('#MaterialClassifiedName').data('tDropDownList').value();
+        var materialTypeName = $('#MaterialTypeName').data('tDropDownList').value();
+
+        var txtStockOrderCodeHidden = $("#txtStockOrderCodeHidden").val();
+
+        var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+        //var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+
+        if (materialClassifiedName === "") {
+            strMsgAlert += "Vui lòng chọn phân loại nguyên liệu.\t\r\n";
+        }
+        if (materialTypeName === "") {
+            strMsgAlert += "Vui lòng chọn loại nguyên liệu.\t\r\n";
+        }
+
+        if (txtStockOrderCodeHidden === "0") {
+            strMsgAlert += "Số đơn không hợp lệ.\t\r\n";
+        }
+
+        if (warehouseIssueName === "") {
+            strMsgAlert += "Vui lòng chọn kho xuất.\t\r\n";
+        }
+//        if (warehouseReceiptName === "") {
+//            strMsgAlert += "Vui lòng chọn kho nhập.\t\r\n";
+//        }
+
+        if (strMsgAlert === "")
+            return true;
+
+        alert(strMsgAlert);
+        return false;
+    }
+</script>
+
+<!-- client event grid material inventory -->
+<script type="text/javascript">
+    function gridMaterialInventoryDetail_onDataBound() {
+        GenCode();
+    }
+    function gridMaterialInventoryDetail_onSave(e) {
+        // bind data
+        var $UnitMeasure = $(e.cell).find('#UnitMeasure');
+
+        if ($UnitMeasure.length > 0) {
+            var unitMeasureCodeName = $UnitMeasure.data("tDropDownList");
+
+            var unitMeasureCodeNameSelectItem = unitMeasureCodeName.selectedIndex > -1 ? unitMeasureCodeName.data[unitMeasureCodeName.selectedIndex] : null;
+
+            if (unitMeasureCodeNameSelectItem) {
+                e.values["UnitMeasureCodeName"] = unitMeasureCodeNameSelectItem.Text;
+                e.values["UnitMeasure"] = unitMeasureCodeNameSelectItem.Value;
+            }
+        }
+        //
+    }
+
+    function gridMaterialInventoryDetail_onSubmitChanges(e) {
+
+        var flag = InputValidation();
+
+        if (flag == false)
+            e.preventDefault();
+        else {
+
+            var stockOrderCode = $("#StockOrderCode").val();
+
+            var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+            //var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+
+            e.values = $.extend(e.values,
+            {
+                stockOrderCode: stockOrderCode,
+
+                //warehouseIssueId: warehouseIssueName,
+                //warehouseReceiptId: warehouseReceiptName,
+                warehouseId: warehouseIssueName,
+                
+                materialOrProduct: true,
+                exportOrImport: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export)"
+            }
+            );
+        }
+    }
+
+    function gridMaterialInventoryDetail_onError(args) {
+        if (args.textStatus == "modelstateerror" && args.modelState) {
+            var message = "Errors:\n";
+            $.each(args.modelState, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            args.preventDefault();
+            alert(message);
+        }
+    }
+
+</script>
+}
+
+<div class="title">Lệnh xuất nguyên liệu</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+    
+    <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialClassifiedName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new {area = ""}))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events=>events.OnChange("materialClassified_onChange"))
+                .Render();                                              
+        }
+    </div>
+    <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialTypeName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialTypeByClassified", "Material", new { classifiedId = 0, area = "" }))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events => events.OnDataBinding("materialTypeName_onDataBinding").OnChange("materialTypeName_onChange"))
+                .Render();
+        }
+    </div>
+    <div class="clear"></div><br/>
+
+    <fieldset>
+        <legend>Thông tin phiếu lệnh nhập</legend>
+
+        <div class="grid_2">@Html.LabelFor(f=>f.StockOrderCode)</div>
+        <div class="grid_1"><div id="lookupStockOrderCodeExisted">&nbsp;</div></div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.StockOrderCode, new {style ="color: maroon;"})
+            @Html.Hidden("txtStockOrderCodeHidden")
+        </div>
+
+        <div class="grid_3">@Html.LabelFor(f=>f.WarehouseIssueName)</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseIssueName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .ClientEvents(events => events.OnChange("warehouseIssueName_onChange"))
+                    .Render();                                              
+            }
+        </div>
+
+        <div class="grid_3">&nbsp;
+        @*@Html.LabelFor(f=>f.WarehouseReceiptName)*@
+        </div>
+        <div class="grid_4">&nbsp;
+            @*@{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseReceiptName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .ClientEvents(events => events.OnChange("warehouseReceiptName_onChange"))
+                    .Render();
+            }*@
+        </div>
+
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MaterialInventoryModel>()
+        .Name("gridMaterialInventory")
+        .ToolBar(bar=>bar.Template(
+            @<text>
+            <div class="grid_7">
+                <button class="t-button" id="btnPickupMaterialId" name="btnPickupMaterialId" onclick="PickupMaterialId()">
+                    <span class='t-icon t-insert'></span>
+                    Chọn các nguyên liệu vào lưới
+                </button>
+            </div>
+            <div class="clear"></div>
+            </text>
+            ))
+        .DataKeys(keys=>keys.Add(f=>f.MaterialInventoryId).RouteKey("materialInventoryId"))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectMaterialInventoryByMaterialTypeAndWarehouse", "Inv",
+            new { materialTypeId = 0, warehouseIssue = 0, warehouseReceipt = 0, eoi = MyUtilities.Transaction.EoIEnum.Export }))
+        .Columns(columns=>
+                     {
+                         columns.Bound(f => f.MaterialId).Title("Chọn").Width(75)
+                             .ClientTemplate("<input type='checkbox' name='chkMaterialIds' value='<#= MaterialId #>' />")
+                             .HtmlAttributes(new { style = "text-align:center" });
+                         columns.Bound(f => f.MaterialCodeName);
+                         columns.Bound(f => f.TotalQty);
+                         columns.Bound(f => f.AvailableQty);
+                         columns.Bound(f => f.UnavailableQty);
+                         columns.Bound(f => f.Active).Width(75)
+                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                            .HtmlAttributes(new { style = "text-align:center" });
+                     })
+        .Scrollable(f=>f.Height("auto"))
+        .ClientEvents(events => events.OnDataBinding("gridMaterialInventory_onDataBinding"))
+        .Render();
+}
+</div>
+<div class="clear"></div><br/>
+
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Chi tiết lệnh nhập nguyên liệu</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MaterialInventoryImportModel>()
+        .Name("gridMaterialInventoryDetail")
+        .ToolBar(bar=>bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText))
+        .DataKeys(keys => keys.Add(f => f.MaterialInventoryId).RouteKey("materialInventoryId"))
+        .DataBinding(dataBindings => dataBindings.Ajax()
+            .Select("SelectMaterialInventory", "Inv", new { materialIds = "", warehouseId  = 0})
+            .Update("UpdateStockOrderMaterialInventory", "StockOrder"))
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.MaterialCodeName).ReadOnly(true);
+            columns.Bound(f => f.TotalQty).Width(125).ReadOnly(true);
+            columns.Bound(f => f.AvailableQty).Width(125).ReadOnly(true);
+            columns.Bound(f => f.UnavailableQty).Width(125).ReadOnly(true);
+            columns.Bound(f => f.Quantity).Width(125);
+            columns.Bound(f => f.UnitMeasure).Width(150);
+            
+            columns.Command(commands => commands.Delete()).Width(98).Title("Commands");
+        })
+        .ClientEvents(events => events
+            .OnSave("gridMaterialInventoryDetail_onSave")
+            .OnSubmitChanges("gridMaterialInventoryDetail_onSubmitChanges")
+            .OnError("gridMaterialInventoryDetail_onError")
+            .OnDataBound("gridMaterialInventoryDetail_onDataBound")
+        )
+        .Editable(f=>f.Mode(GridEditMode.InCell))
+        .Footer(false)
+        .Render();   
+}
+</div>

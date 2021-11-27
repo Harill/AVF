@@ -1,0 +1,406 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Xác nhận tiến độ đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function gridOrderProgress_OnRowDataBound(e) {
+            var dataItem = e.dataItem;
+            if (!dataItem.IsProductionManager) {
+                e.row.childNodes[1].innerHTML = "";
+            }
+            if (dataItem.StartDate !=null && dataItem.StartDate <= Date.now()) {
+                e.row.childNodes[10].bgColor = "red";
+            }
+            if (dataItem.StartDate != null && dataItem.EndDate <= Date.now()) {
+                e.row.childNodes[11].bgColor = "red";
+            }
+        }
+    </script>
+}
+
+<div class="title">Duyệt đơn hàng</div>
+
+<button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridOrderDetail'); ">
+    <span class='t-icon t-insert'></span>
+    Làm mới
+</button>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<OrderDetailModel>()
+            .Name("gridOrderDetail")
+            .DataKeys(key => key.Add(f => f.OrderDetailId).RouteKey("orderDetailId"))
+            .DataBinding(dataDindings => dataDindings.Ajax()
+                .Select("SelectConfirmOrderDetail", "SalesOrder")
+                //.Update("UpdateOrderDetailByOrderId", "SalesOrder", new { orderId = "<#= OrderId #>" })
+            )
+            .Columns(columns => {
+                //columns.Bound(f => f.OrderDetailId).Title("Tách").Width(25)
+                //    .ClientTemplate("<input type='checkbox' name='chkOrderDetailIds' value='<#= OrderDetailId #>' />")
+                //    .HtmlAttributes(new { style = "text-align:center" }).ReadOnly(true);
+                //columns.Command(command =>
+                //    command.Edit().ButtonType(GridButtonType.Image)
+                //        .UpdateText("Sửa").CancelText("Huỷ").Text("Cập Nhật")
+                //    ).Width(30).Title("").HtmlAttributes(new { style = "text-align:center" });
+                // columns.Bound(f => f.OrderDetailId);
+                // columns.Bound(f => f.OrderId);
+                //columns.Bound(f => f.ProductionApprove).Width(40).Title("SX").ReadOnly(true)
+                //    .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                //                    "<#= ProductionApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
+                //columns.Bound(f => f.IsApprove).Width(40).Title("Kho").ReadOnly(true)
+                //    .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                //                    "<#= IsApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
+                //columns.Bound(f => f.DetailApproved).Width(40).Title("KD").ReadOnly(true)
+                //    .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                //                    "<#= DetailApproved == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
+                columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(100).ReadOnly(true);
+                columns.Bound(f => f.OrderDate).Title("Ngày tạo").Width(85).ReadOnly(true)
+                    .Format("{0:dd/MM/yy}")
+                    .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" });
+                columns.Bound(f => f.CustomerCode).Title("Khách hàng").Width(85).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.ProductCode).Title("Mã SP").Width(85).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;font-weight:bold;" });
+                columns.Bound(f => f.OrderQty).Width(70).Title("Số lượng").ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;font-weight:bold;" });
+                columns.Bound(f => f.CustomerDueDate).Width(70).Title("KH yêu cầu").ReadOnly(true)
+                    .Format("{0:dd/MM/yy}")
+                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" });
+                columns.Bound(f => f.Note).Title("Ghi chú đơn hàng").ReadOnly(true);
+                columns.Bound(f => f.ProcessNote).Title("Ghi chú công đoạn").ReadOnly(true);
+            })
+
+            .DetailView(details2 => details2.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= ProductId #>")
+                    .SelectedIndex(0)
+                    .Items(items => {
+
+                        items.Add().Text("Tiến độ").Content(
+                            Html.Telerik().Grid<OrderProgressModel>()
+                                .Name("gridOrderProgress_<#= OrderDetailId #>")
+                                .DataKeys(key => key.Add(f => f.ProgressId).RouteKey("progressId"))
+                                .DataKeys(key => key.Add(f => f.ProductId).RouteKey("ProductId"))
+                                .DataKeys(key => key.Add(f => f.WarehouseId).RouteKey("WarehouseId"))
+                                .DataKeys(key => key.Add(f => f.OrderDetailId).RouteKey("orderDetailId"))
+                                .DataKeys(key => key.Add(f => f.ProgressIndex).RouteKey("ProgressIndex"))
+                                .DataKeys(key => key.Add(f => f.NumberProcess).RouteKey("NumberProcess"))
+                                .DataKeys(key => key.Add(f => f.DesignProductivityInDay).RouteKey("DesignProductivityInDay"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                        .Select("SelectProductionExpectedByOrderDetail", "SalesOrder",
+                                            new { area = "Sales", orderDetailId = "<#= OrderDetailId #>", })
+                                        .Update("UpdateProductionExpectedByOrderDetail", "SalesOrder")
+                                )
+                                .Columns(columns => {
+                                    columns.Command(command =>
+                                        command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                        ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.ProgressIndex).Width(35).Title("STT").ReadOnly(true);
+                                    columns.Bound(f => f.WarehouseName).Width(120).Title("Tên công đoạn").ReadOnly(true)
+                                        .HtmlAttributes(new { style = "border-right:1px solid black;font-weight:bold;" });
+                                    columns.Bound(f => f.InvQuantity).Width(75).Title("Tồn kho").ReadOnly(true)
+                                        .Format("{0:n0}")
+                                        .HeaderTemplate("Tồn kho</br>công đoạn")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.AfterInvQuantity).Width(75).Title("Tồn sau").ReadOnly(true)
+                                        .Format("{0:n0}")
+                                        .HeaderTemplate("Tồn kho</br>sau CĐ")
+                                        .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                                    columns.Bound(f => f.NumberProcess).Width(75).Title("YC TH").ReadOnly(true)
+                                        .Format("{0:n0}")
+                                        .HeaderTemplate("Sản lượng</br>cần TH")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.DesignProductivityInDay).Width(70).ReadOnly(true)
+                                        .Format("{0:n0}")
+                                        .HeaderTemplate("NS TK</br>(pcs/d)")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequiredProductivityInDay).Width(75).ReadOnly(true)
+                                        .Format("{0:n0}")
+                                        .HeaderTemplate("SL YC</br>(pcs/d)")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.ExpectedFactor).Width(55).Title("Hệ số")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.ExpectedDay).Width(55).Title("Số</br>ngày")
+                                        .Format("{0:n0}")
+                                        .HtmlAttributes(new { style = "text-align:center;border-right:1px solid black;" });
+                                    columns.Bound(f => f.StartDate).Width(100).Title("Ngày BĐ")
+                                        .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yy}', StartDate) #>");
+                                    columns.Bound(f => f.FinishDate).Width(80).Title("Ngày HT").ReadOnly(true)
+                                        .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yy}', FinishDate) #>")
+                                        .HtmlAttributes(new { style = "border-right:1px solid black;" });
+                                    //columns.Bound(f => f.Note).Title("Ghi chú");
+                                    columns.Bound(f => f.ProgressNote).Title("Ghi chú");
+                                    columns.Bound(f => f.ModifiedUser).Width(85).Title("Người làm").ReadOnly(true);
+                                    columns.Bound(f => f.ModifiedDate).Width(80).Title("Ngày làm").ReadOnly(true)
+                                        .Format("{0:dd/MM/yy HH:mm}");
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnRowDataBound("gridOrderProgress_OnRowDataBound")
+                                    .OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        
+                        items.Add().Text("Tồn kho").Content(
+                            Html.Telerik().Grid<SoLieuTongHopSanPham>()
+                                .Name("gridInventory_<#= OrderDetailId #>")
+                                .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                .DataBinding(dataDindings => dataDindings.Ajax()
+                                    .Select("SelectProductInventoryNew", "Inv", new { area = "Inv", productId = "<#= ProductId #>", quantity = "<#= OrderQty #>", lotNumber = "All" }))
+
+                                .Columns(columns => {
+                                    columns.Bound(f => f.ProductCode).Width(85)
+                                        .HeaderTemplate("<strong>Tồn kho</br>hiện tại</strong>")
+                                        .Title("");
+                                    columns.Bound(f => f.TonTong).Width(60)
+                                        .HeaderTemplate("Tồn</br>tổng")
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? '' : $.telerik.formatString('{0:n0}', TonTong) #>")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.TonKhoSX2CNC).Width(60)
+                                        .HeaderTemplate("CNC")
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2CNC) : $.telerik.formatString('{0:n0}', TonKhoSX2CNC) #>")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.TonKhoSX2SX2).Width(60)
+                                        .HeaderTemplate("SX2")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2SX2B) : $.telerik.formatString('{0:n0}', TonKhoSX2SX2) #>");
+                                    columns.Bound(f => f.TonKhoSX2SX2B).Width(60)
+                                        .HeaderTemplate("SX2</br>(gia công)")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2SX2) : $.telerik.formatString('{0:n0}', TonKhoSX2SX2B) #>");
+                                    columns.Bound(f => f.TonKhoNhietLuyen).Width(60)
+                                        .HeaderTemplate("Nhiệt</br> luyện")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNhietLuyen) : $.telerik.formatString('{0:n0}', TonKhoNhietLuyen) #>");
+                                    columns.Bound(f => f.TonKhoRungBong).Width(60)
+                                        .HeaderTemplate("Rung</br>bóng")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoRungBong) : $.telerik.formatString('{0:n0}', TonKhoRungBong) #>");
+                                    columns.Bound(f => f.TonKhoGCN).Width(60)
+                                        .HeaderTemplate("Chờ</br>GCN")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoGCN) : $.telerik.formatString('{0:n0}', TonKhoGCN) #>");
+                                    columns.Bound(f => f.TonKhoNCU).Width(60)
+                                        .HeaderTemplate("Xi</br>mạ")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCU) : $.telerik.formatString('{0:n0}', TonKhoNCU) #>");
+                                    columns.Bound(f => f.TonKhoNCUKiemTra).Width(60)
+                                        .HeaderTemplate("KT</br>ngoài")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCUKiemTra) : $.telerik.formatString('{0:n0}', TonKhoNCUKiemTra) #>");
+                                    columns.Bound(f => f.TonKhoQCA).Width(60)
+                                        .HeaderTemplate("QC/A")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCA) : $.telerik.formatString('{0:n0}', TonKhoQCA) #>");
+                                    columns.Bound(f => f.TonKhoQCB).Width(60)
+                                        .HeaderTemplate("QC/B")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCB) : $.telerik.formatString('{0:n0}', TonKhoQCB) #>");
+                                    columns.Bound(f => f.TonKhoQCC).Width(60)
+                                        .HeaderTemplate("QC/C")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCC) : $.telerik.formatString('{0:n0}', TonKhoQCC) #>");
+                                    columns.Bound(f => f.Packing).Width(60)
+                                        .HeaderTemplate("Đóng</br>gói")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', Packing) : $.telerik.formatString('{0:n0}', Packing) #>");
+
+                                    columns.Bound(f => f.TonKhoTPA).Width(60)
+                                        .HeaderTemplate("Thành</br>phẩm")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoTPA) : $.telerik.formatString('{0:n0}', TonKhoTPA) #>");
+
+                                    columns.Bound(f => f.TonKhoCXL).Width(60)
+                                        .HeaderTemplate("Chờ</br>PL")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoCXL) : $.telerik.formatString('{0:n0}', TonKhoCXL) #>");
+                                    columns.Bound(f => f.ReProcessing).Width(60)
+                                        .HeaderTemplate("Chờ</br>GC lại")
+                                        .HtmlAttributes(new { style = "text-align: right;" })
+                                        .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', ReProcessing) : $.telerik.formatString('{0:n0}', ReProcessing) #>");
+                                })
+                                .Resizable(f => f.Columns(true))
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+
+                        items.Add().Text("Nguyên liệu").Content(
+                            Html.Telerik().Grid<ExpectedProductionMaterialPlanModel>()
+                                .Name("gridOrderMaterial_<#= OrderDetailId #>")
+                                .DataKeys(key => key.Add(f => f.MaterialId).RouteKey("materialId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                        .Select("SelectMaterialByProductId", "SalesOrder",
+                                            new { area = "Sales", orderDetailId = "<#= OrderDetailId #>", })
+                                )
+                                .Columns(columns => {
+                                    columns.Bound(f => f.MaterialCode)
+                                        .HeaderTemplate("Mã nguyên liệu")
+                                        .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
+                                    columns.Bound(f => f.TotalInvKg).Title("Tồn kho(kg)").Width(70)
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                    columns.Bound(f => f.ProductWeight).Title("TL phoi(g/pcs)").Width(65)
+                                        .Format("{0:n3}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequireInYearKg).Width(70)
+                                        .HeaderTemplate("Yêu cầu (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequireInMonthKg).Width(70)
+                                        .HeaderTemplate("Đã duyệt (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                    columns.Bound(f => f.RequireByMonthKg).Width(70)
+                                        .HeaderTemplate("Chưa duyệt (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+
+                                    columns.Bound(f => f.TotalRequireKg).Width(70)
+                                        .HeaderTemplate("Tổng YC (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                    columns.Bound(f => f.OnPoKg).Width(70)
+                                        .HeaderTemplate("Đã đặt (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequirePoKg).Width(70)
+                                        .HeaderTemplate("Cần đặt (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequirePoKg).Width(70)
+                                        .HeaderTemplate("Cần đặt (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.ForecastInMonth).Width(70)
+                                        .HeaderTemplate("TB 3T SD (kg)")
+                                        .Format("{0:n2}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+
+                        items.Add().Text("Công cụ").Content(
+                            Html.Telerik().Grid<ExpectedProductionMaterialPlanModel>()
+                                .Name("gridOrderTool_<#= OrderDetailId #>")
+                                .DataKeys(key => key.Add(f => f.MaterialId).RouteKey("materialId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                        .Select("SelectToolOrderByOrderDetailId", "SalesOrder",
+                                            new { area = "Sales", orderDetailId = "<#= OrderDetailId #>", })
+                                )
+                                .Columns(columns => {
+                                    columns.Bound(f => f.MaterialName).Width(150)
+                                        .HeaderTemplate("Loại công cụ")
+                                        .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
+                                    columns.Bound(f => f.MaterialCode)
+                                        .HeaderTemplate("Mã công cụ")
+                                        .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
+                                    columns.Bound(f => f.TotalInv).Title("Tồn kho").Width(70)
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                    columns.Bound(f => f.RequireInYear).Width(70)
+                                        .HeaderTemplate("Yêu cầu")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequireInMonth).Width(70)
+                                        .HeaderTemplate("Đã duyệt")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                    columns.Bound(f => f.RequireByMonth).Width(70)
+                                        .HeaderTemplate("Chưa duyệt")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+
+                                    columns.Bound(f => f.TotalRequire).Width(70)
+                                        .HeaderTemplate("Tổng YC")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                    columns.Bound(f => f.OnPoKg).Width(70)
+                                        .HeaderTemplate("Đã đặt")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.RequirePoKg).Width(70)
+                                        .HeaderTemplate("Cần đặt")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;" });
+                                    columns.Bound(f => f.ForecastInMonth).Width(70)
+                                        .HeaderTemplate("TB 3T SD")
+                                        .Format("{0:n1}")
+                                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                    })
+                    .ClientEvents(e => e.OnError("grid_OnError"))
+                    .ToHtmlString()
+                ))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Resizable(f => f.Columns(true))
+            .ClientEvents(events => events
+                //.OnRowDataBound("gridOrderDetail_OnRowDataBound")
+                .OnRowSelect("grid_OnRowSelect")
+                //.OnSave("gridOrderDetail_OnSave")
+                //.OnEdit("gridOrderDetail_OnEdit")
+                .OnError("grid_OnError"))
+            .Sortable()
+            .Filterable()
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

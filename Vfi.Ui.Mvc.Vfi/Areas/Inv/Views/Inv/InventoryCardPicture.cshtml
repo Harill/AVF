@@ -1,0 +1,10 @@
+﻿@model Vfi.Ui.Mvc.Vfi.Models.Production.ProductModel
+
+<div>
+    <a href='@Url.Content("~/Content/FileUpload/Drawing/" + Model.Upload2D + "?" + Model.UploadDate)' class='highslide' onclick='return hs.expand(this)'>
+        <img src='@Url.Content("~/Content/FileUpload/Drawing/" + Model.Upload2D + "?" + Model.UploadDate)' height='40' width='40' title='Mở lớn' alt="@Model.ProductCode"/>
+    </a>
+    <a href='@Url.Content("~/Content/FileUpload/Drawing/" + Model.UploadReal + "?" + Model.UploadDate)' class='highslide' onclick='return hs.expand(this)'>
+        <img src='@Url.Content("~/Content/FileUpload/Drawing/" + Model.UploadReal + "?" + Model.UploadDate)' height='40' width='40' title='Mở lớn' alt="@Model.ProductCode"/>
+    </a>
+</div>

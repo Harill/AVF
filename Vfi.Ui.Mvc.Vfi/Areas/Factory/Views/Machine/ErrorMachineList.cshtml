@@ -1,0 +1,58 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Phân công sửa máy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Phân công sửa máy</div>
+
+
+    <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('grid'); ">
+        <span class='t-icon t-insert'></span>
+        Làm mới
+    </button>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MachineRepairFormModel>()
+            .Name("grid")
+            .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm máy mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                    .Select("SelectErrorMachineList", "Machine")
+                    //.Insert("InsertMachine", "Machine")
+                    //.Update("UpdateMachine", "Machine")
+                    )
+            .Columns(columns => {
+
+                columns.Bound(f => f.MachineName).Width(70).Title("Máy")
+                       .ClientTemplate("<strong><#= MachineName #></strong>");
+                columns.Bound(f => f.ProductCode).Width(90).Title("SP")
+                       .ClientTemplate("<strong><#= ProductCode #></strong>");
+                columns.Bound(f => f.StateName).Width(100).Title("Lỗi")
+                       .ClientTemplate("<strong><#= StateName #></strong>");
+
+                columns.Bound(f => f.ErrorCause).Width(125).Title("Nguyên nhân");
+                columns.Bound(f => f.ErrorQuantity).Width(75).Title("SL lỗi")
+                       .Format("{0:n0}");
+                columns.Bound(f => f.CauseDate).Width(185).Title("TG máy hư")
+                       .ClientTemplate("<#= CauseDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', CauseDate) #>");
+
+                columns.Bound(f => f.EmployeeName).Width(100).Title("CN sửa").ReadOnly(true)
+                       .HtmlAttributes(new { style = "border-right:1px solid black;" });
+                columns.Bound(f => f.CreateUser).Width(85).Title("NV KT");
+
+            })
+            //.Editable(editing => editing.Mode(GridEditMode.InLine))
+            //.Scrollable(f => f.Enabled(true))
+            .ClientEvents(e => e.OnError("grid_OnError"))
+            //.HtmlAttributes(new { style = "max-height: 510px;" })
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();    
+    }
+</div>

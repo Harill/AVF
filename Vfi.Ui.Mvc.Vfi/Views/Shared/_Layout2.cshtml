@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewBag.Title</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Reports.css")" rel="stylesheet" type="text/css" />
+    @*<link href="@Url.Content("~/Content/960/960_24_col.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/jquery-ui-1.8.13/css/ui-lightness/jquery-ui-1.8.13.custom.css")" rel="stylesheet" type="text/css" />*@
+    
+    <script type="text/javascript"src="@Url.Content("~/Scripts/jquery-2.1.1.min.js")" ></script>
+    <script type="text/javascript"src="@Url.Content("~/Scripts/jquery-1.4.4.min.js")" ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery-ui.min.js")"   ></script>
+    @*<script type="text/javascript" src="@Url.Content("~/Scripts/jquery-1.6.2.min.js")" ></script>*@
+    
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MicrosoftAjax.js")"            ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MicrosoftMvcAjax.js")"         ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/MicrosoftMvcValidation.js")"   ></script>
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.validate.min.js")"      ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")"></script>
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/common/common.js")"     ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/common/ConfusedValidation.js")"     ></script>
+    @*<script type="text/javascript" src="@Url.Content("~/Content/jquery-ui-1.8.13/js/jquery-ui-1.8.14.custom.min.js")"></script>*@
+
+
+@(Html.Telerik().StyleSheetRegistrar()
+        .DefaultGroup(
+                        group => group
+                            .Add("telerik.common.min.css")
+                            .Add("telerik.office2007.css")
+                            
+                            .Add("~/Content/960/960_24_col.css")
+                                    
+                            .Add("~/Content/jquery-ui-1.8.13/css/ui-lightness/jquery-ui-1.8.13.custom.css")
+                            .Combined(true).Compress(true)))
+
+    @RenderSection("css", false)
+
+    @RenderSection("Scripts", false)
+    
+    @RenderSection("HeadContent", false)
+</head>
+
+<body>
+ <div class="container_24">
+    <div class="grid_24 page">
+
+        <div id="header">
+            <div id="title">
+                <h1>Hệ thống quản lý - VFI</h1>
+            </div>
+
+            <div id="logindisplay">
+                @Html.Partial("_LogOnUserControl")
+            </div>
+
+            <div id="menucontainer">
+            </div>
+        </div>
+        
+        <div id="main">
+            <!-- Menu Area , Render menu after login -->
+            <div id="menuArea">
+               @if (!Request.IsAuthenticated)
+               {             
+                   @: @{ Html.Telerik().Menu().Name("M").Render();} 
+               }
+               else { 
+                   @: @Html.Action("MainMenu", "Menu", new {Area = ""} )
+               }
+            </div>
+            <!-- end Menu Area -->
+            <div style="clear: both;"></div>
+            @RenderBody()
+        </div>
+    </div>
+    </div>
+    <div class="t-overlay"></div>
+@*@(Html.Telerik().ScriptRegistrar().Globalization(true).DefaultGroup(group => group.Combined(true).Compress(true)).jQuery(false))*@
+
+@(Html.Telerik().ScriptRegistrar().Globalization(true)
+        .DefaultGroup(
+                        group => group
+                            .Add("~/Content/jquery-ui-1.8.13/js/jquery-ui-1.8.14.custom.min.js")
+                                //.Add("~/Scripts/Bvi/uis.common.js")
+                                        //.Add("~/Scripts/jquery.validate.min.js")
+                                            //.Add("~/Scripts/MicrosoftAjax.js")
+                                                //.Add("~/Scripts/MicrosoftMvcAjax.js")
+                                                    //.Add("~/Scripts/MicrosoftMvcValidation.js")
+                            .Combined(true)
+                            .Compress(true)
+                            ).jQuery(false))
+</body>
+</html>

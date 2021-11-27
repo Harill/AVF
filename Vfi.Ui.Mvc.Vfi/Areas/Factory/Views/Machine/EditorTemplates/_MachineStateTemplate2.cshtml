@@ -1,0 +1,46 @@
+﻿<script type="text/javascript">
+    function state_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { stateId: e.currentTarget.value },
+                dataType: 'json',
+                url: '@Url.Action("GetErrorCauseById", "Machine", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var errors = $('#ErrorCause').data('tComboBox');
+                    errors.dataBind(data);
+                    //if (material.selectedIndex > -1) {
+
+                    //    var selected = material.data[material.selectedIndex];
+
+                    //    if (selected != undefined) {
+                    //        material.value(selected.value);
+                    //        material.text(selected.Text);
+                    //        material.selectedIndex = material.selectedIndex;
+                    //        material.previousValue = selected.value;
+                    //    } else {
+                    //        material.value(-1);
+                    //        material.text("");
+                    //    }
+                    //} else {
+                    //    material.value(-1);
+                    //    material.text("");
+                    //}
+                }
+            });
+        }
+</script>
+@using Telerik.Web.Mvc.UI
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachineState", "Machine", new { area = "Factory"}).Delay(350))
+        //.HtmlAttributes(new { style = "width: 200px" })
+        .DropDownHtmlAttributes(new { style = "width: 200px" })
+        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .ClientEvents(e => e.OnClose("state_OnChange"))
+        .Render();
+}

@@ -1,0 +1,398 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Duyệt Invoice ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        function gridDetail_onEdit(e) {
+            var dataItem = e.dataItem;
+            var mode = e.mode;
+            var form = e.form;
+
+            var taxInvoiceList = $(form).find('#TaxInvoiceList');
+            var data = taxInvoiceList.val();
+            //var lineTotal = $(form).find("#LineTotal").data("tTextBox");
+            //if (mode == 'insert') {
+            //    vendorCode.attr("style", "color: blue;");
+            //}
+            //if (mode == 'edit') {
+            //}
+            if (data != "") {
+                taxInvoiceList.attr("readonly", "readonly");
+                taxInvoiceList.attr("style", "color: red;");
+            }
+        }
+        function gridProduct_onEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+            //alert(e.dataItem['DueDate']);
+            /* var materialCodeName = $(form).find('#MaterialCode');
+            var materialCodeNameData = $(form).find('#MaterialCode').data('tComboBox');
+
+            var customerCodeName = $(form).find('#CustomerCodeName');
+            var customerCodeNameData = $(form).find('#CustomerCodeName').data('tComboBox');
+*/
+            if (mode == 'insert') {
+
+            } else if (mode == 'edit') {
+                var monthlyDate = e.dataItem['ShiftmentDate'];
+                if (monthlyDate === null)
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', new Date());
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+                e.dataItem['ShiftmentDate'] = monthlyDate;
+                //var a = e;
+                //alert(e.dataItem['DueDate']);
+                /*materialCodeNameData.reload();
+                materialCodeName.bind('dataBound', function () { // your code 
+                    materialCodeNameData.select(function (item) {
+                        return item.Value == e.dataItem['MaterialId'];
+                    });
+                });
+
+                customerCodeNameData.reload();
+                customerCodeName.bind('dataBound', function () { // your code 
+                    customerCodeNameData.select(function (item) {
+                        return item.Value == e.dataItem['CustomerId'];
+                    });
+                });*/
+            }
+            
+        }
+
+        function Grid_OnSave(e) {
+            var value = e.values;
+            var taxInvoice = value.TaxInvoice;
+            var taxPercent = value.TaxPercent;
+            var invoiceId = value.InvoiceId;
+            var exchangeRate = value.ExchangeRate;
+            var note = value.Note;
+            e.data = $.extend(e.data, {
+                invoiceId: invoiceId,
+                taxInvoice: taxInvoice,
+                taxPercent: taxPercent,
+                note: note,
+                exchangeRate: exchangeRate,
+            });
+        }
+        function Grid_OnDelete(e) {
+            var value = e.values;
+            var invoiceId = value.InvoiceId;
+            var note = value.Note;
+            e.data = $.extend(e.data, {
+                invoiceId: invoiceId,
+                note: note
+            });
+        }
+        function Grid_OnDataBinding(e) {
+            //  var value = e.values;
+
+        }
+
+
+    </script> 
+    <script type="text/javascript">
+        function PrintInvoiceForm(val) {
+            $('#result').load('@Url.Action("PrintInvoice", "Inv",new{ area  = "Inv" })',
+                {
+                    invoiceId: val
+                }, function(data) {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+        function Grid_OnError(args) {
+            if (args.textStatus == "modelstateerror" && args.modelState) {
+                var message = "Errors:\n";
+                $.each(args.modelState, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                args.preventDefault();
+                alert(message);
+            }
+        }
+
+    </script>
+}
+
+<div class="title">Duyệt invoice</div>
+
+@*<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InvoiceTempModel>()
+            .Name("gridInvoice")
+            .DataKeys(key => key.Add(f => f.InvoiceId).RouteKey("invoiceId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectPrepareInvoice", "Orders", new {area = "Sales"})
+                    //.Insert("InsertOrder", "Orders", new {area = "Sales"})
+                                          .Update("UpdateInvoice", "Orders", new { area = "Sales" })
+                                          .Delete("DeleteInvoice", "Orders", new { area = "Sales" }))
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image)
+                        ).Width(40).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.OrderNumber).Width(75).ReadOnly(true);
+                    columns.Bound(f => f.InvoiceNumber).Width(75).ReadOnly(true).Title("Số Invoice");
+                    //columns.Bound(f => f.PoNumber).Width(125).ReadOnly(true);
+                    columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(65).ReadOnly(true);
+                    //columns.Bound(f => f.InvoiceNumber).Title("Số Invoice").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.ShiftmentDate).Width(90).Title("Ngày xuất").ReadOnly(true)
+                           .ClientTemplate("<#= ShiftmentDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ShiftmentDate) #>");
+                    columns.Bound(f => f.TaxInvoice).Title("Số HĐ").Width(75);
+                    columns.Bound(f => f.Note).Title("Ghi Chú").Width(75);
+
+                    columns.Bound(f => f.TaxPercent).Title("(%)").Width(50);
+                    columns.Bound(f => f.TotalQuantity).Width(100).ReadOnly(true).Title("Tổng SL")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= TotalQuantity == null ? 0 : $.telerik.formatString('{0:n}', TotalQuantity) #>");
+                    columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(50);
+                    columns.Bound(f => f.TotalAmountAfterTax).Width(110).ReadOnly(true).Title("Tổng tiền(+%)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= TotalAmountAfterTax == null ? 0 : $.telerik.formatString('{0:n}', TotalAmountAfterTax) #>");
+                    columns.Bound(f => f.TotalAmountAfterTaxVND).Width(110).ReadOnly(true).Title("Tổng tiền(VNĐ)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= TotalAmountAfterTaxVND == null ? 0 : $.telerik.formatString('{0:n0}', TotalAmountAfterTaxVND) #>");
+                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.ModifiedDate).Width(90).ReadOnly(true).Title("Ngày tạo")
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+                    
+                    columns.Bound(f => f.ExportId).Title("In").Width(45).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='id_<#= ExportId #>' value='In' class='t-button' min-width='20px' onclick=PrintInvoiceForm(<#= ExportId #>) />")
+                           .HtmlAttributes(new {style = "text-align:left"});
+                    columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
+                           .Width(50).Title("Hủy").HtmlAttributes(new {style = "text-align:center;color:red"});
+
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= ExportId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<InvoiceDetailTempModel>()
+                                   .Name("gridTransactionDetail_<#= ExportId #>")
+                                   .DataKeys(key => key.Add(f => f.DetailId).RouteKey("DetailId"))
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                        .Select("SelectInvoiceDetailByExportId", "Orders", new { exportId = "<#= ExportId #>" })
+                                        )
+                                   .Columns(columns =>
+                                   {
+                                       columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
+                                       columns.Bound(f => f.PONumber).Title("Lệnh Mua").Width(50).ReadOnly(true);
+                                       columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Số lượng")
+                                              .HtmlAttributes(new {style = "text-align: right;"})
+                                              .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n}', Quantity) #>");
+                                       columns.Bound(f => f.UnitPriceCurrency).ReadOnly(true).Width(50)
+                                              .HtmlAttributes(new {style = "text-align: right;"});
+                                       columns.Bound(f => f.Amount).Width(70).Title("Tổng tiền").ReadOnly(true)
+                                              .HtmlAttributes(new {style = "text-align: right;"})
+                                              .ClientTemplate("<#= Amount == null ? 0 : $.telerik.formatString('{0:n}', Amount) #>");
+                                   })
+                                       
+                                   .ToHtmlString()
+                               )
+                    )
+                    .ToHtmlString()
+            ))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnEdit("gridProduct_onEdit")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnSave("Grid_OnSave")
+                                          .OnDataBinding("Grid_OnDataBinding")
+                                          .OnDelete("Grid_OnDelete")
+                                          .OnError("Grid_OnError"))
+            .Pageable(page => page.PageSize(7))
+            .Scrollable(f => f.Height("auto"))
+            .HtmlAttributes(new {style = "width: 950px;"})
+            .Sortable()
+            //.Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>*@
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InvoiceTempModel>()
+            .Name("gridInvoice")
+            .DataKeys(key => key.Add(f => f.InvoiceId).RouteKey("invoiceId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectPrepareInvoice", "Orders", new {area = "Sales"})
+                                   //.Insert("InsertOrder", "Orders", new {area = "Sales"})
+                                          .Update("UpdateInvoice", "Orders", new {area = "Sales"})
+                                          .Delete("DeleteInvoice", "Orders", new {area = "Sales"})
+            )
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image)
+                        ).Width(40).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.OrderNumber).Width(85).ReadOnly(true)
+                        .HeaderTemplate("Mã lệnh</br>bán");
+                    columns.Bound(f => f.InvoiceNumber).Width(85).ReadOnly(true).Title("Số Invoice");
+                    //columns.Bound(f => f.PoNumber).Width(125).ReadOnly(true);
+                    columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(65).ReadOnly(true);
+                    //columns.Bound(f => f.InvoiceNumber).Title("Số Invoice").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.ShiftmentDate).Width(90).Title("Ngày xuất").ReadOnly(true)
+                           .ClientTemplate("<#= ShiftmentDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ShiftmentDate) #>");
+                    //columns.Bound(f => f.TaxInvoice).Title("Số HĐ").Width(75);
+                    columns.Bound(f => f.Note).Title("Ghi Chú").Width(85);
+
+                    columns.Bound(f => f.TaxPercent).Title("(%)").Width(40);
+                    columns.Bound(f => f.TotalQuantity).Width(70).ReadOnly(true).Title("Tổng SL")
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .ClientTemplate("<#= TotalQuantity == null ? 0 : $.telerik.formatString('{0:n0}', TotalQuantity) #>");
+                    columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(60)
+                           .ClientTemplate("<#= ExchangeRate == null ? 0 : $.telerik.formatString('{0:n0}', ExchangeRate) #>");
+                    columns.Bound(f => f.TotalAmountAfterTax).Width(110).ReadOnly(true)
+                        .HeaderTemplate("Tổng tiền</br>(+%)")
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .ClientTemplate("<#= TotalAmountAfterTax == null ? 0 : $.telerik.formatString('{0:n}', TotalAmountAfterTax) #>");
+                    columns.Bound(f => f.TotalAmountAfterTaxVND).Width(100).ReadOnly(true)
+                        .HeaderTemplate("Tổng tiền</br>(VNĐ)")
+                           .HtmlAttributes(new {style = "text-align: right;"})
+                           .ClientTemplate("<#= TotalAmountAfterTaxVND == null ? 0 : $.telerik.formatString('{0:n0}', TotalAmountAfterTaxVND) #>");
+                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.ModifiedDate).Width(90).ReadOnly(true).Title("Ngày tạo")
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+
+                    columns.Bound(f => f.ExportId).Title("In").Width(45).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='id_<#= InvoiceId #>' value='In' class='t-button' min-width='20px' onclick=PrintInvoiceForm(<#= InvoiceId #>) />")
+                           .HtmlAttributes(new {style = "text-align:left"});
+                    columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
+                           .Width(50).Title("Hủy").HtmlAttributes(new { style = "text-align:center;color:red" });
+                    columns.Bound(f => f.EmployeeSale).Title("NV Bán").Width(50).ReadOnly(true);
+
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= ExportId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<InvoiceDetailTempModel>()
+                                   .Name("gridTransactionDetail_<#= ExportId #>")
+                                   .DataKeys(key => key.Add(f => f.DetailId).RouteKey("DetailId"))
+                                   .DataBinding(dataDindings =>
+                                                dataDindings.Ajax()
+                                                            .Select("SelectInvoiceDetailByExportId", "Orders", new {exportId = "<#= ExportId #>"})
+                                                            .Update("UpdateProductTaxInvoiceDetailByExportDetailId", "Orders")
+                                   )
+                                   .Columns(columns =>
+                                       {
+                                           columns.Command(command =>
+                                                           command.Edit().ButtonType(GridButtonType.Image)
+                                               ).Width(40).Title("").HtmlAttributes(new {style = "text-align:center"});
+                                           columns.Bound(f => f.TaxInvoiceList).Title("Chứng từ").Width(60);
+                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(65).ReadOnly(true);
+                                           columns.Bound(f => f.PONumber).Title("Lệnh Mua").Width(105).ReadOnly(true);
+                                           columns.Bound(f => f.TaxPercent).Title("(%)").Width(35).ReadOnly(true)
+                                                  .HtmlAttributes(new { style = "text-align: right;" });
+                                           columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(45).ReadOnly(true)
+                                                  .HtmlAttributes(new { style = "text-align: right;" })
+                                                  .ClientTemplate("<#= ExchangeRate == null ? 0 : $.telerik.formatString('{0:n0}', ExchangeRate) #>");
+                                           columns.Bound(f => f.Quantity).Width(50).ReadOnly(true).Title("Số lượng")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #>");
+                                           columns.Bound(f => f.UnitPrice).ReadOnly(true).Width(40).Title("Đơn giá")
+                                                  .HtmlAttributes(new {style = "text-align: right;"});
+                                           columns.Bound(f => f.Amount).Width(70).Title("Tổng tiền(+%)").ReadOnly(true)
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .ClientTemplate("<#= Amount == null ? 0 :$.telerik.formatString('{0:n2}', Amount) #>")
+                                                  .Aggregate(agg => agg.Sum())
+                                                  .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                                  .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>");
+                                           columns.Bound(f => f.AmountVnd).Width(70).Title("Tổng tiền(VNĐ)").ReadOnly(true)
+                                                  .HtmlAttributes(new { style = "text-align: right;" })
+                                                  .ClientTemplate("<#= AmountVnd == null ? 0 :$.telerik.formatString('{0:n0}', AmountVnd) #>")
+                                                  .Aggregate(agg => agg.Sum())
+                                                  .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                                  .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>");
+                                           columns.Bound(f => f.Note).Width(100).Title("Ghi chú");
+                                       })
+                                   .ClientEvents(e => e.OnEdit("gridDetail_onEdit").OnError("Grid_OnError"))
+                                   .ToHtmlString()))
+                    .ToHtmlString()))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnEdit("gridProduct_onEdit")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnSave("Grid_OnSave")
+                                          .OnDataBinding("Grid_OnDataBinding")
+                                          .OnDelete("Grid_OnDelete")
+                                          .OnError("Grid_OnError"))
+                .Scrollable(f => f.Height(510))
+            //.HtmlAttributes(new {style = "width: 950px;"})
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

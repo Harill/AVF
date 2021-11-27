@@ -1,0 +1,52 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Defect Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<script type="text/javascript">
+</script>
+}
+
+<div class="title">Quản lý phân loại lỗi sản phẩm</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProductionDefectTypeModel>()
+        .Name("gridMaterialType")
+        .DataKeys(key => key.Add(f => f.DefectTypeId).RouteKey("defectTypeId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectProductionDefectType", "Defect")
+                .Insert("InsertProductionDefectType", "Defect")
+                .Update("UpdateProductionDefectType", "Defect"))
+        .Columns(columns => {
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.Image)
+            ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.DefectTypeCode).Title("Mã phân loại").Width(120);
+            columns.Bound(f => f.DefectTypeName).Title("Tên phân loại").Width(240);
+            columns.Bound(f => f.Description).Title("Mô tả");
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.ModifiedUser)
+                   .Title("Người tạo").ReadOnly(true)
+                   .Width(70);
+            columns.Bound(f => f.ModifiedDate)
+                   .Title("Ngày tạo").ReadOnly(true)
+                   .Width(80)
+                   .Format("{0:dd/MM/yyyy HH:mm:ss}");
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        //.Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Render();
+}
+</div>
+

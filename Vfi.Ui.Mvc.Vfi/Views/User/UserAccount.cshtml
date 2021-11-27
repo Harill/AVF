@@ -1,0 +1,129 @@
+﻿@using Vfi.Server.Core.DataModel.Models.System
+@{
+    ViewBag.Title = "UserAccount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function Grid_onEdit(e) {
+        
+        var mode = e.mode;
+        var form = e.form;
+
+        var username = $(form).find('#Username');
+
+        if (mode == 'insert') {
+            //username.attr("readonly", true);
+            $("div.editor-label:has('label[for=UserId]')").hide();
+            $("div.editor-field:has('input[name=UserId]')").hide();
+        }
+        if (mode == 'edit') {
+            username.attr("readonly", true);
+            $("div.editor-label:has('label[for=UserId]')").hide();
+            $("div.editor-field:has('input[name=UserId]')").hide();
+
+            //$("div.editor-label:has('label[for=Password]')").hide();
+            //$("div.editor-field:has('input[name=Password]')").hide();
+            //$("div.editor-label:has('label[for=Password]')").html("<div style='clear: both;'></div>");
+            //$("div.editor-field:has('input[name=Password]')").html("<div style='clear: both;'></div>");
+        }
+    }
+
+</script>
+
+
+<div class="title">User Account</div>
+
+<div class="cover-div">
+@{
+    var gridUser = Html.Telerik().Grid<UserModel>();
+
+    gridUser.Name("GridUser");
+    gridUser.DataKeys(keys => keys.Add(u => u.UserId).RouteKey("userId"));
+    gridUser.ToolBar(
+            commands =>
+            commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }));
+    gridUser.DataBinding(dataBinding => dataBinding.Ajax()
+                                            .Select("SelectUser", "User")
+                                            .Insert("InsertUser", "User")
+                                            .Update("UpdateUser", "User")
+                                            .Delete("DeleteUser", "User")
+        );
+    gridUser.Columns(columns =>
+    {
+        //columns.Bound(u => u.UserId).Hidden(true);
+        columns.Bound(u => u.Username).Width(180)
+            .ClientTemplate("<strong><#= Username #></strong>");
+        columns.Bound(u => u.FullName)
+            .ClientTemplate("<strong><#= FullName #></strong>");
+        columns.Bound(u => u.Email).Width(220);
+        columns.Bound(u => u.Active).Width(20)
+            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+            .HtmlAttributes(new { style = "text-align:center" });
+       // columns.Bound(u => u.Password).Width(5);
+        columns.Command(commands =>
+        {
+            commands.Edit().ButtonType(GridButtonType.ImageAndText);
+            commands.Delete().ButtonType(GridButtonType.ImageAndText);
+        }).Width(198).Title("Commands");
+    });
+    gridUser.ClientEvents(events => events.OnEdit("Grid_onEdit"));
+    gridUser.Editable(editing => editing.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation(true));
+    //gridUser.Pageable();
+    gridUser.Sortable();
+    gridUser.Render();
+}
+</div>
+
+@section css
+{
+<style type="text/css">
+    .field-validation-error
+    {
+        position: absolute;
+        display: block;
+    }
+    
+    * html .field-validation-error { position: relative; }
+    *+html .field-validation-error { position: relative; }
+    
+    .field-validation-error span
+    {
+        position: absolute;
+        white-space: nowrap;
+        color: red;
+        padding: 17px 5px 3px;
+        background: transparent url('<%= Url.Content("~/Content/Common/validation-error-message.png") %>') no-repeat 0 0;
+    }
+    
+    /* in-form editing */
+    .t-edit-form-container
+    {
+        width: 350px;
+        margin: 1em;
+    }
+    
+    .t-edit-form-container .editor-label,
+    .t-edit-form-container .editor-field
+    {
+        padding-bottom: 1em;
+        float: left;
+    }
+    
+    .t-edit-form-container .editor-label
+    {
+        width: 30%;
+        text-align: right;
+        padding-right: 3%;
+        clear: left;
+    }
+    
+    .t-edit-form-container .editor-field
+    {
+        width: 60%;
+    }
+</style>
+}
+
+

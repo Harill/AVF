@@ -1,0 +1,64 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Machines Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Quản lý thông tin máy</div>
+
+
+            <div class="grid_3 prefix_1">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMachine'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                </button>
+            </div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MachineModel>()
+        .Name("gridMachine")
+        .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm máy mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectMachine", "Machine")
+                .Insert("InsertMachine", "Machine")
+                .Update("UpdateMachine", "Machine"))
+        .Columns(columns =>
+        {
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+            columns.Bound(f => f.MachineCode).Width(175).Title("Mã máy")
+                .ClientTemplate("<strong><#= MachineCode #></strong>");
+            columns.Bound(f => f.ProcessingTypeName).Width(175).Title("Loại GC")
+                .ClientTemplate("<#= ProcessingTypeName #>");
+            columns.Bound(f => f.DiagramTypeName).Width(175).Title("Sơ đồ")
+                .ClientTemplate("<#= DiagramTypeName #>");
+            columns.Bound(f => f.ColumnIndex).Width(175);
+            columns.Bound(f => f.RowIndex).Width(175);
+            columns.Bound(f => f.MachineFunction).Width(70)
+                   .HeaderTemplate("Chức năng máy");
+
+            columns.Bound(f => f.Active).Width(75).Title("SX1")
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.Production2).Width(75).Title("SX2")
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production2' <#=Production2? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        //.Scrollable(f => f.Enabled(true))
+        .ClientEvents(e => e.OnError("grid_OnError"))
+        //.HtmlAttributes(new { style = "max-height: 510px;" })
+        .Sortable()
+        .Filterable()
+		.Resizable(resizing => resizing.Columns(true))
+        .Render();    
+}
+</div>

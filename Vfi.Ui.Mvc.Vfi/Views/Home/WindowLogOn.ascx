@@ -1,0 +1,191 @@
+﻿<%@ Control Language="C#" Inherits="System.Web.Mvc.ViewUserControl<Vfi.Server.Core.DataModel.Models.System.LogInUserModel>" %>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        var form = $($("form")[0]);
+        form.submit(function () {
+            var data = form.serialize();
+            $.post(form.attr("action"), data, function (result, status) {
+                var closeWindowLogOn;
+                if (result.Success && result.ReturnUrl) {
+                    location.href = result.ReturnUrl;
+                    //
+                    closeWindowLogOn = $('#Window');
+                    closeWindowLogOn.data('tWindow').close();
+                } else if (result.Success) {
+                    //alert(result.Message);
+                    closeWindowLogOn = $('#Window');
+                    closeWindowLogOn.data('tWindow').close();
+                }
+                else if (result.Success == false) {
+                    dialogWindow(result.Message);
+                }
+            }, "json");
+            return false;
+        });
+    });
+    
+</script>
+
+
+<%  // strMeneUrl - RouteUrl MenuController MainMenu action
+    var strMenuUrl = Url.RouteUrl(new { controller = "Menu", action = "MainMenu"});
+    var strLogOnUserControl = Url.RouteUrl(new { controller = "Home", action = "LogOnUserControl" });
+     %>
+
+<script type="text/javascript">
+    function Window_onClose() {
+        //var menu = $("#MenuBar").data('tMenu');
+        //menu.render();
+        // post strMenuUrl and receive data from MenuController
+        $.post("<%: strMenuUrl %>", function (data) {
+            $("#menuArea").html(data);
+        });
+
+        $("#logindisplay").load("<%: strLogOnUserControl %>",
+            function() {
+        });
+    }
+
+    function Window_onLoad() {
+        var window = $(this).data('tWindow'); // $(this) is equivalent of $('#Window')
+        // Use the window client object
+        window.maximize();
+        //window.center();
+    }
+
+    //    function OnComplete(context) {
+    //        var window = $("#Window").data('tWindow');
+    //        window.close();
+
+    //        var ctx = context.get_response().get_object();
+
+    //       // $("#menuArea").html();
+
+    //        $.post("<%: strMenuUrl %>", function (data) {
+    //            $("#menuArea").html(data);
+    //        });
+    //    }
+
+
+</script>
+
+
+<%
+    if (Request.IsAuthenticated)
+    {
+%>
+    
+<%
+    }
+    else
+    {   
+%>        
+    
+<% 
+    var windowLogOn = Html.Telerik().Window();
+    windowLogOn.Name("Window");
+    windowLogOn.Title("Hệ thống quản lý bảo hiểm Bảo Việt - chi nhánh Hồ Chí Minh");
+    windowLogOn.Draggable(true);
+    //windowLogOn.Resizable(resizing => resizing.Enabled(false)
+    //                                    .MinHeight(200)
+    //                                    .MinWidth(300)
+    //                                    .MaxHeight(200)
+    //                                    .MaxWidth(350)
+    //                                    );
+    windowLogOn.Width(385);
+    windowLogOn.Height(180);
+    windowLogOn.Modal(true);
+    windowLogOn.Buttons(b => b.Maximize());
+    windowLogOn.ClientEvents(events =>
+                                 {
+                                     events.OnClose("Window_onClose");
+                                     events.OnLoad("Window_onLoad");
+                                 }
+                            );
+    windowLogOn.Content(() =>
+                                {%>
+
+<%
+                                    using (Ajax.BeginForm("Index", "Home", new AjaxOptions {HttpMethod = "Post"}))
+                                    {
+%>
+    
+    <table cellpadding="3" cellspacing="0" align="center" border="0" width="auto" style="margin-top: 15px;">
+        <tr>
+            <td rowspan="3">
+                <img src="<%: Url.Content(@"~/Content/icons/Security.png") %>" alt="Log On Security" />
+            </td>
+            <td>
+                <%=Html.LabelFor(model => model.Username)%>
+            </td>
+            <td>
+                <%=Html.TextBoxFor(model => model.Username, new {id = "username", @style = "width:138px;"})%>
+            </td>
+                        
+        </tr>
+
+        <tr>
+            <td>
+                <%=Html.LabelFor(model => model.Password)%>
+            </td>
+            <td>
+                <%=Html.PasswordFor(model => model.Password, new { id = "password",  @style = "width:138px;" })%>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" align="right">
+                <table border="0" width="100%" cellpadding="0" cellspacing="3" align="right">
+                    <tr>
+                        <td align="left">
+                        <%
+                                Html.Telerik().DatePicker()
+                                    .Name("startingDate")
+                                    .Format("dd/MM/yyyy")
+                                    .ShowButton(true)
+                                    .Value(DateTime.Now)
+                                    .Render();
+                        %>
+                        </td>
+                        <td align="right">
+                            <input type="submit" class="t-button t-state-default" value="Đăng nhập hệ thống" id="btnLogin" name="btnLogin" />
+                        </td>                                                                                               
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+<%
+                                    }
+%>
+
+            <%
+                                });
+            windowLogOn.Render();
+            %>
+
+<%
+    }
+%>
+
+
+
+<style type="text/css">        
+        #Window
+        {
+            width: 400px;
+           /* height: 200px;*/
+            /*
+            float: right;
+            Position: relative;
+            
+            */
+            top: 20%; 
+            left: 35%;
+            
+        }
+</style>
+
+    

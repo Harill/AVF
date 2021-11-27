@@ -1,0 +1,234 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model MaterialInventoryModel
+@{
+    ViewBag.Title = "Export Transaction Material Inv";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<!-- binding -->
+<script type="text/javascript">
+    function gridMaterialInventory_onDataBinding(args) {
+        var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
+        if (materialTypeId === "")
+            materialTypeId = 0;
+        var materialName = $("#MaterialCodeName").data("tAutoComplete").value();
+        args.data = $.extend(args.data, {
+            materialCode: materialName,
+            materialTypeId: materialTypeId
+        });
+    }
+</script>
+
+<!-- pickup material -->
+<script type="text/javascript">
+    function PickupMaterialId() {
+        var $checkedRecords = $(':checked');
+        //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+        if ($checkedRecords.length < 1) {
+            alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+            return;
+        }
+
+        //$.ajaxSettings.traditional = false;
+        var a = {};
+        var ids = "";
+
+        for (var i = 0; i < $checkedRecords.length; i++) {
+            a[i] = $checkedRecords[i].value;
+
+            ids += $checkedRecords[i].value;
+            if (i < ($checkedRecords.length - 1))
+                ids += ":";
+        }
+        
+        $("#gridMaterialInventoryDetail").data("tGrid").rebind({
+            materialInvIds: ids,
+        });
+    }
+</script>
+
+
+<!-- client event grid material inventory -->
+<script type="text/javascript">
+
+    function gridMaterialInventoryDetail_onSubmitChanges(e) {
+        var monthlyDate = $("#ImportDate").data("tDatePicker").value();
+        if (monthlyDate === null)
+            monthlyDate = "";
+        else
+            monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+        
+        e.values = $.extend(e.values,
+            {
+                exportOrImport: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export)",
+                monthlyDate: monthlyDate
+            }
+        );
+    }
+    
+    function gridMaterialInventoryDetail_OnEdit(e) {
+    }
+    
+    function materialTypeName_onChange() {
+        RefreshGrid("gridMaterialInventory");
+    }
+    function autoComplete_onChange() {
+        RefreshGrid("gridMaterialInventory");
+    }
+
+    function autoComplete_onDataBinding(args) {
+        var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
+
+        if (materialTypeId === 0 || $("#MaterialTypeName").data('tDropDownList') == null)
+            args.preventDefault();
+
+        args.data = $.extend({}, args.data, { materialTypeId: materialTypeId });
+    }
+</script>
+}
+
+<div class="title">Xuất hủy công cụ</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+    @*  <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialClassifiedName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new {area = ""}))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events => events.OnChange("materialClassified_onChange").OnLoad("materialClassified_onLoad"))
+                .Enable(false)
+                .Render();                                              
+        }
+    </div>*@
+    
+    <fieldset>
+        <legend>Thông tin phiếu lệnh</legend>
+           
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("MaterialTypeName")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialTypeByClassified", "Material", new { classifiedId = 1, area = "" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .ClientEvents(events => events.OnChange("materialTypeName_onChange"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @Html.LabelFor(f => f.MaterialCodeName)
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("MaterialCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new { materialTypeId = 0 }))
+                        //.HtmlAttributes(new { style = "width: 185px; " })
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .ClientEvents(events => events.OnDataBinding("autoComplete_onDataBinding")
+                                                      .OnChange("autoComplete_onChange")
+                        )
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("ImportDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MaterialInventoryModel>()
+            .Name("gridMaterialInventory")
+            .ToolBar(bar => bar.Template(
+                @<text>
+                     <div class="grid_7">
+                         <button class="t-button" id="btnPickupMaterialId" name="btnPickupMaterialId" onclick=" PickupMaterialId() ">
+                             <span class='t-icon t-insert'></span>
+                             Chọn vào lưới
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+))
+            .DataKeys(keys => keys.Add(f => f.MaterialId).RouteKey("MaterialId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectExportMaterialInv", "Inv", new { materialCode = "", materialTypeId = 0 }))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.MaterialInventoryId).Title("Chọn").Width(75)
+                           .ClientTemplate("<input type='checkbox' name='chkMaterialIds' value='<#= MaterialInventoryId #>' />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.MaterialCode);
+                    columns.Bound(f => f.LotNumber);
+                    columns.Bound(f => f.TotalQty).Title("Tổng trọng lượng(cây)")
+                           .ClientTemplate("<span name='TotalQty'><#= TotalQty == null ? 0 : $.telerik.formatString('{0:n2}', TotalQty) #></span>");
+                    //columns.Bound(f => f.TotalQtyKg).Title("Tổng trọng lượng(kg)")
+                    //       .ClientTemplate("<span name='TotalQtyKg'><#= TotalQtyKg == null ? 0 : $.telerik.formatString('{0:n1}', TotalQtyKg) #></span>");
+                })
+            .Scrollable(f => f.Height(200))
+            .ClientEvents(events => events.OnDataBinding("gridMaterialInventory_onDataBinding").OnError("grid_OnError"))
+            //.Filterable()
+            .Pageable(f => f.PageOnScroll(true).Style(GridPagerStyles.Status))
+            .Render();
+    }
+</div>
+<div class="clear"></div><br/>
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Chi tiết lệnh</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MaterialInventoryModel>()
+        .Name("gridMaterialInventoryDetail")
+        .ToolBar(bar=>bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText))
+        .DataKeys(keys => keys.Add(f => f.MaterialInventoryId).RouteKey("materialInventoryId"))
+        .DataBinding(dataBindings => dataBindings.Ajax()
+            .Select("SelectExportInputMaterialInventory", "Inv", new { materialInvIds = "" })
+            .Update("ExportTransactionMaterialInventory", "Transaction"))
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.MaterialCode).ReadOnly(true);
+            columns.Bound(f => f.TotalQty).Width(100).ReadOnly(true)
+                   .ClientTemplate("<span name='TotalQty'><#= TotalQty == null ? 0 : $.telerik.formatString('{0:n2}', TotalQty) #></span>");
+            columns.Bound(f => f.LotNumber).Width(100).ReadOnly(true);
+            //columns.Bound(f => f.TotalQtyKg).Width(100).Title("Tổng trọng lượng(kg)").ReadOnly(true)
+            //       .ClientTemplate("<span name='TotalQtyKg'><#= TotalQtyKg == null ? 0 : $.telerik.formatString('{0:n0}', TotalQtyKg) #></span>");
+            //columns.Bound(f => f.QuantityKg).Width(100)
+            //       .ClientTemplate("<span name='QuantityKg'><#= QuantityKg == null ? 0 : $.telerik.formatString('{0:n0}', QuantityKg) #></span>")
+            //       .FooterTemplate("<span id='TotalQuantityKg'></span>");
+            columns.Bound(f => f.Quantity).Width(100)
+                   .ClientTemplate("<span name='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n2}', Quantity) #></span>")
+                   .FooterTemplate("<span id='TotalQuantity'></span>");
+            //columns.Bound(f => f.Price).Width(100);
+            columns.Bound(f => f.IsDestroy).Width(50).Title("Hết tồn")
+                   .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDestroy' <#=IsDestroy? checked='checked' : '' #> />")
+                   .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.Note).Width(100);
+            columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(40).Title("");
+        })
+        .ClientEvents(events => events
+            //.OnEdit("gridMaterialInventoryDetail_OnEdit")
+            .OnSubmitChanges("gridMaterialInventoryDetail_onSubmitChanges")
+            .OnError("grid_OnError")
+        )
+        .Editable(f=>f.Mode(GridEditMode.InCell))
+       // .Footer(true)
+        .Render();   
+}
+</div>

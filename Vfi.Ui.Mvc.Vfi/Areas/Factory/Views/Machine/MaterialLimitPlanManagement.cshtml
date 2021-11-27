@@ -1,0 +1,94 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "Kế hoạch và hạn mức sử dụng NL";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+    </script>
+
+
+}
+
+<div class="title">Quản lý kế hoạch và hạn mức sử dụng NL</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
+
+        <div class="grid_3 prefix_1">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('grid'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </div>
+    </fieldset>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MaterialLimitPlanModel>()
+            .Name("grid")
+            .DataKeys(key => key.Add(f => f.LimitId).RouteKey("limitId"))
+            .ToolBar(
+                toolbar =>
+                    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                    .Select("SelectMaterialLimitPlan", "Machine", new { date = DateTime.Now.ToString("dd/MM/yyyy"), materialId = 0, productId = 0 })
+                    .Insert("InsertMaterialLimitPlan", "Machine", new { date = DateTime.Now.ToString("dd/MM/yyyy"), materialId = 0, productId = 0 })
+                    .Update("UpdateMaterialLimitPlan", "Machine", new { date = DateTime.Now.ToString("dd/MM/yyyy"), materialId = 0, productId = 0 })
+                    //.Delete("DeleteTrack", "Machine")
+            )
+            .Columns(columns => {
+                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(45).Title("")
+                    .HtmlAttributes(new { style = "text-align:center" });
+
+                columns.Bound(f => f.ApplyDate).Width(90).Title("Ngày áp dụng")
+                    .ClientTemplate("<#= ApplyDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ApplyDate) #>");
+                columns.Bound(f => f.MaterialCode).Width(125).Title("Nguyên liệu")
+                    .HtmlAttributes(new { style = "font-weight:bold" });
+                columns.Bound(f => f.ProductCode).Width(100).Title("Mã SP")
+                    .HtmlAttributes(new { style = "font-weight:bold" });
+
+                columns.Bound(f => f.ProductLimitQuantity).Width(70)
+                    .HeaderTemplate("Hạn mức</br>SPSX (pcs)")
+                    .HtmlAttributes(new { style = "text-align:right;" })
+                    .Format("{0:n0}");
+                columns.Bound(f => f.RawProductionWeight).Width(70).ReadOnly(true)
+                    .HeaderTemplate("TL SP</br>thô (g/pc)")
+                    .HtmlAttributes(new { style = "text-align:right;" })
+                    .Format("{0:n2}");
+                columns.Bound(f => f.WorkpieceLossPercent).Width(70)
+                    .HeaderTemplate("Ước tính</br>NG")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.EstimateLossPercent).Width(70).ReadOnly(true)
+                    .HeaderTemplate("Ước tính</br>hao hụt")
+                    .HtmlAttributes(new { style = "text-align:right;" })
+                    .Format("{0:n0}");
+                columns.Bound(f => f.MaterialLimitQuantity).Width(70).ReadOnly(true)
+                    .HeaderTemplate("Hạn mức</br>NLSD (kg)")
+                    .HtmlAttributes(new { style = "text-align:right;" })
+                    .Format("{0:n2}");
+
+                columns.Bound(f => f.IsLock).Width(75).Title("SX1")
+                    .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsLock' <#=IsLock? checked='checked' : '' #> />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy HH:mm}");
+                //columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(35);
+            })
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Scrollable(f => f.Height(510))
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .ClientEvents(e => e.OnRowSelect("grid_OnRowSelect")
+                .OnError("grid_OnError"))
+            .Render();
+    }
+</div>

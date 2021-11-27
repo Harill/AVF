@@ -1,0 +1,38 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "Material Classified Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Quản lý phân loại nguyên liệu</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MaterialClassifiedModel>()
+        .Name("gridMaterialClassified")
+        .DataKeys(key => key.Add(f => f.MaterialClassifiedId).RouteKey("materialClassifiedId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectMaterialClassified", "Material")
+                .Insert("InsertMaterialClassified", "Material")
+                .Update("UpdateMaterialClassified", "Material"))
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.MaterialClassifiedName);
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+        })
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        //.Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Render();
+}
+</div>

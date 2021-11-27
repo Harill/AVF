@@ -1,0 +1,293 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Tạo dự báo bán hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        //function grid_OnEdit(e) {
+        //    var mode = e.mode;
+        //    if (mode === "edit") {
+
+        //        var node = $(e.form).find('#ProductCode')[0];
+        //        node.parentNode.parentNode.innerHTML = e.dataItem.ProductCode;
+        //        var date = $.telerik.formatString('{0:dd/MM/yyyy}', e.dataItem.ForecastDate);
+        //        var day = date.substring(0, 2);
+        //        var month = date.substring(3, 5);
+        //        var year = date.substring(6, 10);
+        //        node = $(e.form).find('#ForecastDate')[0];
+        //        node.value = month + "/" + day + "/" + year;
+        //    }
+        //}
+
+        function grid_OnDataBinding(args) {
+
+            var customerId = $('#CustomerForMonthly').data('tComboBox').value();
+            if (customerId === "")
+                customerId = 0;
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = 0;
+            var year = $("#Year").val();
+            if (year === null || year === "")
+                year = 0;
+            args.data = $.extend(args.data, {
+                customerId:customerId,
+                month: month,
+                year: year
+            });
+        }
+
+        function month_onLoad() {
+            var combobox = $('#Month').data('tDropDownList');
+            var dataSource =
+            [
+                { Text: "1", Value: "1" },
+                { Text: "2", Value: "2" },
+                { Text: "3", Value: "3" },
+                { Text: "4", Value: "4" },
+                { Text: "5", Value: "5" },
+                { Text: "6", Value: "6" },
+                { Text: "7", Value: "7" },
+                { Text: "8", Value: "8" },
+                { Text: "9", Value: "9" },
+                { Text: "10", Value: "10" },
+                { Text: "11", Value: "11" },
+                { Text: "12", Value: "12" }
+            ];
+            combobox.dataBind(dataSource);
+            combobox.value(new Date().getMonth() + 1);
+        }
+    </script>
+}
+
+<div class="title">Tạo dự báo đơn hàng</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1065px;">
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
+        <div class="grid_2">
+            @Html.Label("Mã KH")
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("CustomerForMonthly")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 275px" })
+                    //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_1">
+            @Html.Label("Tháng")
+        </div>
+        <div class="grid_1">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("Month")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    // .HighlightFirstMatch(true)
+                    //.AutoFill(true)
+                    .ClientEvents(events => events.OnLoad("month_onLoad"))
+                    .Render();
+            }
+        </div>
+
+        <div class="grid_1">
+            @Html.Label("Năm")
+        </div>
+        <div class="grid_1">
+
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("Year")
+                    .Value(DateTime.Now.Year + "")
+                    .HtmlAttributes(new { style = "width: 42px" })
+                    .Render();
+            }
+        </div>
+        <div class="grid_3 prefix_1">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridForecast'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </div>
+    </fieldset>
+</div>
+<br />
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ForecastModel>()
+            .Name("gridForecast")
+            .DataKeys(key => key.Add(f => f.ForecastOrderId).RouteKey("forecastOrderId"))
+            .ToolBar(bar =>
+            {
+                bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Huỷ");
+            })
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectCreateForecast", "SalesOrder", new {customerId = 0, month = 0, year = 0 })
+                                          .Update("UpdateForecast2", "SalesOrder")
+            )
+            .Columns(columns =>
+                {
+                    //columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
+                    //       .Width(50).Title("")
+                    //       .HtmlAttributes(new { style = "text-align:center" });
+
+                    //columns.Bound(f => f.Index).Title("STT").Width(30).ReadOnly(true)
+                    //       .HeaderHtmlAttributes(new { style = "font-weight: bold" })
+                    //       .HtmlAttributes(new { style = "font-weight: center;" });
+                    //columns.Bound(f => f.CustomerCode).Title("Khách hàng").Width(30).ReadOnly(true)
+                    //       .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                    //       .HtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(70).ReadOnly(true)
+                           .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                           .HtmlAttributes(new { style = "text-align: left;" })
+                           .Aggregate(agg => agg.Count())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                    columns.Bound(f => f.Quantity).Width(70)
+                           .Title("Số lượng")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.ForecastDate).Width(90).Title("Ngày hoàn thành")
+                           .ClientTemplate("<#= ForecastDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ForecastDate) #>");
+
+                    columns.Bound(f => f.StatusName).Title("Tình trạng").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.LastYearTotalQuantity).Width(70).ReadOnly(true)
+                           .Title("Tổng xuất</br>năm trước")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.LastYearAvgQuantity).Width(70).ReadOnly(true)
+                           .Title("TB xuất</br>năm trước")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.LastYearQuantity).Width(70).ReadOnly(true)
+                           .Title("Cùng kỳ</br>năm trước")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.LastMonthAvgQuantity).Width(70).ReadOnly(true)
+                           .Title("TB xuất</br>3 tháng")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.LastMonthOrderQuantity).Width(70).ReadOnly(true)
+                           .Title("Đơn hàng</br>tháng trước")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+
+                    columns.Bound(f => f.TotalInv).Width(70).ReadOnly(true)
+                           .Title("Tồn tổng")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.TotalOrder).Width(70).ReadOnly(true)
+                           .Title("Đơn hàng</br>còn lại")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    //columns.Bound(f => f.StatusName).Title("Tình trạng").Width(50).ReadOnly(true)
+                    //       .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                    //       .HtmlAttributes(new { style = "text-align: center;" });
+                    //columns.Bound(f => f.ModifiedDate).Width(90).Title("Ngày tạo").ReadOnly(true)
+                    //       .Format("{0:dd/MM/yyyy HH:mm}");
+                    //columns.Bound(f => f.ModifiedUser).Title("Người tạo").Width(50).ReadOnly(true);
+                    //columns.Command(command => command.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                })
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            //.Sortable()
+            //.Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                                .OnDataBinding("grid_OnDataBinding")
+                                .OnRowSelect("grid_OnRowSelect")
+                                //.OnSave("grid_OnSave")
+                                //.OnEdit("grid_OnEdit")
+                                )
+            .Render();
+    }
+</div>
+
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

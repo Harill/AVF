@@ -1,0 +1,817 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model MaterialInventoryModel
+@{
+    ViewBag.Title = "Nguyên liệu tổng hợp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .highslide-container div {
+        font-family: Verdana, Helvetica;
+        font-size: 10pt;
+    }
+
+    .highslide-container table {
+        background: none;
+    }
+
+    .highslide {
+        outline: none;
+        text-decoration: none;
+    }
+
+        .highslide img {
+            border: 2px solid silver;
+        }
+
+        .highslide:hover img {
+            border-color: gray;
+        }
+
+    .highslide-active-anchor img {
+        visibility: hidden;
+    }
+
+    .highslide-gallery .highslide-active-anchor img {
+        border-color: black;
+        visibility: visible;
+        cursor: default;
+    }
+
+    .highslide-image {
+        border-width: 2px;
+        border-style: solid;
+        border-color: white;
+    }
+
+    .highslide-wrapper, .highslide-outline {
+        background: white;
+    }
+
+    .glossy-dark {
+        background: #111;
+    }
+
+    .highslide-image-blur {
+    }
+
+    .highslide-number {
+        display: none;
+        font-weight: bold;
+        color: gray;
+        font-size: .9em;
+    }
+
+    .highslide-caption {
+        display: none;
+        font-size: 1em;
+        padding: 5px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        /*background: white;*/
+    }
+
+    .highslide-heading {
+        display: none;
+        font-weight: bold;
+        margin: 0.4em;
+    }
+
+    .highslide-dimming {
+        /*position: absolute;*/
+        background: black;
+    }
+
+    a.highslide-full-expand {
+        display: block;
+        margin: 0 10px 10px 0;
+        width: 34px;
+        height: 34px;
+    }
+
+    .highslide-loading {
+        display: block;
+        color: black;
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        border: 1px solid white;
+        background-color: white;
+        padding-left: 22px;
+        background-repeat: no-repeat;
+        background-position: 3px 1px;
+    }
+
+    a.highslide-credits,
+    a.highslide-credits i {
+        padding: 2px;
+        color: silver;
+        text-decoration: none;
+        font-size: 10px;
+        display: none;
+    }
+
+        a.highslide-credits:hover,
+        a.highslide-credits:hover i {
+            color: white;
+            background-color: gray;
+        }
+
+    .highslide-move, .highslide-move * {
+        cursor: move;
+    }
+
+    .highslide-viewport {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: none;
+        left: 0;
+        top: 0;
+    }
+
+    .highslide-overlay {
+        display: none;
+    }
+
+    .hidden-container {
+        display: none;
+    }
+    /* Example of a semitransparent, offset closebutton */
+    .closebutton {
+        position: relative;
+        top: -15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+    }
+
+    .highslide-controls {
+        display: none;
+    }
+</style>
+<script type="text/javascript">
+    hs.graphicsDir = '';
+    hs.align = 'center';
+    hs.transitions = ['expand', 'crossfade'];
+    hs.outlineType = '';
+    hs.fadeInOut = true;
+    hs.numberPosition = 'caption';
+    hs.dimmingOpacity = 0.75;
+
+    // Add the controlbar
+    if (hs.addSlideshow)
+        hs.addSlideshow({
+            //slideshowGroup: 'group1',
+            interval: 5000,
+            repeat: false,
+            useControls: true,
+            fixedControls: 'fit',
+            overlayOptions: {
+                opacity: .75,
+                position: 'bottom center',
+                hideOnMouseOut: true
+            }
+        });
+    </script>
+@section Scripts{
+    <script type="text/javascript">
+
+        function grid_OnSave(e) {
+            var i = 0;
+            var drawing2D = "";
+            var editRow = e.target.getElementsByClassName("t-grid-edit-row")[0];
+            var ul2D = editRow.childNodes[2].childNodes[1].childNodes[1];
+            if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
+                drawing2D = e.dataItem.InfoImg;
+            } else if (ul2D != null) {
+                var child2D = ul2D.childNodes;
+                for (i = child2D.length - 1; i >= 0; i--) {
+                    if (child2D[i].childNodes[0].textContent === "uploaded") {
+                        e.values.InfoImg = child2D[0].childNodes[1].title;
+                        drawing2D = child2D[0].childNodes[1].title;
+                        break;
+                    }
+                }
+            }
+            var message = "";
+            if (drawing2D === "" || drawing2D === "askquestion.jpg") {
+                message += "\nCảnh báo!";
+                if (drawing2D === "")
+                    message += "\nBản vẽ sản phẩm chưa có !";
+                message += "\nSẽ dùng hình mặc định !";
+                message += "\nĐồng ý lưu ??";
+                if (confirm(message)) {};
+            } else {
+                return true;
+            }
+        }
+
+        var startGrid = false;
+
+        function gridMaterialInventory_onDataBinding(args) {
+
+            if (startGrid && !onLoading) {
+                OnLoadingData();
+                var materialTypeId = $("#MaterialTypeName").data('tComboBox').value();
+                if (materialTypeId === "")
+                    materialTypeId = 0;
+                var vendor = $("#cboVendor").data('tComboBox').value();
+                if (vendor === "")
+                    vendor = 0;
+
+                var materialName = $("#MaterialCodeName").data("tAutoComplete").value();
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                }
+                args.data = $.extend(args.data,
+                {
+                    materialCode: materialName,
+                    materialTypeId: materialTypeId,
+                    vendor: vendor,
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+            }
+        }
+
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+    </script>
+
+
+    <!-- report -->
+    <script type="text/javascript">
+
+        function printMaterialInvTotalInMonth() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var materialTypeId = $("#MaterialTypeName").data('tComboBox').value();
+                if (materialTypeId === "")
+                    materialTypeId = 0;
+                var vendor = $("#cboVendor").data('tComboBox').value();
+                if (vendor === "")
+                    vendor = 0;
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                }
+
+                $('#result').load('@Url.Action("PrintMaterialInvTotalInMonth", "Reporting")',
+                    {
+                        materialTypeId: materialTypeId,
+                        vendor: vendor,
+                        fromDate: fromDate,
+                        toDate: toDate
+                    },
+                    function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+
+    </script>
+
+}
+
+    <div class="title">Báo cáo tổng hợp nguyên liệu</div>
+
+    <div id="pnlInv">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+        <fieldset>
+            <legend>Lưu ý</legend>
+            <ul>
+                <li>
+                    <b>1.Quy cách đặt tên hình Đặt (<span style="color: red">'Mã NL đầy đủ'+'Lô NLxChiều Dài'</span>) trước hình bản vẽ để lưu lại (Vd: <span style="color: red">C3604(D)3-h9-GW18Ax3.jpg</span>)</b>
+                </li>
+                <li>
+                    <b>2.Tên file upload hình không được <span style="color: red">giống</span> với nguyên liệu khác ( upload hình sẽ bị đèn lên hình cũ )</b>
+                </li>
+                <li>
+                    <b>3.Xem xét kĩ cảnh báo trước khi xác nhận, sau khi xác nhận xảy ra lỗi <span style="color: red">không thể phục hồi</span> </b>
+                </li>
+            </ul>
+        </fieldset>
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("MaterialTypeName")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxAllMaterialType", "Material", new {area = ""}))
+                        .HtmlAttributes(new {style = "width: 150px"})
+                        .DropDownHtmlAttributes(new {style = "width: 250px"})
+                        .SelectedIndex(0)
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">
+                NCC
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("cboVendor")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialVendor", "Vendor", new {area = "Purchasing"}))
+                        .HtmlAttributes(new {style = "width: 150px"})
+                        .DropDownHtmlAttributes(new {style = "width: 250px"})
+                        .SelectedIndex(0)
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @Html.LabelFor(f => f.MaterialCodeName)
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("MaterialCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new {materialTypeId = 0}))
+                        //.HtmlAttributes(new { style = "width: 185px; " })
+                        .DropDownHtmlAttributes(new {style = "width: 250px; "})
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Render();
+                }
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("fromDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
+                        .Render();
+                }
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("toDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1))
+                        .Render();
+                }
+            </div>
+            <div class="grid_3">
+                <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2('gridMaterialInventory'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                    <span class="twoToneButton"></span>
+                </button>
+            </div>
+            <div class="grid_6">
+                <button id="btnMaterialInv" class="t-button" onclick="return printMaterialInvTotalInMonth(); ">
+                    <span class='t-icon t-insert'></span>
+                    Xuất báo cáo tồn kho nguyên liệu
+                    <span class="twoToneButton"></span>
+                </button>
+            </div>
+        </fieldset>
+
+    </div>
+    <div class="clear"></div>
+    <div class="cover-div">
+    @{
+        Html.Telerik().Grid<MaterialInvPeriodModel>()
+            .Name("gridMaterialInventory")
+            .DataKeys(keys => keys.Add(f => f.MaterialInvId).RouteKey("materialInvId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectMaterialInvPeriodModel", "Reporting",
+                    new
+                    {
+                        materialCode = "",
+                        materialTypeId = 0,
+                        vendor = 0,
+                        fromDate = "",
+                        toDate = ""
+                    })
+                .Update("UpdateMaterialInventoryTotal", "Reporting")
+            )
+
+            .Columns(columns =>
+            {
+                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                columns.Bound(f => f.InfoImg).Width(45).Title("Giấy CN").Filterable(false)
+                    .ClientTemplate("<a id='<#=MaterialInvId#>' href='" + Url.Content("~/Content/FileUpload/CertificateMaterial/") + "<#=InfoImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                    "<img src='" + Url.Content("~/Content/FileUpload/CertificateMaterial/") + "<#=InfoImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                    "</a><div class='highslide-caption'><#= MaterialCode #></div>");
+                columns.Bound(f => f.MaterialTypeCode).Width(50).ReadOnly(true)
+                    .HeaderTemplate("Loại");
+                columns.Bound(f => f.VendorCode).Width(50).ReadOnly(true)
+                    .HeaderTemplate("NCC");
+                columns.Bound(f => f.MaterialName).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tên</br>nguyên</br>liệu</strong>")
+                    .Aggregate(agg => agg.Count())
+                    .ClientGroupFooterTemplate("<#= Count #>")
+                    .ClientFooterTemplate("<#= Count #>")
+                    .HtmlAttributes(new {style = "text-align: left;"});
+                columns.Bound(f => f.Shape).Width(40).ReadOnly(true)
+                    .HeaderTemplate("<strong>HD</strong>")
+                    .HtmlAttributes(new {style = "text-align: center;"});
+                columns.Bound(f => f.OutDiameter).Width(50).ReadOnly(true)
+                    .HeaderTemplate("<strong>OD</strong>")
+                    .HtmlAttributes(new {style = "text-align: center;"});
+                columns.Bound(f => f.InDiameter).Width(50).ReadOnly(true)
+                    .HeaderTemplate("<strong>ID</strong>")
+                    .HtmlAttributes(new {style = "text-align: center;"});
+                columns.Bound(f => f.Length).Width(50).ReadOnly(true)
+                    .HeaderTemplate("<strong>L</strong>")
+                    .HtmlAttributes(new {style = "text-align: center;"});
+                columns.Bound(f => f.DiameterType).Width(50).ReadOnly(true)
+                    .HeaderTemplate("<strong>Dung</br>sai</strong>")
+                    .HtmlAttributes(new {style = "text-align: center;"});
+                columns.Bound(f => f.MaterialLot).Title("Lô").Width(70).ReadOnly(true)
+                    .HtmlAttributes(new {style = "text-align: center;"});
+                columns.Bound(f => f.MaterialUnitWeight).Width(70).ReadOnly(true)
+                    .HeaderTemplate("Trọng</br>lượng")
+                    .Format("{0:n4}")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.MaterialUnitPrice).Title("Đơn giá").Width(75).ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                //
+                columns.Bound(f => f.EarlyOnMachine).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tồn đầu</br>máy</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.EarlyQuantity).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tồn đầu</br>kho</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.EarlyKg).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tổng</br>tồn đầu</br>(Kg)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.EarlyPrice).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tổng</br>giá trị</br>tồn đầu</strong>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n0}")
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"})
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                ////    
+                columns.Bound(f => f.Import).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Nhập</br>mua</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.ImportKg).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Nhập</br>mua</br>(Kg)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.ImportPrice).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Giá trị</br>nhập mua</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ImportMore).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Nhập</br>thêm</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ImportInternal).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Nhập</br>nội bộ</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ImportOnMachine).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Nhập</br>trả</br>(cây)</strong>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n2}")
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"})
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                ////
+                columns.Bound(f => f.Export).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Sử dụng</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.ExportKg).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Sử dụng</br>(Kg)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ExportPrice).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Giá trị</br>sử dụng</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+
+                columns.Bound(f => f.ExportInternal).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Xuất NB</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ExportInternalWeight).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Xuất NB</br>(kg)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ExportInternalPrice).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Xuất NB</br>(GT)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                
+                columns.Bound(f => f.Destroy).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Hủy</br>tồn</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DestroyOnMachine).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Hủy</br>máy</br>(cây)</strong>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n2}")
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" })
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DestroyKg).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Hủy</br>(kg)</strong>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n2}")
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" })
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DestroyPrice).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Hủy</br>(GT)</strong>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n2}")
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" })
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                //
+                columns.Bound(f => f.LastOnMachine).Width(70).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tồn cuối</br>máy</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.LastQuantity).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tồn cuối</br>kho</br>(cây)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.LastKg).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tổng</br>tồn cuối</br>(Kg)</strong>")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.LastPrice).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tổng</br>giá trị</br>tồn cuối</strong>")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                //
+                columns.Bound(f => f.DiffInv).Width(70).ReadOnly(true).Title("Lệch tồn")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;border-left: 1px solid black;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DiffImport).Width(70).ReadOnly(true).Title("Lệch nhập")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.StoreCode).Width(150)
+                    .Title("Mã Kho")
+                    .HtmlAttributes(new { style = "border-left: 1px solid black;" });
+                columns.Bound(f => f.ImportDateString).Width(90).ReadOnly(true)
+                    .Title("Ngày nhập");
+                columns.Bound(f => f.FirstImport).Width(70).ReadOnly(true)
+                    .HeaderTemplate("Nhập đầu</br>(cây)")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.FirstImportKg).Width(70).ReadOnly(true)
+                    .HeaderTemplate("Nhập đầu</br>(Kg)")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.FirstUseDateString).Width(90).ReadOnly(true)
+                    .HeaderTemplate("Bắt đầu</br>sử dụng");
+                columns.Bound(f => f.EndUseDateString).Width(90).ReadOnly(true)
+                    .HeaderTemplate("Ngày cuối</br>sử dụng");
+            })
+            
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().Grid<MaterialPeriodDetailModel>()
+                    .Name("gridDetail_<#= MaterialInvId #>")
+                    .DataBinding(dataDindings => dataDindings.Ajax()
+                        .Select("SelectMaterialInvDetailPeriodModel", "Reporting",
+                            new
+                            {
+                                materialInvId = "<#= MaterialInvId #>",
+                                fromDate = "<#= FromDateString #>",
+                                toDate = "<#= ToDateString #>"
+                            }))
+                    .Columns(columns =>
+                    {
+                        columns.Bound(f => f.PeriodDate).Width(100).Title("Ngày")
+                            .Format("{0:dd/MM/yyyy}");
+                        columns.Bound(f => f.TransactionCode).Width(150).Title("Mã giao dịch");
+                        columns.Bound(f => f.TypeName).Width(100).Title("Loại");
+                        columns.Bound(f => f.Quantity).Width(100).Title("Số cây")
+                            .Format("{0:n2}")
+                            .Aggregate(agg => agg.Sum())
+                            .HtmlAttributes(new {style = "text-align: right;"})
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                            .FooterHtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.QuantityKg).Width(100).Title("Số kg")
+                            .Format("{0:n2}")
+                            .HtmlAttributes(new {style = "text-align: right;"})
+                            .Aggregate(agg => agg.Sum())
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                            .FooterHtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm");
+                        columns.Bound(f => f.ModifiedDate).Width(150).Title("Ngày làm")
+                            .Format("{0:dd/MM/yyyy HH:mm}");
+                        columns.Bound(f => f.Note).Title("Ghi chú");
+                    })
+                    .ClientEvents(events => events.OnError("grid_OnError"))
+                    .ToHtmlString()))
+            .Scrollable(f => f.Height(510))
+            //.HtmlAttributes(new { style = "width: 950px;" })
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Groupable()
+            .ClientEvents(events => events.OnError("grid_OnError")
+                .OnSave("grid_OnSave")
+                .OnDataBound("grid_OnDataBound")
+                .OnDataBinding("gridMaterialInventory_onDataBinding"))
+            .Render();
+    }
+    </div>
+    </div>
+
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReport")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(1100)
+            .Render();
+    }
+
+    <style type="text/css">
+        #windowReport {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .tb-witdh td {
+            width: 55px;
+        }
+    </style>

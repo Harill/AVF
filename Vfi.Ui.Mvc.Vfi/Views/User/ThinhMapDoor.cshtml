@@ -1,0 +1,1488 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@using Vfi.Ui.Mvc.Vfi.Utilities
+
+@{
+    ViewBag.Title = "Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    
+    .twoToneButton.spinning {
+        background-color: #212121;
+        padding-right: 40px;
+    }
+
+    .twoToneButton.spinning:after {
+        content: '';
+        position: absolute;
+        right: 6px;
+        top: 50%;
+        width: 0;
+        height: 0;
+        position: absolute;
+    }
+
+    .twoToneButton.spinning:before {
+        content: "";
+        width: 0px;
+        height: 0px;
+        border-radius: 50%;
+        right: 6px;
+        top: 50%;
+        position: absolute;
+    
+    }
+</style>
+
+<script type="text/javascript">
+    
+    function Edit(value) {
+        var orderNumber = $("#OrderNumber").data("tAutoComplete").value();
+        switch (value) {
+        //tao invoice ao?
+        case 1:
+            $.ajax({
+                type: 'post',
+                data: { orderNumber: orderNumber },
+                dataType: 'json',
+                url: '@Url.Action("CreateVitureInvoice", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 1) {
+                        alert("Thành công");
+                        Clear();
+                    }
+                    else if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy đơn hàng");
+                    else if (data == 8)
+                        alert("lỗi ! vui lòng duyệt đơn hàng !");
+                }
+            });
+            break;
+        // duyet lai don hang
+        case 2:
+            $.ajax({
+                type: 'post',
+                data: { orderNumber: orderNumber },
+                dataType: 'json',
+                url: '@Url.Action("ReApproveOrder", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 1) {
+                        alert("Thành công");
+                        Clear();
+                    }
+                    else if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy đơn hàng");
+                    else if (data == 8)
+                        alert("lỗi ! đơn hàng chưa duyệt!");
+                }
+            });
+            break;
+        // doi tien te
+        case 3:
+            var currency = $('#CurrencyCode').data('tDropDownList').value();
+            $.ajax({
+                type: 'post',
+                data: { orderNumber: orderNumber, currency: currency },
+                dataType: 'json',
+                url: '@Url.Action("ChangeCurrencyCode", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 1) {
+                        alert("Thành công");
+                        Clear();
+                    }
+                    else if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy đơn hàng");
+                }
+            });
+            break;
+        // chinh gia trong don hang
+        case 4:
+            var productCode = $('#ProductCode').data('tAutoComplete').value();
+            var unitPrice = $("#UnitPrice").data("tTextBox").value();
+            var orderDetailNumber = $("#OrderDetailNumber").data("tTextBox").value();
+            $.ajax({
+                type: 'post',
+                data: {
+                    orderNumber: orderNumber, productCode: productCode, unitPrice: unitPrice, orderDetailNumber: orderDetailNumber
+                },
+                dataType: 'json',
+                url: '@Url.Action("ChangeProductUnitPrice", "User")',
+                timeout: 20000,
+                success: function(data) {
+                    if (data == 1) {
+                        alert("Thành công");
+                        Clear();
+                    } else if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy đơn hàng");
+                    else if (data == 8)
+                        alert("lỗi ! không tìm thấy sản phẩm");
+                    else if (data == 7)
+                        alert("lỗi ! không tìm thấy sản phẩm trong đơn hàng");
+                    else if (data == 6)
+                        alert("lỗi ! đơn giá lỗi");
+                    else if (data == 5)
+                        alert("lỗi ! sản phẩm này đã được giao ! Không thể thay đổi số lượng");
+                }
+            });
+            break;
+            case 5:
+                var taxInvoice = $("#TaxInvoiceNumber").data("tAutoComplete").value();
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        taxInvoiceNumber: taxInvoice
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("ReTaxInvoice", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 1) {
+                        alert("Thành công");
+                        Clear();
+                    } else if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy hóa đơn");
+                    else if (data == 7)
+                        alert("lỗi ! hóa đơn đã nhập tiền");
+                }
+            });
+            break;
+        case 10:
+            //var useDate = $("#UseDate").data("tDatePicker").value();
+            //if (useDate === null)
+                //    useDate = "";
+                //else
+                //    useDate = $.telerik.formatString('{0:dd/MM/yyyy}', useDate);
+            var materialUseNumber = $("#MaterialUseNumber").data('tAutoComplete').value();
+            $.ajax({
+                type: 'post',
+                data: {
+                    materialUseNumber: materialUseNumber
+                },
+                dataType: 'json',
+                url: '@Url.Action("DestroyMaterialUseByDate", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! mã sử dụng không được để trống");
+                    else if (data == 8)
+                        alert("lỗi ! không tìm thấy phiếu sử dụng");
+                    else if (data == 7)
+                        alert("lỗi ! lỗi nguyên liệu trên máy");
+                    else if (data == 6)
+                        alert("lỗi ! phiếu sử dụng này chưa duyệt ! phải hủy bằng tay");
+                        //else if (data == 5)
+                        //    alert("lỗi ! sản phẩm này đã được giao ! Không thể thay đổi số lượng");
+                    else
+                        alert("Thàng công !" + (data/2));
+                }
+            });
+            break;
+        default:
+        }
+    }
+    function Clear() {
+        $("#UnitPrice").val(0);
+        $("#OrderDetailNumber").val(0);
+        $("#ProductCode").val("");
+        $("#OrderNumber").val("");
+        //$("#cboCustomer").val("");
+        //$("#Money").val(0);
+    }
+
+    function EditProduction(value) {
+
+        var transactionCode = $("#ProductionTransaction").data("tAutoComplete").value();
+        var oldProduct = $('#OldProductionProduct').data('tComboBox').value();
+        var newProduct = $('#NewProductionProduct').data('tComboBox').value();
+        var machine = $('#ProductionMachine').data('tDropDownList').value();
+        switch (value) {
+        case 1:
+            $.ajax({
+                type: 'post',
+                data: { transactionCode: transactionCode, oldProduct: oldProduct, newProduct: newProduct, machineId: machine },
+                dataType: 'json',
+                url: '@Url.Action("ChangeProductionProduct", "User")',
+                timeout: 20000,
+                success: function(data) {
+                    if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy máy sản xuất và mã sản xuất");
+                    else if (data == 8)
+                        alert("lỗi ! không tìm thấy phiếu sử dụng");
+                    else if (data == 7)
+                        alert("lỗi ! lỗi nguyên liệu trên máy");
+                    else if (data == 6)
+                        alert("lỗi ! phiếu sử dụng này chưa duyệt ! phải hủy bằng tay");
+                        //else if (data == 5)
+                        //    alert("lỗi ! sản phẩm này đã được giao ! Không thể thay đổi số lượng");
+                    else
+                        alert(data);
+                }
+            });
+            break;
+        }
+    }
+
+    function EditExportSaleProduct(value) {
+
+        var invoiceNumber = $("#InvoiceExport").data("tAutoComplete").value();
+        var oldProduct = $('#ExportProductOld').data('tComboBox').value();
+        var newProduct = $('#ExportProductNew').data('tComboBox').value();
+        switch (value) {
+            case 1:
+                $.ajax({
+                    type: 'post',
+                    data: { invoiceNumber: invoiceNumber, oldProduct: oldProduct, newProduct: newProduct},
+                    dataType: 'json',
+                    url: '@Url.Action("ChangeProductionProduct", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm thấy máy sản xuất và mã sản xuất");
+                    else if (data == 8)
+                        alert("lỗi ! không tìm thấy phiếu sử dụng");
+                    else if (data == 7)
+                        alert("lỗi ! lỗi nguyên liệu trên máy");
+                    else if (data == 6)
+                        alert("lỗi ! phiếu sử dụng này chưa duyệt ! phải hủy bằng tay");
+                        //else if (data == 5)
+                        //    alert("lỗi ! sản phẩm này đã được giao ! Không thể thay đổi số lượng");
+                    else
+                        alert(data);
+                }
+            });
+            break;
+    }
+}
+
+    function TamMaCode(value) {
+
+        var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+        if (monthlyDate === null)
+            monthlyDate = "";
+        else
+            monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+        var customerId = $('#cboCustomer').data('tComboBox').value();
+        var money = $("#Money").data("tTextBox").value();
+        var currency = $('#CurrencyCode2').data('tDropDownList').value();
+        switch (value) {
+        case 1:
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("ChinhKhoNguyenLieu2SoLe", "User")',
+                timeout: 20000,
+                success: function(data) {
+                    alert(data);
+                    //if (data == 1) {
+                    //    alert("Thành công");
+                    //} else if (data == -1)
+                    //    alert("lỗi");
+                    //else if (data == 9)
+                    //    alert("lỗi ! không tìm thấy đơn hàng");
+                    //else if (data == 8)
+                    //    alert("lỗi ! vui lòng duyệt đơn hàng !");
+                }
+            });
+            break;
+        // duyet lai don hang
+        case 2:
+            $.ajax({
+                type: 'post',
+                data: { monthlyDate: monthlyDate },
+                dataType: 'json',
+                url: '@Url.Action("ChinhLechSoNguyenLieuTrongKho", "User")',
+                timeout: 20000,
+                success: function(data) {
+                    alert(data);
+                }
+            });
+            break;
+        case 3:
+            $.ajax({
+                type: 'post',
+                data: { monthlyDate: monthlyDate },
+                dataType: 'json',
+                url: '@Url.Action("ChinhLechSoNguyenLieuTrenMay", "User")',
+                timeout: 20000,
+                success: function(data) {
+                    alert(data);
+                }
+            });
+            break;
+            case 5:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoNangSuatThucTe", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        alert(data);
+                    }
+                });
+                break;
+        case 6:
+                    $.ajax({
+                        type: 'post',
+                        data: {},
+                        dataType: 'json',
+                        url: '@Url.Action("TaoData", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        alert(data);
+                    }
+                });
+            break;
+            case 7:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoDataSpCu", "User")',
+                        timeout: 20000,
+                        success: function (data) {
+                            alert(data);
+                        }
+                    });
+                    break;
+            case 8:
+                $.ajax({
+                    type: 'post',
+                    data: { customerId: customerId, money: money, currency: currency },
+                    dataType: 'json',
+                    url: '@Url.Action("TaoNoPhaiThu", "User")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == -1)
+                        alert("lỗi");
+                    else if (data == 9)
+                        alert("lỗi ! không tìm khách hàng");
+                    else if (data == 8)
+                        alert("lỗi ! khách hàng này không có sản phẩm !");
+                    else {
+                        alert("Thành công! "+data);
+                        Clear();
+                        
+                    }
+
+                }
+                });
+                break;
+            @*case 9:
+                $.ajax({
+                    type: 'post',
+                    data: { customerId: customerId, money: money, currency: currency },
+                    dataType: 'json',
+                    url: '@Url.Action("TaoHoaDonChuaXuat", "User")',
+                    timeout: 20000,
+                    success: function(data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;*@
+            case 10:
+                $.ajax({
+                    type: 'post',
+                    data: { },
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhHoaDon", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 11:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("DieuChinhInvoice", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 12:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ApGiaSanPham", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 13:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChuyenGiaCongSanPham", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 14:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoTLSX1", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 15:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoTLNLSP", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 16:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoChiTietInvoice", "User")',
+                    //timeout: 20000,
+                    success: function(data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 17:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoDinhMucSpSx1", "User")',
+                    //timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 18:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("TaoLienKetSx2", "User")',
+                    //timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 19:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhLaiTraHang", "User")',
+                    //timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                    }
+                });
+                break;
+            case 20:
+                $.ajax({
+                    type: 'post',
+                    data: { customerId: customerId, money: money, currency: currency },
+                    dataType: 'json',
+                    url: '@Url.Action("TaoChuaXuatHoaDon", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("lỗi ! không tìm khách hàng");
+                        else if (data == 8)
+                            alert("lỗi ! khách hàng này không có sản phẩm !");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 21:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhMenuLevel", "User")',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == -1)
+                                alert("lỗi");
+                            else if (data == 9)
+                                alert("lỗi ! không tìm khách hàng");
+                            else if (data == 8)
+                                alert("lỗi ! khách hàng này không có sản phẩm !");
+                            else {
+                                alert("Thành công! " + data);
+                                Clear();
+
+                            }
+
+                        }
+                    });
+                break;
+            case 22:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhTaxInvoiceProduct", "User")',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == -1)
+                                alert("lỗi");
+                            else {
+                                alert("Thành công! " + data);
+                                Clear();
+
+                            }
+
+                        }
+                    });
+                break;
+        case 23:
+                    $.ajax({
+                        type: 'post',
+                        data: {},
+                        dataType: 'json',
+                        url: '@Url.Action("TaoPhePhamSanXuat", "User")',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == -1)
+                                alert("lỗi");
+                            else {
+                                alert("Thành công! " + data);
+                                Clear();
+
+                            }
+
+                        }
+                    });
+            break;
+            case 24:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhNhanVienSuaMay", "User")',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == -1)
+                                alert("lỗi");
+                            else {
+                                alert("Thành công! " + data);
+                                Clear();
+
+                            }
+
+                        }
+                    });
+                break;
+            case 25:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhKhoSanPham", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 26:
+                    $.ajax({
+                        type: 'post',
+                        data: {},
+                        dataType: 'json',
+                        url: '@Url.Action("ChinhMaNguyenLieu", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 27:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhTienTrinhSanPham", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 28:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhNguyenLieuThietKe", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 29:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhTrangThaiSanPham", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 30:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhTrangMuaHangDaNhan", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+            case 31:
+                var twoToneButton = document.querySelector('.twoToneButton');
+                twoToneButton.innerHTML = twoToneButton.innerHTML + " (Chờ)";
+                twoToneButton.classList.add('spinning');
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhLotNumber_ProductInventoryPeriod", "User")',
+                    //timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else if (data == 9)
+                            alert("Hết");
+                        else if (data == 8)
+                            alert("Lỗi customerId");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+                        }
+                        twoToneButton.classList.remove('spinning');
+                        twoToneButton.innerHTML = twoToneButton.innerHTML.replace(" (Chờ)", "");
+                        //twoToneButton.innerHTML = "Done";
+                    },
+                    //error: function (error) {
+                    //    alert('error; ' + eval(error));
+                    //},
+                    error: function (jqXHR, exception) {
+                        var msg = '';
+                        //if (exception === 'timeout') {
+                        //    msg = 'Time out error.';
+                        //if (jqXHR.status === 0) {
+                        //    msg = 'Not connect.\n Verify Network.';
+                        //} else if (jqXHR.status == 404) {
+                        //    msg = 'Requested page not found. [404]';
+                        //} else if (jqXHR.status == 500) {
+                        //    msg = 'Internal Server Error [500].';
+                        //} else if (exception === 'parsererror') {
+                        //    msg = 'Requested JSON parse failed.';
+                        //} else if (exception === 'timeout') {
+                        //    msg = 'Time out error.';
+                        //} else if (exception === 'abort') {
+                        //    msg = 'Ajax request aborted.';
+                        //} else {
+                        //    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        //}
+                        //$('#post').html(msg);
+                        console.log(exception);
+                        alert('error; ' + exception);
+                    },
+                });
+                break;
+            case 32:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ChinhTienTeSanPham", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
+        default:
+           @* $.ajax({
+                type: 'post',
+                data: {
+                     //monthlyDate: monthlyDate
+                },
+                dataType: 'json',
+                //url: '@Url.Action("ChinhTatCaMaNguyenLieu", "User")',
+                url: '@Url.Action("NLthanhNLThietKe", "User")',
+                timeout: 20000,
+                success: function(data) {
+                    alert(data);
+                }
+            });*@
+            break;
+        }
+    }
+</script>
+
+
+<div class="title">Admin</div>
+
+<div class="t-info-sha">
+    <fieldset>
+        <legend>Chỉnh sửa đơn hàng</legend>
+        <div class="grid_5"> Nhập chính xác số đơn hàng (Vd:'VFO-14111')  </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("OrderNumber")
+                    .HtmlAttributes(new {style = "width: 100px"})
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5"> Tạo invoice ảo</div>
+        <div class="grid_2">
+            <button class="t-button" onclick=" return Edit(1); ">
+                <span class='t-icon t-insert'></span> 
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5"> Duyệt lại ngày giao hàng</div>
+        <div class="grid_2">
+            <button class="t-button" onclick=" return Edit(2); ">
+                <span class='t-icon t-insert'></span> 
+            </button>
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5"> Sửa tiền tệ</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("CurrencyCode")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                    .DropDownHtmlAttributes(new {style = "width: 250px"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">
+            <button class="t-button" onclick=" return Edit(3); ">
+                <span class='t-icon t-insert'></span> 
+            </button>
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5">Sửa chi tiết đơn hàng</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ProductCode")
+                    .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new {area = "Inv"}))
+                    .HtmlAttributes(new {style = "width: 150px; "})
+                    .DropDownHtmlAttributes(new { style = "width: 150px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }</div>
+        <div class="grid_2">Số lượng</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("OrderDetailNumber")
+                    .HtmlAttributes(new {style = "width: 10px"})
+                    .Value(0)
+                    .DecimalDigits(0)
+                    .EmptyMessage("Nhập số")
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">Đơn giá</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("UnitPrice")
+                    .HtmlAttributes(new { style = "width: 10px" })
+                    .Value(0)
+                    .DecimalDigits(7)
+                    .EmptyMessage("Nhập số")
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">
+            <button class="t-button" onclick=" return Edit(4); ">
+                <span class='t-icon t-insert'></span> 
+            </button>
+        </div>
+       
+        <div class="clear"></div>
+    </fieldset>
+    <div class="clear"></div>
+    <fieldset>
+        <legend>Chỉnh sửa hóa đơn</legend>
+        <div class="grid_5"> Nhập chính xác số đơn hàng (Vd:'VP/14P-1314')  </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("TaxInvoiceNumber")
+                    .HtmlAttributes(new {style = "width: 100px"})
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5"> Duyệt lại ngày</div>
+        <div class="grid_2">
+            <button class="t-button" onclick=" return Edit(5); ">
+                <span class='t-icon t-insert'></span> 
+            </button>
+        </div>
+       
+        <div class="clear"></div>
+    </fieldset>
+    <div class="clear"></div>
+    <fieldset>
+        <legend>Chỉnh kho sử dụng nguyên liệu</legend>
+        <div class="grid_5"> Nhập chính xác số sử dụng (Vd:'VFMU-1411')</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("MaterialUseNumber")
+                    .HtmlAttributes(new {style = "width: 100px"})
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5">Hủy nguyên liệu sử dụng</div>
+        @*<div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("UseDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>*@
+        <div class="grid_2">
+            <button class="t-button" onclick=" return Edit(10); ">
+                <span class='t-icon t-insert'></span>
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+    </fieldset>
+    <div class="clear"></div>
+
+    <fieldset>
+        <legend>Nguy hiểm</legend>
+        <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("MonthlyDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(1); ">
+                <span class='t-icon t-insert'></span>Chinh so kho nguyen lieu 2 so le
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(2); ">
+                <span class='t-icon t-insert'></span>Chinh so kho nguyen lieu
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(3); ">
+                <span class='t-icon t-insert'></span>Chinh so kho nguyen lieu trên máy
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(4); ">
+                <span class='t-icon t-insert'></span>Chỉnh tất cả mã NL
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(4); ">
+                <span class='t-icon t-insert'></span>Chuyen NL thành NL thiết kế
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(5); ">
+                <span class='t-icon t-insert'></span>Tạo năng suất thực tế trên máy
+            </button>
+        </div> 
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(6); ">
+                <span class='t-icon t-insert'></span>Tạo data nguyên liệu lên máy
+            </button>
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(7); ">
+                <span class='t-icon t-insert'></span>Tạo data quy trình kho SP cũ
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        
+        <div class="clear"></div> 
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(9); ">
+                <span class='t-icon t-insert'></span>Tạo hóa đơn chưa xuất
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(10); ">
+                <span class='t-icon t-insert'></span>Chỉnh hóa đơn về đúng số xuất
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div> 
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(11); ">
+                <span class='t-icon t-insert'></span>Chỉnh chi tiết xuất invoice
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(12); ">
+                <span class='t-icon t-insert'></span>Áp đơn giá trong đơn hàng
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(13); ">
+                <span class='t-icon t-insert'></span>Chuyển đổi gia công sản phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(14); ">
+                <span class='t-icon t-insert'></span>Tạo trọng lượng SX1
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(15); ">
+                <span class='t-icon t-insert'></span>Tạo trọng lượng sản phẩm theo nguyên liệu
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(16); ">
+                <span class='t-icon t-insert'></span>Tạo chi tiết Invoice
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(17); ">
+                <span class='t-icon t-insert'></span>Tạo định mức SP SX1
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(18); ">
+                <span class='t-icon t-insert'></span>Tạo liên kết sản xuất 2
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(19); ">
+                <span class='t-icon t-insert'></span>Chỉnh lại trả hàng
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(21); ">
+                <span class='t-icon t-insert'></span>Chỉnh menu level
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(22); ">
+                <span class='t-icon t-insert'></span>Chỉnh tax invoice product
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(23); ">
+                <span class='t-icon t-insert'></span>Tạo phoi phế phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(24); ">
+                <span class='t-icon t-insert'></span>Fix nhân viên sửa máy
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(25); ">
+                <span class='t-icon t-insert'></span>Chỉnh kho sản phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(26); ">
+                <span class='t-icon t-insert'></span>Chỉnh mã nguyên liệu
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(28); ">
+                <span class='t-icon t-insert'></span>Chỉnh nguyên liệu thiết kế
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(27); ">
+                <span class='t-icon t-insert'></span>Chỉnh tiến trình sản phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(29); ">
+                <span class='t-icon t-insert'></span>Chỉnh trạng thái sản phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(30); ">
+                <span class='t-icon t-insert'></span>Chỉnh mua hàng đã nhận
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button twoToneButton" onclick=" return TamMaCode(31); ">
+                <span class='t-icon t-insert'></span>Chỉnh lô cho sản phẩm (=> period)
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button twoToneButton" onclick=" return TamMaCode(32); ">
+                <span class='t-icon t-insert'></span>Chỉnh tiền tệ sản phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <br />
+    </fieldset>
+    
+    <fieldset>
+        <legend>Chứng từ</legend>
+        <div class="grid_3">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("cboCustomer")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
+                    .HtmlAttributes(new {style = "width: 100px"})
+                    .DropDownHtmlAttributes(new {style = "width: 325px;"})
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("CurrencyCode2")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                    .DropDownHtmlAttributes(new {style = "width: 250px"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("Money")
+                    .HtmlAttributes(new { style = "width: 10px" })
+                    .Value(0)
+                    .DecimalDigits(2)
+                    .EmptyMessage("Nhập số")
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <br />
+        <div class="grid_10">
+            <button class="t-button" onclick=" return TamMaCode(20); ">
+                <span class='t-icon t-insert'></span>Tạo tiền chưa xuất hóa đơn
+            </button>
+        </div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return TamMaCode(8); ">
+                <span class='t-icon t-insert'></span>Tạo nợ phải thu
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+    </fieldset>
+    
+    <fieldset>
+        <legend>Sản xuất 1</legend>
+       <div class="grid_5"> Nhập chính xác số giao dịch (Vd:'VFTP-14111')  </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ProductionTransaction")
+                    .HtmlAttributes(new {style = "width: 100px"})
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("ProductionMachine")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachine", "Machine", new { area = "Factory" }))
+                    .HtmlAttributes(new { style = "width: 100px" })
+                    .DropDownHtmlAttributes(new {style = "width: 100px"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">Mã SP cũ</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("OldProductionProduct")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProduct", "Product", new { area = "" }))
+                    .HtmlAttributes(new {style = "width: 100px; "})
+                    .DropDownHtmlAttributes(new { style = "width: 150px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }</div>
+         <div class="grid_2">Mã SP mới</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("NewProductionProduct")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProduct", "Product", new { area = "" }))
+                    .HtmlAttributes(new {style = "width: 100px; "})
+                    .DropDownHtmlAttributes(new { style = "width: 150px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }</div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return EditProduction(1); ">
+                <span class='t-icon t-insert'></span>Thay mã SP trong SX1
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi! chỉ áp dụng cho sp chưa chuyển kho lần 2)</div>
+        <div class="clear"></div>
+        
+    </fieldset>
+    
+    <fieldset>
+        <legend>Xuất kho</legend>
+        <div class="grid_5"> Nhập chính xác số invoice (Vd:'VFI-14111')  </div>
+         <div class="grid_3">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("InvoiceNumber")
+                    .HtmlAttributes(new {style = "width: 100px"})
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_2">Mã SP cũ</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("ExportProductOld")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProduct", "Product", new { area = "" }))
+                    .HtmlAttributes(new {style = "width: 100px; "})
+                    .DropDownHtmlAttributes(new { style = "width: 150px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }</div>
+         <div class="grid_2">Mã SP mới</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("ExportProductNew")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProduct", "Product", new { area = "" }))
+                    .HtmlAttributes(new {style = "width: 100px; "})
+                    .DropDownHtmlAttributes(new { style = "width: 150px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }</div>
+        <div class="grid_5">
+            <button class="t-button" onclick=" return EditExportSaleProduct(1); ">
+                <span class='t-icon t-insert'></span>Thay mã SP trong xuất bán
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi!)</div>
+        <div class="clear"></div>
+        
+    </fieldset>
+</div>
+   
+
+
+@section css{
+
+    <style type="text/css" >
+        
+    .userDiv
+    {
+        width: 350px;
+        float: left;
+    }
+    
+    .functionDiv
+    {
+        margin-left: 355px;
+        width: 500px;
+    }
+    
+    .userWorGroupDiv
+    {
+    }
+    
+    .clear
+    {
+        clear: both;
+    }
+    
+    .workgroup-label
+    {
+        vertical-align: top;
+        padding-right: .4em;
+    }
+    
+    #approveDiv
+    {
+        display: none;
+    }
+    </style>
+
+}

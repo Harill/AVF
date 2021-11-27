@@ -1,0 +1,2115 @@
+<Configuration>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Inv/f:TransactionStatusEnumModel.cs" caret="827" fromTop="11" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:StockOrder/f:ExportStockOrderMaterial.cshtml" caret="12460" fromTop="13" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:StockOrder/f:ImportStockOrderMaterial.cshtml" caret="13075" fromTop="35" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Inv/f:StockOrderStatusEnumModel.cs" caret="241" fromTop="11" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Inv/f:MaterialInventoryPeriodDomainModel.cs" caret="3306" fromTop="38" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Inv/f:TransactionDomainModel.cs" caret="0" fromTop="0" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:BaseEntities/f:TransactionDetail.cs" caret="911" fromTop="24" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:BaseEntities/f:MaterialInventory.cs" caret="515" fromTop="14" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Inv/f:TransactionDetailDomainModel.cs" caret="1437" fromTop="15" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Inv/f:MaterialInventoryDomainModel.cs" caret="245" fromTop="4" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionMaterial.cshtml" caret="14656" fromTop="18" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:BaseEntities/f:MaterialClassified.cs" caret="533" fromTop="14" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionProduct.cshtml" caret="0" fromTop="0" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Production/f:MaterialClassifiedDomainModel.cs" caret="569" fromTop="16" />
+      <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Factory/f:MachineAppraisalDomainModel.cs" caret="1090" fromTop="4" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:TransactionService.cs" caret="8401" fromTop="6" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:TransactionMaterialManagement.cshtml" caret="6220" fromTop="31" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Models/f:MaterialInventoryPeriodModel.cs" caret="461" fromTop="16" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Models/f:MaterialInventoryModel.cs" caret="1166" fromTop="14" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ApproveTransactionMaterial.cshtml" caret="677" fromTop="20" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterial.cshtml" caret="14409" fromTop="0" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:TransactionController.cs" caret="16390" fromTop="17" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryService.cs" caret="13488" fromTop="44" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="6401" fromTop="15" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:StockOrderController.cs" caret="0" fromTop="0" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Reports/f:RptMaterialInvManagement.cs" caret="584" fromTop="19" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="78343" fromTop="25" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:PageReportMaterialInvManagement.aspx" caret="694" fromTop="19" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:MaterialInvManagement.cshtml" caret="10352" fromTop="8" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Reports/f:RptMaterialInvManagement.Designer.cs" caret="46518" fromTop="169" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="26989" fromTop="29" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="27479" fromTop="34" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Models/f:MaterialInventoryPeriodModel.cs" caret="561" fromTop="19" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Models/f:MaterialInventoryPeriodModel.cs" caret="461" fromTop="16" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="28040" fromTop="20" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="28324" fromTop="25" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:MaterialInvManagement.cshtml" caret="23560" fromTop="33" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:MaterialInvManagement.cshtml" caret="23180" fromTop="15" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:MaterialInvManagement.cshtml" caret="16385" fromTop="33" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="6036" fromTop="33" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterial.cshtml" caret="15433" fromTop="27" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterial.cshtml" caret="15095" fromTop="23" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterial.cshtml" caret="6744" fromTop="6" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Models/f:MaterialInventoryModel.cs" caret="481" fromTop="1" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Models/f:MaterialInventoryModel.cs" caret="753" fromTop="7" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryService.cs" caret="11690" fromTop="19" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryService.cs" caret="13488" fromTop="26" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="6874" fromTop="9" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="8417" fromTop="25" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="9922" fromTop="22" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="8773" fromTop="24" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="7250" fromTop="23" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="10370" fromTop="30" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="11099" fromTop="24" />
+      <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:MaterialInventoryPeriodService.cs" caret="11609" fromTop="34" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="77141" fromTop="20" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="77476" fromTop="28" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="78108" fromTop="20" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="78343" fromTop="25" />
+      <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Reports/f:RptMaterialInvManagement.Designer.cs" caret="49234" fromTop="169" />
+    </RecentEdits>
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir IsNull="False">
+    </NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="livetemplates.csharp.usevar">True</setting>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="CSharpCodeCompletionContext">
+      <Item value="using" priority="61" />
+      <Item value="IGenericRepository" priority="1023" />
+      <Item value="GenericRepository" priority="1055" />
+      <Item value="inherits" priority="29" />
+      <Item value="WebViewPage" priority="63" />
+      <Item value="section" priority="329" />
+      <Item value="public" priority="4753" />
+      <Item value="CurrencyDomainModel`0" priority="31" />
+      <Item value="int" priority="2101" />
+      <Item value="Test" priority="31" />
+      <Item value="a" priority="127" />
+      <Item value="b" priority="159" />
+      <Item value="void" priority="223" />
+      <Item value="model" priority="2542" />
+      <Item value="partial" priority="31" />
+      <Item value="domainModel" priority="32" />
+      <Item value="currencyDomainModel" priority="32" />
+      <Item value="TestController`0" priority="31" />
+      <Item value="currencyService" priority="59" />
+      <Item value="private" priority="1535" />
+      <Item value="readonly" priority="1631" />
+      <Item value="ICurrencyService`0" priority="31" />
+      <Item value="_currencyService" priority="155" />
+      <Item value="var" priority="4351" />
+      <Item value="new" priority="3935" />
+      <Item value="return" priority="7615" />
+      <Item value="View`0" priority="1279" />
+      <Item value="override" priority="991" />
+      <Item value="Serializable" priority="95" />
+      <Item value="IEnumerable" priority="2438" />
+      <Item value="System" priority="95" />
+      <Item value="Currency`0" priority="191" />
+      <Item value="string" priority="2495" />
+      <Item value="currency" priority="225" />
+      <Item value="_currencyRepository" priority="224" />
+      <Item value="ICurrencyRepository`0" priority="31" />
+      <Item value="currencyRepository" priority="128" />
+      <Item value="if" priority="4159" />
+      <Item value="throw" priority="735" />
+      <Item value="ArgumentNullException`0" priority="31" />
+      <Item value="try" priority="3231" />
+      <Item value="catch" priority="2987" />
+      <Item value="Exception`0" priority="1434" />
+      <Item value="null" priority="3999" />
+      <Item value="currencyCode" priority="91" />
+      <Item value="f" priority="4447" />
+      <Item value="StringComparison`0" priority="346" />
+      <Item value="exception" priority="1625" />
+      <Item value="targetCreate" priority="672" />
+      <Item value="targetUpdate" priority="4144" />
+      <Item value="DateTime`0" priority="1288" />
+      <Item value="_unitOfWork" priority="707" />
+      <Item value="unitOfWork" priority="1026" />
+      <Item value="Models" priority="58" />
+      <Item value="ModelState" priority="176" />
+      <Item value="TryUpdateModel`1" priority="186" />
+      <Item value="HttpContext" priority="414" />
+      <Item value="CurrencyCode" priority="58" />
+      <Item value="ModifiedUser" priority="951" />
+      <Item value="DisplayName" priority="1141" />
+      <Item value="ErrorMessage" priority="863" />
+      <Item value="UIHint" priority="186" />
+      <Item value="DataType`0" priority="442" />
+      <Item value="decimal" priority="58" />
+      <Item value="double" priority="512" />
+      <Item value="CurrencyDomain" priority="32" />
+      <Item value="entity" priority="9977" />
+      <Item value="CurrencyName" priority="32" />
+      <Item value="Active" priority="982" />
+      <Item value="ModifiedDate" priority="824" />
+      <Item value="ActionResult`0" priority="1306" />
+      <Item value="IEquatable" priority="31" />
+      <Item value="CurrencyModel`0" priority="65" />
+      <Item value="base" priority="95" />
+      <Item value="StringLength" priority="95" />
+      <Item value="MaterialClassified`0" priority="31" />
+      <Item value="materialClassified" priority="192" />
+      <Item value="MaterialClassifiedService`0" priority="31" />
+      <Item value="_materialClassifiedRepository" priority="160" />
+      <Item value="materialClassifiedRepository" priority="95" />
+      <Item value="ArgumentNullException" priority="459" />
+      <Item value="sealed" priority="30" />
+      <Item value="MaterialClassifiedId" priority="192" />
+      <Item value="MaterialClassifiedName" priority="98" />
+      <Item value="MaterialController`0" priority="31" />
+      <Item value="_unitOf" priority="32" />
+      <Item value="_materialClassified" priority="32" />
+      <Item value="_materialService" priority="476" />
+      <Item value="IUnitOfWork`0" priority="255" />
+      <Item value="IMaterialService`0" priority="63" />
+      <Item value="materialService" priority="129" />
+      <Item value="TypeInitializationException`0" priority="31" />
+      <Item value="MaterialClassifiedModel" priority="116" />
+      <Item value="rs" priority="383" />
+      <Item value="else" priority="735" />
+      <Item value="materialClassifiedId" priority="65" />
+      <Item value="Html" priority="619" />
+      <Item value="MaterialClassifiedModel`0" priority="31" />
+      <Item value="IMaterialTypeRepository`0" priority="31" />
+      <Item value="_materialTypeRepository" priority="32" />
+      <Item value="materialTypeRepository" priority="32" />
+      <Item value="materialType" priority="127" />
+      <Item value="FormatException`0" priority="95" />
+      <Item value="formatException" priority="32" />
+      <Item value="materialClassifiedName" priority="31" />
+      <Item value="events" priority="159" />
+      <Item value="false" priority="448" />
+      <Item value="Material`0" priority="191" />
+      <Item value="IMaterialRepository`0" priority="63" />
+      <Item value="_materialRepository" priority="219" />
+      <Item value="materialRepository" priority="32" />
+      <Item value="GetAllMaterials`0" priority="31" />
+      <Item value="MaterialDomainModel" priority="28" />
+      <Item value="MaterialId" priority="471" />
+      <Item value="MaterialTypeId" priority="65" />
+      <Item value="MaterialTypeName" priority="32" />
+      <Item value="MaterialName" priority="98" />
+      <Item value="Diameter" priority="27" />
+      <Item value="DiameterType" priority="32" />
+      <Item value="Weight" priority="32" />
+      <Item value="Length" priority="32" />
+      <Item value="materialId" priority="287" />
+      <Item value="materialCode" priority="95" />
+      <Item value="material" priority="415" />
+      <Item value="bool" priority="447" />
+      <Item value="MaterialCode" priority="322" />
+      <Item value="models" priority="611" />
+      <Item value="ListItemCollection" priority="118" />
+      <Item value="virtual" priority="1535" />
+      <Item value="ToString`0" priority="54" />
+      <Item value="byte" priority="320" />
+      <Item value="Convert`0" priority="288" />
+      <Item value="Text" priority="27" />
+      <Item value="UTF8Encoding`0" priority="27" />
+      <Item value="ProductionController`0" priority="31" />
+      <Item value="_productService" priority="225" />
+      <Item value="IProductService`0" priority="63" />
+      <Item value="productService" priority="64" />
+      <Item value="Product`0" priority="31" />
+      <Item value="ProductService`0" priority="31" />
+      <Item value="_productRepository" priority="96" />
+      <Item value="IProductRepository`0" priority="31" />
+      <Item value="productRepository" priority="128" />
+      <Item value="product" priority="63" />
+      <Item value="DesignNo" priority="32" />
+      <Item value="AutoCompleteFilterMode`0" priority="255" />
+      <Item value="value" priority="255" />
+      <Item value="item" priority="507" />
+      <Item value="menuService" priority="58" />
+      <Item value="VendorController`0" priority="31" />
+      <Item value="_vendorService" priority="320" />
+      <Item value="IVendorService`0" priority="31" />
+      <Item value="vendorService" priority="64" />
+      <Item value="GetVendorByModels`0" priority="31" />
+      <Item value="VendorModel" priority="29" />
+      <Item value="VendorId" priority="96" />
+      <Item value="Vendor`0" priority="32" />
+      <Item value="ShipMethod`0" priority="127" />
+      <Item value="shipMethod" priority="288" />
+      <Item value="_shipMethodRepository" priority="160" />
+      <Item value="ShipMethodService`0" priority="26" />
+      <Item value="IShipMethodRepository`0" priority="31" />
+      <Item value="shipMethodRepository" priority="128" />
+      <Item value="ShipMethodDomainModel" priority="28" />
+      <Item value="Name" priority="65" />
+      <Item value="ShipBase" priority="60" />
+      <Item value="ShipRate" priority="65" />
+      <Item value="shipMethodId" priority="64" />
+      <Item value="MaterialClassified" priority="64" />
+      <Item value="enum" priority="61" />
+      <Item value="PurchaseOrder`0" priority="287" />
+      <Item value="purchaseOrder" priority="667" />
+      <Item value="PurchaseOrderDomainModel`0" priority="31" />
+      <Item value="PurchaseOrderDetail`0" priority="31" />
+      <Item value="PriceListMaterial`0" priority="191" />
+      <Item value="priceListMaterial" priority="380" />
+      <Item value="_priceListMaterialRepository" priority="192" />
+      <Item value="IPriceListMaterialRepository`0" priority="31" />
+      <Item value="priceListMaterialRepository" priority="128" />
+      <Item value="PriceListMaterial" priority="28" />
+      <Item value="PriceListMaterialId" priority="31" />
+      <Item value="Currency" priority="32" />
+      <Item value="NetPrice" priority="32" />
+      <Item value="Exchange" priority="32" />
+      <Item value="priceListMaterialId" priority="31" />
+      <Item value="PoService`0" priority="31" />
+      <Item value="_purchaseOrderRepository" priority="224" />
+      <Item value="IPurchaseOrderDetailRepository`0" priority="63" />
+      <Item value="_purchaseOrderDetailRepository" priority="128" />
+      <Item value="IPurchaseOrderRepository`0" priority="31" />
+      <Item value="purchaseOrderRepository" priority="128" />
+      <Item value="purchaseOrderDetailRepository" priority="64" />
+      <Item value="GetAllPurchaseOrders`0" priority="31" />
+      <Item value="PurchaseOrderDomainModel" priority="28" />
+      <Item value="PurchaseOrderId" priority="64" />
+      <Item value="ShipMethodId" priority="98" />
+      <Item value="EmployeeId" priority="97" />
+      <Item value="RevisionNumber" priority="65" />
+      <Item value="Status" priority="263" />
+      <Item value="OrderDate" priority="98" />
+      <Item value="SubTotal" priority="32" />
+      <Item value="TaxAmt" priority="65" />
+      <Item value="Freight" priority="65" />
+      <Item value="TotalDue" priority="65" />
+      <Item value="purchaseOrderId" priority="63" />
+      <Item value="status" priority="447" />
+      <Item value="foreach" priority="735" />
+      <Item value="poDetailId" priority="31" />
+      <Item value="poId" priority="31" />
+      <Item value="Required" priority="255" />
+      <Item value="CustomerService`0" priority="31" />
+      <Item value="_customerTypeRepository" priority="256" />
+      <Item value="ICustomerTypeRepository`0" priority="31" />
+      <Item value="customerTypeRepository" priority="128" />
+      <Item value="thr" priority="31" />
+      <Item value="GetAllCustomerTypes`0" priority="31" />
+      <Item value="CustomerTypeDomainModel" priority="29" />
+      <Item value="CustomerTypeId" priority="64" />
+      <Item value="CustomerTypeName" priority="65" />
+      <Item value="customerTypeId" priority="63" />
+      <Item value="GetCustomerTypeById`0" priority="31" />
+      <Item value="customerType" priority="287" />
+      <Item value="CLSCompliantAttribute`0" priority="31" />
+      <Item value="Note" priority="98" />
+      <Item value="ICustomerRepository`0" priority="31" />
+      <Item value="_customer" priority="32" />
+      <Item value="ICustomerService`0" priority="31" />
+      <Item value="customerService" priority="32" />
+      <Item value="customerRepository" priority="32" />
+      <Item value="_customerRepository" priority="277" />
+      <Item value="CustomerId" priority="130" />
+      <Item value="CustomerCode" priority="65" />
+      <Item value="CustomerName" priority="65" />
+      <Item value="ShortName" priority="32" />
+      <Item value="CompanyName" priority="65" />
+      <Item value="ContactName" priority="65" />
+      <Item value="Address" priority="65" />
+      <Item value="Eaddress" priority="98" />
+      <Item value="Phone" priority="65" />
+      <Item value="Fax" priority="65" />
+      <Item value="TaxCode" priority="65" />
+      <Item value="BankAccount" priority="65" />
+      <Item value="MaxCredit" priority="65" />
+      <Item value="SpecialInfo" priority="65" />
+      <Item value="customerId" priority="245" />
+      <Item value="customerCode" priority="26" />
+      <Item value="cutomerCode" priority="63" />
+      <Item value="GetCustomerById`0" priority="31" />
+      <Item value="customer" priority="255" />
+      <Item value="abstract" priority="30" />
+      <Item value="unsafe" priority="25" />
+      <Item value="_vendorRepository" priority="63" />
+      <Item value="GetHashCode`0" priority="127" />
+      <Item value="SettingsBindableAttribute`0" priority="31" />
+      <Item value="ProductCode" priority="96" />
+      <Item value="Employee`0" priority="31" />
+      <Item value="EmployeeService`0" priority="31" />
+      <Item value="_employeeRepository" priority="192" />
+      <Item value="IEmployeeRepository`0" priority="31" />
+      <Item value="employeeRepository" priority="160" />
+      <Item value="GetAllEmployees`0" priority="31" />
+      <Item value="NewsStyleUriParser`0" priority="26" />
+      <Item value="EmployeeDomainModel" priority="29" />
+      <Item value="EmployeeCode" priority="32" />
+      <Item value="EmployeeCodeName" priority="32" />
+      <Item value="employeeId" priority="64" />
+      <Item value="employeeCode" priority="31" />
+      <Item value="GetEmployeeByCode`0" priority="31" />
+      <Item value="employee" priority="255" />
+      <Item value="asrt" priority="31" />
+      <Item value="Invoice`0" priority="159" />
+      <Item value="#endregion" priority="95" />
+      <Item value="_invoiceRepository" priority="182" />
+      <Item value="InvoiceService`0" priority="31" />
+      <Item value="IInvoiceRepository`0" priority="31" />
+      <Item value="invoiceRepository" priority="128" />
+      <Item value="IInvoiceDetailRepository`0" priority="63" />
+      <Item value="_invoiceDetailRepository" priority="96" />
+      <Item value="invoiceDetailRepository" priority="64" />
+      <Item value="invoiceId" priority="31" />
+      <Item value="Customer`0" priority="31" />
+      <Item value="GetAllInvoices`0" priority="31" />
+      <Item value="InvoiceDomainModel" priority="28" />
+      <Item value="InvoiceDetails" priority="31" />
+      <Item value="InvoiceId" priority="31" />
+      <Item value="PriceListId" priority="32" />
+      <Item value="GetInvoiceById`0" priority="31" />
+      <Item value="invoice" priority="63" />
+      <Item value="InvoiceDetailDomainModel`0" priority="31" />
+      <Item value="InvoiceDetail`0" priority="63" />
+      <Item value="long" priority="511" />
+      <Item value="invoiceDetailId" priority="31" />
+      <Item value="SalesOrder`0" priority="95" />
+      <Item value="salesOrder" priority="160" />
+      <Item value="SalesOrderDetail`0" priority="31" />
+      <Item value="SalesOrderDetailDomainModel`0" priority="31" />
+      <Item value="_salesOrderRepository" priority="160" />
+      <Item value="ISalesOrderDetailRepository`0" priority="63" />
+      <Item value="_salesOrderDetailRepository" priority="160" />
+      <Item value="SalesOrderService`0" priority="31" />
+      <Item value="ISalesOrderRepository`0" priority="31" />
+      <Item value="salesOrderRepository" priority="128" />
+      <Item value="salesOrderDetailRepository" priority="128" />
+      <Item value="salesOrderId" priority="63" />
+      <Item value="salesOrderNumber" priority="31" />
+      <Item value="purchaseOrderNumber" priority="31" />
+      <Item value="salesOrderDetailId" priority="31" />
+      <Item value="productId" priority="31" />
+      <Item value="GetAllSalesOrderDetails`0" priority="31" />
+      <Item value="SalesOrderId" priority="64" />
+      <Item value="SalesPersonId" priority="32" />
+      <Item value="DueDate" priority="65" />
+      <Item value="ShipDate" priority="65" />
+      <Item value="PurchaseOrderNumber" priority="32" />
+      <Item value="SalesOrderNumber" priority="32" />
+      <Item value="BillToAddress" priority="32" />
+      <Item value="ShipToAddress" priority="32" />
+      <Item value="SalesOrderDetailDomainModel" priority="29" />
+      <Item value="SalesOrderDetailId" priority="64" />
+      <Item value="ProductId" priority="96" />
+      <Item value="CarrierTrackingNumber" priority="32" />
+      <Item value="OrderQty" priority="125" />
+      <Item value="UnitPrice" priority="229" />
+      <Item value="UnitPriceDiscount" priority="32" />
+      <Item value="LineTotal" priority="98" />
+      <Item value="interface" priority="30" />
+      <Item value="TimeLine`0" priority="31" />
+      <Item value="timeLine" priority="160" />
+      <Item value="_timeLineRepository" priority="256" />
+      <Item value="TimeLineService`0" priority="31" />
+      <Item value="ITimeLineRepository`0" priority="31" />
+      <Item value="timeLineRepository" priority="128" />
+      <Item value="true" priority="358" />
+      <Item value="TimeLineDomainModel" priority="28" />
+      <Item value="TimeLineId" priority="31" />
+      <Item value="WarehouseId" priority="321" />
+      <Item value="WarehouseName" priority="98" />
+      <Item value="Times" priority="32" />
+      <Item value="RealTimes" priority="32" />
+      <Item value="Performance" priority="32" />
+      <Item value="StartDay" priority="32" />
+      <Item value="FinishedDay" priority="32" />
+      <Item value="WorkingHours" priority="32" />
+      <Item value="timeLineId" priority="31" />
+      <Item value="warehouseId" priority="632" />
+      <Item value="Warehouse`0" priority="159" />
+      <Item value="warehouseType" priority="96" />
+      <Item value="WarehouseService`0" priority="31" />
+      <Item value="_warehouseTypeRepository" priority="187" />
+      <Item value="IWarehouseRepository`0" priority="63" />
+      <Item value="_warehouseRepository" priority="283" />
+      <Item value="IWarehouseTypeRepository`0" priority="31" />
+      <Item value="warehouseTypeRepository" priority="64" />
+      <Item value="warehouseRepository" priority="128" />
+      <Item value="GetAllWarehouseTypes`0" priority="63" />
+      <Item value="WarehouseTypeDomainModel" priority="28" />
+      <Item value="WarehouseTypeId" priority="64" />
+      <Item value="WarehouseTypeName" priority="65" />
+      <Item value="warehouseTypeId" priority="63" />
+      <Item value="WarehouseType`0" priority="31" />
+      <Item value="WarehouseDomainModel`0" priority="31" />
+      <Item value="warehouse" priority="288" />
+      <Item value="GetAllWarehouses`0" priority="31" />
+      <Item value="WarehouseDomainModel" priority="28" />
+      <Item value="Description" priority="32" />
+      <Item value="GetWarehouseById`0" priority="31" />
+      <Item value="StockOrderType`0" priority="95" />
+      <Item value="stockOrderType" priority="257" />
+      <Item value="StockOrderDomainModel`0" priority="31" />
+      <Item value="StockOrder`0" priority="159" />
+      <Item value="stockOrder" priority="384" />
+      <Item value="StockOrderDetail`0" priority="95" />
+      <Item value="StockOrderDetailDomainModel`0" priority="31" />
+      <Item value="StockOrderService`0" priority="31" />
+      <Item value="_stockOrderRepository" priority="288" />
+      <Item value="stockOrderTypeRepository" priority="91" />
+      <Item value="stockOrderRepository" priority="32" />
+      <Item value="stockOrderDetailRepository" priority="32" />
+      <Item value="_stockOrderTypeRepository" priority="191" />
+      <Item value="StockOrderTypeDomainModel" priority="28" />
+      <Item value="StockOrderTypeId" priority="64" />
+      <Item value="StockOrderTypeName" priority="65" />
+      <Item value="EoI" priority="225" />
+      <Item value="stockOrderTypeId" priority="63" />
+      <Item value="eoi" priority="95" />
+      <Item value="GetStockOrderTypeById`0" priority="31" />
+      <Item value="SortedDictionary" priority="31" />
+      <Item value="GetAllStockOrders`0" priority="31" />
+      <Item value="StockOrderDomainModel" priority="28" />
+      <Item value="StockOrderId" priority="128" />
+      <Item value="enity" priority="688" />
+      <Item value="stockOrderId" priority="127" />
+      <Item value="WarehouseIssueId" priority="97" />
+      <Item value="WarehouseIssueName" priority="32" />
+      <Item value="WarehouseReceiptId" priority="98" />
+      <Item value="WarehouseReceiptName" priority="32" />
+      <Item value="StockOrderCode" priority="65" />
+      <Item value="MoP" priority="164" />
+      <Item value="CreatedUser" priority="98" />
+      <Item value="CreatedDate" priority="98" />
+      <Item value="warehouseIssueId" priority="64" />
+      <Item value="warehouseReceiptId" priority="96" />
+      <Item value="stockOrderCode" priority="256" />
+      <Item value="String`0" priority="31" />
+      <Item value="mop" priority="31" />
+      <Item value="GetStockOrderById`0" priority="31" />
+      <Item value="stockOrderDetailId" priority="31" />
+      <Item value="StockOrderDetailDomainModel" priority="28" />
+      <Item value="StockOrderDetailId" priority="31" />
+      <Item value="ReferenceId" priority="64" />
+      <Item value="Quantity" priority="362" />
+      <Item value="UnitMeasure" priority="263" />
+      <Item value="MaterialInventory`0" priority="95" />
+      <Item value="materialInventory" priority="636" />
+      <Item value="MaterialInventoryService`0" priority="31" />
+      <Item value="_materialInventoryRepository" priority="256" />
+      <Item value="IMaterialInventoryPeriodRepository`0" priority="95" />
+      <Item value="materialInventoryRepository" priority="123" />
+      <Item value="ConsoleCancelEventArgs`0" priority="31" />
+      <Item value="GetAllMaterialInventories`0" priority="26" />
+      <Item value="MaterialInventoryDomainModel" priority="57" />
+      <Item value="MaterialInventoryId" priority="155" />
+      <Item value="GetMaterialInventoryById`0" priority="31" />
+      <Item value="MaterialInventoryPeriod`0" priority="63" />
+      <Item value="MaterialInventoryPeriodService`0" priority="31" />
+      <Item value="_materialInventoryPeriodRepository" priority="192" />
+      <Item value="materialInventoryPeriodRepository" priority="128" />
+      <Item value="GetAllMaterialInventoryPeriods`0" priority="31" />
+      <Item value="MaterialInventoryPeriodId" priority="31" />
+      <Item value="TransactionId" priority="120" />
+      <Item value="TransactionNumber" priority="32" />
+      <Item value="PeriodDate" priority="97" />
+      <Item value="PeriodMonth" priority="65" />
+      <Item value="PeriodYear" priority="65" />
+      <Item value="PeriodDay" priority="131" />
+      <Item value="EarlyPeriodQuantity" priority="98" />
+      <Item value="EarlyPeriodPrice" priority="131" />
+      <Item value="Price" priority="187" />
+      <Item value="LastPeriodQuantity" priority="98" />
+      <Item value="LastPeriodPrice" priority="65" />
+      <Item value="transactionId" priority="31" />
+      <Item value="materialInventoryPeriod" priority="131" />
+      <Item value="ProductInventoryPeriodService`0" priority="31" />
+      <Item value="MachineService`0" priority="31" />
+      <Item value="IMachineService`0" priority="31" />
+      <Item value="_machineRepository" priority="64" />
+      <Item value="IMachineRepository`0" priority="31" />
+      <Item value="machineRepository" priority="128" />
+      <Item value="MachineAppraisal`0" priority="63" />
+      <Item value="MachineAppraisalService`0" priority="31" />
+      <Item value="_machineAppraisalRepository" priority="64" />
+      <Item value="IMachineAppraisalRepository`0" priority="31" />
+      <Item value="machineAppraisalRepository" priority="123" />
+      <Item value="ShipMethodController`0" priority="31" />
+      <Item value="_shipMethodService" priority="64" />
+      <Item value="IShipMethodService`0" priority="31" />
+      <Item value="shipMethodService" priority="128" />
+      <Item value="ArgumentException" priority="28" />
+      <Item value="DataType" priority="31" />
+      <Item value="PurchaseOrderController`0" priority="31" />
+      <Item value="_poService" priority="288" />
+      <Item value="IPoService`0" priority="31" />
+      <Item value="poService" priority="32" />
+      <Item value="keys" priority="159" />
+      <Item value="dataDindings" priority="31" />
+      <Item value="VendorCode" priority="59" />
+      <Item value="VendorName" priority="32" />
+      <Item value="GetPurchaseOrderByModels`0" priority="31" />
+      <Item value="Grid" priority="31" />
+      <Item value="PurchaseOrderModel`0" priority="95" />
+      <Item value="dataBinding" priority="58" />
+      <Item value="GridAction" priority="191" />
+      <Item value="PurchaseOrderDetailId" priority="63" />
+      <Item value="PurchaseOrderRevisionNumber" priority="32" />
+      <Item value="order" priority="90" />
+      <Item value="Model" priority="88" />
+      <Item value="materialTypeId" priority="192" />
+      <Item value="classifiedId" priority="95" />
+      <Item value="bar" priority="95" />
+      <Item value="Json`0" priority="287" />
+      <Item value="revisionNumber" priority="64" />
+      <Item value="PurchaseOrder" priority="32" />
+      <Item value="ConfigurationManager`0" priority="26" />
+      <Item value="purchaseOrderModel" priority="32" />
+      <Item value="vendorId" priority="32" />
+      <Item value="orderDate" priority="64" />
+      <Item value="shipDate" priority="64" />
+      <Item value="PurchaseOrderDetail" priority="29" />
+      <Item value="subTotal" priority="63" />
+      <Item value="poDetail" priority="127" />
+      <Item value="CultureInfo`0" priority="31" />
+      <Item value="short" priority="31" />
+      <Item value="purchaseOrders" priority="32" />
+      <Item value="entities" priority="351" />
+      <Item value="ShipMethodName" priority="32" />
+      <Item value="EmployeeName" priority="32" />
+      <Item value="StatusEnumDomain`0" priority="128" />
+      <Item value="Enum`0" priority="124" />
+      <Item value="static" priority="62" />
+      <Item value="MaterialClassifiedDomainModel`0" priority="31" />
+      <Item value="statusEnumDomain" priority="64" />
+      <Item value="details" priority="31" />
+      <Item value="PurchaseOrderDetailModel`0" priority="31" />
+      <Item value="columns" priority="319" />
+      <Item value="PurchaseOrderDetailDomainModel" priority="28" />
+      <Item value="StockOrderController`0" priority="31" />
+      <Item value="Dictionary&lt;string,object&gt;" priority="28" />
+      <Item value="SelectExtensions`0" priority="29" />
+      <Item value="Action`0" priority="160" />
+      <Item value="HttpPost" priority="159" />
+      <Item value="StockOrder" priority="65" />
+      <Item value="_stockOrderService" priority="442" />
+      <Item value="exportOrImport" priority="129" />
+      <Item value="materialOrProduct" priority="65" />
+      <Item value="StockOrderDetails" priority="32" />
+      <Item value="StockOrderDetail" priority="28" />
+      <Item value="soDetail" priority="191" />
+      <Item value="_stockOrderDetailRepository" priority="31" />
+      <Item value="TotalQty" priority="131" />
+      <Item value="AvailableQty" priority="131" />
+      <Item value="UnavailableQty" priority="98" />
+      <Item value="InvController`0" priority="31" />
+      <Item value="_materialInventoryService" priority="352" />
+      <Item value="IMaterialInventoryService`0" priority="31" />
+      <Item value="materialInventoryService" priority="64" />
+      <Item value="warehouseIssue" priority="63" />
+      <Item value="warehouseReceipt" priority="31" />
+      <Item value="_material" priority="32" />
+      <Item value="w" priority="31" />
+      <Item value="dataBindings" priority="63" />
+      <Item value="IMaterialInventoryRepository`0" priority="31" />
+      <Item value="lstMaterial" priority="63" />
+      <Item value="finally" priority="63" />
+      <Item value="lstMaterialId" priority="31" />
+      <Item value="for" priority="95" />
+      <Item value="lstMaterialIds" priority="127" />
+      <Item value="join" priority="63" />
+      <Item value="on" priority="63" />
+      <Item value="mo" priority="294" />
+      <Item value="equals" priority="95" />
+      <Item value="ma" priority="128" />
+      <Item value="into" priority="159" />
+      <Item value="select" priority="255" />
+      <Item value="from" priority="256" />
+      <Item value="ps" priority="96" />
+      <Item value="materialInventories" priority="32" />
+      <Item value="rightJoin" priority="31" />
+      <Item value="Material" priority="65" />
+      <Item value="em" priority="65" />
+      <Item value="Session" priority="63" />
+      <Item value="MaterialInventoryModel`0" priority="95" />
+      <Item value="materialInventoryModels" priority="32" />
+      <Item value="GridEditMode`0" priority="31" />
+      <Item value="Count`1" priority="161" />
+      <Item value="object" priority="31" />
+      <Item value="class" priority="155" />
+      <Item value="AppDomainSetup`0" priority="63" />
+      <Item value="id" priority="64" />
+      <Item value="items" priority="31" />
+      <Item value="MaterialInventoryModel" priority="58" />
+      <Item value="checkedRecords" priority="447" />
+      <Item value="Contains`1" priority="188" />
+      <Item value="List" priority="179" />
+      <Item value="lt" priority="31" />
+      <Item value="ids" priority="63" />
+      <Item value="lst" priority="255" />
+      <Item value="Select`2" priority="27" />
+      <Item value="i" priority="223" />
+      <Item value="ElementAt`1" priority="49" />
+      <Item value="Range" priority="63" />
+      <Item value="stockOrders" priority="97" />
+      <Item value="StatusName" priority="65" />
+      <Item value="CastStockOrderStatusEnumDomain`0" priority="64" />
+      <Item value="stockOrderDetails" priority="32" />
+      <Item value="UnitMeasureCode" priority="32" />
+      <Item value="ApproveStockOrderMaterial" priority="32" />
+      <Item value="c" priority="31" />
+      <Item value="StockOrderStatusEnumModel`0" priority="122" />
+      <Item value="modifiedUser" priority="160" />
+      <Item value="TransactionCode" priority="32" />
+      <Item value="TransactionDetail`0" priority="31" />
+      <Item value="ICollection" priority="32" />
+      <Item value="detail" priority="593" />
+      <Item value="_transactionService" priority="191" />
+      <Item value="transaction" priority="255" />
+      <Item value="_transactionRepository" priority="31" />
+      <Item value="transactionDetail" priority="63" />
+      <Item value="_transactionDetailRepository" priority="31" />
+      <Item value="transactions" priority="251" />
+      <Item value="CastTransactionStatusEnumDomain`0" priority="32" />
+      <Item value="transactionDetails" priority="32" />
+      <Item value="Transaction" priority="32" />
+      <Item value="MaterialInventory" priority="59" />
+      <Item value="break" priority="127" />
+      <Item value="tran" priority="162" />
+      <Item value="materialInventoryPeriodDomainModels" priority="32" />
+      <Item value="targetImport" priority="154" />
+      <Item value="IMaterialInventoryPeriodService`0" priority="127" />
+      <Item value="_materialInventoryPeriodService" priority="124" />
+      <Item value="materialInventoryPeriodService" priority="65" />
+      <Item value="rsPeriod" priority="127" />
+      <Item value="AddRange`1" priority="76" />
+      <Item value="stockOrderIds" priority="31" />
+      <Item value="SetValue`0" priority="26" />
+      <Item value="TransactionModel`0" priority="31" />
+      <Item value="Request" priority="154" />
+      <Item value="emi" priority="326" />
+      <Item value="byStockOrder" priority="63" />
+      <Item value="rsStockOrder" priority="31" />
+      <Item value="AdditionalFields" priority="31" />
+      <Item value="MaterialInventoryImportModel`0" priority="26" />
+      <Item value="importModel" priority="128" />
+      <Item value="Compare" priority="63" />
+      <Item value="type" priority="31" />
+      <Item value="ModelClientValidationEqualToRule`0" priority="31" />
+      <Item value="OtherProperty" priority="31" />
+      <Item value="continue" priority="63" />
+      <Item value="trans" priority="63" />
+      <Item value="firstTran" priority="63" />
+      <Item value="EoIName" priority="32" />
+      <Item value="ExportOrImportEnumModel`0" priority="288" />
+      <Item value="CastExportOrImportEnumDomain`0" priority="65" />
+      <Item value="char" priority="32" />
+      <Item value="entityMaterials" priority="63" />
+      <Item value="MaterialInventoryDomainModel`0" priority="31" />
+      <Item value="rightJoinIssue" priority="64" />
+      <Item value="ReflectedParameterDescriptor`0" priority="31" />
+      <Item value="rightJoinReceipt" priority="31" />
+      <Item value="iss" priority="195" />
+      <Item value="rep" priority="97" />
+      <Item value="MaterialInventoryRotateModel" priority="28" />
+      <Item value="MaterialInventoryIssueId" priority="32" />
+      <Item value="MaterialInventoryReceiptId" priority="32" />
+      <Item value="TotalQtyExport" priority="27" />
+      <Item value="TotalQtyImport" priority="32" />
+      <Item value="leftJoin" priority="31" />
+      <Item value="MaterialCodeName" priority="65" />
+      <Item value="EnvironmentVariableTarget`0" priority="31" />
+      <Item value="materialInventoryReceipts" priority="58" />
+      <Item value="materialInventoryReceipt" priority="31" />
+      <Item value="materialInventoryIssues" priority="26" />
+      <Item value="materialInventoryPeriodIssues" priority="31" />
+      <Item value="materialInventoryPeriodReceipts" priority="31" />
+      <Item value="text" priority="31" />
+      <Item value="materialName" priority="63" />
+      <Item value="Warehouse" priority="65" />
+      <Item value="g" priority="552" />
+      <Item value="materialInventoryPeriods" priority="64" />
+      <Item value="fromDate" priority="127" />
+      <Item value="toDate" priority="96" />
+      <Item value="group" priority="127" />
+      <Item value="by" priority="63" />
+      <Item value="mip" priority="127" />
+      <Item value="MaterialInventoryPeriodDomainModel" priority="28" />
+      <Item value="entityMaterialInventoryPeriods" priority="31" />
+      <Item value="PartialView`0" priority="31" />
+      <Item value="as" priority="31" />
+      <Item value="period" priority="26" />
+      <Item value="DateTime" priority="28" />
+      <Item value="to" priority="63" />
+      <Item value="AnimationDuration`0" priority="31" />
+      <Item value="GetType`0" priority="31" />
+      <Item value="typeof" priority="95" />
+      <Item value="in" priority="31" />
+      <Item value="Type`0" priority="31" />
+      <Item value="Equals`0" priority="31" />
+      <Item value="stt" priority="63" />
+      <Item value="t" priority="31" />
+      <Item value="ParameterController`0" priority="31" />
+      <Item value="Parameter`0" priority="31" />
+      <Item value="parameter" priority="128" />
+      <Item value="ParameterService`0" priority="31" />
+      <Item value="_parameterRepository" priority="160" />
+      <Item value="IParameterRepository`0" priority="31" />
+      <Item value="parameterRepository" priority="128" />
+      <Item value="cmd" priority="31" />
+      <Item value="GridButtonType`0" priority="63" />
+      <Item value="_parameterService" priority="225" />
+      <Item value="IParameterService`0" priority="95" />
+      <Item value="parameterService" priority="97" />
+      <Item value="ArrayResolutionStrategy`0" priority="31" />
+      <Item value="ParamCode" priority="31" />
+      <Item value="paramCode" priority="32" />
+      <Item value="stockOrderNum" priority="63" />
+      <Item value="y" priority="31" />
+      <Item value="m" priority="415" />
+      <Item value="d" priority="31" />
+      <Item value="transactionNum" priority="95" />
+      <Item value="rsParam" priority="63" />
+      <Item value="Product" priority="32" />
+      <Item value="productInventories" priority="32" />
+      <Item value="IProductInventoryRepository`0" priority="31" />
+      <Item value="GridPagerStyles`0" priority="95" />
+      <Item value="Email" priority="32" />
+      <Item value="vendors" priority="32" />
+      <Item value="vendor" priority="31" />
+      <Item value="customers" priority="32" />
+      <Item value="products" priority="32" />
+      <Item value="customerCodeName" priority="31" />
+      <Item value="SalesController`0" priority="31" />
+      <Item value="_salesService" priority="32" />
+      <Item value="_salesOrderService" priority="160" />
+      <Item value="salesOrderService" priority="128" />
+      <Item value="insertedSalesOrderDetails" priority="62" />
+      <Item value="SalesOrderDetail" priority="28" />
+      <Item value="Display" priority="31" />
+      <Item value="GridOperationMode`0" priority="31" />
+      <Item value="tmp" priority="223" />
+      <Item value="List&lt;int&gt;" priority="28" />
+      <Item value="ControllerInstanceFilterProvider`0" priority="31" />
+      <Item value="ListBindableAttribute`0" priority="31" />
+      <Item value="ProductInventoryPeriodModel`0" priority="30" />
+      <Item value="ProductInventoryPeriodModels" priority="55" />
+      <Item value="productName" priority="32" />
+      <Item value="ITempDataProvider`0" priority="30" />
+      <Item value="WarehouseIdx" priority="32" />
+      <Item value="ToDate" priority="32" />
+      <Item value="FormDate" priority="32" />
+      <Item value="QuantityKg" priority="159" />
+      <Item value="TotalQtyKg" priority="192" />
+    </ItemStatistics>
+    <ItemStatistics item="RazorTransitionCompletionContext">
+      <Item value="inherits" priority="7" />
+      <Item value="section" priority="95" />
+      <Item value="Model" priority="9" />
+      <Item value="model" priority="43" />
+      <Item value="Html" priority="80" />
+      <Item value="SelectExtensions`0" priority="7" />
+      <Item value="Action`0" priority="12" />
+      <Item value="item" priority="15" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.WindowBuilder">
+      <Item value="Render`0" priority="22" />
+      <Item value="Width`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="HtmlCodeCompletionContext">
+      <Item value="div" priority="277" />
+      <Item value="class" priority="393" />
+      <Item value="container_12" priority="6" />
+      <Item value="container_16" priority="4" />
+      <Item value="style" priority="11" />
+      <Item value="border" priority="13" />
+      <Item value="container_24" priority="29" />
+      <Item value="br" priority="49" />
+      <Item value="&amp;nbsp;" priority="5" />
+      <Item value="prefix_10" priority="10" />
+      <Item value="title" priority="187" />
+      <Item value="Scripts" priority="23" />
+      <Item value="language" priority="87" />
+      <Item value="ecmascript" priority="5" />
+      <Item value="javascript" priority="102" />
+      <Item value="cover-div" priority="48" />
+      <Item value="t" priority="6" />
+      <Item value="script" priority="93" />
+      <Item value="type" priority="78" />
+      <Item value="text/javascript" priority="88" />
+      <Item value="grid_4" priority="29" />
+      <Item value="b" priority="5" />
+      <Item value="fieldset" priority="11" />
+      <Item value="legend" priority="5" />
+      <Item value="t-grid-actions" priority="4" />
+      <Item value="t-grid-toolbar" priority="4" />
+      <Item value="clear" priority="24" />
+      <Item value="grid_3" priority="11" />
+      <Item value="grid_7" priority="4" />
+      <Item value="Number" priority="8" />
+      <Item value="input" priority="11" />
+      <Item value="label" priority="12" />
+      <Item value="checkbox" priority="5" />
+      <Item value="name" priority="5" />
+      <Item value="id" priority="23" />
+      <Item value="align" priority="4" />
+      <Item value="center" priority="5" />
+    </ItemStatistics>
+    <ItemStatistics item="CssCodeCompletionContext">
+      <Item value="border" priority="1" />
+      <Item value="height" priority="5" />
+      <Item value="Rotate" priority="2" />
+      <Item value="Export" priority="0" />
+      <Item value="checked" priority="4" />
+    </ItemStatistics>
+    <ItemStatistics item="HtmlEntityCodeCompletionContext">
+      <Item value="&amp;nbsp;" priority="28" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.CurrencyDomainModel">
+      <Item value="PrintTest`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Production.Interfaces.ICurrencyService">
+      <Item value="Test`0" priority="26" />
+      <Item value="GetAllCurrencies`0" priority="73" />
+      <Item value="GetCurrencyByCode`0" priority="22" />
+      <Item value="CreateCurrency`0" priority="22" />
+      <Item value="GetAllCurrencyDomainModels`0" priority="81" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Production.ICurrencyRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Currency">
+      <Item value="CurrencyCode" priority="212" />
+      <Item value="CurrencyName" priority="135" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="104" />
+      <Item value="ModifiedDate" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.String">
+      <Item value="Equals`0" priority="327" />
+      <Item value="Trim`0" priority="274" />
+      <Item value="ToString`0" priority="27" />
+      <Item value="Split`0" priority="26" />
+      <Item value="Count`1" priority="27" />
+      <Item value="StartsWith`0" priority="26" />
+      <Item value="ToList`1" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.StringComparison">
+      <Item value="Ordinal" priority="26" />
+      <Item value="OrdinalIgnoreCase" priority="292" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Generic.IEnumerable`1">
+      <Item value="FirstOrDefault`1" priority="1421" />
+      <Item value="Select`2" priority="1013" />
+      <Item value="OrderBy`2" priority="26" />
+      <Item value="Where`1" priority="819" />
+      <Item value="Count`1" priority="212" />
+      <Item value="Contains`1" priority="134" />
+      <Item value="ElementAt`1" priority="134" />
+      <Item value="DefaultIfEmpty`1" priority="81" />
+      <Item value="First`1" priority="27" />
+      <Item value="All`1" priority="26" />
+      <Item value="ToList`1" priority="265" />
+      <Item value="LastOrDefault`1" priority="27" />
+      <Item value="TakeWhile`1" priority="26" />
+      <Item value="GetEnumerator`0" priority="26" />
+      <Item value="ToArray`1" priority="22" />
+      <Item value="GroupBy`2" priority="108" />
+      <Item value="Distinct`1" priority="26" />
+      <Item value="Single`1" priority="26" />
+      <Item value="Cast`1" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Exception">
+      <Item value="Message" priority="586" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.DateTime">
+      <Item value="Now" priority="624" />
+      <Item value="DaysInMonth`0" priority="26" />
+      <Item value="Today" priority="403" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Web.Mvc.ModelStateDictionary">
+      <Item value="AddModelError`0" priority="76" />
+      <Item value="Clear`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Security.Principal.IPrincipal">
+      <Item value="Identity" priority="319" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Security.Principal.IIdentity">
+      <Item value="Name" priority="299" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Decimal">
+      <Item value="MaxValue" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.CurrencyModel">
+      <Item value="CurrencyCodeName" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Production.CurrencyDomainModel">
+      <Item value="ModifiedDate" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="JavaScriptSpecificContext">
+      <Item value="currencyCode" priority="10" />
+      <Item value="if" priority="208" />
+      <Item value="mode" priority="21" />
+      <Item value="else" priority="87" />
+      <Item value="alert" priority="472" />
+      <Item value="function" priority="391" />
+      <Item value="$" priority="169" />
+      <Item value="$UnitPrice" priority="9" />
+      <Item value="var" priority="373" />
+      <Item value="ctx" priority="8" />
+      <Item value="orderQty" priority="43" />
+      <Item value="e" priority="98" />
+      <Item value="row" priority="21" />
+      <Item value="cells" priority="10" />
+      <Item value="lineTotal" priority="18" />
+      <Item value="rIdx" priority="32" />
+      <Item value="for" priority="32" />
+      <Item value="i" priority="98" />
+      <Item value="totalLine" priority="21" />
+      <Item value="false" priority="54" />
+      <Item value="flag" priority="43" />
+      <Item value="break" priority="10" />
+      <Item value="materialClassifiedName" priority="10" />
+      <Item value="return" priority="54" />
+      <Item value="txtRevisionNumberHidden" priority="10" />
+      <Item value="true" priority="21" />
+      <Item value="unitMeasureCodeName" priority="62" />
+      <Item value="unit" priority="10" />
+      <Item value="selectItem" priority="10" />
+      <Item value="materialTypeId" priority="10" />
+      <Item value="$chkMaterialIds" priority="9" />
+      <Item value="a" priority="32" />
+      <Item value="Sys$_Application$_disposeElementInternal" priority="10" />
+      <Item value="ids" priority="10" />
+      <Item value="Number" priority="5" />
+      <Item value="warehouseIssueName" priority="10" />
+      <Item value="warehouseReceiptName" priority="10" />
+      <Item value="args" priority="10" />
+      <Item value="chkAllWarehouse" priority="10" />
+      <Item value="GenCode" priority="10" />
+      <Item value="customerId" priority="32" />
+      <Item value="transactionId" priority="10" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Production.IMaterialClassifiedRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.MaterialClassified">
+      <Item value="MaterialClassifiedId" priority="82" />
+      <Item value="MaterialClassifiedName" priority="190" />
+      <Item value="Active" priority="217" />
+      <Item value="ModifiedUser" priority="109" />
+      <Item value="ModifiedDate" priority="136" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Production.Interfaces.IMaterialService">
+      <Item value="GetAllMaterialClassifiedDomainModels`0" priority="26" />
+      <Item value="CreateMaterialClassified`0" priority="26" />
+      <Item value="GetAllMaterialClassifieds`0" priority="81" />
+      <Item value="GetAllMaterialTypes`0" priority="53" />
+      <Item value="CheckMaterialCodeByOwn`0" priority="26" />
+      <Item value="GetAllMaterialDomainModels`0" priority="22" />
+      <Item value="GetMaterialTypeById`0" priority="26" />
+      <Item value="GetMaterialsByMaterialType`0" priority="49" />
+      <Item value="GetAllMaterials`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.CrossCutting.UnitOfWork.IUnitOfWork">
+      <Item value="SaveChanges`0" priority="188" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.MaterialClassifiedModel">
+      <Item value="ModifiedUser" priority="26" />
+      <Item value="MaterialClassifiedName" priority="81" />
+      <Item value="MaterialClassifiedId" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Web.HttpContextBase">
+      <Item value="User" priority="276" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.MaterialType">
+      <Item value="Materials" priority="27" />
+      <Item value="MaterialTypeName" priority="188" />
+      <Item value="MaterialClassifiedId" priority="189" />
+      <Item value="MaterialTypeId" priority="140" />
+      <Item value="ModifiedDate" priority="26" />
+      <Item value="MaterialClassified" priority="136" />
+      <Item value="Active" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Convert">
+      <Item value="ToInt32`0" priority="134" />
+      <Item value="ToByte`0" priority="53" />
+      <Item value="ToInt16`0" priority="76" />
+      <Item value="ToDateTime`0" priority="27" />
+      <Item value="ToChar`0" priority="188" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.FormatException">
+      <Item value="Message" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.MaterialTypeModel">
+      <Item value="MaterialTypeId" priority="49" />
+      <Item value="MaterialTypeName" priority="27" />
+      <Item value="MaterialClassifiedId" priority="26" />
+      <Item value="Active" priority="26" />
+      <Item value="MaterialClassified" priority="104" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridBoundColumnBuilder`1">
+      <Item value="Width`0" priority="298" />
+      <Item value="ClientTemplate`0" priority="188" />
+      <Item value="Hidden`0" priority="76" />
+      <Item value="Aggregate`0" priority="53" />
+      <Item value="ReadOnly`0" priority="27" />
+      <Item value="ClientFooterTemplate`0" priority="26" />
+      <Item value="HtmlAttributes`0" priority="49" />
+      <Item value="FooterHtmlAttributes`0" priority="27" />
+      <Item value="Title`0" priority="108" />
+      <Item value="ClientGroupHeaderTemplate`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridBuilder`1">
+      <Item value="ClientEvents`0" priority="108" />
+      <Item value="Scrollable`0" priority="138" />
+      <Item value="HtmlAttributes`0" priority="50" />
+      <Item value="Name`0" priority="217" />
+      <Item value="Render`0" priority="135" />
+      <Item value="DataKeys`0" priority="135" />
+      <Item value="DataBinding`0" priority="164" />
+      <Item value="Columns`0" priority="108" />
+      <Item value="Footer`0" priority="76" />
+      <Item value="ToolBar`0" priority="108" />
+      <Item value="Selectable`0" priority="26" />
+      <Item value="ToHtmlString`0" priority="27" />
+      <Item value="Pageable`0" priority="99" />
+      <Item value="nguid" priority="27" />
+      <Item value="Editable`0" priority="26" />
+      <Item value="Groupable`0" priority="26" />
+      <Item value="Reorderable`0" priority="26" />
+      <Item value="Resizable`0" priority="26" />
+      <Item value="Filterable`0" priority="101" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridClientEventsBuilder">
+      <Item value="OnEdit`0" priority="80" />
+      <Item value="OnRowSelect`0" priority="26" />
+      <Item value="OnSubmitChanges`0" priority="22" />
+      <Item value="OnDataBinding`0" priority="176" />
+      <Item value="OnRowDataBound`0" priority="27" />
+      <Item value="OnError`0" priority="22" />
+      <Item value="OnSave`0" priority="26" />
+      <Item value="OnDataBound`0" priority="50" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Linq.IOrderedEnumerable`1">
+      <Item value="Skip`1" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Production.IMaterialTypeRepository">
+      <Item value="FindAsNoTracking`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Production.IMaterialRepository">
+      <Item value="FindAsNoTracking`0" priority="107" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Material">
+      <Item value="MaterialType" priority="82" />
+      <Item value="MaterialId" priority="323" />
+      <Item value="MaterialTypeId" priority="162" />
+      <Item value="MaterialName" priority="267" />
+      <Item value="Diameter" priority="189" />
+      <Item value="DiameterType" priority="135" />
+      <Item value="Weight" priority="135" />
+      <Item value="Length" priority="162" />
+      <Item value="Active" priority="137" />
+      <Item value="ModifiedUser" priority="109" />
+      <Item value="ModifiedDate" priority="54" />
+      <Item value="MaterialCode" priority="513" />
+      <Item value="MaterialInventories" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.MaterialModel">
+      <Item value="Diameter" priority="27" />
+      <Item value="DiameterType" priority="27" />
+      <Item value="Length" priority="22" />
+      <Item value="Weight" priority="27" />
+      <Item value="MaterialTypeId" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridScrollSettingsBuilder">
+      <Item value="Height`0" priority="136" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Text.Encoding">
+      <Item value="UTF8" priority="28" />
+      <Item value="Unicode" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Text.Encoding">
+      <Item value="GetBytes`0" priority="125" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Web.Mvc.HtmlHelper`1">
+      <Item value="Telerik`0" priority="274" />
+      <Item value="RouteLink`0" priority="45" />
+      <Item value="Action`0" priority="22" />
+      <Item value="Label`0" priority="26" />
+      <Item value="LabelFor`2" priority="130" />
+      <Item value="TextBox`0" priority="53" />
+      <Item value="HiddenFor`2" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.ViewComponentFactory`1">
+      <Item value="Grid`1" priority="240" />
+      <Item value="ComboBox`0" priority="179" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Production.IProductRepository">
+      <Item value="GetAllAsNoTracking`0" priority="27" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Product">
+      <Item value="MaterialId" priority="216" />
+      <Item value="DesignNo" priority="220" />
+      <Item value="Material" priority="112" />
+      <Item value="ProductCode" priority="53" />
+      <Item value="ProductName" priority="27" />
+      <Item value="ProductId" priority="27" />
+      <Item value="CustomerId" priority="187" />
+      <Item value="Customer" priority="109" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Production.Interfaces.IProductService">
+      <Item value="GetAllProducts`0" priority="53" />
+      <Item value="GetProductsByMaterial`0" priority="50" />
+      <Item value="ConvertProductToModels`0" priority="26" />
+      <Item value="GetProductsByCustomer`0" priority="27" />
+      <Item value="GetProductByCode`0" priority="45" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.AutoCompleteBindingSettingsBuilder">
+      <Item value="Delay`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.ComboBoxBuilder">
+      <Item value="HighlightFirstMatch`0" priority="26" />
+      <Item value="AutoFill`0" priority="163" />
+      <Item value="Filterable`0" priority="161" />
+      <Item value="ClientEvents`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.ComboBoxFilterSettingsBuilder">
+      <Item value="FilterMode`0" priority="161" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Telerik.Web.Mvc.UI.AutoCompleteFilterMode">
+      <Item value="Contains" priority="215" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.ProductModel">
+      <Item value="ProductCode" priority="27" />
+      <Item value="DesignNo" priority="27" />
+      <Item value="CustomerId" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Production.ProductDomainModel">
+      <Item value="MaterialCode" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.MenuItem">
+      <Item value="RouteValues" priority="26" />
+      <Item value="Action`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Menu">
+      <Item value="Area" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.String">
+      <Item value="IsNullOrWhiteSpace`0" priority="215" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Purchasing.Interfaces.IVendorService">
+      <Item value="GetAllVendors`0" priority="53" />
+      <Item value="CreateVendor`0" priority="26" />
+      <Item value="ServiceTest`0" priority="26" />
+      <Item value="ConvertVendorToModels`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Vendor">
+      <Item value="VendorCode" priority="108" />
+      <Item value="VendorName" priority="80" />
+      <Item value="Active" priority="53" />
+      <Item value="ModifiedUser" priority="26" />
+      <Item value="ModifiedDate" priority="26" />
+      <Item value="VendorId" priority="27" />
+      <Item value="CompanyName" priority="167" />
+      <Item value="ContactName" priority="167" />
+      <Item value="Address" priority="167" />
+      <Item value="Eaddress" priority="195" />
+      <Item value="Phone" priority="139" />
+      <Item value="Fax" priority="27" />
+      <Item value="TaxCode" priority="167" />
+      <Item value="BankAccount" priority="167" />
+      <Item value="MaxCredit" priority="167" />
+      <Item value="SpecialInfo" priority="167" />
+      <Item value="Note" priority="83" />
+      <Item value="ShortName" priority="134" />
+      <Item value="Email" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Purchasing.IShipMethodRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="54" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.ShipMethod">
+      <Item value="ShipMethodId" priority="108" />
+      <Item value="Name" priority="275" />
+      <Item value="ShipBase" priority="136" />
+      <Item value="ShipRate" priority="136" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="135" />
+      <Item value="ModifiedDate" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Nullable`1">
+      <Item value="Equals`0" priority="26" />
+      <Item value="HasValue" priority="80" />
+      <Item value="Value" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.ComponentModel.DataAnnotations.DataType">
+      <Item value="Date" priority="134" />
+      <Item value="MultilineText" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Purchasing.IPriceListMaterialRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.PriceListMaterial">
+      <Item value="PriceListMaterialId" priority="158" />
+      <Item value="Material" priority="82" />
+      <Item value="Currency" priority="54" />
+      <Item value="Currency1" priority="26" />
+      <Item value="NetPrice" priority="81" />
+      <Item value="Exchange" priority="81" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="81" />
+      <Item value="ModifiedDate" priority="81" />
+      <Item value="MaterialId" priority="81" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Purchasing.IPurchaseOrderRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.PurchaseOrder">
+      <Item value="PurchaseOrderId" priority="189" />
+      <Item value="VendorId" priority="82" />
+      <Item value="ShipMethodId" priority="81" />
+      <Item value="EmployeeId" priority="82" />
+      <Item value="RevisionNumber" priority="137" />
+      <Item value="Status" priority="110" />
+      <Item value="OrderDate" priority="109" />
+      <Item value="ShipDate" priority="108" />
+      <Item value="SubTotal" priority="108" />
+      <Item value="TaxAmt" priority="81" />
+      <Item value="Freight" priority="81" />
+      <Item value="TotalDue" priority="81" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="135" />
+      <Item value="ModifiedDate" priority="82" />
+      <Item value="PurchaseOrderDetails" priority="53" />
+      <Item value="Vendor" priority="109" />
+      <Item value="ShipMethod" priority="54" />
+      <Item value="Employee" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.PurchaseOrderDetail">
+      <Item value="PurchaseOrderId" priority="82" />
+      <Item value="PurchaseOrderDetailId" priority="78" />
+      <Item value="OrderQty" priority="54" />
+      <Item value="UnitPrice" priority="54" />
+      <Item value="MaterialId" priority="27" />
+      <Item value="Material" priority="54" />
+      <Item value="LineTotal" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Purchasing.IPurchaseOrderDetailRepository">
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.ICustomerTypeRepository">
+      <Item value="FindAsNoTracking`0" priority="27" />
+      <Item value="GetAllAsNoTracking`0" priority="22" />
+      <Item value="Find`0" priority="53" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.CustomerType">
+      <Item value="CustomerTypeId" priority="135" />
+      <Item value="CustomerTypeName" priority="136" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="135" />
+      <Item value="ModifiedDate" priority="27" />
+      <Item value="Note" priority="135" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.ICustomerRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+      <Item value="Test`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Customer">
+      <Item value="CustomerId" priority="163" />
+      <Item value="CustomerTypeId" priority="109" />
+      <Item value="CustomerType" priority="54" />
+      <Item value="CustomerCode" priority="110" />
+      <Item value="CompanyName" priority="55" />
+      <Item value="ShortName" priority="27" />
+      <Item value="ContactName" priority="27" />
+      <Item value="Address" priority="27" />
+      <Item value="Eaddress" priority="27" />
+      <Item value="Phone" priority="27" />
+      <Item value="Fax" priority="27" />
+      <Item value="Email" priority="27" />
+      <Item value="TaxCode" priority="27" />
+      <Item value="BankAccount" priority="27" />
+      <Item value="MaxCredit" priority="27" />
+      <Item value="SpecialInfo" priority="27" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="81" />
+      <Item value="ModifiedDate" priority="81" />
+      <Item value="Note" priority="81" />
+      <Item value="CustomerName" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Purchasing.IVendorRepository">
+      <Item value="Test`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.IEmployeeRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Employee">
+      <Item value="EmployeeId" priority="108" />
+      <Item value="EmployeeCode" priority="190" />
+      <Item value="EmployeeName" priority="135" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="108" />
+      <Item value="ModifiedDate" priority="81" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.IInvoiceRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="55" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Invoice">
+      <Item value="InvoiceId" priority="136" />
+      <Item value="CustomerId" priority="82" />
+      <Item value="PriceListId" priority="27" />
+      <Item value="Active" priority="27" />
+      <Item value="ModifiedUser" priority="27" />
+      <Item value="ModifiedDate" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.IInvoiceDetailRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.InvoiceDetail">
+      <Item value="InvoiceDetailId" priority="26" />
+      <Item value="InvoiceId" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.ISalesOrderRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="78" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.SalesOrder">
+      <Item value="SalesOrderId" priority="108" />
+      <Item value="CustomerId" priority="54" />
+      <Item value="SalesOrderNumber" priority="81" />
+      <Item value="PurchaseOrderNumber" priority="55" />
+      <Item value="Status" priority="54" />
+      <Item value="SalesPersonId" priority="27" />
+      <Item value="ShipMethodId" priority="55" />
+      <Item value="OrderDate" priority="27" />
+      <Item value="DueDate" priority="55" />
+      <Item value="BillToAddress" priority="27" />
+      <Item value="ShipToAddress" priority="27" />
+      <Item value="Active" priority="27" />
+      <Item value="ModifiedUser" priority="27" />
+      <Item value="ModifiedDate" priority="28" />
+      <Item value="SalesOrderDetails" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.ISalesOrderDetailRepository">
+      <Item value="GetAllAndChildren`0" priority="26" />
+      <Item value="GetAllAsNoTracking`0" priority="22" />
+      <Item value="FindAsNoTracking`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.SalesOrderDetail">
+      <Item value="SalesOrderDetailId" priority="54" />
+      <Item value="SalesOrderId" priority="54" />
+      <Item value="ProductId" priority="55" />
+      <Item value="Product" priority="54" />
+      <Item value="CarrierTrackingNumber" priority="27" />
+      <Item value="OrderQty" priority="27" />
+      <Item value="UnitPrice" priority="27" />
+      <Item value="UnitPriceDiscount" priority="27" />
+      <Item value="LineTotal" priority="27" />
+      <Item value="Active" priority="27" />
+      <Item value="ModifiedUser" priority="27" />
+      <Item value="ModifiedDate" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Sales.ITimeLineRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="53" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.TimeLine">
+      <Item value="TimeLineId" priority="163" />
+      <Item value="WarehouseId" priority="135" />
+      <Item value="SalesOrderDetailId" priority="27" />
+      <Item value="Warehouse" priority="54" />
+      <Item value="RealTimes" priority="54" />
+      <Item value="Performance" priority="54" />
+      <Item value="StartDay" priority="54" />
+      <Item value="FinishedDay" priority="82" />
+      <Item value="WorkingHours" priority="54" />
+      <Item value="Active" priority="27" />
+      <Item value="ModifiedUser" priority="54" />
+      <Item value="ModifiedDate" priority="28" />
+      <Item value="Times" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Warehouse">
+      <Item value="WarehouseName" priority="243" />
+      <Item value="WarehouseId" priority="135" />
+      <Item value="WarehouseTypeId" priority="108" />
+      <Item value="WarehouseType" priority="54" />
+      <Item value="Description" priority="108" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="108" />
+      <Item value="ModifiedDate" priority="54" />
+      <Item value="Idx" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IWarehouseTypeRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.WarehouseType">
+      <Item value="WarehouseTypeId" priority="135" />
+      <Item value="WarehouseTypeName" priority="81" />
+      <Item value="Active" priority="27" />
+      <Item value="ModifiedUser" priority="54" />
+      <Item value="ModifiedDate" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IWarehouseRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="53" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IStockOrderTypeRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="53" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.StockOrderType">
+      <Item value="StockOrderTypeId" priority="135" />
+      <Item value="StockOrderTypeName" priority="135" />
+      <Item value="EoI" priority="132" />
+      <Item value="Active" priority="81" />
+      <Item value="ModifiedUser" priority="27" />
+      <Item value="ModifiedDate" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IStockOrderRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="107" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.StockOrder">
+      <Item value="StockOrderId" priority="267" />
+      <Item value="StockOrderTypeId" priority="55" />
+      <Item value="StockOrderType" priority="54" />
+      <Item value="WarehouseIssueId" priority="136" />
+      <Item value="WarehouseIssue" priority="54" />
+      <Item value="WarehouseReceiptId" priority="82" />
+      <Item value="WarehouseReceipt" priority="54" />
+      <Item value="StockOrderCode" priority="194" />
+      <Item value="MoP" priority="163" />
+      <Item value="CreatedUser" priority="27" />
+      <Item value="CreatedDate" priority="27" />
+      <Item value="Status" priority="109" />
+      <Item value="ModifiedUser" priority="54" />
+      <Item value="ModifiedDate" priority="55" />
+      <Item value="StockOrderDetails" priority="80" />
+      <Item value="Active" priority="81" />
+      <Item value="Transactions" priority="26" />
+      <Item value="IsApprove" priority="26" />
+      <Item value="EoI" priority="82" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IStockOrderDetailRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="55" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.StockOrderDetail">
+      <Item value="StockOrderDetailId" priority="54" />
+      <Item value="StockOrderId" priority="81" />
+      <Item value="ReferenceId" priority="55" />
+      <Item value="MoP" priority="56" />
+      <Item value="Quantity" priority="82" />
+      <Item value="UnitMeasure" priority="110" />
+      <Item value="ModifiedUser" priority="27" />
+      <Item value="ModifiedDate" priority="27" />
+      <Item value="Material" priority="53" />
+      <Item value="Product" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Transaction">
+      <Item value="StockOrderId" priority="56" />
+      <Item value="StockOrder" priority="83" />
+      <Item value="TransactionDetails" priority="107" />
+      <Item value="TransactionId" priority="136" />
+      <Item value="Status" priority="53" />
+      <Item value="EoI" priority="136" />
+      <Item value="ModifiedUser" priority="26" />
+      <Item value="ModifiedDate" priority="26" />
+      <Item value="Active" priority="81" />
+      <Item value="WarehouseReceiptId" priority="78" />
+      <Item value="WarehouseIssueId" priority="55" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IMaterialInventoryRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="53" />
+      <Item value="Add`0" priority="53" />
+      <Item value="Find`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.MaterialInventory">
+      <Item value="MaterialInventoryId" priority="165" />
+      <Item value="MaterialId" priority="571" />
+      <Item value="WarehouseId" priority="375" />
+      <Item value="Material" priority="136" />
+      <Item value="Warehouse" priority="82" />
+      <Item value="Quantity" priority="108" />
+      <Item value="UnitMeasure" priority="108" />
+      <Item value="Status" priority="137" />
+      <Item value="Active" priority="108" />
+      <Item value="ModifiedUser" priority="135" />
+      <Item value="ModifiedDate" priority="54" />
+      <Item value="TotalQty" priority="195" />
+      <Item value="AvailableQty" priority="139" />
+      <Item value="UnavailableQty" priority="111" />
+      <Item value="TotalQtyKg" priority="83" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.IMaterialInventoryPeriodRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Find`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.MaterialInventoryPeriod">
+      <Item value="MaterialInventoryPeriodId" priority="27" />
+      <Item value="MaterialId" priority="216" />
+      <Item value="WarehouseId" priority="300" />
+      <Item value="TransactionId" priority="83" />
+      <Item value="Transaction" priority="78" />
+      <Item value="PeriodDate" priority="299" />
+      <Item value="PeriodMonth" priority="27" />
+      <Item value="PeriodYear" priority="27" />
+      <Item value="PeriodDay" priority="54" />
+      <Item value="EarlyPeriodQuantity" priority="132" />
+      <Item value="EarlyPeriodPrice" priority="55" />
+      <Item value="Quantity" priority="165" />
+      <Item value="UnitPrice" priority="83" />
+      <Item value="Price" priority="185" />
+      <Item value="LastPeriodQuantity" priority="138" />
+      <Item value="LastPeriodPrice" priority="55" />
+      <Item value="ModifiedUser" priority="27" />
+      <Item value="ModifiedDate" priority="28" />
+      <Item value="UnitMeasure" priority="22" />
+      <Item value="Warehouse" priority="81" />
+      <Item value="Material" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models.ShipMethodModel">
+      <Item value="Name" priority="27" />
+      <Item value="ShipRate" priority="27" />
+      <Item value="ShipBase" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.EmployeeModel">
+      <Item value="EmployeeId" priority="22" />
+      <Item value="EmployeeCode" priority="27" />
+      <Item value="EmployeeName" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridDataKeyFactory`1">
+      <Item value="Add`1" priority="134" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models.PurchaseOrderModel">
+      <Item value="PurchaseOrderId" priority="26" />
+      <Item value="VendorCodeName" priority="49" />
+      <Item value="VendorId" priority="27" />
+      <Item value="ShipMethodName" priority="55" />
+      <Item value="EmployeeName" priority="55" />
+      <Item value="Status" priority="22" />
+      <Item value="OrderDate" priority="78" />
+      <Item value="ShipDate" priority="78" />
+      <Item value="VendorName" priority="26" />
+      <Item value="RevisionNumber" priority="81" />
+      <Item value="TotalDue" priority="50" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridDataKeyBuilder`1">
+      <Item value="RouteKey`0" priority="107" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridDataBindingConfigurationBuilder">
+      <Item value="Ajax`0" priority="134" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridAjaxBindingSettingsBuilder">
+      <Item value="Delete`0" priority="26" />
+      <Item value="Select`0" priority="109" />
+      <Item value="Insert`0" priority="54" />
+      <Item value="Update`0" priority="81" />
+      <Item value="OperationMode`0" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Telerik.Web.Mvc.UI.GridEditMode">
+      <Item value="InForm" priority="22" />
+      <Item value="PopUp" priority="22" />
+      <Item value="InLine" priority="27" />
+      <Item value="InCell" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Purchasing.Interfaces.IPoService">
+      <Item value="GetAllPurchaseOrders`0" priority="26" />
+      <Item value="GetPurchaseOrderByStatus`0" priority="49" />
+      <Item value="GetPoDetailByPoId`0" priority="54" />
+      <Item value="CreatePurchaseOrder`0" priority="26" />
+      <Item value="ConvertPurchaseOrderToModels`0" priority="26" />
+      <Item value="ConvertPurchaseOrderDetailToModels`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models.PurchaseOrderDetailModel">
+      <Item value="PurchaseOrderDetailId" priority="26" />
+      <Item value="MaterialName" priority="22" />
+      <Item value="OrderQty" priority="100" />
+      <Item value="UnitPrice" priority="110" />
+      <Item value="LineTotal" priority="27" />
+      <Item value="PurchaseOrderId" priority="27" />
+      <Item value="MaterialClassifiedName" priority="22" />
+      <Item value="MaterialTypeName" priority="27" />
+      <Item value="MaterialId" priority="27" />
+      <Item value="MaterialCodeName" priority="26" />
+      <Item value="DueDate" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.GridColumnBase`1">
+      <Item value="Member" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="JavaScriptSpecificContextQualified">
+      <Item value="namedItem" priority="8" />
+      <Item value="length" priority="17" />
+      <Item value="disable" priority="9" />
+      <Item value="enable" priority="7" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.DropDownListBuilder">
+      <Item value="ClientEvents`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.DropDownClientEventsBuilder">
+      <Item value="OnChange`0" priority="157" />
+      <Item value="OnDataBinding`0" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridToolBarCommandFactory`1">
+      <Item value="Template`0" priority="76" />
+      <Item value="Insert`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridAggregatesFactory">
+      <Item value="Sum`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Production.StatusEnumDomain">
+      <Item value="Open" priority="54" />
+      <Item value="Pending" priority="27" />
+      <Item value="Rejected" priority="55" />
+      <Item value="Complete" priority="55" />
+      <Item value="Approved" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Generic.ICollection`1">
+      <Item value="Add`0" priority="80" />
+      <Item value="Where`1" priority="26" />
+      <Item value="Select`2" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.NumericTextBoxBuilder`1">
+      <Item value="DecimalDigits`0" priority="26" />
+      <Item value="MinValue`0" priority="53" />
+      <Item value="MaxValue`0" priority="55" />
+      <Item value="DecimalSeparator`0" priority="26" />
+      <Item value="NumberGroupSeparator`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Globalization.CultureInfo">
+      <Item value="CreateSpecificCulture`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Double">
+      <Item value="MaxValue" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Enum">
+      <Item value="GetValues`0" priority="81" />
+      <Item value="Parse`0" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Production.StatusEnumDomain">
+      <Item value="ToString`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Production.CastStatusEnumDomain">
+      <Item value="GetTextStatusEnumDomain`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridDetailViewBuilder`1">
+      <Item value="ClientTemplate`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.TabStripBuilder">
+      <Item value="ToHtmlString`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridColumnFactory`1">
+      <Item value="Bound`1" priority="189" />
+      <Item value="Command`0" priority="53" />
+      <Item value="Template`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.DatePickerBuilder">
+      <Item value="Format`0" priority="26" />
+      <Item value="Value`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.StockOrderTypeModel">
+      <Item value="EoI" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.StockOrderTypeEnumModel">
+      <Item value="Export" priority="27" />
+      <Item value="Import" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.StockOrderStatusEnumModel">
+      <Item value="Finished" priority="78" />
+      <Item value="Open" priority="45" />
+      <Item value="Approved" priority="49" />
+      <Item value="Pending" priority="55" />
+      <Item value="InProcess" priority="50" />
+      <Item value="Rejected" priority="27" />
+      <Item value="TryParse`1" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.StockOrderModel">
+      <Item value="StockOrderCode" priority="103" />
+      <Item value="WarehouseIssueName" priority="49" />
+      <Item value="WarehouseReceiptName" priority="50" />
+      <Item value="StockOrderId" priority="100" />
+      <Item value="Status" priority="27" />
+      <Item value="EoI" priority="27" />
+      <Item value="CreatedUser" priority="27" />
+      <Item value="CreatedDate" priority="22" />
+      <Item value="EoIName" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.StockOrderDetailModel">
+      <Item value="Quantity" priority="78" />
+      <Item value="UnitMeasure" priority="78" />
+      <Item value="ReferenceId" priority="27" />
+      <Item value="UnitMeasureCodeName" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Inv.Interfaces.IStockOrderService">
+      <Item value="GetStockOrderByCode`0" priority="49" />
+      <Item value="CreateStockOrder`0" priority="26" />
+      <Item value="GetStockOrderByStatus`0" priority="22" />
+      <Item value="ConvertStockOrderModels`0" priority="26" />
+      <Item value="GetStockOrderDetailByStockOrderId`0" priority="26" />
+      <Item value="ConvertStockOrderDetailToModels`0" priority="26" />
+      <Item value="UpdateStatusStockOrder`0" priority="22" />
+      <Item value="GetStockOrderByMoP`0" priority="22" />
+      <Item value="GetAllStockOrders`0" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.ProductInventory">
+      <Item value="TotalQty" priority="111" />
+      <Item value="AvailableQty" priority="111" />
+      <Item value="UnavailableQty" priority="111" />
+      <Item value="Product" priority="111" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Inv.Interfaces.IMaterialInventoryService">
+      <Item value="GetMaterialInventory`0" priority="26" />
+      <Item value="GetMaterialInventoryByWarehouseId`0" priority="22" />
+      <Item value="ConvertMaterialInventoryToModels`0" priority="53" />
+      <Item value="GetAllMaterialInventories`0" priority="49" />
+      <Item value="ImportMaterialInventory`0" priority="26" />
+      <Item value="RotateMaterialInventories`0" priority="26" />
+      <Item value="GetMaterialInventoryByMaterialId`0" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInventoryModel">
+      <Item value="MaterialInventoryId" priority="26" />
+      <Item value="MaterialId" priority="191" />
+      <Item value="MaterialCodeName" priority="45" />
+      <Item value="TotalQty" priority="54" />
+      <Item value="AvailableQty" priority="27" />
+      <Item value="UnavailableQty" priority="27" />
+      <Item value="Active" priority="27" />
+      <Item value="Quantity" priority="26" />
+      <Item value="MaterialCode" priority="27" />
+      <Item value="MaterialName" priority="26" />
+      <Item value="WarehouseName" priority="45" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Inv.MaterialInventoryDomainModel">
+      <Item value="MaterialId" priority="80" />
+      <Item value="Material" priority="54" />
+      <Item value="MaterialCodeName" priority="27" />
+      <Item value="MaterialName" priority="26" />
+      <Item value="MaterialCode" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridPagerSettingsBuilder">
+      <Item value="PageSize`0" priority="76" />
+      <Item value="Style`0" priority="76" />
+      <Item value="PageOnScroll`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridEditingSettingsBuilder`1">
+      <Item value="Mode`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Collections.Generic.List`1">
+      <Item value="Add`0" priority="231" />
+      <Item value="AddRange`0" priority="136" />
+      <Item value="Where`1" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.CastStockOrderStatusEnumDomain">
+      <Item value="GetTextStockOrderStatusEnumDomain`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Inv.StockOrderDetailDomainModel">
+      <Item value="MoP" priority="26" />
+      <Item value="MaterialCode" priority="26" />
+      <Item value="ProductCode" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Inv.Interfaces.ITransactionService">
+      <Item value="CreateTransaction`0" priority="80" />
+      <Item value="GetAllTransactions`0" priority="53" />
+      <Item value="GetTransactionByMoP`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.ITransactionRepository">
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.TransactionDetail">
+      <Item value="TransactionId" priority="26" />
+      <Item value="Active" priority="27" />
+      <Item value="Material" priority="27" />
+      <Item value="ReferenceId" priority="27" />
+      <Item value="Quantity" priority="111" />
+      <Item value="UnitMeasure" priority="27" />
+      <Item value="QuantityKg" priority="196" />
+      <Item value="Price" priority="55" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Inv.ITransactionDetailRepository">
+      <Item value="Add`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.TransactionStatusEnumModel">
+      <Item value="Cancel" priority="22" />
+      <Item value="Open" priority="87" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.TransactionModel">
+      <Item value="TransactionId" priority="96" />
+      <Item value="StockOrderCode" priority="22" />
+      <Item value="TransactionCode" priority="22" />
+      <Item value="EoIName" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.CastTransactionStatusEnumDomain">
+      <Item value="GetTextTransactionStatusEnumDomain`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.DateTime">
+      <Item value="Date" priority="82" />
+      <Item value="Day" priority="50" />
+      <Item value="Month" priority="76" />
+      <Item value="Year" priority="104" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Inv.MaterialInventoryPeriodDomainModel">
+      <Item value="WarehouseId" priority="26" />
+      <Item value="MaterialId" priority="26" />
+      <Item value="EarlyPeriodQuantity" priority="50" />
+      <Item value="LastPeriodQuantity" priority="53" />
+      <Item value="Quantity" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Inv.Interfaces.IMaterialInventoryPeriodService">
+      <Item value="ImportMaterialInventoryPeriods`0" priority="26" />
+      <Item value="RotateMaterialInventoryPeriods`0" priority="26" />
+      <Item value="GetAllMaterialInventoryPeriods`0" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Web.HttpRequestBase">
+      <Item value="IsAuthenticated" priority="134" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInventoryImportModel">
+      <Item value="Quantity" priority="26" />
+      <Item value="TotalQty" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.ExportOrImportEnumModel">
+      <Item value="Import" priority="136" />
+      <Item value="Export" priority="277" />
+      <Item value="Rotate" priority="251" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Vfi.Server.Core.DataModel.Models.Inv.CastExportOrImportEnumDomain">
+      <Item value="GetTextExportOrImportEnumDomain`0" priority="55" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Inv.ExportOrImportEnumModel">
+      <Item value="ToString`0" priority="215" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Char">
+      <Item value="ToString`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInventoryRotateModel">
+      <Item value="MaterialInventoryIssueId" priority="22" />
+      <Item value="TotalQtyExport" priority="45" />
+      <Item value="QuantityKg" priority="27" />
+      <Item value="Price" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.AutoCompleteBuilder">
+      <Item value="ClientEvents`0" priority="26" />
+      <Item value="Filterable`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridGroupingSettingsBuilder`1">
+      <Item value="GetHashCode`0" priority="26" />
+      <Item value="Groups`0" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridGroupDescriptorFactory`1">
+      <Item value="Add`1" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridResizingSettingsBuilder">
+      <Item value="Columns`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridReorderingSettingsBuilder">
+      <Item value="Columns`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Linq.IGrouping`2">
+      <Item value="Key" priority="162" />
+      <Item value="First`1" priority="246" />
+      <Item value="Last`1" priority="56" />
+      <Item value="DefaultIfEmpty`1" priority="54" />
+      <Item value="Count`1" priority="54" />
+      <Item value="Each`1" priority="26" />
+      <Item value="Select`2" priority="26" />
+      <Item value="ToList`1" priority="23" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInventoryPeriodModel">
+      <Item value="MaterialInventoryPeriodId" priority="22" />
+      <Item value="EarlyPeriodQuantity" priority="27" />
+      <Item value="Quantity" priority="22" />
+      <Item value="LastPeriodQuantity" priority="22" />
+      <Item value="PeriodDate" priority="27" />
+      <Item value="UnitMeasure" priority="55" />
+      <Item value="QtyExport" priority="54" />
+      <Item value="QtyImport" priority="55" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.MenuBuilder">
+      <Item value="Effects`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.EffectsBuilder">
+      <Item value="OpenDuration`0" priority="26" />
+      <Item value="Slide`0" priority="22" />
+      <Item value="Toggle`0" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Telerik.Web.Mvc.UI.AnimationDuration">
+      <Item value="Normal" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.EffectsBuilderBase">
+      <Item value="Opacity`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.Models.Inv.StockOrderStatusEnumModel">
+      <Item value="ToString`0" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridFilteringSettingsBuilder`1">
+      <Item value="Filters`0" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.Repository.Production.IParameterRepository">
+      <Item value="GetAllAsNoTracking`0" priority="26" />
+      <Item value="FindAsNoTracking`0" priority="26" />
+      <Item value="Add`0" priority="26" />
+      <Item value="Find`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.Parameter">
+      <Item value="ParamCode" priority="80" />
+      <Item value="Name" priority="80" />
+      <Item value="Value" priority="164" />
+      <Item value="ModifiedDate" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Models.Production.ParameterModel">
+      <Item value="ParamCode" priority="107" />
+      <Item value="Name" priority="55" />
+      <Item value="Value" priority="55" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridActionCommandFactory`1">
+      <Item value="Edit`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridEditActionCommandBuilder">
+      <Item value="ButtonType`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Telerik.Web.Mvc.UI.GridButtonType">
+      <Item value="ImageAndText" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Production.Interfaces.IParameterService">
+      <Item value="GetAllParameters`0" priority="53" />
+      <Item value="CreateParameter`0" priority="26" />
+      <Item value="UpdateParameter`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridToolBarCommandBuilder`1">
+      <Item value="ButtonType`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Inv.Interfaces.IProductInventoryService">
+      <Item value="GetAllProductInventories`0" priority="27" />
+      <Item value="GetProductInventoryByWarehouseId`0" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ProductInventoryRotateModel">
+      <Item value="ProductId" priority="28" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Telerik.Web.Mvc.UI.GridPagerStyles">
+      <Item value="NextPreviousAndDropDown" priority="49" />
+      <Item value="PageSizeDropDown" priority="22" />
+      <Item value="Status" priority="72" />
+      <Item value="PageInput" priority="22" />
+      <Item value="NextPreviousAndNumeric" priority="68" />
+      <Item value="NextPreviousAndInput" priority="22" />
+      <Item value="NextPrevious" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models.VendorModel">
+      <Item value="ShortName" priority="27" />
+      <Item value="CompanyName" priority="27" />
+      <Item value="Address" priority="27" />
+      <Item value="Eaddress" priority="27" />
+      <Item value="TaxCode" priority="55" />
+      <Item value="Email" priority="27" />
+      <Item value="MaxCredit" priority="27" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.CustomerModel">
+      <Item value="CustomerName" priority="27" />
+      <Item value="CustomerTypeName" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.SalesOrderDetailModel">
+      <Item value="ProductName" priority="22" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Client.Module.Sales.Interfaces.ISalesOrderService">
+      <Item value="GetSalesOrderBySalesOrderNumber`0" priority="26" />
+      <Item value="CreateSalesOrder`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@Telerik.Web.Mvc.UI.GridOperationMode">
+      <Item value="Client" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Object">
+      <Item value="ToString`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ProductInventoryPeriodModel">
+      <Item value="PeriodDate" priority="27" />
+      <Item value="ProductCode" priority="53" />
+      <Item value="ProductId" priority="154" />
+      <Item value="ProductName" priority="22" />
+      <Item value="Warehouse" priority="26" />
+      <Item value="WarehouseIdx" priority="26" />
+      <Item value="WarehouseName" priority="26" />
+      <Item value="QtyImport" priority="26" />
+      <Item value="QtyExport" priority="26" />
+      <Item value="Quantity" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.AutoCompleteFilterSettingsBuilder">
+      <Item value="FilterMode`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Server.Core.DataModel.BaseEntities.ProductInventoryPeriod">
+      <Item value="Product" priority="57" />
+      <Item value="Warehouse" priority="54" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ProductInventoryModel">
+      <Item value="Active" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ProductInventoryByListWarehouseModel">
+      <Item value="InvName1" priority="81" />
+      <Item value="Qty1" priority="99" />
+      <Item value="QtyImport" priority="22" />
+      <Item value="QtyImport1" priority="45" />
+      <Item value="QtyExport1" priority="49" />
+      <Item value="ProductId" priority="53" />
+      <Item value="ProductCode" priority="53" />
+      <Item value="TotalQty" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Telerik.Web.Mvc.UI.Fluent.GridTemplateColumnBuilder`1">
+      <Item value="HeaderTemplate`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="AspCodeCompletionContext">
+      <Item value="CssClass" priority="13" />
+      <Item value="ReportToolbar" priority="6" />
+      <Item value="Height" priority="6" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.TransactionDetailModel">
+      <Item value="Price" priority="27" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>

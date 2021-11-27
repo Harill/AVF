@@ -1,0 +1,254 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Bàn giao ca";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+        function grid_OnDataBinding(args) {
+            var shift = $("#Shift").val();
+            if (shift === null || shift == "")
+                shift = 1;
+            var printDate = $("#PrintDate").data("tDatePicker").value();
+            if (printDate === null)
+                printDate = "";
+            else
+                printDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', printDate);
+            args.data = $.extend(args.data, {
+                shift: shift,
+                printDate: printDate
+            });
+        }
+
+        function printMachineStateHandover() {
+
+            var shift = $("#Shift").val();
+            if (shift === null || shift == "")
+                shift = 1;
+            var printDate = $("#PrintDate").data("tDatePicker").value();
+            if (printDate === null)
+                printDate = "";
+            else
+                printDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', printDate);
+            $('#result').load('@Url.Action("PrintMachineStateHandover", "Machine")',
+                {
+                    shift: shift,
+                    printDate: printDate
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+        function printTechnicalHandover() {
+
+            var printDate = $("#PrintDate").data("tDatePicker").value();
+            if (printDate === null)
+                printDate = "";
+            else
+                printDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', printDate);
+            var machineType = $("#MachineType").data("tComboBox").value();
+            if (machineType === null || machineType === "")
+                machineType = 0;
+            $('#result').load('@Url.Action("PrintTechnicalHandover", "Machine")',
+                {
+                    machineType: machineType,
+                    printDate: printDate
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+        var index = 0;
+
+        function machineType_onload() {
+            var combobox = $('#MachineType').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "All", Value: "All" },
+                { Text: "Cames", Value: "Cames" },
+                { Text: "CNC", Value: "CNC" },
+                { Text: "Phay CNC", Value: "Phay CNC" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+    </script>
+}
+
+<div class="title">Quản lý thông tin máy</div>
+<div class="clear"></div>
+<br />
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+    
+            <div class="grid_2">
+                Loại máy
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("MachineType")
+                        .HtmlAttributes(new {style = "width: 150px"})
+                        .DropDownHtmlAttributes(new {style = "width: 250px"})
+                        .ClientEvents(events => events.OnLoad("machineType_onload"))
+                        .Value("All")
+                        .Render();
+                }
+            </div>
+         <div class="grid_6">
+              <button id="btnTechnicalHandover" class="t-button" onclick=" return printTechnicalHandover(); ">
+                <span class='t-icon t-insert'></span>
+               In báo cáo bàn giao kỹ thuật
+            </button>
+            </div>
+<div class="clear"></div>
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
+        
+            <div class="grid_1">
+                Ca
+            </div>
+            <div class="grid_1">
+            @{
+                Html.Telerik().IntegerTextBox()
+                    .Name("Shift")
+                    .Value(1)
+                    .MinValue(1)
+                    .MaxValue(2)    
+                    .InputHtmlAttributes(new { style = "width: 100%" })
+                    .Render();
+            }
+            </div>
+     <div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("PrintDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMachine'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </div>
+         <div class="grid_6">
+              <button id="btnProduction2Period" class="t-button" onclick=" return printMachineStateHandover(); ">
+                <span class='t-icon t-insert'></span>
+               In báo cáo bàn giao ca
+            </button>
+            </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MachineStateHandoverModel>()
+            .Name("gridMachine")
+            .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectMachineStateHandover", "Machine", new {machineType= 0, shift = 0, printDate = "" }))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.MachineName).Width(70).Title("Máy")
+                           .ClientTemplate("<strong><#= MachineName #></strong>")
+                           .Aggregate(agg => agg.Count())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:0}', Count) #>");
+
+                    columns.Bound(f => f.ProductCode).Width(90).Title("SP").ReadOnly(true);
+                    
+                    columns.Bound(f => f.StateCode).Width(70).Title("Mã Lỗi");
+                    columns.Bound(f => f.StateName).Width(70).Title("Tình trạng");
+                    columns.Bound(f => f.EstimateTime).Width(70).Title("TG sửa");
+                    columns.Bound(f => f.StartDate).Width(85).Title("BĐ tính").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.FinishDate).Width(85).Title("KT tính").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.StartState).Width(85).Title("Ngày lỗi").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.FinishState).Width(85).Title("KT lỗi").ReadOnly(true)
+                           //.Format("{0:dd/MM/yyyy HH:mm}");
+                        .ClientTemplate("<#= FinishState == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', FinishState) #>")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.ErrorTime).Width(75).Title("TG lỗi")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(f => f.RunningTime).Width(75).Title("TG chạy")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(f => f.ProductionMaterialPlan).Width(75).Title("NL")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(f => f.ProductionProductPlan).Width(75).Title("SP")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(f => f.FormId).Width(75).Title("Id");
+                    //columns.Bound(f => f.CreateUser).Width(85).Title("NV KT").ReadOnly(true)
+                    //       .HtmlAttributes(new {style = "border-right:1px solid black;"});
+                    
+                    //columns.Bound(f => f.Note).Width(125).Title("Ghi chú");
+                })
+            .Scrollable(f => f.Height(510))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                .OnDataBinding("grid_OnDataBinding")
+                .OnRowSelect("grid_OnRowSelect"))
+            .Filterable()
+            .Reorderable(grid => grid.Columns(true))
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();
+    }
+</div>
+
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReport")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(960)
+            .Render();
+    }
+
+    <style type="text/css">
+        #windowReport {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .tb-witdh td {
+            width: 55px;
+        }
+    </style>

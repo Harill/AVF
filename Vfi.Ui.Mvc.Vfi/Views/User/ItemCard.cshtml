@@ -1,0 +1,220 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model ItemCardModel
+@{
+    ViewBag.Title = "Item card";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section scripts{
+
+    <script type="text/javascript">
+
+        function product_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { productId: e.value },
+                dataType: 'json',
+                url: '@Url.Action("SelectItemCardInfo", "User", new { area = "" })',
+                timeout: 20000,
+                success: function (data) {
+                    //var info = data;
+
+                    $("#ProductCustomerCode").val(data.ProductCustomerCode);
+                    $("#ProductName").val(data.ProductName);
+                    $("#Quantity").val(data.Quantity);
+                    //$('#Note').val(quotation.Note);
+                    //$('#PortName').data('tAutoComplete').value(quotation.PortName);
+                    //$("#ExchangeRate").data("tTextBox").$text[0].innerHTML = quotation.ExchangeRate;
+
+                    //$("#CurrencyCode").val(quotation.CurrencyCode);
+                    //$("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = quotation.CurrencyCode;
+                    //$("#DeliveryTerm").val(quotation.DeliveryTermId);
+                    //$("#DeliveryTerm").data("tDropDownList").$text[0].innerHTML = quotation.DeliveryTermName;
+                    //$("#PaymentMethod").val(quotation.PaymentMethodId);
+                    //$("#PaymentMethod").data("tDropDownList").$text[0].innerHTML = quotation.PaymentMethodName;
+                    //$("#DeliveryPeriod").val(quotation.DeliveryPeriod);
+                    //$("#DeliveryPeriod").data("tDropDownList").$text[0].innerHTML = quotation.DeliveryPeriodName;
+                    //$("#PaymentCondition").val(quotation.PaymentCondition);
+                    //$("#PaymentCondition").data("tDropDownList").$text[0].innerHTML = quotation.PaymentConditionName;
+                    //$("#Customer").val(quotation.CustomerId);
+                    //$("#Customer").data("tComboBox").$text[0].innerHTML = quotation.CustomerCodeName;
+                    //$("#Customer").data("tComboBox").$text[0].value = quotation.CustomerCodeName;
+                    $("#Fuel").val(data.FuelId);
+                    $("#Fuel").data("tComboBox").$text[0].innerHTML = data.FuelCode;
+                    $("#Fuel").data("tComboBox").$text[0].value = data.FuelCode;
+                    //RefreshGrid("gridProductQuotationDetail");
+                }
+            });
+        }
+        function Print() {
+            var product = $("#ProductCode").data("tComboBox").value();
+            if (product === "")
+                product = 0; 
+            var code = $("#ProductCustomerCode").val();
+            var name = $("#ProductName").val();
+            var quantity = $("#Quantity").val();
+            var lot = $("#Lot").val();
+            var note = $("#Note").val();
+            var employeeName = $("#EmployeeName").val();
+            var fuel = $("#Fuel").data("tComboBox").value();
+            var date = $("#Date").data("tDatePicker").value();
+            if (date === null)
+                date = "";
+            else
+                date = $.telerik.formatString('{0:dd/MM/yyyy}', date);
+            $('#result').load('@Url.Action("PrintItemCard", "User")',
+                {
+                    productId: product,
+                    name: name,
+                    code: code,
+                    quantity:quantity,
+                    lot: lot,
+                    date: date,
+                    employee: employeeName,
+                    note: note,
+                    fuelId:fuel,
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+    </script>
+}
+<div class="title">Item card</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
+
+        <fieldset>
+            <legend>Thông tin item card</legend>
+            <div class="grid_10">
+                <div class="grid_2">Sản phẩm</div>
+                 <div class="grid_4">
+             @{
+                Html.Telerik().ComboBox()
+                    .Name("ProductCode")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProduct", "Product",new{area=""}))
+                    .HtmlAttributes(new {style = "width: 100%"})
+                    .DropDownHtmlAttributes(new {style = "width: 275px"})
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .ClientEvents(e=> e.OnChange("product_OnChange"))
+                    .Render();
+            }
+          
+        </div>
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">Mã</div>
+                <div class="grid_5">
+                    @Html.TextBoxFor(f => f.ProductCustomerCode)
+                </div>
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">Tên</div>
+                <div class="grid_5">
+                    @Html.TextBoxFor(f => f.ProductName)
+                </div>
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">Số lượng</div>
+                <div class="grid_5">
+                    @Html.Telerik().NumericTextBox().DecimalDigits(0).Name("Quantity").Value(0).MinValue(0)
+                </div>
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">Lô</div>
+                <div class="grid_5">
+                    @Html.TextBoxFor(f => f.Lot)
+                </div>
+            </div>
+            <div class="grid_10">
+                  <div class="grid_2">Loại bao</div>
+                 <div class="grid_4">
+             @{
+                Html.Telerik().ComboBox()
+                    .Name("Fuel")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxFuel", "Fuel", new { area = "Purchasing" }))
+                    .HtmlAttributes(new {style = "width: 100%"})
+                    .DropDownHtmlAttributes(new {style = "width: 275px"})
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+          
+        </div>
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">Ngày </div>
+                <div class="grid_5">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("Date")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Today)
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">NV Kiểm tra</div>
+                <div class="grid_5">
+                    @Html.TextBoxFor(f => f.EmployeeName)
+                </div>
+
+                <div class="clear"></div>
+                <br />
+                <div class="grid_2">Ghi chú</div>
+                <div class="grid_7">@Html.TextAreaFor(f => f.Note, new { @class = "multi-line" })</div>
+            </div>
+            <button id="btnRefresh" class='t-button' onclick=" return Print(); ">
+                <span class='t-icon t-insert'></span>
+                In
+            </button>
+        </fieldset>
+    </div>
+</div>
+
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReport")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(960)
+            .Render();
+    }
+
+    <style type="text/css">
+        #windowReport {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+
+        .tb-witdh td {
+            width: 55px;
+        }
+    </style>

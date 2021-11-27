@@ -1,0 +1,348 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Duyệt báo giá";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+       
+        function SplitQuoteDetails(quoteId) {
+            var $detailIds = $("input[name='chkQuoteDetailId']:checked");
+            if ($detailIds.length == 0) {
+                alert("Vui lòng chọn sản phẩm nhân bản");
+                return false;
+            }
+
+            var ids = {};
+            for (var i = 0; i < $detailIds.length; i++) {
+                ids[i] = $detailIds[i].value;
+            }
+            try {
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        quoteId: quoteId,
+                        detailIds: ids,
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("SplitQuoteDetails", "SalesOrder")',
+                    timeout: 20000,
+                    success: function(data) {
+                        //alert(data);
+                        if (data == 1) {
+                            alert("Tách thành công!");
+                            $('#gridQuotation').data('tGrid').ajaxRequest();
+                        } else if (data == 9) {
+                            alert("Không tìm thấy báo giá");
+                        } else if (data == 8) {
+                            alert("Không được chọn tách tất cả chi tiết");
+                        }
+                        //else if (data == 2) {
+                        //    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                        //    $('#txtTransactionCodeHidden').val(0);
+                        //}
+                    }
+                });
+            } catch(err) {
+                alert("Co Loi !");
+            }
+            return false;
+        }
+
+        function DuplicateQuoteDetails(quoteId) {
+            var $detailIds = $("input[name='chkQuoteDetailId']:checked");
+            if ($detailIds.length == 0) {
+                alert("Vui lòng chọn sản phẩm cần nhân bản");
+                return false;
+            }
+
+            var ids = {};
+            for (var i = 0; i < $detailIds.length; i++) {
+                ids[i] = $detailIds[i].value;
+            }
+            try {
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        quoteId: quoteId,
+                        detailIds: ids,
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("DuplicateQuoteDetails", "SalesOrder")',
+                    timeout: 20000,
+                    success: function(data) {
+                        //alert(data);
+                        if (data == 1) {
+                            alert("Nhân bản thành công!");
+                            //$('#gridQuotation'.quoteId).data('tGrid').ajaxRequest();
+                        } else if (data == 9) {
+                            alert("Không tìm thấy báo giá");
+                        }
+                        //else if (data == 2) {
+                        //    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                        //    $('#txtTransactionCodeHidden').val(0);
+                        //}
+                    }
+                });
+            } catch(err) {
+                alert("Co Loi !");
+            }
+            $('#gridQuotation_'+quoteId).data('tGrid').ajaxRequest();
+            return false;
+        }
+
+        function ChangeQuoteStatus(val, status) {
+            var message = "Vui lòng xác nhận ";
+            switch (status) {
+            case 2:
+                message += "duyệt";
+                break;
+            case 3:
+                message += "hủy";
+                break;
+            case 4:
+                message += "làm lại";
+                break;
+            default:
+            }
+            message += " báo giá này";
+            if (confirm(message)) {
+                // Save it!
+                try {
+                    $.ajax({
+                        type: 'post',
+                        data: {
+                            quoteId: val,
+                            status: status,
+                        },
+                        dataType: 'json',
+                        url: '@Url.Action("ChangeQuoteStatus", "SalesOrder")',
+                        timeout: 20000,
+                        success: function(data) {
+                            alert(data);
+                            //if (data == 1) {
+                            //    alert("Tách thành công!");
+                            //    $('#gridProduct').data('tGrid').ajaxRequest();
+                            //} else if (data == 0) {
+                            //    alert("Không tách được đơn hàng");
+                            //} else if (data == 2) {
+                            //    alert("Không được chọn tách tất cả chi tiết");
+                            //}
+                            //else if (data == 2) {
+                            //    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                            //    $('#txtTransactionCodeHidden').val(0);
+                            //}
+                        }
+                    });
+                } catch(err) {
+                    alert("Co Loi !");
+                }
+            } else {
+                return false;
+            }
+            $('#gridQuotation_' + quoteId).data('tGrid').ajaxRequest();
+            return false;
+
+        }
+
+
+        function PrintForm(val) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintQuotation", "SalesOrder", new {area = "Sales"})',
+                {
+                    quoteId: val
+                }, function() {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+
+    </script>
+}
+
+    <div class="title">Duyệt báo giá</div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<QuoteFormModel>()
+            .Name("gridQuotation")
+            .DataKeys(key => key.Add(f => f.QuoteId).RouteKey("quoteId"))
+            //.ToolBar(
+            //    toolbar =>
+            //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectQuoteApprove", "SalesOrder", new {area = "Sales"})
+            //.Insert("InsertOrder", "Orders", new { area = "Sales" })
+            //.Update("ApproveQuotation", "SalesOrder", new { area = "Sales" })
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.QuoteId).Title("Duyệt").Width(60).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='approve_<#= QuoteId #>' value='Duyệt' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,2) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.CustomerCodeName).Title("Khách hàng").Width(100).ReadOnly(true);
+                    columns.Bound(f => f.QuoteNumber).Title("Lệnh bán").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(45).ReadOnly(true).Filterable(false)
+                           .ClientTemplate("<#= ExchangeRate == null ? 0 : $.telerik.formatString('{0:n0}', ExchangeRate) #>");
+                    columns.Bound(f => f.QuoteCount).Title("Rev").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.ProductCount).Title("SP").Width(25).ReadOnly(true).Filterable(false);
+                    columns.Bound(f => f.QuoteDate).Width(70).Title("Ngày báo giá").ReadOnly(true)
+                           .ClientTemplate("<#= QuoteDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', QuoteDate) #>");
+                    columns.Bound(f => f.OutOfDate).Width(70).Title("Ngày hết hạn").ReadOnly(true)
+                           .ClientTemplate("<#= OutOfDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OutOfDate) #>");
+                    columns.Bound(f => f.Note).Title("Ghi Chú").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.QuoteId).Title("").Width(60).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='re_<#= QuoteId #>' value='BG lại' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,4) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.QuoteId).Title("Hủy").Width(60).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='del_<#= QuoteId #>' value='Hủy' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,3) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.QuoteId).Title("In").Width(45).ReadOnly(true)
+                           .ClientTemplate("<input type='button' id='print_<#= QuoteId #>' value='In' class='t-button' onclick=PrintForm(<#= QuoteId #>) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày tạo").ReadOnly(true)
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= QuoteId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                        {
+                            items.Add().Text("Thông tin báo giá").Content(
+                                Html.Telerik().Grid<ProductQuotationModel>()
+                                    .Name("gridQuotation_<#= QuoteId #>")
+                                    .DataKeys(key => key.Add(f => f.QuoteDetailId).RouteKey("quoteDetailId"))
+                                    .ToolBar(bar => bar.Template(
+                                        @<text>
+                                             <div class="grid_5">
+                                                 <button class="t-button" id="btnSplit" name="btnSplit" onclick=" SplitQuoteDetails('<#= QuoteId #>') ">
+                                                     <span class='t-icon t-insert'></span>
+                                                     Tách các chi tiết đã chọn
+                                                 </button>
+                                             </div>
+                                             <div class="grid_5">
+                                                 <button class="t-button" id="btnDuplicate" name="btnSplit" onclick=" DuplicateQuoteDetails('<#= QuoteId #>') ">
+                                                     <span class='t-icon t-insert'></span>
+                                                     Tạo thêm chi tiết đã chọn
+                                                 </button>
+                                             </div>
+                                             <div class="clear"></div>
+                                         </text>
+                                                        ))
+                                    .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                             .Select("SelectQuodeDetailById", "SalesOrder",
+                                                                                     new {area = "Sales", quoteId = "<#= QuoteId #>"})
+                                                                             .Update("UpdateQuodeDetailById", "SalesOrder",
+                                                                                     new {area = "Sales"}))
+                                    .Columns(columns =>
+                                        {
+                                            columns.Command(command =>
+                                                            command.Edit().ButtonType(GridButtonType.Image).UpdateText("Duyệt").CancelText("Trở lại")
+                                                ).Width(50).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+
+
+                                            columns.Bound(f => f.QuoteDetailId).Title("Tách").Width(30)
+                                                   .ClientTemplate("<input type='checkbox' name='chkQuoteDetailId' value='<#= QuoteDetailId #>' />")
+                                                   .HtmlAttributes(new {style = "text-align:center"}).ReadOnly(true);
+                                            columns.Bound(f => f.ProductName).Width(100).Title("Tên SP").ReadOnly(true);
+                                            columns.Bound(f => f.ProductCustomerCode).Width(100).Title("Mã SP KH").ReadOnly(true);
+                                            columns.Bound(f => f.Dimension).Width(75).Title("Quy cách").ReadOnly(true);
+                                            columns.Bound(f => f.Quantity).Width(75).Title("SL đặt")
+                                                   .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #>");
+                                            columns.Bound(f => f.MaterialDesign).Width(100).Title("Nguyên liệu").ReadOnly(true);
+                                            columns.Bound(f => f.ProcessingPrice).Width(75).Title("Giá gia công").ReadOnly(true)
+                                                   .ClientTemplate("<#= ProcessingPrice == null ? 0 : $.telerik.formatString('{0:n4}', ProcessingPrice) #>");
+                                            columns.Bound(f => f.MaterialPrice).Width(75).Title("Giá NL(kg)").ReadOnly(true)
+                                                   .ClientTemplate("<#= MaterialPrice == null ? 0 : $.telerik.formatString('{0:n2}', MaterialPrice) #>");
+                                            columns.Bound(f => f.MaterialUnitPrice).Width(75).Title("Giá NL(pc)").ReadOnly(true)
+                                                   .ClientTemplate("<#= MaterialUnitPrice == null ? 0 : $.telerik.formatString('{0:n4}', MaterialUnitPrice) #>");
+                                            columns.Bound(f => f.LastDiff).Width(75).Title("Điều chỉnh(+/-)");
+                                            columns.Bound(f => f.QuotationCost).Width(75).Title("Giá báo(pc)").ReadOnly(true)
+                                                   .ClientTemplate("<#= QuotationCost == null ? 0 : $.telerik.formatString('{0:n4}', QuotationCost) #>");
+                                            columns.Bound(f => f.Note).Width(75).Title("Ghi chú");
+                                        })
+                                    .ClientEvents(e => e.OnSave("gridDetail_OnSave").OnError("grid_OnError"))
+                                    .ToHtmlString());
+                            items.Add().Text("Thông tin chi tiết").Content(
+                                Html.Telerik().Grid<ProductQuotationModel>()
+                                    .Name("gridQuotationInfo_<#= QuoteId #>")
+                                    .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                             .Select("SelectQuodeInfoById", "SalesOrder",
+                                                                                     new {area = "Sales", quoteId = "<#= QuoteId #>"}))
+                                    .Columns(columns =>
+                                        {
+                                            columns.Bound(f => f.SalesPerson).Width(100).Title("NV bán");
+                                            columns.Bound(f => f.DeliveryTermName).Width(100).Title("Hình thức giao hàng");
+                                            columns.Bound(f => f.PaymentMethodName).Width(100).Title("Phương thức thanh toán");
+                                            columns.Bound(f => f.DeliveryPeriodName).Width(100).Title("Thời hạn giao hàng");
+                                            columns.Bound(f => f.PaymentConditionName).Width(100).Title("Điều kiện giao hàng");
+                                        })
+                                    .ToHtmlString());
+                        })
+                    .ToHtmlString()))
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnError("grid_OnError")
+                                          .OnEdit("gridProduct_onEdit")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnSave("Grid_OnSave")
+                                          .OnDataBinding("Grid_OnDataBinding"))
+            .Pageable(page => page.PageSize(7))
+            .Scrollable(f => f.Height("auto"))
+            //.HtmlAttributes(new {style = "width: 950px;"})
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();
+    }
+</div>
+
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

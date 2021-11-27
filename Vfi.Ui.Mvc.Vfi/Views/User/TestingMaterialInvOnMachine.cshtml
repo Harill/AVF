@@ -1,0 +1,84 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "KT nguyên liệu trên máy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function MakeMaterialOnMachineChangeInventory(materialInvId,machineId) {
+
+            $.ajax({
+                type: 'post',
+                data: { materialInvId: materialInvId, machineId: machineId },
+                dataType: 'json',
+                url: '@Url.Action("MakeMaterialOnMachineChangeInventory", "User", new {area = ""})',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 9)
+                        alert("Lỗi không tìm thấy period !");
+                    else if (data == 8)
+                        alert("Lỗi vui lòng thêm tồn kho period (nhập thêm trước) !");
+                    else {
+                        alert(data);
+                        RefreshGrid("grid");
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+}
+<div class="title">Kiểm tra thông tin tồn kho nguyên liệu trên máy
+    
+<button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('grid'); ">
+    <span class='t-icon t-insert'></span>
+    Làm mới
+</button>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInvOnMachineModel>()
+            .Name("grid")
+            .DataKeys(key => key.Add(f => f.MaterialInvId).RouteKey("materialInvId"))
+            .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectTestingMaterialInvOnMachine", "User"))
+            .Columns(columns =>
+                {
+                    //columns.Bound(f => f.MaterialTypeCode).Width(100).ReadOnly(true).Title("Loại NL");
+                    columns.Bound(f => f.MachineName).Width(150).ReadOnly(true).Title("NCC");
+                    columns.Bound(f => f.MaterialDesign).Width(150).ReadOnly(true).Title("Nguyên liệu");
+                    columns.Bound(f => f.LotNumber).Width(150).ReadOnly(true).Title("Lô");
+                    columns.Bound(f => f.VendorCode).Width(150).ReadOnly(true).Title("NCC");
+                    columns.Bound(f => f.EarlyQuantity).Width(70)
+                           .HeaderTemplate("Tồn kho thực tế")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.MaterialInvId).Title("Thay đổi tồn TT").Width(50)
+                           .ClientTemplate("<input type='button' id='id_<#= MaterialInvId #>_<#= MachineId #>' value='Make' class='t-button' onclick='MakeMaterialOnMachineChangeInventory( <#= MaterialInvId #>, <#= MachineId #> )' />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.LastQuantity).Width(70)
+                           .HeaderTemplate("Tồn kho (period)")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.AssignQuantity).Width(70)
+                           .HeaderTemplate("Chênh lệch (TK - Period)")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

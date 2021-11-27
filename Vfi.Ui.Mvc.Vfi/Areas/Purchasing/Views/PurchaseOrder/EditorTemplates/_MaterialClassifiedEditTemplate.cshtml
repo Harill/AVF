@@ -1,0 +1,22 @@
+﻿@{
+    Html.Telerik().DropDownList()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new {area = ""}))
+        //.HtmlAttributes(new { style = "width: 250px" })
+        .DropDownHtmlAttributes(new { style = "width: 360px" })
+        .ClientEvents(events=>events.OnChange("materialClassified_onChange"))
+        @*.ClientEvents(events=>events.OnChange(
+            @<text>
+                function(){
+                    $("#MaterialTypeName").data('tDropDownList').reload();
+                }
+            </text>
+            ))*@
+        .Render();                                              
+}
+<script type="text/javascript">
+//    function materialClassified_onChange() {
+//        //$("#MaterialTypeName").data('tDropDownList').reload();
+//        alert("change");
+//    }
+</script>

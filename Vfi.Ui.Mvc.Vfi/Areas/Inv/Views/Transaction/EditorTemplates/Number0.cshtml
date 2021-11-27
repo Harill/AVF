@@ -1,0 +1,13 @@
+@model double?
+
+@(Html.Telerik().NumericTextBox()
+.Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+.HtmlAttributes(new { style = "width:100%" })
+.DecimalDigits(0)
+.MinValue(0)
+.EmptyMessage("0")
+.MaxValue(double.MaxValue)
+.Spinners(false)
+.HtmlAttributes(new{style="text-align:left;"})
+.Value( Model ?? 0))
+

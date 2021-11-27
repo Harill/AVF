@@ -1,0 +1,80 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System;
+using Vfi.Ui.Mvc.Vfi.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+{
+    public class InquiryPoModel
+    {
+        public InquiryPoModel()
+        {
+            OrderQty = 0;
+            UnitPrice = 0;
+            Currency = "";
+        }
+        public long InquiryId { get; set; }
+
+        public int VendorId { get; set; }
+        [DataType("_VendorEditByClasstifiedTemplate")]
+        public string VendorCode { get; set; }
+
+        public int ReferenceId { get; set; }
+        [DataType("_MaterialEditByVendorTemplate")]
+        public string ReferenceCode { get; set; }
+
+        public int TypeId { get; set; }
+        public string TypeName { get; set; }
+
+        public int ClassifiedId { get; set; }
+        public string ClassifiedName { get; set; }
+
+        public double TotalInv { get; set; }
+
+        public long PoDetailId { get; set; }
+        public long PoId { get; set; }
+        public long PoNumber { get; set; }
+
+        [DataType("_PlatingUnitTemplate")]
+        public string Unit { get; set; }
+        [DataType("Number2")]
+        public double OrderQty { get; set; }
+
+        public double Price { get { return OrderQty * UnitPrice; } }
+        public string PriceStr
+        {
+            get
+            {
+                return Currency.Equals("VND") ?
+                    string.Format("{0:n0}", Price) :
+                    string.Format("{0:n2}", Price);
+            }
+        }
+
+        [DataType("Number4")]
+        public double UnitPrice { get; set; }
+        public string UnitPriceStr
+        {
+            get
+            {
+                return Currency.Equals("VND") ?
+                    string.Format("{0:n0}", UnitPrice) :
+                    string.Format("{0:n3}", UnitPrice);
+            }
+        }
+
+        [DataType("_DateTemplate")]
+        public DateTime? DueDate { get; set; }
+        public byte Status { get; set; }
+
+        [DataType("_CurrencyEditTemplate")]
+        public string Currency { get; set; }
+        public string Note { get; set; }
+
+        public string ModifiedUser { get; set; }
+        public DateTime ModifiedDate { get; set; }
+    }
+}

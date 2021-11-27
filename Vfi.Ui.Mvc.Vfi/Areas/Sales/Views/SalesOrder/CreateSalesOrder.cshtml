@@ -1,0 +1,325 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Production
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@model SalesOrderModel
+@{
+    ViewBag.Title = "";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+<script type="text/javascript">
+    $(function () {
+        $('#lookupSalesOrderNumberExisted').attr('class', 'imgUnAvailable');
+        $('#txtSalesOrderNumberHidden').val(0);
+
+        $("#SalesOrderNumber").change(function () {
+            CheckSalesOrderNumber($(this).val());
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    function CheckSalesOrderNumber(value) {
+        if (value.length === 0) {
+            $('#lookupSalesOrderNumberExisted').attr('class', 'imgUnAvailable');
+            $('#txtSalesOrderNumberHidden').val(0);
+            return false;
+        }
+        $('#lookupSalesOrderNumberExisted').attr('class', 't-loading');
+
+        $.ajax({
+            type: 'post',
+            data: { salesOrderNumber: value },
+            dataType: 'json',
+            url: '@Url.Action("CheckSalesOrderNumber", "SalesOrder")',
+            timeout: 20000,
+            success: function (data) {
+                if (data == 1) {
+                    $('#lookupSalesOrderNumberExisted').attr('class', 'imgUnAvailable');
+                    $('#txtSalesOrderNumberHidden').val(0);
+                }
+                else if (data == 0) {
+                    $('#lookupSalesOrderNumberExisted').attr('class', 'imgAvailable');
+                    $('#txtSalesOrderNumberHidden').val(1);
+                }
+                else if (data == 2) {
+                    $('#lookupSalesOrderNumberExisted').attr('class', 'imgUnAvailable');
+                    $('#txtSalesOrderNumberHidden').val(0);
+                }
+            }
+        });
+
+        return false;
+    }
+</script>
+
+<script type="text/javascript">
+
+    //function gridPurchaseOrderDetailPartial_onDataBinding(e) {
+    //var grid = $(this).data("tGrid");
+    //alert("dataBinding");
+    // call the twitter search api
+    //        $.ajax({
+    //            url: "http://search.twitter.com/search.json",
+    //            contentType: "application/json; charset=utf-8",
+    //            type: "GET",
+    //            dataType: "jsonp",
+    //            error: function (xhr, status) {
+    //                alert(status);
+    //            },
+    //            data: {
+    //                q: $("#searchText").val()
+    //            },
+    //            success: function (result) {
+    //                grid.dataBind(result.results);
+    //            }
+    //        });
+    //}
+
+    function gridSalesOrderDetailPartial_onEdit(e) {
+
+        var dataItem = e.dataItem;
+        var mode = e.mode;
+        var form = e.form;
+        //var cell = e.cell;
+
+        //var orderQty = $(form).find("#OrderQty").data("tTextBox");
+        //var unitPrice = $(form).find("#UnitPrice").data("tTextBox");
+        var lineTotal = $(form).find("#LineTotal").data("tTextBox");
+        if (mode == 'insert') {
+
+        }
+        if (mode == 'edit') {
+
+        }
+
+        dataItem.LineTotal = dataItem.OrderQty * dataItem.UnitPrice;
+        if (lineTotal != null) {
+            lineTotal.value(dataItem.LineTotal);
+        }
+
+    }
+
+    var orderQty = {};
+    var unitPrice = {};
+    var productIds = {};
+    productIds[0] = 0;
+
+    function gridSalesOrderDetailPartial_onSave(e) {
+        // bind data
+        var $productCode = $(e.cell).find('#ProductCode');
+
+        if ($productCode.length > 0) {
+            var productCode = $productCode.data("tComboBox"),
+
+            productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+            if (productCodeSelectItem) {
+                e.values["ProductCode"] = productCodeSelectItem.Text;
+                e.values["ProductId"] = productCodeSelectItem.Value;
+
+                var flag = true;
+                for (var obj in productIds) {
+                    if (obj == productCodeSelectItem.Value) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag == true) {
+                    productIds[productCodeSelectItem.Value] = productCodeSelectItem.Value;
+                }
+                else {
+                    //e.preventDefault();
+                    alert("đã tồn tại sản phẩm trong danh sách");
+                }
+            }
+        }
+
+        // // 
+        var $lineTotal = $(e.cell).find('#LineTotal');
+        if ($lineTotal.length > 0) {
+            var lineTotal = $lineTotal.data("tTextBox");
+
+
+            e.values["LineTotal"] = lineTotal.value();
+
+            //lineTotal.value(e.values["LineTotal"]);
+        }
+
+        // bind data
+    }
+
+    function gridSalesOrderDetailPartial_onSubmitChanges(e) {
+
+        var flag = InputValidation();
+
+        if (flag == false)
+            e.preventDefault();
+        else {
+            var materialClassifiedId = $('#MaterialClassifiedName').data('tDropDownList').value();
+            var materialTypeId = $('#MaterialTypeName').data('tDropDownList').value();
+
+            var revisionNumber = $("#RevisionNumber").val();
+            var orderDate = $("#OrderDate").data("tDatePicker").value();
+            var shipDate = $("#ShipDate").data("tDatePicker").value();
+
+            var vendorCodeName = $('#VendorCodeName').data('tDropDownList').value();
+            var shipMethodName = $('#ShipMethodName').data('tDropDownList').value();
+            var employeeName = $('#EmployeeName').data('tDropDownList').value();
+
+            e.values = $.extend(e.values,
+            {
+                materialClassifiedId: materialClassifiedId,
+                materialTypeId: materialTypeId,
+
+                revisionNumber: revisionNumber,
+                orderDate: orderDate,
+                shipDate: shipDate,
+
+                vendorId: vendorCodeName,
+                shipMethodId: shipMethodName,
+                employeeId: employeeName
+            }
+            //            ,
+            //            function (data) {
+            //                alert("d: " +data);
+            //            }
+            );
+            productIds = {};
+        }
+    }
+
+    function gridSalesOrderDetailPartial_onError(args) {
+        if (args.textStatus == "modelstateerror" && args.modelState) {
+            var message = "Errors:\n";
+            $.each(args.modelState, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            args.preventDefault();
+            alert(message);
+        }
+    }
+</script>
+}
+
+<div class="title">Tạo phiếu bán hàng</div>
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu bán hàng</legend>
+
+        <div class="grid_2">@Html.LabelFor(f=>f.SalesOrderNumber)</div>
+        <div class="grid_1"><div id="lookupSalesOrderNumberExisted">&nbsp;</div></div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.SalesOrderNumber , new {@class="t-textbox", width="color: maroon;"})
+            @Html.Hidden("txtSalesOrderNumber")
+        </div>
+
+        <div class="grid_3">@Html.LabelFor(f=>f.OrderDate)</div>
+        <div class="grid_4">@(Html.Telerik().DatePicker().Name("OrderDate").Format("dd/MM/yyyy"))</div>
+
+        <div class="grid_3">@Html.LabelFor(f=>f.ShipDate)</div>
+        <div class="grid_4">@(Html.Telerik().DatePicker().Name("ShipDate").Format("dd/MM/yyyy"))</div>
+        <div class="clear"></div>
+
+        @*<div class="grid_3">@Html.LabelFor(f=>f.VendorCodeName)</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("VendorCodeName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxVendor", "Vendor"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Render();                                              
+            }
+        </div>*@
+        <div class="grid_3">@Html.LabelFor(f=>f.ShipMethodName)</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("ShipMethodName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxShipMethod", "ShipMethod", new { area = "Purchasing"}))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px;" })
+                    .Render();                                              
+            }
+        </div>
+        @*<div class="grid_3">@Html.LabelFor(f=>f.EmployeeName)</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("EmployeeName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new {area =""}))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Render();                                              
+            }
+        </div>*@
+
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<SalesOrderDetailModel>()
+        .Name("gridPurchaseOrderDetailPartial")
+        .DataKeys(keys => keys.Add(f => f.SalesOrderDetailId).RouteKey("salesOrderDetailId"))
+        //.ToolBar(
+        //    toolbar =>
+        //    toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .ToolBar(bar=>
+                     {
+                         bar.Insert().ButtonType(GridButtonType.ImageAndText);
+                         bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText);
+                         @*bar.Template(
+                             @<text>
+                                <a class="t-button t-button-icontext t-grid-toolbar" href="#">Insert</a>
+                                <a class="t-button t-grid-save-changes" href="#">Save Changes</a>
+                                <a class="t-button t-grid-cancel-changes" href="#">Cancel Changes</a>
+                                @Html.ActionLink("Commit", "Commit", new { id = Model.Id }, new { @id = "buttonCommit", @class = "t-button", @style = "display: none;" })
+                            </text>
+                             );*@
+                     })
+        .DataBinding(dataBindings => dataBindings.Ajax()
+            .Select("SelectSalesOrderDetail", "SalesOrder")
+            .Update("UpdateSalesOrderDetail", "SalesOrder")
+        )
+        .Columns(columns =>
+        {
+            //columns.Bound(f => f.MaterialClassifiedName).Width(175);
+            //columns.Bound(f => f.MaterialTypeName).Width(175);
+            columns.Bound(f => f.ProductCode).Width(275);
+            columns.Bound(f => f.OrderQty).Width(115);
+
+            columns.Bound(f => f.UnitPrice).Width(115)
+                .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>");
+            columns.Bound(f => f.LineTotal).Width(115)
+                .ClientTemplate("<#= LineTotal == null ? 0 : $.telerik.formatString('{0:n}', LineTotal) #>");
+
+            //columns.Bound(f => f.DueDate).Width(98)
+            //    .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+            //columns.Bound(f => f.Active).Width(45)
+            //    .ClientTemplate("<input type='checkbox' name='Active' <#=Active? checked='checked' : '' #> />")
+            //    .HtmlAttributes(new { style = "text-align:center" });
+            //columns.Command(command =>
+            //    command.Edit().ButtonType(GridButtonType.ImageAndText)
+            //).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(commands => commands.Delete()).Width(98).Title("Commands");
+        })
+        .ClientEvents(events => events
+            //.OnDataBinding("gridPurchaseOrderDetailPartial_onDataBinding")
+            .OnEdit("gridSalesOrderDetailPartial_onEdit")
+            .OnSave("gridSalesOrderDetailPartial_onSave")
+            .OnSubmitChanges("gridSalesOrderDetailPartial_onSubmitChanges")
+            .OnError("gridSalesOrderDetailPartial_onError")
+        )
+        .Editable(editing => editing.Mode(GridEditMode.InCell))
+        .KeyboardNavigation()
+        .Footer(false)
+        .Render();
+}
+</div>
+<div class="clear"></div><br/>

@@ -1,0 +1,126 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Phân phôi sản phân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function grid_OnSave(e) {
+            //tong weight
+            var sumWeight = 0.0;
+            var weight = $(e.cell).find('#Weight').val();
+            if (!isNaN(parseInt(weight))) {
+                var spanWeights = $("span[name='Weight']");
+                for (var i = 0; i < spanWeights.length; i++) {
+                    var innerText = spanWeights[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumWeight = sumWeight + parseFloat(innerText);
+                }
+                sumWeight = sumWeight + parseFloat(weight);
+                $("#TotalWeight").text(sumWeight);
+            }
+        }
+
+        function grid_OnSubmitChanges(e) {
+
+            var transactionId = $("#cboTransaction").data('tComboBox').value();
+            if (transactionId == "")
+                transactionId = 0;
+            e.values = $.extend(e.values,
+                {
+                    importId: transactionId
+                }
+            );
+        }
+
+        function cbo_OnChange() {
+            RefreshGrid("gridWorkpiece");
+        }
+
+        function grid_OnDataBinding(args) {
+            var transactionId = $("#cboTransaction").data('tComboBox').value();
+            if (transactionId == "")
+                transactionId = -1;
+            args.data = $.extend(args.data, {
+                importId: transactionId
+            });
+        }
+    </script>
+
+}
+
+<div class="title">Phân phôi sản phẩm</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin lọc</legend>
+        <div class="grid_3">Phiếu</div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("cboTransaction")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxImportSx1", "Transaction", new { area = "Inv" }))
+                    .HtmlAttributes(new {style = "width: 200px"})
+                    .DropDownHtmlAttributes(new {style = "width: 325px;"})
+                    .ClientEvents(events => events.OnChange("cbo_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">
+        <button class="t-button" id="btnRefresh" onclick=" RefreshCombobox('cboTransaction') ">
+            <span class='t-icon t-refresh'></span>
+        </button>
+        </div>
+        <div class="clear"></div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkpieceMaterialPeriodModel>()
+            .Name("gridWorkpiece")
+            .DataKeys(keys => keys.Add(f => f.PeriodId).RouteKey("periodId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Hủy bỏ");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectImportWorkpieceDetail", "Transaction",new {importId = -1})
+                                                     .Update("UpdateImportWorkpieceDetail", "Transaction", new { importDate = "", importId = -1 })
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.IdentityCode).Width(50).Title("Code").ReadOnly(true);
+                    columns.Bound(f => f.MaterialTypeName).Width(100).Title("Loại nguyên liệu").ReadOnly(true);
+                    columns.Bound(f => f.TypeName).Width(100).Title("Phân loại").ReadOnly(true);
+                    columns.Bound(f => f.TotalQuantity).Width(100).Title("Tồn kho").ReadOnly(true)
+                        .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Import).Width(100).Title("Tổng phoi").ReadOnly(true)
+                        .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Weight).Width(100).Title("Trọng lượng(kg)")
+                           .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #></span>")
+                           .FooterTemplate("<span id='TotalWeight'></span>");
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                })
+            .ClientEvents(events => events
+                                        .OnSave("grid_OnSave")
+                                        .OnSubmitChanges("grid_OnSubmitChanges")
+                                        .OnDataBinding("grid_OnDataBinding")
+                                        .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            //.Footer(false)
+            .Render();
+    }
+</div>

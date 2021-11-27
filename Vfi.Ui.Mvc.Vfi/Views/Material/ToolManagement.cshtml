@@ -1,0 +1,350 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models
+@{
+    ViewBag.Title = "Công cụ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .highslide-container div {
+        font-family: Verdana, Helvetica;
+        font-size: 10pt;
+    }
+    .highslide-container table {
+        background: none;
+    }
+    .highslide {
+        outline: none;
+        text-decoration: none;
+    }
+    .highslide img {
+        border: 2px solid silver;
+    }
+    .highslide:hover img {
+        border-color: gray;
+    }
+    .highslide-active-anchor img {
+        visibility: hidden;
+    }
+    .highslide-gallery .highslide-active-anchor img {
+        border-color: black;
+        visibility: visible;
+        cursor: default;
+    }
+    .highslide-image {
+        border-width: 2px;
+        border-style: solid;
+        border-color: white;
+    }
+    .highslide-wrapper, .highslide-outline {
+        background: white;
+    }
+    .glossy-dark {
+        background: #111;
+    }
+
+    .highslide-image-blur {
+    }
+    .highslide-number {
+        display: none;
+        font-weight: bold;
+        color: gray;
+        font-size: .9em;
+    }
+    .highslide-caption {
+        display: none;
+        font-size: 1em;
+        padding: 5px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        /*background: white;*/
+    }
+    .highslide-heading {
+        display: none;
+        font-weight: bold;
+        margin: 0.4em;
+    }
+    .highslide-dimming {
+        /*position: absolute;*/
+        background: black;
+    }
+    a.highslide-full-expand {
+        display: block;
+        margin: 0 10px 10px 0;
+        width: 34px;
+        height: 34px;
+    }
+    .highslide-loading {
+        display: block;
+        color: black;
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        border: 1px solid white;
+        background-color: white;
+        padding-left: 22px;
+        background-repeat: no-repeat;
+        background-position: 3px 1px;
+    }
+    a.highslide-credits,
+    a.highslide-credits i {
+        padding: 2px;
+        color: silver;
+        text-decoration: none;
+        font-size: 10px;
+        display: none;
+    }
+    a.highslide-credits:hover,
+    a.highslide-credits:hover i {
+        color: white;
+        background-color: gray;
+    }
+    .highslide-move, .highslide-move * {
+        cursor: move;
+    }
+
+    .highslide-viewport {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: none;
+        left: 0;
+        top: 0;
+    }
+    .highslide-overlay {
+        display: none;
+    }
+    .hidden-container {
+        display: none;
+    }
+    /* Example of a semitransparent, offset closebutton */
+    .closebutton {
+        position: relative;
+        top: -15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+    }
+    .highslide-controls {
+        display: none 
+    }
+
+</style>
+
+    <script type="text/javascript">
+        hs.graphicsDir = '';
+        hs.align = 'center';
+        hs.transitions = ['expand', 'crossfade'];
+        hs.outlineType = '';
+        hs.fadeInOut = true;
+        hs.numberPosition = 'caption';
+        hs.dimmingOpacity = 0.75;
+
+        // Add the controlbar
+        if (hs.addSlideshow)
+            hs.addSlideshow({
+                //slideshowGroup: 'group1',
+                interval: 5000,
+                repeat: false,
+                useControls: true,
+                fixedControls: 'fit',
+                overlayOptions: {
+                    opacity: .75,
+                    position: 'bottom center',
+                    hideOnMouseOut: true
+                }
+            });
+    </script>
+
+@section Scripts{
+<script type="text/javascript">
+
+    function grid_OnDataBinding(args) {
+
+        var toolType = $("#ToolType").data('tComboBox').value();
+        if (toolType === "")
+            toolType = 0;
+        var useType = $("#UseType").data('tComboBox').value();
+        if (useType === "")
+            useType = 0;
+        var toolName = $("#ToolName").data('tAutoComplete').value();
+        args.data = $.extend(args.data, {
+            toolTypeId: toolType,
+            useType: useType,
+            toolName: toolName
+        });
+
+    }
+
+    function grid_OnSave(e) {
+        var drawing2D = "";
+        var editRow = e.target.getElementsByClassName("t-grid-edit-row")[0];
+        var ul2D = editRow.childNodes[1].childNodes[1].childNodes[1];
+        if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
+            drawing2D = e.dataItem.Img;
+        } else if (ul2D != null) {
+            var child2D = ul2D.childNodes;
+            for (var i = child2D.length - 1; i >= 0; i--) {
+                if (child2D[i].childNodes[0].textContent === "uploaded") {
+                    e.values.Img = child2D[0].childNodes[1].title;
+                    drawing2D = child2D[0].childNodes[1].title;
+                    break;
+                }
+            }
+        }
+        var message = "";
+        if (drawing2D === "" || drawing2D === "askquestion.jpg") {
+            message += "\nCảnh báo!";
+            if (drawing2D === "")
+                message += "\nBản vẽ công cụ chưa có !";
+            message += "\nSẽ dùng hình mặc định !";
+            message += "\nĐồng ý lưu ??";
+            if (confirm(message)) { };
+        } else {
+            return true;
+        }
+    }
+</script>
+}
+
+<div class="title">Quản lý thông tin công cụ</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1120px;">
+    <fieldset>
+            <legend>Lưu ý</legend>
+            <ul>
+                <li>
+                    <b>1.Nên quy về cách đặt tên chung cho bản vẽ: Đặt <span style="color: red">'Mã công cụ đầy đủ'</span> trước hình bản vẽ để lưu lại (Vd: <span style="color: red">BĐ-6000Z - 26 x 10 x 8 - NSK-THÉP.jpg</span>) </b>
+                </li>
+                <li>
+                    <b>2.Tên file upload hình sản phẩm không được <span style="color: red">giống tên</span> với sản phẩm khác ( trừ khi nó cùng 1 SP )</b>
+                </li>
+                <li>
+                    <b>3.Xem xét kĩ cảnh báo trước khi xác nhận, sau khi xác nhận xảy ra lỗi <span style="color: red">không thể phục hồi</span> </b>
+                </li>
+            </ul>
+        </fieldset>
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
+        <div class="grid_2_5">Loại công cụ</div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("ToolType")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxToolType", "Tool", new {area = "Purchasing"}))
+                    .HtmlAttributes(new {style = "width: 100%"})
+                    //.DropDownHtmlAttributes(new { style = "width: 100%" })
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2_5">Loại sử dụng</div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("UseType")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxToolUseType", "Material", new {area = ""}))
+                    .HtmlAttributes(new {style = "width: 100%"})
+                    //.DropDownHtmlAttributes(new { style = "width: 100%" })
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2_5">Tên công cụ</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ToolName")
+                    .HtmlAttributes(new {style = "width: 100%"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_2_5">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridTooll'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </div>
+    </fieldset>
+
+</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ToolModel>()
+        .Name("gridTooll")
+        .DataKeys(key => key.Add(f => f.ToolId).RouteKey("ToolId"))
+        .ToolBar(
+            toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectAllTool", "Material", new { toolTypeId = 0, useType = 0, toolName =""})
+                .Insert("InsertTool", "Material")
+                .Update("UpdateTool", "Material"))
+        .Columns(columns =>
+        {
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhập").InsertText("Thêm").CancelText("Hủy").Text("Sửa")
+                ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
+            //columns.Bound(f => f.VendorCodeName).Width(150)
+            //       .ClientTemplate("<strong><#= VendorCodeName #></strong>");
+            //columns.Bound(f => f.MaterialTypeName).Width(125)
+            //       .ClientTemplate("<strong><#= MaterialTypeName #></strong>");
+            columns.Bound(f => f.Img).Width(40).Title("Hình")
+                .ClientTemplate("<a id='<#=ToolId#>' href='" + Url.Content("~/Content/FileUpload/ToolImg/") + "<#=Img#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                "<img src='" + Url.Content("~/Content/FileUpload/ToolImg/") + "<#=Img#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                "</a><div class='highslide-caption'><#= ToolFullCode #></div>");
+                    
+            columns.Bound(f => f.MaterialTypeName).Width(150)
+                .HeaderTemplate("Loại</br>công cụ")
+                .ClientTemplate("<strong><#= MaterialTypeName #></strong>")
+                .Aggregate(agg => agg.Count())
+                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+            columns.Bound(f => f.ToolTypeName).Width(150)
+                .HeaderTemplate("Loại</br>công cụ")
+                .ClientTemplate("<strong><#= ToolTypeName #></strong>");
+            columns.Bound(f => f.ToolName).Width(120).Title("Tên công cụ");
+            columns.Bound(f => f.ToolCode).Width(100).Title("Mã công cụ")
+                .HtmlAttributes(new { style = "font-weight:bold;" });
+            columns.Bound(f => f.ToolFullDesign).Width(225).Title("Mã thiết kế").ReadOnly(true)
+                .HtmlAttributes(new {style = "font-weight:bold;"});
+            columns.Bound(f => f.ToolDesignNo).Width(150).Title("Quy cách")
+                .HtmlAttributes(new { style = "font-weight:bold;" });
+            columns.Bound(f => f.ToolMaterial).Width(100).Title("Nguyên liệu")
+                .HtmlAttributes(new { style = "font-weight:bold;" });
+            columns.Bound(f => f.ToolProduction).Width(100).Title("Nhà SX")
+                .HtmlAttributes(new { style = "font-weight:bold;" });
+            columns.Bound(f => f.Description).Width(100).Title("Mô tả");
+            columns.Bound(f => f.Active).Width(50)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.IsDeleted).Width(50)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDeleted' <#=IsDeleted? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+
+            columns.Bound(f => f.ModifiedUser).Width(75).Title("Người làm").ReadOnly(true);
+            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true);
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(events => events.OnError("grid_OnError")
+            .OnSave("grid_OnSave")
+            .OnDataBinding("grid_OnDataBinding"))
+        .Scrollable(f => f.Height(500))
+        .Sortable()
+        .Filterable()
+        .Resizable(f => f.Columns(true))
+        .Reorderable(f => f.Columns(true))
+        .Footer(true)
+        .Render();
+}
+</div>
+
