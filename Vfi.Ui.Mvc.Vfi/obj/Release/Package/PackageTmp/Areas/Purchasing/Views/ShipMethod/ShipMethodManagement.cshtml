@@ -1,0 +1,37 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@{
+    ViewBag.Title = "ShipMethod Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Phương thức thanh toán</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ShipMethodModel>()
+        .Name("gridShipMethod")
+        .DataKeys(keys => keys.Add(f => f.ShipMethodId).RouteKey("shipMethodId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectShipMethod","ShipMethod").Insert("InsertShipMethod","ShipMethod").Update("UpdateShipMethod","ShipMethod")
+        )
+        .Columns(columns=>
+        {
+            columns.Bound(f => f.Name);
+            columns.Bound(f => f.ShipBase).Width(110);
+            columns.Bound(f => f.ShipRate).Width(110);
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(e=> e.OnError("grid_OnError"))
+        .Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Render();  
+}
+</div>

@@ -75,7 +75,7 @@
             .DataKeys(key => key.Add(f => f.ForecastOrderId).RouteKey("forecastOrderId"))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
-                                          .Select("SelectForecast", "SalesOrder", new { status = 1, employeeId = 0, customerId = 0 })
+                                          .Select("SelectForecast", "SalesOrder", new { status = 1, employeeId = 0, customerId = -1 })
                                           .Update("ApproveForecast", "SalesOrder", new { customerId = 0 })
                                           .Delete("DeleteForecast", "SalesOrder")
             )

@@ -40,3 +40,17 @@ C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramew
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll.config
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.xml
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.xml
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.pdb

@@ -1,0 +1,80 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@{
+    ViewBag.Title = "Vendor Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+<script type="text/javascript">
+    function gridVendor_onEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+
+            var materialTypeName = $(form).find('#MaterialClassifiedName');
+            var materialTypeNameData = $(form).find('#MaterialClassifiedName').data('tDropDownList');
+
+            if (mode == 'insert') {
+
+            }
+            else if (mode == 'edit') {
+
+                materialTypeNameData.reload();
+                materialTypeName.bind('dataBound', function () { // your code 
+                    materialTypeNameData.select(function (item) {
+                        return item.Text == e.dataItem['MaterialClassifiedName'];
+                    });
+                });
+            }
+        }
+</script>
+}
+<div class="title">Quản lý thông tin nhà cung cấp</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<VendorModel>()
+        .Name("gridVendor")
+        .DataKeys(keys=>keys.Add(f=>f.VendorId).RouteKey("vendorId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectAllVendor","Vendor")
+            .Insert("InsertVendor","Vendor")
+            .Update("UpdateVendor","Vendor")
+        )
+        .Columns(columns=>
+        {
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+
+            columns.Bound(f => f.MaterialClassifiedName).Width(125);
+            columns.Bound(f => f.VendorCode).Width(125);
+            columns.Bound(f => f.VendorName).Width(225);
+            columns.Bound(f => f.ShortName).Width(225);
+            columns.Bound(f => f.CompanyName).Width(225);
+            columns.Bound(f => f.ContactName).Width(225);
+            columns.Bound(f => f.Address).Width(225);
+            columns.Bound(f => f.Eaddress).Width(225);
+            columns.Bound(f => f.Phone).Width(225);
+            columns.Bound(f => f.Fax).Width(225);
+            columns.Bound(f => f.Email).Width(225);
+            columns.Bound(f => f.TaxCode).Width(225);
+            columns.Bound(f => f.BankAccount).Width(275);
+            columns.Bound(f => f.MaxCredit).Width(225);
+            columns.Bound(f => f.SpecialInfo).Width(275);
+            columns.Bound(f => f.Note).Width(275);
+            
+            columns.Bound(f => f.Active).Width(75)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            
+        })
+        .ClientEvents(events => events.OnEdit("gridVendor_onEdit").OnError("grid_OnError"))
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        //.Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Scrollable(f=>f.Height(510))
+        .Render();
+}
+</div>

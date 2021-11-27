@@ -39,6 +39,7 @@ namespace Vfi.Server.Core.DataModel.Models.System
         public bool Import { get; set; }
         public bool ImportReadOnly { get; set; }
         public bool Rotate { get; set; }
+        //public bool OrderProgress { get; set; }
         public DateTime ModifiedDate { get; set; }
     }
 }

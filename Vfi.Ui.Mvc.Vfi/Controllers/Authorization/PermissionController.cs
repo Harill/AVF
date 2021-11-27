@@ -57,10 +57,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         }
 
         [HttpPost]
-        public ActionResult AssignWarehousePermissionForUser(int[] checkedImport, int[] checkedRotate, int[] checkedOrderProcess, int userId) {
+        public ActionResult AssignWarehousePermissionForUser(int[] checkedImport, int[] checkedRotate, int[] checkedOrderProgress, int userId) {
             checkedImport = checkedImport ?? new int[] { };
             checkedRotate = checkedRotate ?? new int[] { };
-            checkedOrderProcess = checkedOrderProcess ?? new int[] { };
+            checkedOrderProgress = checkedOrderProgress ?? new int[] { };
             try {
                 using (var vfi = new tammaContext()) {
                     var warehouses = vfi.Warehouses.Where(w => w.Active).ToList();
@@ -75,13 +75,13 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                                 ModifiedDate = DateTime.Now,
                                 Import = false,
                                 Rotate = false,
-                                //OrderProgress = false
+                                OrderProgress = false
                             };
                             vfi.WarehousePermissions.Add(entity);
                         }
                         entity.Import = checkedImport.Contains(warehouse.WarehouseId);
                         entity.Rotate = checkedRotate.Contains(warehouse.WarehouseId);
-                        //entity.OrderProgress = checkedOrderProcess.Contains(warehouse.WarehouseId);
+                        entity.OrderProgress = checkedOrderProgress.Contains(warehouse.WarehouseId);
                     }
 
                     vfi.SaveChanges();

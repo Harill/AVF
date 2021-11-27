@@ -124,7 +124,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
             var note = "";
             var total = 0;
             foreach (var item in list) {
-                note += "\n(" + item.OrderNumber + "-" +
+                note += "\n(" + item.OrderNumber + ":" +
                                item.DueDate.ToString("dd/MM") + "-" +
                                string.Format("{0:N0}", item.RequireNumber) + ")";
                 total += item.RequireNumber;

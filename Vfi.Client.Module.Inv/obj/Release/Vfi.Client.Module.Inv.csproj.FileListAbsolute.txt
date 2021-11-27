@@ -21,3 +21,14 @@ C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repos
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Client.Module.Inv.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Client.Module.Inv.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Microsoft.Practices.Unity.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.pdb

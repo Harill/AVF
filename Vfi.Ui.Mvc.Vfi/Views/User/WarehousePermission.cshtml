@@ -1,6 +1,6 @@
 ﻿@using Vfi.Server.Core.DataModel.Models.System
 @{
-    ViewBag.Title = "UserFunction";
+    ViewBag.Title = "WarehousePermission";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -64,10 +64,11 @@
 
         var $checkedImport = $("input[name='IsUserImportWarehouse']:checked");
         var $checkedRotate = $("input[name='IsUserRotateWarehouse']:checked");
-        alert($checkedImport.length);
-        alert($checkedRotate.length);
+        var $checkedOrderProgress = $("input[name='IsUserOrderProgressWarehouse']:checked");
+        alert("Import:" + $checkedImport.length + " Xuất:" + $checkedRotate.length + " Tiến độ:" + $checkedOrderProgress.length);
+
         var $userId = $("input[name='rdioUser']:checked").val();
-        alert($userId);
+        //alert($userId);
 
         var cImport = {};
         for (var i = 0; i < $checkedImport.length; i++) {
@@ -77,12 +78,17 @@
         for (var j = 0; j < $checkedRotate.length; j++) {
             cRotate[j] = $checkedRotate[j].value;
         }
+        var cOrderProgress = {};
+        for (var j = 0; j < $checkedOrderProgress.length; j++) {
+            cOrderProgress[j] = $checkedOrderProgress[j].value;
+        }
         try{
 
             $.post("@strAssignWarehousePermissionForUser",
                     {
                         checkedImport: cImport,
                         checkedRotate: cRotate,
+                        checkedOrderProgress: cOrderProgress,
                         userId: $userId
                     },
                     function (data) {
@@ -98,7 +104,7 @@
     }
 </script>
 
-<div class="title">User Function</div>
+<div class="title">Warehouse Permission</div>
 
 <div class="t-info-sha">
 

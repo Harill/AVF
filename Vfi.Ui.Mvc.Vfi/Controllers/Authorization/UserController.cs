@@ -374,10 +374,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         }
 
         public ActionResult DisplayCheckedUserForWarehousePermission(int userId) {
+            var wPermissionsModels = new List<WarehousePermissionNewModel>();
             try {
                 using (var vfi = new tammaContext()) {
 
-                    var wPermissionsModels = new List<WarehousePermissionModel>();
 
                     //var permissions = _permissionService.GetPermissionPerUser(username);
 
@@ -387,32 +387,30 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     var wPermissions = vfi.WarehousePermissions.Where(wp => wp.UserId == userId).ToList();
 
                     foreach (var w in warehouses) {
-                        var model = new WarehousePermissionModel {
+                        var model = new WarehousePermissionNewModel {
                             WarehouseId = w.WarehouseId,
                             UserId = userId,
                             WarehouseName = w.WarehouseName,
                             Import = false,
                             ImportReadOnly = false,
                             Rotate = false,
-                            //OrderProgress = false,
-                            //MainProgress = w.IsMainProcess
+                            OrderProgress = false,
+                            MainProgress = w.IsMainProcess
                         };
                         var wPermission = wPermissions.FirstOrDefault(x => x.WarehouseId == model.WarehouseId);
                         if (wPermission != null) {
                             model.Import = wPermission.Import ?? false;
                             model.Rotate = wPermission.Rotate ?? false;
-                            //model.OrderProgress = wPermission.OrderProgress ?? false;
+                            model.OrderProgress = wPermission.OrderProgress ?? false;
                         }
                         wPermissionsModels.Add(model);
                     }
-
-                    return PartialView("WarehousePerUserChecked", wPermissionsModels);
                 }
             }
-            catch (Exception) {
-                return null;
+            catch (Exception ex) {
+                return PartialView("WarehousePerUserChecked", ex.Message);
             }
-
+            return PartialView("WarehousePerUserChecked", wPermissionsModels);
         }
 
 

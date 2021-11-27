@@ -18,6 +18,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.UserId).HasColumnName("UserId");
             this.Property(t => t.Import).HasColumnName("Import");
             this.Property(t => t.Rotate).HasColumnName("Rotate");
+            this.Property(t => t.OrderProgress).HasColumnName("OrderProgress");
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
 
             // Relationships

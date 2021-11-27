@@ -1119,6 +1119,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 var qcs = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsQC = true });
                 var platings = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsPlating = true });
                 var production2s = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction2 = true });
+
+                var user = vfi.Users.FirstOrDefault(x => x.Username.Equals(HttpContext.User.Identity.Name));
+                var userProgressPermissions = (from x in vfi.WarehousePermissions
+                                               where x.UserId == user.UserId && x.OrderProgress == true
+                                               select x.WarehouseId.Value).ToList();
+
                 foreach (var detail in orderDetails) {
                     var entity = model.FirstOrDefault(x => x.ProductId == detail.ProductId);
                     if (entity != null) continue;
@@ -1138,7 +1144,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     var processQuantity = approvedOrdersById.Sum(x => x.RequireNumber) + entity.OrderQty;
                     var processesById = processes.Where(x => x.ProductId == entity.ProductId).ToList();
                     var noProcesswarehouseIds = new List<int>();
-                    noProcesswarehouseIds.AddRange(savedProgresses.Where(x => x.OrderDetailId == entity.OrderDetailId).Select(y => y.WarehouseId));
                     if (processesById.Any()) {
                         for (int i = 0; i < processesById.Count; i++) {
                             var process = processesById[i];
@@ -1159,6 +1164,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             }
                         }
                         processesById = processesById.Where(x => !noProcesswarehouseIds.Contains(x.WarehouseId)).ToList();
+                        if (!processesById.Any(x => userProgressPermissions.Contains(x.WarehouseId))) continue;
+                        var saved = savedProgresses.Where(x => x.OrderDetailId == entity.OrderDetailId).Select(y => y.WarehouseId).ToList();
+                        if (saved.Any()) {
+                            processesById = processesById.Where(x => !saved.Contains(x.WarehouseId)).ToList();
+                        }
                         var warehouses = processesById.OrderBy(x => x.ProcessIndex).Select(x => x.WarehouseName).ToList();
                         entity.ProcessNote = OrderAutoNote.GetProcessNote(warehouses);
                     }
@@ -3513,6 +3523,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                          fo.ModifiedDate,
                                          fo.ModifiedUser,
                                      }).ToList();
+                    //var forecasts2 = vfi.ForecastOrders.Where(x => x.Status == status).ToList();
+                    //var forecasts3 = vfi.ForecastOrders.Where(x => x.Status == (byte)status).ToList();
+                    //var forecasts4 = vfi.ForecastOrders.Where(x => x.Status == 1).ToList();
+                    //var forecasts5 = vfi.ForecastOrders.Where(x => x.Status != 2 && x.Status != 4 && x.Status != 3).ToList();
+                    //var forecasts = (from fo in vfi.ForecastOrders
+                    //                 where productIds.Contains(fo.ProductId) &&
+                    //                        fo.Quantity > 0 &&
+                    //                        fo.Status == (byte)status
+                    //                 orderby fo.ForecastDate
+                    //                 select fo).ToList();
+                    // //forecasts = forecasts.Where(x=> (status == 0 && x.Status == (byte)MyUtilities.Transaction.Status.Approved) || x.Status == status).ToList();
+                    // forecasts = forecasts.Where(x => ((fromDate == null || x.ForecastDate >= fDate) && (toDate == null || x.ForecastDate <= tDate))).ToList();
                     //if (!string.IsNullOrWhiteSpace(toDate))
                     //    forecasts = forecasts.Where(f => f.ForecastDate >= fDate && f.ForecastDate <= tDate).ToList();
                     if (status != 0) {
@@ -3529,9 +3551,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     }
                     var periods = (from pip in vfi.ProductInventoryPeriods
                                    where productIds.Contains(pip.ProductId) &&
-                                             pip.WarehouseId == MyUtilities.Warehouse.Business &&
-                                             pip.PeriodDate >= lastPeriodYear
-                                   //pip.PeriodDate < toDate &&
+                                        pip.WarehouseId == MyUtilities.Warehouse.Business &&
+                                        pip.PeriodDate >= lastPeriodYear &&
+                                        pip.PeriodDate < tDate
                                    //pip.PeriodDate >= fromDate
                                    select new {
                                        pip.ProductId,

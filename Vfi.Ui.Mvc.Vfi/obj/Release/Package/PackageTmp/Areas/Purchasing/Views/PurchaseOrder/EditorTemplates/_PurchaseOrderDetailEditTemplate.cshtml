@@ -1,0 +1,32 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+
+
+@{
+    Html.Telerik().Grid<PurchaseOrderDetailModel>()
+        .Name("gridPurchaseOrderDetailPartial")
+        .DataKeys(keys => keys.Add(f => f.PurchaseOrderDetailId).RouteKey("purchaseOrderDetailId"))
+        .ToolBar(bar =>
+        {
+            //bar.Insert().ButtonType(GridButtonType.ImageAndText);
+            //bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText);
+        })
+        .DataBinding(dataBindings => dataBindings.Ajax()
+            .Select("SelectPurchaseOrderDetail", "PurchaseOrder")
+            .Update("UpdatePurchaseOrderDetail", "PurchaseOrder")
+        )
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.MaterialCodeName).Width(275);
+            columns.Bound(f => f.OrderQty);
+
+            columns.Bound(f => f.UnitPrice);
+
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InCell))
+        .Footer(false)
+        .Selectable()
+        .Render();
+}
