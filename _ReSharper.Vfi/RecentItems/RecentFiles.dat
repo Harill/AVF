@@ -1,0 +1,53 @@
+﻿<RecentFiles>
+  <RecentFiles>
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Models/d:Production/f:UnitMeasureModel.cs" caret="0" fromTop="0" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:ProductInvManagement.cshtml" caret="420" fromTop="11" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/f:Web.config" caret="2886" fromTop="20" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Views/d:Material/f:MaterialManagement.cshtml" caret="1836" fromTop="24" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Controllers/d:Production/f:MaterialController.cs" caret="18851" fromTop="20" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionProduct.cshtml" caret="3844" fromTop="27" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:WarehouseController.cs" caret="1176" fromTop="15" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:InvController.cs" caret="969" fromTop="0" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterialTool.cshtml" caret="125" fromTop="5" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionMaterial.cshtml" caret="9118" fromTop="260" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionMaterialTool.cshtml" caret="254" fromTop="10" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:TransactionController.cs" caret="4939" fromTop="24" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterial.cshtml" caret="0" fromTop="0" />
+    <File id="9EC540EF-0785-4F6C-9637-BC17CBE44F77/d:Factory/f:IToolDetailRepository.cs" caret="173" fromTop="5" />
+    <File id="9EC540EF-0785-4F6C-9637-BC17CBE44F77/d:Factory/f:IToolRepository.cs" caret="121" fromTop="5" />
+    <File id="9EC540EF-0785-4F6C-9637-BC17CBE44F77/d:Factory/f:IToolPeriodRepository.cs" caret="173" fromTop="5" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:MachineRepository.cs" caret="0" fromTop="0" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:ToolPeriodRepository.cs" caret="372" fromTop="11" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:ToolDetailRepository.cs" caret="372" fromTop="11" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:ToolRepository.cs" caret="343" fromTop="9" />
+    <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:BaseEntities/f:Tool.cs" caret="744" fromTop="9" />
+    <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Factory/f:MachineAppraisalDomainModel.cs" caret="89" fromTop="2" />
+    <File id="01B778B6-CA47-4635-96EC-EC1BA749A4A4/d:Services/f:TransactionService.cs" caret="1146" fromTop="12" />
+    <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Factory/f:ToolDomainModel.cs" caret="220" fromTop="7" />
+    <File id="5E1612CE-3FBF-4705-8CA9-03413C935C45/d:Interfaces/f:IToolService.cs" caret="458" fromTop="15" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Content/f:Reports.css" caret="0" fromTop="0" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Views/d:Home/f:Index.cshtml" caret="0" fromTop="0" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Views/d:Shared/f:_Layout.cshtml" caret="2337" fromTop="3" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Inv/f:PageReportProductInvManagementForPeriodAndListWarehouse.aspx" caret="0" fromTop="0" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Content/f:Site.css" caret="7926" fromTop="2" />
+  </RecentFiles>
+  <RecentEdits>
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/f:Web.config" caret="2556" fromTop="18" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Views/d:Material/f:MaterialManagement.cshtml" caret="1767" fromTop="11" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionProduct.cshtml" caret="10264" fromTop="10" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Controllers/d:Production/f:MaterialController.cs" caret="19615" fromTop="29" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterialTool.cshtml" caret="125" fromTop="5" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Controllers/f:TransactionController.cs" caret="4980" fromTop="26" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionMaterial.cshtml" caret="3427" fromTop="22" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ImportTransactionMaterialTool.cshtml" caret="16746" fromTop="10" />
+    <File id="7432BEDF-39CA-4E3A-8158-82AF29FF9C0E/d:Areas/d:Inv/d:Views/d:Transaction/f:ExportTransactionMaterial.cshtml" caret="0" fromTop="0" />
+    <File id="9EC540EF-0785-4F6C-9637-BC17CBE44F77/d:Factory/f:IToolRepository.cs" caret="161" fromTop="5" />
+    <File id="9EC540EF-0785-4F6C-9637-BC17CBE44F77/d:Factory/f:IToolDetailRepository.cs" caret="173" fromTop="5" />
+    <File id="9EC540EF-0785-4F6C-9637-BC17CBE44F77/d:Factory/f:IToolPeriodRepository.cs" caret="173" fromTop="5" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:ToolRepository.cs" caret="264" fromTop="8" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:ToolDetailRepository.cs" caret="288" fromTop="8" />
+    <File id="7F13E806-DC19-423A-9093-7F2416D4D872/d:RepositoryImpl/d:Factory/f:ToolPeriodRepository.cs" caret="288" fromTop="8" />
+    <File id="5E1612CE-3FBF-4705-8CA9-03413C935C45/d:Interfaces/f:IToolService.cs" caret="449" fromTop="14" />
+    <File id="8C7932A5-AD03-419A-AFE4-17A565B6F7E9/d:Models/d:Factory/f:ToolDomainModel.cs" caret="220" fromTop="7" />
+  </RecentEdits>
+</RecentFiles>
