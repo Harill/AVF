@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7F13E806-DC19-423A-9093-7F2416D4D872}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vfi.Server.Core.Infrastructure</RootNamespace>
+    <AssemblyName>Vfi.Server.Core.Infrastructure</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.1\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.0.1\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataContext\poco.Context1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>poco.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="RepositoryImpl\DatabaseFactory.cs" />
+    <Compile Include="RepositoryImpl\Factory\ToolPeriodRepository.cs" />
+    <Compile Include="RepositoryImpl\Factory\ToolDetailRepository.cs" />
+    <Compile Include="RepositoryImpl\Factory\ToolRepository.cs" />
+    <Compile Include="RepositoryImpl\Factory\MachineAppraisalRepository.cs" />
+    <Compile Include="RepositoryImpl\Factory\MachineRepository.cs" />
+    <Compile Include="RepositoryImpl\GenericRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\ProductInventoryPeriodRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\MaterialInventoryPeriodRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\MaterialInventoryRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\ProductInventoryRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\StockOrderDetailRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\StockOrderRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\StockOrderTypeRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\TransactionDetailRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\TransactionRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\WarehouseRepository.cs" />
+    <Compile Include="RepositoryImpl\Inv\WarehouseTypeRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\CurrencyRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\MaterialClassifiedRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\MaterialRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\MaterialTypeRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\ParameterRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\ProductRepository.cs" />
+    <Compile Include="RepositoryImpl\Production\UnitMeasureRepository.cs" />
+    <Compile Include="RepositoryImpl\Purchasing\PriceListMaterialRepository.cs" />
+    <Compile Include="RepositoryImpl\Purchasing\PurchaseOrderDetailRepository.cs" />
+    <Compile Include="RepositoryImpl\Purchasing\PurchaseOrderRepository.cs" />
+    <Compile Include="RepositoryImpl\Purchasing\ShipMethodRepository.cs" />
+    <Compile Include="RepositoryImpl\Purchasing\VendorRepository.cs" />
+    <Compile Include="RepositoryImpl\RepositoryContext.cs" />
+    <Compile Include="RepositoryImpl\Sales\CustomerRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\CustomerTypeRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\EmployeeRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\InvoiceDetailRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\InvoiceRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\OrderDetailRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\OrderRepository.cs" />
+    <Compile Include="RepositoryImpl\Sales\TimeLineRepository.cs" />
+    <Compile Include="RepositoryImpl\System\FunctionRepository.cs" />
+    <Compile Include="RepositoryImpl\System\MenuRepository.cs" />
+    <Compile Include="RepositoryImpl\System\PermissionRepository.cs" />
+    <Compile Include="RepositoryImpl\System\UserRepository.cs" />
+    <Compile Include="RepositoryImpl\System\UserWorkGroupRepository.cs" />
+    <Compile Include="vfi.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>vfi.edmx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config">
+      <SubType>Designer</SubType>
+    </None>
+    <EntityDeploy Include="vfi.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>vfi.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="DataContext\poco.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>poco.Context1.cs</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Vfi.Server.Core.DataModel\Vfi.Server.Core.DataModel.csproj">
+      <Project>{8C7932A5-AD03-419A-AFE4-17A565B6F7E9}</Project>
+      <Name>Vfi.Server.Core.DataModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vfi.Server.Core.Repository\Vfi.Server.Core.Repository.csproj">
+      <Project>{9EC540EF-0785-4F6C-9637-BC17CBE44F77}</Project>
+      <Name>Vfi.Server.Core.Repository</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

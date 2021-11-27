@@ -1,0 +1,12 @@
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Factory\obj\Release\Vfi.Client.Module.Factory.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Vfi.Client.Module.Factory.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Vfi.Client.Module.Factory.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Microsoft.Practices.Unity.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Vfi.Server.Core.Repository.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Microsoft.Practices.ServiceLocation.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Release\Vfi.Server.Core.Repository.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\obj\Release\Vfi.Client.Module.Factory.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\obj\Release\Vfi.Client.Module.Factory.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Factory\obj\Release\Vfi.Client.Module.Factory.pdb

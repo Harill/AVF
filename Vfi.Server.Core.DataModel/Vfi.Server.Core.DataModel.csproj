@@ -1,0 +1,265 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8C7932A5-AD03-419A-AFE4-17A565B6F7E9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vfi.Server.Core.DataModel</RootNamespace>
+    <AssemblyName>Vfi.Server.Core.DataModel</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseEntities\Currency.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Customer.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\CustomerType.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Employee.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Forecast.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Function.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Invoice.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\InvoiceDetail.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Machine.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\MachineAppraisal.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Material.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\MaterialClassified.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\MaterialInventory.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\MaterialInventoryPeriod.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\MaterialType.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Menu.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Order.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\OrderDetail.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\OrderStatus.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Parameter.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Permission.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\poco.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\PriceListMaterial.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Product.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ProductInventory.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ProductInventoryPeriod.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\PurchaseOrder.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\PurchaseOrderDetail.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ScrapReason.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ShipMethod.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\StockOrder.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\StockOrderDetail.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\StockOrderType.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\TimeLine.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Tool.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ToolDetail.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ToolOrder.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\ToolPeriod.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Transaction.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\TransactionDetail.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\UnitMeasure.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\User.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\UserWorkGroup.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Vendor.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\Warehouse.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\WarehouseType.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\WorkGroup.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\WorkOrder.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseEntities\WorkOrderRouting.cs">
+      <DependentUpon>poco.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Factory\ToolDomainModel.cs" />
+    <Compile Include="Models\Factory\MachineAppraisalDomainModel.cs" />
+    <Compile Include="Models\Factory\MachineDomainModel.cs" />
+    <Compile Include="Models\Inv\ExportOrImportEnumModel.cs" />
+    <Compile Include="Models\Inv\MaterialInventoryDomainModel.cs" />
+    <Compile Include="Models\Inv\MaterialInventoryPeriodDomainModel.cs" />
+    <Compile Include="Models\Inv\ProductInventoryDomainModel.cs" />
+    <Compile Include="Models\Inv\ProductInventoryPeriodDomainModel.cs" />
+    <Compile Include="Models\Inv\StockOrderDetailDomainModel.cs" />
+    <Compile Include="Models\Inv\StockOrderDomainModel.cs" />
+    <Compile Include="Models\Inv\StockOrderStatusEnumModel.cs" />
+    <Compile Include="Models\Inv\StockOrderTypeDomainModel.cs" />
+    <Compile Include="Models\Inv\StockOrderTypeEnumModel.cs" />
+    <Compile Include="Models\Inv\TransactionDetailDomainModel.cs" />
+    <Compile Include="Models\Inv\TransactionDomainModel.cs" />
+    <Compile Include="Models\Inv\TransactionStatusEnumModel.cs" />
+    <Compile Include="Models\Inv\WarehouseDomainModel.cs" />
+    <Compile Include="Models\Inv\WarehouseTypeDomainModel.cs" />
+    <Compile Include="Models\Production\CurrencyDomainModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Production\MaterialClassifiedDomainModel.cs" />
+    <Compile Include="Models\Production\MaterialDomainModel.cs" />
+    <Compile Include="Models\Production\MaterialTypeDomainModel.cs" />
+    <Compile Include="Models\Production\ParameterDomainModel.cs" />
+    <Compile Include="Models\Production\ProductDomainModel.cs" />
+    <Compile Include="Models\Production\StatusEnumDomain.cs" />
+    <Compile Include="Models\Production\UnitMeasureDomainModel.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Models\Purchasing\PriceListMaterialDomainModel.cs" />
+    <Compile Include="Models\Purchasing\PurchaseOrderDetailDomainModel.cs" />
+    <Compile Include="Models\Purchasing\PurchaseOrderDomainModel.cs" />
+    <Compile Include="Models\Purchasing\ShipMethodDomainModel.cs" />
+    <Compile Include="Models\Purchasing\VendorDomainModel.cs" />
+    <Compile Include="Models\Sales\CustomerDomainModel.cs" />
+    <Compile Include="Models\Sales\CustomerTypeDomainModel.cs" />
+    <Compile Include="Models\Sales\EmployeeDomainModel.cs" />
+    <Compile Include="Models\Sales\InvoiceDetailDomainModel.cs" />
+    <Compile Include="Models\Sales\InvoiceDomainModel.cs" />
+    <Compile Include="Models\Sales\OrderDetailDomainModel.cs" />
+    <Compile Include="Models\Sales\OrderDomainModel.cs" />
+    <Compile Include="Models\Sales\OrderStatusEnum.cs" />
+    <Compile Include="Models\Sales\TimeLineDomainModel.cs" />
+    <Compile Include="Models\System\FunctionModel.cs" />
+    <Compile Include="Models\System\MenuModel.cs" />
+    <Compile Include="Models\System\PermissionModel.cs" />
+    <Compile Include="Models\System\UserModel.cs" />
+    <Compile Include="Models\System\UserWorkGroupModel.cs" />
+    <Compile Include="Models\System\WorkGroupModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BaseEntities\poco.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>poco.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,42 @@
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll.config
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.xml
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.xml
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll.config
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.xml
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.xml
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll.config
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.DataModel.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\Vfi.Server.Core.Repository.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.xml
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Release\EntityFramework.SqlServer.xml
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Release\Vfi.Server.Core.Infrastructure.pdb

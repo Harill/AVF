@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9EC540EF-0785-4F6C-9637-BC17CBE44F77}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vfi.Server.Core.Repository</RootNamespace>
+    <AssemblyName>Vfi.Server.Core.Repository</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Factory\IToolPeriodRepository.cs" />
+    <Compile Include="Factory\IToolDetailRepository.cs" />
+    <Compile Include="Factory\IToolRepository.cs" />
+    <Compile Include="Factory\IMachineAppraisalRepository.cs" />
+    <Compile Include="Factory\IMachineRepository.cs" />
+    <Compile Include="IGenericRepository.cs" />
+    <Compile Include="Inv\IMaterialInventoryPeriodRepository.cs" />
+    <Compile Include="Inv\IMaterialInventoryRepository.cs" />
+    <Compile Include="Inv\IProductInventoryPeriodRepository.cs" />
+    <Compile Include="Inv\IProductInventoryRepository.cs" />
+    <Compile Include="Inv\IStockOrderDetailRepository.cs" />
+    <Compile Include="Inv\IStockOrderRepository.cs" />
+    <Compile Include="Inv\IStockOrderTypeRepository.cs" />
+    <Compile Include="Inv\ITransactionDetailRepository.cs" />
+    <Compile Include="Inv\ITransactionRepository.cs" />
+    <Compile Include="Inv\IWarehouseRepository.cs" />
+    <Compile Include="Inv\IWarehouseTypeRepository.cs" />
+    <Compile Include="IRepositoryBase.cs" />
+    <Compile Include="IRepositoryContext.cs" />
+    <Compile Include="Production\ICurrencyRepository.cs" />
+    <Compile Include="Production\IMaterialClassifiedRepository.cs" />
+    <Compile Include="Production\IMaterialRepository.cs" />
+    <Compile Include="Production\IMaterialTypeRepository.cs" />
+    <Compile Include="Production\IParameterRepository.cs" />
+    <Compile Include="Production\IProductRepository.cs" />
+    <Compile Include="Production\IProductTypeRepository.cs" />
+    <Compile Include="Production\IUnitMeasureRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Purchasing\IPriceListMaterialRepository.cs" />
+    <Compile Include="Purchasing\IPurchaseOrderDetailRepository.cs" />
+    <Compile Include="Purchasing\IPurchaseOrderRepository.cs" />
+    <Compile Include="Purchasing\IShipMethodRepository.cs" />
+    <Compile Include="Purchasing\IVendorRepository.cs" />
+    <Compile Include="Sales\ICustomerRepository.cs" />
+    <Compile Include="Sales\ICustomerTypeRepository.cs" />
+    <Compile Include="Sales\IEmployeeRepository.cs" />
+    <Compile Include="Sales\IInvoiceDetailRepository.cs" />
+    <Compile Include="Sales\IInvoiceRepository.cs" />
+    <Compile Include="Sales\IOrderDetailRepository.cs" />
+    <Compile Include="Sales\IOrderRepository.cs" />
+    <Compile Include="Sales\ITimeLineRepository.cs" />
+    <Compile Include="System\IFunctionRepository.cs" />
+    <Compile Include="System\IMenuRepository.cs" />
+    <Compile Include="System\IPermissionRepository.cs" />
+    <Compile Include="System\IUserRepository.cs" />
+    <Compile Include="System\IUserWorkGroupRepository.cs" />
+    <Compile Include="System\IWorkGroupRepository.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Vfi.Server.Core.DataModel\Vfi.Server.Core.DataModel.csproj">
+      <Project>{8C7932A5-AD03-419A-AFE4-17A565B6F7E9}</Project>
+      <Name>Vfi.Server.Core.DataModel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

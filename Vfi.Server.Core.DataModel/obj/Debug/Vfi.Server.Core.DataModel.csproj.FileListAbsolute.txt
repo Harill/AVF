@@ -1,0 +1,28 @@
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache
+D:\thang.setup\Vfi\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache

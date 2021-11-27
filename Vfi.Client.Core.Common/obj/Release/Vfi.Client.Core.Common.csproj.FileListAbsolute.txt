@@ -1,0 +1,14 @@
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Core.Common\bin\Release\Vfi.Client.Core.Common.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Core.Common\bin\Release\Vfi.Client.Core.Common.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Core.Common\bin\Release\Vfi.Client.Core.Common.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Core.Common\bin\Release\Vfi.Client.Core.Common.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\bin\Release\Vfi.Client.Core.Common.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\bin\Release\Vfi.Client.Core.Common.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Release\Vfi.Client.Core.Common.pdb

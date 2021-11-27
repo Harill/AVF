@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BCB4D905-0632-43B4-A95C-69600422E270}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vfi.Server.Core.DrivenModel</RootNamespace>
+    <AssemblyName>Vfi.Server.Core.DrivenModel</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\..\packages\EntityFramework.6.0.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\..\packages\EntityFramework.6.0.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Models\Currency.cs" />
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\CustomerType.cs" />
+    <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\Function.cs" />
+    <Compile Include="Models\Invoice.cs" />
+    <Compile Include="Models\InvoiceDetail.cs" />
+    <Compile Include="Models\Machine.cs" />
+    <Compile Include="Models\MachineAppraisal.cs" />
+    <Compile Include="Models\Mapping\CurrencyMap.cs" />
+    <Compile Include="Models\Mapping\CustomerMap.cs" />
+    <Compile Include="Models\Mapping\CustomerTypeMap.cs" />
+    <Compile Include="Models\Mapping\EmployeeMap.cs" />
+    <Compile Include="Models\Mapping\FunctionMap.cs" />
+    <Compile Include="Models\Mapping\InvoiceDetailMap.cs" />
+    <Compile Include="Models\Mapping\InvoiceMap.cs" />
+    <Compile Include="Models\Mapping\MachineAppraisalMap.cs" />
+    <Compile Include="Models\Mapping\MachineMap.cs" />
+    <Compile Include="Models\Mapping\MaterialClassifiedMap.cs" />
+    <Compile Include="Models\Mapping\MaterialInventoryMap.cs" />
+    <Compile Include="Models\Mapping\MaterialInventoryPeriodMap.cs" />
+    <Compile Include="Models\Mapping\MaterialMap.cs" />
+    <Compile Include="Models\Mapping\MaterialTypeMap.cs" />
+    <Compile Include="Models\Mapping\MenuMap.cs" />
+    <Compile Include="Models\Mapping\ParameterMap.cs" />
+    <Compile Include="Models\Mapping\PermissionMap.cs" />
+    <Compile Include="Models\Mapping\PriceListMaterialMap.cs" />
+    <Compile Include="Models\Mapping\ProductInventoryMap.cs" />
+    <Compile Include="Models\Mapping\ProductInventoryPeriodMap.cs" />
+    <Compile Include="Models\Mapping\ProductMap.cs" />
+    <Compile Include="Models\Mapping\PurchaseOrderDetailMap.cs" />
+    <Compile Include="Models\Mapping\PurchaseOrderMap.cs" />
+    <Compile Include="Models\Mapping\SalesOrderDetailMap.cs" />
+    <Compile Include="Models\Mapping\SalesOrderMap.cs" />
+    <Compile Include="Models\Mapping\ScrapReasonMap.cs" />
+    <Compile Include="Models\Mapping\ShipMethodMap.cs" />
+    <Compile Include="Models\Mapping\StockOrderDetailMap.cs" />
+    <Compile Include="Models\Mapping\StockOrderMap.cs" />
+    <Compile Include="Models\Mapping\StockOrderTypeMap.cs" />
+    <Compile Include="Models\Mapping\sysdiagramMap.cs" />
+    <Compile Include="Models\Mapping\TimeLineMap.cs" />
+    <Compile Include="Models\Mapping\ToolDetailMap.cs" />
+    <Compile Include="Models\Mapping\ToolMap.cs" />
+    <Compile Include="Models\Mapping\ToolOrderMap.cs" />
+    <Compile Include="Models\Mapping\ToolPeriodMap.cs" />
+    <Compile Include="Models\Mapping\TransactionDetailMap.cs" />
+    <Compile Include="Models\Mapping\TransactionMap.cs" />
+    <Compile Include="Models\Mapping\UnitMeasureMap.cs" />
+    <Compile Include="Models\Mapping\UserMap.cs" />
+    <Compile Include="Models\Mapping\UserWorkGroupMap.cs" />
+    <Compile Include="Models\Mapping\VendorMap.cs" />
+    <Compile Include="Models\Mapping\WarehouseMap.cs" />
+    <Compile Include="Models\Mapping\WarehouseTypeMap.cs" />
+    <Compile Include="Models\Mapping\WorkGroupMap.cs" />
+    <Compile Include="Models\Mapping\WorkOrderMap.cs" />
+    <Compile Include="Models\Mapping\WorkOrderRoutingMap.cs" />
+    <Compile Include="Models\Material.cs" />
+    <Compile Include="Models\MaterialClassified.cs" />
+    <Compile Include="Models\MaterialInventory.cs" />
+    <Compile Include="Models\MaterialInventoryPeriod.cs" />
+    <Compile Include="Models\MaterialType.cs" />
+    <Compile Include="Models\Menu.cs" />
+    <Compile Include="Models\Parameter.cs" />
+    <Compile Include="Models\Permission.cs" />
+    <Compile Include="Models\PriceListMaterial.cs" />
+    <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\ProductInventory.cs" />
+    <Compile Include="Models\ProductInventoryPeriod.cs" />
+    <Compile Include="Models\PurchaseOrder.cs" />
+    <Compile Include="Models\PurchaseOrderDetail.cs" />
+    <Compile Include="Models\SalesOrder.cs" />
+    <Compile Include="Models\SalesOrderDetail.cs" />
+    <Compile Include="Models\ScrapReason.cs" />
+    <Compile Include="Models\ShipMethod.cs" />
+    <Compile Include="Models\StockOrder.cs" />
+    <Compile Include="Models\StockOrderDetail.cs" />
+    <Compile Include="Models\StockOrderType.cs" />
+    <Compile Include="Models\sysdiagram.cs" />
+    <Compile Include="Models\TimeLine.cs" />
+    <Compile Include="Models\Tool.cs" />
+    <Compile Include="Models\ToolDetail.cs" />
+    <Compile Include="Models\ToolOrder.cs" />
+    <Compile Include="Models\ToolPeriod.cs" />
+    <Compile Include="Models\Transaction.cs" />
+    <Compile Include="Models\TransactionDetail.cs" />
+    <Compile Include="Models\UnitMeasure.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Models\UserWorkGroup.cs" />
+    <Compile Include="Models\Vendor.cs" />
+    <Compile Include="Models\vfiContext.cs" />
+    <Compile Include="Models\Warehouse.cs" />
+    <Compile Include="Models\WarehouseType.cs" />
+    <Compile Include="Models\WorkGroup.cs" />
+    <Compile Include="Models\WorkOrder.cs" />
+    <Compile Include="Models\WorkOrderRouting.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

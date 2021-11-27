@@ -1,0 +1,1912 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="VfiModel" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+  <EntityContainer Name="VfiEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="Machines" EntityType="VfiModel.Machine" />
+    <EntitySet Name="MachineAppraisals" EntityType="VfiModel.MachineAppraisal" />
+    <EntitySet Name="MaterialInventories" EntityType="VfiModel.MaterialInventory" />
+    <EntitySet Name="MaterialInventoryPeriods" EntityType="VfiModel.MaterialInventoryPeriod" />
+    <EntitySet Name="ProductInventories" EntityType="VfiModel.ProductInventory" />
+    <EntitySet Name="ProductInventoryPeriods" EntityType="VfiModel.ProductInventoryPeriod" />
+    <EntitySet Name="StockOrders" EntityType="VfiModel.StockOrder" />
+    <EntitySet Name="StockOrderDetails" EntityType="VfiModel.StockOrderDetail" />
+    <EntitySet Name="StockOrderTypes" EntityType="VfiModel.StockOrderType" />
+    <EntitySet Name="TransactionDetails" EntityType="VfiModel.TransactionDetail" />
+    <EntitySet Name="Warehouses" EntityType="VfiModel.Warehouse" />
+    <EntitySet Name="WarehouseTypes" EntityType="VfiModel.WarehouseType" />
+    <EntitySet Name="Currencies" EntityType="VfiModel.Currency" />
+    <EntitySet Name="Materials" EntityType="VfiModel.Material" />
+    <EntitySet Name="MaterialClassifieds" EntityType="VfiModel.MaterialClassified" />
+    <EntitySet Name="MaterialTypes" EntityType="VfiModel.MaterialType" />
+    <EntitySet Name="Products" EntityType="VfiModel.Product" />
+    <EntitySet Name="UnitMeasures" EntityType="VfiModel.UnitMeasure" />
+    <EntitySet Name="PriceListMaterials" EntityType="VfiModel.PriceListMaterial" />
+    <EntitySet Name="PurchaseOrders" EntityType="VfiModel.PurchaseOrder" />
+    <EntitySet Name="PurchaseOrderDetails" EntityType="VfiModel.PurchaseOrderDetail" />
+    <EntitySet Name="ShipMethods" EntityType="VfiModel.ShipMethod" />
+    <EntitySet Name="Vendors" EntityType="VfiModel.Vendor" />
+    <EntitySet Name="Customers" EntityType="VfiModel.Customer" />
+    <EntitySet Name="CustomerTypes" EntityType="VfiModel.CustomerType" />
+    <EntitySet Name="Employees" EntityType="VfiModel.Employee" />
+    <EntitySet Name="Invoices" EntityType="VfiModel.Invoice" />
+    <EntitySet Name="InvoiceDetails" EntityType="VfiModel.InvoiceDetail" />
+    <EntitySet Name="TimeLines" EntityType="VfiModel.TimeLine" />
+    <EntitySet Name="Functions" EntityType="VfiModel.Function" />
+    <EntitySet Name="Menus" EntityType="VfiModel.Menu" />
+    <EntitySet Name="Parameters" EntityType="VfiModel.Parameter" />
+    <EntitySet Name="Permissions" EntityType="VfiModel.Permission" />
+    <EntitySet Name="Users" EntityType="VfiModel.User" />
+    <EntitySet Name="WorkGroups" EntityType="VfiModel.WorkGroup" />
+    <AssociationSet Name="FK_MachineAppraisal_Machine" Association="VfiModel.FK_MachineAppraisal_Machine">
+      <End Role="Machine" EntitySet="Machines" />
+      <End Role="MachineAppraisal" EntitySet="MachineAppraisals" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MachineAppraisal_Product" Association="VfiModel.FK_MachineAppraisal_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="MachineAppraisal" EntitySet="MachineAppraisals" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MachineAppraisal_Warehouse" Association="VfiModel.FK_MachineAppraisal_Warehouse">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="MachineAppraisal" EntitySet="MachineAppraisals" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MaterialInventory_Material" Association="VfiModel.FK_MaterialInventory_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="MaterialInventory" EntitySet="MaterialInventories" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MaterialInventory_Warehouse" Association="VfiModel.FK_MaterialInventory_Warehouse">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="MaterialInventory" EntitySet="MaterialInventories" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MaterialInventoryPeriod_Material" Association="VfiModel.FK_MaterialInventoryPeriod_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="MaterialInventoryPeriod" EntitySet="MaterialInventoryPeriods" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MaterialInventoryPeriod_Warehouse" Association="VfiModel.FK_MaterialInventoryPeriod_Warehouse">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="MaterialInventoryPeriod" EntitySet="MaterialInventoryPeriods" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductInventory_Product" Association="VfiModel.FK_ProductInventory_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="ProductInventory" EntitySet="ProductInventories" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductInventory_Warehouse" Association="VfiModel.FK_ProductInventory_Warehouse">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="ProductInventory" EntitySet="ProductInventories" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductInventoryPeriod_Product" Association="VfiModel.FK_ProductInventoryPeriod_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="ProductInventoryPeriod" EntitySet="ProductInventoryPeriods" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductInventoryPeriod_Warehouse" Association="VfiModel.FK_ProductInventoryPeriod_Warehouse">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="ProductInventoryPeriod" EntitySet="ProductInventoryPeriods" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StockOrder_WarehouseIssue" Association="VfiModel.FK_StockOrder_WarehouseIssue">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="StockOrder" EntitySet="StockOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StockOrder_WarehouseReceipt" Association="VfiModel.FK_StockOrder_WarehouseReceipt">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="StockOrder" EntitySet="StockOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StockOrderDetail_StockOrder" Association="VfiModel.FK_StockOrderDetail_StockOrder">
+      <End Role="StockOrder" EntitySet="StockOrders" />
+      <End Role="StockOrderDetail" EntitySet="StockOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StockOrderDetail_Material" Association="VfiModel.FK_StockOrderDetail_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="StockOrderDetail" EntitySet="StockOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_StockOrderDetail_Product" Association="VfiModel.FK_StockOrderDetail_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="StockOrderDetail" EntitySet="StockOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TransactionDetail_Material" Association="VfiModel.FK_TransactionDetail_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="TransactionDetail" EntitySet="TransactionDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TransactionDetail_Product" Association="VfiModel.FK_TransactionDetail_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="TransactionDetail" EntitySet="TransactionDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TimeLine_Warehouse" Association="VfiModel.FK_TimeLine_Warehouse">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="TimeLine" EntitySet="TimeLines" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Warehouse_WarehouseType" Association="VfiModel.FK_Warehouse_WarehouseType">
+      <End Role="WarehouseType" EntitySet="WarehouseTypes" />
+      <End Role="Warehouse" EntitySet="Warehouses" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PriceListMaterial_Currency" Association="VfiModel.FK_PriceListMaterial_Currency">
+      <End Role="Currency" EntitySet="Currencies" />
+      <End Role="PriceListMaterial" EntitySet="PriceListMaterials" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Material_MaterialType" Association="VfiModel.FK_Material_MaterialType">
+      <End Role="MaterialType" EntitySet="MaterialTypes" />
+      <End Role="Material" EntitySet="Materials" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PriceListMaterial_Material" Association="VfiModel.FK_PriceListMaterial_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="PriceListMaterial" EntitySet="PriceListMaterials" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Product_Material" Association="VfiModel.FK_Product_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="Product" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrderDetail_Material" Association="VfiModel.FK_PurchaseOrderDetail_Material">
+      <End Role="Material" EntitySet="Materials" />
+      <End Role="PurchaseOrderDetail" EntitySet="PurchaseOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_MaterialType_MaterialClassified" Association="VfiModel.FK_MaterialType_MaterialClassified">
+      <End Role="MaterialClassified" EntitySet="MaterialClassifieds" />
+      <End Role="MaterialType" EntitySet="MaterialTypes" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrderDetail_MaterialClassified" Association="VfiModel.FK_PurchaseOrderDetail_MaterialClassified">
+      <End Role="MaterialClassified" EntitySet="MaterialClassifieds" />
+      <End Role="PurchaseOrderDetail" EntitySet="PurchaseOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrderDetail_MaterialType" Association="VfiModel.FK_PurchaseOrderDetail_MaterialType">
+      <End Role="MaterialType" EntitySet="MaterialTypes" />
+      <End Role="PurchaseOrderDetail" EntitySet="PurchaseOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_InvoiceDetail_Product" Association="VfiModel.FK_InvoiceDetail_Product">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="InvoiceDetail" EntitySet="InvoiceDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Product_Customer" Association="VfiModel.FK_Product_Customer">
+      <End Role="Customer" EntitySet="Customers" />
+      <End Role="Product" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrder_Employee" Association="VfiModel.FK_PurchaseOrder_Employee">
+      <End Role="Employee" EntitySet="Employees" />
+      <End Role="PurchaseOrder" EntitySet="PurchaseOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrder_ShipMethod" Association="VfiModel.FK_PurchaseOrder_ShipMethod">
+      <End Role="ShipMethod" EntitySet="ShipMethods" />
+      <End Role="PurchaseOrder" EntitySet="PurchaseOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrder_Vendor" Association="VfiModel.FK_PurchaseOrder_Vendor">
+      <End Role="Vendor" EntitySet="Vendors" />
+      <End Role="PurchaseOrder" EntitySet="PurchaseOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_PurchaseOrderDetail_PurchaseOrder" Association="VfiModel.FK_PurchaseOrderDetail_PurchaseOrder">
+      <End Role="PurchaseOrder" EntitySet="PurchaseOrders" />
+      <End Role="PurchaseOrderDetail" EntitySet="PurchaseOrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Customer_CustomerType" Association="VfiModel.FK_Customer_CustomerType">
+      <End Role="CustomerType" EntitySet="CustomerTypes" />
+      <End Role="Customer" EntitySet="Customers" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Invoice_Customer" Association="VfiModel.FK_Invoice_Customer">
+      <End Role="Customer" EntitySet="Customers" />
+      <End Role="Invoice" EntitySet="Invoices" />
+    </AssociationSet>
+    <AssociationSet Name="FK_InvoiceDetail_Invoice" Association="VfiModel.FK_InvoiceDetail_Invoice">
+      <End Role="Invoice" EntitySet="Invoices" />
+      <End Role="InvoiceDetail" EntitySet="InvoiceDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Function_Function" Association="VfiModel.FK_Function_Function">
+      <End Role="Function" EntitySet="Functions" />
+      <End Role="Function1" EntitySet="Functions" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Permission_Function" Association="VfiModel.FK_Permission_Function">
+      <End Role="Function" EntitySet="Functions" />
+      <End Role="Permission" EntitySet="Permissions" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Menu_Menu" Association="VfiModel.FK_Menu_Menu">
+      <End Role="Menu" EntitySet="Menus" />
+      <End Role="Menu1" EntitySet="Menus" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Permission_User" Association="VfiModel.FK_Permission_User">
+      <End Role="User" EntitySet="Users" />
+      <End Role="Permission" EntitySet="Permissions" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Permission_WorkGroup" Association="VfiModel.FK_Permission_WorkGroup">
+      <End Role="WorkGroup" EntitySet="WorkGroups" />
+      <End Role="Permission" EntitySet="Permissions" />
+    </AssociationSet>
+    <EntitySet Name="Transactions" EntityType="VfiModel.Transaction" />
+    <AssociationSet Name="FK_MaterialInventoryPeriod_Transaction" Association="VfiModel.FK_MaterialInventoryPeriod_Transaction">
+      <End Role="Transaction" EntitySet="Transactions" />
+      <End Role="MaterialInventoryPeriod" EntitySet="MaterialInventoryPeriods" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ProductInventoryPeriod_Transaction" Association="VfiModel.FK_ProductInventoryPeriod_Transaction">
+      <End Role="Transaction" EntitySet="Transactions" />
+      <End Role="ProductInventoryPeriod" EntitySet="ProductInventoryPeriods" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Transaction_StockOrder" Association="VfiModel.FK_Transaction_StockOrder">
+      <End Role="StockOrder" EntitySet="StockOrders" />
+      <End Role="Transaction" EntitySet="Transactions" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Transaction_WarehouseIssue" Association="VfiModel.FK_Transaction_WarehouseIssue">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="Transaction" EntitySet="Transactions" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Transaction_WarehouseReceipt" Association="VfiModel.FK_Transaction_WarehouseReceipt">
+      <End Role="Warehouse" EntitySet="Warehouses" />
+      <End Role="Transaction" EntitySet="Transactions" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TransactionDetail_Transaction" Association="VfiModel.FK_TransactionDetail_Transaction">
+      <End Role="Transaction" EntitySet="Transactions" />
+      <End Role="TransactionDetail" EntitySet="TransactionDetails" />
+    </AssociationSet>
+    <EntitySet Name="ToolDetails" EntityType="VfiModel.ToolDetail" />
+    <EntitySet Name="ToolPeriods" EntityType="VfiModel.ToolPeriod" />
+    <EntitySet Name="UserWorkGroups" EntityType="VfiModel.UserWorkGroup" />
+    <AssociationSet Name="FK_UserWorkGroup_User" Association="VfiModel.FK_UserWorkGroup_User">
+      <End Role="User" EntitySet="Users" />
+      <End Role="UserWorkGroup" EntitySet="UserWorkGroups" />
+    </AssociationSet>
+    <AssociationSet Name="FK_UserWorkGroup_WorkGroup" Association="VfiModel.FK_UserWorkGroup_WorkGroup">
+      <End Role="WorkGroup" EntitySet="WorkGroups" />
+      <End Role="UserWorkGroup" EntitySet="UserWorkGroups" />
+    </AssociationSet>
+    <EntitySet Name="Tools" EntityType="VfiModel.Tool" />
+    <AssociationSet Name="FK_ToolDetail_Tool" Association="VfiModel.FK_ToolDetail_Tool">
+      <End Role="Tool" EntitySet="Tools" />
+      <End Role="ToolDetail" EntitySet="ToolDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_ToolPeriod_Tool" Association="VfiModel.FK_ToolPeriod_Tool">
+      <End Role="Tool" EntitySet="Tools" />
+      <End Role="ToolPeriod" EntitySet="ToolPeriods" />
+    </AssociationSet>
+    <EntitySet Name="ScrapReasons" EntityType="VfiModel.ScrapReason" />
+    <EntitySet Name="WorkOrders" EntityType="VfiModel.WorkOrder" />
+    <EntitySet Name="WorkOrderRoutings" EntityType="VfiModel.WorkOrderRouting" />
+    <AssociationSet Name="FK_WorkOrder_ScrapReasons" Association="VfiModel.FK_WorkOrder_ScrapReasons">
+      <End Role="ScrapReason" EntitySet="ScrapReasons" />
+      <End Role="WorkOrder" EntitySet="WorkOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_WorkOrderRouting_WorkOrder" Association="VfiModel.FK_WorkOrderRouting_WorkOrder">
+      <End Role="WorkOrder" EntitySet="WorkOrders" />
+      <End Role="WorkOrderRouting" EntitySet="WorkOrderRoutings" />
+    </AssociationSet>
+    <EntitySet Name="ToolOrders" EntityType="VfiModel.ToolOrder" />
+    <EntitySet Name="Forecasts" EntityType="VfiModel.Forecast" />
+    <EntitySet Name="OrderDetails" EntityType="VfiModel.OrderDetail" />
+    <EntitySet Name="Orders" EntityType="VfiModel.Order" />
+    <EntitySet Name="OrderStatuses" EntityType="VfiModel.OrderStatus" />
+    <AssociationSet Name="FK_ToolDetail_Tool1" Association="VfiModel.FK_ToolDetail_Tool1">
+      <End Role="ToolOrder" EntitySet="ToolOrders" />
+      <End Role="ToolDetail" EntitySet="ToolDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_SalesOrderDetail_Product1" Association="VfiModel.FK_SalesOrderDetail_Product1">
+      <End Role="Product" EntitySet="Products" />
+      <End Role="OrderDetail" EntitySet="OrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_WorkOrder_SalesOrder1" Association="VfiModel.FK_WorkOrder_SalesOrder1">
+      <End Role="Order" EntitySet="Orders" />
+      <End Role="WorkOrder" EntitySet="WorkOrders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_SalesOrder_Customer1" Association="VfiModel.FK_SalesOrder_Customer1">
+      <End Role="Customer" EntitySet="Customers" />
+      <End Role="Order" EntitySet="Orders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_SalesOrder_Employee1" Association="VfiModel.FK_SalesOrder_Employee1">
+      <End Role="Employee" EntitySet="Employees" />
+      <End Role="Order" EntitySet="Orders" />
+    </AssociationSet>
+    <AssociationSet Name="FK_OrderStatuses_OrderDetails" Association="VfiModel.FK_OrderStatuses_OrderDetails">
+      <End Role="OrderDetail" EntitySet="OrderDetails" />
+      <End Role="OrderStatus" EntitySet="OrderStatuses" />
+    </AssociationSet>
+    <AssociationSet Name="FK_SalesOrderDetail_SalesOrder1" Association="VfiModel.FK_SalesOrderDetail_SalesOrder1">
+      <End Role="Order" EntitySet="Orders" />
+      <End Role="OrderDetail" EntitySet="OrderDetails" />
+    </AssociationSet>
+    <AssociationSet Name="FK_TimeLine_SalesOrderDetail1" Association="VfiModel.FK_TimeLine_SalesOrderDetail1">
+      <End Role="OrderDetail" EntitySet="OrderDetails" />
+      <End Role="TimeLine" EntitySet="TimeLines" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Orders_Orders" Association="VfiModel.FK_Orders_Orders">
+      <End Role="Order" EntitySet="Orders" />
+      <End Role="Order1" EntitySet="Orders" />
+    </AssociationSet>
+  </EntityContainer>
+  <EntityType Name="Machine">
+    <Key>
+      <PropertyRef Name="MachineId" />
+    </Key>
+    <Property Name="MachineId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineName" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="MachineAppraisals" Relationship="VfiModel.FK_MachineAppraisal_Machine" FromRole="Machine" ToRole="MachineAppraisal" />
+  </EntityType>
+  <EntityType Name="MachineAppraisal">
+    <Key>
+      <PropertyRef Name="AppraisalId" />
+    </Key>
+    <Property Name="AppraisalId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="WarehouseId" Type="Int32" />
+    <Property Name="MachineId" Type="Int32" />
+    <Property Name="ProductId" Type="Int32" />
+    <Property Name="AppraisalTime" Type="Int32" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Machine" Relationship="VfiModel.FK_MachineAppraisal_Machine" FromRole="MachineAppraisal" ToRole="Machine" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_MachineAppraisal_Product" FromRole="MachineAppraisal" ToRole="Product" />
+    <NavigationProperty Name="Warehouse" Relationship="VfiModel.FK_MachineAppraisal_Warehouse" FromRole="MachineAppraisal" ToRole="Warehouse" />
+  </EntityType>
+  <EntityType Name="MaterialInventory">
+    <Key>
+      <PropertyRef Name="MaterialInventoryId" />
+    </Key>
+    <Property Name="MaterialInventoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MaterialId" Type="Int32" Nullable="false" />
+    <Property Name="WarehouseId" Type="Int32" Nullable="false" />
+    <Property Name="TotalQty" Type="Double" />
+    <Property Name="TotalQtyKg" Type="Double" />
+    <Property Name="AvailableQty" Type="Double" />
+    <Property Name="UnavailableQty" Type="Double" />
+    <Property Name="UnitMeasure" Type="String" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="Status" Type="Byte" Nullable="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_MaterialInventory_Material" FromRole="MaterialInventory" ToRole="Material" />
+    <NavigationProperty Name="Warehouse" Relationship="VfiModel.FK_MaterialInventory_Warehouse" FromRole="MaterialInventory" ToRole="Warehouse" />
+  </EntityType>
+  <EntityType Name="MaterialInventoryPeriod">
+    <Key>
+      <PropertyRef Name="MaterialInventoryPeriodId" />
+    </Key>
+    <Property Name="MaterialInventoryPeriodId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TransactionId" Type="Int64" Nullable="false" />
+    <Property Name="WarehouseId" Type="Int32" Nullable="false" />
+    <Property Name="MaterialId" Type="Int32" Nullable="false" />
+    <Property Name="PeriodDay" Type="Int32" />
+    <Property Name="PeriodMonth" Type="Int32" />
+    <Property Name="PeriodYear" Type="Int32" />
+    <Property Name="PeriodDate" Type="DateTime" Precision="0" />
+    <Property Name="EarlyPeriodQuantity" Type="Double" />
+    <Property Name="EarlyPeriodQuantityKg" Type="Double" />
+    <Property Name="EarlyPeriodPrice" Type="Double" />
+    <Property Name="Quantity" Type="Double" />
+    <Property Name="QuantityKg" Type="Double" />
+    <Property Name="UnitPrice" Type="Double" />
+    <Property Name="Price" Type="Double" />
+    <Property Name="UnitMeasure" Type="String" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="LastPeriodQuantity" Type="Double" />
+    <Property Name="LastPeriodQuantityKg" Type="Double" />
+    <Property Name="LastPeriodPrice" Type="Double" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_MaterialInventoryPeriod_Material" FromRole="MaterialInventoryPeriod" ToRole="Material" />
+    <NavigationProperty Name="Warehouse" Relationship="VfiModel.FK_MaterialInventoryPeriod_Warehouse" FromRole="MaterialInventoryPeriod" ToRole="Warehouse" />
+    <NavigationProperty Name="Transaction" Relationship="VfiModel.FK_MaterialInventoryPeriod_Transaction" FromRole="MaterialInventoryPeriod" ToRole="Transaction" />
+  </EntityType>
+  <EntityType Name="ProductInventory">
+    <Key>
+      <PropertyRef Name="ProductInventoryId" />
+    </Key>
+    <Property Name="ProductInventoryId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProductId" Type="Int32" Nullable="false" />
+    <Property Name="WarehouseId" Type="Int32" Nullable="false" />
+    <Property Name="TotalQty" Type="Double" />
+    <Property Name="AvailableQty" Type="Double" />
+    <Property Name="UnavailableQty" Type="Double" />
+    <Property Name="UnitMeasure" Type="String" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="Status" Type="Byte" Nullable="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_ProductInventory_Product" FromRole="ProductInventory" ToRole="Product" />
+    <NavigationProperty Name="Warehouse" Relationship="VfiModel.FK_ProductInventory_Warehouse" FromRole="ProductInventory" ToRole="Warehouse" />
+  </EntityType>
+  <EntityType Name="ProductInventoryPeriod">
+    <Key>
+      <PropertyRef Name="ProductInventoryPeriodId" />
+    </Key>
+    <Property Name="ProductInventoryPeriodId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TransactionId" Type="Int64" Nullable="false" />
+    <Property Name="WarehouseId" Type="Int32" Nullable="false" />
+    <Property Name="ProductId" Type="Int32" Nullable="false" />
+    <Property Name="PeriodDay" Type="Int32" />
+    <Property Name="PeriodMonth" Type="Int32" />
+    <Property Name="PeriodYear" Type="Int32" />
+    <Property Name="PeriodDate" Type="DateTime" Precision="0" />
+    <Property Name="EarlyPeriodQuantity" Type="Double" />
+    <Property Name="EarlyPeriodPrice" Type="Double" />
+    <Property Name="Quantity" Type="Double" />
+    <Property Name="UnitPrice" Type="Double" />
+    <Property Name="Price" Type="Double" />
+    <Property Name="UnitMeasure" Type="String" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="LastPeriodQuantity" Type="Double" />
+    <Property Name="LastPeriodPrice" Type="Double" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_ProductInventoryPeriod_Product" FromRole="ProductInventoryPeriod" ToRole="Product" />
+    <NavigationProperty Name="Warehouse" Relationship="VfiModel.FK_ProductInventoryPeriod_Warehouse" FromRole="ProductInventoryPeriod" ToRole="Warehouse" />
+    <NavigationProperty Name="Transaction" Relationship="VfiModel.FK_ProductInventoryPeriod_Transaction" FromRole="ProductInventoryPeriod" ToRole="Transaction" />
+  </EntityType>
+  <EntityType Name="StockOrder">
+    <Key>
+      <PropertyRef Name="StockOrderId" />
+    </Key>
+    <Property Name="StockOrderId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="WarehouseIssueId" Type="Int32" />
+    <Property Name="WarehouseReceiptId" Type="Int32" />
+    <Property Name="StockOrderTypeId" Type="Int32" Nullable="false" />
+    <Property Name="StockOrderCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="EoI" Type="String" Nullable="false" MaxLength="1" Unicode="false" FixedLength="true" />
+    <Property Name="MoP" Type="Boolean" Nullable="false" />
+    <Property Name="CreatedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="CreatedDate" Type="DateTime" Precision="0" />
+    <Property Name="Status" Type="Byte" Nullable="false" />
+    <Property Name="IsApprove" Type="Boolean" Nullable="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="WarehouseIssue" Relationship="VfiModel.FK_StockOrder_WarehouseIssue" FromRole="StockOrder" ToRole="Warehouse" />
+    <NavigationProperty Name="WarehouseReceipt" Relationship="VfiModel.FK_StockOrder_WarehouseReceipt" FromRole="StockOrder" ToRole="Warehouse" />
+    <NavigationProperty Name="StockOrderDetails" Relationship="VfiModel.FK_StockOrderDetail_StockOrder" FromRole="StockOrder" ToRole="StockOrderDetail" />
+    <NavigationProperty Name="Transactions" Relationship="VfiModel.FK_Transaction_StockOrder" FromRole="StockOrder" ToRole="Transaction" />
+  </EntityType>
+  <EntityType Name="StockOrderDetail">
+    <Key>
+      <PropertyRef Name="StockOrderDetailId" />
+    </Key>
+    <Property Name="StockOrderDetailId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StockOrderId" Type="Int64" Nullable="false" />
+    <Property Name="ReferenceId" Type="Int32" />
+    <Property Name="MoP" Type="Boolean" Nullable="false" />
+    <Property Name="Quantity" Type="Double" />
+    <Property Name="UnitMeasure" Type="String" Nullable="false" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="StockOrder" Relationship="VfiModel.FK_StockOrderDetail_StockOrder" FromRole="StockOrderDetail" ToRole="StockOrder" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_StockOrderDetail_Material" FromRole="StockOrderDetail" ToRole="Material" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_StockOrderDetail_Product" FromRole="StockOrderDetail" ToRole="Product" />
+  </EntityType>
+  <EntityType Name="StockOrderType">
+    <Key>
+      <PropertyRef Name="StockOrderTypeId" />
+    </Key>
+    <Property Name="StockOrderTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StockOrderTypeName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="EoI" Type="Boolean" Nullable="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="TransactionDetail">
+    <Key>
+      <PropertyRef Name="TransactionDetailId" />
+    </Key>
+    <Property Name="TransactionDetailId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="TransactionId" Type="Int64" />
+    <Property Name="ReferenceId" Type="Int32" />
+    <Property Name="MoP" Type="Boolean" Nullable="false" />
+    <Property Name="Quantity" Type="Double" />
+    <Property Name="QuantityKg" Type="Double" />
+    <Property Name="Price" Type="Double" />
+    <Property Name="UnitMeasure" Type="String" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_TransactionDetail_Material" FromRole="TransactionDetail" ToRole="Material" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_TransactionDetail_Product" FromRole="TransactionDetail" ToRole="Product" />
+    <NavigationProperty Name="Transaction" Relationship="VfiModel.FK_TransactionDetail_Transaction" FromRole="TransactionDetail" ToRole="Transaction" />
+  </EntityType>
+  <EntityType Name="Warehouse">
+    <Key>
+      <PropertyRef Name="WarehouseId" />
+    </Key>
+    <Property Name="WarehouseId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="WarehouseTypeId" Type="Int32" />
+    <Property Name="WarehouseName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Description" Type="String" MaxLength="Max" Unicode="true" FixedLength="false" />
+    <Property Name="Idx" Type="Int32" Nullable="false" />
+    <Property Name="DisplayInReport" Type="Boolean" Nullable="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="MachineAppraisals" Relationship="VfiModel.FK_MachineAppraisal_Warehouse" FromRole="Warehouse" ToRole="MachineAppraisal" />
+    <NavigationProperty Name="MaterialInventories" Relationship="VfiModel.FK_MaterialInventory_Warehouse" FromRole="Warehouse" ToRole="MaterialInventory" />
+    <NavigationProperty Name="MaterialInventoryPeriods" Relationship="VfiModel.FK_MaterialInventoryPeriod_Warehouse" FromRole="Warehouse" ToRole="MaterialInventoryPeriod" />
+    <NavigationProperty Name="ProductInventories" Relationship="VfiModel.FK_ProductInventory_Warehouse" FromRole="Warehouse" ToRole="ProductInventory" />
+    <NavigationProperty Name="ProductInventoryPeriods" Relationship="VfiModel.FK_ProductInventoryPeriod_Warehouse" FromRole="Warehouse" ToRole="ProductInventoryPeriod" />
+    <NavigationProperty Name="StockOrders" Relationship="VfiModel.FK_StockOrder_WarehouseIssue" FromRole="Warehouse" ToRole="StockOrder" />
+    <NavigationProperty Name="StockOrders1" Relationship="VfiModel.FK_StockOrder_WarehouseReceipt" FromRole="Warehouse" ToRole="StockOrder" />
+    <NavigationProperty Name="TimeLines" Relationship="VfiModel.FK_TimeLine_Warehouse" FromRole="Warehouse" ToRole="TimeLine" />
+    <NavigationProperty Name="WarehouseType" Relationship="VfiModel.FK_Warehouse_WarehouseType" FromRole="Warehouse" ToRole="WarehouseType" />
+    <NavigationProperty Name="Transactions" Relationship="VfiModel.FK_Transaction_WarehouseIssue" FromRole="Warehouse" ToRole="Transaction" />
+    <NavigationProperty Name="Transactions1" Relationship="VfiModel.FK_Transaction_WarehouseReceipt" FromRole="Warehouse" ToRole="Transaction" />
+  </EntityType>
+  <EntityType Name="WarehouseType">
+    <Key>
+      <PropertyRef Name="WarehouseTypeId" />
+    </Key>
+    <Property Name="WarehouseTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="WarehouseTypeName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Warehouses" Relationship="VfiModel.FK_Warehouse_WarehouseType" FromRole="WarehouseType" ToRole="Warehouse" />
+  </EntityType>
+  <EntityType Name="Currency">
+    <Key>
+      <PropertyRef Name="CurrencyCode" />
+    </Key>
+    <Property Name="CurrencyCode" Type="String" Nullable="false" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="CurrencyName" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="PriceListMaterials" Relationship="VfiModel.FK_PriceListMaterial_Currency" FromRole="Currency" ToRole="PriceListMaterial" />
+  </EntityType>
+  <EntityType Name="Material">
+    <Key>
+      <PropertyRef Name="MaterialId" />
+    </Key>
+    <Property Name="MaterialId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MaterialTypeId" Type="Int32" Nullable="false" />
+    <Property Name="MaterialCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="MaterialName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Diameter" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="DiameterType" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Length" Type="Double" />
+    <Property Name="Weight" Type="Double" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="MaterialInventories" Relationship="VfiModel.FK_MaterialInventory_Material" FromRole="Material" ToRole="MaterialInventory" />
+    <NavigationProperty Name="MaterialInventoryPeriods" Relationship="VfiModel.FK_MaterialInventoryPeriod_Material" FromRole="Material" ToRole="MaterialInventoryPeriod" />
+    <NavigationProperty Name="StockOrderDetails" Relationship="VfiModel.FK_StockOrderDetail_Material" FromRole="Material" ToRole="StockOrderDetail" />
+    <NavigationProperty Name="TransactionDetails" Relationship="VfiModel.FK_TransactionDetail_Material" FromRole="Material" ToRole="TransactionDetail" />
+    <NavigationProperty Name="MaterialType" Relationship="VfiModel.FK_Material_MaterialType" FromRole="Material" ToRole="MaterialType" />
+    <NavigationProperty Name="PriceListMaterials" Relationship="VfiModel.FK_PriceListMaterial_Material" FromRole="Material" ToRole="PriceListMaterial" />
+    <NavigationProperty Name="Products" Relationship="VfiModel.FK_Product_Material" FromRole="Material" ToRole="Product" />
+    <NavigationProperty Name="PurchaseOrderDetails" Relationship="VfiModel.FK_PurchaseOrderDetail_Material" FromRole="Material" ToRole="PurchaseOrderDetail" />
+  </EntityType>
+  <EntityType Name="MaterialClassified">
+    <Key>
+      <PropertyRef Name="MaterialClassifiedId" />
+    </Key>
+    <Property Name="MaterialClassifiedId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MaterialClassifiedName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="MaterialTypes" Relationship="VfiModel.FK_MaterialType_MaterialClassified" FromRole="MaterialClassified" ToRole="MaterialType" />
+    <NavigationProperty Name="PurchaseOrderDetails" Relationship="VfiModel.FK_PurchaseOrderDetail_MaterialClassified" FromRole="MaterialClassified" ToRole="PurchaseOrderDetail" />
+  </EntityType>
+  <EntityType Name="MaterialType">
+    <Key>
+      <PropertyRef Name="MaterialTypeId" />
+    </Key>
+    <Property Name="MaterialTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MaterialClassifiedId" Type="Int32" Nullable="false" />
+    <Property Name="MaterialTypeName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Materials" Relationship="VfiModel.FK_Material_MaterialType" FromRole="MaterialType" ToRole="Material" />
+    <NavigationProperty Name="MaterialClassified" Relationship="VfiModel.FK_MaterialType_MaterialClassified" FromRole="MaterialType" ToRole="MaterialClassified" />
+    <NavigationProperty Name="PurchaseOrderDetails" Relationship="VfiModel.FK_PurchaseOrderDetail_MaterialType" FromRole="MaterialType" ToRole="PurchaseOrderDetail" />
+  </EntityType>
+  <EntityType Name="Product">
+    <Key>
+      <PropertyRef Name="ProductId" />
+    </Key>
+    <Property Name="ProductId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="CustomerId" Type="Int32" Nullable="false" />
+    <Property Name="MaterialId" Type="Int32" Nullable="false" />
+    <Property Name="ProductCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ProductName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="DesignNo" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Diameter" Type="Double" />
+    <Property Name="Length" Type="Double" />
+    <Property Name="Weight" Type="Double" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="MachineAppraisals" Relationship="VfiModel.FK_MachineAppraisal_Product" FromRole="Product" ToRole="MachineAppraisal" />
+    <NavigationProperty Name="ProductInventories" Relationship="VfiModel.FK_ProductInventory_Product" FromRole="Product" ToRole="ProductInventory" />
+    <NavigationProperty Name="ProductInventoryPeriods" Relationship="VfiModel.FK_ProductInventoryPeriod_Product" FromRole="Product" ToRole="ProductInventoryPeriod" />
+    <NavigationProperty Name="StockOrderDetails" Relationship="VfiModel.FK_StockOrderDetail_Product" FromRole="Product" ToRole="StockOrderDetail" />
+    <NavigationProperty Name="TransactionDetails" Relationship="VfiModel.FK_TransactionDetail_Product" FromRole="Product" ToRole="TransactionDetail" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_Product_Material" FromRole="Product" ToRole="Material" />
+    <NavigationProperty Name="InvoiceDetails" Relationship="VfiModel.FK_InvoiceDetail_Product" FromRole="Product" ToRole="InvoiceDetail" />
+    <NavigationProperty Name="Customer" Relationship="VfiModel.FK_Product_Customer" FromRole="Product" ToRole="Customer" />
+    <Property Type="Double" Name="ForecastsQuality" />
+    <NavigationProperty Name="OrderDetails" Relationship="VfiModel.FK_SalesOrderDetail_Product1" FromRole="Product" ToRole="OrderDetail" />
+  </EntityType>
+  <EntityType Name="UnitMeasure">
+    <Key>
+      <PropertyRef Name="UnitMeasureCode" />
+    </Key>
+    <Property Name="UnitMeasureCode" Type="String" Nullable="false" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="UnitMeasureName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="PriceListMaterial">
+    <Key>
+      <PropertyRef Name="PriceListMaterialId" />
+    </Key>
+    <Property Name="PriceListMaterialId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MaterialId" Type="Int32" Nullable="false" />
+    <Property Name="NetPrice" Type="Double" />
+    <Property Name="Currency" Type="String" Nullable="false" MaxLength="3" Unicode="true" FixedLength="false" />
+    <Property Name="Exchange" Type="Double" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Currency1" Relationship="VfiModel.FK_PriceListMaterial_Currency" FromRole="PriceListMaterial" ToRole="Currency" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_PriceListMaterial_Material" FromRole="PriceListMaterial" ToRole="Material" />
+  </EntityType>
+  <EntityType Name="PurchaseOrder">
+    <Key>
+      <PropertyRef Name="PurchaseOrderId" />
+    </Key>
+    <Property Name="PurchaseOrderId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="VendorId" Type="Int32" Nullable="false" />
+    <Property Name="ShipMethodId" Type="Int32" Nullable="false" />
+    <Property Name="EmployeeId" Type="Int32" Nullable="false" />
+    <Property Name="RevisionNumber" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Status" Type="Byte" Nullable="false" />
+    <Property Name="OrderDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="ShipDate" Type="DateTime" Precision="3" />
+    <Property Name="SubTotal" Type="Double" Nullable="false" />
+    <Property Name="TaxAmt" Type="Double" Nullable="false" />
+    <Property Name="Freight" Type="Double" Nullable="false" />
+    <Property Name="TotalDue" Type="Double" Nullable="false" annotation:StoreGeneratedPattern="Computed" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Employee" Relationship="VfiModel.FK_PurchaseOrder_Employee" FromRole="PurchaseOrder" ToRole="Employee" />
+    <NavigationProperty Name="ShipMethod" Relationship="VfiModel.FK_PurchaseOrder_ShipMethod" FromRole="PurchaseOrder" ToRole="ShipMethod" />
+    <NavigationProperty Name="Vendor" Relationship="VfiModel.FK_PurchaseOrder_Vendor" FromRole="PurchaseOrder" ToRole="Vendor" />
+    <NavigationProperty Name="PurchaseOrderDetails" Relationship="VfiModel.FK_PurchaseOrderDetail_PurchaseOrder" FromRole="PurchaseOrder" ToRole="PurchaseOrderDetail" />
+  </EntityType>
+  <EntityType Name="PurchaseOrderDetail">
+    <Key>
+      <PropertyRef Name="PurchaseOrderDetailId" />
+    </Key>
+    <Property Name="PurchaseOrderDetailId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="PurchaseOrderId" Type="Int64" Nullable="false" />
+    <Property Name="MaterialClassifiedId" Type="Int32" Nullable="false" />
+    <Property Name="MaterialTypeId" Type="Int32" Nullable="false" />
+    <Property Name="MaterialId" Type="Int32" Nullable="false" />
+    <Property Name="OrderQty" Type="Int16" Nullable="false" />
+    <Property Name="UnitPrice" Type="Double" Nullable="false" />
+    <Property Name="LineTotal" Type="Double" Nullable="false" annotation:StoreGeneratedPattern="Computed" />
+    <Property Name="ReceivedQty" Type="Double" Nullable="false" />
+    <Property Name="RejectedQty" Type="Double" Nullable="false" />
+    <Property Name="StockedQty" Type="Double" Nullable="false" annotation:StoreGeneratedPattern="Computed" />
+    <Property Name="DueDate" Type="DateTime" Precision="3" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Material" Relationship="VfiModel.FK_PurchaseOrderDetail_Material" FromRole="PurchaseOrderDetail" ToRole="Material" />
+    <NavigationProperty Name="MaterialClassified" Relationship="VfiModel.FK_PurchaseOrderDetail_MaterialClassified" FromRole="PurchaseOrderDetail" ToRole="MaterialClassified" />
+    <NavigationProperty Name="MaterialType" Relationship="VfiModel.FK_PurchaseOrderDetail_MaterialType" FromRole="PurchaseOrderDetail" ToRole="MaterialType" />
+    <NavigationProperty Name="PurchaseOrder" Relationship="VfiModel.FK_PurchaseOrderDetail_PurchaseOrder" FromRole="PurchaseOrderDetail" ToRole="PurchaseOrder" />
+  </EntityType>
+  <EntityType Name="ShipMethod">
+    <Key>
+      <PropertyRef Name="ShipMethodId" />
+    </Key>
+    <Property Name="ShipMethodId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Name" Type="String" Nullable="false" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="ShipBase" Type="Double" />
+    <Property Name="ShipRate" Type="Double" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="PurchaseOrders" Relationship="VfiModel.FK_PurchaseOrder_ShipMethod" FromRole="ShipMethod" ToRole="PurchaseOrder" />
+  </EntityType>
+  <EntityType Name="Vendor">
+    <Key>
+      <PropertyRef Name="VendorId" />
+    </Key>
+    <Property Name="VendorId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="VendorCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="VendorName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="ShortName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="CompanyName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="ContactName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Address" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Eaddress" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="Phone" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="Fax" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="Email" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="TaxCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="BankAccount" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="MaxCredit" Type="Double" />
+    <Property Name="SpecialInfo" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Note" Type="String" MaxLength="500" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="PurchaseOrders" Relationship="VfiModel.FK_PurchaseOrder_Vendor" FromRole="Vendor" ToRole="PurchaseOrder" />
+  </EntityType>
+  <EntityType Name="Customer">
+    <Key>
+      <PropertyRef Name="CustomerId" />
+    </Key>
+    <Property Name="CustomerId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="CustomerTypeId" Type="Int32" />
+    <Property Name="CustomerCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="CustomerName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="ShortName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="CompanyName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="ContactName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Address" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Eaddress" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="Phone" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="Fax" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="Email" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="TaxCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="BankAccount" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="MaxCredit" Type="Double" />
+    <Property Name="SpecialInfo" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Note" Type="String" MaxLength="500" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Products" Relationship="VfiModel.FK_Product_Customer" FromRole="Customer" ToRole="Product" />
+    <NavigationProperty Name="CustomerType" Relationship="VfiModel.FK_Customer_CustomerType" FromRole="Customer" ToRole="CustomerType" />
+    <NavigationProperty Name="Invoices" Relationship="VfiModel.FK_Invoice_Customer" FromRole="Customer" ToRole="Invoice" />
+    <NavigationProperty Name="Orders" Relationship="VfiModel.FK_SalesOrder_Customer1" FromRole="Customer" ToRole="Order" />
+  </EntityType>
+  <EntityType Name="CustomerType">
+    <Key>
+      <PropertyRef Name="CustomerTypeId" />
+    </Key>
+    <Property Name="CustomerTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="CustomerTypeName" Type="String" MaxLength="200" Unicode="true" FixedLength="false" />
+    <Property Name="Note" Type="String" MaxLength="500" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Customers" Relationship="VfiModel.FK_Customer_CustomerType" FromRole="CustomerType" ToRole="Customer" />
+  </EntityType>
+  <EntityType Name="Employee">
+    <Key>
+      <PropertyRef Name="EmployeeId" />
+    </Key>
+    <Property Name="EmployeeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="EmployeeCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="EmployeeName" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="PurchaseOrders" Relationship="VfiModel.FK_PurchaseOrder_Employee" FromRole="Employee" ToRole="PurchaseOrder" />
+    <NavigationProperty Name="Orders" Relationship="VfiModel.FK_SalesOrder_Employee1" FromRole="Employee" ToRole="Order" />
+  </EntityType>
+  <EntityType Name="Invoice">
+    <Key>
+      <PropertyRef Name="InvoiceId" />
+    </Key>
+    <Property Name="InvoiceId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="CustomerId" Type="Int32" Nullable="false" />
+    <Property Name="PriceListId" Type="Int32" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Customer" Relationship="VfiModel.FK_Invoice_Customer" FromRole="Invoice" ToRole="Customer" />
+    <NavigationProperty Name="InvoiceDetails" Relationship="VfiModel.FK_InvoiceDetail_Invoice" FromRole="Invoice" ToRole="InvoiceDetail" />
+  </EntityType>
+  <EntityType Name="InvoiceDetail">
+    <Key>
+      <PropertyRef Name="InvoiceDetailId" />
+    </Key>
+    <Property Name="InvoiceDetailId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="InvoiceId" Type="Int64" />
+    <Property Name="ProductId" Type="Int32" />
+    <Property Name="ProductDespatchNoteId" Type="Int32" />
+    <Property Name="ProductLength" Type="Double" />
+    <Property Name="Bundle" Type="Int32" />
+    <Property Name="Piece" Type="Int32" />
+    <Property Name="Weight" Type="Double" />
+    <Property Name="Price" Type="Double" />
+    <Property Name="Amount" Type="Double" />
+    <Property Name="VatAmount" Type="Double" />
+    <Property Name="TotalAmount" Type="Double" />
+    <Property Name="RemainedBundle" Type="Int32" />
+    <Property Name="RemainedWeight" Type="Double" />
+    <Property Name="RemainedPiece" Type="Int32" />
+    <Property Name="Note" Type="String" MaxLength="500" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_InvoiceDetail_Product" FromRole="InvoiceDetail" ToRole="Product" />
+    <NavigationProperty Name="Invoice" Relationship="VfiModel.FK_InvoiceDetail_Invoice" FromRole="InvoiceDetail" ToRole="Invoice" />
+  </EntityType>
+  <EntityType Name="TimeLine">
+    <Key>
+      <PropertyRef Name="TimeLineId" />
+    </Key>
+    <Property Name="TimeLineId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="WarehouseId" Type="Int32" />
+    <Property Name="Times" Type="Int32" />
+    <Property Name="RealTimes" Type="Int32" />
+    <Property Name="Performance" Type="Double" />
+    <Property Name="StartDay" Type="DateTime" Precision="3" />
+    <Property Name="FinishedDay" Type="DateTime" Precision="3" />
+    <Property Name="WorkingHours" Type="Int32" />
+    <Property Name="Active" Type="Boolean" Nullable="false" />
+    <Property Name="ModifiedUser" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Warehouse" Relationship="VfiModel.FK_TimeLine_Warehouse" FromRole="TimeLine" ToRole="Warehouse" />
+    <Property Type="Int64" Name="OrderDetailId" />
+    <NavigationProperty Name="OrderDetail" Relationship="VfiModel.FK_TimeLine_SalesOrderDetail1" FromRole="TimeLine" ToRole="OrderDetail" />
+  </EntityType>
+  <EntityType Name="Function">
+    <Key>
+      <PropertyRef Name="FunctionId" />
+    </Key>
+    <Property Name="FunctionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ParentId" Type="Int32" />
+    <Property Name="FunctionCode" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
+    <Property Name="FunctionName" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="Description" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" />
+    <Property Name="IDx" Type="Byte" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Children" Relationship="VfiModel.FK_Function_Function" FromRole="Function" ToRole="Function1" />
+    <NavigationProperty Name="Parent" Relationship="VfiModel.FK_Function_Function" FromRole="Function1" ToRole="Function" />
+    <NavigationProperty Name="Permissions" Relationship="VfiModel.FK_Permission_Function" FromRole="Function" ToRole="Permission" />
+  </EntityType>
+  <EntityType Name="Menu">
+    <Key>
+      <PropertyRef Name="MenuId" />
+    </Key>
+    <Property Name="MenuId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MenuCode" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
+    <Property Name="MenuName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ParentId" Type="Int32" />
+    <Property Name="MenuLevel" Type="Byte" />
+    <Property Name="ProjectName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ControllerName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ActionName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Area" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Description" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="IDX" Type="Byte" />
+    <Property Name="Active" Type="Boolean" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Children" Relationship="VfiModel.FK_Menu_Menu" FromRole="Menu" ToRole="Menu1" />
+    <NavigationProperty Name="Parent" Relationship="VfiModel.FK_Menu_Menu" FromRole="Menu1" ToRole="Menu" />
+  </EntityType>
+  <EntityType Name="Parameter">
+    <Key>
+      <PropertyRef Name="ParamId" />
+    </Key>
+    <Property Name="ParamId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ParamCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Name" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Value" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+  </EntityType>
+  <EntityType Name="Permission">
+    <Key>
+      <PropertyRef Name="PermissionId" />
+    </Key>
+    <Property Name="PermissionId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Creation" Type="Boolean" />
+    <Property Name="Modification" Type="Boolean" />
+    <Property Name="Deletion" Type="Boolean" />
+    <Property Name="Execution" Type="Boolean" />
+    <Property Name="UserID" Type="Int32" />
+    <Property Name="WorkGroupID" Type="Int32" />
+    <Property Name="Description" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="FunctionID" Type="Int32" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Function" Relationship="VfiModel.FK_Permission_Function" FromRole="Permission" ToRole="Function" />
+    <NavigationProperty Name="User" Relationship="VfiModel.FK_Permission_User" FromRole="Permission" ToRole="User" />
+    <NavigationProperty Name="WorkGroup" Relationship="VfiModel.FK_Permission_WorkGroup" FromRole="Permission" ToRole="WorkGroup" />
+  </EntityType>
+  <EntityType Name="User">
+    <Key>
+      <PropertyRef Name="UserId" />
+    </Key>
+    <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="Username" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Password" Type="String" MaxLength="255" Unicode="true" FixedLength="false" />
+    <Property Name="FullName" Type="String" MaxLength="500" Unicode="true" FixedLength="false" />
+    <Property Name="Email" Type="String" MaxLength="150" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="0" />
+    <NavigationProperty Name="Permissions" Relationship="VfiModel.FK_Permission_User" FromRole="User" ToRole="Permission" />
+    <NavigationProperty Name="UserWorkGroups" Relationship="VfiModel.FK_UserWorkGroup_User" FromRole="User" ToRole="UserWorkGroup" />
+  </EntityType>
+  <EntityType Name="WorkGroup">
+    <Key>
+      <PropertyRef Name="WorkGroupId" />
+    </Key>
+    <Property Name="WorkGroupId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="WorkGroupCode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="WorkGroupName" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Description" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="Active" Type="Boolean" />
+    <Property Name="ModifiedDate" Type="DateTime" Precision="3" />
+    <NavigationProperty Name="Permissions" Relationship="VfiModel.FK_Permission_WorkGroup" FromRole="WorkGroup" ToRole="Permission" />
+    <NavigationProperty Name="UserWorkGroups" Relationship="VfiModel.FK_UserWorkGroup_WorkGroup" FromRole="WorkGroup" ToRole="UserWorkGroup" />
+  </EntityType>
+  <Association Name="FK_MachineAppraisal_Machine">
+    <End Role="Machine" Type="VfiModel.Machine" Multiplicity="0..1" />
+    <End Role="MachineAppraisal" Type="VfiModel.MachineAppraisal" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Machine">
+        <PropertyRef Name="MachineId" />
+      </Principal>
+      <Dependent Role="MachineAppraisal">
+        <PropertyRef Name="MachineId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MachineAppraisal_Product">
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="0..1" />
+    <End Role="MachineAppraisal" Type="VfiModel.MachineAppraisal" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="MachineAppraisal">
+        <PropertyRef Name="ProductId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MachineAppraisal_Warehouse">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="0..1" />
+    <End Role="MachineAppraisal" Type="VfiModel.MachineAppraisal" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="MachineAppraisal">
+        <PropertyRef Name="WarehouseId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MaterialInventory_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="1" />
+    <End Role="MaterialInventory" Type="VfiModel.MaterialInventory" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="MaterialInventory">
+        <PropertyRef Name="MaterialId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MaterialInventory_Warehouse">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="1" />
+    <End Role="MaterialInventory" Type="VfiModel.MaterialInventory" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="MaterialInventory">
+        <PropertyRef Name="WarehouseId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MaterialInventoryPeriod_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="1" />
+    <End Role="MaterialInventoryPeriod" Type="VfiModel.MaterialInventoryPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="MaterialInventoryPeriod">
+        <PropertyRef Name="MaterialId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MaterialInventoryPeriod_Warehouse">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="1" />
+    <End Role="MaterialInventoryPeriod" Type="VfiModel.MaterialInventoryPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="MaterialInventoryPeriod">
+        <PropertyRef Name="WarehouseId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductInventory_Product">
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="1" />
+    <End Role="ProductInventory" Type="VfiModel.ProductInventory" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="ProductInventory">
+        <PropertyRef Name="ProductId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductInventory_Warehouse">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="1" />
+    <End Role="ProductInventory" Type="VfiModel.ProductInventory" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="ProductInventory">
+        <PropertyRef Name="WarehouseId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductInventoryPeriod_Product">
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="1" />
+    <End Role="ProductInventoryPeriod" Type="VfiModel.ProductInventoryPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="ProductInventoryPeriod">
+        <PropertyRef Name="ProductId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductInventoryPeriod_Warehouse">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="1" />
+    <End Role="ProductInventoryPeriod" Type="VfiModel.ProductInventoryPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="ProductInventoryPeriod">
+        <PropertyRef Name="WarehouseId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StockOrder_WarehouseIssue">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="0..1" />
+    <End Role="StockOrder" Type="VfiModel.StockOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="StockOrder">
+        <PropertyRef Name="WarehouseIssueId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StockOrder_WarehouseReceipt">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="0..1" />
+    <End Role="StockOrder" Type="VfiModel.StockOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="StockOrder">
+        <PropertyRef Name="WarehouseReceiptId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StockOrderDetail_StockOrder">
+    <End Role="StockOrder" Type="VfiModel.StockOrder" Multiplicity="1" />
+    <End Role="StockOrderDetail" Type="VfiModel.StockOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="StockOrder">
+        <PropertyRef Name="StockOrderId" />
+      </Principal>
+      <Dependent Role="StockOrderDetail">
+        <PropertyRef Name="StockOrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StockOrderDetail_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="0..1" />
+    <End Role="StockOrderDetail" Type="VfiModel.StockOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="StockOrderDetail">
+        <PropertyRef Name="ReferenceId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_StockOrderDetail_Product">
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="0..1" />
+    <End Role="StockOrderDetail" Type="VfiModel.StockOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="StockOrderDetail">
+        <PropertyRef Name="ReferenceId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TransactionDetail_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="0..1" />
+    <End Role="TransactionDetail" Type="VfiModel.TransactionDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="TransactionDetail">
+        <PropertyRef Name="ReferenceId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TransactionDetail_Product">
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="0..1" />
+    <End Role="TransactionDetail" Type="VfiModel.TransactionDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="TransactionDetail">
+        <PropertyRef Name="ReferenceId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TimeLine_Warehouse">
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="0..1" />
+    <End Role="TimeLine" Type="VfiModel.TimeLine" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="TimeLine">
+        <PropertyRef Name="WarehouseId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Warehouse_WarehouseType">
+    <End Role="WarehouseType" Type="VfiModel.WarehouseType" Multiplicity="0..1" />
+    <End Role="Warehouse" Type="VfiModel.Warehouse" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="WarehouseType">
+        <PropertyRef Name="WarehouseTypeId" />
+      </Principal>
+      <Dependent Role="Warehouse">
+        <PropertyRef Name="WarehouseTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PriceListMaterial_Currency">
+    <End Role="Currency" Type="VfiModel.Currency" Multiplicity="1" />
+    <End Role="PriceListMaterial" Type="VfiModel.PriceListMaterial" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Currency">
+        <PropertyRef Name="CurrencyCode" />
+      </Principal>
+      <Dependent Role="PriceListMaterial">
+        <PropertyRef Name="Currency" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Material_MaterialType">
+    <End Role="MaterialType" Type="VfiModel.MaterialType" Multiplicity="1" />
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="MaterialType">
+        <PropertyRef Name="MaterialTypeId" />
+      </Principal>
+      <Dependent Role="Material">
+        <PropertyRef Name="MaterialTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PriceListMaterial_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="1" />
+    <End Role="PriceListMaterial" Type="VfiModel.PriceListMaterial" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="PriceListMaterial">
+        <PropertyRef Name="MaterialId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Product_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="1" />
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="Product">
+        <PropertyRef Name="MaterialId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrderDetail_Material">
+    <End Role="Material" Type="VfiModel.Material" Multiplicity="1" />
+    <End Role="PurchaseOrderDetail" Type="VfiModel.PurchaseOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Material">
+        <PropertyRef Name="MaterialId" />
+      </Principal>
+      <Dependent Role="PurchaseOrderDetail">
+        <PropertyRef Name="MaterialId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_MaterialType_MaterialClassified">
+    <End Role="MaterialClassified" Type="VfiModel.MaterialClassified" Multiplicity="1" />
+    <End Role="MaterialType" Type="VfiModel.MaterialType" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="MaterialClassified">
+        <PropertyRef Name="MaterialClassifiedId" />
+      </Principal>
+      <Dependent Role="MaterialType">
+        <PropertyRef Name="MaterialClassifiedId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrderDetail_MaterialClassified">
+    <End Role="MaterialClassified" Type="VfiModel.MaterialClassified" Multiplicity="1" />
+    <End Role="PurchaseOrderDetail" Type="VfiModel.PurchaseOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="MaterialClassified">
+        <PropertyRef Name="MaterialClassifiedId" />
+      </Principal>
+      <Dependent Role="PurchaseOrderDetail">
+        <PropertyRef Name="MaterialClassifiedId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrderDetail_MaterialType">
+    <End Role="MaterialType" Type="VfiModel.MaterialType" Multiplicity="1" />
+    <End Role="PurchaseOrderDetail" Type="VfiModel.PurchaseOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="MaterialType">
+        <PropertyRef Name="MaterialTypeId" />
+      </Principal>
+      <Dependent Role="PurchaseOrderDetail">
+        <PropertyRef Name="MaterialTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_InvoiceDetail_Product">
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="0..1" />
+    <End Role="InvoiceDetail" Type="VfiModel.InvoiceDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="InvoiceDetail">
+        <PropertyRef Name="ProductId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Product_Customer">
+    <End Role="Customer" Type="VfiModel.Customer" Multiplicity="1" />
+    <End Role="Product" Type="VfiModel.Product" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="CustomerId" />
+      </Principal>
+      <Dependent Role="Product">
+        <PropertyRef Name="CustomerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrder_Employee">
+    <End Role="Employee" Type="VfiModel.Employee" Multiplicity="1" />
+    <End Role="PurchaseOrder" Type="VfiModel.PurchaseOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Employee">
+        <PropertyRef Name="EmployeeId" />
+      </Principal>
+      <Dependent Role="PurchaseOrder">
+        <PropertyRef Name="EmployeeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrder_ShipMethod">
+    <End Role="ShipMethod" Type="VfiModel.ShipMethod" Multiplicity="1" />
+    <End Role="PurchaseOrder" Type="VfiModel.PurchaseOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ShipMethod">
+        <PropertyRef Name="ShipMethodId" />
+      </Principal>
+      <Dependent Role="PurchaseOrder">
+        <PropertyRef Name="ShipMethodId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrder_Vendor">
+    <End Role="Vendor" Type="VfiModel.Vendor" Multiplicity="1" />
+    <End Role="PurchaseOrder" Type="VfiModel.PurchaseOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Vendor">
+        <PropertyRef Name="VendorId" />
+      </Principal>
+      <Dependent Role="PurchaseOrder">
+        <PropertyRef Name="VendorId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_PurchaseOrderDetail_PurchaseOrder">
+    <End Role="PurchaseOrder" Type="VfiModel.PurchaseOrder" Multiplicity="1" />
+    <End Role="PurchaseOrderDetail" Type="VfiModel.PurchaseOrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="PurchaseOrder">
+        <PropertyRef Name="PurchaseOrderId" />
+      </Principal>
+      <Dependent Role="PurchaseOrderDetail">
+        <PropertyRef Name="PurchaseOrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Customer_CustomerType">
+    <End Role="CustomerType" Type="VfiModel.CustomerType" Multiplicity="0..1" />
+    <End Role="Customer" Type="VfiModel.Customer" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="CustomerType">
+        <PropertyRef Name="CustomerTypeId" />
+      </Principal>
+      <Dependent Role="Customer">
+        <PropertyRef Name="CustomerTypeId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Invoice_Customer">
+    <End Role="Customer" Type="VfiModel.Customer" Multiplicity="1" />
+    <End Role="Invoice" Type="VfiModel.Invoice" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="CustomerId" />
+      </Principal>
+      <Dependent Role="Invoice">
+        <PropertyRef Name="CustomerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_InvoiceDetail_Invoice">
+    <End Role="Invoice" Type="VfiModel.Invoice" Multiplicity="0..1" />
+    <End Role="InvoiceDetail" Type="VfiModel.InvoiceDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Invoice">
+        <PropertyRef Name="InvoiceId" />
+      </Principal>
+      <Dependent Role="InvoiceDetail">
+        <PropertyRef Name="InvoiceId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Function_Function">
+    <End Role="Function" Type="VfiModel.Function" Multiplicity="0..1" />
+    <End Role="Function1" Type="VfiModel.Function" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Function">
+        <PropertyRef Name="FunctionId" />
+      </Principal>
+      <Dependent Role="Function1">
+        <PropertyRef Name="ParentId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Permission_Function">
+    <End Role="Function" Type="VfiModel.Function" Multiplicity="0..1" />
+    <End Role="Permission" Type="VfiModel.Permission" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Function">
+        <PropertyRef Name="FunctionId" />
+      </Principal>
+      <Dependent Role="Permission">
+        <PropertyRef Name="FunctionID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Menu_Menu">
+    <End Role="Menu" Type="VfiModel.Menu" Multiplicity="0..1" />
+    <End Role="Menu1" Type="VfiModel.Menu" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Menu">
+        <PropertyRef Name="MenuId" />
+      </Principal>
+      <Dependent Role="Menu1">
+        <PropertyRef Name="ParentId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Permission_User">
+    <End Role="User" Type="VfiModel.User" Multiplicity="0..1" />
+    <End Role="Permission" Type="VfiModel.Permission" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="Permission">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Permission_WorkGroup">
+    <End Role="WorkGroup" Type="VfiModel.WorkGroup" Multiplicity="0..1" />
+    <End Role="Permission" Type="VfiModel.Permission" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="WorkGroup">
+        <PropertyRef Name="WorkGroupId" />
+      </Principal>
+      <Dependent Role="Permission">
+        <PropertyRef Name="WorkGroupID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="Transaction">
+    <Key>
+      <PropertyRef Name="TransactionId" />
+    </Key>
+    <Property Type="Int64" Name="TransactionId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int64" Name="StockOrderId" />
+    <Property Type="Int32" Name="WarehouseIssueId" />
+    <Property Type="Int32" Name="WarehouseReceiptId" />
+    <Property Type="String" Name="TransactionCode" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="EoI" Nullable="false" MaxLength="1" FixedLength="true" Unicode="false" />
+    <Property Type="Boolean" Name="MoP" Nullable="false" />
+    <Property Type="String" Name="CreatedUser" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="CreatedDate" Precision="0" />
+    <Property Type="Byte" Name="Status" Nullable="false" />
+    <Property Type="Boolean" Name="IsApprove" Nullable="false" />
+    <Property Type="String" Name="Description" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Precision="3" />
+    <NavigationProperty Name="MaterialInventoryPeriods" Relationship="VfiModel.FK_MaterialInventoryPeriod_Transaction" FromRole="Transaction" ToRole="MaterialInventoryPeriod" />
+    <NavigationProperty Name="ProductInventoryPeriods" Relationship="VfiModel.FK_ProductInventoryPeriod_Transaction" FromRole="Transaction" ToRole="ProductInventoryPeriod" />
+    <NavigationProperty Name="StockOrder" Relationship="VfiModel.FK_Transaction_StockOrder" FromRole="Transaction" ToRole="StockOrder" />
+    <NavigationProperty Name="WarehouseIssue" Relationship="VfiModel.FK_Transaction_WarehouseIssue" FromRole="Transaction" ToRole="Warehouse" />
+    <NavigationProperty Name="WarehouseReceipt" Relationship="VfiModel.FK_Transaction_WarehouseReceipt" FromRole="Transaction" ToRole="Warehouse" />
+    <NavigationProperty Name="TransactionDetails" Relationship="VfiModel.FK_TransactionDetail_Transaction" FromRole="Transaction" ToRole="TransactionDetail" />
+  </EntityType>
+  <Association Name="FK_MaterialInventoryPeriod_Transaction">
+    <End Type="VfiModel.Transaction" Role="Transaction" Multiplicity="1" />
+    <End Type="VfiModel.MaterialInventoryPeriod" Role="MaterialInventoryPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Transaction">
+        <PropertyRef Name="TransactionId" />
+      </Principal>
+      <Dependent Role="MaterialInventoryPeriod">
+        <PropertyRef Name="TransactionId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ProductInventoryPeriod_Transaction">
+    <End Type="VfiModel.Transaction" Role="Transaction" Multiplicity="1" />
+    <End Type="VfiModel.ProductInventoryPeriod" Role="ProductInventoryPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Transaction">
+        <PropertyRef Name="TransactionId" />
+      </Principal>
+      <Dependent Role="ProductInventoryPeriod">
+        <PropertyRef Name="TransactionId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Transaction_StockOrder">
+    <End Type="VfiModel.StockOrder" Role="StockOrder" Multiplicity="0..1" />
+    <End Type="VfiModel.Transaction" Role="Transaction" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="StockOrder">
+        <PropertyRef Name="StockOrderId" />
+      </Principal>
+      <Dependent Role="Transaction">
+        <PropertyRef Name="StockOrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Transaction_WarehouseIssue">
+    <End Type="VfiModel.Warehouse" Role="Warehouse" Multiplicity="0..1" />
+    <End Type="VfiModel.Transaction" Role="Transaction" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="Transaction">
+        <PropertyRef Name="WarehouseIssueId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Transaction_WarehouseReceipt">
+    <End Type="VfiModel.Warehouse" Role="Warehouse" Multiplicity="0..1" />
+    <End Type="VfiModel.Transaction" Role="Transaction" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Warehouse">
+        <PropertyRef Name="WarehouseId" />
+      </Principal>
+      <Dependent Role="Transaction">
+        <PropertyRef Name="WarehouseReceiptId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TransactionDetail_Transaction">
+    <End Type="VfiModel.Transaction" Role="Transaction" Multiplicity="0..1" />
+    <End Type="VfiModel.TransactionDetail" Role="TransactionDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Transaction">
+        <PropertyRef Name="TransactionId" />
+      </Principal>
+      <Dependent Role="TransactionDetail">
+        <PropertyRef Name="TransactionId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="ToolDetail">
+    <Key>
+      <PropertyRef Name="ToolDetailId" />
+    </Key>
+    <Property Type="Int32" Name="ToolDetailId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="ToolId" Nullable="false" />
+    <Property Type="Double" Name="Quantity" Nullable="false" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="Tool" Relationship="VfiModel.FK_ToolDetail_Tool" FromRole="ToolDetail" ToRole="Tool" />
+    <Property Type="Int32" Name="ToolOrderId" Nullable="false" />
+    <NavigationProperty Name="ToolOrder" Relationship="VfiModel.FK_ToolDetail_Tool1" FromRole="ToolDetail" ToRole="ToolOrder" />
+  </EntityType>
+  <EntityType Name="ToolPeriod">
+    <Key>
+      <PropertyRef Name="ToolPeriodId" />
+    </Key>
+    <Property Type="Int64" Name="ToolPeriodId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="ToolId" Nullable="false" />
+    <Property Type="Int32" Name="PeriodDay" />
+    <Property Type="Int32" Name="PeriodMonth" />
+    <Property Type="Int32" Name="PeriodYear" />
+    <Property Type="DateTime" Name="PeriodDate" Precision="0" />
+    <Property Type="Double" Name="EarlyPeriodQuantity" />
+    <Property Type="Double" Name="Quantity" />
+    <Property Type="Double" Name="LastPeriodQuantity" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="Tool" Relationship="VfiModel.FK_ToolPeriod_Tool" FromRole="ToolPeriod" ToRole="Tool" />
+  </EntityType>
+  <EntityType Name="UserWorkGroup">
+    <Key>
+      <PropertyRef Name="UserId" />
+      <PropertyRef Name="WorkGoupId" />
+    </Key>
+    <Property Type="Int32" Name="UserId" Nullable="false" />
+    <Property Type="Int32" Name="WorkGoupId" Nullable="false" />
+    <Property Type="DateTime" Name="ModifiedDate" Precision="0" />
+    <NavigationProperty Name="User" Relationship="VfiModel.FK_UserWorkGroup_User" FromRole="UserWorkGroup" ToRole="User" />
+    <NavigationProperty Name="WorkGroup" Relationship="VfiModel.FK_UserWorkGroup_WorkGroup" FromRole="UserWorkGroup" ToRole="WorkGroup" />
+  </EntityType>
+  <Association Name="FK_UserWorkGroup_User">
+    <End Type="VfiModel.User" Role="User" Multiplicity="1" />
+    <End Type="VfiModel.UserWorkGroup" Role="UserWorkGroup" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="User">
+        <PropertyRef Name="UserId" />
+      </Principal>
+      <Dependent Role="UserWorkGroup">
+        <PropertyRef Name="UserId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_UserWorkGroup_WorkGroup">
+    <End Type="VfiModel.WorkGroup" Role="WorkGroup" Multiplicity="1" />
+    <End Type="VfiModel.UserWorkGroup" Role="UserWorkGroup" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="WorkGroup">
+        <PropertyRef Name="WorkGroupId" />
+      </Principal>
+      <Dependent Role="UserWorkGroup">
+        <PropertyRef Name="WorkGoupId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="Tool">
+    <Key>
+      <PropertyRef Name="ToolId" />
+    </Key>
+    <Property Type="Int32" Name="ToolId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="Description" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="ToolDetails" Relationship="VfiModel.FK_ToolDetail_Tool" FromRole="Tool" ToRole="ToolDetail" />
+    <NavigationProperty Name="ToolPeriods" Relationship="VfiModel.FK_ToolPeriod_Tool" FromRole="Tool" ToRole="ToolPeriod" />
+    <Property Type="String" Name="ToolName" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <Association Name="FK_ToolDetail_Tool">
+    <End Type="VfiModel.Tool" Role="Tool" Multiplicity="1" />
+    <End Type="VfiModel.ToolDetail" Role="ToolDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tool">
+        <PropertyRef Name="ToolId" />
+      </Principal>
+      <Dependent Role="ToolDetail">
+        <PropertyRef Name="ToolId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_ToolPeriod_Tool">
+    <End Type="VfiModel.Tool" Role="Tool" Multiplicity="1" />
+    <End Type="VfiModel.ToolPeriod" Role="ToolPeriod" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Tool">
+        <PropertyRef Name="ToolId" />
+      </Principal>
+      <Dependent Role="ToolPeriod">
+        <PropertyRef Name="ToolId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="ScrapReason">
+    <Key>
+      <PropertyRef Name="ScrapReasonId" />
+    </Key>
+    <Property Type="Int32" Name="ScrapReasonId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="ScrapReasonName" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="WorkOrders" Relationship="VfiModel.FK_WorkOrder_ScrapReasons" FromRole="ScrapReason" ToRole="WorkOrder" />
+  </EntityType>
+  <EntityType Name="WorkOrder">
+    <Key>
+      <PropertyRef Name="WorkOrderId" />
+    </Key>
+    <Property Type="Int32" Name="WorkOrderId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="ProductId" Nullable="false" />
+    <Property Type="Int32" Name="ScrapReasonId" />
+    <Property Type="Int32" Name="OrderQty" Nullable="false" />
+    <Property Type="Int32" Name="StockedQty" Nullable="false" />
+    <Property Type="Int16" Name="ScrappedQty" Nullable="false" />
+    <Property Type="DateTime" Name="StartDate" Nullable="false" Precision="3" />
+    <Property Type="DateTime" Name="EndDate" Precision="3" />
+    <Property Type="DateTime" Name="DueDate" Nullable="false" Precision="3" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="ScrapReason" Relationship="VfiModel.FK_WorkOrder_ScrapReasons" FromRole="WorkOrder" ToRole="ScrapReason" />
+    <NavigationProperty Name="WorkOrderRoutings" Relationship="VfiModel.FK_WorkOrderRouting_WorkOrder" FromRole="WorkOrder" ToRole="WorkOrderRouting" />
+    <Property Type="Int64" Name="OrderId" />
+    <NavigationProperty Name="Order" Relationship="VfiModel.FK_WorkOrder_SalesOrder1" FromRole="WorkOrder" ToRole="Order" />
+  </EntityType>
+  <EntityType Name="WorkOrderRouting">
+    <Key>
+      <PropertyRef Name="RoutingId" />
+    </Key>
+    <Property Type="Int32" Name="RoutingId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="WorkOrderId" Nullable="false" />
+    <Property Type="Int32" Name="ProductId" Nullable="false" />
+    <Property Type="Int32" Name="WarehouseId" Nullable="false" />
+    <Property Type="DateTime" Name="ScheduledStartDate" Nullable="false" Precision="3" />
+    <Property Type="DateTime" Name="ScheduledEndDate" Nullable="false" Precision="3" />
+    <Property Type="DateTime" Name="ActualStartDate" Precision="3" />
+    <Property Type="DateTime" Name="ActualEndDate" Precision="3" />
+    <Property Type="Decimal" Name="ActualResourceHrs" Precision="9" Scale="4" />
+    <Property Type="Decimal" Name="PlannedCost" Precision="19" Scale="4" />
+    <Property Type="Decimal" Name="ActualCost" Precision="19" Scale="4" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="WorkOrder" Relationship="VfiModel.FK_WorkOrderRouting_WorkOrder" FromRole="WorkOrderRouting" ToRole="WorkOrder" />
+  </EntityType>
+  <Association Name="FK_WorkOrder_ScrapReasons">
+    <End Type="VfiModel.ScrapReason" Role="ScrapReason" Multiplicity="0..1" />
+    <End Type="VfiModel.WorkOrder" Role="WorkOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ScrapReason">
+        <PropertyRef Name="ScrapReasonId" />
+      </Principal>
+      <Dependent Role="WorkOrder">
+        <PropertyRef Name="ScrapReasonId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_WorkOrderRouting_WorkOrder">
+    <End Type="VfiModel.WorkOrder" Role="WorkOrder" Multiplicity="1" />
+    <End Type="VfiModel.WorkOrderRouting" Role="WorkOrderRouting" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="WorkOrder">
+        <PropertyRef Name="WorkOrderId" />
+      </Principal>
+      <Dependent Role="WorkOrderRouting">
+        <PropertyRef Name="WorkOrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="ToolOrder">
+    <Key>
+      <PropertyRef Name="ToolOrderId" />
+    </Key>
+    <Property Type="Int32" Name="ToolOrderId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="String" Name="TransactionCode" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="EoI" Nullable="false" MaxLength="1" FixedLength="true" Unicode="false" />
+    <Property Type="String" Name="CreatedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="CreatedDate" Nullable="false" Precision="0" />
+    <Property Type="Byte" Name="Status" Nullable="false" />
+    <Property Type="Boolean" Name="IsApprove" Nullable="false" />
+    <Property Type="String" Name="Description" MaxLength="Max" FixedLength="false" Unicode="false" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Nullable="false" Precision="3" />
+    <NavigationProperty Name="ToolDetails" Relationship="VfiModel.FK_ToolDetail_Tool1" FromRole="ToolOrder" ToRole="ToolDetail" />
+  </EntityType>
+  <EntityType Name="Forecast">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Type="Int32" Name="Id" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int32" Name="ProductId" />
+    <Property Type="Double" Name="ForecastsQuality" />
+    <Property Type="DateTime" Name="DateModified" Precision="0" />
+  </EntityType>
+  <EntityType Name="OrderDetail">
+    <Key>
+      <PropertyRef Name="OrderDetailId" />
+    </Key>
+    <Property Type="Int64" Name="OrderDetailId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int64" Name="OrderId" Nullable="false" />
+    <Property Type="Int32" Name="ProductId" Nullable="false" />
+    <Property Type="String" Name="CarrierTrackingNumber" MaxLength="25" FixedLength="false" Unicode="true" />
+    <Property Type="Int16" Name="OrderQty" Nullable="false" />
+    <Property Type="Double" Name="UnitPrice" Nullable="false" />
+    <Property Type="Double" Name="UnitPriceDiscount" Nullable="false" />
+    <Property Type="Double" Name="LineTotal" Nullable="false" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Precision="3" />
+    <Property Type="DateTime" Name="VFIDueDate" Precision="0" />
+    <Property Type="DateTime" Name="CustomerDueDate" Precision="0" />
+    <NavigationProperty Name="Product" Relationship="VfiModel.FK_SalesOrderDetail_Product1" FromRole="OrderDetail" ToRole="Product" />
+    <NavigationProperty Name="OrderStatuses" Relationship="VfiModel.FK_OrderStatuses_OrderDetails" FromRole="OrderDetail" ToRole="OrderStatus" />
+    <NavigationProperty Name="Order" Relationship="VfiModel.FK_SalesOrderDetail_SalesOrder1" FromRole="OrderDetail" ToRole="Order" />
+    <NavigationProperty Name="TimeLines" Relationship="VfiModel.FK_TimeLine_SalesOrderDetail1" FromRole="OrderDetail" ToRole="TimeLine" />
+  </EntityType>
+  <EntityType Name="Order">
+    <Key>
+      <PropertyRef Name="OrderId" />
+    </Key>
+    <Property Type="Int64" Name="OrderId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int64" Name="ParentOrderId" />
+    <Property Type="Int32" Name="CustomerId" Nullable="false" />
+    <Property Type="Int32" Name="SalesPersonId" />
+    <Property Type="DateTime" Name="CreatedDate" Precision="0" />
+    <Property Type="DateTime" Name="OrderDate" Nullable="false" Precision="0" />
+    <Property Type="DateTime" Name="DueDate" Precision="0" />
+    <Property Type="DateTime" Name="ShippedDate" Precision="0" />
+    <Property Type="Byte" Name="Status" Nullable="false" />
+    <Property Type="String" Name="OrderNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="PoNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="LotNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="ModelNumber" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="BillToAddress" MaxLength="4000" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="ShipToAddress" MaxLength="4000" FixedLength="false" Unicode="true" />
+    <Property Type="Int32" Name="ShipMethodId" />
+    <Property Type="Byte" Name="ShipmentDay" />
+    <Property Type="String" Name="Note" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Type="String" Name="CurrencyCode" MaxLength="3" FixedLength="false" Unicode="true" />
+    <Property Type="Boolean" Name="Active" Nullable="false" />
+    <Property Type="String" Name="ModifiedUser" MaxLength="50" FixedLength="false" Unicode="true" />
+    <Property Type="DateTime" Name="ModifiedDate" Precision="3" />
+    <NavigationProperty Name="WorkOrders" Relationship="VfiModel.FK_WorkOrder_SalesOrder1" FromRole="Order" ToRole="WorkOrder" />
+    <NavigationProperty Name="Customer" Relationship="VfiModel.FK_SalesOrder_Customer1" FromRole="Order" ToRole="Customer" />
+    <NavigationProperty Name="Employee" Relationship="VfiModel.FK_SalesOrder_Employee1" FromRole="Order" ToRole="Employee" />
+    <NavigationProperty Name="OrderDetails" Relationship="VfiModel.FK_SalesOrderDetail_SalesOrder1" FromRole="Order" ToRole="OrderDetail" />
+    <NavigationProperty Name="Orders1" Relationship="VfiModel.FK_Orders_Orders" FromRole="Order" ToRole="Order1" />
+    <NavigationProperty Name="Order1" Relationship="VfiModel.FK_Orders_Orders" FromRole="Order1" ToRole="Order" />
+  </EntityType>
+  <EntityType Name="OrderStatus">
+    <Key>
+      <PropertyRef Name="OrderStatusId" />
+    </Key>
+    <Property Type="Int32" Name="OrderStatusId" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Type="Int64" Name="OrderDetailId" />
+    <Property Type="Double" Name="Qty" />
+    <Property Type="Byte" Name="Status" Nullable="false" />
+    <NavigationProperty Name="OrderDetail" Relationship="VfiModel.FK_OrderStatuses_OrderDetails" FromRole="OrderStatus" ToRole="OrderDetail" />
+  </EntityType>
+  <Association Name="FK_ToolDetail_Tool1">
+    <End Type="VfiModel.ToolOrder" Role="ToolOrder" Multiplicity="1" />
+    <End Type="VfiModel.ToolDetail" Role="ToolDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="ToolOrder">
+        <PropertyRef Name="ToolOrderId" />
+      </Principal>
+      <Dependent Role="ToolDetail">
+        <PropertyRef Name="ToolOrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_SalesOrderDetail_Product1">
+    <End Type="VfiModel.Product" Role="Product" Multiplicity="1" />
+    <End Type="VfiModel.OrderDetail" Role="OrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Product">
+        <PropertyRef Name="ProductId" />
+      </Principal>
+      <Dependent Role="OrderDetail">
+        <PropertyRef Name="ProductId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_WorkOrder_SalesOrder1">
+    <End Type="VfiModel.Order" Role="Order" Multiplicity="0..1" />
+    <End Type="VfiModel.WorkOrder" Role="WorkOrder" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Order">
+        <PropertyRef Name="OrderId" />
+      </Principal>
+      <Dependent Role="WorkOrder">
+        <PropertyRef Name="OrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_SalesOrder_Customer1">
+    <End Type="VfiModel.Customer" Role="Customer" Multiplicity="1" />
+    <End Type="VfiModel.Order" Role="Order" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Customer">
+        <PropertyRef Name="CustomerId" />
+      </Principal>
+      <Dependent Role="Order">
+        <PropertyRef Name="CustomerId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_SalesOrder_Employee1">
+    <End Type="VfiModel.Employee" Role="Employee" Multiplicity="0..1" />
+    <End Type="VfiModel.Order" Role="Order" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Employee">
+        <PropertyRef Name="EmployeeId" />
+      </Principal>
+      <Dependent Role="Order">
+        <PropertyRef Name="SalesPersonId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_OrderStatuses_OrderDetails">
+    <End Type="VfiModel.OrderDetail" Role="OrderDetail" Multiplicity="0..1" />
+    <End Type="VfiModel.OrderStatus" Role="OrderStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="OrderDetail">
+        <PropertyRef Name="OrderDetailId" />
+      </Principal>
+      <Dependent Role="OrderStatus">
+        <PropertyRef Name="OrderDetailId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_SalesOrderDetail_SalesOrder1">
+    <End Type="VfiModel.Order" Role="Order" Multiplicity="1" />
+    <End Type="VfiModel.OrderDetail" Role="OrderDetail" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Order">
+        <PropertyRef Name="OrderId" />
+      </Principal>
+      <Dependent Role="OrderDetail">
+        <PropertyRef Name="OrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_TimeLine_SalesOrderDetail1">
+    <End Type="VfiModel.OrderDetail" Role="OrderDetail" Multiplicity="0..1" />
+    <End Type="VfiModel.TimeLine" Role="TimeLine" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="OrderDetail">
+        <PropertyRef Name="OrderDetailId" />
+      </Principal>
+      <Dependent Role="TimeLine">
+        <PropertyRef Name="OrderDetailId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Orders_Orders">
+    <End Type="VfiModel.Order" Role="Order" Multiplicity="0..1" />
+    <End Type="VfiModel.Order" Role="Order1" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Order">
+        <PropertyRef Name="OrderId" />
+      </Principal>
+      <Dependent Role="Order1">
+        <PropertyRef Name="ParentOrderId" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+</Schema>

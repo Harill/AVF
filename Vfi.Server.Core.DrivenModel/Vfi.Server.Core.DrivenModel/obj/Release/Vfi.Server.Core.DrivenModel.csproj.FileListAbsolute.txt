@@ -1,0 +1,18 @@
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\Vfi.Server.Core.DrivenModel.dll.config
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\Vfi.Server.Core.DrivenModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\Vfi.Server.Core.DrivenModel.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.SqlServer.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.xml
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.SqlServer.xml
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Release\Vfi.Server.Core.DrivenModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Release\Vfi.Server.Core.DrivenModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\Vfi.Server.Core.DrivenModel.dll.config
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\Vfi.Server.Core.DrivenModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\Vfi.Server.Core.DrivenModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.SqlServer.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.xml
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Release\EntityFramework.SqlServer.xml
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Release\Vfi.Server.Core.DrivenModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Release\Vfi.Server.Core.DrivenModel.pdb

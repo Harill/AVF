@@ -1,0 +1,119 @@
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.Unity.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\mis.common.genkey.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.pdb
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.csprojResolveAssemblyReference.cache
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.dll
+D:\Visual Studio 2010\Projects\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.Unity.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\mis.common.genkey.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.xml
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.csprojResolveAssemblyReference.cache
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.Unity.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\mis.common.genkey.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.pdb
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.xml
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.csprojResolveAssemblyReference.cache
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.dll
+D:\thang.setup\Vfi\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.Unity.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\mis.common.genkey.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.pdb
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.xml
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.csprojResolveAssemblyReference.cache
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.dll
+D:\thang.setup\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.Unity.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\mis.common.genkey.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.xml
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Module.Authentication.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.Unity.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\mis.common.genkey.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Client.Core.Common.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\bin\Debug\EntityFramework.xml
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Authentication\obj\Debug\Vfi.Client.Module.Authentication.pdb

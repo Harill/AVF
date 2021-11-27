@@ -1,0 +1,21 @@
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.Repository.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.Repository.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.DataModel.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.DataModel.pdb
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.csprojResolveAssemblyReference.cache
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.dll
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.Repository.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.Repository.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.dll
+D:\Project\Vfi_new\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.Repository.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.Repository.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.DataModel.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\bin\Release\Vfi.Server.Core.DataModel.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Repository\obj\Release\Vfi.Server.Core.Repository.pdb

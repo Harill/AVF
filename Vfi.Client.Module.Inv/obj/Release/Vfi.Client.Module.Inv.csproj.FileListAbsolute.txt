@@ -1,0 +1,23 @@
+D:\Visual Studio 2012\Projects\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Client.Module.Inv.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Client.Module.Inv.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Microsoft.Practices.Unity.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.DataModel.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repository.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Microsoft.Practices.ServiceLocation.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.DataModel.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repository.pdb
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.dll
+D:\Project\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Client.Module.Inv.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Client.Module.Inv.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Microsoft.Practices.Unity.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.DataModel.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repository.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.DataModel.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Release\Vfi.Server.Core.Repository.pdb
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.dll
+C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Release\Vfi.Client.Module.Inv.pdb
