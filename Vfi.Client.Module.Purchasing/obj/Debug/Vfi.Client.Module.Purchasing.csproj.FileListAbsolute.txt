@@ -63,3 +63,14 @@ C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Server.Core.
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Purchasing\obj\Debug\Vfi.Client.Module.Purchasing.csprojResolveAssemblyReference.cache
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Purchasing\obj\Debug\Vfi.Client.Module.Purchasing.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Purchasing\obj\Debug\Vfi.Client.Module.Purchasing.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Client.Module.Purchasing.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Client.Module.Purchasing.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Microsoft.Practices.Unity.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\obj\Debug\Vfi.Client.Module.Purchasing.csprojResolveAssemblyReference.cache
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\obj\Debug\Vfi.Client.Module.Purchasing.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Purchasing\obj\Debug\Vfi.Client.Module.Purchasing.pdb

@@ -79,3 +79,17 @@ C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramewor
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Infrastructure.dll.config
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.xml
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.SqlServer.xml
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.dll
+C:\workspace\vfi_sync\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.SqlServer.dll

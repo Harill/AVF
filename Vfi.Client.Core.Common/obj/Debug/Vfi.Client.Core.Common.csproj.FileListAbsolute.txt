@@ -26,3 +26,7 @@ C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.pdb
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache
+C:\workspace\vfi_sync\vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.pdb

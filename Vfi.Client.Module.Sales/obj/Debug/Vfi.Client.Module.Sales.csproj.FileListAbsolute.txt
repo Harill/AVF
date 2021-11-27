@@ -61,3 +61,14 @@ C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.DataM
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.Repository.pdb
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Client.Module.Sales.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Client.Module.Sales.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Microsoft.Practices.Unity.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.dll
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.csprojResolveAssemblyReference.cache
