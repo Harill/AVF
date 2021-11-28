@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Vfi.Ui.Mvc.Vfi.Models.Production.WarehousePermissionNewModel>
+
+@{
+    Html.Telerik().Grid(Model)
+        .Name("GridFunction")
+        .DataKeys(key => key.Add(u => u.WarehouseId))
+        //gridFunction.DataBinding(dataBindings => dataBindings.Ajax()
+        //                                        .Select("SelectFunction", "Function"));
+        .Columns(columns => {
+            columns.Bound(f => f.WarehouseName).Title("Name");
+            columns.Template(@<text>
+                        <input type='checkbox' name='IsUserImportWarehouse' value="@item.WarehouseId" 
+                        @if (item.Import) {      <text>checked="checked"</text>  }
+                        @if (item.ImportReadOnly) {   <text>onclick="return false;" onkeydown="return false;"  </text>   }
+                    />
+                </text>)
+                .Title("Nhập").Width(35)
+                .HtmlAttributes(new { style = "text-align: center" });
+                
+            columns.Template(@<text>
+                    <input type='checkbox' name='IsUserRotateWarehouse' value="@item.WarehouseId" 
+                        @if (item.Rotate) {     <text>checked="checked"</text>        }
+                    />
+                </text>)
+                .Title("Xuất").Width(35)
+                .HtmlAttributes(new { style = "text-align: center" });
+                
+            columns.Template(@<text>
+                    <input type='checkbox' name='IsUserOrderProgressWarehouse' value="@item.WarehouseId" 
+                        @if (item.OrderProgress) {     <text>checked="checked"</text>        }
+                        @if (!item.MainProgress) {   <text>style="display: none;"</text>   }
+                    />
+                </text>)
+                .Title("Tiến độ").Width(35)
+                .HtmlAttributes(new { style = "text-align: center" });
+        })
+        .Sortable(f => f.Enabled(false))
+        .Footer(false)
+        .Render();
+}

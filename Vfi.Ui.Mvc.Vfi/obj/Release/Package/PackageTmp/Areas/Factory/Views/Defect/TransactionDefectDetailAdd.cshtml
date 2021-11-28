@@ -1,0 +1,366 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model ExportFormTP_KD
+@{
+    ViewBag.Title = "Phân sản phẩm lỗi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function grid_OnRowDataBound(e) {
+            var color = e.dataItem.Status;
+            if (color == 3)
+                e.row.childNodes[5].style.backgroundColor = "#F4FA58";
+            else if (color == 1)
+                e.row.childNodes[5].style.backgroundColor = "#FA5858";
+        }
+
+        function grid_OnComplete() {
+            RefreshGrid('gridTransaction');
+        }
+        function grid_OnSubmitChanges(e) {
+
+            var transactionId = $("#cboTransaction").data('tComboBox').value();
+            if (transactionId == "")
+                transactionId = 0;
+            var date = $("#MonthlyDate").data("tDatePicker").value();
+            if (date === null)
+                date = "";
+            else {
+                date = $.telerik.formatString('{0:dd/MM/yyyy}', date);
+            }
+            e.values = $.extend(e.values,
+                {
+                    transactionId: transactionId,
+                    date: date
+                }
+            );
+        }
+
+        var spanReals, i, innerText, sumReal = 0, sumRealKg = 0;
+        function grid_OnSave(e) {
+            var dataItem = e.dataItem;
+            var $remedyCode = $(e.cell).find('#RemedyCode');
+            var $warehouseName = $(e.cell).find('#NextWarehouseProcessName');
+            if ($remedyCode.length > 0) {
+                var remedyCode = $remedyCode.data("tComboBox"),
+                    remedyCodeSelectItem = remedyCode.selectedIndex > -1
+                        ? remedyCode.data[remedyCode.selectedIndex]
+                        : null;
+                e.dataItem.NextWarehouseProcessId = null;
+                e.dataItem.ProcessWarehouseId = e.dataItem.NextWarehouseProcessId;
+                if (remedyCodeSelectItem) {
+                    e.values["RemedyCode"] = remedyCodeSelectItem.Text;
+                    e.values["RemedyId"] = remedyCodeSelectItem.Value;
+
+                    $.ajax({
+                        type: 'post',
+                        data: { remedyId: remedyCodeSelectItem.Value },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProcessWarehouseIdByRemedy", "Defect", new { area = "Factory" })',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == 'e') {
+                                alert("Lỗi!");
+                            } else {
+                                dataItem.NextWarehouseProcessId = data[0];
+                                dataItem.NextWarehouseProcessName = data[1];
+                                e.cell.parentElement.childNodes[10].innerHTML = dataItem.NextWarehouseProcessName;
+                            }
+                        }
+                    });
+                }
+            } else if ($warehouseName.length > 0) {
+                var warehouseName = $warehouseName.data("tComboBox"),
+                    warehouseNameSelectItem = warehouseName.selectedIndex > -1
+                        ? warehouseName.data[warehouseName.selectedIndex]
+                        : null;
+                if (warehouseNameSelectItem) {
+                    e.values["NextWarehouseProcessName"] = warehouseNameSelectItem.Text;
+                    e.values["NextWarehouseProcessId"] = warehouseNameSelectItem.Value;
+                }
+            } else {
+                // calculate g <=> pcs
+                sumReal = 0, sumRealKg = 0;
+                var unitWeight = e.dataItem.UnitWeight;
+                if (unitWeight <= 0) return;
+                var productQuantity = e.dataItem.QuantityDefect;
+                var quantityKg = $(e.cell).find('#QuantityDefectKg').val();
+                var quantity = $(e.cell).find('#QuantityDefect').val();
+                var isRotateAll = $("input[name='IsRotateAll']");
+                var spanIsRotateAll = e.cell.parentElement.getElementsByClassName("IsRotateAll_" + e.dataItem.DefectId)[0];
+                var spanQuantity = e.cell.parentElement.getElementsByClassName("QuantityDefect")[0];
+                var spanQuantityKg = e.cell.parentElement.getElementsByClassName("QuantityDefectKg")[0];
+                if (isRotateAll.attr('checked')) {
+                    e.dataItem.QuantityDefect = e.dataItem.RequireQuantityDefect;
+                    spanQuantity.textContent = e.dataItem.QuantityDefect.format(0);
+                    e.dataItem.QuantityDefectKg = e.dataItem.RequireQuantityDefectKg;
+                    spanQuantityKg.textContent = e.dataItem.QuantityDefectKg.format(0);
+                    calculateSumKg(0);
+                    calculateSum(0);
+                }
+                else if (!isNaN(parseInt(quantityKg))) {
+                    productQuantity = parseInt(parseInt(quantityKg) / unitWeight);
+                    spanQuantity.textContent = productQuantity.format(0);
+                    e.dataItem.QuantityDefect = productQuantity;
+                    if (e.dataItem.QuantityDefect === e.dataItem.RequireQuantityDefect) {
+                        spanIsRotateAll.checked = true;
+                    } else {
+                        spanIsRotateAll.checked = false;
+                    }
+                    calculateSumKg(quantityKg);
+                    calculateSum(0);
+                }
+                else if (!isNaN(parseInt(quantity))) {
+                    productQuantity = parseInt(quantity);
+                    spanQuantityKg.textContent = (productQuantity * unitWeight).format(0);
+                    e.dataItem.QuantityDefectKg = (productQuantity * unitWeight).format(0);
+
+                    if (productQuantity === e.dataItem.RequireQuantityDefect) {
+                        spanIsRotateAll.checked = true;
+                    } else {
+                        spanIsRotateAll.checked = false;
+                    }
+                    calculateSumKg(0);
+                    calculateSum(quantity);
+                }
+                if (e.dataItem.RemedyId == null && e.dataItem.DefaultRemedyId > 0) {
+                    e.dataItem.RemedyId = e.dataItem.DefaultRemedyId;
+                    e.dataItem.RemedyCode = e.dataItem.RemedyName;
+                    e.cell.parentElement.childNodes[9].innerHTML = e.dataItem.RemedyCode;
+                }
+                if (e.dataItem.NextWarehouseProcessId == null && e.dataItem.ProcessWarehouseId > 0) {
+                    e.dataItem.NextWarehouseProcessId = e.dataItem.ProcessWarehouseId;
+                    e.dataItem.NextWarehouseProcessName = e.dataItem.ProcessWarehouseName;
+                    e.cell.parentElement.childNodes[10].innerHTML = e.dataItem.NextWarehouseProcessName;
+                }
+            }
+        }
+
+        function calculateSumKg(quantityKg) {
+            spanReals = $("span[name='QuantityDefectKg']");
+            for (i = 0; i < spanReals.length; i++) {
+                innerText = spanReals[i].innerText;
+                innerText = innerText.replace(/,/g, '');
+                sumRealKg = sumRealKg + parseInt(innerText);
+            }
+            sumRealKg = sumRealKg + parseInt(quantityKg);
+            $("#TotalQtyKg").text(sumRealKg.format(0));
+        }
+
+        function calculateSum(quantity) {
+            spanReals = $("span[name='QuantityDefect']");
+            for (i = 0; i < spanReals.length; i++) {
+                innerText = spanReals[i].innerText;
+                innerText = innerText.replace(/,/g, '');
+                sumReal = sumReal + parseInt(innerText);
+            }
+            sumReal = sumReal + parseInt(quantity);
+            $("#TotalQty").text(sumReal.format(0));
+        }
+
+        function PickupId() {
+            var transactionId = $("#cboTransaction").data('tComboBox').value();
+            if (transactionId == "")
+                transactionId = 0;
+            //var $checkedRecords = $(':checked');
+            var $checkedRecords = $("input[name='chkIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+                return;
+            }
+
+            var a = {};
+            var ids = "";
+            var shift = "";
+            var pId = "";
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                shift = $checkedRecords[i].getAttribute("shift");
+                pId = $checkedRecords[i].getAttribute("pId");
+                if (i < ($checkedRecords.length - 1)) {
+                    ids += ":";
+                }
+            }
+            $("#gridProductDetail").data("tGrid").rebind({
+                transactionId: transactionId,
+                shift: shift,
+                detailId: ids,
+                pId: pId
+            });
+
+        }
+
+        function cbo_OnChange() {
+            RefreshGrid("gridProduct");
+        }
+
+        function grid_OnDataBinding(args) {
+            var transactionId = $("#cboTransaction").data('tComboBox').value();
+            if (transactionId == "")
+                transactionId = 0;
+            {
+                args.data = $.extend(args.data, {
+                    transactionId: transactionId
+                });
+            }
+        }
+    </script>
+
+}
+
+<div class="title">Phân tách số lượng lỗi</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin lọc</legend>
+        <div class="grid_3">Phiếu</div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("cboTransaction")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxImportTransaction", "Defect", new { area = "Factory" }))
+                    .HtmlAttributes(new { style = "width: 200px" })
+                    .DropDownHtmlAttributes(new { style = "width: 325px;" })
+                    .ClientEvents(events => events.OnChange("cbo_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">
+            <button class="t-button" id="btnRefresh" onclick=" RefreshCombobox('cboTransaction') ">
+                <span class='t-icon t-refresh'></span>
+            </button>
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("MonthlyDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionDetailModel>()
+            .Name("gridProduct")
+            .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_7">
+            <button class="t-button" id="btnPickupProductId" name="btnPickupId" onclick=" PickupId() ">
+                <span class='t-icon t-insert'></span>
+                Chọn các sản phẩm vào lưới
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
+            .DataKeys(keys => keys.Add(f => f.TransactionDetailId).RouteKey("transactionDetailId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectImportTransactionDetail", "Defect", new { area = "Factory", transactionId = 0 }))
+            .Columns(columns => {
+                    columns.Bound(f => f.TransactionDetailId).Title("Chọn").Width(75)
+                           .ClientTemplate("<input type='radio' name='chkIds' value='<#= TransactionDetailId #>' shift='<#= Shift #>' pId='<#= ReferenceId #>' />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    //columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50);
+                    columns.Bound(f => f.ProductCode).Title("Mã SP").Width(150);
+                    columns.Bound(f => f.UnitWeight).Width(100).Title("TL SP(pcs/g)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n4}");
+                    columns.Bound(f => f.Quantity).Width(100).Title("SL (PCS)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n0}");
+                    columns.Bound(f => f.QuantityKg).Width(100).Title("SL (g)")
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .Format("{0:n0}");
+                    columns.Bound(f => f.StatusName).Width(100).Title("Tình trạng");
+                    columns.Bound(f => f.Shift).Width(50).Title("Ca");
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                })
+            .Scrollable(f => f.Height(200))
+            .Resizable(f => f.Columns(true))
+            .ClientEvents(events => events.OnRowDataBound("grid_OnRowDataBound")
+                .OnDataBinding("grid_OnDataBinding")
+                .OnError("grid_OnError"))
+            .Render();
+    }
+</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh xuất nhập sản phẩm</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<DefectTransactionDetailModel>()
+            .Name("gridProductDetail")
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText)
+                               .SaveText("Lưu thay đổi")
+                               .CancelText("Huỷ tất cả"))
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectImportTransactionDefectDetail", "Defect", new { transactionId = 0, detailId = "" })
+                                                     .Update("CreateDefectTransactionDetail", "Defect"))
+            .Columns(columns => {
+                columns.Bound(f => f.Shift).Title("Ca").Width(30).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Máy").Width(75).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(120).ReadOnly(true);
+                columns.Bound(f => f.UnitWeight).Width(70).Title("TL(pcs/g)").ReadOnly(true);
+                columns.Bound(f => f.DefectName).Title("Lỗi").Width(150).ReadOnly(true);
+                columns.Bound(f => f.DefectExpand).Title("Lỗi mở rộng").Width(100);
+                columns.Bound(f => f.IsRotateAll).Width(50).Title("All")
+                        .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= DefectId #>' class='IsRotateAll_<#= DefectId #>' <#=IsRotateAll? checked='checked' : '' #> />")
+                        .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.QuantityDefect).Width(100).Title("SL (pcs)")
+                               .HeaderHtmlAttributes(new { @class = "edit-column" })
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .ClientTemplate("<span name='QuantityDefect' class='QuantityDefect' ><#= QuantityDefect == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect) #></span>")
+                    //.FooterTemplate("<span id='TotalQty'></span>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n0}")
+                    .ClientFooterTemplate("<span id='TotalQty'><#= $.telerik.formatString('{0:n0}', Sum) #></span>");
+
+                columns.Bound(f => f.QuantityDefectKg).Width(100).Title("SL (g)")
+                               .HeaderHtmlAttributes(new { @class = "edit-column" })
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .ClientTemplate("<span name='QuantityDefectKg' class='QuantityDefectKg' ><#= QuantityDefectKg == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefectKg) #></span>")
+                    //.FooterTemplate("<span id='TotalQtyKg'></span>")
+                    .Aggregate(agg => agg.Sum())
+                    .Format("{0:n0}")
+                    .ClientFooterTemplate("<span id='TotalQtyKg'><#= $.telerik.formatString('{0:n0}', Sum) #></span>");
+
+                columns.Bound(f => f.RemedyCode).Width(100)
+                           .HeaderTemplate("Biện pháp");
+                columns.Bound(f => f.NextWarehouseProcessName).Width(100)
+                           .HeaderTemplate("Xử lý");
+                columns.Bound(f => f.StoreCode).Width(70)
+                           .HeaderTemplate("Vị trí");
+                columns.Bound(f => f.Note)
+                           .HeaderTemplate("Ghi chú");
+
+            })
+            .ClientEvents(events => events.OnError("grid_OnError")
+                .OnSave("grid_OnSave")
+                //.OnComplete("grid_OnComplete")
+                                          .OnSubmitChanges("grid_OnSubmitChanges")
+            )
+            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Resizable(f => f.Columns(true))
+            .Render();
+    }
+</div>

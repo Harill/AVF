@@ -1,0 +1,82 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "KT nhiên liệu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function MakeMaterialChangeInventory(fuelInvId) {
+
+            $.ajax({
+                type: 'post',
+                data: { fuelInvId: fuelInvId },
+                dataType: 'json',
+                url: '@Url.Action("MakeFuelChangeInventory", "User", new {area = ""})',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 9)
+                        alert("Lỗi không tìm thấy period !");
+                    else if (data == 8)
+                        alert("Lỗi vui lòng thêm tồn kho period (nhập thêm trước) !");
+                    else {
+                        alert(data);
+                        RefreshGrid("grid");
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+}
+<div class="title">Kiểm tra thông tin tồn kho nhiên liệu
+    
+<button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('grid'); ">
+    <span class='t-icon t-insert'></span>
+    Làm mới
+</button>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<FuelInventoryModel>()
+            .Name("grid")
+            .DataKeys(key => key.Add(f => f.FuelInvId).RouteKey("fuelInvId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectTestingFuelInv", "User"))
+            .Columns(columns =>
+                {
+                    //columns.Bound(f => f.MaterialTypeCode).Width(100).ReadOnly(true).Title("Loại NL");
+                    columns.Bound(f => f.FuelCode).Width(150).ReadOnly(true).Title("Nhiên liệu");
+                    columns.Bound(f => f.LotNumber).Width(150).ReadOnly(true).Title("Lô");
+                    columns.Bound(f => f.VendorCode).Width(150).ReadOnly(true).Title("NCC");
+                    columns.Bound(f => f.TotalQuantity).Width(70)
+                           .HeaderTemplate("Tồn kho thực tế")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.FuelInvId).Title("Thay đổi tồn TT").Width(50)
+                           .ClientTemplate("<input type='button' id='id_<#= FuelInvId #>' value='Make' class='t-button' onclick='MakeFuelChangeInventory( <#= FuelInvId #> )' />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.FirstImportQuantity).Width(70)
+                           .HeaderTemplate("Tồn kho (period)")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.Quantity).Width(70)
+                           .HeaderTemplate("Chênh lệch (TK - Period)")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

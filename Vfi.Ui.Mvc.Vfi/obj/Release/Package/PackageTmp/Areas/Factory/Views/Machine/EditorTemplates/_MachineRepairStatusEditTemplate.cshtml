@@ -1,0 +1,12 @@
+﻿@using Telerik.Web.Mvc.UI
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachineRepairStatus", "Machine", new { area = "Factory" }).Delay(350))
+        .HtmlAttributes(new { style = "width: 250px" })
+        .DropDownHtmlAttributes(new { style = "width: 350px" })
+        .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .Render();
+}

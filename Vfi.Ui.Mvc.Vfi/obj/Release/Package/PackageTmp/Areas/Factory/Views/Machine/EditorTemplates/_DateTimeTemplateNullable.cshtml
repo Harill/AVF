@@ -1,0 +1,9 @@
+﻿@using Telerik.Web.Mvc.UI
+@model DateTime?
+
+@(Html.Telerik().DateTimePicker()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .HtmlAttributes(new { id = ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty) + "_wrapper" })
+        //.Value(Model > DateTime.MinValue ? Model.Value.ToShortDateString() : DateTime.Today.ToShortDateString()).Format("MM/dd/yyyy")
+        .Value( (Model != null ? Model.Value.ToString("MM/dd/yyyy HH:mm"): DateTime.Now.ToString("MM/dd/yyyy HH:mm"))).Format("MM/dd/yyyy HH:mm")
+)

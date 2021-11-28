@@ -1,0 +1,54 @@
+﻿@using Vfi.Server.Core.DataModel.Models.System
+@{
+    ViewBag.Title = "Edit Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+
+    function Grid_onEdit(e) {
+        var mode = e.mode;
+        var form = e.form;
+
+        var username = $(form).find('#Username');
+
+        if (mode == 'insert') {
+            //username.attr("readonly", true);
+            $("div.editor-label:has('label[for=UserId]')").hide();
+            $("div.editor-field:has('input[name=UserId]')").hide();
+        }
+        if (mode == 'edit') {
+            username.attr("readonly", true);
+            $("div.editor-label:has('label[for=UserId]')").hide();
+            $("div.editor-field:has('input[name=UserId]')").hide();
+        }
+    }
+
+</script>
+
+<div class="title">Edit Profile</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<UserModel>()
+        .Name("GridEditProfile")
+        .DataKeys(keys => keys.Add(u => u.Username).RouteKey("username"))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+                                                .Select("SelectProfile", "User")
+                                                .Update("UpdateProfile", "User")
+            )
+        .Columns(columns =>
+        {
+            columns.Bound(u => u.Username).Width(180)
+                .ClientTemplate("<strong><#= Username #></strong>");
+            //columns.Bound(u => u.Password);
+            columns.Bound(u => u.FullName)
+                .ClientTemplate("<strong><#= FullName #></strong>");
+            columns.Bound(u => u.Email).Width(220);
+            columns.Command(commands => commands.Edit().ButtonType(GridButtonType.ImageAndText)).Width(98).Title("Commands");
+        })
+        .ClientEvents(events => events.OnEdit("Grid_onEdit"))
+        //.Editable(editing => editing.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation(true))
+        .Render();
+}
+</div>

@@ -1,0 +1,297 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model ProductInventoryModel
+@{
+    ViewBag.Title = "Expected Sales Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function grid_OnSave(e) {
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = new Date().getMonth() + 1;
+            var year = $("#Year").val();
+            if (year === null || year == "")
+                month = new Date().getYear() + 1;
+            var status = $("#Status").data("tComboBox").value();
+            if (status === null || status === "")
+                status = 2;
+            if (!($('#MaterialCode').data('tComboBox') == undefined))
+                e.values.MaterialCode = $('#MaterialCode').data('tComboBox').text();
+            e.values = $.extend(e.values,
+                {
+                    status: status,
+                    month: month,
+                    year: year
+                }
+            );
+        }
+        function grid_OnDataBinding(args) {
+            //if (start) {
+
+            //var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+
+            //var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+            //if (customerId == 0)
+            //    customerId = 0;
+            //var employeeId = $("#EmployeeName").data('tComboBox').value();
+            //if (employeeId == 0)
+            //    employeeId = 0;
+            var month = $("#Month").data("tDropDownList").value();
+            if (month === null)
+                month = new Date().getMonth() + 1;
+            var year = $("#Year").val();
+            if (year === null || year == "")
+                month = new Date().getYear() + 1;
+            args.data = $.extend(args.data, {
+                //employeeId: employeeId,
+                //customerId: customerId,
+                //productCode: productCodeNameForMonthly,
+                month: month,
+                year: year
+            });
+
+            //}
+        }
+        function grid_OnSave(e) {
+            // bind data
+            //var $productCode = $(e.cell).find('#ProductCode');
+
+            //if ($productCode.length > 0) {
+            //    var productCode = $productCode.data("tComboBox"),
+            //        productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+            //    if (productCodeSelectItem) {
+            //        e.values["ProductCode"] = productCodeSelectItem.Text;
+            //        e.values["ProductId"] = productCodeSelectItem.Value;
+            //    }
+            //}
+        }
+
+        function month_onLoad() {
+            var combobox = $('#Month').data('tDropDownList');
+            var dataSource =
+            [
+                { Text: "1", Value: "1" },
+                { Text: "2", Value: "2" },
+                { Text: "3", Value: "3" },
+                { Text: "4", Value: "4" },
+                { Text: "5", Value: "5" },
+                { Text: "6", Value: "6" },
+                { Text: "7", Value: "7" },
+                { Text: "8", Value: "8" },
+                { Text: "9", Value: "9" },
+                { Text: "10", Value: "10" },
+                { Text: "11", Value: "11" },
+                { Text: "12", Value: "12" }
+            ];
+            combobox.dataBind(dataSource);
+            combobox.value(new Date().getMonth() + 1);
+        }
+
+    </script>
+}
+
+<div class="title">Báo cáo dự kiến đơn hàng</div><div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1065px;">
+
+
+        <div class="clear"></div>
+        @*<div class="grid_8 prefix_18">
+            
+            <button id="btnPrintExpected" class="t-button" onclick=" return printExpecedSalesReport(); ">
+                <span class='t-icon t-insert'></span>
+                Xuất báo cáo kế hoạch bán hàng
+            </button>
+            <button id="btnPrintState" class="t-button" onclick=" return printProductState(); ">
+                <span class='t-icon t-insert'></span>
+                Xuất báo cáo tình trạng sản phẩm
+            </button>
+        </div>
+        <br />*@
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            
+          <div class="grid_2">
+                @Html.Label("Nhân viên")
+            </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("EmployeeName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxSalesEmployee", "Employee", new { area = "" }))
+                    .HtmlAttributes(new {style = "width: 110px"})
+                    .DropDownHtmlAttributes(new {style = "width: 250px"})
+                    .Render();
+            }
+        </div>
+          <div class="grid_2">
+                @Html.Label("Mã KH")
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("CustomerForMonthly")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 275px" })
+                        //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @Html.LabelFor(f => f.ProductCodeName)
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeNameForMonthly")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 100%; " })
+                        .DropDownHtmlAttributes(new { style = "width: 100%; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Tháng")
+            </div>
+            <div class="grid_1">
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("Month")
+                        .HtmlAttributes(new { style = "width: 40px" })
+                        .DropDownHtmlAttributes(new { style = "width: 40px" })
+                        //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        // .HighlightFirstMatch(true)
+                        //.AutoFill(true)
+                        .ClientEvents(events => events.OnLoad("month_onLoad"))
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Năm")
+            </div>
+            <div class="grid_1">
+
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("Year")
+                        .Value(DateTime.Now.Year + "")
+                        .HtmlAttributes(new { style = "width: 42px" })
+                        .Render();
+                }
+            </div>
+            <div class="grid_3 prefix_1">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridExpectedSales'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                </button>
+            </div>
+        </fieldset>
+    </div>
+<br />
+
+<div id="pnlInvMonthly">
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<ExpectedSalesModel>()
+                .Name("gridExpectedSales")
+                .ToolBar(bar => bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới"))
+                .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectExpectedSales2", "Reporting", new { month = DateTime.Now.Month, year = DateTime.Now.Year })
+                                                         .Insert("InsertExpectedSales2", "Reporting")
+                                                         .Update("UpdateExpectedSales2", "Reporting"))
+                .Columns(columns =>
+                    {
+                        columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
+                               .Width(50).Title("")
+                               .HtmlAttributes(new {style = "text-align:center"});
+
+                        columns.Bound(f => f.Index).Title("STT").Width(30).ReadOnly(true)
+                               .HeaderHtmlAttributes(new {style = "font-weight: bold"})
+                               .HtmlAttributes(new {style = "font-weight: center;"});
+                        columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(30).ReadOnly(true)
+                               .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
+                               .HtmlAttributes(new {style = "text-align: center;"});
+                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(70)
+                               .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
+                               .HtmlAttributes(new {style = "text-align: left;"})
+                               .Aggregate(agg => agg.Count())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                        columns.Bound(f => f.ExpectedSalesQuantity).Width(50)
+                               .HeaderTemplate("Dự kiến<br/>BH")
+                               .HtmlAttributes(new {style = "text-align: right;"})
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.ForeCastDate).Width(90)
+                               .Format("<#= ForeCastDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ForeCastDate) #>");
+                    })
+                .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
+                .Editable(f => f.Mode(GridEditMode.InLine))
+                .Filterable()
+                .Sortable()
+                .ClientEvents(events => events
+                                            .OnDataBinding("grid_OnDataBinding")
+                                            .OnSave("grid_OnSave")
+                                            .OnError("grid_OnError"))
+                .Render();
+        }
+    </div>
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

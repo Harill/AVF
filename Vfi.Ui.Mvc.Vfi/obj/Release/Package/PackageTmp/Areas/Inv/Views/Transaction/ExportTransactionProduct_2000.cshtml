@@ -1,0 +1,468 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model TransactionModel
+@{
+    ViewBag.Title = "Export Transaction Product";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <!-- $.() -->
+    @*<script type="text/javascript">
+    //$(function () {
+    //    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+    //    $('#txtTransactionCodeHidden').val(0);
+
+    //    $("#TransactionCode").change(function () {
+    //        CheckTransactionCode($(this).val());
+    //    });
+
+    //    //GenCode();
+    //});
+</script>
+
+<!-- check code-->
+<script type="text/javascript">
+    function GenCode() {
+        $.ajax({
+            type: 'post',
+            data: {},
+            dataType: 'json',
+            url: '@Url.Action("GenTransactionParam", "Transaction")',
+            timeout: 20000,
+            success: function (data) {
+                $("#TransactionCode").val(data);
+                CheckTransactionCode(data);
+            }
+        });
+    }
+
+    function CheckTransactionCode(value) {
+        if (value.length === 0) {
+            $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+            $('#txtTransactionCodeHidden').val(0);
+            return false;
+        }
+        $('#lookupTransactionCodeExisted').attr('class', 't-loading');
+
+        $.ajax({
+            type: 'post',
+            data: { transactionCode: value },
+            dataType: 'json',
+            url: '@Url.Action("CheckTransactionCode", "Transaction")',
+            timeout: 20000,
+            success: function (data) {
+                if (data == 1) {
+                    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                    $('#txtTransactionCodeHidden').val(0);
+                }
+                else if (data == 0) {
+                    $('#lookupTransactionCodeExisted').attr('class', 'imgAvailable');
+                    $('#txtTransactionCodeHidden').val(1);
+                }
+                else if (data == 2) {
+                    $('#lookupTransactionCodeExisted').attr('class', 'imgUnAvailable');
+                    $('#txtTransactionCodeHidden').val(0);
+                }
+            }
+        });
+
+        return false;
+    }
+</script>
+*@
+    <!-- binding -->
+    <script type="text/javascript">
+//    function materialClassified_onChange() {
+//        $("#MaterialTypeName").data('tDropDownList').reload();
+//    }
+//    function materialTypeName_onDataBinding(args) {
+//        var materialClassifiedId = $("#MaterialClassifiedName").data('tDropDownList').value();
+//        args.data = $.extend({}, args.data, { classifiedId: materialClassifiedId });
+//    }
+//    function materialTypeName_onChange() {
+//        $("#MaterialName").data('tComboBox').reload();
+//    }
+//    function materialName_onDataBinding(args) {
+//        var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
+//        args.data = $.extend({}, args.data, { materialTypeId: materialTypeId });
+//    }
+
+        function gridProductInventory_onDataBinding(args) {
+
+            var customerId = $("#Customer").data('tComboBox').value();
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            //var warehouseReceipt = $("#WarehouseReceiptName").data('tDropDownList').value();
+
+            //if (materialTypeId == 0 || warehouseIssue == 0 || warehouseReceipt == 0)
+//        if (customerId == 0 || warehouseIssue == 0)
+//            args.preventDefault();
+
+            if (warehouseIssue == 0) {
+                args.preventDefault();
+            }
+            if (customerId == 0) {
+                customerId = 0;
+            }
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+
+
+            args.data = $.extend(args.data, {
+                customerId: customerId,
+                //warehouseIssue: warehouseIssue,
+                //warehouseReceipt: warehouseReceipt,
+                warehouseId: warehouseIssue,
+                eoi: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export)",
+                productName: productCodeName
+            });
+
+        }
+
+    </script>
+
+    <!-- pickup material -->
+    <script type="text/javascript">
+        function PickupProductId() {
+
+            var $checkedRecords = $(':checked');
+            //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+                return;
+            }
+
+            //$.ajaxSettings.traditional = false;
+            var a = {};
+            var ids = "";
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+
+            $("#gridProductInventoryDetail").data("tGrid").rebind({
+                //checkedRecords: $checkedRecords.map(function () { return value; }) 
+            //checkedRecords: a
+                productIds: ids,
+                warehouseId: warehouseIssue
+            });
+        }
+    </script>
+
+    <!-- input validation -->
+    @*<script type="text/javascript">
+    function InputValidation() {
+        var strMsgAlert = "";
+
+//        var materialClassifiedName = $('#MaterialClassifiedName').data('tDropDownList').value();
+//        var materialTypeName = $('#MaterialTypeName').data('tDropDownList').value();
+
+        var txtTransactionCodeHidden = $("#txtTransactionCodeHidden").val();
+
+        var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+        //var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+
+//        if (materialClassifiedName === "") {
+//            strMsgAlert += "Vui lòng chọn phân loại nguyên liệu.\t\r\n";
+//        }
+//        if (materialTypeName === "") {
+//            strMsgAlert += "Vui lòng chọn loại nguyên liệu.\t\r\n";
+//        }
+
+        if (txtTransactionCodeHidden === "0") {
+            strMsgAlert += "Số đơn không hợp lệ.\t\r\n";
+        }
+
+        if (warehouseIssueName === "") {
+            strMsgAlert += "Vui lòng chọn kho xuất.\t\r\n";
+        }
+        //        if (warehouseReceiptName === "") {
+        //            strMsgAlert += "Vui lòng chọn kho nhập.\t\r\n";
+        //        }
+
+        if (strMsgAlert === "")
+            return true;
+
+        alert(strMsgAlert);
+        return false;
+    }
+</script>*@
+
+    <!-- client event grid material inventory -->
+    <script type="text/javascript">
+        function gridProductInventoryDetail_onDataBound() {
+            //GenCode();
+        }
+
+        function gridProductInventoryDetail_onSave(e) {
+            // bind data
+            var $UnitMeasure = $(e.cell).find('#UnitMeasure');
+
+            if ($UnitMeasure.length > 0) {
+                var unitMeasureCodeName = $UnitMeasure.data("tDropDownList");
+
+                var unitMeasureCodeNameSelectItem = unitMeasureCodeName.selectedIndex > -1 ? unitMeasureCodeName.data[unitMeasureCodeName.selectedIndex] : null;
+
+                if (unitMeasureCodeNameSelectItem) {
+                    e.values["UnitMeasureCodeName"] = unitMeasureCodeNameSelectItem.Text;
+                    e.values["UnitMeasure"] = unitMeasureCodeNameSelectItem.Value;
+                }
+            }
+            //
+            //tong realnumber
+            var sumReal = 0;
+            var quantity = $(e.cell).find('#Quantity').val();
+            var spanReals = $("span[name='Quantity']");
+            for (var i = 0; i < spanReals.length; i++) {
+                var innerText = spanReals[i].innerText;
+                innerText = innerText.replace(',', '');
+                sumReal = sumReal + parseInt(innerText);
+            }
+            if (!isNaN(parseInt(quantity)))
+                sumReal = sumReal + parseInt(quantity);
+            $("#TotalQuantity").text(sumReal);
+
+        }
+
+        function gridProductInventoryDetail_onSubmitChanges(e) {
+
+            var transactionCode = $("#TransactionCode").val();
+
+            var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+            //var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+            var monlthly = "";
+            e.values = $.extend(e.values,
+                {
+                    transactionCode: transactionCode,
+
+                    //warehouseIssueId: warehouseIssueName,
+                    //warehouseReceiptId: warehouseReceiptName,
+                    warehouseId: warehouseIssueName,
+
+                    materialOrProduct: false,
+                    exportOrImport: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export)",
+                    date: monlthly
+                }
+            );
+
+        }
+
+        function gridProductInventoryDetail_onError(args) {
+            if (args.textStatus == "modelstateerror" && args.modelState) {
+                var message = "Errors:\n";
+                $.each(args.modelState, function(key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function() {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                args.preventDefault();
+                alert(message);
+            }
+        }
+
+    </script>
+}
+
+<div class="title">Lệnh xuất sản phẩm</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+    
+    @*<div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialClassifiedName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new {area = ""}))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events=>events.OnChange("materialClassified_onChange"))
+                .Render();                                              
+        }
+    </div>
+    <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("MaterialTypeName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialTypeByClassified", "Material", new { classifiedId = 0, area = "" }))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events => events.OnDataBinding("materialTypeName_onDataBinding").OnChange("materialTypeName_onChange"))
+                .Render();
+        }
+    </div>
+    <div class="grid_3"></div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().ComboBox()
+                .Name("MaterialName")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialByType", "Material", new { materialTypeId = 0, area = "" }))
+                .HtmlAttributes(new { style = "width: 150px" })
+                .DropDownHtmlAttributes(new { style = "width: 250px" })
+                .ClientEvents(events => events.OnDataBinding("materialName_onDataBinding").OnChange("materialName_onChange"))
+                .AutoFill(true)
+                .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                .Render();
+        }
+    </div>*@
+    <div class="grid_3">Khách hàng:</div>
+    <div class="grid_7">
+        @{
+            Html.Telerik().ComboBox()
+                .Name("Customer")
+                .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                .HtmlAttributes(new { style = "width: 250px" })
+                .DropDownHtmlAttributes(new { style = "width: 325px" })
+                .ClientEvents(events => events.OnChange("customer_onChange"))
+                .AutoFill(true)
+                .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                .Render();
+        }
+    </div>
+    <div class="grid_2">Sản phẩm:</div>
+    <div class="grid_4">
+        @{
+            Html.Telerik().AutoComplete()
+                .Name("ProductCodeName")
+                .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv"))
+                .HtmlAttributes(new { style = "width: 200px; " })
+                .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                .Encode(false)
+                .AutoFill(true)
+                .HighlightFirstMatch(true)
+                .ClientEvents(events=>events
+                    .OnChange("autoComplete_onChange")
+                )
+                .Render();
+        }
+    </div>
+    <div class="clear"></div><br/>
+
+    <fieldset>
+        <legend>Thông tin phiếu lệnh nhập</legend>
+
+@*        <div class="grid_2">@Html.LabelFor(f=>f.TransactionCode)</div>
+        <div class="grid_1"><div id="lookupTransactionCodeExisted">&nbsp;</div></div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f=>f.TransactionCode, new {style ="color: maroon;"})
+            @Html.Hidden("txtTransactionCodeHidden")
+        </div>*@
+
+        <div class="grid_3">@Html.LabelFor(f=>f.WarehouseIssueName)</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseIssueName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .ClientEvents(events => events.OnChange("warehouseIssueName_onChange"))
+                    .Render();                                              
+            }
+        </div>
+
+        <div class="grid_3">&nbsp;
+        @*@Html.LabelFor(f=>f.WarehouseReceiptName)*@
+        </div>
+        <div class="grid_4">&nbsp;
+            @*@{
+                Html.Telerik().DropDownList()
+                    .Name("WarehouseReceiptName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; height: 250px;" })
+                    .ClientEvents(events => events.OnChange("warehouseReceiptName_onChange"))
+                    .Render();
+            }*@
+        </div>
+
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProductInventoryModel>()
+        .Name("gridProductInventory")
+        .ToolBar(bar=>bar.Template(
+            @<text>
+            <div class="grid_7">
+                <button class="t-button" id="btnPickupProductId" name="btnPickupProductId" onclick="PickupProductId()">
+                    <span class='t-icon t-insert'></span>
+                    Chọn các thành phẩm vào lưới
+                </button>
+            </div>
+            <div class="clear"></div>
+            </text>
+            ))
+        .DataKeys(keys => keys.Add(f => f.ProductInventoryId).RouteKey("productInventoryId"))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectProductInventoryByCustomerAndWarehouse", "Inv",
+            new { customerId = 0, warehouseIssue = 0, warehouseReceipt = 0, eoi = MyUtilities.Transaction.EoIEnum.Export }))
+        .Columns(columns=>
+                     {
+                         columns.Bound(f => f.ProductId).Title("Chọn").Width(75)
+                             .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductId #>' />")
+                             .HtmlAttributes(new { style = "text-align:center" });
+                         columns.Bound(f => f.ProductCode).Width(250);
+                         columns.Bound(f => f.TotalQty);
+                         //columns.Bound(f => f.AvailableQty);
+                         //columns.Bound(f => f.UnavailableQty);
+                         //columns.Bound(f => f.Active).Width(75)
+                         //   .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                         //   .HtmlAttributes(new { style = "text-align:center" });
+                     })
+        .Scrollable(f=>f.Height("auto"))
+        .Scrollable(f => f.Height(200))
+        .Resizable(f => f.Columns(true))
+        .Pageable(f => f.Style(GridPagerStyles.Status))
+        .ClientEvents(events => events.OnDataBinding("gridProductInventory_onDataBinding"))
+        .Render();
+}
+</div>
+<div class="clear"></div><br/>
+
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Chi tiết lệnh nhập sản phẩm</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProductInventoryModel>()
+          .Name("gridProductInventoryDetail")
+          .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText))
+          .DataKeys(keys => keys.Add(f => f.ProductInventoryId).RouteKey("productInventoryId"))
+          .DataBinding(dataBindings => dataBindings.Ajax()
+              .Select("SelectProductInventory", "Inv", new { productIds = "", warehouseId = 0 })
+            .Update("UpdateTransactionProductInventory", "Transaction"))
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.CustomerCode).Width(250).ReadOnly(true);
+            columns.Bound(f => f.ProductCode).Width(250).ReadOnly(true);
+            columns.Bound(f => f.TotalQty).ReadOnly(true);
+            //columns.Bound(f => f.AvailableQty).Width(125).ReadOnly(true);
+            //columns.Bound(f => f.UnavailableQty).Width(125).ReadOnly(true);
+            columns.Bound(f => f.Quantity)
+                               .ClientTemplate("<span name='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #></span>")
+                               .FooterTemplate("<span id='TotalQuantity'></span>").Width(120);
+            //columns.Bound(f => f.UnitMeasure).Width(150);
+            
+            columns.Command(commands => commands.Delete()).Width(98).Title("Commands");
+        })
+        .ClientEvents(events => events
+            .OnSave("gridProductInventoryDetail_onSave")
+            .OnSubmitChanges("gridProductInventoryDetail_onSubmitChanges")
+            .OnError("gridProductInventoryDetail_onError")
+            .OnDataBound("gridProductInventoryDetail_onDataBound")
+        )
+        .Editable(f=>f.Mode(GridEditMode.InCell))
+        .Footer(false)
+        .Resizable(f => f.Columns(true))
+        .Render();   
+}
+</div>

@@ -1,0 +1,119 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Order Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Scripts{
+<!-- approve stockorder -->
+<script type="text/javascript">
+    function ApproveOrder() {
+        $("#btnApproveOrder").attr('disabled', 'disabled');
+
+        var $checkedRecords = $("input[name='chkOrderIds']:checked");
+
+        if ($checkedRecords.length < 1) {
+            alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+            return;
+        }
+    }
+</script>
+
+<!-- grid Order -->
+<script type="text/javascript">
+    function txtOrderCodeSearch_onChange() {
+    }
+    function gridOrder_onDataBinding(args) {
+        //var txtOrderCodeSearch = $("#txtOrderCodeSearch").val();
+
+        //args.data = $.extend(args.data, {
+        //    poNumber: txtOrderCodeSearch,
+        //});
+    }
+</script>
+}
+
+<div class="title">Danh sách đơn hàng</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Sổ lệnh</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<OrderModel>()
+        .Name("gridOrder")
+        .DataKeys(keys => keys.Add(f => f.OrderId).RouteKey("orderId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectAllOrders", "Orders",
+            new { poNumber = "" })
+        )
+        .Columns(columns=>
+                     {
+                         columns.Bound(f => f.OrderId).Title("Chọn").Width(45)
+                             .ClientTemplate("<input type='radio' name='chkOrderIds' value='<#= OrderId #>' />")
+                             .HtmlAttributes(new { style = "text-align:center" });
+                         columns.Bound(f => f.CustomerCodeName);
+                         columns.Bound(f => f.OrderNumber).Width(100);
+                         columns.Bound(f => f.PoNumber).Width(100);
+                         columns.Bound(f => f.TotalQuality);
+                         columns.Bound(f => f.ShipMethodName);
+                         columns.Bound(f => f.SalesPersonName);
+                         columns.Bound(f => f.OrderDate)
+                             .ClientTemplate("<#= OrderDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OrderDate) #>");
+                         //columns.Bound(f => f.Active).Width(75)
+                         //   .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                            //.HtmlAttributes(new { style = "text-align:center" });
+
+                         columns.Bound(f => f.OrderId).Title("In").Width(30)
+                             .ClientTemplate("<input type='button' id='<#= OrderId #>' value='In' class='t-button' />")
+                             .HtmlAttributes(new { style = "text-align:center" });
+                     })
+                     
+        .DetailView(details => details.ClientTemplate(
+
+            Html.Telerik().TabStrip()
+            .Name("TabStrip_<#= OrderId #>")
+            .SelectedIndex(0)
+            .Items(items =>
+
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<OrderDetailModel>()
+                                    .Name("gridOrderDetail_<#= OrderId #>")
+                                    .DataBinding(dataDindings => dataDindings.Ajax()
+                                                    .Select("SelecOrderDetailByOrderId", "Orders",
+                                                    new { orderId = "<#= OrderId #>" }))
+                                    .Columns(columns =>
+                                    {
+                                        //columns.Bound(f => f.OrderDetailId);
+                                        columns.Bound(f => f.ProductCode);
+                                        columns.Bound(f => f.OrderQty).Width(98).Title("Số lượng (PCS)")
+                                            .HtmlAttributes(new { style = "text-align: right;" })
+                                            .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n}', OrderQty) #>");
+                                        columns.Bound(f => f.UnitPrice);
+                                        columns.Bound(f => f.LineTotal);
+                                        columns.Bound(f => f.CustomerDueDate)
+                                               .ClientTemplate("<#= CustomerDueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', CustomerDueDate) #>");
+                                        columns.Bound(f => f.VFIDueDate)
+                                               .ClientTemplate("<#= VFIDueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', VFIDueDate) #>");
+
+                                    })
+                                    .ToHtmlString()
+
+                                )
+                       )
+            .ToHtmlString()
+        ))
+        .Selectable()
+        .ClientEvents(events => events
+            .OnRowSelect("grid_OnRowSelect")
+            .OnDataBinding("gridOrder_onDataBinding")
+        )
+        .Pageable(f => f.PageSize(10))
+        .Render();
+}
+</div>

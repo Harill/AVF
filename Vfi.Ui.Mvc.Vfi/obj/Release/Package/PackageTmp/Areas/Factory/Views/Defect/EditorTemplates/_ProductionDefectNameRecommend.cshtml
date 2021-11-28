@@ -1,0 +1,10 @@
+﻿@{
+    Html.Telerik().AutoComplete()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductionDefectNameRecommend", "Defect"))
+       // .HtmlAttributes(new { style = "width: 250px" })
+        .DropDownHtmlAttributes(new { style = "width: 300px" })
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .Render(); 
+}

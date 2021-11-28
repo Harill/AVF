@@ -1,0 +1,60 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "Currency Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<script type="text/javascript">
+    function gridCurrency_onEdit(e) {
+        //var dataItem = e.dataItem;
+        var mode = e.mode;
+        var form = e.form;
+
+        var currencyCode = $(form).find('#CurrencyCode');
+        if (mode == 'insert') {
+            currencyCode.attr("style", "color: blue;");
+        }
+        if (mode == 'edit') {
+            currencyCode.attr("readonly", "readonly");
+            currencyCode.attr("style", "color: red;");
+        }
+    }
+</script>
+}
+
+<div class="title">Quản lý thông tin loại tiền tệ</div>
+
+<div class="cover-div">
+
+@{
+    Html.Telerik().Grid<CurrencyModel>()
+        .Name("gridCurrency")
+        .DataKeys(key => key.Add(f => f.CurrencyCode).RouteKey("currencyCode"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectCurrency", "Currency")
+                .Insert("InsertCurrency", "Currency")
+                .Update("UpdateCurrency", "Currency"))
+        .Columns(columns => 
+        {
+            columns.Bound(f => f.CurrencyCode).Width(150);
+            columns.Bound(f => f.CurrencyName);
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(command => 
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+        })
+        .ClientEvents(events => events.OnEdit("gridCurrency_onEdit").OnError("grid_OnError"))
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Pageable(page => page.PageSize(15))
+        .Sortable()
+        .Render();
+}
+
+</div>

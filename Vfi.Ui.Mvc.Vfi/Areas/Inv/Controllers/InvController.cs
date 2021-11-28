@@ -877,7 +877,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (!lotNumber.ToLower().Equals("all")) {
                         productInvPeriods = productInvPeriods.Where(pip => pip.LotNumber.Equals(lotNumber)).ToList();
                     }
-                    if (!productInvPeriods.Any()) return model;
+                    //if (!productInvPeriods.Any()) return model;
+                    var inTimePeriods = productInvPeriods.Where(x => x.Date >= fromDate).ToList();
+
                     var importsProduction = (from sx in vfi.ImportFormSX1Detail
                                              where
                                                  sx.ProductId == productId &&
@@ -900,7 +902,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                     var warehouses = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
                     //
-                    var importsPeriod = productInvPeriods.Where(x => x.WarehouseReceiptId != null
+                    var importsPeriod = inTimePeriods.Where(x => x.WarehouseReceiptId != null
                                                                     && warehouses.Contains(x.WarehouseReceiptId.Value))
                                                         .ToList();
 
@@ -917,7 +919,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                            select p).ToList();
 
                     //
-                    var exportsPeriod = productInvPeriods.Where(x => x.WarehouseIssueId != null
+                    var exportsPeriod = inTimePeriods.Where(x => x.WarehouseIssueId != null
                                                                     && warehouses.Contains(x.WarehouseIssueId.Value))
                                                          .ToList();
                     var exports = (from p in exportsPeriod
@@ -963,8 +965,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     }).ToList();
                     var minDates = new List<DateTime>();
                     var maxDates = new List<DateTime>();
-                    minDates.Add(productInvPeriods.Where(x => x.Date >= fromDate).Min(x => x.Date));
-                    maxDates.Add(productInvPeriods.Where(x => x.Date >= fromDate).Max(x => x.Date));
+                    if (inTimePeriods.Any()) {
+                        minDates.Add(inTimePeriods.Min(x => x.Date));
+                        maxDates.Add(inTimePeriods.Max(x => x.Date));
+                    }
                     if (orderDetails.Any()) {
                         minDates.Add(orderDetails.Min(x => x.Date));
                         maxDates.Add(orderDetails.Max(x => x.Date));

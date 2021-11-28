@@ -1,0 +1,37 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "CustomerTypeManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Quản lý thông tin loại khách hàng</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<CustomerTypeModel>()
+        .Name("gridCustomerType")
+        .DataKeys(keys => keys.Add(f => f.CustomerTypeId).RouteKey("customerTypeId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectCustomerType","CustomerType").Insert("InsertCustomerType","CustomerType").Update("UpdateCustomerType","CustomerType")
+        )
+        .Columns(columns=>
+        {
+            columns.Bound(f => f.CustomerTypeName).Width(175);
+            columns.Bound(f => f.Note);
+            columns.Bound(f => f.Active).Width(75)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText).HtmlAttributes(new { text = "Sửa"})
+            ).Width(98).Title("Lệnh").HtmlAttributes(new { style = "text-align:center" });
+        })
+        .ClientEvents(e=> e.OnError("grid_OnError"))
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Render();  
+}
+</div>

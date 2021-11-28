@@ -1,0 +1,111 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "StockOrder Material Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<script type="text/javascript">
+    function gridStockOrder_onDataBinding(args) {
+        var statusValue = $("#stockOrderStatus").data("tComboBox").value();
+
+        if (statusValue === "")
+            statusValue = 0;
+        
+        args.data = $.extend({}, args.data, { status: statusValue ,mop : true });
+    }
+</script>
+
+}
+<div class="title">Quản lý hồ sơ thông tin lệnh về nguyên liệu</div>
+
+@{
+                    Html.Telerik().ComboBox()
+                        .Name("stockOrderStatus")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxStockOrderStatus", "StockOrder"))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .ClientEvents(events => events.OnChange("stockOrderStatus_onChange"))
+                        .Render();
+                }
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<StockOrderModel>()
+        .Name("gridStockOrder")
+        .DataKeys(keys => keys.Add(f => f.StockOrderId).RouteKey("stockOrderId"))
+        .ToolBar(bar => bar.Template(
+            @<text>
+            <div class="grid_7">
+                
+            </div>
+            <div class="clear"></div>
+            </text>
+            ))
+        .DataBinding(dataBindings=>dataBindings.Ajax()
+            .Select("SelectStockOrderByStatus", "StockOrder", new { status = (byte)StockOrderStatusEnumModel.Open , mop = true })
+        )
+        .Columns(columns=>
+                     {
+                         //columns.Bound(f => f.StockOrderId).Title("Chọn").Width(75)
+                         //    .ClientTemplate("<input type='checkbox' name='chkStockOrderIds' value='<#= StockOrderId #>' />")
+                         //    .HtmlAttributes(new { style = "text-align:center" });
+                         columns.Bound(f => f.StockOrderCode);
+                         columns.Bound(f => f.WarehouseIssueName);
+                         columns.Bound(f => f.WarehouseReceiptName);
+                         //columns.Bound(f => f.EoI).ClientTemplate("<#= EoI ? 'Nhập' : 'Xuất' #>");
+                         columns.Bound(f => f.EoIName);
+                         columns.Bound(f => f.StatusName);
+                         columns.Bound(f => f.CreatedUser);
+                         columns.Bound(f => f.CreatedDate)
+                             .ClientTemplate("<#= CreatedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', CreatedDate) #>");
+                         columns.Bound(f => f.Active).Width(75)
+                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                            .HtmlAttributes(new { style = "text-align:center" });
+                     })
+        .DetailView(details => details.ClientTemplate(
+
+            Html.Telerik().TabStrip()
+            .Name("TabStrip_<#= StockOrderId #>")
+            .SelectedIndex(0)
+            .Items(items =>
+
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<StockOrderDetailModel>()
+                                    .Name("gridStockOrderDetail_<#= StockOrderId #>")
+                                    .DataBinding(dataDindings => dataDindings.Ajax()
+                                                    .Select("SelectStockOrderDetailByStockOrderId", "StockOrder",
+                                                    new { stockOrderId = "<#= StockOrderId #>" }))
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(f => f.MaterialCodeName);
+                                        columns.Bound(f => f.Quantity).Width(98)
+                                            .HtmlAttributes(new { style = "text-align: right;" })
+                                            .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n}', Quantity) #>");
+                                        columns.Bound(f => f.UnitMeasure);
+                                        //columns.Bound(f => f.UnitPrice).Width(125)
+                                        //    .HtmlAttributes(new { style = "text-align: right;" })
+                                        //    .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>");
+                                        //columns.Bound(f => f.LineTotal).Width(175)
+                                        //    .HtmlAttributes(new { style = "text-align: right;" })
+                                        //    .FooterHtmlAttributes(new { style = "text-align: right;" })
+                                        //    .Aggregate(f => f.Sum())
+                                        //    .ClientFooterTemplate("<strong>Tổng tiền: </strong><label style='color:maroon'><#= Sum == null ? 0 : $.telerik.formatString('{0:n}', Sum) #></label>")
+                                        //    .ClientTemplate("<#= LineTotal == null ? 0 : $.telerik.formatString('{0:n}', LineTotal) #>");
+                                    })
+                                    .ToHtmlString()
+
+                                )
+                       )
+            .ToHtmlString()
+        ))
+        .Selectable()
+        .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect").OnDataBinding("gridStockOrder_onDataBinding"))
+        .Filterable()
+        .Render();
+}
+</div>

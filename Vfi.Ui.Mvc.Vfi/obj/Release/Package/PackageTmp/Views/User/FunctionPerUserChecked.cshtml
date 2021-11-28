@@ -1,0 +1,29 @@
+﻿@inherits WebViewPage<IEnumerable<Vfi.Server.Core.DataModel.Models.System.FunctionModel>>
+
+@{
+    Html.Telerik().Grid(Model)
+        .Name("GridFunction")
+        .DataKeys(key => key.Add(u => u.FunctionId))
+        //gridFunction.DataBinding(dataBindings => dataBindings.Ajax()
+        //                                        .Select("SelectFunction", "Function"));
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.FunctionName).Title("Name");
+            columns.Bound(f => f.FunctionCode).Title("Name");
+                                 columns
+                                    .Template
+                                    ( 
+                                    @<text>
+                                        <input type='checkbox' name='IsUserFunction'   value="@item.FunctionId" 
+                                            @if (item.IsUserFunction){                            
+                                                <text>checked="checked"</text>                        
+                                            }
+                                        />
+                                    </text>
+                                    )
+                                    .Title("Tick").Width(35).HtmlAttributes(new {style = "text-align: center"});
+                             })
+        .Footer(false)
+        .Sortable(f => f.Enabled(false))
+        .Render();
+}

@@ -1,0 +1,550 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Product Quotation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+  
+    <script type="text/javascript">
+        function customer_onChange(e) {
+            //$("#Customer").data('tComboBox').value(e.text());
+            RefreshGrid("gridProductQuotationDetail");
+        }
+
+        function grid_OnDataBinding(args) {
+            var type = $('#Type').data('tDropDownList').value();
+            var exchangeRate = $("#ExchangeRate").val();
+            if (type == 1) {
+
+                var customerId = $("#FilterProduct").data('tComboBox').value();
+                if (customerId == 0) {
+                    customerId = 0;
+                }
+                args.data = $.extend(args.data, {
+                    customerId: customerId,
+                    quoteId: 0,
+                    exchangeRate: exchangeRate
+                });
+            } else {
+                var quoteId = $("#QuoteNumber").data('tComboBox').value();
+                if (quoteId == 0) {
+                    quoteId = 0;
+                }
+                args.data = $.extend(args.data, {
+                    customerId: 0,
+                    quoteId: quoteId,
+                    exchangeRate: exchangeRate
+                });
+            }
+           
+
+        }
+
+        function grid_OnSubmitChanges(e) {
+
+            var flag = InputValidation();
+
+            if (flag == false)
+                e.preventDefault();
+            else {
+                var customerId = $("#Customer").data('tComboBox').value();
+                if (customerId == 0) {
+                    customerId = 0;
+                }
+                var quoteId = $("#QuoteNumber").data('tComboBox').value();
+                if (quoteId == 0) {
+                    quoteId = 0;
+                }
+                var quoteDate = $("#QuoteDate").data("tDatePicker").value();
+                if (quoteDate === null)
+                    quoteDate = "";
+                else
+                    quoteDate = $.telerik.formatString('{0:dd/MM/yyyy}', quoteDate);
+                var endDate = $("#EndDate").data("tDatePicker").value();
+                if (endDate === null)
+                    endDate = "";
+                else
+                    endDate = $.telerik.formatString('{0:dd/MM/yyyy}', endDate);
+
+                var deliveryTerm = $('#DeliveryTerm').data('tDropDownList').value();
+                var employee = $('#EmployeeName').data('tDropDownList').value();
+                var paymentMethod = $('#PaymentMethod').data('tDropDownList').value();
+                var deliveryPeriod = $('#DeliveryPeriod').data('tDropDownList').value();
+                var paymentCondition = $('#PaymentCondition').data('tDropDownList').value();
+                var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+                var note = $('#Note').val();
+                var portName = $('#PortName').data('tAutoComplete').value();
+                var exchangeRate = $("#ExchangeRate").val();
+                var $checkedRecords = $(':checked');
+                //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+                if ($checkedRecords.length < 1) {
+                    alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                    return;
+                }
+
+                //$.ajaxSettings.traditional = false;
+                var a = {};
+                var ids = "";
+                //var $b = (a);
+
+                for (var i = 0; i < $checkedRecords.length; i++) {
+                    a[i] = $checkedRecords[i].value;
+
+                    ids += $checkedRecords[i].value;
+                    if (i < ($checkedRecords.length - 1))
+                        ids += ":";
+                }
+
+                e.values = $.extend(e.values,
+                    {
+                        customerId: customerId,
+                        quoteId: quoteId,
+                        productIds: ids,
+                        salesPersonId: employee,
+                        quoteDate: quoteDate,
+                        endDate: endDate,
+                        deliveryTerm: deliveryTerm,
+                        portName: portName,
+                        paymentMethod: paymentMethod,
+                        deliveryPeriod: deliveryPeriod,
+                        paymentCondition: paymentCondition,
+                        currencyCode: currencyCode,
+                        exchangeRate: exchangeRate,
+                        note: note
+                    }
+                );
+            }
+        }
+
+        function InputValidation() {
+            var strMsgAlert = "";
+
+            var customerId = $("#Customer").data('tComboBox').value();
+            if (customerId == 0) {
+                strMsgAlert += "Vui lòng chọn khách hàng.\t\r\n";
+            }
+            var employeeName = $('#EmployeeName').data('tDropDownList').value();
+            if (employeeName === "") {
+                strMsgAlert += "Vui lòng chọn nhân viên bán.\t\r\n";
+            }
+            var deliveryTerm = $('#DeliveryTerm').data('tDropDownList').value();
+            if (deliveryTerm === "") {
+                strMsgAlert += "Vui lòng chọn phương thức vận chuyển.\t\r\n";
+            }
+            var portName = $('#PortName').data('tAutoComplete').value();
+            if (portName === "") {
+                strMsgAlert += "Vui lòng chọn cảng vận chuyển.\t\r\n";
+            }
+            var paymentMethod = $('#PaymentMethod').data('tDropDownList').value();
+            if (paymentMethod === "") {
+                strMsgAlert += "Vui lòng chọn phương thức thanh toán.\t\r\n";
+            }
+            var deliveryPeriod = $('#DeliveryPeriod').data('tDropDownList').value();
+            if (deliveryPeriod === "") {
+                strMsgAlert += "Vui lòng chọn thời hạn giao hàng.\t\r\n";
+            }
+            var paymentCondition = $('#PaymentCondition').data('tDropDownList').value();
+            if (paymentCondition === "") {
+                strMsgAlert += "Vui lòng chọn điều kiện thanh toán.\t\r\n";
+            }
+            var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+            if (currencyCode === "USD") {
+                if ($("#ExchangeRate").val() == 1)
+                    strMsgAlert += "Tiền tệ USD phải ghi rõ tỉ giá\t\r\n";
+            }
+            if (strMsgAlert === "")
+                return true;
+            alert(strMsgAlert);
+            return false;
+        }
+
+        function gridPlatingDetail_onSave(e) {
+            @*var $productCode = $(e.cell).find('#ProductCode');
+
+            if ($productCode.length > 0) {
+                var productCode = $productCode.data("tComboBox"),
+                    productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+                if (productCodeSelectItem) {
+                    e.values["ProductCode"] = productCodeSelectItem.Text;
+                    e.values["ProductId"] = productCodeSelectItem.Value;
+
+                    $.ajax({
+                        type: 'post',
+                        data: { productId: productCodeSelectItem.Value },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductPlatingCode", "Product",new{area=""})',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm ! Liên hệ admin");
+                            } else if (data == '8') {
+                                alert("Lỗi! Sản phẩm không có xi mạ ! Liên hệ admin");
+                            } else if (data == '0') {
+                                alert("Lỗi!");
+                            } else {
+                                e.cell.parentElement.getElementsByClassName("PlatingCode")[0].textContent = 0;
+                            }
+                        }
+                    });
+                }
+            }*@
+        }
+        function grid_OnEdit(e) {
+
+            var dataItem = e.dataItem;
+            var mode = e.mode;
+            var form = e.form;
+            if (mode == 'insert') {
+
+            }
+            if (mode == 'edit') {
+                var materialUnitPrice = $(form).find("#MaterialUnitPrice").data("tTextBox");
+                if (materialUnitPrice != null) {
+                    dataItem.MaterialUnitPrice = dataItem.ProductWeight / 1000 * dataItem.MaterialPrice;
+                    materialUnitPrice.value(dataItem.MaterialUnitPrice);
+                }
+                var quotationCost = $(form).find("#QuotationCost").data("tTextBox");
+                if (quotationCost != null) {
+                    dataItem.QuotationCost = dataItem.ProcessingPrice + dataItem.MaterialUnitPrice + dataItem.LastDiff;
+                    quotationCost.value(dataItem.QuotationCost);
+                }
+                //e.cell.parentElement.getElementsByClassName("QuotationCost")[0].textContent = dataItem.QuotationCost;
+            }
+
+        }
+
+        function Type_OnLoad() {
+            var combobox = $('#Type').data('tDropDownList');
+            var dataSource =
+            [
+                { Text: "Báo giá mới", Value: "1" },
+                { Text: "Báo giá lại", Value: "2" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+        function Type_OnChange() {
+            var type = $('#Type').data('tDropDownList').value();
+            var quote = $('#QuoteNumber').data('tComboBox');
+            if (type == 1) {
+                quote.dataBind(null);
+                document.getElementById('cboQuoteNumber').hidden = true;
+                $("#Customer").data("tComboBox").$text[0].disabled = false;
+                $("#FilterProduct").data("tComboBox").$text[0].disabled = false;
+            } else
+            { //var monthlyDate = combobox.text();
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("SelectReQuotation", "SalesOrder", new {area = "Sales"})',
+                    timeout: 20000,
+                    success: function (data) {
+                        //$('#Invoice').data('tConbobox').dataBind(data);
+                        quote.dataBind(data);
+                    }
+                });
+                document.getElementById('cboQuoteNumber').hidden = false;
+                $("#Customer").data("tComboBox").$text[0].disabled = true;
+                $("#FilterProduct").data("tComboBox").$text[0].disabled = true;
+            }
+        }
+
+        function Quote_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { quoteId: e.value },
+                dataType: 'json',
+                url: '@Url.Action("SelectReQuotationInfo", "SalesOrder", new {area = "Sales"})',
+                timeout: 20000,
+                success: function(data) {
+                    var quotation = data;
+                    $('#Note').val(quotation.Note);
+                    $('#PortName').data('tAutoComplete').value(quotation.PortName);
+                    $("#ExchangeRate").val(quotation.ExchangeRate);
+                    $("#ExchangeRate").data("tTextBox").$text[0].innerHTML = quotation.ExchangeRate;
+
+                    $("#CurrencyCode").val(quotation.CurrencyCode);
+                    $("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = quotation.CurrencyCode;
+                    $("#DeliveryTerm").val(quotation.DeliveryTermId);
+                    $("#DeliveryTerm").data("tDropDownList").$text[0].innerHTML = quotation.DeliveryTermName;
+                    $("#PaymentMethod").val(quotation.PaymentMethodId);
+                    $("#PaymentMethod").data("tDropDownList").$text[0].innerHTML = quotation.PaymentMethodName;
+                    $("#DeliveryPeriod").val(quotation.DeliveryPeriod);
+                    $("#DeliveryPeriod").data("tDropDownList").$text[0].innerHTML = quotation.DeliveryPeriodName;
+                    $("#PaymentCondition").val(quotation.PaymentCondition);
+                    $("#PaymentCondition").data("tDropDownList").$text[0].innerHTML = quotation.PaymentConditionName;
+                    $("#Customer").val(quotation.CustomerId);
+                    $("#Customer").data("tComboBox").$text[0].innerHTML = quotation.CustomerCodeName;
+                    $("#Customer").data("tComboBox").$text[0].value = quotation.CustomerCodeName;
+                    $("#FilterProduct").val(quotation.FilterProduct);
+                    $("#FilterProduct").data("tComboBox").$text[0].innerHTML = quotation.FilterProductCode;
+                    $("#FilterProduct").data("tComboBox").$text[0].value = quotation.CustomerCodeName;
+                    RefreshGrid("gridProductQuotationDetail");
+                }
+            });
+        }
+    </script>
+
+}
+
+<div class="title">Phiếu báo giá</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px;">
+     <div class="grid_2">Hình thức:</div>
+    <div class="grid_3">
+        @{
+            Html.Telerik().DropDownList()
+                .Name("Type")
+                //.DataBinding(binding => binding.Ajax().Select("SelectOrderApprovedDueDate", "Orders", new { area = "Sales" }))
+                .HtmlAttributes(new { style = "width: 100px" })
+                .DropDownHtmlAttributes(new { style = "width: 150px" })
+                .ClientEvents(events => events.OnLoad("Type_OnLoad").OnChange("Type_OnChange"))
+                .Render();
+        }
+    </div>
+    <div id="cboQuoteNumber" hidden>
+                
+        <div class="grid_2">Mã lệnh:</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("QuoteNumber")
+                    //.DataBinding(binding => binding.Ajax().Select("SelectOrderApprovedDueDate", "Orders", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .ClientEvents(events => events.OnChange("Quote_OnChange"))
+                    .AutoFill(true)
+                    .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+    </div>
+    <div class="clear" style ="margin-bottom: 10px"></div>
+    <fieldset >
+        <legend>Thông tin phiếu lệnh nhập</legend>
+        <div class="grid_3">Lọc SP:</div>
+        <div class="grid_9">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("FilterProduct")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 250px" })
+                    .DropDownHtmlAttributes(new { style = "width: 325px" })
+                    .ClientEvents(events => events.OnChange("customer_onChange"))
+                    .AutoFill(true)
+                    .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">Khách hàng:</div>
+        <div class="grid_8">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Customer")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 250px" })
+                    .DropDownHtmlAttributes(new { style = "width: 325px" })
+                    //.ClientEvents(events => events.OnChange("customer_onChange"))
+                    .AutoFill(true)
+                    .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        
+       
+        <div class="clear" style ="margin-bottom: 10px"></div>
+        <div class="grid_5">Nhân viên bán</div> 
+        <div class="grid_4">Tiền tệ</div>
+        <div class="grid_4">Tỉ giá</div>
+        <div class="grid_6 push_1">Ghi Chú</div>  
+        <div class="grid_3 push_1">Ngày báo giá</div>
+        <div class="grid_3 push_1">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("QuoteDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            <div>
+                 @{
+                     Html.Telerik().DropDownList()
+                         .Name("EmployeeName")
+                         .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new {area = ""}))
+                         .HtmlAttributes(new {style = "width: 110px"})
+                         .DropDownHtmlAttributes(new {style = "width: 250px"})
+                         .Render();
+                 }
+            </div> 
+            <div>1. Giá không bao gồm 10% VAT</div> 
+
+        </div>
+        <div class="grid_4">
+            <div>
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("CurrencyCode")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new {style = "width: 200px"})
+                        .Render();
+                }</div>
+            
+        </div>
+        <div class="grid_4">
+           
+            <div>
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("ExchangeRate")
+                        .Value(1)
+                        .MinValue(1)
+                        .DecimalDigits(0)
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .InputHtmlAttributes(new { style = "width: 100%" })
+                         
+                        .Render();
+                }
+                
+            </div>
+        </div>
+        <div class="grid_6 push_1">@(Html.TextArea("Note",new{style="width:200px"}))</div>  
+        <div class="grid_3 push_1">Ngày hết hạn</div>
+        <div class="grid_3 push_1">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("EndDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today.AddMonths(3))
+                    .Render();
+            }
+         
+        </div>
+
+        <div class="clear" style ="margin-bottom: 10px"></div>
+        <div class="grid_5">2.Hình thức vận chuyển</div>  
+        <div class="grid_3">Cảng</div>  
+        <div class="grid_6">3.Phương thức thanh toán</div>  
+        <div class="grid_6">4.Thời gian giao hàng</div> 
+        <div class="grid_6">5.Điều kiện thanh toán</div>
+       
+        <div class="clear"></div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("DeliveryTerm")
+                    .DataBinding(binding => binding.Ajax()
+                                                   .Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.DeliveryTerm, sale = true, buy = false }))
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .DropDownHtmlAttributes(new {style = "width: 250px;"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("PortName")
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .Render();
+            }
+        </div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("PaymentMethod")
+                    .DataBinding(binding => binding.Ajax()
+                                                   .Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.PaymentMethod, sale = true, buy = false }))
+                    .HtmlAttributes(new { style = "width: 200px" })
+                    .DropDownHtmlAttributes(new {style = "width: 250px;"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("DeliveryPeriod")
+                    .DataBinding(binding => binding.Ajax()
+                                                   .Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.DeliveryPeriod, sale = true, buy = false }))
+                    .HtmlAttributes(new { style = "width: 200px" })
+                    .DropDownHtmlAttributes(new {style = "width: 250px;"})
+                    .Render();
+            }
+        </div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("PaymentCondition")
+                    .DataBinding(binding => binding.Ajax()
+                                                   .Select("SelectComboBoxMethodByType", "Method", new { area = "", typeId = MethodEnumTypeId.PaymentCondition, sale = true, buy = false }))
+                    .HtmlAttributes(new { style = "width: 200px" })
+                    .DropDownHtmlAttributes(new {style = "width: 250px;"})
+                    .Render();
+            }
+        </div>  
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProductQuotationModel>()
+        .Name("gridProductQuotationDetail")
+        .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Tạo mẫu báo giá với SP đã chọn").CancelText("Làm mới"))
+        .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+        .DataBinding(dataBindings => dataBindings.Ajax()
+                                                 .Select("SelectQuotationProducts", "SalesOrder",
+                                                         new {customerId = 0})
+                                                 .Update("UpdateQuotationProductDetail", "SalesOrder")
+        )
+        .Columns(columns =>
+            {
+                columns.Bound(f => f.ProductId).Title("Chọn").Width(50).ReadOnly(true)
+                       .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductId #>' />")
+                       .HtmlAttributes(new {style = "text-align:center"});
+                //columns.Bound(f => f.CustomerCodeName).Width(100).Title("Khách hàng");
+                columns.Bound(f => f.ProductName).Width(100).Title("Tên SP").ReadOnly(true);
+                columns.Bound(f => f.ProductCustomerCode).Width(100).Title("Mã SP KH");
+                columns.Bound(f => f.Dimension).Width(75).Title("Quy cách").ReadOnly(true);
+                columns.Bound(f => f.ProductWeight).Width(100).Title("Trọng lượng").ReadOnly(true)
+                       .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>")
+                       .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.Quantity).Width(75).Title("SL đặt")
+                       .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #>");
+                columns.Bound(f => f.MaterialDesign).Width(100).Title("Nguyên liệu").ReadOnly(true);
+                columns.Bound(f => f.ProcessingPrice).Width(75).Title("Giá gia công").ReadOnly(true)
+                       .ClientTemplate("<#= ProcessingPrice == null ? 0 : $.telerik.formatString('{0:n4}', ProcessingPrice) #>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.MaterialPrice).Width(75).Title("Giá NL(kg)")
+                       .ClientTemplate("<#= MaterialPrice == null ? 0 : $.telerik.formatString('{0:n4}', MaterialPrice) #>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.MaterialUnitPrice).Width(75).Title("Giá NL(pc)")
+                       .ClientTemplate("<#= MaterialUnitPrice == null ? 0 : $.telerik.formatString('{0:n4}', MaterialUnitPrice) #>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.LastDiff).Width(75).Title("Điều chỉnh(+/-)")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                    
+                columns.Bound(f => f.QuotationCost).Width(75).Title("Giá báo(pc)")
+                       .ClientTemplate("<span name='QuotationCost' class='QuotationCost'><#= QuotationCost == null ? 0 : $.telerik.formatString('{0:n4}', QuotationCost) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Note).Width(75).Title("Ghi chú");  
+            })
+        .Editable(editing => editing.Mode(GridEditMode.InCell))
+        .Scrollable(f => f.Height("auto"))
+        .Scrollable(f => f.Height(300))
+        .Resizable(f => f.Columns(true))
+        //.Pageable(f => f.Style(GridPagerStyles.Status))
+        .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
+                                      .OnEdit("grid_OnEdit")
+                                      .OnSubmitChanges("grid_OnSubmitChanges")
+                                      .OnError("grid_OnError")
+        )
+        .Render();
+}
+</div>
+<div class="clear"></div><br/>

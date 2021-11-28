@@ -1,0 +1,156 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "KT SP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function gridProduct_OnDataBinding(args) {
+            var customer = $("#Customer").data("tComboBox").value();
+            if (customer === "")
+                customer = 0;
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+            args.data = $.extend(args.data,
+            {
+                customerId: customer,
+                productCode: productCodeName
+            });
+        }
+
+        function MakeChangeInventory(productId, warehouseId) {
+
+            $.ajax({
+                type: 'post',
+                data: { productId: productId, warehouseId: warehouseId },
+                dataType: 'json',
+                url: '@Url.Action("MakeProductChangeInventory", "User", new {area = ""})',
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 9)
+                        alert("Lỗi không tìm thấy period !");
+                    else if (data == 8)
+                        alert("Lỗi vui lòng thêm tồn kho period (nhập thêm trước) !");
+                    else {
+                        alert(data);
+                        RefreshGrid("gridProduct");
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+}
+<div class="title">Quản lý thông tin sản phẩm</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+
+            <div class="grid_1">
+                Mã KH
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        //.ClientEvents(events => events.OnChange("customer_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 150px; " })
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Value("")
+                        //.ClientEvents(events => events.OnClose("ProductCodeName_OnClose"))
+                        .Render();
+                }
+            </div>
+            <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ProductInventoryModel>()
+            .Name("gridProduct")
+            .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+            .DataKeys(key => key.Add(f => f.WarehouseId).RouteKey("warehouseId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectTestingProductInv", "User", new { area = "", customerId = -1, productCode = "" }))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.CustomerCode).Width(100).ReadOnly(true).Title("Khách hàng");
+                    columns.Bound(f => f.ProductCode).Width(150).ReadOnly(true).Title("Sản phẩm");
+                    columns.Bound(f => f.WarehouseName).Width(150).ReadOnly(true).Title("Kho");
+                    columns.Bound(f => f.TotalQty).Width(70)
+                           .HeaderTemplate("Tồn kho thực tế")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.ProductId).Title("Thay đổi tồn TT").Width(50)
+                           .ClientTemplate("<input type='button' id='id_<#= ProductId #>_<#= WarehouseId #>' value='Make' class='t-button' onclick='MakeChangeInventory( <#= ProductId #> , <#= WarehouseId #> )' />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.AvailableQty).Width(70)
+                           .HeaderTemplate("Tồn kho (period)")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.Quantity).Width(70)
+                           .HeaderTemplate("Chênh lệch (TK - Period)")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                })
+                .DetailView(details => details.ClientTemplate(
+                    Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ProductInventoryPeriodModel>()
+                        .Name("gridDetail_<#= ProductId #>_<#= WarehouseId #>")
+                        .DataKeys(key => key.Add(f => f.ProductInventoryPeriodId).RouteKey("periodId"))
+                        .DataBinding(dataDindings => dataDindings.Ajax()
+                                    .Select("SelectTestingProductInvDetail", "User",
+                                            new { area = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
+                                          .Delete("DeleteDuplicatePeriod", "User", new { area = "" }))
+                        .Columns(columns => {
+                            columns.Bound(f => f.ProductInventoryPeriodId).Title("Id").Width(50);
+                            columns.Bound(f => f.Date).Title("Ngày").Width(80)
+                                    .Format("{0:dd/MM/yyyy}");
+                            columns.Bound(f => f.TransactionNumber).Title("Mã giao dịch").Width(100);
+                            columns.Bound(f => f.Early).Width(75).Title("Số đầu");
+                            columns.Bound(f => f.Period).Width(75).Title("Số lượng chuyển");
+                            columns.Bound(f => f.Last).Width(75).Title("Số cuối");
+                            columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
+                                   .Width(50).Title("Xoá").HtmlAttributes(new { style = "text-align:center;color:red" });
+                        })
+                        .ClientEvents(events => events.OnError("grid_OnError"))
+                        .ToHtmlString()
+                    )
+            )
+            .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
+                                          .OnError("grid_OnError"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

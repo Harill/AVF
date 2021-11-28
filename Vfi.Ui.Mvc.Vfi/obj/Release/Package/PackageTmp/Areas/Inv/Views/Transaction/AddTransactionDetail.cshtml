@@ -1,0 +1,159 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model ExportFormTP_KD
+@{
+    ViewBag.Title = "Phân phiếu xuất kho";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function transaction_OnChange() {
+            RefreshGrid("grid");
+        }
+
+        var index = 0;
+
+        function grid_OnDataBinding(args) {
+            var id = $("#Transaction").data('tComboBox').value();
+            if (id === "")
+                id = 0;
+            args.data = $.extend(args.data,
+            {
+                transactionId: id
+            });
+            index = 0;
+        }
+
+        function grid_OnSave(e) {
+
+            var quanlity = $(e.cell).find('#Quantity').val();
+            if (!isNaN(parseInt(quanlity))) {
+
+                var sumQuality = 0;
+                var spanRequests = $("span[name='Quantity']");
+                for (var i = 0; i < spanRequests.length; i++) {
+                    var innerText = spanRequests[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumQuality = sumQuality + parseInt(innerText);
+                }
+                sumQuality = sumQuality + parseInt(quanlity);
+                $("#TotalQty").text(sumQuality);
+            }
+
+        }
+
+        function AddDefault() {
+
+            if (confirm("Đồng ý lưu mặc định")) {
+                $.post('@Url.Action("TransactionProductSaveDefault", "Transaction")',
+                    {},
+                    function(data) {
+                        RefreshCombobox("Transaction");
+                        RefreshGrid("grid");
+                        alert(data);
+                    });
+            }
+            return false;
+        }
+
+        function grid_OnRowDataBound(e) {
+            var dataItem = e.dataItem;
+            if (dataItem.Status === 1)
+                e.row.childNodes[6].style.backgroundColor = "#F4FA58";
+        }
+    </script>
+
+}
+
+<div class="title">Phân đơn hàng xuất kho</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu xuất</legend>
+        <div class="grid_3">Số phiếu</div>
+        <div class="grid_6">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Transaction")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboboxTransactionProcessing", "Transaction", new { area = "Inv" }))
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .DropDownHtmlAttributes(new { style = "width: 200%" })
+                    .ClientEvents(events => events.OnChange("transaction_OnChange"))
+                    .Render();
+            }
+        </div>
+        <button class="t-button" id="btnRefresh" name="btnPickupMaterialId" onclick=" RefreshCombobox('Transaction') ">
+            <span class='t-icon t-refresh'></span>
+        </button>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionProductModel>()
+            .Name("grid")
+            .ToolBar(bar =>
+                {
+                    bar.Custom().ButtonType(GridButtonType.Text).Text("Lưu mặc định").Name("A")
+                       .HtmlAttributes(new { onclick = "AddDefault()", href = "#" });
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu thay đổi").CancelText("Huỷ tất cả");
+                })
+            .DataKeys(keys => keys.Add(f => f.ProductInvId).RouteKey("productInvId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectProductLot", "Transaction", new { area = "Inv", transactionId = 0 })
+     .Update("UpdateAddTransactionDetail", "Transaction", new { area = "Inv" }))
+            .Columns(columns =>
+            {
+                columns.Bound(f => f.ProductId).Width(30)
+                    .ClientTemplate("<#= ++index #>")
+                    .HeaderTemplate("<strong>STT</strong>");
+                columns.Bound(f => f.ProductCode).Width(120).ReadOnly(true)
+                    .Aggregate(agg => agg.Count())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                columns.Bound(f => f.ProductInvLot).Width(100).Title("Lô").ReadOnly(true);
+                columns.Bound(f => f.ProductWeight).Width(70).ReadOnly(true)
+                    .HeaderTemplate("TL sản phẩm</br>(g/pc)")
+                    .Format("{0:n3}")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.ProductInvQuantity).ReadOnly(true).Width(70)
+                    .HeaderTemplate("Tồn kho</br>(pcs)")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.TransactionProductQuantity).ReadOnly(true).Width(70)
+                    .HeaderTemplate("SL cần</br>(pcs)")
+                    .ClientTemplate("<#= TransactionProductQuantity == 0 ? '' : $.telerik.formatString('{0:n0}', TransactionProductQuantity) #>")
+                    .Aggregate(agg => agg.Sum())
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.ProductInvAvailable).ReadOnly(true).Width(70)
+                    .HeaderTemplate("Có thể</br>chuyển (pcs)")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.Quantity).Width(70).HeaderTemplate("SL xuất</br>(pcs)")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new {style = "text-align: right;"})
+                    .Aggregate(agg => agg.Sum())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.Note).Title("Ghi chú");
+            })
+            .Resizable(f => f.Columns(true))
+            .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
+                .OnRowDataBound("grid_OnRowDataBound")
+                .OnSave("grid_OnSave")
+                .OnError("grid_OnError"))
+                .Groupable(group => group.Groups(g => g.Add(model => model.ProductCode)))
+            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

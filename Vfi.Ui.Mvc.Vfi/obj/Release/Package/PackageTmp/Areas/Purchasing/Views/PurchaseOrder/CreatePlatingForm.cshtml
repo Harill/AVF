@@ -1,0 +1,331 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@{
+    ViewBag.Title = "Tạo Phiếu GCN";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <script type="text/javascript">
+        function gridPlatingDetail_onEdit(e) {
+
+            //if (e.mode == 'insert') {
+
+            //}
+            //if (e.mode == 'edit') {
+            //    var exportDate = e.dataItem['ExportDateRequirement'];
+            //    if (exportDate === null)
+            //        exportDate = $.telerik.formatString('{0:dd/MM/yyyy}', new Date());
+            //    else
+            //        exportDate = $.telerik.formatString('{0:dd/MM/yyyy}', exportDate);
+            //    e.dataItem['ExportDateRequirement'] = exportDate;
+            //    var importDate = e.dataItem['ImportDateRequirement'];
+            //    if (importDate === null)
+            //        importDate = $.telerik.formatString('{0:dd/MM/yyyy}', new Date());
+            //    else
+            //        importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+            //    e.dataItem['ImportDateRequirement'] = importDate;
+            //}
+        }
+
+        var productId = 0;
+
+        function gridPlatingDetail_onSave(e) {
+            var $productCode = $(e.cell).find('#ProductCode');
+            var $platingCode = $(e.cell).find('#PlatingCode');
+            var $exportDate = $(e.cell).find('#ExportDateRequirement');
+            var $importDate = $(e.cell).find('#ImportDateRequirement');
+
+            if ($productCode.length > 0) {
+                var productCode = $productCode.data("tComboBox"),
+                    productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+                if (productCodeSelectItem) {
+                    e.values["ProductCode"] = productCodeSelectItem.Text;
+                    e.values["ProductId"] = productCodeSelectItem.Value;
+                    productId = productCodeSelectItem.Value;
+                    $.ajax({
+                        type: 'post',
+                        data: { productId: productCodeSelectItem.Value },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductPlatingCode", "Product",new{area=""})',
+                        timeout: 20000,
+                        success: function(data) {
+                            if (data === '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm ! Liên hệ admin");
+                            } else if (data === '8') {
+                                alert("Lỗi! Sản phẩm không có xi mạ ! Liên hệ admin");
+                            } else if (data === '0') {
+                                alert("Lỗi!");
+                            } else {
+                                e.cell.parentElement.childNodes[1].textContent = data[1];
+                                e.dataItem.PlatingId = data[0];
+                                e.dataItem.PlatingCode = data[1];
+                                e.cell.parentElement.childNodes[2].textContent = data[2];
+                                e.dataItem.Thickness = data[2];
+                                e.cell.parentElement.childNodes[3].textContent = data[3];
+                                e.dataItem.SaltSprayTime = data[3];
+                                e.cell.parentElement.childNodes[4].textContent = data[4];
+                                e.dataItem.SpecialRequest = data[4];
+                                e.cell.parentElement.childNodes[5].textContent = data[5];
+                                e.dataItem.Sample = data[5];
+                                e.cell.parentElement.childNodes[6].textContent = data[6];
+                                e.dataItem.TestingEquipment = data[6];
+                                e.cell.parentElement.childNodes[7].textContent = data[7];
+                                e.dataItem.Unit = data[7];
+                                e.cell.parentElement.childNodes[8].textContent = data[8];
+                                e.dataItem.UnitPrice = data[8];
+                            }
+                        }
+                    });
+                }
+            } else if ($platingCode.length > 0) {
+                var platingCode = $platingCode.data("tComboBox"),
+                    platingCodeSelectItem = platingCode.selectedIndex > -1 ? platingCode.data[platingCode.selectedIndex] : null;
+
+                if (platingCodeSelectItem) {
+                    e.values["PlatingCode"] = platingCodeSelectItem.Text;
+                    e.values["PlatingId"] = platingCodeSelectItem.Value;
+                    $.ajax({
+                        type: 'post',
+                        data: { platingId: platingCodeSelectItem.Value },
+                        dataType: 'json',
+                        url: '@Url.Action("GetPlatingInfo", "PurchaseOrder",new{area="Purchasing"})',
+                        timeout: 20000,
+                        success: function(data) {
+                            if (data === '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm ! Liên hệ admin");
+                            } else if (data === '8') {
+                                alert("Lỗi! Sản phẩm không có xi mạ ! Liên hệ admin");
+                            } else if (data === '0') {
+                                alert("Lỗi!");
+                            } else {
+                                e.cell.parentElement.childNodes[2].textContent = data[2];
+                                e.dataItem.Thickness = data[2];
+                                e.cell.parentElement.childNodes[3].textContent = data[3];
+                                e.dataItem.SaltSprayTime = data[3];
+                                e.cell.parentElement.childNodes[4].textContent = data[4];
+                                e.dataItem.SpecialRequest = data[4];
+                                e.cell.parentElement.childNodes[5].textContent = data[5];
+                                e.dataItem.Sample = data[5];
+                                e.cell.parentElement.childNodes[6].textContent = data[6];
+                                e.dataItem.TestingEquipment = data[6];
+                                e.cell.parentElement.childNodes[7].textContent = data[7];
+                                e.dataItem.Unit = data[7];
+                                e.cell.parentElement.childNodes[8].textContent = data[8];
+                                e.dataItem.UnitPrice = data[8];
+                            }
+                        }
+                    });
+
+                }
+            } else if ($exportDate.length > 0) {
+                e.values["ExportDate"] = $exportDate.data("tDatePicker").value();
+            } else if ($importDate.length > 0) {
+                e.values["ImportDate"] = $importDate.data("tDatePicker").value();
+            }
+        }
+
+
+        function gridPlatingDetail_onSubmitChanges(e) {
+
+            var flag = InputValidation();
+
+            if (!flag)
+                e.preventDefault();
+            else {
+
+                // var shipDate = $("#ShipDate").data("tDatePicker").value();
+
+                var vendorCodeName = $('#VendorCodeName').data('tDropDownList').value();
+                var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+                var platingType = $('#PlatingType').data('tDropDownList').value();
+                var exchangeRate = $("#ExchangeRate").val();
+                var note = $('#Note').val();
+
+                e.values = $.extend(e.values,
+                    {
+                        shipDate: "",
+                        vendorId: vendorCodeName,
+                        platingType:platingType,
+                        exchangeRate: exchangeRate,
+                        currencyCode:currencyCode,
+                        note: note
+                    }
+                );
+            }
+        }
+        function plating_OnDataBinding(e) {
+            //alert(e);
+            //var productId = e.currentTarget.value;
+            e.data = $.extend(e.data, {
+                productId: productId
+            });
+        }
+        function InputValidation() {
+            var strMsgAlert = "";
+
+            var vendorCodeName = $('#VendorCodeName').data('tDropDownList').value();
+           
+            var currencyCode = $('#CurrencyCode').data('tDropDownList').value();
+            var tolerance = $('#Tolerance').val();
+            if (vendorCodeName === "") {
+                strMsgAlert += "Vui lòng chọn nhà cung cấp.\t\r\n";
+            }
+            if (currencyCode === "") {
+                strMsgAlert += "Vui lòng chọn đơn vị tính.\t\r\n";
+            }
+            if (tolerance === "") {
+                strMsgAlert += "Vui lòng nhập dung sai.\t\r\n";
+            }
+
+            if (strMsgAlert === "")
+                return true;
+
+            alert(strMsgAlert);
+            return false;
+        }
+        function vendor_onChange() {
+            var vendorId = $(this).data('tDropDownList').value();
+
+            $.ajax({
+                type: 'post',
+                data: { vendorId: vendorId },
+                dataType: 'json',
+                url: '@Url.Action("GetPlatingInfoById", "PurchaseOrder")',
+                timeout: 20000,
+                success: function (data) {
+                    if (data === '9') {
+                        alert("Lỗi! Không tìm thấy khách hàng ! Liên hệ admin");
+                    } else if (data === '0') {
+                        alert("Lỗi!");
+                    } else {
+                        $("#PlatingType").data("tDropDownList").$text[0].innerHTML = data.PlatingTypeName;
+                        $("#PlatingType").val(data.PlatingType);
+                        $("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = data.CurrencyCodeName;
+                        $("#CurrencyCode").val(data.CurrencyCode);
+                        $("#ExchangeRate").val(data.ExchangeRate);
+                        $("#ExchangeRate").data("tTextBox").$text[0].innerHTML = data.ExchangeRate;
+                    }
+                }
+            });
+            return false;
+        }
+    </script>
+
+
+<div class="title">Tạo phiếu gia công ngoài</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu</legend>
+        
+        <div class="grid_5">Nhà cung cấp</div>
+        
+          <div class="grid_4">Loại gia công</div>
+          <div class="grid_4">Tiền tệ</div>
+        <div class="grid_2">Tỉ giá</div>
+        
+        <div class="grid_5">Ghi Chú</div>
+        <div class="clear"></div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("VendorCodeName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxPlatingVendor", "Vendor"))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(events => events.OnChange("vendor_onChange"))
+                    .Render();                                              
+            }
+        </div>
+           <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("PlatingType")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxPlatingType", "PurchaseOrder", new { area = "Purchasing" }))
+                    .DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .Render();
+            }
+        </div> 
+        <div class="grid_4">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("CurrencyCode")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new { area = "" }))
+                    .DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .SelectedIndex(3)
+                    .Render();
+            }
+        </div> 
+        <div class="grid_2">
+             @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("ExchangeRate")
+                        .Value(1)
+                        .MinValue(1)
+                        .DecimalDigits(0)
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .InputHtmlAttributes(new { style = "width: 100%" })
+                         
+                        .Render();
+                }
+            </div>
+        <div class="grid_5">@Html.TextArea("Note", new {@class = "multi-line"})</div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<PlatingDetailModel>()
+            .Name("gridPlatingDetail")
+            .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).Text("Lưu lại");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectPlatingDetail", "PurchaseOrder")
+                                                     .Update("CreatePlatingDetail", "PurchaseOrder")
+            )
+            .Columns(columns =>
+                {
+                    //columns.Bound(f => f.MaterialClassifiedName).Width(175);
+                    //columns.Bound(f => f.MaterialTypeName).Width(175);
+                    columns.Bound(f => f.ProductCode).Width(200).Title("Mã SP");
+                    columns.Bound(f => f.PlatingCode).Width(115).Title("Mã xi mạ");
+
+                    columns.Bound(f => f.Thickness).Width(100)
+                        .HeaderTemplate("Độ dày</br>(µm)");
+                    columns.Bound(f => f.SaltSprayTime).Width(100)
+                        .HeaderTemplate("Phun muối</br>(h)");
+                    columns.Bound(f => f.SpecialRequest).Width(100).Title("Yêu cầu");
+                    columns.Bound(f => f.Sample).Width(100).Title("Mẫu SP");
+                    columns.Bound(f => f.TestingEquipment).Width(100).Title("Thiết bị KT");
+
+                    columns.Bound(f => f.Unit).Width(90).Title("ĐVT");
+                    columns.Bound(f => f.UnitPrice).Width(115).Title("Đơn giá")
+                           .Format("{0:n}");
+                    columns.Bound(f => f.QuantityRequirement).Width(115).Title("SL")
+                           .Format("{0:n}");
+                    columns.Bound(f => f.ExportDateRequirement).Width(115).Title("Ngày xuất")
+                           .Format("{0:dd/MM/yyyy}");
+
+                    columns.Bound(f => f.ImportDateRequirement).Width(115).Title("Ngày giao")
+                           .Format("{0:dd/MM/yyyy}");
+                    columns.Bound(f => f.Note).Width(90).Title("Ghi chú");
+                    columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                })
+            .ClientEvents(events => events.OnEdit("gridPlatingDetail_onEdit")
+                                          .OnSave("gridPlatingDetail_onSave")
+                                          .OnSubmitChanges("gridPlatingDetail_onSubmitChanges")
+                                          .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            .Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

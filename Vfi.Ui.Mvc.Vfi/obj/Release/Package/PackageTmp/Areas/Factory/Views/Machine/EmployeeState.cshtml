@@ -1,0 +1,145 @@
+﻿@using Telerik.Web.Mvc.UI
+@model List<Vfi.Ui.Mvc.Vfi.Areas.Factory.Models.MachineRepairFormModel>
+    
+<style media="screen,print">
+    .element {
+    }
+    .isotope-item {
+        z-index: 2;
+    }
+    .isotope-hidden.isotope-item {
+        pointer-events: none;
+        z-index: 1;
+    }
+    .isotope,
+    .isotope .isotope-item {
+        -webkit-transition-duration: 0.8s;
+        -moz-transition-duration: 0.8s;
+        -ms-transition-duration: 0.8s;
+        -o-transition-duration: 0.8s;
+        transition-duration: 0.8s;
+    }
+    .isotope {
+        -webkit-transition-property: height, width;
+        -moz-transition-property: height, width;
+        -ms-transition-property: height, width;
+        -o-transition-property: height, width;
+        transition-property: height, width;
+    }
+    .isotope .isotope-item {
+        -webkit-transition-property: -webkit-transform, opacity;
+        -moz-transition-property:    -moz-transform, opacity;
+        -ms-transition-property:     -ms-transform, opacity;
+        -o-transition-property:      -o-transform, opacity;
+        transition-property:         transform, opacity;
+    }
+
+    .entity.machine {
+        background: #F00;
+        background: hsl( 0, 100%, 50%);
+    }
+    #revok1 {
+        background-size:cover;
+        background-position:center;
+    }
+    .entity * {margin: 0;}
+    .entity .name {
+        left: 0.5em;        bottom: 1.6em;        font-size: 1.05em;    }
+    .clickable .entity:hover {
+        cursor: pointer;
+        border: 1px aquamarine;
+    }    .clickable .entity:hover h3 {
+        text-shadow:0 0 10px white,0 0 10px white;
+    }    /*a:hover{
+        text-shadow:0 0 10px white,0 0 10px white;
+        font-size: 14px;
+    }*/    .clickable .entity:hover h1 {
+        text-shadow:0 0 5px white,0 0 5px white;
+        font-weight: bold;
+        font-size: 17px;
+    }
+    .clickable .entity:hover h2 {color: white;}
+
+    .entity {
+        /*width: 100%;*/
+        height: 60px;
+        margin: 5px;        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .entity.large{
+        /*width: 100%;*/
+        height: 210px;
+        z-index: 100;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .itemInfo {
+        width:100%;
+        display:block;
+    }
+    .itemLeft {
+        text-align: left;
+    }
+    .itemRight {
+        text-align: Right;
+    }
+    .column {
+        text-align: Right;
+    }
+</style>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>    <script type="text/javascript">
+        $(function() {
+            var $container = $("#container");
+            $container.isotope({
+                itemSelector: '.element',
+            });
+            $container.delegate('.element', 'click', function() {
+                $(this).toggleClass('large');
+                $container.isotope('reLayout');
+                //if (auto == false) {
+                //    auto = true;
+                //} else auto = false;
+                //SetAutoRefresh(auto);
+            });
+        });
+    </script>
+<div id='container' class="clickable clearfix isotope" style="position: relative; overflow: hidden; 
+                                       height: auto; width: 100%;
+                                       float: left;padding-right: 5px">
+    @{
+        foreach (var entity in Model)
+        {
+            <div class='element entity isotope-item'  id="revok" data-symbol="1" data-category="CNC" 
+                style="position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
+                <div style="width: 260px; height: 40px; display: block; text-align: center">
+                    <div style='width: 70%; height: 18px; float: left; text-align: left; padding-top: 2px;'>
+                        <h1 class="name" style="margin-left: 10px">@entity.EmployeeName</h1>
+                    </div>
+                    <div style='width: 30%; height: 18px; float: left; text-align: right; padding-top: 2px; background-color: green'>
+                        <span class="itemRight" style="padding-top: 5px; margin-right: 10px; font-weight: bold" >@entity.ProductCode</span>
+                    </div>
+                    
+                    
+                    <div style="width: 30%; height: 20px; float: left; text-align: center; background-color: yellowgreen; padding-top: 2px">
+                        <span class="itemLeft">@entity.MachineName</span>
+                    </div>
+                    <div style="width: 70%; height: 20px; float: left; text-align: center; background-color: yellowgreen; padding-top: 2px">
+                        <span class="itemRight">@entity.StartDateString</span>
+                    </div>
+                </div>
+                 <div style="width: 100%; height: 100%; display: block; padding-top: 5px;">
+                    
+                    a
+                </div>
+
+            </div>
+        }
+    }
+</div>

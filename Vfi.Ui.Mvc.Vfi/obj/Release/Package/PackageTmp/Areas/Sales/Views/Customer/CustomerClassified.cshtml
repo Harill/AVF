@@ -1,0 +1,98 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@model CustomerModel
+@{
+    ViewBag.Title = "Ngành nghề khách hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+}
+<div class="title">Quản lý ngành nghề khách hàng</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<CustomerClassifiedModel>()
+            .Name("gridCustomerClassified")
+            .DataKeys(keys => keys.Add(f => f.ClassifiedId).RouteKey("classifiedId"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectCustomerClassified", "Customer")
+                                                     .Insert("InsertCustomerClassified", "Customer")
+                                                     .Update("UpdateCustomerClassified", "Customer")
+            )
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image)
+                        ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.Name).Width(75).Title("Tên loại");
+                    columns.Bound(f => f.Description).Width(100).Title("Mô tả");
+
+                    columns.Bound(f => f.Active).Width(75)
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.ModifiedDate).Width(75).Title("Cập nhật").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}");
+                    columns.Bound(f => f.ModifiedUser).Width(75).Title("Người làm").ReadOnly(true);
+                })
+            
+            .Selectable()
+            .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect")
+                                          .OnError("grid_OnError"))
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .Resizable(f => f.Columns(true))
+            //.Pageable(page => page.PageSize(10))
+            .Sortable()
+            .Filterable()
+            .Reorderable(f => f.Columns(true))
+            .Groupable()
+            .Scrollable(f => f.Height(500))
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

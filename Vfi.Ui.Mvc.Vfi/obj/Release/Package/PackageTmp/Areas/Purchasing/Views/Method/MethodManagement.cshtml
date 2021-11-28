@@ -1,0 +1,68 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@{
+    ViewBag.Title = "Method Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+
+    function Grid_OnEdit(e) {
+        //var dataItem = e.dataItem;
+        var mode = e.mode;
+        var form = e.form;
+
+        var typeName = $(form).find('#TypeName');
+        var typeNameData = $(form).find('#TypeName').data('tDropDownList');
+
+        if (mode == 'insert') {
+            //customerCode.attr("style", "color: blue;");
+        }
+        if (mode == 'edit') {
+            typeNameData.reload();
+            typeName.bind('dataBound', function () { // your code 
+                typeNameData.select(function (item) {
+                    return item.Text == e.dataItem['TypeName'];
+                });
+            });
+        }
+    }
+    </script>
+<div class="title">Quản lý phương thức</div>
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MethodModel>()
+        .Name("gridShipMethod")
+        .DataKeys(keys => keys.Add(f => f.MethodId).RouteKey("methodId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().Text("Thêm PT mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
+        .DataBinding(dataBindings => dataBindings.Ajax()
+                                                 .Select("SelectAllMethod", "Method")
+                                                 .Insert("InsertMethod", "Method")
+                                                 .Update("UpdateMethod", "Method")
+        )
+        .Columns(columns =>
+            {
+                columns.Bound(f => f.TypeName).Width(200).Title("Loại PT");
+                columns.Bound(f => f.MethodName).Title("Tên PT");
+                columns.Bound(f => f.MethodName_EN).Width(110).Title("Tên PT(EN)");
+                columns.Bound(f => f.SaleMethod).Width(45).Title("PT Bán")
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=SaleMethod? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.BuyMethod).Width(45).Title("PT Mua")
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=BuyMethod? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.Active).Width(45)
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Command(command =>
+                                command.Edit().ButtonType(GridButtonType.ImageAndText)
+                    ).Width(98).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
+            })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(e => e.OnEdit("Grid_OnEdit").OnError("grid_Error"))
+        //.Pageable(page => page.PageSize(10))
+        .Scrollable(f => f.Height(510))
+        .Sortable()
+        .Render(); 
+}
+</div>

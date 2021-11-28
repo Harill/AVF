@@ -1,0 +1,471 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@model OrderModel
+@{
+    ViewBag.Title = "Đặt Đơn Hàng ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+
+        var boolMateiral = false;
+        var boolFuel = false;
+        var boolTool = false;
+        var boolPlating = false;
+        $(function() {
+            // panel display
+            //$("#pnlInvoice").hide();
+            $("#pnlMaterial").hide();
+            $("#pnlFuel").hide();
+            $("#pnlTool").hide();
+            $("#pnlPlating").hide();
+            // panel effect
+            $("input[name='rdoType'][value='rdoInvoice']").attr('checked', 'checked');
+
+            $("input[name='rdoType']").change(function() {
+                if ($("input[name='rdoType']:checked").val() == 'rdoInvoice') {
+
+                    if ($("#pnlMaterial").is(":visible"))
+                        runEffectHide("#pnlMaterial", "drop");
+                    if ($("#pnlFuel").is(":visible"))
+                        runEffectHide("#pnlFuel", "drop");
+                    if ($("#pnlTool").is(":visible"))
+                        runEffectHide("#pnlTool", "drop");
+                    if ($("#pnlPlating").is(":visible"))
+                        runEffectHide("#pnlPlating", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlInvoice", "drop");
+                    }, 1200);
+
+                } else if ($("input[name='rdoType']:checked").val() == 'rdoMaterial') {
+                    boolMateiral = true;
+                    if ($("#pnlInvoice").is(":visible"))
+                        runEffectHide("#pnlInvoice", "drop");
+                    if ($("#pnlFuel").is(":visible"))
+                        runEffectHide("#pnlFuel", "drop");
+                    if ($("#pnlTool").is(":visible"))
+                        runEffectHide("#pnlTool", "drop");
+                    if ($("#pnlPlating").is(":visible"))
+                        runEffectHide("#pnlPlating", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlMaterial", "drop");
+                    }, 1200);
+
+                } else if ($("input[name='rdoType']:checked").val() == 'rdoFuel') {
+                    boolFuel = true;
+                    $("#gridFuel").data("tGrid").a/jaxRequest();
+                    if ($("#pnlInvoice").is(":visible"))
+                        runEffectHide("#pnlInvoice", "drop");
+                    if ($("#pnlMaterial").is(":visible"))
+                        runEffectHide("#pnlMaterial", "drop");
+                    if ($("#pnlTool").is(":visible"))
+                        runEffectHide("#pnlTool", "drop");
+                    if ($("#pnlPlating").is(":visible"))
+                        runEffectHide("#pnlPlating", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlFuel", "drop");
+                    }, 1200);
+
+                } else if ($("input[name='rdoType']:checked").val() == 'rdoTool') {
+                    boolTool = true;
+                    if ($("#pnlInvoice").is(":visible"))
+                        runEffectHide("#pnlInvoice", "drop");
+                    if ($("#pnlMaterial").is(":visible"))
+                        runEffectHide("#pnlMaterial", "drop");
+                    if ($("#pnlFuel").is(":visible"))
+                        runEffectHide("#pnlFuel", "drop");
+                    if ($("#pnlPlating").is(":visible"))
+                        runEffectHide("#pnlPlating", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlTool", "drop");
+                    }, 1200);
+
+                } else if ($("input[name='rdoType']:checked").val() == 'rdoPlating') {
+                    boolPlating = true;
+                    if ($("#pnlInvoice").is(":visible"))
+                        runEffectHide("#pnlInvoice", "drop");
+                    if ($("#pnlMaterial").is(":visible"))
+                        runEffectHide("#pnlMaterial", "drop");
+                    if ($("#pnlFuel").is(":visible"))
+                        runEffectHide("#pnlFuel", "drop");
+                    if ($("#pnlTool").is(":visible"))
+                        runEffectHide("#pnlTool", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlPlating", "drop");
+                    }, 1200);
+                }
+            });
+        });
+
+        function gridFuel_OnDataBinding(args) {
+
+            //var statusValue = $("#Status").data("tComboBox").value();
+            //if (statusValue === "")
+            //    statusValue = 1;
+            if (boolFuel) {
+
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+                }
+                args.data = $.extend(args.data, {
+                    status: 2,
+                    fromDate: fromDate,
+                    toDate: toDate,
+                });
+
+                fuelindex1 = 0;
+                fuelindex2 = 0;
+                fuelindex3 = 0;
+                fuelindex4 = 0;
+                fuelcount1 = 0;
+                fuelcount2 = 0;
+                fuelcount3 = 0;
+                fuelcount4 = 0;
+            } else {
+                args.preventDefault();
+            }
+        }
+
+        var fuelindex1 = 0;
+        var fuelindex2 = 0;
+        var fuelindex3 = 0;
+        var fuelindex4 = 0;
+        var fuelcount1 = 0;
+        var fuelcount2 = 0;
+        var fuelcount3 = 0;
+        var fuelcount4 = 0;
+
+        function gridFuel_OnRowDataBound(e) {
+            var dataItem = e.dataItem;
+            if (dataItem.PurchasingSignature == 0) {
+                if (dataItem.PurchasingSignatureType == 0) {
+                    document.getElementsByClassName("t-button purchasing")[fuelindex1 - fuelcount1].parentNode.innerHTML = "<span class='t-icon t-cancel'></span>";
+                    fuelcount1++;
+                }
+            } else {
+                document.getElementsByClassName("t-button purchasing")[fuelindex1 - fuelcount1].parentNode.innerHTML = "<span class='t-icon t-insert'></span>";
+                fuelcount1++;
+            }
+            if (dataItem.InventorySignature == 0) {
+                if (dataItem.InventorySignatureType == 0) {
+                    document.getElementsByClassName("t-button inventory")[fuelindex2 - fuelcount2].parentNode.innerHTML = "<span class='t-icon t-cancel'></span>";
+                    fuelcount2++;
+                }
+            } else {
+                document.getElementsByClassName("t-button inventory")[fuelindex2 - fuelcount2].parentNode.innerHTML = "<span class='t-icon t-insert'></span>";
+                fuelcount2++;
+            }
+            if (dataItem.QcSignature == 0) {
+                if (dataItem.QcSignatureType == 0) {
+                    document.getElementsByClassName("t-button qc")[fuelindex3 - fuelcount3].parentNode.innerHTML = "<span class='t-icon t-cancel'></span>";
+                    fuelcount3++;
+                }
+            } else {
+                document.getElementsByClassName("t-button qc")[fuelindex3 - fuelcount3].parentNode.innerHTML = "<span class='t-icon t-insert'></span>";
+                fuelcount3++;
+            }
+            if (dataItem.AccountantSignature == 0) {
+                if (dataItem.AccountantSignatureType == 0) {
+                    document.getElementsByClassName("t-button accountant")[fuelindex4 - fuelcount4].parentNode.innerHTML = "<span class='t-icon t-cancel'></span>";
+                    fuelcount4++;
+                }
+            } else {
+                document.getElementsByClassName("t-button accountant")[fuelindex4 - fuelcount4].parentNode.innerHTML = "<span class='t-icon t-insert'></span>";
+                fuelcount4++;
+            }
+            fuelindex1++;
+            fuelindex2++;
+            fuelindex3++;
+            fuelindex4++;
+        }
+
+        function PrintFuel(val) {
+            //alert(val);
+            @*$('#result').load('@Url.Action("PrintImportFuel", "PurchaseOrder", new {area = "Purchasing"})',
+                {
+                    importId: val
+                }, function() {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                    
+                });*@
+            return false;
+        }
+
+        function FuelSignature(transactionId, type) {
+            $.ajax({
+                type: 'post',
+                data: { transactionId: transactionId, type: type },
+                dataType: 'json',
+                url: '@Url.Action("FuelSignature", "User")',
+                timeout: 20000,
+                success: function () {
+                    alert("Thêm chữ ký thành công !");
+                    //$("#gridFuel").data("tGrid").ajaxRe/quest();
+                    fuelindex1 = 0;
+                    fuelindex2 = 0;
+                    fuelindex3 = 0;
+                    fuelindex4 = 0;
+                    fuelcount1 = 0;
+                    fuelcount2 = 0;
+                    fuelcount3 = 0;
+                    fuelcount4 = 0;
+                }
+            });
+            return false;
+        }
+    </script>
+    <style>
+        button.t-button { min-width: 50px; }
+    </style>
+}
+
+<div class="title">Gán chữ ký</div>
+<div class="t-info-sha alpha" style="height: 30px;">
+    <div  class="grid_2"> Ngày: </div>
+    <div class="grid_3">
+        @{
+            Html.Telerik().DatePicker()
+                .Name("fromDate")
+                .Format("dd/MM/yyyy")
+                .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1))
+                .Render();
+        } 
+    </div>
+    <div class="grid_2">
+        @{
+            Html.Telerik().DatePicker()
+                .Name("toDate")
+                .Format("dd/MM/yyyy")
+                .Value(new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1).AddMonths(1).AddDays(-1))
+                .Render();
+        }
+    </div>
+    <div class="grid_3 prefix_1">
+        <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridFuel'); ">
+            <span class='t-icon t-refresh'></span>
+            Làm mới
+        </button>
+    </div>
+    <div class="clear"></div>
+    <div class="grid_5">
+        <label>
+            <input id="rdoInvoice" name="rdoType" value="rdoInvoice" type="radio" checked="checked" />
+            Phiếu xuất kho - Invoice
+        </label>
+    </div>
+    <div class="grid_5">
+
+        <label>
+            <input id="rdoMaterial" name="rdoType" value="rdoMaterial" type="radio" />
+            Phiếu nhập kho nguyên liệu
+        </label>
+    </div>
+    <div class="grid_5">
+
+        <label>
+            <input id="rdoFuel" name="rdoType" value="rdoFuel" type="radio" />
+            Phiếu nhập kho nhiên liệu
+        </label>
+    </div>
+    <div class="grid_5">
+
+        <label>
+            <input id="rdoTool" name="rdoType" value="rdoTool" type="radio" />
+            Phiếu nhập kho công cụ
+        </label>
+    </div>
+    <div class="grid_6">
+
+        <label>
+            <input id="rdoPlating" name="rdoType" value="rdoPlating" type="radio" />
+            Biên bản xuất nhập gia công ngoài
+        </label>
+    </div>
+</div>
+
+<div class="clear"></div>
+<br />
+<div id="pnlInvoice">
+    Invoice
+</div>
+<div id="pnlMaterial">
+    Material
+</div>
+<div id="pnlFuel">
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<TransactionFptModel>()
+                .Name("gridFuel")
+                .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("transactionId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectImportFuelForm", "PurchaseOrder",
+                                                                 new
+                                                                     {
+                                                                         area = "Purchasing",
+                                                                         status = (byte)Vfi.Ui.Mvc.Vfi.Utilities.MyUtilities.Sales.Status.Waiting,
+                                                                         fromDate = "",
+                                                                         toDate = ""
+                                                                     }))
+                .Columns(columns =>
+                    {
+                        columns.Bound(f => f.TransactionDate).Width(75).Title("Ngày nhập")
+                               .ClientTemplate("<strong><#= TransactionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', TransactionDate) #></strong>");
+                        columns.Bound(f => f.PoCode).Width(95).Title("Phiếu mua");
+                        columns.Bound(f => f.TransactionCode).Width(90).Title("Số phiếu");
+                        //columns.Bound(f => f.EoIName).Width(85).Title("Nhập | Xuất");
+                        columns.Bound(f => f.TotalQuantity).Width(70).Title("Tổng SL")
+                            .HtmlAttributes(new { style = "text-align:right;" })
+                               .ClientTemplate("<#= TotalQuantity == null ? 0 : $.telerik.formatString('{0:n2}', TotalQuantity) #>");
+                        columns.Bound(f => f.TotalPrice).Width(75).Title("Tổng tiền(VNĐ)")
+                            .HtmlAttributes(new {style="text-align:right;"})
+                               .ClientTemplate("<#= TotalPrice == null ? 0 : $.telerik.formatString('{0:n0}', TotalPrice) #>");
+                        columns.Bound(f => f.ModifiedUser).Width(75).Title("Người lập");
+                        columns.Bound(f => f.ModifiedDate).Width(75).Title("Ngày lập")
+                               .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+                        columns.Bound(f => f.TransactionId).Title("In").Width(50)
+                               .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintFuel(<#= TransactionId #>) />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.TransactionId).Title("QL mua").Width(50)
+                              .ClientTemplate("<button class='t-button purchasing' id='QLM_<#= TransactionId #>' onclick=FuelSignature(<#= TransactionId #>,1) ><span class='t-icon t-insert'></span></button>")
+                              .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.TransactionId).Title("QL kho").Width(50)
+                               .ClientTemplate("<button class='t-button inventory' id='QLK_<#= TransactionId #>' onclick=FuelSignature(<#= TransactionId #>,2) ><span class='t-icon t-insert'></span></button>")
+                             .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.TransactionId).Title("Ke toan").Width(50)
+                              .ClientTemplate("<button class='t-button accountant' id='KT_<#= TransactionId #>' onclick=FuelSignature(<#= TransactionId #>,3) ><span class='t-icon t-insert'></span></button>")
+                              .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.TransactionId).Title("QL QC").Width(50)
+                              .ClientTemplate("<button class='t-button qc' id='QLQC_<#= TransactionId #>' onclick=FuelSignature(<#= TransactionId #>,4) ><span class='t-icon t-insert'></span></button>")
+                             //.ClientTemplate("<span class='t-icon t-insert'></span>")
+                              .HtmlAttributes(new { style = "text-align:center" });
+                    })
+                .DetailView(details => details.ClientTemplate(
+                    Html.Telerik().TabStrip()
+                        .Name("TabStrip_<#= TransactionId #>")
+                        .SelectedIndex(0)
+                        .Items(items =>
+                               items.Add().Text("Thông tin chi tiết").Content(
+                                   Html.Telerik().Grid<TransactionFptDetailModel>()
+                                       .Name("gridTransactionDetail_<#= TransactionId #>")
+                                       .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                                .Select("SelectImportFuelDetail", "PurchaseOrder",
+                                                                                        new
+                                                                                        {
+                                                                                            area = "Purchasing",
+                                                                                            importId = "<#= TransactionId #>"
+                                                                                        }))
+                                       .Columns(columns =>
+                                       {
+                                           columns.Bound(f => f.VendorName).Title("NCC").Width(100);
+                                               columns.Bound(f => f.FuelName).Title("Tên chi tiết").Width(100);
+                                               columns.Bound(f => f.FuelDesignNo).Title("Quy cách").Width(200);
+                                               columns.Bound(f => f.LotNumber).Width(75).Title("Lô")
+                                                      .HtmlAttributes(new { style = "text-align: right;" });
+                                               columns.Bound(f => f.Quantity).Width(75).Title("SL")
+                                                      .HtmlAttributes(new { style = "text-align: right;" })
+                                                      .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n2}', Quantity) #>");
+                                               columns.Bound(f => f.UnitPrice).Width(75).Title("Đơn giá (VNĐ)")
+                                                      .HtmlAttributes(new { style = "text-align: right;" })
+                                                      .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n0}', UnitPrice) #>");
+                                               columns.Bound(f => f.Price).Width(75).Title("Thành tiền (VNĐ)")
+                                                      .HtmlAttributes(new { style = "text-align: right;" })
+                                                      .ClientTemplate("<#= Price == null ? 0 : $.telerik.formatString('{0:n0}', Price) #>");
+                                               columns.Bound(f => f.UnitMeasure).Width(100).Title("ĐVT");
+                                               columns.Bound(f => f.Note).Title("Ghi chú");
+                                           })
+                                       .ToHtmlString()
+                                   )
+                        )
+                        .ToHtmlString()
+                                           ))
+                .Selectable()
+                .Groupable()
+                .Reorderable(f => f.Columns(true))
+                .Resizable(f => f.Columns(true))
+                .Sortable()
+                .Filterable()
+                .ClientEvents(events => events.OnDataBinding("gridFuel_OnDataBinding")
+                                              .OnRowDataBound("gridFuel_OnRowDataBound")
+                                              .OnRowSelect("grid_OnRowSelect"))
+                .Scrollable(f => f.Height(510))
+                .Render();
+        }
+    </div>
+</div>
+<div id="pnlTool">
+    Tool
+</div>
+<div id="pnlPlating">
+    Plating
+</div>
+
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReport")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(960)
+            .ClientEvents(e=> e.OnLoad("window_onload").OnOpen("window_onopen"))
+            .Render();
+    }
+<script>
+    function window_onload(e) {
+        //alert("a");
+    }
+    function window_onopen(e) {
+        //alert("b");
+        $("#rptvPageImportFuelForm_ReportToolbar_ExportGr_FormatList_DropDownList option[value='XLS']").remove();
+        $("#rptvPageImportFuelForm_ReportToolbar_ExportGr_FormatList_DropDownList option[value='RTF']").remove();
+        $("#rptvPageImportFuelForm_ReportToolbar_ExportGr_FormatList_DropDownList option[value='MHTML']").remove();
+    }
+</script>
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

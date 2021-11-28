@@ -1,0 +1,268 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Duyệt phiếu nhiên liệu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <!-- approve stockorder -->
+    <script type="text/javascript">
+        function ApproveTransaction() {
+            $("#btnApproveTransaction").attr('disabled', 'disabled');
+        var $checkedRecords = $("input[name='chkTransactionIds']:checked");
+
+        if ($checkedRecords.length < 1) {
+            alert("Vui lọn chọn ít nhất 1 nguyên liệu");
+            return;
+        }
+            $.post('@Url.Action("UpdateApproveImportFuel", "Fuel")',
+                {
+                    //checkedRecords: $checkedRecords.map(function () { return value; })
+                    checkedRecords: $checkedRecords.eq(0).val()
+                },
+                function(data) {
+
+                    if (data === "okie") {
+                        RefreshGrid("gridFuel");
+                    } else
+                        alert(data);
+                });
+            $("#btnApproveTransaction").removeAttr('disabled');
+            }
+
+        var indexSignature1 = 0;
+        var countSignature1 = 0;
+
+        var index1 = 0;
+        var count1 = 0;
+        function Grid_OnRowDataBound(e) {
+        var check = e.dataItem.IsNormal;
+        if (!check)
+            e.row.style.backgroundColor = "#F4FA58";
+        var dataItem = e.dataItem;
+        if (dataItem.PurchasingSignatureType == 0) {
+            document.getElementsByClassName("t-button purchasing")[indexSignature1 - countSignature1].parentNode.innerHTML = "<span class='t-icon t-cancel'></span>";
+            document.getElementsByClassName("chkCheck")[index1 - count1].parentNode.innerHTML = "";
+            countSignature1++;
+            count1++;
+        } else if (dataItem.PurchasingSignatureType == 1) {
+            document.getElementsByClassName("t-button purchasing")[indexSignature1 - countSignature1].parentNode.innerHTML = "<span class='t-icon t-insert'></span>";
+            countSignature1++;
+        } else if (dataItem.PurchasingSignatureType == 2) {
+            document.getElementsByClassName("chkCheck")[index1 - count1].parentNode.innerHTML = "";
+            count1++;
+        } else {
+            document.getElementsByClassName("t-button purchasing")[indexSignature1 - countSignature1].parentNode.innerHTML = "";
+            countSignature1++;
+        }
+        indexSignature1++;
+        index1++;
+    }
+        function grid_OnDataBinding() {
+
+            indexSignature1 = 0;
+            countSignature1 = 0;
+
+            index1 = 0;
+            count1 = 0;
+        }
+
+    function FuelSignature(transactionId, type) {
+        $.ajax({
+            type: 'post',
+            data: { transactionId: transactionId, type: type },
+            dataType: 'json',
+            url: '@Url.Action("FuelSignature", "User",new{area=""})',
+                timeout: 20000,
+                success: function () {
+                    alert("Thêm chữ ký thành công !");
+                    RefreshGrid("gridFuel");
+                    indexSignature1 = 0;
+                    countSignature1 = 0;
+                    index1 = 0;
+                    count1 = 0;
+                }
+            });
+            return false;
+        }
+
+    
+    </script>
+
+    <!-- grid Transaction -->
+    <script type="text/javascript">
+       
+    function PrintForm(val) {
+        alert(val);
+        $('#result').load('@Url.Action("PrintImportFuel", "Fuel")',
+            {
+                importId: val
+            }, function () {
+                var window = $('#windowReport').data('tWindow');
+                window.open();
+            });
+        return false;
+    }
+    </script>
+    
+}
+
+<div class="title">Duyệt phiếu xuất nhập nhiên liệu</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Sổ lệnh</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionFptModel>()
+            .Name("gridFuel")
+            .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("transactionId"))
+            .ToolBar(bar => bar.Template(
+                @<text>
+                     <div class="grid_7">
+                         <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
+                             <span class='t-icon t-insert'></span>
+                             Duyệt các sổ lệnh
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+                                ))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectWaitingImportFuel", "Fuel",
+                                                             new { status = (byte)MyUtilities.Transaction.Status.Open })
+                                                     .Delete("CancelImportFuel", "Fuel")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.TransactionId).Title("Chọn").Width(35)
+                           .ClientTemplate("<input type='radio' name='chkTransactionIds' class='chkCheck'  value='<#= TransactionId #>' />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.TransactionDate).Width(85).Title("Ngày nhập")
+                           .ClientTemplate("<strong><#= TransactionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', TransactionDate) #></strong>");
+                    columns.Bound(f => f.PoCode).Width(100).Title("Phiếu mua");
+                    columns.Bound(f => f.TransactionCode).Width(100).Title("Số phiếu");
+                    columns.Bound(f => f.EoIName).Width(60)
+                           .HeaderTemplate("<span style='text-decoration:underline'>Nhập</span></br>Xuất")
+                           .HtmlAttributes(new {style = "text-align:center;"});
+                    //columns.Bound(f => f.FptName).Width(100).Title("Loại");
+                    columns.Bound(f => f.TotalQuantity).Width(65).Title("Tổng SL")
+                           .HtmlAttributes(new {style = "text-align:right;"})
+                           .ClientTemplate("<#= TotalQuantity == null ? 0 : $.telerik.formatString('{0:n2}', TotalQuantity) #>");
+                    columns.Bound(f => f.TotalPrice).Width(85)
+                           .HeaderTemplate("Tổng tiền</br>(VNĐ)")
+                           .HtmlAttributes(new {style = "text-align:right;"})
+                           .ClientTemplate("<#= TotalPrice == null ? 0 : $.telerik.formatString('{0:n0}', TotalPrice) #>");
+                    columns.Bound(f => f.ModifiedUser).Width(85).Title("Người lập");
+                    columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày lập")
+                           .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
+                    columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                           .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(50);
+                    columns.Bound(f => f.TransactionId).Title("QL mua")
+                           .ClientTemplate("<button class='t-button purchasing' id='QLM_<#= TransactionId #>' onclick=FuelSignature(<#= TransactionId #>,1) ><span class='t-icon t-insert'></span></button>")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= TransactionId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                           items.Add().Text("Thông tin chi tiết").Content(
+                               Html.Telerik().Grid<TransactionFptDetailModel>()
+                                   .Name("gridTransactionDetail_<#= TransactionId #>")
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                            .Select("SelectImportFuelDetail", "Fuel",
+                                                                                    new { transactionId = "<#= TransactionId #>" }))
+                                   .Columns(columns =>
+                                       {
+                                           columns.Bound(f => f.VendorName).Title("NCC").Width(100);
+                                           columns.Bound(f => f.FuelName).Title("Tên chi tiết").Width(100);
+                                           columns.Bound(f => f.FuelDesignNo).Title("Quy cách").Width(200);
+                                           columns.Bound(f => f.LotNumber).Width(75).Title("Lô")
+                                                  .HtmlAttributes(new {style = "text-align: right;"});
+                                           columns.Bound(f => f.TotalInv).Width(75).Title("Tồn kho")
+                                                  .Format("{0:n1}")
+                                                  .HtmlAttributes(new {style = "text-align: right;"});
+                                           columns.Bound(f => f.Quantity).Width(75).Title("SL")
+                                                  .Format("{0:n1}")
+                                                  .HtmlAttributes(new {style = "text-align: right;"});
+                                           columns.Bound(f => f.UnitPrice).Width(75).Title("Đơn giá (VNĐ)")
+                                                  .Format("{0:n2}")
+                                                  .HtmlAttributes(new {style = "text-align: right;"});
+                                           columns.Bound(f => f.Price).Width(75).Title("Thành tiền (VNĐ)")
+                                                  .Format("{0:n2}")
+                                                  .HtmlAttributes(new {style = "text-align: right;"});
+                                           columns.Bound(f => f.UnitMeasure).Width(100).Title("ĐVT");
+                                           columns.Bound(f => f.Note).Title("Ghi chú");
+                                       })
+            .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()
+                               )
+                    )
+                    .ToHtmlString()
+                                       ))
+            .Selectable()
+            .ClientEvents(events => events
+                                        .OnRowSelect("grid_OnRowSelect")
+                                        .OnDataBinding("grid_OnDataBinding")
+                                        .OnRowDataBound("Grid_OnRowDataBound")
+                                        .OnError("grid_OnError"))
+            //.Pageable(f=>f.PageSize(5))
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .ClientEvents(e => e.OnOpen("window_onopen"))
+        .Render();
+}
+
+<script>
+    function window_onopen(e) {
+        //alert("b");
+        $("#rptvPageImportFuelForm_ReportToolbar_ExportGr_FormatList_DropDownList option[value='XLS']").remove();
+        $("#rptvPageImportFuelForm_ReportToolbar_ExportGr_FormatList_DropDownList option[value='RTF']").remove();
+        $("#rptvPageImportFuelForm_ReportToolbar_ExportGr_FormatList_DropDownList option[value='MHTML']").remove();
+    }
+</script>
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

@@ -1,0 +1,9 @@
+@model int
+@(Html.Telerik().NumericTextBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .InputHtmlAttributes(new { style = "width:100%" })
+        .Value(Model)
+        .MinValue(0)
+.DecimalDigits(0)
+        .MaxValue(int.MaxValue)
+)

@@ -1,0 +1,209 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Approve Transaction Product";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Scripts{
+    <!-- approve stockorder -->
+    <script type="text/javascript">
+        function ApproveTransaction() {
+            $("#btnApproveTransaction").attr('disabled', 'disabled');
+
+            var $checkedRecords = $("input[name='chkTransactionIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 phiếu");
+                return;
+            }
+            $.post('@Url.Action("ApproveTransactionSection", "Section")',
+                {
+                    //checkedRecords: $checkedRecords.map(function () { return value; })
+                    checkedRecords: $checkedRecords.eq(0).val()
+                },
+                function(data) {
+
+                    if (data === "Ok all") {
+                        RefreshGrid("gridTransaction");
+                    } else
+                        alert(data);
+                });
+            $("#btnApproveTransaction").removeAttr('disabled');
+        }
+
+
+        function PrintForm(val) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintTransactionForm", "Inv")',
+                {
+                    transactionId: val
+                }, function() {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+    </script>
+
+    <!-- grid Transaction -->
+    <script type="text/javascript">
+    </script>
+
+}
+
+    <div class="title">Duyệt phiếu xuất nhập thành phẩm</div>
+
+    <div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Sổ lệnh</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<Production2TransactionModel>()
+            .Name("gridTransaction")
+            .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("transactionId"))
+            .ToolBar(bar => bar.Template(
+                @<text>
+                     <div class="grid_7">
+                         <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
+                             <span class='t-icon t-insert'></span>
+                             Duyệt các sổ lệnh
+                         </button>
+                     </div>
+                     <div class="clear"></div>
+                 </text>
+                                ))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectProduction2Transaction", "Section",
+                                                             new { status = (byte)MyUtilities.Transaction.Status.Open, fromDate = "", toDate = "" })
+                                                     .Delete("CancelProduction2Transaction", "Section")
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.TransactionId).Title("Chọn").Width(50)
+                           .ClientTemplate("<input type='radio' name='chkTransactionIds' class='chkCheck' value='<#= TransactionId #>' />")
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.TransactionCode).Title("Mã phiếu").Width(100);
+                    //columns.Bound(f => f.StatusName).Title("Tình trạng").Width(100);
+                    columns.Bound(f => f.EoIName).Title("Loại").Width(80);
+                    columns.Bound(f => f.CreateDate).Title("Ngày báo cáo").Width(100)
+                           .HtmlAttributes(new {style = "font-weight:bold;"})
+                           .Format("{0:dd/MM/yyyy}");
+                    columns.Bound(f => f.TotalQuantity).Title("Số lượng").Width(80)
+                           .Format("{0:n3}")
+                           .HtmlAttributes(new {style = "text-align: right"});
+                    columns.Bound(f => f.TotalQuantityDefect).Title("Phế phẩm").Width(80)
+                           .Format("{0:n3}")
+                           .HtmlAttributes(new {style = "text-align: right"});
+                    columns.Bound(f => f.TotalLost).Title("Hao hụt").Width(80)
+                           .Format("{0:n3}")
+                           .HtmlAttributes(new {style = "text-align: right"});
+                    columns.Bound(f => f.Time).Title("Thời gian").Width(80)
+                           .Format("{0:n1}")
+                           .HtmlAttributes(new {style = "text-align: right"});
+                    columns.Bound(f => f.OverTime).Title("Tăng ca").Width(80)
+                           .Format("{0:n1}")
+                           .HtmlAttributes(new {style = "text-align: right"});
+                    columns.Bound(f => f.ModifiedUser).Title("Người tạo").Width(100);
+                    columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100)
+                           .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                    //columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                    //       .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                    //       .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(50);
+                })
+            .DetailView(details => details.ClientTemplate(
+
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= TransactionId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+
+                           items.Add().Text("Thông tin chi tiết").Content(
+
+                               Html.Telerik().Grid<Production2TransactionDetailModel>()
+                                   .Name("gridTransactionDetail_<#= TransactionId #>")
+                                   .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                            .Select("SelectTransactionDetail", "Section",
+                                                                                    new {transactionId = "<#= TransactionId #>"}))
+                                   .Columns(columns =>
+                                       {
+                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100);
+                                           //columns.Bound(f => f.UnitMeasure).Title("ĐVT").Width(40);
+                                           columns.Bound(f => f.SectionIssueName).Width(140).Title("Công đoạn xuất");
+                                           columns.Bound(f => f.SectionIssueInv).Width(80).Title("Tồn kho")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n3}");
+                                           columns.Bound(f => f.SectionReceiptName).Width(140).Title("Công đoạn kế");
+                                           columns.Bound(f => f.QuantityKg).Width(70).Title("Số lượng")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n3}");
+                                           columns.Bound(f => f.QuantityDefect).Width(70).Title("Phế phẩm")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n3}");
+                                           columns.Bound(f => f.QuantityLost).Width(70).Title("Hao hụt")
+                                                  .HtmlAttributes(new {style = "text-align: right;"})
+                                                  .Format("{0:n3}");
+                                           columns.Bound(f => f.Time).Title("Thời gian").Width(60)
+                                                  .Format("{0:n1}")
+                                                  .HtmlAttributes(new {style = "text-align: right"});
+                                           columns.Bound(f => f.OverTime).Title("Tăng ca").Width(60)
+                                                  .Format("{0:n1}")
+                                                  .HtmlAttributes(new {style = "text-align: right"});
+                                           columns.Bound(f => f.Note).Title("Ghi chú");
+                                       })
+                                   .ClientEvents(events => events.OnError("grid_OnError"))
+                                   .ToHtmlString()))
+                    .ToHtmlString()
+                                       ))
+            .Selectable()
+            //.HtmlAttributes(new { style = "width: 950px;" })
+            .Resizable(f => f.Columns(true))
+            .ClientEvents(events => events.OnError("grid_OnError").OnRowSelect("grid_OnRowSelect"))
+            .Render();
+    }
+</div>
+
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

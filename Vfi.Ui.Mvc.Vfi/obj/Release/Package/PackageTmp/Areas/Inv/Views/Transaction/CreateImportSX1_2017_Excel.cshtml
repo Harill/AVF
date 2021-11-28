@@ -1,0 +1,1306 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model ImportSX1Model
+@{
+    ViewBag.Title = "Phiếu Nhập Kho SX 1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript">
+    $(function () {
+        //$("#pnlExcel").hide();
+        $("#pnlAdd").hide();
+        // panel effect
+        $("input[name='rdoType'][value='rdoNormal']").attr('checked', 'checked');
+
+        $("input[name='rdoType']").change(function () {
+            //if ($("input[name='rdoType']:checked").val() == 'rdoExcel') {
+
+            //    if ($("#pnlNormal").is(":visible"))
+            //    runEffectHide("#pnlNormal", "drop");
+            //    if ($("#pnlAdd").is(":visible"))
+            //    runEffectHide("#pnlAdd", "drop");
+
+            //    setTimeout(function () {
+            //        runEffectShow("#pnlExcel", "drop");
+            //    }, 1200);
+
+            //} else
+                if ($("input[name='rdoType']:checked").val() == 'rdoNormal') {
+
+                runEffectHide("#pnlExcel", "drop");
+                runEffectHide("#pnlAdd", "drop");
+
+                setTimeout(function () {
+                    runEffectShow("#pnlNormal", "drop");
+                }, 1200);
+            }
+            else if ($("input[name='rdoType']:checked").val() == 'rdoAdd') {
+
+                runEffectHide("#pnlExcel", "drop");
+                runEffectHide("#pnlNormal", "drop");
+
+                setTimeout(function () {
+                    runEffectShow("#pnlAdd", "drop");
+                }, 1200);
+            }
+        });
+        cancel = false;
+        isParse = false;
+    });
+
+    var list;
+    var cancel = false;
+    var fileName = "";
+    var isParse = false;
+
+    function upload_OnUpload(e) {
+        var files = e.files;
+        $.each(files, function () {
+            fileName = this.name;
+            if (this.extension != ".xls" && this.extension != ".xlsx") {
+                alert("Only excel files can be uploaded");
+                e.preventDefault();
+                cancel = true;
+            }
+            cancel = true;
+        });
+        $.extend(e.data);
+        cancel = false;
+    }
+
+    function upload_OnError(args) {
+        if (args.textStatus == "modelstateerror" && args.modelState) {
+            var message = "Errors:\n";
+            $.each(args.modelState, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            args.preventDefault();
+            alert(message);
+            cancel = true;
+        }
+    }
+
+    function upload_OnSuccess(e) {
+        alert(e.response);
+    }
+
+    function grid_OnComplete() {
+        if (isParse) {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetExcelParseStatus", "Orders")',
+                timeout: 20000,
+                success: function (data) {
+                    var message = "Tổng dòng: " + data[0];
+                    message += "\nĐạt: " + data[1];
+                    message += "\nLỗi: " + data[2];
+                    message += "\nTrùng: " + data[3];
+                    message += "\nMô tả: " + data[4];
+                    alert(message);
+                    isParse = false;
+                }
+            });
+        }
+    }
+
+
+    function gridExcel_OnDataBinding(args) {
+        if (fileName != "") {
+            if (!cancel) {
+                var materialUseDate = $("#MaterialUseDate").data("tDatePicker").value();
+                if (materialUseDate === null)
+                    materialUseDate = "";
+                else
+                    materialUseDate = $.telerik.formatString('{0:dd/MM/yyyy}', materialUseDate);
+                var sheetName = $("#SheetName").data("tAutoComplete").value();
+                if (sheetName != "") {
+                    args.data = $.extend(args.data, {
+                        fileName: fileName,
+                        sheetName: sheetName,
+                        materialUseDate: materialUseDate
+                    });
+                    list = args.data;
+                    isParse = true;
+                }
+            }
+        }
+    }
+
+    function SaveAll() {
+        var importDate = $("#ImportDate").data("tDatePicker").value();
+        if (importDate === null)
+            importDate = "";
+        else
+            importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+
+        var materialUseDate = $("#MaterialUseDate").data("tDatePicker").value();
+        if (materialUseDate === null)
+            materialUseDate = "";
+        else
+            materialUseDate = $.telerik.formatString('{0:dd/MM/yyyy}', materialUseDate);
+        var ca1 = $("#Ca1").data("tAutoComplete").value();
+        var ca2 = $("#Ca2").data("tAutoComplete").value();
+        var message = "Ngày báo cáo: " + importDate;
+        message += "\nNgày dùng nguyên liệu: " + materialUseDate;
+        message += "\nCa: " + ca1 + " || " + ca2;
+        message += "\nĐồng ý lưu ??";
+        if (confirm(message)) {
+            // Save it!
+            $.ajax({
+                type: 'post',
+                data: {
+                    importDate: importDate,
+                    ca1: ca1,
+                    ca2: ca2,
+                    materialUseDate: materialUseDate
+                },
+                dataType: 'json',
+                url: '@Url.Action("SaveAllSmartProduction", "Transaction")',
+                timeout: 20000,
+                success: function (data) {
+                    alert(data);
+                    if (!data.includes("Lỗi")) {
+                        fileName = "";
+                        RefreshGrid2();
+                    }
+                }
+            });
+        }
+        return false;
+    }
+    function RefreshGrid2() {
+        cancel = false;
+        RefreshGrid("gridSmartProductionExcel");
+    }
+    function gridExcel_onRowSelect(e) {
+        var grid = $(this).data('tGrid');
+
+        //var $i = grid.$rows().index(e.row);
+
+        //var isMinus = $(this).find("td.t-hierarchy-cell a").eq($i).is(".t-minus");
+        var className = e.row.cells[0].getElementsByTagName("a")[0].className;
+        var isMinus = className.search("t-minus");
+        if (isMinus !== -1) {
+            grid.collapseRow(e.row);
+        }
+        else {
+            grid.expandRow(e.row);
+        }
+    }
+    function gridExcel_OnComplete() {
+
+        if (isParse) {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetExcelParseStatus", "Transaction")',
+                timeout: 20000,
+                success: function (data) {
+                    var message = "Tổng dòng: " + data[0];
+                    message += "\nĐạt: " + data[1];
+                    message += "\nLỗi: " + data[2];
+                    message += "\nMô tả: " + data[4];
+                    alert(message);
+                    isParse = false;
+                }
+            });
+        }
+    }
+
+    function gridExcel_OnRowDataBound(e) {
+        var dataItem = e.dataItem;
+        var check = dataItem.MaterialInvTotal < (dataItem.MaterialUse1 + dataItem.MaterialUse2);
+        if (check)
+            e.row.childNodes[3].style.backgroundColor = "#FA5858";
+
+        if (dataItem.MaterialStatus == 1)
+            e.row.childNodes[2].style.backgroundColor = "yellow";
+
+        if (dataItem.ProductWeight == 0)
+            e.row.childNodes[5].style.backgroundColor = "red";
+        else if (dataItem.ProductWeightStatus == 1)
+            e.row.childNodes[5].style.backgroundColor = "yellow";
+
+        if (dataItem.ProductAlert == 1)
+            e.row.childNodes[4].style.backgroundColor = "yellow";
+
+        if (dataItem.ProductionRateStatus == 1)
+            e.row.childNodes[6].style.backgroundColor = "yellow";
+
+    }
+</script>
+<script type="text/javascript">
+
+    function gridSmart_OnDataBinding(args) {
+        var useId = $('#MaterialUseForm').data('tComboBox').value();
+        if (useId === "")
+            useId = 0;
+        var shift = $('#Shift').data('tDropDownList').value();
+        if (shift === "")
+            shift = 0;
+        args.data = $.extend(args.data,
+        {
+            useId: useId,
+            shift: shift
+        });
+    }
+
+    function cbo_OnDataBinding(args) {
+        var materialUseDate = $("#MaterialUseDate").data("tDatePicker").value();
+        if (materialUseDate === null)
+            materialUseDate = "";
+        else
+            materialUseDate = $.telerik.formatString('{0:dd/MM/yyyy}', materialUseDate);
+        args.data = $.extend(args.data,
+        {
+            date: materialUseDate,
+        });
+    }
+
+    function gridSmart_OnSave(e) {
+        var dataItem = e.dataItem;
+        var $productCode = $(e.cell).find('#ProductCode');
+        if ($productCode.length > 0) {
+            var productCode = $productCode.data("tComboBox"),
+                productCodeSelectItem = productCode.selectedIndex > -1
+                    ? productCode.data[productCode.selectedIndex]
+                    : null;
+
+            if (productCodeSelectItem) {
+                e.values["ProductCode"] = productCodeSelectItem.Text;
+                e.values["ProductId"] = productCodeSelectItem.Value;
+                $.ajax({
+                    type: 'post',
+                    data: { productId: productCodeSelectItem.Value, machineId: 0, materialInvId: 0 },
+                    dataType: 'json',
+                    url: '@Url.Action("GetProductionWeight", "Transaction", new { area = "Inv" })',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == '9') {
+                            alert("Lỗi! Không tìm thấy sản phẩm");
+                            //} else if (data == '0') {
+                            //    alert("Lỗi!");
+                        } else {
+                            dataItem.ProductWeight = data[0];
+                            e.cell.parentNode.getElementsByClassName("ProductWeight")[0].textContent = data[0];
+                            dataItem.ProcessByMachineId = data[1];
+                            dataItem.WarehouseExportId = data[2];
+                            e.cell.parentNode.getElementsByClassName("WarehouseExportId")[0].textContent = data[2];
+                            e.cell.parentNode.getElementsByClassName("WarehouseExportName")[0].textContent = data[3];
+                            dataItem.ProductionRate = data[4];
+                            e.cell.parentNode.getElementsByClassName("ProductionRate")[0].textContent = data[4];
+                        }
+                    }
+                });
+            }
+        } else {
+
+            var sumNumber = 0;
+            var spanNumber = null;
+            var i = 0;
+            var innerText = "";
+            var weight = dataItem.ProductWeight;
+            if (e.cell.parentNode.getElementsByClassName("ProductWeight")[0] != null)
+                weight = parseFloat(e.cell.parentNode.getElementsByClassName("ProductWeight")[0].textContent);
+            if (weight == 0)
+                return;
+            dataItem.ProductWeight = weight;
+            dataItem.WarehouseExportId = e.cell.parentNode.getElementsByClassName("WarehouseExportId")[0].textContent;
+            var rate = dataItem.ProductionRate;
+            var materialUse = dataItem.MaterialUse1;
+            //var diffProduction = 0;
+            //var diffMaterial = 0;
+            var quantity = dataItem.QuantityExport1;
+            var pending = dataItem.QuantityPending1;
+            var defect = dataItem.QuantityDefect1;
+            var quantityG = 0;
+            var number = $(e.cell).find('#QuantityExport2').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+                if (materialUse === 0 && sumNumber != 0) {
+                    e.cell.style.backgroundColor = "#F4FA58";
+                } else {
+                    e.cell.style.backgroundColor = "";
+                    spanNumber = $("span[class='QuantityExport2']");
+                    for (i = 0; i < spanNumber.length; i++) {
+                        innerText = spanNumber[i].innerText;
+                        innerText = innerText.replace(/,/g, '');
+                        sumNumber = sumNumber + parseInt(innerText);
+                    }
+                    $("#TotalQuantityExport2").text(sumNumber);
+                }
+                quantity = Math.floor(number / weight);
+
+                e.cell.parentNode.getElementsByClassName("QuantityExport1")[0].textContent = quantity;
+                dataItem.QuantityExport1 = quantity;
+            }
+            number = $(e.cell).find('#QuantityDefect2').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+                if (materialUse === 0 && sumNumber != 0) {
+                    e.cell.style.backgroundColor = "#F4FA58";
+                } else {
+                    e.cell.style.backgroundColor = "";
+                    spanNumber = $("span[class='QuantityDefect2']");
+                    for (i = 0; i < spanNumber.length; i++) {
+                        innerText = spanNumber[i].innerText;
+                        innerText = innerText.replace(/,/g, '');
+                        sumNumber = sumNumber + parseInt(innerText);
+                    }
+                    $("#TotalQuantityDefect2").text(sumNumber);
+                }
+                defect = Math.floor(number / weight);
+
+                e.cell.parentNode.getElementsByClassName("QuantityDefect1")[0].textContent = defect;
+                dataItem.QuantityDefect1 = defect;
+            }
+            number = $(e.cell).find('#QuantityPending2').val();
+            if (!isNaN(parseInt(number))) {
+                sumNumber = parseInt(number);
+                if (materialUse === 0 && sumNumber != 0) {
+                    e.cell.style.backgroundColor = "#F4FA58";
+                } else {
+                    e.cell.style.backgroundColor = "";
+                    spanNumber = $("span[class='QuantityPending2']");
+                    for (i = 0; i < spanNumber.length; i++) {
+                        innerText = spanNumber[i].innerText;
+                        innerText = innerText.replace(/,/g, '');
+                        sumNumber = sumNumber + parseInt(innerText);
+                    }
+                    $("#TotalQuantityPending2").text(sumNumber);
+                }
+                pending = Math.floor(number / weight);
+
+                e.cell.parentNode.getElementsByClassName("QuantityPending1")[0].textContent = pending;
+                dataItem.QuantityPending1 = pending;
+            }
+            number = $(e.cell).find('#QuantityExport1').val();
+            if (!isNaN(parseInt(number))) {
+                quantity = parseInt(number);
+
+                quantityG = parseInt(number * weight);
+                dataItem.QuantityExport2 = quantityG;
+                e.cell.parentNode.getElementsByClassName("QuantityExport2")[0].textContent = quantityG.format(0);
+            }
+            number = $(e.cell).find('#QuantityPending1').val();
+            if (!isNaN(parseInt(number))) {
+                pending = parseInt(number);
+
+                quantityG = parseInt(number * weight);
+                dataItem.QuantityPending2 = quantityG;
+                e.cell.parentNode.getElementsByClassName("QuantityPending2")[0].textContent = quantityG.format(0);
+            }
+            number = $(e.cell).find('#QuantityDefect1').val();
+            if (!isNaN(parseInt(number))) {
+                defect = parseInt(number);
+
+                quantityG = parseInt(number * weight);
+                dataItem.QuantityDefect2 = quantityG;
+                e.cell.parentNode.getElementsByClassName("QuantityDefect2")[0].textContent = quantityG.format(0);
+            }
+            var diffProduction = quantity + pending + defect - (materialUse * rate);
+            e.cell.parentNode.getElementsByClassName("DiffProduction")[0].textContent = diffProduction;
+            var diffMaterial = diffProduction / rate;
+            e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].textContent = (diffMaterial).format(2);
+            if (Math.abs(diffMaterial) / materialUse < 0.1)
+                e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].parentNode.style.backgroundColor = "";
+            else if (Math.abs(diffMaterial) / materialUse < 0.2)
+                e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].parentNode.style.backgroundColor = "#F4FA58";
+            else
+                e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].parentNode.style.backgroundColor = "#FA5858";
+        }
+    }
+
+    function gridSmart_OnSubmitChanges(e) {
+        var importDate = $("#ImportDate").data("tDatePicker").value();
+        if (importDate === null)
+            importDate = "";
+        else
+            importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+        var useId = $('#MaterialUseForm').data('tComboBox').value();
+        if (useId === "")
+            useId = 0;
+        var ca = $("#ShiftName").data("tAutoComplete").value();
+        var message = "Ngày báo cáo: " + importDate;
+        message += "\nCa: " + ca;
+        message += "\nĐồng ý lưu ??";
+        if (confirm(message)) {
+            // Save it!
+            e.values = $.extend(e.values,
+                {
+                    importDate: importDate,
+                    useId: useId
+
+                }
+            );
+        } else {
+            e.preventDefault();
+        }
+    }
+
+    function Shift_Onload() {
+        var combobox1 = $('#Shift').data('tDropDownList');
+        var dataSource =
+        [
+            { Text: "1", Value: "1" },
+            { Text: "2", Value: "2" }
+        ];
+
+        combobox1.dataBind(dataSource);
+    }
+    function Shift2_Onload() {
+        var combobox1 = $('#Shift2').data('tDropDownList');
+        var dataSource =
+        [
+            { Text: "1", Value: "1" },
+            { Text: "2", Value: "2" }
+        ];
+
+        combobox1.dataBind(dataSource);
+    }
+    function getSmartList() {
+        var useId = $('#MaterialUseForm').data('tComboBox').value();
+        if (useId === "")
+            useId = 0;
+        var shift = $('#Shift').data('tDropDownList').value();
+        if (shift === "")
+            shift = 0;
+        RefreshGrid("gridSmartProduction");
+        $.ajax({
+            type: 'post',
+            data: { useId: useId, shift: shift },
+            dataType: 'json',
+            url: '@Url.Action("GetShiftNameType", "Transaction")',
+            timeout: 20000,
+            success: function (data) {
+                //if (data != "")
+                $("#ShiftName").data("tAutoComplete").value(data);
+            }
+        });
+    }
+</script>
+<script type="text/javascript">
+
+    function gridAdd_OnSave(e) {
+        var dataItem = e.dataItem;
+        var $productCode = $(e.cell).find('#ProductCode');
+        if ($productCode.length > 0) {
+            var productCode = $productCode.data("tComboBox"),
+                productCodeSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+            if (productCodeSelectItem) {
+                e.values["ProductCode"] = productCodeSelectItem.Text;
+                e.values["ProductId"] = productCodeSelectItem.Value;
+                if (dataItem.MachineId > 0 && dataItem.MaterialInventoryId > 0)
+                    $.ajax({
+                        type: 'post',
+                        data: {
+                            productId: productCodeSelectItem.Value,
+                            machineId: dataItem.MachineId,
+                            materialInvId: dataItem.MaterialInventoryId
+                        },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductionWeight", "Transaction", new { area = "Inv" })',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm");
+                                //} else if (data == '0') {
+                                //    alert("Lỗi!");
+                            } else {
+                                dataItem.ProductWeight = data[0];
+                                e.cell.parentNode.getElementsByClassName("ProductWeight")[0].textContent = data[0];
+                                dataItem.WarehouseExportId = data[1];
+                                e.cell.parentNode.getElementsByClassName("WarehouseExportId")[0].textContent = data[1];
+                                e.cell.parentNode.getElementsByClassName("WarehouseExportName")[0].textContent = data[2];
+                                e.cell.parentNode.getElementsByClassName("ProductionRate")[0].textContent = data[3];
+                            }
+                        }
+                    });
+            }
+        }
+        var $machineName = $(e.cell).find('#MachineName');
+        if ($machineName.length > 0) {
+            var machineName = $machineName.data("tComboBox"),
+                machineNameSelectItem = machineName.selectedIndex > -1 ? machineName.data[machineName.selectedIndex] : null;
+
+            if (machineNameSelectItem) {
+                e.values["MachineName"] = machineNameSelectItem.Text;
+                e.values["MachineId"] = machineNameSelectItem.Value;
+                if (dataItem.ProductId > 0 && dataItem.MaterialInventoryId > 0)
+                    $.ajax({
+                        type: 'post',
+                        data: {
+                            productId: dataItem.ProductId,
+                            machineId: machineNameSelectItem.Value,
+                            materialInvId: dataItem.MaterialInventoryId
+                        },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductionWeight", "Transaction", new { area = "Inv" })',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm");
+                                //} else if (data == '0') {
+                                //    alert("Lỗi!");
+                            } else {
+                                dataItem.ProductWeight = data[0];
+                                e.cell.parentNode.getElementsByClassName("ProductWeight")[0].textContent = data[0];
+                                dataItem.WarehouseExportId = data[1];
+                                e.cell.parentNode.getElementsByClassName("WarehouseExportId")[0].textContent = data[1];
+                                e.cell.parentNode.getElementsByClassName("WarehouseExportName")[0].textContent = data[2];
+                                e.cell.parentNode.getElementsByClassName("ProductionRate")[0].textContent = data[3];
+                            }
+                        }
+                    });
+            }
+        }
+        var $materialCode = $(e.cell).find('#MaterialInventoryCode');
+        if ($materialCode.length > 0) {
+            var materialCode = $materialCode.data("tComboBox"),
+                materialCodeSelectItem = materialCode.selectedIndex > -1 ? materialCode.data[materialCode.selectedIndex] : null;
+
+            if (materialCodeSelectItem) {
+                e.values["MaterialInventoryCode"] = materialCodeSelectItem.Text;
+                e.values["MaterialInventoryId"] = materialCodeSelectItem.Value;
+                if (dataItem.ProductId > 0 && dataItem.MachineId > 0)
+                    $.ajax({
+                        type: 'post',
+                        data: {
+                            productId: dataItem.ProductId,
+                            machineId: dataItem.MachineId,
+                            materialInvId: materialCodeSelectItem.Value
+                        },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductionWeight", "Transaction", new { area = "Inv" })',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm");
+                                //} else if (data == '0') {
+                                //    alert("Lỗi!");
+                            } else {
+                                dataItem.ProductWeight = data[0];
+                                e.cell.parentNode.getElementsByClassName("ProductWeight")[0].textContent = data[0];
+                                dataItem.WarehouseExportId = data[1];
+                                e.cell.parentNode.getElementsByClassName("WarehouseExportId")[0].textContent = data[1];
+                                e.cell.parentNode.getElementsByClassName("WarehouseExportName")[0].textContent = data[2];
+                                e.cell.parentNode.getElementsByClassName("ProductionRate")[0].textContent = data[3];
+                            }
+                        }
+                    });
+            }
+        }
+
+        var sumNumber = 0;
+        var spanNumber = null;
+        var i = 0;
+        var innerText = "";
+        var weight = dataItem.ProductWeight;
+        if (e.cell.parentNode.getElementsByClassName("ProductWeight")[0] != null)
+            weight = parseFloat(e.cell.parentNode.getElementsByClassName("ProductWeight")[0].textContent);
+        if (weight == 0)
+            return;
+        dataItem.ProductWeight = weight;
+        dataItem.WarehouseExportId = e.cell.parentNode.getElementsByClassName("WarehouseExportId")[0].textContent;
+        var rate = dataItem.ProductionRate;
+        var materialUse = dataItem.MaterialUse1;
+        var quantity = dataItem.QuantityExport1;
+        var pending = dataItem.QuantityPending1;
+        var defect = dataItem.QuantityDefect1;
+        var quantityG = 0;
+        var number = $(e.cell).find('#QuantityExport2').val();
+        if (!isNaN(parseInt(number))) {
+            sumNumber = parseInt(number);
+            if (materialUse === 0 && sumNumber != 0) {
+                e.cell.style.backgroundColor = "#F4FA58";
+            } else {
+                e.cell.style.backgroundColor = "";
+                spanNumber = $("span[class='QuantityExport2']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityExport2").text(sumNumber);
+            }
+            quantity = Math.floor(number / weight);
+
+            e.cell.parentNode.getElementsByClassName("QuantityExport1")[0].textContent = quantity;
+            dataItem.QuantityExport1 = quantity;
+        }
+        number = $(e.cell).find('#QuantityDefect2').val();
+        if (!isNaN(parseInt(number))) {
+            sumNumber = parseInt(number);
+            if (materialUse === 0 && sumNumber != 0) {
+                e.cell.style.backgroundColor = "#F4FA58";
+            } else {
+                e.cell.style.backgroundColor = "";
+                spanNumber = $("span[class='QuantityDefect2']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityDefect2").text(sumNumber);
+            }
+            defect = Math.floor(number / weight);
+
+            e.cell.parentNode.getElementsByClassName("QuantityDefect1")[0].textContent = defect;
+            dataItem.QuantityDefect1 = defect;
+        }
+        number = $(e.cell).find('#QuantityPending2').val();
+        if (!isNaN(parseInt(number))) {
+            sumNumber = parseInt(number);
+            if (materialUse === 0 && sumNumber != 0) {
+                e.cell.style.backgroundColor = "#F4FA58";
+            } else {
+                e.cell.style.backgroundColor = "";
+                spanNumber = $("span[class='QuantityPending2']");
+                for (i = 0; i < spanNumber.length; i++) {
+                    innerText = spanNumber[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumNumber = sumNumber + parseInt(innerText);
+                }
+                $("#TotalQuantityPending2").text(sumNumber);
+            }
+            pending = Math.floor(number / weight);
+
+            e.cell.parentNode.getElementsByClassName("QuantityPending1")[0].textContent = pending;
+            dataItem.QuantityPending1 = pending;
+        }
+        number = $(e.cell).find('#QuantityExport1').val();
+        if (!isNaN(parseInt(number))) {
+            quantity = parseInt(number);
+
+            quantityG = parseInt(number * weight);
+            dataItem.QuantityExport2 = quantityG;
+            e.cell.parentNode.getElementsByClassName("QuantityExport2")[0].textContent = quantityG.format(0);
+        }
+        number = $(e.cell).find('#QuantityPending1').val();
+        if (!isNaN(parseInt(number))) {
+            pending = parseInt(number);
+
+            quantityG = parseInt(number * weight);
+            dataItem.QuantityPending2 = quantityG;
+            e.cell.parentNode.getElementsByClassName("QuantityPending2")[0].textContent = quantityG.format(0);
+        }
+        number = $(e.cell).find('#QuantityDefect1').val();
+        if (!isNaN(parseInt(number))) {
+            defect = parseInt(number);
+
+            quantityG = parseInt(number * weight);
+            dataItem.QuantityDefect2 = quantityG;
+            e.cell.parentNode.getElementsByClassName("QuantityDefect2")[0].textContent = quantityG.format(0);
+        }
+        var diffProduction = quantity + pending + defect - (materialUse * rate);
+        e.cell.parentNode.getElementsByClassName("DiffProduction")[0].textContent = diffProduction;
+        var diffMaterial = diffProduction / rate;
+        e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].textContent = (diffMaterial).format(2);
+        if (Math.abs(diffMaterial) / materialUse < 0.1)
+            e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].parentNode.style.backgroundColor = "";
+        else if (Math.abs(diffMaterial) / materialUse < 0.2)
+            e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].parentNode.style.backgroundColor = "#F4FA58";
+        else
+            e.cell.parentNode.getElementsByClassName("DiffMaterial")[0].parentNode.style.backgroundColor = "#FA5858";
+    }
+
+    function gridAdd_OnSubmitChanges(e) {
+        var importDate = $("#ImportDate").data("tDatePicker").value();
+        if (importDate === null)
+            importDate = "";
+        else
+            importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+        var materialUseDate = $("#MaterialUseDate").data("tDatePicker").value();
+        if (materialUseDate === null)
+            materialUseDate = "";
+        else
+            materialUseDate = $.telerik.formatString('{0:dd/MM/yyyy}', materialUseDate);
+        var shift = $('#Shift2').data('tDropDownList').value();
+        if (shift === "")
+            shift = 0;
+        var ca = $("#ShiftName2").data("tAutoComplete").value();
+        var message = "Ngày báo cáo: " + importDate;
+        message += "\nCa: " + ca;
+        message += "\nĐồng ý lưu ??";
+        if (confirm(message)) {
+            // Save it!
+            e.values = $.extend(e.values,
+                {
+                    importDate: importDate,
+                    materialUseDate: materialUseDate,
+                    shiftType: shift,
+                    shiftName: ca,
+                }
+            );
+        } else {
+            e.preventDefault();
+        }
+    }
+</script>
+
+<div class="title">Tạo phiếu nhập sản xuất 1</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu</legend>
+        <div>
+            <div class="grid_4">Ngày báo cáo</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("ImportDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+            <div class="clear" style="margin-bottom: 10px"></div>
+            <div class="grid_4">Ngày sử dụng nguyên liệu</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("MaterialUseDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+        </div>
+
+    </fieldset>
+</div>
+<div class="t-info-sha alpha grid_15">
+    <div class="grid_4">
+        <label>
+            <input id="rdoNormal" name="rdoType" value="rdoNormal" type="radio" checked="checked" />
+            Bình thường
+        </label>
+    </div>
+    <div class="grid_4">
+
+        <label>
+            <input id="rdoAdd" name="rdoType" value="rdoAdd" type="radio" />
+            Thêm sản xuất
+        </label>
+    </div>
+    <div class="grid_4">
+
+        <label>
+            <input id="rdoExcel" name="rdoType" value="rdoExcel" type="radio" />
+            Upload Excel
+        </label>
+    </div>
+</div>
+<div class="clear"></div>
+<br />
+<div id="pnlNormal">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+        <div class="grid_2">Phiếu SDNL</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("MaterialUseForm")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxtMaterialUseForm", "Transaction", new { area = "Inv", date = "" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(e => e.OnDataBinding("cbo_OnDataBinding"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_1">
+            <button class="t-button" id="btnRefresh" name="btnPickupMaterialId" onclick=" RefreshCombobox('MaterialUseForm') ">
+                <span class='t-icon t-refresh'></span>
+            </button>
+        </div>
+        <div class="grid_1">Ca</div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("Shift")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    .ClientEvents(events => events.OnLoad("Shift_Onload"))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ShiftName")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    //.HighlightFirstMatch(true)
+                    //.AutoFill(true)
+                    //.ClientEvents(events => events.OnLoad("ca1_onload"))
+                    .Render();
+            }
+
+        </div>
+
+        <button id="btnGetSmartList" class="t-button" onclick=" return getSmartList(); ">
+            <span class='t-icon t-insert'></span>
+            Lấy danh sách máy chạy trong ngày
+        </button>
+    </div>
+    <div class="clear"></div>
+
+
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<SmartProductionModel>()
+                .Name("gridSmartProduction")
+                .DataKeys(keys => keys.Add(f => f.SmartId).RouteKey("smartId"))
+                .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText)
+                    .SaveText("Lưu tất cả").CancelText("Trở về ban đầu"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectMaterialInvOnMachine", "Transaction", new { useId = 0, shift = 0 })
+                //.Update("UpdateSmartProductionFull", "Transaction")
+                                                         .Update("UpdateSmartProductionFull2", "Transaction")
+                )
+                .Columns(columns =>
+                    {
+                        columns.Bound(f => f.WarehouseExportId).Width(50).Title("").Hidden(true)
+                               .ClientTemplate("<span class='WarehouseExportId'><#= WarehouseExportId #></span>");
+                        columns.Bound(f => f.MachineName).Width(60).Title("Máy").ReadOnly(true);
+                        columns.Bound(f => f.MaterialInventoryCode).Title("Nguyên liệu").ReadOnly(true);
+                        columns.Bound(f => f.ProductCode).Width(85).Title("Sản Phẩm");
+                        columns.Bound(f => f.ProductWeight).Width(60).Title("TL")
+                               .ClientTemplate("<span class='ProductWeight'><#= ProductWeight #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.ProductionRate).Width(50).Title("ĐM").ReadOnly(true)
+                               .ClientTemplate("<span class='ProductionRate'><#= ProductionRate #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.WarehouseExportName).Width(50).Title("Kho").ReadOnly(true)
+                               .ClientTemplate("<span class='WarehouseExportName'><#= WarehouseExportName #></span>")
+                               .HtmlAttributes(new { style = "border-right: solid 1px black;" });
+                        columns.Bound(f => f.MaterialUse1).Width(60).Title("NLSD").ReadOnly(true)
+                               .Format("{0:n2}")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.LotNumber).Width(100).Title("Lô").ReadOnly(true)
+                               .Format("{0:n2}")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.QuantityExport2).Width(70).Title("OK (g)")
+                               .ClientTemplate("<span class='QuantityExport2'><#= QuantityExport2 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityExport2) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .FooterTemplate("<span id='TotalQuantityExport1'></span>");
+                        columns.Bound(f => f.QuantityPending2).Width(70).Title("CXL (g)")
+                               .ClientTemplate("<span class='QuantityPending2'><#= QuantityPending1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityPending2) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .FooterTemplate("<span id='TotalQuantityPending2'></span>");
+                        columns.Bound(f => f.QuantityDefect2).Width(70).Title("NG (g)")
+                               .ClientTemplate("<span class='QuantityDefect2'><#= QuantityDefect1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect2) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;border-right: solid 1px black;" })
+                               .FooterTemplate("<span id='TotalQuantityDefect2'></span>");
+
+                        columns.Bound(f => f.QuantityExport1).Width(70).Title("OK (pcs)")
+                               .ClientTemplate("<span class='QuantityExport1'><#= QuantityExport1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityExport1) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.QuantityPending1).Width(70).Title("CXL (pcs)")
+                               .ClientTemplate("<span class='QuantityPending1'><#= QuantityPending1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityPending1) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.QuantityDefect1).Width(70).Title("NG (pcs)")
+                               .ClientTemplate("<span class='QuantityDefect1'><#= QuantityDefect1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect1) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;border-right: solid 1px black;" });
+
+                        columns.Bound(f => f.DiffProduction).Width(70).Title("Lệch SP").ReadOnly(true)
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .ClientTemplate("<span class='DiffProduction'></span>");
+                        columns.Bound(f => f.DiffMaterial).Width(60).Title("Lệch NL").ReadOnly(true)
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .ClientTemplate("<span class='DiffMaterial'></span>");
+
+                        columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30);
+                    })
+                .ClientEvents(events => events
+                                            .OnDataBinding("gridSmart_OnDataBinding")
+                                            .OnSave("gridSmart_OnSave")
+                                            .OnSubmitChanges("gridSmart_OnSubmitChanges")
+                                            .OnError("grid_OnError")
+                )
+                .Editable(editing => editing.Mode(GridEditMode.InCell))
+                .KeyboardNavigation(keys => keys.EditOnTab(true))
+                .Resizable(resizing => resizing.Columns(true))
+                .Scrollable(f => f.Height(510))
+                // .Footer(false)
+                .Render();
+        }
+    </div>
+</div>
+<div class="clear"></div>
+
+<div id="pnlAdd">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+        <div class="grid_1">Ca</div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("Shift2")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    .ClientEvents(events => events.OnLoad("Shift2_Onload"))
+                    .Render();
+            }
+        </div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ShiftName2")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    .Render();
+            }
+
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<SmartProductionModel>()
+                .Name("gridAddProduction")
+                .DataKeys(keys => keys.Add(f => f.SmartId).RouteKey("smartId"))
+                .ToolBar(bar =>
+                    {
+                        bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm dòng mới");
+                        bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Trở về ban đầu");
+                    })
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectMaterialInvOnMachine", "Transaction", new { useId = 0, shift = 0 })
+                                                         .Update("UpdateAddProduction", "Transaction")
+                )
+                .Columns(columns =>
+                    {
+                        columns.Bound(f => f.WarehouseExportId).Width(50).Title("").Hidden(true)
+                               .ClientTemplate("<span class='WarehouseExportId'><#= WarehouseExportId #></span>");
+                        columns.Bound(f => f.MachineName).Width(50).Title("Máy");
+                        columns.Bound(f => f.ProductCode).Width(75).Title("Sản Phẩm");
+                        columns.Bound(f => f.MaterialInventoryCode).Width(140).Title("Nguyên liệu");
+                        columns.Bound(f => f.ProductWeight).Width(50).Title("TL")
+                               .ClientTemplate("<span class='ProductWeight'><#= ProductWeight #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.ProductionRate).Width(50).Title("ĐM")
+                               .ClientTemplate("<span class='ProductionRate'><#= ProductionRate #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.WarehouseExportName).Width(85).Title("Kho xuất").ReadOnly(true)
+                               .ClientTemplate("<span class='WarehouseExportName'><#= WarehouseExportName #></span>")
+                               .HtmlAttributes(new { style = "border-right: solid 1px black;" });
+                        columns.Bound(f => f.QuantityExport2).Width(50).Title("OK (g)")
+                               .ClientTemplate("<span class='QuantityExport2'><#= QuantityExport2 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityExport2) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .FooterTemplate("<span id='TotalQuantityExport1'></span>");
+                        columns.Bound(f => f.QuantityPending2).Width(50).Title("CXL (g)")
+                               .ClientTemplate("<span class='QuantityPending2'><#= QuantityPending1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityPending2) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .FooterTemplate("<span id='TotalQuantityPending2'></span>");
+                        columns.Bound(f => f.QuantityDefect2).Width(50).Title("NG (g)")
+                               .ClientTemplate("<span class='QuantityDefect2'><#= QuantityDefect1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect2) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;border-right: solid 1px black;" })
+                               .FooterTemplate("<span id='TotalQuantityDefect2'></span>");
+
+                        columns.Bound(f => f.QuantityExport1).Width(50).Title("OK (pcs)")
+                               .ClientTemplate("<span class='QuantityExport1'><#= QuantityExport1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityExport1) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.QuantityPending1).Width(50).Title("CXL (pcs)")
+                               .ClientTemplate("<span class='QuantityPending1'><#= QuantityPending1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityPending1) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.QuantityDefect1).Width(50).Title("NG (pcs)")
+                               .ClientTemplate("<span class='QuantityDefect1'><#= QuantityDefect1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect1) #></span>")
+                               .HtmlAttributes(new { style = "text-align:right;border-right: solid 1px black;" });
+
+                        columns.Bound(f => f.DiffProduction).Width(50).Title("Lệch SP").ReadOnly(true)
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .ClientTemplate("<span class='DiffProduction'></span>");
+                        columns.Bound(f => f.DiffMaterial).Width(50).Title("Lệch NL").ReadOnly(true)
+                               .HtmlAttributes(new { style = "text-align:right;" })
+                               .ClientTemplate("<span class='DiffMaterial'></span>");
+
+                        columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30);
+                    })
+                .ClientEvents(events => events
+                                            .OnSave("gridAdd_OnSave")
+                                            .OnSubmitChanges("gridAdd_OnSubmitChanges")
+                                            .OnError("grid_OnError")
+                )
+                .Editable(editing => editing.Mode(GridEditMode.InCell))
+                .KeyboardNavigation(keys => keys.EditOnTab(true))
+                .Resizable(resizing => resizing.Columns(true))
+                .Scrollable(f => f.Height(510))
+                // .Footer(false)
+                .Render();
+        }
+    </div>
+</div>
+<div class="clear"></div>
+
+@* 
+<div id="pnlExcel">
+
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+        <div class="grid_1">
+            Ca 1
+        </div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("Ca1")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    //.HighlightFirstMatch(true)
+                    //.AutoFill(true)
+                    //.ClientEvents(events => events.OnLoad("ca1_onload"))
+                    .Render();
+            }
+
+        </div>
+        <div class="grid_1">
+            Ca 2
+        </div>
+        <div class="grid_2">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("Ca2")
+                    .HtmlAttributes(new { style = "width: 40px" })
+                    .DropDownHtmlAttributes(new { style = "width: 40px" })
+                    //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    //.HighlightFirstMatch(true)
+                    //.AutoFill(true)
+                    //.ClientEvents(events => events.OnLoad("ca2_onload"))
+                    .Render();
+            }
+        </div>
+        <div class="clear"></div>
+        <fieldset>
+            <legend>Upload excel</legend>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().Upload().Name("attachments")
+                        .Async(async => async
+                                            .Save("Save", "Reporting", new { area = "Inv" })
+                                            .AutoUpload(false))
+                        .ClientEvents(events => events
+                                                    .OnUpload("upload_OnUpload")
+                                                    .OnSuccess("upload_OnSuccess")
+                                                    .OnError("upload_OnError"))
+                        .Multiple(false)
+                        .Render();
+                }
+            </div>
+            <div>
+                <div class="grid_4">
+                    Nhập chính xác tên sheet 
+                        <br />
+                    (Vd: Sheet1 hoặc Sheet2)
+                </div>
+                <div class="grid_2">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("SheetName")
+                            .HtmlAttributes(new { style = "width: 100%" })
+                            .Value("Data")
+                            .Render();
+                    }
+                </div>
+            </div>
+            <div class="grid_8">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
+                    <span class='t-icon t-insert'></span>
+                    Lấy dữ liệu
+                </button>
+                @* <button id="btnPrint" class="t-button" onclick=" return PrintForecastOrder(); ">
+                <span class='t-icon t-insert'></span>
+                In
+            </button>
+            </div>
+
+        </fieldset>
+    </div>
+    <div class="clear"></div>
+   <div class="cover-div">
+        @{
+            Html.Telerik().Grid<SmartProductionModel>()
+                .Name("gridSmartProductionExcel")
+                .DataKeys(keys => keys.Add(f => f.SmartId).RouteKey("smartId"))
+                .ToolBar(bar => bar.Template(
+            @<text>
+            <div class="grid_10">
+                <button class="t-button" id="btnPrint" name="btnPrint" onclick=" SaveAll() ">
+                    <span class='t-icon t-insert'></span>
+                    Lưu tất cả
+                </button>
+            </div>
+            <div class="clear"></div>
+            </text>))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectProductionDetailByExcel2", "Transaction", new { onDate = "" })
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.MachineName).Width(50).Title("Máy").ReadOnly(true)
+                           .Aggregate(agg => agg.Count())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .FooterTemplate("<span id='tongcot1'></span>");
+                    columns.Bound(f => f.MaterialInventoryCode).Width(150).Title("Nguyên liệu").ReadOnly(true);
+                    columns.Bound(f => f.MaterialInvTotal).Width(45).Title("Tồn NL").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= MaterialInvTotal == null ? 0 : $.telerik.formatString('{0:n2}', MaterialInvTotal) #>")
+                        ;
+                    columns.Bound(f => f.ProductCode).Width(75).Title("Sản Phẩm").ReadOnly(true);
+                    columns.Bound(f => f.ProductWeight).Width(40).Title("TL").ReadOnly(true)
+                        .Format("{0:n3}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.ProductionRate).Width(40).Title("NS").ReadOnly(true)
+                        .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.WarehouseExportName).Width(85).Title("Kho xuất").ReadOnly(true);
+                    columns.Bound(f => f.MaterialUse1).Width(45).Title("NL 1").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= MaterialUse1 == null ? 0 : $.telerik.formatString('{0:n2}', MaterialUse1) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                           .FooterTemplate("<span id='TotalMaterialUse1'></span>");
+                    columns.Bound(f => f.QuantityExport1).Width(45).Title("OK 1").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= QuantityExport1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityExport1) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterTemplate("<span id='TotalQuantityExport1'></span>");
+                    columns.Bound(f => f.QuantityPending1).Width(45).Title("CXL 1").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= QuantityPending1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityPending1) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterTemplate("<span id='TotalQuantityPending1'></span>");
+                    columns.Bound(f => f.QuantityDefect1).Width(45).Title("NG 1").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= QuantityDefect1 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect1) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterTemplate("<span id='TotalQuantityDefect1'></span>");
+
+                    columns.Bound(f => f.MaterialUse2).Width(45).Title("NL 2").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= MaterialUse2 == null ? 0 : $.telerik.formatString('{0:n2}', MaterialUse2) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                           .FooterTemplate("<span id='TotalMaterialUse2'></span>");
+                    columns.Bound(f => f.QuantityExport2).Width(45).Title("OK 2").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= QuantityExport2 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityExport2) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterTemplate("<span id='TotalQuantityExport2'></span>");
+                    columns.Bound(f => f.QuantityPending2).Width(45).Title("CXL 2").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= QuantityPending2 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityPending2) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterTemplate("<span id='TotalQuantityPending2'></span>");
+                    columns.Bound(f => f.QuantityDefect2).Width(45).Title("NG 2").ReadOnly(true)
+                           .HtmlAttributes(new { style = "text-align: right;" })
+                           .ClientTemplate("<#= QuantityDefect2 == null ? 0 : $.telerik.formatString('{0:n0}', QuantityDefect2) #>")
+                           .Aggregate(agg => agg.Sum())
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterTemplate("<span id='TotalQuantityDefect2'></span>");
+
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("Detail_<#= MachineId #>_<#= ProductId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                        {
+                            items.Add().Text("Nguyên liệu thiết kế").Content(
+                                Html.Telerik().Grid<ProductModel>()
+                                    .Name("gridMaterialUseDetail_<#= MachineId #>_<#= ProductId #>")
+                                    .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                    .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                             .Select("SelectProductMaterialDesign", "Product", new { area = "", productId = "<#= ProductId #>", }))
+                                    .Columns(columns =>
+                                        {
+                                            columns.Bound(f => f.MaterialNameDesign).Width(120).Title("Tên NL").ReadOnly(true);
+                                            columns.Bound(f => f.OutDiameterDesign).Width(100).Title("Đường kính ngoài").ReadOnly(true);
+                                            columns.Bound(f => f.InDiameterDesign).Width(100).Title("Đường kính trong").ReadOnly(true);
+                                            columns.Bound(f => f.ShapeDesign).Width(50).Title("Hình dạng").ReadOnly(true);
+                                            columns.Bound(f => f.DiameterTypeDesign).Width(50).Title("Dung sai").ReadOnly(true);
+                                        })
+                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ToHtmlString()
+                                );
+
+                            items.Add().Text("Sản phẩm trên máy").Content(
+                                Html.Telerik().Grid<TrackUpMachineModel>()
+                                    .Name("gridTrackUpMachine_<#= MachineId #>_<#= ProductId #>")
+                                    .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                    .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                             .Select("SelectTrackUpByMachine", "Transaction", new
+                                                                                 {
+                                                                                     area = "Inv",
+                                                                                     productId = "<#= ProductId #>",
+                                                                                     machineId = "<#= MachineId #>",
+                                                                                     useDateString = "<#= UseDateString #>",
+                                                                                 }))
+                                    .Columns(columns =>
+                                        {
+                                            columns.Bound(f => f.DeliveryDate).Width(75).Title("Ngày lên máy")
+                                                   .ClientTemplate("<#= DeliveryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DeliveryDate) #>");
+                                            columns.Bound(f => f.ProductCode).Width(100).Title("Mã SP")
+                                                   .HtmlAttributes(new { style = "font-weight:bold" })
+                                                //.ClientTemplate("<strong><#= ProductCode #></strong>")
+                                                ;
+                                            columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu")
+                                                   .HtmlAttributes(new { style = "font-weight:bold" });
+                                            columns.Bound(f => f.RealProductivity).Width(45)
+                                                   .HeaderTemplate("Năng</br>Suất")
+                                                   .HtmlAttributes(new { style = "text-align:right;" })
+                                                   .ClientTemplate("<#= RealProductivity == null ? 0 : $.telerik.formatString('{0:n2}', RealProductivity) #>");
+                                            columns.Bound(f => f.RealRate).Width(45)
+                                                   .HeaderTemplate("Định</br>Mức")
+                                                   .HtmlAttributes(new { style = "text-align:right;" })
+                                                   .ClientTemplate("<#= RealRate == null ? 0 : $.telerik.formatString('{0:n2}', RealRate) #>");
+                                            columns.Bound(f => f.KnifeCut).Width(45)
+                                                   .HeaderTemplate("Dao</br>Cắt")
+                                                   .ClientTemplate("<#= KnifeCut == null ? 0 : $.telerik.formatString('{0:n2}', KnifeCut) #>");
+                                            columns.Bound(f => f.DeliveryEmployee).Width(55).Title("NV Giao")
+                                                   .HtmlAttributes(new { style = "text-align:center;" });
+                                            columns.Bound(f => f.ReceiveEmployee).Width(55).Title("NV Nhận")
+                                                   .HtmlAttributes(new { style = "text-align:center;" });
+                                            columns.Bound(f => f.Note).Width(70).Title("Ghi chú");
+                                            columns.Bound(f => f.ModifiedUser).Width(70).Title("Người làm");
+                                            columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày làm")
+                                                .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                                        })
+                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ToHtmlString()
+                                );
+                        }
+                    )
+                    .ToHtmlString()
+                                       ))
+            .Selectable()
+            .ClientEvents(events => events
+                                        .OnDataBinding("gridExcel_OnDataBinding")
+                                        .OnRowDataBound("gridExcel_OnRowDataBound")
+                                        .OnComplete("gridExcel_OnComplete")
+                                        .OnRowSelect("gridExcel_onRowSelect")
+                                        .OnError("grid_OnError"))
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable(f => f.Height(510))
+                // .Footer(false)
+            .Render();
+        }
+    </div>
+</div>*@

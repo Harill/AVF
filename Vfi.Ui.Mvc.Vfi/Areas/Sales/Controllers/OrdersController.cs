@@ -5,8 +5,10 @@ using System.Data.OleDb;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Microsoft.Practices.Unity;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
+using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
@@ -16,6 +18,16 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
     public class OrdersController : Controller {
+
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly SalesOrderController _salesOrderController;
+        [InjectionConstructor]
+        public OrdersController(IUnitOfWork unitOfWork, SalesOrderController salesOrderController) {
+            if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
+
+            _unitOfWork = unitOfWork;
+            _salesOrderController = salesOrderController;
+        }
         //
         // GET: /Sales/Orders/
         string contentPath() {
@@ -679,7 +691,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated)
                 return Json(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
             try {
+                var orderDetailIds = new List<long>();
                 using (var vfi = new tammaContext()) {
+                    // save approve order
                     var order = vfi.Orders.FirstOrDefault(o => o.OrderId == orderId);
                     var orderDetail = order.OrderDetails.OrderByDescending(od => od.VFIDueDate).FirstOrDefault();
                     if (Convert.ToDateTime(dueDate) < orderDetail.VFIDueDate)
@@ -687,12 +701,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     order.DueDate = Convert.ToDateTime(dueDate);
                     order.Status = (byte)MyUtilities.Sales.Status.Waiting;
                     order.Active = true;
+                    vfi.SaveChanges();
+
+                    // update forecast order
                     var productIds = order.OrderDetails.Select(od => od.ProductId).Distinct().ToList();
                     var allOrderDetails = vfi.OrderDetails.Where(od => productIds.Contains(od.ProductId) &&
                         od.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
                         od.Order.DueDate != null &&
-                   od.Order.DueDate.Value.Month == order.DueDate.Value.Month &&
-                   od.Order.DueDate.Value.Year == order.DueDate.Value.Year).ToList();
+                       od.Order.DueDate.Value.Month == order.DueDate.Value.Month &&
+                       od.Order.DueDate.Value.Year == order.DueDate.Value.Year).Select(x => new { x.ProductId, x.OrderQty }).ToList();
                     foreach (var productId in productIds) {
                         var forecast = vfi.ForecastOrders.FirstOrDefault(f => f.ProductId == productId &&
                             f.ForecastDate.Month == order.DueDate.Value.Month &&
@@ -711,12 +728,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         }
                         var orderDetailsById = allOrderDetails.Where(od => od.ProductId == productId).ToList();
                         var orderDetailsInOrder = order.OrderDetails.Where(od => od.ProductId == productId).ToList();
-                        var totalQuantity = orderDetailsById.Sum(od => od.OrderQty.Value) + 
+                        var totalQuantity = orderDetailsById.Sum(od => od.OrderQty.Value) +
                             orderDetailsInOrder.Sum(od => od.OrderQty.Value);
                         if (forecast.Quantity < totalQuantity)
                             forecast.Quantity = totalQuantity;
                     }
                     vfi.SaveChanges();
+
+                    // save order progress auto
+                    orderDetailIds = order.OrderDetails.Select(x => x.OrderDetailId).ToList();
+                }
+                // save order progress auto
+                foreach (var detailId in orderDetailIds) {
+                    var orderProgresses = _salesOrderController.GetProductionExpectedByOrderDetail(detailId).Where(x => x.ModifiedUser.Equals("Auto") && x.StartDate != null).ToList();
+                    foreach (var progress in orderProgresses) {
+                        _salesOrderController.SaveOrderProgess(progress, HttpContext.User.Identity.Name);
+                    }
                 }
             }
             catch (Exception ex) {

@@ -1,0 +1,653 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model ProductInventoryModel
+@{
+    ViewBag.Title = "Sản phẩm tổng hợp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+
+
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+        var startGrid = false;
+
+        function gridProductInventoryForMonthly_onDataBinding(args) {
+            if (startGrid && !onLoading) {
+                OnLoadingData();
+                var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+
+
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+                if (customerId === "")
+                    customerId = 0;
+                var LKSX = $("input[name='chkLuyKeSX']").attr('checked');
+                var LKX = $("input[name='chkLuyKeXuat']").attr('checked');
+                var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
+                var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
+
+                args.data = $.extend(args.data, {
+                    chkLuyKeSX: LKSX,
+                    chkLuyKeXuat: LKX,
+                    chkDonHangThangKe: DHTK,
+                    chkDonHangConLai: DHCL,
+                    customerId: customerId,
+                    productName: productCodeNameForMonthly,
+                    monthlyDate: monthlyDate//$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
+                });
+            }
+        }
+
+        var index = 0;
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+    </script>
+    <!-- report -->
+    <script type="text/javascript">
+
+        function printProductInvTotal() {
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                var LKSX = $("input[name='chkLuyKeSX']").attr('checked');
+                var LKX = $("input[name='chkLuyKeXuat']").attr('checked');
+                var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
+                var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
+
+                var customerId = 0;
+                $('#result').load('@Url.Action("PrintProductReportTotal", "Reporting")',
+                    {
+                        customerId: customerId,
+                        chkLuyKeSX: LKSX,
+                        chkLuyKeXuat: LKX,
+                        chkDonHangThangKe: DHTK,
+                        chkDonHangConLai: DHCL,
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+
+        function printProductInvTotalWithCustomer() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                var LKSX = $("input[name='chkLuyKeSX']").attr('checked');
+                var LKX = $("input[name='chkLuyKeXuat']").attr('checked');
+                var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
+                var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
+
+                var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+                if (customerId === "")
+                    customerId = 0;
+                $('#result').load('@Url.Action("PrintProductReportTotal", "Reporting")',
+                    {
+                        customerId: customerId,
+                        chkLuyKeSX: LKSX,
+                        chkLuyKeXuat: LKX,
+                        chkDonHangThangKe: DHTK,
+                        chkDonHangConLai: DHCL,
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+
+        function printProductInvTotal2() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                var LKSX = $("input[name='chkLuyKeSX']").attr('checked');
+                var LKX = $("input[name='chkLuyKeXuat']").attr('checked');
+                var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
+                var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
+
+                $('#result').load('@Url.Action("PrintProductReportTotal2", "Reporting")',
+                    {
+                        chkLuyKeSX: LKSX,
+                        chkLuyKeXuat: LKX,
+                        chkDonHangThangKe: DHTK,
+                        chkDonHangConLai: DHCL,
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+        function printProductInvAllTotal() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                var LKSX = $("input[name='chkLuyKeSX']").attr('checked');
+                var LKX = $("input[name='chkLuyKeXuat']").attr('checked');
+                var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
+                var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
+
+                $('#result').load('@Url.Action("PrintProductReportAllTotal", "Reporting")',
+                    {
+                        chkLuyKeSX: LKSX,
+                        chkLuyKeXuat: LKX,
+                        chkDonHangThangKe: DHTK,
+                        chkDonHangConLai: DHCL,
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+
+    </script>
+}
+
+<div class="title">Báo cáo tổng hợp sản phẩm</div>
+<div class="clear"></div>
+<br />
+
+<div id="pnlInvMonthly">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+
+            <div class="grid_7">
+                <div class="grid_2">
+                    @Html.Label("Mã KH")
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("CustomerForMonthly")
+                            .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                            .HtmlAttributes(new { style = "width: 150px" })
+                            .DropDownHtmlAttributes(new { style = "width: 275px" })
+                            //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
+                            .AutoFill(true)
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div><br />
+                <div class="grid_2">
+                    @Html.LabelFor(f => f.ProductCodeName)
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("ProductCodeNameForMonthly")
+                            .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv"))
+                            .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                            .Encode(false)
+                            .AutoFill(true)
+                            .HighlightFirstMatch(true)
+                            .Render();
+                    }
+                </div>
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("MonthlyDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+            <div class="grid_3">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridProductInventoryForMonthly'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                <span class="twoToneButton"></span>
+                </button>
+            </div>
+            <div class="grid_4">
+                <label>
+                    <input type="checkbox" id="chkLuyKeSX" name="chkLuyKeSX" checked />
+                    Luỹ Kế SX
+                </label>
+                <br />
+                <label>
+                    <input type="checkbox" id="chkLuyKeXuat" name="chkLuyKeXuat" checked />
+                    Luỹ Kế Xuất
+                </label>
+                <br />
+                <label>
+                    <input type="checkbox" id="chkDonHangThangKe" name="chkDonHangThangKe" checked />
+                    Đơn Hàng Tháng Kế
+                </label>
+                <br />
+                <label>
+                    <input type="checkbox" id="chkDonHangConLai" name="chkDonHangConLai" checked />
+                    Đơn Hàng Còn Lại
+                </label>
+            </div>
+
+            <div class="grid_4">
+
+                <button id="btnProductInvTotal" class="t-button" onclick=" return printProductInvTotal(); ">
+                    <span class='t-icon t-insert'></span>
+                    Báo cáo (Print)
+                <span class="twoToneButton"></span>
+                </button>
+            </div>
+            <div class="grid_5">
+
+                <button id="btnPrintWithCustomer" class="t-button" onclick=" return printProductInvTotalWithCustomer(); ">
+                    <span class='t-icon t-insert'></span>
+                    Báo cáo theo KH (Print)
+                <span class="twoToneButton"></span>
+                </button>
+            </div>
+            <div class="grid_4"  style="visibility:@Model.Print2">
+                <button id="btnPrintOrderPlan" class='t-button' onclick="return printProductInvAllTotal();" style="width: 175px">
+                    <span class='t-icon t-insert'></span>
+                    Báo cáo tổng hợp (ALL)
+                <span class="twoToneButton"></span>
+                </button>
+            </div>
+
+        </fieldset>
+    </div>
+    <div class="clear"></div><br />
+
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<SoLieuTongHopSanPham>()
+                .Name("gridProductInventoryForMonthly")
+                .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectProductReportByMonthly", "Reporting",
+                                                                 new { chkLuyKeSX = true, chkLuyKeXuat = true, chkDonHangThangKe = true, chkDonHangConLai = true, customerId = 0, productName = "", monthlyDate = "" }))
+                .Columns(columns => {
+                        columns.Bound(f => f.Index)
+                            //.ClientTemplate("<#= ++index #>")
+                               .HeaderTemplate("<strong>STT</strong>").Width(50);
+
+                        columns.Bound(f => f.CustomerCode).Width(70)
+                               .HeaderTemplate("<strong>Mã KH</strong>")
+                               .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.ProductCode).Width(200)
+                               .HeaderTemplate("<strong>Mã SP</strong>")
+                               .Aggregate(agg => agg.Count())
+                               .ClientGroupFooterTemplate("<div style='text-align: center; '><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: center; '><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                               .HtmlAttributes(new { style = "text-align: center;" });
+                        // don hang
+                        columns.Bound(f => f.DonHangThangTruoc).Width(75)
+                               .HeaderTemplate("<strong>ĐH tháng</br>trước</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= DonHangThangTruoc == null ? 0 : $.telerik.formatString('{0:n0}', DonHangThangTruoc) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.DonHangTrongThang).Width(75)
+                               .HeaderTemplate("<strong>PO</br>KH</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= DonHangTrongThang == null ? 0 : $.telerik.formatString('{0:n0}', DonHangTrongThang) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.DuBaoSX).Width(75)
+                               .HeaderTemplate("<strong>PO</br>KD</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= DuBaoSX == null ? 0 : $.telerik.formatString('{0:n0}', DuBaoSX) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.DonHangThangKe).Width(75)
+                               .HeaderTemplate("<strong>PO KH</br>tháng kế</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= DonHangThangKe == null ? 0 : $.telerik.formatString('{0:n0}', DonHangThangKe) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.DonHangSauThangKe).Width(75)
+                               .HeaderTemplate("<strong>PO KD</br>tháng kế</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= DonHangSauThangKe == null ? 0 : $.telerik.formatString('{0:n0}', DonHangSauThangKe) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.DonHangConLai).Width(75)
+                               .HeaderTemplate("<strong>Còn lại</br>ĐH</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= DonHangConLai == null ? 0 : $.telerik.formatString('{0:n0}', DonHangConLai) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        // du bao
+                        //columns.Bound(f => f.DuBaoSX).Width(90)
+                        //       .HeaderTemplate("<strong>Dự báo</br>Sản Xuất</strong>")
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .ClientTemplate("<#= DuBaoSX == null ? 0 : $.telerik.formatString('{0:n0}', DuBaoSX) #>")
+                        //       .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        //       .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        //      .HtmlAttributes(new {style = "text-align: right;"});
+                        //columns.Bound(f => f.SLCanSX).Width(90)
+                        //       .HeaderTemplate("<strong>SL cần</br>Sản Xuất</strong>")
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .ClientTemplate("<#= SLCanSX == null ? 0 : $.telerik.formatString('{0:n0}', SLCanSX) #>")
+                        //       .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        //       .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                        //        .HtmlAttributes(new {style = "text-align: right;"});
+                        //ton tong
+                        columns.Bound(f => f.TonTong).Width(90)
+                               .HeaderTemplate("<strong>Tồn Tổng</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonTong == null ? 0 : $.telerik.formatString('{0:n0}', TonTong) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //nhap san xuat - so lieu cac kho
+                        columns.Bound(f => f.SanXuat1).Width(75)
+                               .HeaderTemplate("<strong>Kho SX 1</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= SanXuat1 == null ? 0 : $.telerik.formatString('{0:n0}', SanXuat1) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoSX2CNC).Width(75)
+                               .HeaderTemplate("<strong>SX 2</br>Kho CNC</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoSX2CNC == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoSX2CNC) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoSX2SX2).Width(75)
+                               .HeaderTemplate("<strong>SX 2</br>Kho SX2</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoSX2SX2 == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoSX2SX2) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoSX2SX2B).Width(75)
+                               .HeaderTemplate("<strong>SX 2</br>Văn</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoSX2SX2B == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoSX2SX2B) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoSX2SX2C).Width(75)
+                               .HeaderTemplate("<strong>SX 2</br>Mẫn</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoSX2SX2C == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoSX2SX2C) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoSX2SX2D).Width(75)
+                               .HeaderTemplate("<strong>SX 2</br>Cơ khí</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoSX2SX2D == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoSX2SX2D) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoNhietLuyen).Width(90)
+                               .HeaderTemplate("<strong>Chờ</br>nhiệt luyện</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoNhietLuyen == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoNhietLuyen) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoRungBong).Width(90)
+                               .HeaderTemplate("<strong>Chờ</br>rung bóng</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoRungBong == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoRungBong) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoGCN).Width(75)
+                               .HeaderTemplate("<strong>Chờ</br>GCN</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoGCN == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoGCN) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoNCU).Width(75)
+                               .HeaderTemplate("<strong>Xi mạ</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoNCU == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoNCU) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoNCUKiemTra).Width(75)
+                               .HeaderTemplate("<strong>Kiểm tra</br>ngoài</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoNCUKiemTra == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoNCUKiemTra) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoQCA).Width(75)
+                               .HeaderTemplate("<strong>Kho QC</br>Kho A</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoQCA == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoQCA) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                              .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoQCB).Width(75)
+                               .HeaderTemplate("<strong>Kho QC</br>Kho B</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoQCB == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoQCB) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoQCC).Width(75)
+                               .HeaderTemplate("<strong>Kho QC</br>Kho C</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoQCC == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoQCC) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoCXL).Width(75)
+                               .HeaderTemplate("<strong>Chờ</br>phân loại</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoCXL == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoCXL) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ReProcessing).Width(75)
+                               .HeaderTemplate("<strong>Chờ</br>gia công lại</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= ReProcessing == null ? 0 : $.telerik.formatString('{0:n0}', ReProcessing) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoPP).Width(75)
+                               .HeaderTemplate("<strong>Phế</br>phẩm</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoPP == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoPP) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Packing).Width(75)
+                               .HeaderTemplate("<strong>Đóng gói</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Packing == null ? 0 : $.telerik.formatString('{0:n0}', Packing) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoTPA).Width(75)
+                               .HeaderTemplate("<strong>TP</br>Kho A</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoTPA == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoTPA) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TonKhoTPB).Width(75)
+                               .HeaderTemplate("<strong>TP</br>Kho B</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= TonKhoTPB == null ? 0 : $.telerik.formatString('{0:n0}', TonKhoTPB) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                              .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.LuyKeSX).Width(90)
+                               .HeaderTemplate("<strong>Luỹ kế</br>Sản Xuất</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= LuyKeSX == null ? 0 : $.telerik.formatString('{0:n0}', LuyKeSX) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        // xuat ban
+                        columns.Bound(f => f.XuatThanhPham).Width(75)
+                               .HeaderTemplate("<strong>Xuất</br>TP</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= XuatThanhPham == null ? 0 : $.telerik.formatString('{0:n0}', XuatThanhPham) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.LuyKeXuat).Width(75)
+                               .HeaderTemplate("<strong>Luỹ kế</br>xuất</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= LuyKeXuat == null ? 0 : $.telerik.formatString('{0:n0}', LuyKeXuat) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ImportInternal).Width(75)
+                               .HeaderTemplate("<strong>Luỹ kế</br>nhập NB</strong>")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>");
+                        columns.Bound(f => f.ExportInternal).Width(75)
+                               .HeaderTemplate("<strong>Luỹ kế</br>xuất NB</strong>")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>");
+                    })
+                .Scrollable(f => f.Height(510))
+                //.HtmlAttributes(new { style = "width: 950px;" })
+                .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
+                .Filterable()
+                .Sortable()
+                .ClientEvents(events => events.OnError("grid_OnError")
+                                            .OnDataBinding("gridProductInventoryForMonthly_onDataBinding")
+                                            .OnDataBound("grid_OnDataBound"))
+                .Groupable()
+                .Render();
+        }
+        @*@{ Html.Telerik().ScriptRegistrar().OnDocumentReady("applyFrozenColumns();"); }*@
+    </div>
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(1100)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

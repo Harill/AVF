@@ -1,0 +1,130 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Lô Nguyên Liệu Sản Xuất";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+
+    <script type="text/javascript">
+
+        function gridDetail_OnEdit(e) {
+            var trackId = e.target.id.replace("gridTrackUpMaterialInv", "");
+            var materialInv = $("#MaterialInvCode").data('tComboBox');
+            //var monthlyDate = combobox.text();
+            $.ajax({
+                type: 'post',
+                data: { trackId: trackId },
+                dataType: 'json',
+                url: '@Url.Action("SelectComboBoxMaterialInvCodeByTrack", "Machine", new {area = "Factory"})',
+                timeout: 20000,
+                success: function (data) {
+                    //$('#Invoice').data('tConbobox').dataBind(data);
+                    materialInv.dataBind(data);
+                }
+            });
+        }
+        function grid_OnRowDataBound(e) {
+            if (e.dataItem.MoreDay == 0)
+                e.row.style.backgroundColor = "#F4FA58";
+            if (e.dataItem.ProductLength == 0)
+                e.row.cells[4].style.backgroundColor = "RED";
+        }
+
+    </script>
+}
+
+<div class="title">Lô nguyên liệu sản xuất</div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TrackUpMachineModel>()
+            .Name("gridTrackUpMachine")
+            .DataKeys(keys => keys.Add(f => f.TrackId).RouteKey("trackId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectRealTrackUpMachine", "Machine", new { area = "Factory" })
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.MachineName).Width(100).Title("Máy");
+                    columns.Bound(f => f.ProductCode).Width(150).Title("Sản phẩm");
+                    columns.Bound(f => f.MaterialCode).Width(200).Title("Nguyên liệu");
+                    columns.Bound(f => f.ProductLength).Width(75).Title("Dài (SP)")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.RealRate).Width(75).Title("Định mức")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.RealProductivity).Width(75).Title("NS")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.KnifeCut).Width(75).Title("Dao cắt")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.WorkPiece).Width(75).Title("Phoi dư")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.MaxAssign).Width(75).Title("Phát tối đa")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    //columns.Bound(f => f.MaterialUse1).Width(75).Title("SL Phát")
+                    //       .ClientTemplate("<span name='MaterialUse1'><#= MaterialUse1 == null ? 0 : $.telerik.formatString('{0:n2}', MaterialUse1) #></span>")
+                    //       .FooterTemplate("<span id='TotalMaterialUse1'></span>")
+                    //       .HtmlAttributes(new { style = "text-align: right;" });
+
+                    columns.Bound(f => f.Note).Title("Ghi Chú");
+                    //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30);
+                })
+            .DetailView(details => details.ClientTemplate(
+
+                Html.Telerik().Grid<TrackUpMaterialModel>()
+                    .Name("gridTrackUpMaterialInv<#= TrackId #>")
+                    .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId")).ToolBar(
+                        toolbar =>
+                        toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                    .DataBinding(db => db.Ajax()
+                                         .Select("SelectTrackUpMaterial", "Machine", new { area = "Factory", trackId = "<#= TrackId #>" })
+                                         .Insert("InsertTrackUpMaterial", "Machine", new { area = "Factory" , trackId = "<#= TrackId #>" })
+                                         .Update("UpdateTrackUpMaterial", "Machine", new { area = "Factory" })
+                    )
+                    .Columns(columns =>
+                    {
+                        columns.Command(command =>
+                                        command.Edit().ButtonType(GridButtonType.Image)
+                            ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.MaterialInvCode).Width(200).Title("Lô nguyên liệu");
+                        columns.Bound(f => f.MaterialInv).Width(65).Title("Tồn Kho").ReadOnly(true)
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.MaterialInvOnMachine).Width(65).Title("Tồn Máy").ReadOnly(true)
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ProductRate).Width(65).Title("Định mức theo NL").ReadOnly(true)
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.MaxAssign).Width(75).Title("Phát tối đa").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Note).Width(65).Title("Ghi Chú");
+                        columns.Bound(f => f.ModifiedUser).Width(65).Title("Người làm").ReadOnly(true);
+                        columns.Bound(f => f.ModifiedDate).Width(65).Title("Ngày làm").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}");
+                    })
+                    .ClientEvents(e => e.OnError("grid_OnError")
+                    .OnEdit("gridDetail_OnEdit"))
+                    .ToHtmlString()))
+
+            .ClientEvents(events => events
+                                        .OnError("grid_OnError")
+                                        .OnRowSelect("grid_OnRowSelect")
+                                        .OnRowDataBound("grid_OnRowDataBound")
+            )
+            .Selectable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable(f => f.Height(510))
+            // .Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

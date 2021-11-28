@@ -1,0 +1,22 @@
+﻿<script>
+    function sectionbyProduct_OnDataBinding(e) {
+        e.data = $.extend(e.data, {
+            productId: productId,
+        });
+    }
+</script>
+
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax()
+                                       .Select("SelectComboBoxSectionByProductId", "Section", new { area = "Factory", productId = 0 })
+                                       .Delay(350))
+        .HtmlAttributes(new {style = "width: 150px"})
+        .DropDownHtmlAttributes(new {style = "width: 250px"})
+        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .ClientEvents(events => events.OnDataBinding("sectionbyProduct_OnDataBinding"))
+        .Render();
+}

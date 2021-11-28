@@ -1,0 +1,12 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxRotateWarehouse", "Warehouse", new { area = "Inv", warehouseId = MyUtilities.Warehouse.ReProcessing }).Delay(350))
+        //.HtmlAttributes(new { style = "width: 200px" })
+        .DropDownHtmlAttributes(new { style = "width: 200px" })
+        .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .Render();
+}

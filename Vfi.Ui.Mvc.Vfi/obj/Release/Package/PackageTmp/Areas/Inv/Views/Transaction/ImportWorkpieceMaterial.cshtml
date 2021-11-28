@@ -1,0 +1,100 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ExportGCN_NCUModel
+@{
+    ViewBag.Title = "Nhập Kho Phôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+
+
+        function grid_OnSave(e) {
+            //tong weight
+            var sumWeight = 0.0;
+            var weight = $(e.cell).find('#Weight').val();
+            if (!isNaN(parseInt(weight))) {
+                var spanWeights = $("span[name='Weight']");
+                for (var i = 0; i < spanWeights.length; i++) {
+                    var innerText = spanWeights[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumWeight = sumWeight + parseFloat(innerText);
+                }
+                sumWeight = sumWeight + parseFloat(weight);
+                $("#TotalWeight").text(sumWeight);
+            }
+        }
+
+        function grid_onSubmitChanges(e) {
+            var importDate = $("#ImportDate").data("tDatePicker").value();
+            if (importDate === null)
+                importDate = "";
+            else
+                importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+            e.values = $.extend(e.values,
+                {
+                    importDate: importDate,
+                }
+            );
+
+        }
+
+    </script>
+}
+
+<div class="title">Nhập thêm kho phôi</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu nhập</legend>
+        <div class="grid_3">Ngày nhập</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("ImportDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkpieceMaterialPeriodModel>()
+            .Name("gridWorkpiece")
+            .DataKeys(keys => keys.Add(f => f.PeriodId).RouteKey("periodId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Hủy bỏ");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectImportWorkpieceDetail", "Transaction", new {importId = 0})
+                                                     .Update("UpdateImportWorkpieceDetail", "Transaction", new {importDate = "", importId = 0})
+            )
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.IdentityCode).Width(50).Title("Code").ReadOnly(true);
+                    columns.Bound(f => f.MaterialTypeName).Width(100).Title("Loại nguyên liệu").ReadOnly(true);
+                    columns.Bound(f => f.TypeName).Width(100).Title("Phân loại").ReadOnly(true);
+                    columns.Bound(f => f.TotalQuantity).Width(100).Title("Tồn kho").ReadOnly(true)
+                        .Format("{0:n2}");
+                    columns.Bound(f => f.Weight).Width(100).Title("Trọng lượng(kg)")
+                           .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #></span>")
+                           .FooterTemplate("<span id='TotalWeight'></span>");
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                })
+            .ClientEvents(events => events
+                                        .OnSave("grid_OnSave")
+                                        .OnSubmitChanges("grid_onSubmitChanges")
+                                        .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            //.Footer(false)
+            .Render();
+    }
+</div>

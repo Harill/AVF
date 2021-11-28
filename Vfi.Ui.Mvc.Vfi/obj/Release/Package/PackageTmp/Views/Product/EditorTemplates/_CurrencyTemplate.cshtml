@@ -1,0 +1,11 @@
+﻿@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new { area = "" }))
+        .HtmlAttributes(new { style = "width: 250px" })
+        .DropDownHtmlAttributes(new { style = "width: 250px" })
+        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+        .HighlightFirstMatch(true)
+        .AutoFill(true)
+        .Render();
+}

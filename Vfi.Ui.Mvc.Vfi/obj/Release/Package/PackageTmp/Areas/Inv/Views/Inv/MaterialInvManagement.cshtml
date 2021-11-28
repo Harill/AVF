@@ -1,0 +1,1021 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@model MaterialInventoryModel
+@{
+    ViewBag.Title = "Material Inv Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <!-- $.() -->
+    <script type="text/javascript">
+        $(function() {
+            // panel display
+            $("#pnlInv").hide();
+            $("#pnlMaterialPeriod").hide();
+            //$("#pnlInvPeriod").hide();
+            // panel effect
+            $("input[name='rdoInvType'][value='rdoInvPeriod']").attr('checked', 'checked');
+
+            $("input[name='rdoInvType']").change(function() {
+                if ($("input[name='rdoInvType']:checked").val() == 'rdoInv') {
+
+                    if ($("#pnlInvPeriod").is(":visible"))
+                        runEffectHide("#pnlInvPeriod", "drop");
+
+                    if ($("#pnlMaterialPeriod").is(":visible"))
+                        runEffectHide("#pnlMaterialPeriod", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlInv", "drop");
+                    }, 1200);
+
+                } else if ($("input[name='rdoInvType']:checked").val() == 'rdoInvPeriod') {
+
+                    if ($("#pnlInv").is(":visible"))
+                        runEffectHide("#pnlInv", "drop");
+
+                    if ($("#pnlMaterialPeriod").is(":visible"))
+                        runEffectHide("#pnlMaterialPeriod", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlInvPeriod", "drop");
+                    }, 1200);
+                } else if ($("input[name='rdoInvType']:checked").val() == 'rdoMaterialPeriod') {
+
+                    if ($("#pnlInv").is(":visible"))
+                        runEffectHide("#pnlInv", "drop");
+                    if ($("#pnlInvPeriod").is(":visible"))
+                        runEffectHide("#pnlInvPeriod", "drop");
+
+                    setTimeout(function() {
+                        runEffectShow("#pnlMaterialPeriod", "drop");
+                    }, 1200);
+                }
+            });
+
+
+            // warehouse checked
+            $("input[name='chkAllWarehouse']").attr('checked', 'checked');
+            // warehouse change event
+            $("input[name='chkAllWarehouse']").change(function () {
+                RefreshGrid("gridMaterialInventory");
+            });
+            // warehouse checked ForPeriod
+            $("input[name='chkAllWarehouseForPeriod']").attr('checked', 'checked');
+            // warehouse change event
+            $("input[name='chkAllWarehouseForPeriod']").change(function () {
+                RefreshGrid("gridMaterialInventoryForPeriod");
+            });
+        });
+    </script>
+
+    <!-- binding -->
+    <script type="text/javascript">
+        function materialClassified_onChange() {
+            $("#MaterialTypeName").data('tDropDownList').reload();
+        }
+
+        function materialTypeName_onDataBinding(args) {
+            var materialClassifiedId = $("#MaterialClassifiedName").data('tDropDownList').value();
+            args.data = $.extend({}, args.data, { classifiedId: materialClassifiedId });
+        }
+
+        function materialTypeName_onChange() {
+            RefreshGrid("gridMaterialInventory");
+        }
+
+        function warehouseIssueName_onChange() {
+            RefreshGrid("gridMaterialInventory");
+        }
+
+        function warehouseReceiptName_onChange() {
+            var chkAllWarehouse = $("input[name='chkAllWarehouse']").is(":checked");
+            if (chkAllWarehouse == false) {
+                RefreshGrid("gridMaterialInventory");
+            }
+        }
+
+        function autoComplete_onDataBinding(args) {
+            var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
+
+            if (materialTypeId === 0 || $("#MaterialTypeName").data('tDropDownList') == null)
+                args.preventDefault();
+
+            args.data = $.extend({}, args.data, { materialTypeId: materialTypeId });
+        }
+
+        function autoComplete_onChange() {
+            RefreshGrid("gridMaterialInventory");
+        }
+
+        // grid
+
+        function gridMaterialInventory_onDataBinding(args) {
+
+            var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
+            if (materialTypeId === "")
+                materialTypeId = 0;
+            var materialClassifiedId = $("#MaterialClassifiedName").data('tDropDownList').value();
+            if (materialClassifiedId === "")
+                materialClassifiedId = 0;
+            var materialName = $("#MaterialCodeName").data("tAutoComplete").value();
+            var fromDate = $("#fromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#toDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+            args.data = $.extend(args.data, {
+                materialCode: materialName,
+                materialTypeId: materialTypeId,
+                materialClassifiedId: materialClassifiedId,
+                fromDate: fromDate,
+                toDate: toDate
+            });
+
+        }
+    </script>
+
+    <!-- ForPeriod -->
+    <script type="text/javascript">
+        function materialClassifiedForPeriod_onClose() {
+            $("#MaterialTypeNameForPeriod").data('tDropDownList').reload();
+        }
+
+        function materialTypeNameForPeriod_onDataBinding(args) {
+            var materialClassifiedForPeriodId = $("#MaterialClassifiedNameForPeriod").data('tDropDownList').value();
+            args.data = $.extend({}, args.data, { classifiedId: materialClassifiedForPeriodId });
+        }
+
+        function materialTypeNameForPeriod_onClose() {
+            RefreshGrid("gridMaterialInventoryForPeriod");
+        }
+
+        function materialTypeNameForPeriod_onChange2() {
+            RefreshGrid("gridMaterialPeriod");
+        }
+
+        function warehouseIssueNameForPeriod_onChange() {
+            RefreshGrid("gridMaterialInventoryForPeriod");
+        }
+
+        function warehouseReceiptNameForPeriod_onChange() {
+            var chkAllWarehouseForPeriod = $("input[name='chkAllWarehouseForPeriod']").is(":checked");
+            if (chkAllWarehouseForPeriod == false) {
+                RefreshGrid("gridMaterialInventoryForPeriod");
+            }
+        }
+
+        function autoCompleteForPeriod_onDataBinding(args) {
+            var materialTypeForPeriodId = $("#MaterialTypeNameForPeriod").data('tDropDownList').value();
+
+            if (materialTypeForPeriodId === 0 || $("#MaterialTypeNameForPeriod").data('tDropDownList') == null)
+                args.preventDefault();
+
+            args.data = $.extend({}, args.data, { materialTypeId: materialTypeForPeriodId });
+        }
+
+        function autoCompleteForPeriod_onChange() {
+            RefreshGrid("gridMaterialInventoryForPeriod");
+        }
+
+        function autoCompleteForPeriod_onChange2() {
+            RefreshGrid("gridMaterialPeriod");
+        }
+
+// grid ForPeriod
+
+        function gridMaterialInventoryForPeriod_onDataBinding(args) {
+
+            var materialTypeForPeriodId = $("#MaterialTypeNameForPeriod").data('tDropDownList').value();
+            var materialNameForPeriod = $("#MaterialCodeNameForPeriod").data("tAutoComplete").value();
+
+            //var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            var warehouseReceiptForPeriod = $("#WarehouseReceiptNameForPeriod").data('tDropDownList').value();
+
+            var chkAllWarehouseForPeriod = $("input[name='chkAllWarehouseForPeriod']").is(":checked");
+            if (chkAllWarehouseForPeriod == true)
+                warehouseReceiptForPeriod = 0;
+
+            var fromDate = $("#fromDateReported").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#toDateReported").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+
+            if (materialTypeForPeriodId == 0)
+                args.preventDefault();
+            else {
+                args.data = $.extend(args.data, {
+                    materialTypeId: materialTypeForPeriodId,
+                    //warehouseIssue: warehouseIssue,
+                    //warehouseReceipt: warehouseReceipt,
+                    warehouseId: warehouseReceiptForPeriod,
+                    eoi: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Import)",
+                    materialName: materialNameForPeriod,
+                    fromDate: fromDate, //$.telerik.formatString('{0:dd/MM/yyyy}', fromDate),
+                    toDate: toDate//$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
+                });
+
+
+            }
+        }
+    </script>
+
+    <!-- report -->
+    <script type="text/javascript">
+        function printMaterialInvManagementForPeriod() {
+            var materialTypeForPeriodId = $("#MaterialTypeNameForPeriod").data('tDropDownList').value();
+            var materialNameForPeriod = $("#MaterialCodeNameForPeriod").data("tAutoComplete").value();
+
+            //var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            var warehouseReceiptForPeriod = $("#WarehouseReceiptNameForPeriod").data('tDropDownList').value();
+
+            var chkAllWarehouseForPeriod = $("input[name='chkAllWarehouseForPeriod']").is(":checked");
+            if (chkAllWarehouseForPeriod == true)
+                warehouseReceiptForPeriod = 0;
+
+            var fromDate = $("#fromDateReported").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#toDateReported").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+
+            //        if (materialTypeForPeriodId == 0)
+            //            args.preventDefault();
+            //        else {
+            //            args.data = $.extend(args.data, {
+            //                materialTypeId: materialTypeForPeriodId,
+            //                //warehouseIssue: warehouseIssue,
+            //                //warehouseReceipt: warehouseReceipt,
+            //                warehouseId: warehouseReceiptForPeriod,
+            //                eoi: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Import)",
+            //                materialName: materialNameForPeriod,
+            //                fromDate: fromDate, //$.telerik.formatString('{0:dd/MM/yyyy}', fromDate),
+            //                toDate: toDate//$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
+            //            });
+
+
+            //        }
+
+            if (materialTypeForPeriodId.length == 0) {
+                alert("Vui Lòng Loại Nguyên Liệu");
+                return false;
+            }
+            //        if (materialNameForPeriod.length == 0) {
+            //            alert("Vui Lòng Chọn Nguyên Liệu");
+            //            return false;
+            //        }
+
+
+            $('#result').load('@Url.Action("PrintMaterialInvManagementForPeriod", "Inv")',
+                {
+                    materialTypeId: materialTypeForPeriodId,
+                    warehouseId: warehouseReceiptForPeriod,
+                    eoi: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Import)",
+                    materialName: materialNameForPeriod,
+                    fromDate: fromDate, //$.telerik.formatString('{0:dd/MM/yyyy}', fromDate),
+                    toDate: toDate//$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
+                }, function(data) {
+                    var window = $('#windowReportMaterialInvManagementForPeriod').data('tWindow');
+                    window.open();
+
+                    //$("t-window-content t-content").css("height","100%;");
+                });
+
+            return false;
+        }
+
+        function gridMaterialPeriod_onDataBinding(args) {
+            var materialType = $("#MaterialType").data('tComboBox').value();
+            if (materialType === "")
+                materialType = 0;
+            var materialCode = $("#MaterialCodeNameForPeriod").data("tAutoComplete").value();
+            var toDate = $("#toDateReported").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+            args.data = $.extend(args.data, {
+                materialType: materialType,
+                materialCode: materialCode,
+                toDate: toDate,
+            });
+        }
+
+        function printMaterialDailyPeriod() {
+            var materialType = $("#MaterialType").data("tComboBox").value();
+            if (materialType === "")
+                materialType = 0;
+            var materialCode = $("#MaterialCodeNameForPeriod").data("tAutoComplete").value();
+            var toDate = $("#toDateReported").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                $('#result').load('@Url.Action("PrintMaterialDailyPeriod", "Inv")',
+                    {
+                        materialType: materialType,
+                        materialCode: materialCode,
+                        monthly: toDate
+                    }, function() {
+                        var window = $('#windowReportMaterialInvManagementForPeriod').data('tWindow');
+                        window.open();
+
+                        //$("t-window-content t-content").css("height","100%;");
+                    });
+            }
+        }
+
+        function printMaterialInvTotalInMonth() {
+            var month = $('#Month').data('tComboBox').value();
+            var year = $('#Year').data('tAutoComplete').text();
+            $('#result').load('@Url.Action("PrintMaterialInvTotalInMonth", "Reporting")',
+                {
+                    month: month,
+                    year: year
+                }, function() {
+                    var window = $('#windowReportMaterialInvTotal').data('tWindow');
+                    window.open();
+                });
+
+        }
+
+
+        function cbo_onclose(e) {
+            var combobox = $(this).data('tComboBox');
+            alert(combobox);
+        }
+
+        function month_onLoad() {
+            var combobox = $('#Month').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "1", Value: "1" },
+                { Text: "2", Value: "2" },
+                { Text: "3", Value: "3" },
+                { Text: "4", Value: "4" },
+                { Text: "5", Value: "5" },
+                { Text: "6", Value: "6" },
+                { Text: "7", Value: "7" },
+                { Text: "8", Value: "8" },
+                { Text: "9", Value: "9" },
+                { Text: "10", Value: "10" },
+                { Text: "11", Value: "11" },
+                { Text: "12", Value: "12" }
+            ];
+
+            combobox.dataBind(dataSource);
+            if (new Date().getMonth() == 12)
+                combobox.value = "1";
+            else combobox.value(new Date().getMonth() + 1);
+        }
+    </script>
+
+}
+
+    <div class="title">Thông tin tồn kho nguyên liệu</div>
+
+    <div class="t-info-sha alpha grid_15">
+        <div class="grid_4">
+            <label>
+                <input id="rdoInvPeriod" name="rdoInvType" value="rdoInvPeriod" type="radio" checked="checked" />
+                Số dư trong kỳ
+            </label>
+        </div>
+        <div class="grid_4">
+
+            <label>
+                <input id="rdoInv" name="rdoInvType" value="rdoInv" type="radio" />
+                Số lượng tồn kho
+            </label>
+        </div>
+        <div class="grid_5">    
+            <label>
+                <input id="rdoMaterialPeriod" name="rdoInvType" value="rdoMaterialPeriod" type="radio" />
+                Xuất nhập tồn từng ngày
+            </label>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <br />
+
+    <div id="pnlInv">
+        <div class="title">Quản lý xuất nhập tồn nguyên liệu</div>
+        <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+            <div class="prefix_10">
+                <div class="grid_1">
+                    @Html.Label("Tháng")
+                </div>
+                 <div class="grid_2">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("Month")
+                            .HtmlAttributes(new {style = "width: 40px"})
+                            .DropDownHtmlAttributes(new {style = "width: 40px"})
+                            //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            // .HighlightFirstMatch(true)
+                            //.AutoFill(true)
+                            .ClientEvents(events => events.OnLoad("month_onLoad"))
+                            .Render();
+                    }
+                </div>
+            
+                <div class="grid_1">
+                    @Html.Label("Năm")
+                </div>
+                <div class="grid_2">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("Year")
+                            .Value(DateTime.Now.Year+"")
+                            .HtmlAttributes(new {style = "width: 40px"})
+                            .Render();
+                    }
+                </div>
+                <div class="grid_7">
+                    <button id="btnMaterialInv" class="t-button" onclick=" return printMaterialInvTotalInMonth(); ">
+                        <span class='t-icon t-insert'></span>
+                        Xuất báo cáo tồn kho nguyên liệu
+                    </button>
+                </div>
+                
+            </div>
+            <div class="clear"></div>
+            <br />
+            <fieldset>
+                <legend>Tiêu chí trích lọc</legend>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().DropDownList()
+                            .Name("MaterialClassifiedName")
+                            .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new {area = ""}))
+                            .HtmlAttributes(new {style = "width: 150px"})
+                            .DropDownHtmlAttributes(new {style = "width: 250px"})
+                            .ClientEvents(events => events.OnChange("materialClassified_onChange"))
+                            .Render();
+                    }
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().DropDownList()
+                            .Name("MaterialTypeName")
+                            .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialTypeByClassified", "Material", new {classifiedId = 0, area = ""}))
+                            .HtmlAttributes(new {style = "width: 150px"})
+                            .DropDownHtmlAttributes(new {style = "width: 250px"})
+                            .ClientEvents(events => events.OnDataBinding("materialTypeName_onDataBinding").OnChange("materialTypeName_onChange"))
+                            .Render();
+                    }
+                </div>
+                <div class="grid_2">
+                    @Html.LabelFor(f => f.MaterialCodeName)
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("MaterialCodeName")
+                            .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new {materialTypeId = 0}))
+                            //.HtmlAttributes(new { style = "width: 185px; " })
+                            .DropDownHtmlAttributes(new {style = "width: 250px; "})
+                            .Encode(false)
+                            .AutoFill(true)
+                            .HighlightFirstMatch(true)
+                            .ClientEvents(events => events.OnDataBinding("autoComplete_onDataBinding")
+                                                          .OnChange("autoComplete_onChange")
+                            )
+                            .Render();
+                    }
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("fromDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
+                            .Render();
+                    }
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("toDate")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Today)
+                            .Render();
+                    }
+                </div>
+                <div class="grid_3">
+                    <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMaterialInventory'); ">
+                        <span class='t-icon t-insert'></span>
+                        Làm mới
+                    </button>
+                </div>
+            </fieldset>
+        </div>
+        <div class="clear"></div>
+        <div class="cover-div">
+            @{
+                Html.Telerik().Grid<MaterialInventoryModel>()
+                    .Name("gridMaterialInventory")
+                    .DataKeys(keys => keys.Add(f => f.MaterialInventoryId).RouteKey("materialInventoryId"))
+                    .DataBinding(dataBindings => dataBindings.Ajax()
+                                                             .Select("SelectMaterialInventoryTotal", "Inv",
+                                                                     new
+                                                                         {
+                                                                             materialCode = "",
+                                                                             materialTypeId = 0,
+                                                                             materialClassifiedId = 0,
+                                                                             fromDate = 1 + "/" + DateTime.Now.Month + "/" + DateTime.Now.Year,
+                                                                             toDate = DateTime.Now.ToString("dd/MM/yyyy")
+                                                                         }))
+                    .Columns(columns =>
+                        {
+                            columns.Bound(f => f.VendorName).Width(100)
+                                   .HeaderTemplate("Nhà Cung Cấp");
+                            columns.Bound(f => f.MaterialCode).Width(200)
+                                   .HeaderTemplate("<strong>Mã NL</strong>")
+                                   .HtmlAttributes(new {style = "text-align: center;"})
+                                   .Aggregate(agg => agg.Count())
+                                   .ClientGroupFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: left;"});
+                            columns.Bound(f => f.LotNumber).Width(50);
+                            columns.Bound(f => f.UnitWeight).Title("Trọng lượng").Width(70);
+                            columns.Bound(f => f.UnitPrice).Title("Đơn giá").Width(70);
+                            columns.Bound(f => f.EarlyQuantity).Width(100)
+                                   .HeaderTemplate("<strong>Tồn đầu</br>(cây)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= EarlyQuantity == null ? 0 : $.telerik.formatString('{0:n2}', EarlyQuantity) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.EarlyQuantityKg).Width(100)
+                                   .HeaderTemplate("<strong>Tồn đầu</br>(Kg)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= EarlyQuantityKg == null ? 0 : $.telerik.formatString('{0:n1}', EarlyQuantityKg) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.TotalImport).Width(90)
+                                   .HeaderTemplate("<strong>Nhập</br>(cây)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= TotalImport == null ? 0 : $.telerik.formatString('{0:n2}', TotalImport) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.TotalImportKg).Width(90)
+                                   .HeaderTemplate("<strong>Nhập</br>(Kg)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= TotalImportKg == null ? 0 : $.telerik.formatString('{0:n1}', TotalImportKg) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.TotalExport).Width(90)
+                                   .HeaderTemplate("<strong>Xuất</br>(cây)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= TotalExport == null ? 0 : $.telerik.formatString('{0:n2}', TotalExport) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.TotalExportKg).Width(90)
+                                   .HeaderTemplate("<strong>Xuất</br>(Kg)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= TotalExportKg == null ? 0 : $.telerik.formatString('{0:n2}', TotalExportKg) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+
+                            columns.Bound(f => f.MaterialInvOnMachine).Width(100)
+                                   .HeaderTemplate("<strong>Tồn trên máy</br>(cây)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= MaterialInvOnMachine == null ? 0 : $.telerik.formatString('{0:n2}', MaterialInvOnMachine) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.LastQuantity).Width(100)
+                                   .HeaderTemplate("<strong>Tồn cuối</br>(cây)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= LastQuantity == null ? 0 : $.telerik.formatString('{0:n2}', LastQuantity) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.LastQuantityKg).Width(100)
+                                   .HeaderTemplate("<strong>Tồn cuối</br>(Kg)</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= LastQuantityKg == null ? 0 : $.telerik.formatString('{0:n2}', LastQuantityKg) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n1}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.Price).Width(100)
+                                   .HeaderTemplate("<strong>Trị giá</strong>")
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= Price == null ? 0 : $.telerik.formatString('{0:n}', Price) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                        })
+                    .Scrollable(f => f.Height(510))
+                    //.HtmlAttributes(new { style = "width: 950px;" })
+                    .Resizable(f => f.Columns(true))
+                    .Reorderable(f => f.Columns(true))
+                    .Filterable()
+                    .Sortable()
+                    .Groupable()
+                    .ClientEvents(events => events.OnDataBinding("gridMaterialInventory_onDataBinding"))
+                    .Render();
+            }
+        </div>
+    </div>
+
+    <div id="pnlMaterialPeriod">
+        <div class="title">Chi tiết xuất nhập tồn nguyên liệu hàng ngày</div>
+        <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+            <fieldset>
+                <legend>Tiêu chí trích lọc</legend>
+                
+            <div class="grid_3">Loại nguyên liệu</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("MaterialType")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxAllMaterialType", "Material", new { area = "" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        //.DropDownHtmlAttributes(new {style = "width: 250px"})
+                        //.ClientEvents(events => events.OnDataBinding("materialTypeNameForPeriod_onDataBinding")
+                        //                              .OnChange("materialTypeNameForPeriod_onChange2"))
+                        .Render();
+                }
+            </div>
+                <div class="grid_2">
+                    @Html.LabelFor(f => f.MaterialCodeName)
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("MaterialCodeNameForPeriod")
+                            .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new {materialTypeId = 0}))
+                            //.HtmlAttributes(new { style = "width: 185px; " })
+                            //.DropDownHtmlAttributes(new {style = "width: 250px; "})
+                            .Encode(false)
+                            .AutoFill(true)
+                            .HighlightFirstMatch(true)
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            //.ClientEvents(events => events.OnDataBinding("autoCompleteForPeriod_onDataBinding")
+                            //                              .OnChange("autoCompleteForPeriod_onChange2")
+                            //)
+                            .Render();
+                    }
+                </div>
+
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("toDateReported")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Today)
+                            .Render();
+                    }
+                </div>
+            
+                <div class="grid_3">
+                    <button id="btnMaterialPeriod" class="t-button" onclick=" return printMaterialDailyPeriod(); ">
+                        <span class='t-icon t-insert'></span>
+                        Xuất báo cáo
+                    </button>
+                </div>
+
+
+            </fieldset>
+        </div>
+        <div class="clear"></div>
+        <div class="cover-div">
+            @{
+                Html.Telerik().Grid<MaterialInventoryPeriodModel>()
+                    .Name("gridMaterialPeriod")
+                    .DataKeys(keys => keys.Add(f => f.MaterialId).RouteKey("materialId"))
+                    .DataBinding(dataBindings => dataBindings.Ajax()
+                                                             .Select("SelectMaterialDailyPeriod", "Inv",
+                                                                     new {materialType = 0, materialCode = "", toDate = DateTime.Today.ToString("dd/MM/yyyy")}))
+                    .Columns(columns =>
+                        {
+                            columns.Bound(f => f.MaterialCode).Width(200)
+                                   .HeaderTemplate("<strong>Mã NL</strong>")
+                                   .HtmlAttributes(new {style = "text-align: center;"})
+                                   .Aggregate(agg => agg.Count())
+                                   .ClientGroupFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                                   .HtmlAttributes(new {style = "text-align: left;"});
+                            columns.Bound(f => f.EarlyPeriodQuantity).Width(100)
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= EarlyPeriodQuantity == null ? 0 : $.telerik.formatString('{0:n}', EarlyPeriodQuantity) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            //columns.Bound(f => f.EarlyPeriodQuantityKg);
+                            columns.Bound(f => f.QtyImport).Width(100)
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= QtyImport == null ? 0 : $.telerik.formatString('{0:n}', QtyImport) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            //columns.Bound(f => f.QtyImportKg);
+                            columns.Bound(f => f.QtyExport).Width(100)
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= QtyExport == null ? 0 : $.telerik.formatString('{0:n}', QtyExport) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            //columns.Bound(f => f.QtyExportKg);
+                            columns.Bound(f => f.LastPeriodQuantity).Width(100)
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= LastPeriodQuantity == null ? 0 : $.telerik.formatString('{0:n}', LastPeriodQuantity) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            columns.Bound(f => f.MaterialForecasts).Width(100).Title("Dự báo NL (ngày)")
+                                   .ClientTemplate("<#= MaterialForecasts == null ? 0 : $.telerik.formatString('{0:n0}', MaterialForecasts) #>")
+                                   .HtmlAttributes(new {style = "text-align: right;"});
+                            //columns.Bound(f => f.LastPeriodQuantityKg);
+                            //columns.Bound(f => f.Price);
+                            //columns.Bound(f => f.UnitMeasure);
+                        })
+                    .DetailView(details => details.ClientTemplate(
+
+                        Html.Telerik().TabStrip()
+                            .Name("TabStrip_<#= MaterialId #>")
+                            .SelectedIndex(0)
+                            .Items(items =>
+                                   items.Add().Text("Thông tin chi tiết").Content(
+                                       Html.Telerik().Grid<MaterialPeriodDetail>()
+                                           .Name("gridMaterialPeriodDetail_<#= MaterialId #>")
+                                           .DataBinding(dataDindings => dataDindings.Ajax()
+                                                                                    .Select("SelectMaterialPeriodDetailByMaterialId", "Inv",
+                                                                                            new {materialId = "<#= MaterialId #>", toDate = "<#= ToDateString #>"}))
+                                           .Columns(columns =>
+                                               {
+                                                   columns.Bound(f => f.VendorName).Width(50).Title("NCC");
+                                                   columns.Bound(f => f.MaterialLotNumber).Width(40).Title("Lô NL");
+                                                   columns.Bound(f => f.MachineName).Width(40).Title("Máy");
+                                                   columns.Bound(f => f.ProductCode).Width(80).Title("Mã SP");
+                                                   columns.Bound(f => f.ProductWeight).Title("Trọng lượng SP")
+                                                          .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n}', ProductWeight) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.ProductQuantity).Title("Sản lượng")
+                                                          .ClientTemplate("<#= ProductQuantity == null ? 0 : $.telerik.formatString('{0:n0}', ProductQuantity) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.MaterialExportQuantity).Title("Phát NL")
+                                                          .ClientTemplate("<#= MaterialExportQuantity == null ? 0 : $.telerik.formatString('{0:n}', MaterialExportQuantity) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.ProductionRate).Title("Định mức/Cây")
+                                                          .ClientTemplate("<#= ProductionRate == null ? 0 : $.telerik.formatString('{0:n0}', ProductionRate) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.TotalProductQuantity).Title("Tổng tồn SP")
+                                                          .ClientTemplate("<#= TotalProductQuantity == null ? 0 : $.telerik.formatString('{0:n0}', TotalProductQuantity) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.ProductForecastsQuality).Title("Dự báo SX")
+                                                          .ClientTemplate("<#= ProductForecastsQuality == null ? 0 : $.telerik.formatString('{0:n0}', ProductForecastsQuality) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.MaterialRequired).Title("NL cần(cây)")
+                                                          .ClientTemplate("<#= MaterialRequired == null ? 0 : $.telerik.formatString('{0:n0}', MaterialRequired) #>")
+                                                          .HtmlAttributes(new {style = "text-align: right;"});
+                                                   columns.Bound(f => f.Note).Title("Ghi chú");
+                                                   ;
+                                               })
+                                           .ToHtmlString()
+                                       )
+                            )
+                            .ToHtmlString()
+                                               ))
+                    .Scrollable(f => f.Height(510))
+                    .Groupable()
+                    .Reorderable(f => f.Columns(true))
+                    .Resizable(f => f.Columns(true))
+                    .ClientEvents(events => events.OnDataBinding("gridMaterialPeriod_onDataBinding")
+                                                  .OnError("grid_OnError"))
+                    .Render();
+            }
+        </div>
+    </div>
+
+    <div id="pnlInvPeriod">
+        <div class="title">Xuất nhập tồn nguyên liệu</div>
+        <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+            <div class="grid_3">Loại nguyên liệu</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DropDownList()
+                        .Name("MaterialTypeNameForPeriod")
+                        .DataBinding(binding => binding.Ajax().Select("SelectAllMaterialTypeByClassified", "Material"
+                                                                      , new {classifiedId = 0, area = ""}))
+                        .HtmlAttributes(new {style = "width: 100%"})
+                        .DropDownHtmlAttributes(new {style = "width: 150%"})
+                        .ClientEvents(events => events.OnDataBinding("materialTypeNameForPeriod_onDataBinding")
+                                                      .OnClose("materialTypeNameForPeriod_onClose")
+                        )
+                        .Render();
+                }
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <fieldset>
+                <legend>Tiêu chí trích lọc</legend>
+
+                <div class="grid_2">
+                    @Html.LabelFor(f => f.MaterialCodeName)
+                </div>
+                <div class="grid_4">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("MaterialCodeNameForPeriod")
+                            .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new {materialTypeId = 0}))
+                            //.HtmlAttributes(new { style = "width: 185px; " })
+                            //.DropDownHtmlAttributes(new {style = "width: 250px; "})
+                            .Encode(false)
+                            .AutoFill(true)
+                            .HighlightFirstMatch(true)
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Render();
+                    }
+                </div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("fromDateReported")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Today.Month + "/01/" + DateTime.Today.Year)
+                            .Render();
+                    }
+                </div>
+                <div class="grid_2">
+                    @{
+                        Html.Telerik().DatePicker()
+                            .Name("toDateReported")
+                            .Format("dd/MM/yyyy")
+                            .Value(DateTime.Today)
+                            .Render();
+                    }
+                </div>
+                <div class="clear"></div>
+
+                <div class="grid_3 prefix_19">
+                    <button id="btnMaterialInvManagementForPeriod" class="t-button" onclick=" return printMaterialInvManagementForPeriod(); ">
+                        <span class='t-icon t-insert'></span>
+                        Xuất báo cáo
+                    </button>
+                </div>
+            </fieldset>
+        </div>
+        <div class="clear"></div>
+        @*<div class="cover-div">
+        @{
+            Html.Telerik().Grid<MaterialInventoryPeriodModel>()
+                .DataKeys(keys => keys.Add(f => f.MaterialInventoryPeriodId).RouteKey("materialInventoryPeriodId"))
+                .Name("gridMaterialInventoryForPeriod")
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectMaterialInventoryPeriod", "Inv",
+                                                                 new {materialTypeId = 0}))
+                .Columns(columns =>
+                    {
+                        //columns.Bound(f => f.MaterialId).Title("Chọn").Width(75)
+                        //    .ClientTemplate("<input type='checkbox' name='chkMaterialIds' value='<#= MaterialId #>' />")
+                        //    .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.PeriodDate)
+                               .ClientTemplate("<#= PeriodDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', PeriodDate) #>");
+                        //columns.Bound(f => f.WarehouseName);
+                        columns.Bound(f => f.MaterialCode).Width(125);
+                        columns.Bound(f => f.EarlyPeriodQuantity);
+                        columns.Bound(f => f.EarlyPeriodQuantityKg);
+                        columns.Bound(f => f.QtyImport);
+                        columns.Bound(f => f.QtyImportKg);
+                        columns.Bound(f => f.QtyExport);
+                        columns.Bound(f => f.QtyExportKg);
+                        columns.Bound(f => f.LastPeriodQuantity);
+                        columns.Bound(f => f.LastPeriodQuantityKg);
+                        columns.Bound(f => f.Price);
+                        //columns.Bound(f => f.UnitMeasure);
+                    })
+                .Scrollable(f => f.Height("auto"))
+                .Groupable()
+                .Reorderable(f => f.Columns(true))
+                .Resizable(f => f.Columns(true))
+                .ClientEvents(events => events.OnDataBinding("gridMaterialInventoryForPeriod_onDataBinding"))
+                .Render();
+        }
+    </div>*@
+    </div>
+    <!-- windown -->
+    @{
+        Html.Telerik().Window()
+            .Name("windowReportMaterialInvManagementForPeriod")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(940)
+            .Render();
+    }
+  @{
+        Html.Telerik().Window()
+            .Name("windowReportMaterialInvTotal")
+            .Modal(true)
+            .Draggable(true)
+            .Content
+            (
+                @<text>
+                     <div id="result2"></div>
+                 </text>
+            )
+            //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+            .Visible(false)
+            .Width(940)
+            .Render();
+    }
+    <style type="text/css">
+        #windowReportMaterialInvManagementForPeriod {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        .t-window-content t-content {
+            min-height: 580px;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+        #windowReportMaterialInvTotal {
+            /*
+            float: right;
+            Position: relative;
+            */
+            min-height: 580px;
+            top: 15%;
+        }
+
+        .t-window-content t-content {
+            min-height: 580px;
+        }
+
+        #result {
+            height: 520px;
+            overflow: hidden;
+        }
+
+        #ReportBody {
+            padding-bottom: 25px;
+            margin-bottom: 25px;
+        }
+    </style>

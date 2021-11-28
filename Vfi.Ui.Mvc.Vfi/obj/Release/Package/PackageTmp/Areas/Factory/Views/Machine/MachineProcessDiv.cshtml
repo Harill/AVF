@@ -1,0 +1,488 @@
+﻿@model List<Vfi.Ui.Mvc.Vfi.Areas.Factory.Models.MachineModel>
+       <script type="text/javascript">
+        $(function() {
+            var $container = $("#container");
+            $container.isotope({
+                itemSelector: '.element',
+                name: function($elem) {
+                    return $elem.find('.name').text();
+                }                
+            });
+            $container.delegate('.element', 'click', function() {
+
+                var count = this.attributes["count"].value;
+                if (count == "2") {
+                    $(this).toggleClass('large');
+                    $container.isotope('reLayout');
+                }
+                if (count == "3") {
+                    $(this).toggleClass('large3');
+                    $container.isotope('reLayout');
+                }
+                if (count == "4") {
+                    $(this).toggleClass('large4');
+                    $container.isotope('reLayout');
+                }
+                if (count == "5") {
+                    $(this).toggleClass('large4');
+                    $container.isotope('reLayout');
+                }
+            });
+            $('#filters a').click(function () {
+                var selector = $(this).attr('data-filter');
+                $container.isotope({ filter: selector });
+                return false;
+            });
+        });
+    </script>
+<style media="screen,print">
+    .isotope-hidden.isotope-item {
+        pointer-events: none;
+        /*z-index: 1;*/
+    }
+    .isotope,
+    .isotope .isotope-item {
+        -webkit-transition-duration: 0.8s;
+        -moz-transition-duration: 0.8s;
+        -ms-transition-duration: 0.8s;
+        -o-transition-duration: 0.8s;
+        transition-duration: 0.8s;
+    }
+    .isotope {
+        -webkit-transition-property: height, width;
+        -moz-transition-property: height, width;
+        -ms-transition-property: height, width;
+        -o-transition-property: height, width;
+        transition-property: height, width;
+    }
+    .isotope .isotope-item {
+        -webkit-transition-property: -webkit-transform, opacity;
+        -moz-transition-property:    -moz-transform, opacity;
+        -ms-transition-property:     -ms-transform, opacity;
+        -o-transition-property:      -o-transform, opacity;
+        transition-property:         transform, opacity;
+    }
+
+    .entity.machine {
+        background: #F00;
+        background: hsl( 0, 100%, 50%);
+    }
+    #revok1 {
+        background-size:cover;
+        background-position:center;
+    }
+    .entity * {margin: 0;}
+    .entity .name {
+        left: 0.5em;        bottom: 1.6em;        font-size: 1.05em;    }
+    .clickable .entity:hover {
+        cursor: pointer;
+        border: 1px aquamarine;
+    }    .clickable .entity:hover h3 {
+        text-shadow:0 0 10px white,0 0 10px white;
+    }    /*a:hover{
+        text-shadow:0 0 10px white,0 0 10px white;
+        font-size: 14px;
+    }*/    .clickable .entity:hover h1 {
+        text-shadow:0 0 5px white,0 0 5px white;
+        font-weight: bold;
+        font-size: 17px;
+    }
+    .clickable .entity:hover h2 {color: white;}
+
+     .entity0 {
+        width: 100%;
+        min-width: 1022px;
+        height: 60px;
+        margin: 5px 0 5px 0;        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .entity {
+        width: 100%;
+        min-width: 1022px;
+        height: 111px;
+        margin: 5px 0 5px 0;        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+        
+    .entity.large{
+        width: 100%;
+        min-width: 1022px;
+        height: 220px;
+        /*z-index: 100;*/
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    
+    .entity.large3{
+        width: 100%;
+        min-width: 1022px;
+        height: 275px;
+        /*z-index: 100;*/
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .entity.large4{
+        width: 100%;
+        min-width: 1022px;
+        height: 330px;
+        /*z-index: 100;*/
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .entity.large5{
+        width: 100%;
+        min-width: 1022px;
+        height: 385px;
+        /*z-index: 100;*/
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .itemInfo {
+        width:100%;
+        display:block;
+    }
+    .itemLeft {
+        text-align: left;
+    }
+    .itemRight {
+        text-align: Right;
+    }
+    .column {
+        text-align: Right;
+    }
+</style>
+<style>
+
+    @@-webkit-keyframes progress-bar-stripes {
+        from {
+                 background-position: 40px 0;
+             }
+        to {
+               background-position: 0 0;
+           }
+    }
+    @@-o-keyframes progress-bar-stripes {
+        from {
+                 background-position: 40px 0;
+             }
+        to {
+               background-position: 0 0;
+           }
+    }
+    @@keyframes progress-bar-stripes {
+        from {
+                 background-position: 40px 0;
+             }
+        to {
+               background-position: 0 0;
+           }
+    }
+    .progress {
+        height: 23px;
+        margin-top: 3px;
+        overflow: hidden;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+    }
+    .progress-bar {
+        float: left;
+        width: 0;
+        height: 100%;
+        font-size: 12px;
+        line-height: 20px;
+        /*font-weight: bold;*/
+        /*color: #fff;*/
+        text-align: center;
+        background-color: #337ab7;
+        -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+        -webkit-transition: width .6s ease;
+        -o-transition: width .6s ease;
+        transition: width .6s ease;
+    }
+    .progress-striped .progress-bar,
+    .progress-bar-striped {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        -webkit-background-size: 40px 40px;
+        background-size: 40px 40px;
+    }
+    .progress.active .progress-bar,
+    .progress-bar.active {
+        -webkit-animation: progress-bar-stripes 2s linear infinite;
+        -o-animation: progress-bar-stripes 2s linear infinite;
+        animation: progress-bar-stripes 2s linear infinite;
+    }
+    .progress-striped {
+        background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+        background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    }
+    
+    .progress-bar-plan {
+        background-color: #5bc0de;
+    }
+    .progress-bar-blank {
+        background-color: grey;
+    }
+    .progress-bar-prepare {
+        background-color: orange;
+    }
+    .progress-bar-production {
+        background-color: #5cb85c;
+    }
+    .progress-bar-warning {
+        background-color: #f0cc00;
+    }
+    .progress-bar-danger {
+        background-color: #d9534f;
+    }
+</style>
+<style>
+    .tblProcess {
+    border-spacing: 0;
+        border: 0;
+    }
+    .tblProcess td {
+        border-right: 1px solid black;
+        border-bottom: 1px solid black;
+        padding-top: 2px;
+        text-align: center;
+        height: 23px;
+    }
+    .cTitle, .cNumber{
+        padding-top: 5px;
+    }
+    .cTitle {
+        /*text-align: center;*/
+        float: left;
+        height: 100%;
+        font-weight: bold;
+    }
+    .cNumber {
+        text-align: right;
+    }
+    .c1 {
+        min-width: 35px;
+    }
+    .c1_5 {
+        min-width: 57px;
+    }
+    .c2 {
+        min-width: 70px;
+    }
+    .c2_5 {
+        min-width: 85px;
+    }
+    .c3 {
+        min-width: 108px;
+    }
+    .tblProcess .lastcell {
+        border-right: 0;
+    }
+    .day {
+        height: 100%; 
+        width: 28px; 
+        float: left; 
+        text-align: center; 
+        border: 1px solid black;
+        padding-top: 5px;
+    }
+
+</style>
+<div class="clear"></div>
+  
+<div id='container' class="clickable clearfix isotope" style="position: relative; overflow: hidden; 
+                                       height: auto; width: 99%;min-width:1222px;
+                                       float: left;padding-right: 5px">
+       
+    @{
+        foreach (var entity in Model)
+        {
+            <div class='element  entity@(entity.Tracks.Count ==0 ? "0":"") isotope-item @entity.DiagramTypeName @(entity.Tracks.Count>0 ? "Track" : "" ) ' 
+                 count="@(entity.Tracks.Count)" data-category="CNC" data-symbol="1" id="revok" 
+                style="position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
+                    <div style="height: 30px; text-align: center"><b>@entity.MachineName - Tổng: @entity.Tracks.Count</b></div>
+                    @{
+                        <div style="height:23px; text-align:center; float: left; border-top : 3px black double;border-right : 3px black double;border-left : 3px black double;border-bottom: 1px solid black;">
+                            <div class="cTitle" style="border-right:1px solid black;min-width: 72px;">Sản phẩm</div>
+                            <div class="cTitle" style="border-right:1px solid black;min-width: 37px;">NS</div>
+                            <div class="cTitle" style="border-right:1px solid black;min-width: 37px;">&nbsp;</div>
+                            <div class="cTitle c2_5"style="border-right:1px solid black;min-width: 87px;">Số lượng</div>
+                            <div class="cTitle c1_5"style="border-right:1px solid black;min-width: 59px;">TG</div>
+                            <div class="cTitle c2"style="border-right:1px solid black;min-width: 72px;">POKD</div>
+                            <div class="cTitle c2"style="min-width: 72px; ">Tồn tổng</div>
+                            @*   <div class="grid_2">Sản phẩm</div>
+                            <div class="grid_2">Sản phẩm</div>*@
+                        </div>
+                        <div style="height: 18px; float: right; width: @(entity.DayRate*30)px;">
+                            @{
+                                foreach (var day in entity.Days)
+                                {
+                                    <div class="day">@day</div>
+                                }
+                            }
+                        </div>
+                        <div class="clear"></div>
+                        if (entity.ActiveTrack != null)
+                        {
+                            <div style="float: left; border-left: 3px black double; border-right: 3px black double;">
+                                <table class="tblProcess">
+                                    <tr>
+                                        <td class="c2" rowspan="2" >@entity.ActiveTrack.ProductCode</td>
+                                        <td class="c1" rowspan="2" >@entity.ActiveTrack.RealProductivity</td> 
+                                        <td class="c1">KH</td>
+                                        <td class="cNumber c2_5">@string.Format("{0:n0}", entity.ActiveTrack.Quantity)</td>
+                                        <td class="c1_5">@entity.ActiveTrack.ProcessDay</td>
+                                        <td class="cNumber c2" rowspan="2" >@string.Format("{0:n0}",entity.ActiveTrack.ForecastQuantity)</td>
+                                        <td class="cNumber c2 lastcell" rowspan="2" >@string.Format("{0:n0}",entity.ActiveTrack.TotalInv)</td>
+                                    </tr>
+                                    <tr>
+                                        @*<td class="c3" colspan="2">&nbsp;</td>*@
+                                        <td class="c1">TT</td>
+                                        <td class="cNumber c2_5">@string.Format("{0:n0}", entity.ActiveTrack.ProductionQuantity)</td>
+                                        <td class="c1_5">@(entity.ActiveTrack.ProductionDay)(+@(entity.ActiveTrack.MoreDay)) </td>
+                                        @*<td class="cNumber c2">POKD</td>*@
+                                        @*<td class="cNumber c2 lastcell">TT</td>*@
+                                    </tr>
+                                </table>
+                            </div>
+                            <div style="float: right; width: @(entity.DayRate*30)px;">
+                                <div class="progress" style="width: @(entity.DayRate*30)px">
+                                    @{
+                                        foreach (var process in entity.ActiveTrack.Process)
+                                        {
+                                            <div class="progress-bar @(process.TypeSet) progress-bar-striped active" role="progressbar" 
+                                                 aria-valuenow="@process.Day" aria-valuemin="0" aria-valuemax="100" style="width: @(process.Day*30)px">
+                                                @*20% Complete (success)*@
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="progress" style="width: @(entity.DayRate*30)px;">
+                                    @{
+                                        foreach (var process in entity.ActiveTrack.Production)
+                                        {
+                                            <div class="progress-bar @(process.TypeSet) progress-bar-striped active" role="progressbar" 
+                                                 aria-valuenow="@process.Day" aria-valuemin="0" aria-valuemax="100" style="width: @(process.Day*30)px">
+                                                @*20% Complete (success)*@
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <div class="clear"></div>
+                        foreach (var detail in entity.Tracks)
+                        {
+                                <div style="float: left; border-left: 3px black double; border-right: 3px black double;">
+                                <table class="tblProcess">
+                                    <tr>
+                                        <td class="c2" rowspan="2" >@detail.ProductCode</td>
+                                        <td class="c1" rowspan="2" >@detail.RealProductivity</td> 
+                                        <td class="c1">KH</td>
+                                        <td class="cNumber c2_5">@string.Format("{0:n0}", detail.Quantity)</td>
+                                        <td class="c1_5">@detail.ProcessDay</td>
+                                        <td class="cNumber c2" rowspan="2" >@string.Format("{0:n0}",detail.ForecastQuantity)</td>
+                                        <td class="cNumber c2 lastcell" rowspan="2" >@string.Format("{0:n0}",detail.TotalInv)</td>
+                                    </tr>
+                                    <tr>
+                                        @*<td class="c3" colspan="2">&nbsp;</td>*@
+                                        <td class="c1">TT</td>
+                                        <td class="cNumber c2_5">@string.Format("{0:n0}", detail.ProductionQuantity)</td>
+                                        <td class="c1_5">@(detail.ProductionDay)(+@(detail.MoreDay))</td>
+                                        @*<td class="cNumber c2">POKD</td>*@
+                                        @*<td class="cNumber c2 lastcell">TT</td>*@
+                                    </tr>
+                                </table>
+                            </div>
+                                <div style="float: right; width: @(entity.DayRate*30)px;">
+                                    <div class="progress" style="width: @(entity.DayRate*30)px">
+                                        @{
+                                            foreach (var process in detail.Process)
+                                            {
+                                                <div class="progress-bar @(process.TypeSet) progress-bar-striped active" role="progressbar" 
+                                                     aria-valuenow="@process.Day" aria-valuemin="0" aria-valuemax="100" style="width: @(process.Day*30)px">
+                                                    @*20% Complete (success)*@
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                    <div class="progress" style="width: @(entity.DayRate*30)px">
+                                        @{
+                                            foreach (var process in detail.Production)
+                                            {
+                                                <div class="progress-bar @(process.TypeSet) progress-bar-striped active" role="progressbar" 
+                                                     aria-valuenow="@process.Day" aria-valuemin="0" aria-valuemax="100" style="width: @(process.Day*30)px">
+                                                    @*20% Complete (success)*@
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                        <div class="clear"></div>
+                        }
+                    }
+                </div>
+        }
+    }
+</div>
+<div class="clear"></div><br/>
+
+@*    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Stacked Progress Bars</h2>
+  <p>Create a stacked progress bar by placing multiple bars into the same div with class .progress:</p> 
+  <div class="progress">
+    <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+  aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width:20%">
+    20% Complete (success)
+  </div>
+   <div class="progress-bar progress-bar-info progress-bar-striped active" role="progressbar"
+  aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width:30%">
+    30% Complete (info)
+  </div>
+     <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar"
+  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">
+    40% Complete (warning)
+  </div>
+      <div class="progress-bar progress-bar-danger progress-bar-striped active" role="progressbar"
+  aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width:10%">
+    10% Complete (danger)
+  </div>
+  </div>
+</div>
+
+</body>
+</html>*@

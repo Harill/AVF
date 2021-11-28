@@ -1,0 +1,306 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "KH SX2";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <script type="text/javascript">
+        function grid_OnEdit(e) {
+            if (e.mode == 'insert')
+                e.cell.parentNode.style.backgroundColor = "#F4FA58";
+
+            productId = e.dataItem.ProductId;
+            e.dataItem.Quantity = e.cell.parentElement.childNodes[quantity].textContent;
+            e.dataItem.SectionProductivityKgInHour = e.cell.parentElement.childNodes[productivity].textContent;
+        }
+
+        var productId = 0;
+        var employeeId = 0;
+        
+        var section = 3;
+        var productivity = 4;
+        var secionNext = 5;
+        var machine = 6;
+        var quantity = 7;
+        var time = 8;
+
+        function grid_OnSave(e) {
+            var $productCode = $(e.cell).find('#ProductCode');
+            var $sectionName = $(e.cell).find('#SectionName');
+            var $sectionNext = $(e.cell).find('#SectionNextName');
+            var $machineName = $(e.cell).find('#MachineName');
+            var $employeeName = $(e.cell).find('#EmployeeName');
+            var quanlity = $(e.cell).find('#Quantity').val();
+            var type = $("#Type").data("tComboBox").value();
+            if (type == "")
+                type = 2;
+            if ($productCode.length > 0) {
+                var productCode = $productCode.data("tComboBox"),
+                    productSelectItem = productCode.selectedIndex > -1 ? productCode.data[productCode.selectedIndex] : null;
+
+                if (productSelectItem) {
+                    e.values["ProductCode"] = productSelectItem.Text;
+                    e.values["ProductId"] = productSelectItem.Value;
+                    productId = productSelectItem.Value;
+                    $.ajax({
+                        type: 'post',
+                        data: { productId: productSelectItem.Value, productionSectionId: 0, employeeType: type },
+                        dataType: 'json',
+                        url: '@Url.Action("GetProductSection", "Section",new{area="Factory"})',
+                        timeout: 20000,
+                        success: function(data) {
+                            if (data == '9') {
+                                alert("Lỗi! Không tìm thấy sản phẩm ! Liên hệ admin");
+                            } else if (data == '8') {
+                                alert("Lỗi! Sản phẩm không có công đoạn 2 ! Liên hệ admin");
+                            } else if (data == '0') {
+                                alert("Lỗi!");
+                            } else {
+
+                                if (e.mode == 'insert') {
+                                    e.cell.parentElement.childNodes[section].textContent = data.SectionName;
+                                    e.dataItem.SectionName = data.SectionName;
+                                    e.dataItem.ProductionSectionId = data.ProductionSectionId;
+
+                                    e.cell.parentElement.childNodes[secionNext].textContent = data.SectionNextName;
+                                    e.dataItem.SectionNextName = data.SectionNextName;
+                                    e.dataItem.SectionNext = data.SectionNext;
+
+                                    e.cell.parentElement.childNodes[machine].textContent = data.MachineName;
+                                    e.dataItem.MachineName = data.MachineName;
+                                    e.dataItem.MachineId = data.MachineId;
+
+                                } else {
+                                    e.cell.parentElement.childNodes[section].textContent = "";
+                                    e.dataItem.SectionName = "";
+                                    e.dataItem.ProductionSectionId = 0;
+
+                                    e.cell.parentElement.childNodes[secionNext].textContent = "";
+                                    e.dataItem.SectionNextName = "";
+                                    e.dataItem.SectionNext = 0;
+                                }
+                                e.cell.parentElement.childNodes[productivity].textContent = data.SectionProductivityKgInHour;
+                                e.dataItem.SectionProductivity = (data.SectionProductivity+"");
+                                e.dataItem.Weight = (data.Weight+"");
+                                e.dataItem.SectionProductivityKgInHour = (data.SectionProductivityKgInHour+"");
+                                e.cell.parentElement.childNodes[quantity].textContent = (data.Quantity).format(3);
+                                e.dataItem.Quantity = (data.Quantity+"");
+                                e.cell.parentElement.childNodes[time].textContent = data.Time.format(1);
+                                e.dataItem.Time = (data.Time+"");
+
+                            }
+                        }
+                    });
+
+                }
+            } else if ($sectionName.length > 0) {
+
+                if ($sectionName.length > 0) {
+                    var sectionName = $sectionName.data("tComboBox"),
+                        sectionSelectItem = sectionName.selectedIndex > -1 ? sectionName.data[sectionName.selectedIndex] : null;
+
+                    if (sectionSelectItem) {
+                        e.values["SectionName"] = sectionSelectItem.Text;
+                        e.values["ProductionSectionId"] = sectionSelectItem.Value;
+                           
+                        $.ajax({
+                            type: 'post',
+                            data: {  productId: productId, productionSectionId: sectionSelectItem.Value, employeeType: type },
+                            dataType: 'json',
+                            url: '@Url.Action("GetProductSection", "Section",new{area="Factory"})',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data == '0') {
+                                alert("Lỗi!");
+                            } else {
+                                if (e.mode == "insert") {
+                                    e.cell.parentElement.childNodes[secionNext].textContent = data.SectionNextName;
+                                    e.dataItem.SectionNextName = data.SectionNextName;
+                                    e.dataItem.SectionNext = data.SectionNext;
+                                } else {
+                                    e.cell.parentElement.childNodes[secionNext].textContent = "";
+                                    e.dataItem.SectionNextName = "";
+                                    e.dataItem.SectionNext = 0;
+                                }
+                                e.cell.parentElement.childNodes[productivity].textContent = data.SectionProductivityKgInHour;
+                                e.dataItem.SectionProductivity = data.SectionProductivity;
+                                e.dataItem.SectionProductivityKgInHour = data.SectionProductivityKgInHour;
+                                e.cell.parentElement.childNodes[quantity].textContent = data.Quantity.format(3);
+                                e.dataItem.Quantity = data.Quantity;
+                                e.cell.parentElement.childNodes[time].textContent = data.Time.format(1);
+                                e.dataItem.Time = data.Time;
+                            }
+                        }
+                        });
+                        
+                    }
+                }
+            } else if ($machineName.length > 0) {
+                var machineName = $machineName.data("tComboBox"),
+                    machineSelectItem = machineName.selectedIndex > -1 ? machineName.data[machineName.selectedIndex] : null;
+
+                if (machineSelectItem) {
+                    e.values["MachineName"] = machineSelectItem.Text;
+                    e.values["MachineId"] = machineSelectItem.Value;
+                }
+            }
+            else if ($employeeName.length > 0) {
+                var employeeName = $employeeName.data("tComboBox"),
+                    employeeSelectItem = employeeName.selectedIndex > -1 ? employeeName.data[employeeName.selectedIndex] : null;
+
+                if (employeeSelectItem) {
+                    e.values["EmployeeName"] = employeeSelectItem.Text;
+                    e.values["EmployeeId"] = employeeSelectItem.Value;
+                }
+            }
+            else if ($sectionNext.length > 0) {
+                var sectionNext = $sectionNext.data("tComboBox"),
+                    sectionNextItem = sectionNext.selectedIndex > -1 ? sectionNext.data[sectionNext.selectedIndex] : null;
+
+                if (sectionNextItem) {
+                    e.values["SectionNextName"] = sectionNextItem.Text;
+                    e.values["SectionNext"] = sectionNextItem.Value;
+                }
+            }
+            else if (!isNaN(parseInt(quanlity))) {
+                $.ajax({
+                    type: 'post',
+                    data: { productId: productId, productionSectionId: e.dataItem.ProductionSectionId, employeeType: type },
+                    dataType: 'json',
+                    url: '@Url.Action("GetProductSection", "Section",new{area="Factory"})',
+                            timeout: 20000,
+                            success: function (data) {
+                                if (data == '0') {
+                                    alert("Lỗi!");
+                                } else {
+                                    var sumQuantity = parseFloat(quanlity) / data.SectionProductivityKgInHour;
+
+                                    e.cell.parentElement.childNodes[time].textContent = sumQuantity.format(1);
+                                }
+                            }
+                 });
+            }
+        }
+
+
+        function section_OnDataBinding(e) {
+            e.data = $.extend(e.data, {
+                productId: productId
+            });
+        }
+
+        function type_Onload() {
+            var combobox = $('#Type').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "A.Văn", Value: "2" },
+                { Text: "A.Mẫn", Value: "3" }
+            ];
+            combobox.dataBind(dataSource);
+        }
+
+        function type_OnChange() {
+            RefreshGrid("gridProduction2");
+        }
+
+        function grid_OnDataBinding(args) {
+
+            var type = $("#Type").data("tComboBox").value();
+            if (type == "")
+                type = 2;
+            args.data = $.extend(args.data, {
+                employeeType: type
+            });
+
+        }
+        function grid_OnSubmitChanges(e) {
+
+            var type = $("#Type").data("tComboBox").value();
+            if (type == "")
+                type = 2;
+            e.values = $.extend(e.values,
+            {
+                employeeType: type
+            });
+        }
+    </script>
+
+
+<div class="title">Lập kế hoạch sản xuất 2</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu</legend>
+        <div class="grid_4">
+                    @{
+                        Html.Telerik().ComboBox()
+                            .Name("Type")
+                            //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
+                            .HtmlAttributes(new { style = "width: 150px" })
+                            .DropDownHtmlAttributes(new { style = "width: 250px" })
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .HighlightFirstMatch(true)
+                            .AutoFill(true)
+                            .ClientEvents(events => events.OnChange("type_OnChange").OnLoad("type_Onload"))
+                            .Render();
+                    }
+                </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<Production2Model>()
+            .Name("gridProduction2")
+            .DataKeys(keys => keys.Add(f => f.ProductionSectionId).RouteKey("productionSectionId"))
+            .ToolBar(bar =>
+                {
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy");
+                })
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectProduction2Plan", "Section",new {employeeType = (byte)MyUtilities.Sales.EmployeeType.Production2})
+                                                     .Update("UpdateProduction2Plan", "Section")
+            )
+            .Columns(columns =>
+            {
+                columns.Bound(f => f.IsAdd).Title("Chọn").Width(25)
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsAdd' <#=IsAdd? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center;border-bottom:black 1px dotted;" });
+                columns.Bound(f => f.EmployeeName).Title("Nhân viên").Width(120)
+                       .HtmlAttributes(new { style = "border-bottom:black 1px dotted;border-right:black 1px solid;" });
+                    columns.Bound(f => f.ProductCode).Width(70).Title("Mã SP")
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+                    columns.Bound(f => f.SectionName).Width(100).Title("Tên công đoạn")
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+                    columns.Bound(f => f.SectionProductivityKgInHour).Width(100).Title("Năng suất(pcs/h)").ReadOnly(true)
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+                    columns.Bound(f => f.SectionNextName).Width(100).Title("Công đoạn kế")
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
+                    columns.Bound(f => f.MachineName).Title("Máy").Width(60)
+                           .HtmlAttributes(new { style = "border-bottom:black 1px dotted;border-right:black 1px solid;" });
+                    columns.Bound(f => f.Quantity).Width(65)
+                        .HeaderTemplate("Số lượng</br>(kg)")
+                        .HtmlAttributes(new { style = "text-align:right;border-bottom:black 1px dotted;" })
+                           .Format("{0:n3}");
+                    columns.Bound(f => f.NumberToPeriod).Width(65).ReadOnly(true)
+                        .HeaderTemplate("Thời gian</br>làm (h)")
+                        .HtmlAttributes(new { style = "text-align:right;border-bottom:black 1px dotted;" })
+                           .Format("{0:n1}");
+                })
+            .ClientEvents(events => events.OnSave("grid_OnSave").OnEdit("grid_OnEdit")
+                .OnDataBinding("grid_OnDataBinding").OnSubmitChanges("grid_OnSubmitChanges")
+                                          .OnError("grid_OnError")
+            )
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation(keys => keys.Enabled(true))
+            .KeyboardNavigation()
+            .Footer(false)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />

@@ -1,0 +1,122 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Production Defect";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function grid_OnEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+            //materialId = 0;
+            if (mode === 'insert') {
+            } else if (mode === 'edit') {
+                var dataItem = e.dataItem;
+                if (dataItem.IsUsing) {
+                    var nodes = $(form).find('#ProductCode');
+                    nodes[0].parentNode.parentNode.innerHTML = dataItem.ProductCode;
+                }
+            }
+
+        }
+
+        function grid_OnDataBinding(args) {
+            var customer = $("#Customer").data("tComboBox").value();
+            if (customer === "")
+                customer = 0;
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+            args.data = $.extend(args.data, {
+                customerId: customer,
+                productCode: productCodeName,
+            });
+        }
+    </script>
+}
+
+<div class="title">Quản lý dữ liệu lỗi sản phẩm</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1020px;">
+
+    <fieldset>
+        <legend>Tiêu chí trích lọc | Ø ÷ ±</legend>
+        <div class="grid_1">
+            Mã KH
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Customer")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    //.ClientEvents(events => events.OnChange("customer_onChange"))
+                    .AutoFill(true)
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
+        <div class="grid_1">Mã SP</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ProductCodeName")
+                    .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                    .HtmlAttributes(new { style = "width: 150px; " })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Value("")
+                    .Render();
+            }
+        </div>
+
+        <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridDefect'); ">
+            <span class='t-icon t-insert'></span>
+            Làm mới
+        </button>
+    </fieldset>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductionDefectModel>()
+            .Name("gridDefect")
+            .DataKeys(key => key.Add(f => f.DefectId).RouteKey("defectId"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                    .Select("SelectProductionDefect", "Defect", new { customerId = 0, productCode = "" })
+                    .Insert("InsertProductionDefect", "Defect")
+                    .Update("UpdateProductionDefect", "Defect"))
+            .Columns(columns => {
+                columns.Command(x => x.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.DefectTypeCode).Title("Loại lỗi").Width(150);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(200);
+                columns.Bound(f => f.DefectCode).Title("Mã lỗi").Width(70);
+                columns.Bound(f => f.DefectName).Title("Tên lỗi").Width(250);
+                columns.Bound(f => f.RemedyName).Title("Biện pháp").Width(120);
+                columns.Bound(f => f.Description).Title("Mô tả");
+                columns.Bound(f => f.Active).Width(45)
+                    .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true)
+                       .Title("Người tạo");
+                columns.Bound(f => f.ModifiedDate).Width(80).ReadOnly(true)
+                       .Title("Ngày tạo")
+                       .Format("{0:dd/MM/yyyy HH:mm:ss}");
+            })
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(events => events.OnError("grid_OnError")
+                .OnEdit("grid_OnEdit")
+                .OnDataBinding("grid_OnDataBinding")
+            )
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            //.Pageable(page => page.PageSize(10))
+            .Sortable()
+            .Render();
+    }
+</div>
+

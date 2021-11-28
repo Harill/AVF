@@ -1,0 +1,111 @@
+﻿@using Vfi.Server.Core.DataModel.Models.Inv
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
+@model TransactionModel
+@{
+    ViewBag.Title = "Hủy chi tiết PO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <!-- binding -->
+    <script type="text/javascript">
+        function grid_OnDataBinding(args) {
+            var po = $('#PONumber').data('tComboBox').value();
+            if (po === "")
+                po = 0;
+            args.data = $.extend(args.data, {
+                purchaseOrderId: po
+            });
+        }
+        
+        function grid_OnSubmitChanges(e) {
+            var po = $('#PONumber').data('tComboBox').value();
+            if (po === "")
+                po = 0;
+            e.values = $.extend(e.values,
+                {
+                    purchaseOrderId: po,
+                });
+        }
+
+        function PONumber_onChange() {
+            RefreshGrid("gridPoDetail");
+           
+        }
+    </script>
+}
+
+<div class="title">Phiếu nhập</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:1000px;">
+   
+   <fieldset>
+        <legend>Thông tin phiếu lệnh nhập</legend>
+        <div class="grid_2">Số phiếu</div>
+        <div class="grid_5">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("PONumber")
+                    .DataBinding(binding => binding.Ajax().Select("SelectApprovedPo", "PurchaseOrder", new { area = "Purchasing" }))
+                    .HtmlAttributes(new { style = "width: 150px; " })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .ClientEvents(events => events.OnChange("PONumber_onChange")
+                    )
+                    .Render();
+            }
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<PurchaseOrderDetailModel>()
+            .Name("gridPoDetail")
+
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu").CancelText("Trở lại"))
+            .DataKeys(keys => keys.Add(f => f.PurchaseOrderDetailId).RouteKey("purchaseOrderDetailId"))
+            .DataBinding(dataDindings => dataDindings.Ajax()
+                                                     .Select("SelectPurchaseOrderDetailByPOId", "PurchaseOrder",
+                                                             new {area = "Purchasing", purchaseOrderId = 0})
+                                                     .Update("CancelQuantityPurchaseOrder", "PurchaseOrder"))
+            .Columns(columns =>
+                {
+                    //columns.Bound(f => f.PurchaseOrderDetailId).Title("Chọn").Width(75)
+                    //       .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= PurchaseOrderDetailId #>' />")
+                    //       .HtmlAttributes(new {style = "text-align:center"});
+                    columns.Bound(f => f.VendorCodeName).ReadOnly(true).Title("Nhà cung cấp").Width(200);
+                    columns.Bound(f => f.Code).ReadOnly(true).Title("Mã");
+                    columns.Bound(f => f.Unit).ReadOnly(true).Title("ĐVT").Width(70)
+                           .HtmlAttributes(new {style = "text-align:center"});
+                    //columns.Bound(f => f.LotNumber);
+                    columns.Bound(f => f.OrderQty).Title("SL yêu cầu").ReadOnly(true).Width(100)
+                           .HtmlAttributes(new { style = "text-align:right" })
+                           .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
+                    columns.Bound(f => f.ReceivedQty).Title("SL đã nhận").ReadOnly(true).Width(100)
+                           .HtmlAttributes(new { style = "text-align:right" })
+                           .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
+                    columns.Bound(f => f.RejectedQty).Title("SL đã trả").ReadOnly(true).Width(100)
+                           .HtmlAttributes(new { style = "text-align:right" })
+                           .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
+                    columns.Bound(f => f.RequireQty).Title("SL còn lại").ReadOnly(true).Width(100)
+                           .HtmlAttributes(new {style = "text-align:right"})
+                           .ClientTemplate("<#= RequireQty == null ? 0 : $.telerik.formatString('{0:n2}', RequireQty) #>");
+                    columns.Bound(f => f.Quantity).Title("SL giảm trừ").Width(100)
+                           .HtmlAttributes(new {style = "text-align:right"});
+
+                })
+            .Editable(f => f.Mode(GridEditMode.InCell))
+            //.Scrollable(f => f.Height(200))
+            .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
+                                          .OnError("grid_OnError")
+                                          .OnSubmitChanges("grid_OnSubmitChanges"))
+            //.Filterable()
+            .Pageable(f => f.PageOnScroll(true).Style(GridPagerStyles.Status))
+            .Render();
+    }
+</div>
+<div class="clear"></div><br />

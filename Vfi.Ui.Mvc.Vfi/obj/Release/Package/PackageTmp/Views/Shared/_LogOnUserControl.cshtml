@@ -1,0 +1,14 @@
+﻿
+@if (Request.IsAuthenticated) {
+    
+    <text>
+        Xin chào: <b> @Context.User.Identity.Name</b>!
+        @*<span id ="HelloString"></span>*@
+        [ @Html.ActionLink("Log Off", "WindowLogOff", "Home", new {area = ""},"" ) ]
+    </text>
+}
+else
+{
+
+        @:[ @Html.ActionLink("Log On", "Index", "Home") ]
+}

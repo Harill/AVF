@@ -1,0 +1,104 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "Cân đối ĐH chưa duyệt";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+        var startGrid = false;
+        function RefreshGrid2() {
+            startGrid = true;
+            RefreshGrid("grid");
+        }
+
+        var index = 0;
+
+        function grid_OnDataBinding(args) {
+            index = 0;
+            if (startGrid) {
+                var orderId = $("#Orders").data('tComboBox').value();
+                if (orderId == 0)
+                    orderId = 0;
+                args.data = $.extend(args.data, {
+                    orderId: orderId
+                });
+            }
+        }
+    </script>
+}
+
+<div class="title">Cân đối đơn hàng chưa duyệt</div>
+<div class="clear"></div>
+<br />
+
+<div id="pnlInvMonthly">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1180px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_2">
+                @Html.Label("Đơn hàng")
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Orders")
+                        .DataBinding(binding => binding.Ajax().Select("SelectOrderNotApprovedDueDate", "Orders", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250%" })
+                        //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_3">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                </button>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div class="clear"></div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WaitingOrderBalancingPlanModel>()
+                .Name("grid")
+                .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectWaitingOrderBalancingPlanModel", "Orders", new { orderId = 0 })
+                                                         )
+                .Columns(columns => {
+                    columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                           .HeaderHtmlAttributes(new { style = "font-weight: bold" })
+                        .ClientTemplate("<#= ++index #>")
+                           .HtmlAttributes(new { style = "font-weight: center;" });
+                    columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true)
+                           .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                           .HtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.ProductCode).Title("Mã SP").Width(120).ReadOnly(true)
+                           .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
+                           .Aggregate(agg => agg.Count())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                })
+
+                .Scrollable(f => f.Height(510))
+                .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
+                .Filterable()
+                .Sortable()
+                .Selectable()
+                .ClientEvents(events => events
+                                            .OnDataBinding("grid_OnDataBinding")
+                                            .OnRowSelect("grid_OnRowSelect")
+                                            .OnError("grid_OnError"))
+                .Groupable()
+                .Render();
+    }
+</div>

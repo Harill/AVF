@@ -1,0 +1,186 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models
+@{
+    ViewBag.Title = "SS giá SP";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        function gridProduct_OnDataBinding(args) {
+            if (startGrid) {
+                var customer = $("#Customer").data("tComboBox").value();
+                if (customer === "")
+                    customer = 0;
+                var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+                args.data = $.extend(args.data, {
+                    customerId: customer,
+                    productCode: productCodeName
+                });
+            }
+            index = 0;
+        }
+        
+        function grid_OnSave(e) {
+            var customer = $("#Customer").data("tComboBox").value();
+            if (customer === "")
+                customer = 0;
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+            e.values = $.extend(e.values,
+                {
+                    customerId: customer,
+                    productCode: productCodeName
+                }
+            );
+            index = 0;
+        }
+        var index = 0;
+        var startGrid = false;
+        function RefreshGrid2() {
+            startGrid = true;
+            RefreshGrid('gridProductPricing');
+            index = 0;
+        }
+    </script>
+}
+
+<div class="title">Bảng tính giá sản phẩm</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+
+            <div class="grid_1">
+                Mã KH
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 150px; " })
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Value("")
+                        .Render();
+                }
+            </div>
+        
+            <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid2(); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductPricingModel>()
+            .Name("gridProductPricing")
+            .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectProductComparePricing", "Product", 
+                                          new { area = "", customerId = -1, productCode = "" })
+                                          )
+            .Columns(columns => {
+                columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
+                       .HeaderTemplate("<strong>Mã KH</strong>")
+                       .HeaderHtmlAttributes(new { style = "text-align:center;" })
+                       .HtmlAttributes(new { style = "text-align:center;" })
+                       .ClientTemplate("<strong><#= CustomerCode #></strong>");
+
+                columns.Bound(f => f.ProductName).Width(100).ReadOnly(true)
+                       .HeaderTemplate("<strong>Tên SP</strong>")
+                       .HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .ClientTemplate("<strong><#= ProductName #></strong>");
+                columns.Bound(f => f.ProductDesignNo).Width(100).ReadOnly(true)
+                       .HeaderTemplate("<strong>Mã</br>SP KH</strong>")
+                       .HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .ClientTemplate("<strong><#= ProductDesignNo #></strong>");
+                columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
+                       .HeaderTemplate("<strong>Mã</br>SP VF</strong>")
+                       .HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .ClientTemplate("<strong><#= ProductCode #></strong>");
+
+                columns.Bound(f => f.OutDiameterDesign).Width(60)
+                        .HeaderTemplate("<strong>OD</strong>")
+                        .Format("{0:n2}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.Length).Width(60)
+                        .HeaderTemplate("<strong>CD</strong>")
+                        .Format("{0:n2}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.MaterialWeight).Width(70)
+                        .HeaderTemplate("<strong>TL NL SP</strong>")
+                        .Format("{0:n3}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.ProductWeight).Width(70)
+                        .HeaderTemplate("<strong>TL SP</strong>")
+                        .Format("{0:n3}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+
+                columns.Bound(f => f.MaterialCode).Width(150).ReadOnly(true)
+                       .HeaderTemplate("<strong>Mã NL</strong>")
+                       .HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .ClientTemplate("<strong><#= MaterialCode #></strong>");
+                columns.Bound(f => f.MaterialPrice).Width(80)
+                        .HeaderTemplate("<strong>Giá</br>NL</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.ProductMaterialPrice).Width(80)
+                        .HeaderTemplate("<strong>Giá</br>NL SP</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+
+                columns.Bound(f => f.ProductPrice).Width(80)
+                        .HeaderTemplate("<strong>Giá bán</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+
+                columns.Bound(f => f.DiffPrice).Width(80)
+                        .HeaderTemplate("<strong>Chênh lệch</br>giá bán</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.DiffPriceRate).Width(80)
+                        .HeaderTemplate("<strong>Tỉ lệ</br>giá bán</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+
+                columns.Bound(f => f.WorkpiecePrice).Width(80)
+                        .HeaderTemplate("<strong>Giá</br>phế liệu</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.WorkpiecePriceRate).Width(80)
+                        .HeaderTemplate("<strong>Tỉ lệ</br>phế liệu</strong>")
+                        .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align:right" });
+                
+            })
+            .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
+                                          .OnSave("grid_OnSave")
+                                          .OnError("grid_OnError"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

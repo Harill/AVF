@@ -1,0 +1,176 @@
+﻿@using Vfi.Server.Core.DataModel.Models.System
+@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "UserFunction";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    var strAssignWarehousePermissionForUser = Url.RouteUrl(new { controller = "Permission", action = "AssignWarehouseRotate" });    
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        resetForm();
+    });
+
+    function resetForm() {
+        $("#result").hide();
+        $("#functionDiv").hide();
+        $("#btnCreateFunction").hide();
+    }
+
+    function startForm() {
+        $("#btnCreateFunction").show();
+        $("#result").show();
+        $("#functionDiv").show();
+    }
+</script>
+<!-- checked user -->
+<script type="text/javascript">
+
+    var gridWarehouse = $('#GridWarehouse').data('tGrid');
+
+    function displayCheckedUsers() {
+        //var gridWarehouse = $('#GridWarehouse').data('tGrid');
+
+        //var $checkedRecords = $(':checked');
+        var $warehouseId = $("input[name='rdioUser']:checked").val();
+
+        //var test = "";
+        if ($warehouseId.length < 1) {
+            alert('Check a few grid rows first.');
+            resetForm();
+
+            return;
+        }
+        else {
+            startForm();
+
+            //$("#lblUsername").val( $currentUsername);
+
+            $('#result').load('@Url.Action("DisplayWarehouseRotate", "User")',
+            {
+                warehouseId: $warehouseId
+            });
+        }
+    }
+
+</script>
+<!-- Create Function For user-->
+<script type="text/javascript">
+    function createFunctionForUser() {
+
+        //var $checkedImport = $("input[name='IsUserImportWarehouse']:checked");
+        var $checkedRotate = $("input[name='IsUserRotateWarehouse']:checked");
+        //alert($checkedImport.length);
+        alert($checkedRotate.length);
+        var $warehouseId = $("input[name='rdioUser']:checked").val();
+        alert($warehouseId);
+
+        //var cImport = {};
+        //for (var i = 0; i < $checkedImport.length; i++) {
+        //    cImport[i] = $checkedImport[i].value;
+        //}
+        var cRotate = {};
+        for (var j = 0; j < $checkedRotate.length; j++) {
+            cRotate[j] = $checkedRotate[j].value;
+        }
+        try{
+
+            $.post("@strAssignWarehousePermissionForUser",
+                    {
+                        //checkedImport: cImport,
+                        checkedRotate: cRotate,
+                        warehouseId: $warehouseId
+                    },
+                    function (data) {
+
+                        alert("Create Function Successful !");
+
+                        resetForm();
+                            });
+
+
+        }catch(err){alert("Co Loi !");}
+        return false;
+    }
+</script>
+
+<div class="title">User Function</div>
+
+<div class="t-info-sha">
+
+    <div class="userDiv">
+        @*<button class="t-button t-state-default" onclick="displayCheckedUsers()">Check users</button>*@
+        @{
+            var grid = Html.Telerik().Grid<WarehouseModel>();
+
+            grid.Name("GridWarehouse");
+            grid.DataKeys(key => key.Add(u => u.WarehouseId));
+            grid.DataBinding(dataBindings => dataBindings.Ajax()
+                                                    .Select("SelectActiveWarehouse", "Warehouse", new { area = "Inv" }));
+            grid.Columns(columns =>
+                                 {
+                                     columns.Bound(u => u.WarehouseId)
+                                         .ClientTemplate("<input type='radio' name='rdioUser'value='<#= WarehouseId #>' onclick='displayCheckedUsers();'/>")
+                                         .Title("Check").Width(35)
+                                         .HtmlAttributes(new {style = "text-align:center"});
+                                     columns.Bound(u => u.WarehouseName).Width(100);
+                                 });
+            grid.Sortable();
+            grid.Footer(false);
+            grid.Render();
+        }
+    </div>
+
+    <div class="functionDiv">
+        <input type="button" class="t-button t-state-default" onclick="return createFunctionForUser();" 
+                id="btnCreateFunction" name="btnCreateFunction" value="Create Function For User/Group " />
+
+        <div id="result"></div>
+    </div>
+
+    <div class="clear"></div>
+
+</div>
+
+@section css{
+
+<style type="text/css" >
+    .userDiv
+    {
+        width: 350px;
+        float: left;
+    }
+    
+    .functionDiv
+    {
+        margin-left: 355px;
+        width: 350px;
+    }
+    
+    .userWorGroupDiv
+    {
+    }
+    
+    .clear
+    {
+        clear: both;
+    }
+    
+    .workgroup-label
+    {
+        vertical-align: top;
+        padding-right: .4em;
+    }
+    
+    #approveDiv
+    {
+        display: none;
+    }
+</style>
+
+}

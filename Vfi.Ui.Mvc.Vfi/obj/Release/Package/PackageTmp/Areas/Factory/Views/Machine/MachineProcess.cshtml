@@ -1,0 +1,136 @@
+﻿@using Telerik.Web.Mvc.UI
+@{
+    ViewBag.Title = "Lịch sản xuất";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>
+<script type="text/javascript">
+    function DisplayMachineProcess() {
+        $('#result').empty();
+        var month = $('#Month').val();
+        var year = $('#Year').data('tAutoComplete').text();
+        var machine = $('#Machine').data('tComboBox').text();
+        $('#result').load('@Url.Action("GetMachineProcessDiv", "Machine")',
+            {
+                month: month,
+                year: year,
+                machineName: machine
+            }, function (e) {
+                alert("Hoàn thành làm mới");
+            });
+    }
+</script>
+<style>
+    #filters {
+        margin: 0;
+    }
+
+        #options li {
+            float: left;
+            display: list-item;
+        }
+
+        #options .selected {
+            background-color: #13F;
+            text-shadow: none;
+            color: white;
+        }
+
+        #options li a {
+            display: block;
+            padding: 0.4em 0.5em;
+            background-color: #DDD;
+            color: #222;
+            font-weight: bold;
+            text-shadow: 0 1px hsla( 0, 0%, 100%, 0.5 );
+            background: none;
+        }
+
+            #options li a:hover {
+                background-color: cornflowerblue;
+                font-weight: bolder;
+            }
+
+            #options li a:active {
+                background-color: cornflowerblue;
+                font-weight: bolder;
+            }
+</style>
+<br />
+<div id="pnlInvPeriod">
+    <div class="title">Lịch sản xuất 1</div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_1">
+                @Html.Label("Tháng")
+            </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().IntegerTextBox()
+                        .Name("Month")
+                        .Value(DateTime.Now.Month)
+                        .MinValue(1)
+                        .MaxValue(12)
+                        .HtmlAttributes(new { style = "width: 40px" })
+                        .InputHtmlAttributes(new { style = "width: 40px" })
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Năm")
+            </div>
+            <div class="grid_2">
+
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("Year")
+                        .Value(DateTime.Now.Year + "")
+                        .HtmlAttributes(new { style = "width: 40px" })
+                        .Render();
+                }
+            </div>
+
+            <div class="grid_1">
+                @Html.Label("Máy")
+            </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Machine")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachine", "Machine", new { area = "Factory" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 100%" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .Render();
+                }
+            </div>
+
+            <button id="btnRefesh2" class="t-button" onclick=" DisplayMachineProcess()">
+                <span class='t-icon t-refresh'></span>
+                Làm mới
+            </button>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_1">
+                Lọc
+            </div>
+
+            <div class="grid_10">
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+                        <li><a href="#" data-filter="*" class="selected t-button" onclick="li_OnClick()">Show All</a></li>
+                        <li><a href="#" data-filter=".Cames" class="t-button">Cames</a></li>
+                        <li><a href="#" data-filter=".Cnc" class="t-button">Cnc</a></li>
+                        <li><a href="#" data-filter=".Track" class="t-button">Có phiếu</a></li>
+                        <li><a href="#" data-filter=":not(.Track)" class="t-button">Không có phiếu</a></li>
+                    </ul>
+                </section>
+            </div>
+        </fieldset>
+    </div>
+</div>
+<div id="result"></div>

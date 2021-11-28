@@ -1,0 +1,67 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "MaterialTypeManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+<script type="text/javascript">
+    function gridMaterialType_onEdit(e) {
+        var mode = e.mode;
+        var form = e.form;
+
+        var materialClassifiedName = $(form).find('#MaterialClassifiedName');
+        var materialClassifiedNameData = $(form).find('#MaterialClassifiedName').data('tDropDownList');
+        
+        if(mode == 'insert') {
+
+        }
+        else if(mode == 'edit') {
+
+            materialClassifiedNameData.reload();
+            materialClassifiedName.bind('dataBound', function () { // your code 
+                materialClassifiedNameData.select(function (item) {
+                    return item.Text == e.dataItem['MaterialClassifiedName'];
+                });
+            });
+        }
+    }
+</script>
+}
+
+<div class="title">Quản lý loại nguyên liệu</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MaterialTypeModel>()
+        .Name("gridMaterialType")
+        .DataKeys(key => key.Add(f => f.MaterialTypeId).RouteKey("materialTypeId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                .Select("SelectMaterialType", "Material")
+                .Insert("InsertMaterialType", "Material")
+                .Update("UpdateMaterialType", "Material"))
+        .Columns(columns =>
+        {
+            columns.Bound(f => f.MaterialClassifiedName).Width(175)
+                .ClientTemplate("<strong><#= MaterialClassifiedName #></strong>");
+            columns.Bound(f => f.IdentityCode).Width(45);
+            columns.Bound(f => f.MaterialTypeName);
+            columns.Bound(f => f.Active).Width(45)
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.ImageAndText)
+            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+        })
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(events => events.OnEdit("gridMaterialType_onEdit").OnError("grid_OnError"))
+        //.Pageable(page => page.PageSize(10))
+        .Sortable()
+        .Render();
+}
+</div>
+

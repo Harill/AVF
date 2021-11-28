@@ -1,0 +1,193 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "NV theo dõi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        function gridTracking_OnDataBinding(args) {
+
+            var fromDate = $("#FromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            var toDate = $("#ToDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+            args.data = $.extend(args.data, {
+                fromDate: fromDate,
+                toDate: toDate
+            });
+        }
+
+        function gridTracking_OnSave(e) {
+
+            var fromDate = $("#FromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            var toDate = $("#ToDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+            e.values = $.extend(e.values,
+                {
+                    fromDate: fromDate,
+                    toDate: toDate
+                }
+            );
+        }
+
+        function gridTracking_OnEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+            if (mode == 'insert') {
+                var d = new Date,
+                        now = [(d.getMonth() + 1).padLeft(),
+                           d.getDate().padLeft(),
+                           d.getFullYear()].join('/') + ' ' +
+                          [d.getHours().padLeft(),
+                           d.getMinutes().padLeft()].join(':');
+
+                var nodes = $(form).find('#StartDate');
+                if (!!nodes)
+                    nodes[0].value = now;
+
+                var nodes = $(form).find('#FinishDate');
+                if (!!nodes)
+                    nodes[0].value = now;
+            } else if (mode == 'edit') {
+            }
+        }
+
+        Number.prototype.padLeft = function (base, chr) {
+            var len = (String(base || 10).length - String(this).length) + 1;
+            return len > 0 ? new Array(len).join(chr || '0') + this : this;
+        }
+
+        function gridTracking_OnRowDataBound(e) {
+            e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
+        }
+    </script>
+}
+
+<div class="title">Nhân viên theo dõi máy</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+    
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+           @* <div class="grid_1">
+                NV Sửa máy
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                    .Name("ToDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Now)
+                    .Render();
+                }
+            </div>
+            <div class="grid_1">
+                NV QC
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                    .Name("ToDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Now)
+                    .Render();
+                }
+            </div>*@
+            <div class="grid_1">
+                Ngày
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                    .Name("FromDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Now)
+                    .Render();
+                }
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                    .Name("ToDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Now)
+                    .Render();
+                }
+            </div>
+              <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridTracking'); ">
+                    <span class='t-icon t-insert'></span>
+                   Làm mới
+                </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TrackingRepairEmployeeModel>()
+            .Name("gridTracking")
+            .DataKeys(key => key.Add(f => f.TrackingId).RouteKey("trackingId"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectTrackingEmployeeMachine", "Machine", new { fromDate = "", toDate = "" })
+                                          .Insert("InsertTrackingEmployeeMachine", "Machine", new { fromDate = "", toDate = "" })
+                                          .Update("UpdateTrackingEmployeeMachine", "Machine", new { fromDate = "", toDate = "" })
+                                          )
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                        ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.MachineName).Width(75).Title("Máy");
+                    columns.Bound(f => f.RepairEmployeeName).Width(140).Title("CN sửa");
+
+                    columns.Bound(f => f.QcEmployeeName).Width(140).Title("NV QC");
+
+                    columns.Bound(f => f.StartDate).Width(140).Title("BĐ")
+                        .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', StartDate) #>");
+                    columns.Bound(f => f.FinishDate).Width(140).Title("KT")
+                        .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', FinishDate) #>");
+
+                    columns.Bound(f => f.StatusName).Width(50).Title("TT").ReadOnly(true);
+                    columns.Bound(f => f.FixTime).Width(50).Title("TG").ReadOnly(true);
+                    columns.Bound(f => f.Shift).Width(50).Title("Ca");
+
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                    
+                    columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày sửa").ReadOnly(true)
+                        .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy hh:mm}', ModifiedDate) #>");
+                    columns.Bound(f => f.ModifiedUser).Width(100).Title("Người sửa").ReadOnly(true);
+                })
+            .ClientEvents(events => events.OnDataBinding("gridTracking_OnDataBinding")
+                                            .OnEdit("gridTracking_OnEdit")
+                                            .OnSave("gridTracking_OnSave")
+                                            .OnRowDataBound("gridTracking_OnRowDataBound")
+                                          .OnError("grid_OnError"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Groupable()
+            .Render();
+    }
+</div>

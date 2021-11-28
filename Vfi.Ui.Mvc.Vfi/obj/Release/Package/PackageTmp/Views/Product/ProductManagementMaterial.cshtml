@@ -1,0 +1,433 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "Products Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .highslide-container div {
+        font-family: Verdana, Helvetica;
+        font-size: 10pt;
+    }
+
+    .highslide-container table {
+        background: none;
+    }
+
+    .highslide {
+        outline: none;
+        text-decoration: none;
+    }
+
+        .highslide img {
+            border: 2px solid silver;
+        }
+
+        .highslide:hover img {
+            border-color: gray;
+        }
+
+    .highslide-active-anchor img {
+        visibility: hidden;
+    }
+
+    .highslide-gallery .highslide-active-anchor img {
+        border-color: black;
+        visibility: visible;
+        cursor: default;
+    }
+
+    .highslide-image {
+        border-width: 2px;
+        border-style: solid;
+        border-color: white;
+    }
+
+    .highslide-wrapper, .highslide-outline {
+        background: white;
+    }
+
+    .glossy-dark {
+        background: #111;
+    }
+
+    .highslide-image-blur {
+    }
+
+    .highslide-number {
+        display: none;
+        font-weight: bold;
+        color: gray;
+        font-size: .9em;
+    }
+
+    .highslide-caption {
+        display: none;
+        font-size: 1em;
+        padding: 5px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        /*background: white;*/
+    }
+
+    .highslide-heading {
+        display: none;
+        font-weight: bold;
+        margin: 0.4em;
+    }
+
+    .highslide-dimming {
+        /*position: absolute;*/
+        background: black;
+    }
+
+    a.highslide-full-expand {
+        display: block;
+        margin: 0 10px 10px 0;
+        width: 34px;
+        height: 34px;
+    }
+
+    .highslide-loading {
+        display: block;
+        color: black;
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+        text-decoration: none;
+        padding: 3px;
+        border: 1px solid white;
+        background-color: white;
+        padding-left: 22px;
+        background-repeat: no-repeat;
+        background-position: 3px 1px;
+    }
+
+    a.highslide-credits,
+    a.highslide-credits i {
+        padding: 2px;
+        color: silver;
+        text-decoration: none;
+        font-size: 10px;
+        display: none;
+    }
+
+        a.highslide-credits:hover,
+        a.highslide-credits:hover i {
+            color: white;
+            background-color: gray;
+        }
+
+    .highslide-move, .highslide-move * {
+        cursor: move;
+    }
+
+    .highslide-viewport {
+        display: none;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: none;
+        left: 0;
+        top: 0;
+    }
+
+    .highslide-overlay {
+        display: none;
+    }
+
+    .hidden-container {
+        display: none;
+    }
+    /* Example of a semitransparent, offset closebutton */
+    .closebutton {
+        position: relative;
+        top: -15px;
+        left: 15px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+    }
+
+    .highslide-controls {
+        display: none;
+    }
+</style>
+@section Scripts{
+    <script type="text/javascript">
+        function gridProduct_OnDataBinding(args) {
+            var statusValue = $("#Status").data("tComboBox").value();
+            if (statusValue === "")
+                statusValue = 0;
+            var customer = $("#Customer").data("tComboBox").value();
+            if (customer === "")
+                customer = 0;
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+            args.data = $.extend(args.data, {
+                customerId: customer,
+                status: statusValue,
+                productCode: productCodeName
+            });
+        }
+
+        function OnEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+
+            var materialCodeName = $(form).find('#MaterialCode');
+            var materialCodeNameData = $(form).find('#MaterialCode').data('tComboBox');
+
+            if (mode == 'insert') {
+
+            }
+            else if (mode == 'edit') {
+                materialCodeNameData.reload();
+                materialCodeName.bind('dataBound', function () { // your code 
+                    materialCodeNameData.select(function (item) {
+                        return item.Value == e.dataItem['MaterialId'];
+                    });
+                });
+            }
+        }
+
+        function status_onChange() {
+            RefreshGrid("gridProduct");
+        }
+        function customer_onChange() {
+            RefreshGrid("gridProduct");
+        }
+    </script>
+
+    <script type="text/javascript">
+        hs.graphicsDir = '';
+        hs.align = 'center';
+        hs.transitions = ['expand', 'crossfade'];
+        hs.outlineType = '';
+        hs.fadeInOut = true;
+        hs.numberPosition = 'caption';
+        hs.dimmingOpacity = 0.75;
+
+        // Add the controlbar
+        if (hs.addSlideshow)
+            hs.addSlideshow({
+                //slideshowGroup: 'group1',
+                interval: 5000,
+                repeat: false,
+                useControls: true,
+                fixedControls: 'fit',
+                overlayOptions: {
+                    opacity: .75,
+                    position: 'bottom center',
+                    hideOnMouseOut: true
+                }
+            });
+    </script>
+}
+
+<div class="title">Quản lý thông tin sản phẩm</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+
+            <div class="grid_1">
+                Mã KH
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .ClientEvents(events => events.OnChange("customer_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                Tình trạng sản phẩm
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Status")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductStatus", "Product"))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .ClientEvents(events => events.OnChange("status_onChange"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 150px; " })
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Value("")
+                        //.ClientEvents(events => events.OnClose("ProductCodeName_OnClose"))
+                        .Render();
+                }
+            </div>
+            <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductModel>()
+            .Name("gridProduct")
+            .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+            //.ToolBar(
+            //                            toolbar =>
+            //                            toolbar.Insert().Text("Thêm công đoạn mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectProduct", "Product", new { area = "", active = true, status = 0, customerId = -1, productCode = "", productId = 0, productName = "" })
+            //.Insert("InsertProduct", "Product", new { area = "" })
+            //.Update("UpdateProductManagementProduction", "Product", new { area = "" })
+            )
+            .Columns(columns =>
+                {
+                    //columns.Command(command =>
+                    //                command.Edit().ButtonType(GridButtonType.Image).CancelText("Hủy").UpdateText("Cập nhật").Text("Sửa")
+                    //    ).Width(30).Title("").HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.Upload2D).Width(40).Title("Bản vẽ").ReadOnly(true)
+                           .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    columns.Bound(f => f.UploadReal).Width(40).Title("Hình SP").ReadOnly(true)
+                           .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true)
+                           .HeaderTemplate("<strong>Mã</br>KH</strong>")
+                           .HeaderHtmlAttributes(new {style = "text-align:center;"})
+                           .HtmlAttributes(new {style = "text-align:center;"})
+                           .ClientTemplate("<strong><#= CustomerCode #></strong>");
+                    columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
+                           .HeaderTemplate("<strong>Mã</br>SP</strong>")
+                           .HeaderHtmlAttributes(new {style = "text-align:center"})
+                           .ClientTemplate("<strong><#= ProductCode #></strong>")
+                           .Aggregate(agg => agg.Count())
+                           .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                           .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                        ;
+                    columns.Bound(f => f.StatusName).Width(100).Title("Tình trạng")
+                           .ClientTemplate("<strong><#= StatusName #></strong>");
+                    columns.Bound(f => f.Diameter).Width(50)
+                           .HeaderTemplate("Dia.</br>(mm)")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.OutDiameterTolerance).Width(50)
+                           .HeaderTemplate("TOL</br>(O)")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.InDiameterTolerance).Width(50)
+                           .HeaderTemplate("TOL</br>(I)")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.Length).Width(50)
+                           .HeaderTemplate("L</br>(mm)")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.Weight).Width(50).ReadOnly(true)
+                           .HeaderTemplate("W</br>(g)")
+                           .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n3}', Weight) #>")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.KnifeCut).Width(70)
+                           .HeaderTemplate("Dao cắt</br>(mm)")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.ProductionRate).Width(70)
+                           .HeaderTemplate("ĐM TK</br>(pcs/cây)")
+                           .ClientTemplate("<#= ProductionRate == null ? 0 : $.telerik.formatString('{0:n0}', ProductionRate) #>")
+                           .HtmlAttributes(new {style = "text-align:right;"});
+                    columns.Bound(f => f.MaterialCodeDesign).Width(100).ReadOnly(true)
+                           .HeaderTemplate("NL</br>thiết kế");
+                    //columns.Bound(f => f.ProductionFactor).Width(35).ReadOnly(true)
+                    //       .HeaderTemplate("HS</br>SX")
+                    //       .ClientTemplate("<#= ProductionFactor == null ? 0 : $.telerik.formatString('{0:n1}', ProductionFactor) #>")
+                    //       .HtmlAttributes(new {style = "text-align:center;"});
+                })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= ProductId #>")
+                    .SelectedIndex(0)
+                    .Items(items => items.Add().Text("Nguyên liệu sử dụng").Content(
+                        Html.Telerik().Grid<ProductionMaterialModel>()
+                            .Name("gridProductionMaterial_<#= ProductId #>")
+                            .DataKeys(key => key.Add(f => f.RealMaterialId).RouteKey("realMaterialId"))
+                            .ToolBar(
+                                toolbar =>
+                                toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+                            .DataBinding(
+                                dataBinding => dataBinding.Ajax()
+                                                          .Select("SelectProductionMaterialById", "Product", new {area = "", productId = "<#= ProductId #>"})
+                                                          .Insert("InsertProductionMaterial", "Product", new {area = "", productId = "<#= ProductId #>"})
+                                                          .Update("UpdateProductionMaterial", "Product", new {area = "", productId = "<#= ProductId #>"})
+                            )
+                            .Columns(columns =>
+                                {
+                                    columns.Command(command =>
+                                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                        ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
+                                    columns.Bound(f => f.MaterialCode).Width(100).Title("Mã NL");
+                                    columns.Bound(f => f.UnitWeightByMaterial).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("Trọng lượng</br>theo NL (g)")
+                                           .ClientTemplate("<#= UnitWeightByMaterial == null ? 0 : $.telerik.formatString('{0:n3}', UnitWeightByMaterial) #>");
+                                    columns.Bound(f => f.ProductWeight).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("Trọng lượng</br>đã lưu")
+                                           .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>");
+                                    columns.Bound(f => f.Priority).Width(50).Title("Ưu tiên");
+                                    columns.Bound(f => f.Note).Width(100).Title("Ghi chú");
+                                    columns.Bound(f => f.Active).Width(55)
+                                           .HeaderTemplate("Kích</br>hoạt")
+                                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                           .HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.ModifiedUser)
+                                           .Title("Người tạo").ReadOnly(true)
+                                           .Width(70);
+                                    columns.Bound(f => f.ModifiedDate)
+                                           .Title("Ngày tạo").ReadOnly(true)
+                                           .Width(80)
+                                           .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                                    //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("");
+                                })
+                            .Editable(editing => editing.Mode(GridEditMode.InLine))
+                            .ClientEvents(e => e.OnEdit("OnEdit")
+                                                .OnError("grid_OnError"))
+                            .ToHtmlString()
+                                        ))
+
+                    .ToHtmlString()
+                                       ))
+            .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
+                                          .OnError("grid_OnError")
+                                          .OnRowSelect("grid_OnRowSelect"))
+            //.Pageable(page => page.PageSize(7))
+            //.Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .HtmlAttributes(new {style = "width: 1100px;"})
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

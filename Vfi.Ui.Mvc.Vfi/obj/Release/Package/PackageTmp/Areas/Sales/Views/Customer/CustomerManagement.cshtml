@@ -1,0 +1,364 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@model CustomerModel
+@{
+    ViewBag.Title = "Quản lý công ty";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+<script type="text/javascript">
+    function gridCustomer_onEdit(e) {
+        //var dataItem = e.dataItem;
+        var mode = e.mode;
+        var form = e.form;
+
+        var customerTypeName = $(form).find('#CustomerTypeName');
+        var customerTypeNameData = $(form).find('#CustomerTypeName').data('tDropDownList');
+        var customerAreaName = $(form).find('#AreaName');
+        var customerAreaNameData = $(form).find('#AreaName').data('tDropDownList');
+        var customerPayType = $(form).find('#PayType');
+        var customerPayTypeData = $(form).find('#PayType').data('tDropDownList');
+        var emloyeeName = $(form).find('#EmloyeeName');
+        var emloyeeNameData = $(form).find('#EmloyeeName').data('tDropDownList');
+        var classifiedName = $(form).find('#ClassifiedName');
+        var classifiedNameData = $(form).find('#ClassifiedName').data('tDropDownList');
+        var stateName = $(form).find('#StateName');
+        var stateNameData = $(form).find('#StateName').data('tDropDownList');
+        
+        var customerCode = $(form).find('#CustomerCode');
+        if (mode === 'insert') {
+            customerCode.attr("style", "color: blue;");
+        }
+        if (mode === 'edit') {
+            //customerCode.attr("readonly", "readonly");
+            customerCode.attr("style", "color: red;");
+            customerAreaNameData.reload();
+            customerAreaName.bind('dataBound', function () { // your code 
+                customerAreaNameData.select(function (item) {
+                    return item.Text === e.dataItem['AreaName'];
+                });
+            });
+            customerTypeNameData.reload();
+            customerTypeName.bind('dataBound', function () { // your code 
+                customerTypeNameData.select(function (item) {
+                    return item.Text === e.dataItem['CustomerTypeName'];
+                });
+            });
+            customerPayTypeData.reload();
+            customerPayType.bind('dataBound', function () { // your code 
+                customerPayTypeData.select(function (item) {
+                    return item.Text === e.dataItem['PayType'];
+                });
+            });
+            emloyeeNameData.reload();
+            emloyeeName.bind('dataBound', function () { // your code 
+                emloyeeNameData.select(function (item) {
+                    return item.Text === e.dataItem['EmloyeeName'];
+                });
+            });
+
+            classifiedNameData.reload();
+            classifiedName.bind('dataBound', function () { // your code 
+                classifiedNameData.select(function (item) {
+                    return item.Text === e.dataItem['ClassifiedName'];
+                });
+            });
+            stateNameData.reload();
+            stateName.bind('dataBound', function () { // your code 
+                stateNameData.select(function (item) {
+                    return item.Text === e.dataItem['StateName'];
+                });
+            });
+        }
+    }
+    function Grid_OnSave(e) {
+        var value = e.values;
+        var dueDate = value.DueDate;
+       // dueDate = $.telerik.formatString('{0:dd/MM/yyyy}', dueDate);
+        var orderId = value.OrderId;
+        e.data = $.extend(e.data, {
+            orderId: orderId,
+            dueDate: dueDate
+        });
+    }
+
+    function PrintCustomerList() {
+        $('#result').load('@Url.Action("PrintCustomerList", "Customer")',
+                {
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+    }
+
+</script>
+}
+<div class="title">Quản lý thông tin khách hàng</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px; visibility:@Model.PrintCustomerList" >
+        <button id="btnPrintOrderPlan" class='t-button' onclick="return PrintCustomerList();" style="width: 175px">
+                    <span class='t-icon t-insert'></span>
+                    Danh Sách Khách Hàng
+                </button>
+    </div>
+        <div class="clear"></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<CustomerModel>()
+            .Name("gridCustomer")
+            .DataKeys(keys => keys.Add(f => f.CustomerId).RouteKey("customerId"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectCustomer", "Customer")
+                                                     .Insert("InsertCustomer", "Customer")
+                                                     .Update("UpdateCustomer", "Customer")
+            )
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.Image)
+                        ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.StateName).Width(100);
+                    columns.Bound(f => f.CustomerTypeName).Width(75);
+                    columns.Bound(f => f.PayType).Width(100).Title("Hình thức");
+                    columns.Bound(f => f.ClassifiedName).Width(100);
+                    columns.Bound(f => f.AreaName).Width(80);
+                    columns.Bound(f => f.EmloyeeName).Width(80);
+                    columns.Bound(f => f.CustomerCode).Width(70).Title("Mã KH")
+                           .Aggregate(agg => agg.Count())
+                           .Format("{0:n0}")
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                    columns.Bound(f => f.CustomerName).Width(225);
+                    columns.Bound(f => f.ShortName).Width(125);
+                    columns.Bound(f => f.CompanyName).Width(225);
+                    columns.Bound(f => f.StartDate).Width(125).Title("Ngày HĐ")
+                        .ClientTemplate("<#= StartDate == null ? $.telerik.formatString('{0:dd/MM/yyyy}', DateTime.Now) : $.telerik.formatString('{0:dd/MM/yyyy}', StartDate) #>");
+                        
+
+                    //columns.Bound(f => f.Active).Width(75)
+                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                    //       .HtmlAttributes(new { style = "text-align:center" });
+                    //columns.Bound(f => f.UseForecast).Width(75)
+                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='UseForecast' <#=UseForecast? checked='checked' : '' #> />")
+                    //       .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.IsMonitor).Width(75)
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMonitor' <#=IsMonitor? checked='checked' : '' #> />")
+                           .HtmlAttributes(new { style = "text-align:center" });
+
+                })
+            .DetailView(details2 => details2.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= CustomerId #>")
+                    .SelectedIndex(0)
+                    .Items(items =>
+                        {
+                            items.Add().Text("Địa chỉ").Content(
+                                Html.Telerik().Grid<CustomerModel>()
+                                    .Name("gridCustomerAddress_<#= CustomerId #>")
+                                    .DataKeys(key => key.Add(f => f.CustomerId).RouteKey("customerId"))
+                                    .DataBinding(dataDindings => dataDindings
+                                                                     .Ajax()
+                                                                     .Select("SelectCustomerInfoById", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                                     .Update("UpdateCustomerAddress", "Customer"))
+                                    .Columns(columns =>
+                                    {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image)
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                        columns.Bound(f => f.Address).Width(250);
+                                        columns.Bound(f => f.Eaddress).Width(250);
+                                    })
+                                    .Resizable(f => f.Columns(true))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
+                            items.Add().Text("Liên hệ").Content(
+                                Html.Telerik().Grid<CustomerModel>()
+                                    .Name("gridCustomerContact_<#= CustomerId #>")
+                                    .DataKeys(key => key.Add(f => f.CustomerId).RouteKey("customerId"))
+                                    .DataBinding(dataDindings => dataDindings
+                                                                     .Ajax()
+                                                                     .Select("SelectCustomerInfoById", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                    .Update("UpdateCustomerContact", "Customer"))
+                                    .Columns(columns =>
+                                    {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image)
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                        columns.Bound(f => f.ContactName).Width(225);
+                                        columns.Bound(f => f.Phone).Width(225);
+                                        columns.Bound(f => f.Fax).Width(225);
+                                        columns.Bound(f => f.Email).Width(225);
+                                    })
+                                    .Resizable(f => f.Columns(true))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
+                            items.Add().Text("Thanh toán").Content(
+                                Html.Telerik().Grid<CustomerModel>()
+                                    .Name("gridCustomerCredit_<#= CustomerId #>")
+                                    .DataKeys(key => key.Add(f => f.CustomerId).RouteKey("customerId"))
+                                    .DataBinding(dataDindings => dataDindings
+                                                                     .Ajax()
+                                                                     .Select("SelectCustomerInfoById", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                   .Update("UpdateCustomerCredit", "Customer"))
+                                    .Columns(columns =>
+                                    {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image)
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                        columns.Bound(f => f.TaxCode).Width(225);
+                                        columns.Bound(f => f.BankAccount).Width(275);
+                                        columns.Bound(f => f.MaxCredit).Width(225);
+                                    })
+                                    .Resizable(f => f.Columns(true))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
+                            items.Add().Text("Ghi chú").Content(
+                                Html.Telerik().Grid<CustomerModel>()
+                                    .Name("gridCustomerNote_<#= CustomerId #>")
+                                    .DataKeys(key => key.Add(f => f.CustomerId).RouteKey("customerId"))
+                                    .DataBinding(dataDindings => dataDindings
+                                                                     .Ajax()
+                                                                     .Select("SelectCustomerInfoById", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                   .Update("UpdateCustomerNote", "Customer"))
+                                    .Columns(columns =>
+                                    {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image)
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                        columns.Bound(f => f.SpecialInfo).Width(275);
+                                        columns.Bound(f => f.Note).Width(275);
+                                    })
+                                    .Resizable(f => f.Columns(true))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
+                            items.Add().Text("Sản phẩm").Content(
+                                Html.Telerik().Grid<ProductModel>()
+                                    .Name("gridCustomerProduct_<#= CustomerId #>")
+                                    .DataKeys(key => key.Add(f => f.CustomerId).RouteKey("customerId"))
+                                    .DataBinding(dataDindings => dataDindings
+                                                                     .Ajax()
+                                                                     .Select("SelectCustomerProductById", "Customer", new {area = "Sales", customerId = "<#= CustomerId #>"})
+                                    )
+                                    .Columns(columns =>
+                                        {
+                                            columns.Bound(f => f.ProductName).Width(275).Title("Tên Sp");
+                                            columns.Bound(f => f.DesignNo).Width(275).Title("Mã SP KH");
+                                            columns.Bound(f => f.ProductCode).Width(275).Title("Mã VF");
+                                        })
+                                    .Resizable(f => f.Columns(true))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
+                            items.Add().Text("Quyền truy cập").Content(
+                                Html.Telerik().Grid<CustomerAccessPermissionModel>()
+                                    .Name("gridCustomerAccess_<#= CustomerId #>")
+                                    .DataKeys(key => key.Add(f => f.RoleId).RouteKey("roleId"))
+                                    .ToolBar(
+                toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+                .DataBinding(dataDindings => dataDindings
+                                                                     .Ajax()
+                                                                     .Select("SelectCustomerAccessUserById", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                                                     .Insert("InsertCustomerAccess", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                                                     .Update("UpdateCustomerAccess", "Customer", new { area = "Sales", customerId = "<#= CustomerId #>" })
+                                    )
+                                    .Columns(columns =>
+                                    {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image)
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.UserName).Width(100).Title("Tài khoản");
+                                        columns.Bound(f => f.Note).Title("Ghi chú");
+                                        columns.Bound(f => f.Active).Width(75)
+                                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                               .HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.ModifiedDate).Width(150).Title("Ngày cập nhật").ReadOnly(true);
+                                        columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                    })
+                                    .Resizable(f => f.Columns(true))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
+                        }
+                    )
+                    .ClientEvents(e => e.OnError("grid_OnError"))
+                    .ToHtmlString())
+            )
+            .Selectable()
+            .ClientEvents(events => events.OnEdit("gridCustomer_onEdit")
+                                          .OnSave("Grid_OnSave")
+                                          .OnRowSelect("grid_OnRowSelect")
+                                          .OnError("grid_OnError"))
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .Resizable(f => f.Columns(true))
+            //.Pageable(page => page.PageSize(10))
+            .Sortable()
+            .Filterable()
+            .Reorderable(f => f.Columns(true))
+            .Groupable(g=> g.Groups(gs=> gs.Add(c=> c.StateName)))
+            .Scrollable(f => f.Height(500))
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>
+

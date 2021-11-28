@@ -1,0 +1,135 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ImportSX1Model
+@{
+    ViewBag.Title = "Phiếu phát nhiên liệu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+   
+    <script type="text/javascript">
+
+        function grid_onSave(e) {
+
+            var $machineName = $(e.cell).find('#MachineName');
+            if ($machineName.length > 0) {
+                var machineName = $machineName.data("tComboBox"),
+                    machineNameSelectItem = machineName.selectedIndex > -1 ? machineName.data[machineName.selectedIndex] : null;
+
+                if (machineNameSelectItem) {
+                    e.values["MachineName"] = machineNameSelectItem.Text;
+                    e.values["MachineId"] = machineNameSelectItem.Value;
+                }
+            }
+            var $fuelFullCode = $(e.cell).find('#FuelFullCode');
+            if ($fuelFullCode.length > 0) {
+                var fuelFullCode = $fuelFullCode.data("tComboBox"),
+                    fuelFullCodeSelectItem = fuelFullCode.selectedIndex > -1 ? fuelFullCode.data[fuelFullCode.selectedIndex] : null;
+
+                if (fuelFullCodeSelectItem) {
+                    e.values["FuelFullCode"] = fuelFullCodeSelectItem.Text;
+                    e.values["FuelInvId"] = fuelFullCodeSelectItem.Value;
+                }
+            }
+
+            //tong number1
+            var number1 = $(e.cell).find('#MaterialUse1').val();
+            if (!isNaN(parseInt(number1))) {
+                var number = parseInt(number1);
+                var totalInv = parseInt(e.cell.parentNode.childNodes[2].innerHTML);
+                if (number > totalInv)
+                    alert("Lỗi ! SL phát cao hơn tồn kho !");
+                else {
+                    var sum = 0.0;
+                    var span = $("span[name='MaterialUse1']");
+                    for (var i = 0; i < span.length; i++) {
+                        var innerText = span[i].innerText;
+                        innerText = innerText.replace(/,/g, '');
+                        sum = sum + parseInt(innerText);
+                    }
+                    sum = sum + number;
+                    $("#TotalMaterialUse1").text(sum);
+                }
+            }
+
+        }
+
+        function grid_onSubmitChanges(e) {
+            var importDate = $("#ImportDate").data("tDatePicker").value();
+            if (importDate === null)
+                importDate = "";
+            else
+                importDate = $.telerik.formatString('{0:dd/MM/yyyy}', importDate);
+            e.values = $.extend(e.values,
+                {
+                    importDate: importDate,
+                }
+            );
+        }
+
+    </script>
+}
+
+    <div class="title">Tạo Phiếu Phát Nguyên Liệu</div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+        <fieldset>
+            <legend>Thông tin phiếu</legend> 
+            <div class="grid_7">
+               
+            </div>
+            <div class="grid_4">Ngày sử dụng sản phẩm</div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("ImportDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+        </fieldset>
+    </div>
+    <div class="clear"></div>
+    <div class="cover-div">
+        @{
+            Html.Telerik().Grid<SmartProductionModel>()
+                .Name("gridSmartFuel")
+                .DataKeys(keys => keys.Add(f => f.SmartId).RouteKey("smartId"))
+                .ToolBar(bar =>
+                    {
+                        //bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm dòng mới");
+                        bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Trở về ban đầu");
+                    })
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                                                         .Select("SelectSmartProduction", "Transaction",new{area="Inv"})
+                                                         .Update("UpdateAssignFuelProduction", "Fuel", new { area = "Purchasing" })
+                )
+                .Columns(columns =>
+                    {
+                        columns.Bound(f => f.MachineName).Width(50).Title("Máy");
+                        columns.Bound(f => f.FuelFullCode).Width(100).Title("Nhiên liệu - Lô");
+                        columns.Bound(f => f.FuelInvTotal).Width(50).Title("Tổng tồn").ReadOnly(true)
+                               .ClientTemplate("<#= FuelInvTotal == null ? 0 : $.telerik.formatString('{0:n1}', FuelInvTotal) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.MaterialUse1).Width(50).Title("SL Phát")
+                               .ClientTemplate("<span name='MaterialUse1'><#= MaterialUse1 == null ? 0 : $.telerik.formatString('{0:n1}', MaterialUse1) #></span>")
+                               .FooterTemplate("<span id='TotalMaterialUse1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+
+                        columns.Bound(f => f.Note).Width(150).Title("Ghi Chú");
+                        columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30);
+                    })
+                .ClientEvents(events => events
+                                            .OnSave("grid_onSave")
+                                            .OnSubmitChanges("grid_onSubmitChanges")
+                                            .OnError("grid_OnError")
+                )
+                .Editable(editing => editing.Mode(GridEditMode.InCell))
+                .KeyboardNavigation(keys => keys.EditOnTab(true))
+                .Resizable(resizing => resizing.Columns(true))
+                .Scrollable(f => f.Height(510))
+                // .Footer(false)
+                .Render();
+        }
+    </div>
+    <div class="clear"></div><br/>

@@ -1,0 +1,8 @@
+﻿@{
+    Html.Telerik().ComboBox()
+        .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxToolUseType", "Material"))
+        //.HtmlAttributes(new { style = "width: 150px" })
+        .DropDownHtmlAttributes(new { style = "width: 300px" })
+        .Render();                                              
+}

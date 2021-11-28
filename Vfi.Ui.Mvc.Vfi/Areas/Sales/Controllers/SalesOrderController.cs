@@ -646,9 +646,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             return View(new GridModel(model));
         }
 
-        private List<OrderProgressModel> GetProductionExpectedByOrderDetail(long orderDetailId) {
+        public List<OrderProgressModel> GetProductionExpectedByOrderDetail(long orderDetailId) {
             var model = new List<OrderProgressModel>();
-            var productionManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ProductionManagement);
             using (var vfi = new tammaContext()) {
                 var orderDetail = vfi.OrderDetails.FirstOrDefault(od => od.OrderDetailId == orderDetailId);
 
@@ -760,7 +759,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                            ProductCode = x.Product.ProductCode,
                                            DesignProductivityInDay = x.ProductivityInDay,
                                            NumberProcess = x.NumberProcess,
-                                           IsProductionManager = productionManager,
+                                           IsProductionManager = false,
                                            ModifiedDate = x.ModifiedDate,
                                            ModifiedUser = x.ModifiedUser,
                                            Active = x.Active,
@@ -804,7 +803,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             ProductCode = process.ProductCode,
                             DesignProductivityInDay = 0,
                             NumberProcess = numberProcess,
-                            IsProductionManager = productionManager,
+                            IsProductionManager = false,
                             ModifiedDate = DateTime.Now,
                             ModifiedUser = "Auto",
                             OrderDetailId = orderDetailId,
@@ -943,6 +942,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         [HttpPost]
         [GridAction]
         public ActionResult UpdateProductionExpectedByOrderDetail(OrderProgressModel update) {
+            try {
+                SaveOrderProgess(update, HttpContext.User.Identity.Name);
+            }
+            catch (Exception ex) {
+            }
+            return View(new GridModel(GetProductionExpectedByOrderDetail(update.OrderDetailId)));
+        }
+
+        public void SaveOrderProgess(OrderProgressModel update, string saveName) {
             using (var vfi = new tammaContext()) {
                 var entity = vfi.OrderProgresses.FirstOrDefault(op => op.ProgressId == update.ProgressId);
                 if (entity == null) {
@@ -963,7 +971,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         Year = update.StartDate.Value.Year,
                         Active = true,
                         ModifiedDate = DateTime.Now,
-                        ModifiedUser = HttpContext.User.Identity.Name,
+                        ModifiedUser = saveName,
                     };
                     vfi.OrderProgresses.Add(entity);
                 }
@@ -980,10 +988,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     entity.Note = update.Note;
 
                     entity.ModifiedDate = DateTime.Now;
-                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    entity.ModifiedUser = saveName;
                 }
                 vfi.SaveChanges();
-                return View(new GridModel(GetProductionExpectedByOrderDetail(entity.OrderDetailId)));
             }
         }
 
@@ -3508,7 +3515,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     var productIds = products.Select(x => x.ProductId).ToList();
 
                     var forecasts = (from fo in vfi.ForecastOrders
-                                     where ((status == 0 && fo.Status == (byte)MyUtilities.Transaction.Status.Approved)
+                                     where ((status == 0 && fo.Status != (byte)MyUtilities.Transaction.Status.Cancel)
                                                 || fo.Status == status) &&
                                             productIds.Contains(fo.ProductId) &&
                                             fo.Quantity > 0 &&
@@ -3522,6 +3529,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                          fo.Quantity,
                                          fo.ModifiedDate,
                                          fo.ModifiedUser,
+                                         fo.Status,
                                      }).ToList();
                     //var forecasts2 = vfi.ForecastOrders.Where(x => x.Status == status).ToList();
                     //var forecasts3 = vfi.ForecastOrders.Where(x => x.Status == (byte)status).ToList();
@@ -3611,6 +3619,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                     ModifiedUser = forecast.ModifiedUser,
                                     ModifiedDate = forecast.ModifiedDate,
                                     SaleManagement = saleManagement,
+                                    Status = forecast.Status,
+                                    StatusName = MyUtilities.Transaction.CastText.GetTextStatus(forecast.Status)
                                 };
                                 var startOfMonth = new DateTime(date.Year, date.Month, 1);
                                 var startOfLastYear = new DateTime(date.Year - 1, 1, 1);
