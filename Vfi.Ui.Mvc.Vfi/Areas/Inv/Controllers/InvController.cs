@@ -2813,53 +2813,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectProductRecipeById(int customerId, int warehouseId, string productCode) {
-            var models = new List<ProductCombinationRecipeModel>();
-            if (warehouseId == 0 || (customerId == 0 && string.IsNullOrWhiteSpace(productCode))) {
-                return View(new GridModel(models));
-            }
-            var isManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagementLv2);
-            using (var vfi = new tammaContext()) {
-                var recipes = (from x in vfi.ProductCombinationRecipes
-                               where x.Active &&
-                               (customerId == 0 || x.Product.CustomerId == customerId)
-                               select new {
-                                   x.ProductId,
-                                   x.RecipeId,
-                                   x.RecipeCode,
-                                   x.RecipeName,
-                                   x.Product.ProductCode,
-                                   x.Product.DrawingFinish,
-                                   UploadDate = x.Product.UploadDate ?? DateTime.Now,
-                                   Details = x.ProductCombinationRecipeDetails.Select(y =>
-                                                 new ProductCombinationRecipeDetailModel {
-                                                     FromProductCode = y.Product.ProductCode,
-                                                     RequireNumber = y.RequireNumber
-                                                 }).ToList()
-                               }).ToList();
-                if (!String.IsNullOrWhiteSpace(productCode)) {
-                    recipes = recipes.Where(x => x.ProductCode.Contains(productCode.ToUpper())).ToList();
-                }
-                if (!recipes.Any()) {
-                    return View(new GridModel(models));
-                }
-                foreach (var recipe in recipes) {
-                    var entity = new ProductCombinationRecipeModel {
-                        RecipeId = recipe.RecipeId,
-                        RecipeName = recipe.RecipeName,
-                        RecipeCode = recipe.RecipeCode,
-                        ProductCode = recipe.ProductCode,
-                        ProductImg = recipe.DrawingFinish,
-                        UploadDate = recipe.UploadDate.ToString("yyyyMMddhhmmss")
-                    };
-                    entity.DetailDescription = entity.GetDetailDescription(recipe.Details);
-                    models.Add(entity);
-                }
-            }
-            return View(new GridModel(models));
-        }
-
-        [GridAction]
         public ActionResult SelectProductInventoryById(int customerId, int warehouseId, string productCode) {
             var models = new List<ProductInventoryModel>();
             if (warehouseId == 0 ||
@@ -3302,9 +3255,97 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
+        public ActionResult SelectProductRecipeById(int customerId, int warehouseId, string productCode) {
+            var models = new List<ProductCombinationRecipeModel>();
+            if (warehouseId == 0 || (customerId == 0 && string.IsNullOrWhiteSpace(productCode))) {
+                return View(new GridModel(models));
+            }
+            models = GetProductCombinationRecipeModel(customerId, productCode, warehouseId, new List<int>());
+
+            return View(new GridModel(models));
+        }
+
+        List<ProductCombinationRecipeModel> GetProductCombinationRecipeModel(int customerId, string productCode, int warehouseId, List<int> recipeIds) {
+            var model = new List<ProductCombinationRecipeModel>();
+            using (var vfi = new tammaContext()) {
+                var recipes = (from x in vfi.ProductCombinationRecipes
+                               where x.Active &&
+                               (customerId == 0 || x.Product.CustomerId == customerId) &&
+                               (!recipeIds.Any() || recipeIds.Contains(x.RecipeId)) &&
+                               x.ProductCombinationRecipeDetails.Any()
+                               select new {
+                                   x.ProductId,
+                                   x.RecipeId,
+                                   x.RecipeCode,
+                                   x.RecipeName,
+                                   x.Product.ProductCode,
+                                   x.Product.DrawingFinish,
+                                   UploadDate = x.Product.UploadDate ?? DateTime.Now,
+                                   Details = x.ProductCombinationRecipeDetails.Select(y =>
+                                                 new ProductCombinationRecipeDetailModel {
+                                                     FromProductId = y.FromProductId,
+                                                     FromProductCode = y.Product.ProductCode,
+                                                     RequireNumber = y.RequireNumber,
+                                                 }).ToList(),
+                                   FromProductIds = x.ProductCombinationRecipeDetails.Select(y => y.FromProductId)
+                               }).ToList();
+                if (!String.IsNullOrWhiteSpace(productCode)) {
+                    recipes = recipes.Where(x => x.ProductCode.Contains(productCode.ToUpper())).ToList();
+                }
+                if (!recipes.Any()) {
+                    return model;
+                }
+
+                var productIds = recipes.Select(x => x.ProductId).Distinct().ToList();
+                var productInvs = (from pi in vfi.ProductInventories
+                                   where
+                                       productIds.Contains(pi.ProductId) &&
+                                       pi.WarehouseId == warehouseId &&
+                                       pi.TotalQty > 0
+                                   select new {
+                                       pi.ProductId,
+                                       pi.TotalQty
+                                   }).ToList();
+                var fromProductIds = new List<int>();
+                recipes.ForEach(x => fromProductIds.AddRange(x.FromProductIds));
+                var fromProductInvs = (from pi in vfi.ProductInventories
+                                       where
+                                           fromProductIds.Contains(pi.ProductId) &&
+                                           pi.WarehouseId == warehouseId &&
+                                           pi.TotalQty > 0
+                                       select new {
+                                           pi.ProductId,
+                                           pi.TotalQty
+                                       }).ToList();
+                
+                foreach (var recipe in recipes) {
+                    var entity = new ProductCombinationRecipeModel {
+                        RecipeId = recipe.RecipeId,
+                        RecipeName = recipe.RecipeName,
+                        RecipeCode = recipe.RecipeCode,
+                        ProductCode = recipe.ProductCode,
+                        ProductImg = recipe.DrawingFinish,
+                        UploadDate = recipe.UploadDate.ToString("yyyyMMddhhmmss"),
+                        DetailDescription = ProductCombinationRecipeNote.GetDetailDescription(recipe.Details)
+                        //InvQuantity = recipe.Invs.Any() ? recipe.Invs.Sum() : 0,
+                        //AvailableQuantity = recipe.Details.Min(x => MyUtilities.Function.RoundDown(x.InvQuantity / x.RequireNumber))
+                    };
+                    entity.InvQuantity = productInvs.Where(x => x.ProductId == entity.ProductId).Sum(x => x.TotalQty);
+                    foreach (var detail in recipe.Details) {
+                        detail.InvQuantity = fromProductInvs.Where(x => x.ProductId == detail.FromProductId).Sum(x => x.TotalQty);
+                        detail.CombineQuantity = MyUtilities.Function.RoundDown(detail.InvQuantity / detail.RequireNumber);
+                    }
+                    entity.AvailableQuantity = recipe.Details.Min(x => x.CombineQuantity);
+                    model.Add(entity);
+                }
+            }
+            return model;
+        }
+
+        [GridAction]
         public ActionResult SelectProductRecipePicked(string ids, int warehouseId) {
-            var model = (List<ProductInventoryRotateModel>)Session["SessionRecipeTransactionProduct"];
-            if (model == null || !model.Any()) model = new List<ProductInventoryRotateModel>();
+            var model = (List<ProductCombinationRecipeModel>)Session["SessionRecipeTransactionProduct"];
+            if (model == null || !model.Any()) model = new List<ProductCombinationRecipeModel>();
             if (string.IsNullOrWhiteSpace(ids))
                 return View(new GridModel(model));
 
@@ -3317,52 +3358,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
             catch (FormatException) {
-                return View(new GridModel(new List<ProductInventoryRotateModel>()));
+                return View(new GridModel(new List<ProductCombinationRecipeModel>()));
             }
             if (checkedRecords.Count() <= 0)
                 return View(new GridModel(model));
             if (checkedRecords[0] == 0) {
                 return View(new GridModel(model));
             }
-            using (var vfi = new tammaContext()) {
-                var recipes = (from x in vfi.ProductCombinationRecipes
-                               where checkedRecords.Contains(x.RecipeId)
-                               select x).ToList();
-                var productIds = recipes.Select(x => x.ProductId).Distinct().ToList();
 
-                var productInvs = from pi in vfi.ProductInventories
-                                  where
-                                      productIds.Contains(pi.ProductInventoryId) &&
-                                      pi.WarehouseId == warehouseId &&
-                                      pi.TotalQty > 0
-                                  select pi;
-                //foreach (var productInv in productInvs) {
-                //    var entity = model.FirstOrDefault(m => m.ProductInventoryId == productInv.ProductInventoryId);
-                //    if (entity == null) {
-                //        entity = new ProductInventoryRotateModel {
-                //            ProductInventoryId = productInv.ProductInventoryId,
-                //            ProductId = productInv.ProductId,
-                //            CustomerCode = productInv.Product.Customer.CustomerCode,
-                //            ProductCode = productInv.Product.ProductCode,
-                //            ProductInventoryIssueId = warehouseIssue,
-                //            ProductInventoryReceiptId = warehouseReceipt,
-                //            TotalQtyExport = productInv.TotalQty,
-                //            TotalQtyImport = 0,
-                //            ProductWeight = 0,
-                //            LotNumber = (productInv.LotNumber + "").Trim(),
-                //            StoreCode = (productInv.StoreCode + "").Trim(),
-                //        };
-                //        model.Add(entity);
-                //    }
-                //    entity.AvailableQty = GetWarehouseInvPeriod(productInv.ProductInventoryId);
-                //    if (entity.AvailableQty <= 0) {
-                //        model.Remove(entity);
-                //        continue;
-                //    }
-                //    entity.ProductWeight = MyUtilities.Product.GetProductInvWeight(productInv.ProductId, warehouseIssue);
-                //}
-            }
-            model = model.OrderBy(m => m.ProductCode).ThenBy(m => m.LotNumber).ToList();
+            model = model.Where(x => !checkedRecords.Contains(x.RecipeId)).ToList();
+            model.AddRange(GetProductCombinationRecipeModel(0, "", warehouseId, checkedRecords.ToList()));
+
+            model = model.OrderBy(x=> x.CustomerCode).ThenBy(m => m.ProductCode).ToList();
             var groupIndex = 1;
             var pIds = model.Select(x => x.ProductId).Distinct().ToList();
             foreach (var productId in pIds) {

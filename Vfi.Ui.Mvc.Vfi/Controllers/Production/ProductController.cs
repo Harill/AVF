@@ -3896,7 +3896,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                 FromProductCode = x.Product.ProductCode,
                                 RequireNumber = x.RequireNumber
                             }).ToList();
-                        entity.DetailDescription = entity.GetDetailDescription(details);
+                        entity.DetailDescription = ProductCombinationRecipeNote.GetDetailDescription(details);
                     }
                     model.Add(entity);
                 }
@@ -3994,6 +3994,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                              "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
                                              "Xin vui lòng đăng nhập lại hệ thống.");
                 }
+                if (insert.RequireNumber <= 0) {
+                    throw new AggregateException("Vui lòng nhập số lượng >0");
+                }
                 int fromProductId = 0;
                 try {
                     fromProductId = Convert.ToInt32(insert.FromProductCode);
@@ -4032,15 +4035,21 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     if (recipeDetail == null) {
                         throw new AggregateException("Lỗi! Không tìm thấy chi tiết ! Vui lòng F5 lại");
                     }
-                    int fromProductId = 0;
-                    try {
-                        fromProductId = Convert.ToInt32(update.FromProductCode);
+
+                    if (update.RequireNumber <= 0) {
+                        vfi.ProductCombinationRecipeDetails.Remove(recipeDetail);
                     }
-                    catch (Exception) {
-                        fromProductId = update.FromProductId;
+                    else {
+                        int fromProductId = 0;
+                        try {
+                            fromProductId = Convert.ToInt32(update.FromProductCode);
+                        }
+                        catch (Exception) { }
+                        if (update.FromProductId > 0) {
+                            recipeDetail.FromProductId = fromProductId;
+                        }
+                        recipeDetail.RequireNumber = update.RequireNumber;
                     }
-                    recipeDetail.FromProductId = fromProductId;
-                    recipeDetail.RequireNumber = update.RequireNumber;
                     vfi.SaveChanges();
                 }
             }

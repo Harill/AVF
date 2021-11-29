@@ -1,5 +1,4 @@
-﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
-@model TransactionModel
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
     ViewBag.Title = "Ghép SP";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -210,16 +209,15 @@
     function gridProduct_onDataBinding(args) {
         $("input[name='chkAll']")[0].checked = false;
         var customerId = $("#Customer").data('tComboBox').value();
-        var warehouseId = $("#WarehouseIssueName").data('tDropDownList').value();
-
-        var productCode = $("#ProductCodeName").data("tAutoComplete").value();
-
-        if (warehouseIssue === "") {
-            warehouseIssue = 0;
-        }
         if (customerId === "") {
             customerId = 0;
         }
+
+        var warehouseId = $("#WarehouseIssueName").data('tDropDownList').value();
+        if (warehouseId === "") {
+            warehouseId = 0;
+        }
+        var productCode = $("#ProductCodeName").data("tAutoComplete").value();
 
         args.data = $.extend(args.data, {
             customerId: customerId,
@@ -272,12 +270,12 @@
             monthlyDate = "";
         else
             monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
-        var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
-        if (warehouseIssue === "")
-            warehouseIssue = 0;
+        var warehouseId = $("#WarehouseIssueName").data('tDropDownList').value();
+        if (warehouseId === "")
+            warehouseId = 0;
         e.data = $.extend(e.data, {
-            productIds: ids,
-            warehouseIssue: warehouseIssue,
+            ids: ids,
+            warehouseId: warehouseId,
             monthlyDate: monthlyDate
         });
     }
@@ -527,9 +525,7 @@
     <fieldset>
         <legend>Thông tin phiếu lệnh nhập</legend>
 
-        <div class="grid_2">
-            @Html.LabelFor(f => f.WarehouseIssueName)
-        </div>
+        <div class="grid_2">Kho ghép:</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DropDownList()
@@ -598,7 +594,7 @@
 
 <div class="cover-div">
     @{
-        Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Models.Production.ProductCombinationRecipeModel>()
+        Html.Telerik().Grid<ProductCombinationRecipeModel>()
             .Name("gridProduct")
             .ToolBar(bar => bar.Template(
         @<text>
@@ -627,6 +623,14 @@
                 columns.Bound(f => f.ProductCode).Title("Mã SP").Width(120);
                 columns.Bound(f => f.RecipeCode).Width(100).Title("Mã ghép");
                 columns.Bound(f => f.RecipeName).Width(150).Title("Tên");
+                columns.Bound(f => f.InvQuantity).Width(70)
+                    .HeaderTemplate("Đang </br>tồn kho")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
+                columns.Bound(f => f.AvailableQuantity).Width(70)
+                    .HeaderTemplate("SL có thế</br>ghép")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
                 columns.Bound(f => f.DetailDescription).Title("Mô tả ghép");
             })
             .Scrollable(f => f.Height(400))
@@ -634,7 +638,8 @@
             //.Pageable(f => f.Style(GridPagerStyles.Status))
             .ClientEvents(events => events.OnError("grid_OnError")
                 .OnDataBinding("gridProduct_onDataBinding")
-                .OnRowDataBound("gridProduct_OnRowDataBound"))
+                //.OnRowDataBound("gridProduct_OnRowDataBound")
+                )
             .Render();
     }
 </div>
@@ -644,10 +649,10 @@
 <div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh xuất nhập sản phẩm</div>
 <div class="cover-div">
     @{
-        Html.Telerik().Grid<ProductInventoryRotateModel>()
+        Html.Telerik().Grid<ProductCombinationRecipeModel>()
             .Name("gridProductPicked")
             .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
-            .DataKeys(keys => keys.Add(f => f.ProductInventoryId).RouteKey("productInventoryId"))
+            .DataKeys(keys => keys.Add(f => f.RecipeId).RouteKey("recipeId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectProductRecipePicked", "Inv", new { productIds = "", warehouseId = 0 })
                 .Update("CreateRotateProductInventory", "Transaction"))
@@ -662,40 +667,26 @@
                     .HeaderTemplate("TL</br>(g/pc)")
                     .Format("{0:n3}")
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
-                columns.Bound(f => f.TotalQtyExportKg).ReadOnly(true).Width(70)
-                    .HeaderTemplate("Tồn kho</br>(g)")
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.TotalQtyExport).ReadOnly(true).Width(70)
-                    .HeaderTemplate("Tồn kho</br>(pcs)")
+                columns.Bound(f => f.InvQuantity).ReadOnly(true).Width(70)
+                    .HeaderTemplate("Đang </br>tồn kho")
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
-                columns.Bound(f => f.AvailableQtyKg).Width(70).ReadOnly(true)
-                    .HeaderTemplate("SL có thể</br>xuất (g)")
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                //.Aggregate(agg => agg.Sum())
-                //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                //.FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.AvailableQty).Width(70).ReadOnly(true)
-                    .HeaderTemplate("SL có thể</br>xuất (pcs)")
+                columns.Bound(f => f.AvailableQuantity).Width(70).ReadOnly(true)
+                    .HeaderTemplate("SL có thể</br>ghép (pcs)")
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
-                //.Aggregate(agg => agg.Sum())
-                //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                //.FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.IsRotateAll).Width(50).Title("All")
-                    .HeaderHtmlAttributes(new { @class = "edit-column" })
-                    .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= ProductInventoryIssueId #>' class='IsRotateAll_<#= ProductInventoryIssueId #>' <#=IsRotateAll? checked='checked' : '' #> />")
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.QuantityKg).Width(90).HeaderTemplate("TL xuất</br>(g)")
-                    .HeaderHtmlAttributes(new { @class = "edit-column" })
-                    .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantityKg_<#= groupIndex #>'>0</span></div>")
-                    .ClientTemplate("<span name='QuantityKg' class='QuantityKg' ><#= QuantityKg == null ? 0 : $.telerik.formatString('{0:n0}', QuantityKg) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .FooterTemplate("<span id='TotalQuantityKg'></span>")
-                    .FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.Quantity).Width(90).HeaderTemplate("SL xuất</br>(pcs)")
+                //columns.Bound(f => f.IsRotateAll).Width(50).Title("All")
+                //    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                //    .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= ProductInventoryIssueId #>' class='IsRotateAll_<#= ProductInventoryIssueId #>' <#=IsRotateAll? checked='checked' : '' #> />")
+                //    .HtmlAttributes(new { style = "text-align: center;" });
+                //columns.Bound(f => f.QuantityKg).Width(90).HeaderTemplate("TL xuất</br>(g)")
+                //    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                //    .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantityKg_<#= groupIndex #>'>0</span></div>")
+                //    .ClientTemplate("<span name='QuantityKg' class='QuantityKg' ><#= QuantityKg == null ? 0 : $.telerik.formatString('{0:n0}', QuantityKg) #></span>")
+                //    .HtmlAttributes(new { style = "text-align: right;" })
+                //    .FooterTemplate("<span id='TotalQuantityKg'></span>")
+                //    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Quantity).Width(90).HeaderTemplate("SL ghép</br>(pcs)")
                     .HeaderHtmlAttributes(new { @class = "edit-column" })
                     .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantity_<#= groupIndex++ #>'>0</span></div>")
                     .ClientTemplate("<span name='Quantity' class='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #></span>")
@@ -703,10 +694,11 @@
                     .FooterTemplate("<span id='TotalQuantity'></span>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
 
-                columns.Bound(f => f.StoreCode).Title("Vị trí").Width(100)
-                    .HtmlAttributes(new { style = "border-left: 1px black solid;" });
-                columns.Bound(f => f.Note).Title("Ghi Chú")
-                    .HtmlAttributes(new { style = "border-left: 1px black solid;" });
+                //columns.Bound(f => f.StoreCode).Title("Vị trí").Width(100)
+                //    .HtmlAttributes(new { style = "border-left: 1px black solid;" });
+                //columns.Bound(f => f.Note).Title("Ghi Chú")
+                //    .HtmlAttributes(new { style = "border-left: 1px black solid;" });
+                columns.Bound(f => f.DetailDescription).Title("Mô tả ghép").ReadOnly(true);
                 columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image).Text("")).Width(50).Title("");
             })
             .ClientEvents(events => events

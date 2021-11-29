@@ -13,5 +13,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production {
         public string FromProductCode { get; set; }
         [DataType("Int")]
         public int RequireNumber { get; set; }
+        public double InvQuantity { get; set; }
+        public double CombineQuantity { get; set; }
     }
 }
