@@ -2828,6 +2828,7 @@
     <Content Include="Areas\Sales\Views\Orders\EditorTemplates\Int.cshtml" />
     <Content Include="Areas\Sales\Views\Orders\EditorTemplates\Number1.cshtml" />
     <Content Include="Areas\Sales\Views\Orders\ConfirmOrderProgress.cshtml" />
+    <Content Include="Areas\Sales\Views\SalesOrder\TrackingOrderProgress.cshtml" />
     <None Include="Resources\IMG_17012014_143105.png" />
     <Content Include="Resources\approve_icon.jpg" />
     <None Include="Resources\ISO.jpg" />

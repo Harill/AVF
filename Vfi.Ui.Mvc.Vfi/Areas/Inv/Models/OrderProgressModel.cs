@@ -36,6 +36,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
 
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
+        public string CustomerCode { get; set; }
 
         public bool IsProductionManager { get; set; }
         public bool IsProduction { get; set; }
@@ -43,11 +44,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double RequiredProductivityInDay { get; set; }
 
         public double NumberProcess { get; set; }
+        public double ActuallyQuantity { get; set; }
+        public double RemainQuantity { get; set; }
+
         public bool Active { get; set; }
         public string Note { get; set; }
         public long OrderDetailId { get; set; }
 
         public string ProgressNote { get; set; }
+    }
+
+    public class TrackingOrderProgressModel : OrderProgressModel {
+        public TrackingOrderProgressModel() {
+            Days = new List<OrderProgressDay>();
+        }
+
+        public double OrderQuantity { get; set; }
+        public int OrderCount { get; set; }
+
+        public List<OrderProgressDay> Days { get; set; }
+    }
+
+    public class OrderProgressDay {
+        public DateTime Date { get; set; }
+        public int Day { get { return Date.Day; } }
+        public int Quantity { get; set; }
     }
 
     public static class OrderProgressNote {

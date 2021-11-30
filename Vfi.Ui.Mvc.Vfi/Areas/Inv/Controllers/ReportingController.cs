@@ -3911,13 +3911,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           pi.ProductId,
                                           pi.TotalQty
                                       }).ToList();
-                    var exports = (from ex in vfi.ExportFormTP_KDDetail
-                                   where productIds.Contains(ex.ProductId.Value)
-                                   group ex by new { ex.ProductId }
+                    //var exports = (from ex in vfi.ExportFormTP_KDDetail
+                    //               where productIds.Contains(ex.ProductId.Value)
+                    //               group ex by new { ex.ProductId }
+                    //                   into exg
+                    //                   select new {
+                    //                       ProductId = exg.Key.ProductId.Value,
+                    //                       Date = exg.Max(gd => gd.ExportFormTP_KD.DateTransporter.Value),
+                    //                   }).ToList();
+                    var exports = (from x in vfi.InvoiceDetails
+                                   where productIds.Contains(x.ProductId.Value) &&
+                                        x.Invoice.Status != (byte)MyUtilities.Transaction.Status.Cancel
+                                   group x by new { x.ProductId.Value }
                                        into exg
                                        select new {
-                                           ProductId = exg.Key.ProductId.Value,
-                                           Date = exg.Max(gd => gd.ExportFormTP_KD.DateTransporter.Value),
+                                           ProductId = exg.Key.Value,
+                                           Date = exg.Max(gd => gd.Invoice.ShipmentDate.Value),
                                        }).ToList();
                     var periods = (from pip in vfi.ProductInventoryPeriods
                                    where productIds.Contains(pip.ProductId)

@@ -154,6 +154,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             }
             return View();
         }
+        public ActionResult TrackingOrderProgress() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
         #endregion
 
         #region order progress
@@ -1182,6 +1188,94 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     model.Add(entity);
                 }
             }
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult SelectTrackingOrderProgress(int customerId, string productCode, int warehouseId, string fromDate, string toDate) {
+            var model = new List<TrackingOrderProgressModel>();
+            try {
+                model = GetSavedOrderProgressModel(customerId, productCode, warehouseId, fromDate, toDate);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectTrackingOrderProgress", "" + ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<TrackingOrderProgressModel> GetSavedOrderProgressModel(
+            int customerId, string productCode,int warehouseId,
+            string fromDate, string toDate) {
+            var model = new List<TrackingOrderProgressModel>();
+            var ci = new CultureInfo("vi-VN");
+            var fDate = string.IsNullOrWhiteSpace(fromDate)
+                              ? DateTime.Today
+                              : Convert.ToDateTime(fromDate, ci);
+            var tDate = string.IsNullOrWhiteSpace(toDate)
+                              ? DateTime.Today
+                              : Convert.ToDateTime(toDate, ci);
+            using (var vfi = new tammaContext()) {
+                var orderProgress = (from x in vfi.OrderProgresses
+                                     where x.StartDate <= tDate && x.StartDate >= fDate && x.WarehouseId == warehouseId
+                                     orderby x.StartDate
+                                     select new {
+                                         x.ProductId,
+                                         x.StartDate,
+                                         x.ExpectedDay,
+                                         x.ProductivityInDay,
+                                         x.OrderDetailId,
+                                         x.WarehouseId,
+                                         x.ExpectedFactor,
+                                         x.NumberProcess,
+
+                                         //FinishDate = MyUtilities.Function.ToDate(x.StartDate, x.ExpectedDay),
+                                     }).ToList();
+                var productIds = orderProgress.Select(x => x.ProductId).Distinct().ToList();
+                var products = (from x in vfi.Products
+                                where productIds.Contains(x.ProductId) &&
+                                (customerId == 0 || x.CustomerId == customerId)
+                                select new {
+                                    x.ProductId,
+                                    x.ProductCode,
+                                    x.Customer.CustomerCode
+                                }).ToList();
+                foreach (var product in products) {
+                    var entity = new TrackingOrderProgressModel {
+                        ProductId = product.ProductId,
+                        ProductCode = product.ProductCode,
+                        CustomerCode = product.CustomerCode,
+                    };
+                    var orderProgressById = orderProgress.Where(x => x.ProductId == product.ProductId).ToList();
+                    foreach (var progress in orderProgressById) {
+                        var quantityPerDay = MyUtilities.Function.RoundUp(progress.NumberProcess / progress.ExpectedDay);
+
+                        var progressDate = progress.StartDate;
+                        var finishDate = MyUtilities.Function.ToDate(progress.StartDate, progress.ExpectedDay);
+                        if (entity.FinishDate < finishDate) {
+                            entity.FinishDate = finishDate;
+                        }
+                        while (progressDate <= finishDate) {
+                            var processDay = entity.Days.FirstOrDefault(x => x.Date == progressDate);
+                            if (processDay == null) {
+                                processDay = new OrderProgressDay {
+                                    Date = progressDate,
+                                    Quantity = quantityPerDay
+                                };
+                                entity.Days.Add(processDay);
+                            }
+                            else if (quantityPerDay > processDay.Quantity) {
+                                processDay.Quantity = quantityPerDay;
+                            }
+                            progressDate = MyUtilities.Function.ToDate(progressDate, 1);
+                        }
+                    }
+                    entity.StartDate = orderProgressById.Min(x => x.StartDate);
+                    entity.NumberProcess = orderProgressById.Max(x => x.NumberProcess);
+                    entity.ExpectedDay = entity.Days.Count;
+                    model.Add(entity);
+                }
+            }
+
             return model;
         }
 

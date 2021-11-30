@@ -328,21 +328,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
         public ActionResult SelectComboBoxCncRotateWarehouse() {
             return SelectComboBoxWarehouseRotateById(MyUtilities.Warehouse.Cnc);
-            //var model = new List<WarehouseCboModel>();
-            //using (var vfi = new tammaContext()) {
-            //    var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
-            //    if (user == null)
-            //        throw new AggregateException("Vui lòng đăng nhập lại");
-            //    var warehouseIds =
-            //        vfi.WarehousePermissions.Where(wp => wp.UserId == user.UserId && wp.Rotate)
-            //           .Select(wp => wp.WarehouseId)
-            //           .ToList();
-
-            //    model = GetActiveWarehouseModels( new WarehouseConfiguration { Ids = warehouseIds});
-            //}
-            //return new JsonResult {
-            //    Data = new SelectList(model, "WarehouseId", "WarehouseName")
-            //};
         }
 
         public ActionResult SelectComboBoxRotateWarehouse() {
@@ -353,6 +338,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     throw new AggregateException("Vui lòng đăng nhập lại");
                 var warehouseIds =
                     vfi.WarehousePermissions.Where(wp => wp.UserId == user.UserId && wp.Rotate == true)
+                       .Select(wp => wp.WarehouseId.Value)
+                       .ToList();
+                model = GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds });
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "WarehouseId", "WarehouseName")
+            };
+        }
+
+        public ActionResult SelectComboBoxProgressWarehouseByUser() {
+            var model = new List<WarehouseCboModel>();
+            using (var vfi = new tammaContext()) {
+                var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
+                if (user == null)
+                    throw new AggregateException("Vui lòng đăng nhập lại");
+                var warehouseIds =
+                    vfi.WarehousePermissions.Where(wp => wp.UserId == user.UserId && wp.OrderProgress == true)
                        .Select(wp => wp.WarehouseId.Value)
                        .ToList();
                 model = GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds });
