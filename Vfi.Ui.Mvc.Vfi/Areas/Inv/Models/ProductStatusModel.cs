@@ -18,7 +18,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
 
         public double TotalInv { get; set; }
 
-
+        public DateTime ModifiedDate { get; set; }
         public DateTime? LastProductionDate { get; set; }
         public DateTime? LastFinishInvDate { get; set; }
         public double FinishInv { get; set; }

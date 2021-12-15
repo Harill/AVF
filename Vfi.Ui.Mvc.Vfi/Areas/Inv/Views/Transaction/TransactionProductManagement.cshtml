@@ -105,7 +105,7 @@
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     <fieldset>
         <legend>Tiêu chí trích lọc</legend>
-        
+
         <div class="grid_2">Sản phẩm:</div>
         <div class="grid_4">
             @{
@@ -221,25 +221,26 @@
                                                                             .Select("SelectTransactionDetailByTransactionId", "Transaction",
                                                                                     new { transactionId = "<#= TransactionId #>" }))
                                    .Columns(columns => {
-                                           columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50);
-                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100);
-                                           columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50);
-                                           columns.Bound(f => f.Quantity).Width(75).Title("SL (PCS)")
-                                                  .HtmlAttributes(new { style = "text-align: right;" })
-                                                  .Format("{0:n0}").Aggregate(agg => agg.Sum())
-                                                  .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                                                  .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                                           columns.Bound(f => f.QuantityKg).Width(75).Title("SL (g)")
-                                                  .HtmlAttributes(new { style = "text-align: right;" })
-                                                  .Format("{0:n0}")
-                                                  .Aggregate(agg => agg.Sum())
-                                                  .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                                                  .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                                           columns.Bound(f => f.Note).Title("Ghi chú");
-                                           columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu");
-                                           columns.Bound(f => f.MaterialTypeName).Width(75).Title("Loại");
-                                           columns.Bound(f => f.Identity).Width(50).Title("Code");
-                                       })
+                                       columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50);
+                                       columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100);
+                                       columns.Bound(f => f.LotNumber).Title("Lô").Width(150);
+                                       columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50);
+                                       columns.Bound(f => f.Quantity).Width(75).Title("SL (PCS)")
+                                              .HtmlAttributes(new { style = "text-align: right;" })
+                                              .Format("{0:n0}").Aggregate(agg => agg.Sum())
+                                              .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                                              .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                                       columns.Bound(f => f.QuantityKg).Width(75).Title("SL (g)")
+                                              .HtmlAttributes(new { style = "text-align: right;" })
+                                              .Format("{0:n0}")
+                                              .Aggregate(agg => agg.Sum())
+                                              .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                                              .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                                       columns.Bound(f => f.Note).Title("Ghi chú");
+                                       columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu");
+                                       columns.Bound(f => f.MaterialTypeName).Width(75).Title("Loại");
+                                       columns.Bound(f => f.Identity).Width(50).Title("Code");
+                                   })
                                        .Groupable()
                                    .ClientEvents(events => events.OnError("grid_OnError"))
                                    .ToHtmlString()
@@ -250,7 +251,7 @@
             .Selectable()
             .ClientEvents(events => events.OnError("grid_OnError")
                                           .OnRowSelect("grid_OnRowSelect")
-                .OnRowDataBound("grid_OnRowDataBound")
+                                          .OnRowDataBound("grid_OnRowDataBound")
                                           .OnDataBinding("gridTransaction_onDataBinding"))
             .Filterable()
             .Groupable()

@@ -3089,6 +3089,10 @@
     <Content Include="Views\Product\ProductManagementSurfaceTreatment.cshtml" />
     <Content Include="Views\Product\ProductManagementPacking.cshtml" />
     <Content Include="Views\Product\ProductManagementPlating.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_MachineProduction2Template.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_MachineHeatTreamentTemplate.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_MachinePolishTemplate.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_MachineTestTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -29,5 +29,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }
 
+        public int MachineId { get; set; }
+        [DataType("_MachinePolishTemplate")]
+        public string MachineName { get; set; }
     }
 }

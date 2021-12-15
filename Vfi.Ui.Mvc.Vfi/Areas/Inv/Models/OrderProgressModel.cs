@@ -60,11 +60,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         }
 
         public double OrderQuantity { get; set; }
+        public double OrderRequired { get; set; }
         public int OrderCount { get; set; }
+
+        public double ProductionQuantity { get; set; }
+        public double ProgressRemain { get { return NumberProcess > ProductionQuantity ? NumberProcess - ProductionQuantity : 0; } }
 
         public List<OrderProgressDay> Days { get; set; }
     }
-
+    public class TrackingProgressingProcessModel {
+        public int ProductId { get; set; }
+        public DateTime Date { get; set; }
+        public double Quantity { get; set; }
+        public int ToWarehouseId { get; set; }
+    }
     public class OrderProgressDay {
         public DateTime Date { get; set; }
         public int Day { get { return Date.Day; } }

@@ -4105,6 +4105,108 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
+        public ActionResult CreateCombineProductInventory(
+            [Bind(Prefix = "inserted")] IEnumerable<ProductCombinationRecipeModel> inserteds,
+            [Bind(Prefix = "updated")] IEnumerable<ProductCombinationRecipeModel> updateds,
+            [Bind(Prefix = "deleted")] IEnumerable<ProductCombinationRecipeModel> deleteds,
+            int warehouseId, string date
+        ) {
+            if (!Request.IsAuthenticated)
+                throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
+            if (updateds != null) {
+                try {
+                    updateds = updateds.Where(x => Math.Round(x.Quantity) > 0);
+                    if(updateds.Any()){
+                        return View(new GridModel(new List<ProductInventoryModel>()));
+                    }
+                    var ci = new CultureInfo("vi-VN");
+                    var createdDate = string.IsNullOrWhiteSpace(date)
+                                          ? DateTime.Today
+                                          : Convert.ToDateTime(date, ci);
+                    if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
+                        throw new AggregateException(
+                            @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
+                    }
+                    using (var vfi = new tammaContext()) {
+                        var code = MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Product, 1);
+                        var transactionExport = new Vfi.Models.Transaction {
+                            WarehouseIssueId = warehouseId,
+                            WarehouseReceiptId = MyUtilities.Warehouse.Destroy,
+                            TransactionCode = code,
+                            EoI = Convert.ToChar(MyUtilities.Transaction.EoIEnum.Combine) + "",
+                            MoP = MyUtilities.Transaction.MoP.Product,
+                            CreatedUser = HttpContext.User.Identity.Name,
+                            CreatedDate = createdDate,
+                            Status = (byte)MyUtilities.Transaction.Status.Open,
+                            Active = true,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            ModifiedDate = DateTime.Now,
+                        };
+                        var transactionImport = new Vfi.Models.Transaction {
+                            WarehouseReceiptId = transactionExport.WarehouseIssueId,
+                            TransactionCode = transactionExport.TransactionCode,
+                            EoI = transactionExport.EoI,
+                            MoP = transactionExport.MoP,
+                            CreatedUser = transactionExport.CreatedUser,
+                            CreatedDate = transactionExport.CreatedDate,
+                            Status = transactionExport.Status,
+                            Active = true,
+                            ModifiedUser = transactionExport.ModifiedUser,
+                            ModifiedDate = transactionExport.ModifiedDate,
+                        };
+                        foreach (var detail in updateds) {
+                            detail.Quantity = Math.Round(detail.Quantity);
+                            var recipeDetails = vfi.ProductCombinationRecipeDetails.Where(x => detail.RecipeId == x.RecipeId && x.RequireNumber > 0);
+                            var productIds = recipeDetails.Select(x => x.FromProductId).ToList();
+                            var requiredQuantity = detail.Quantity;
+                            while (requiredQuantity > 0) { 
+
+                            }
+                            var productInvs = vfi.ProductInventories.Where(pi => productIds.Contains(pi.ProductId) && pi.WarehouseId == warehouseId);
+                            //var quanity = Math.Round(productInv.TotalQty - detail.Quantity, 0);
+                            //if (quanity < 0)
+                            //    throw new AggregateException("Lỗi! Số lượng tồn kho không đủ xuất.| " +
+                            //                                 detail.ProductCode + " | " + detail.LotNumber);
+                            //var transactionDetails =
+                            //    vfi.TransactionDetails
+                            //        .Where(td => td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open &&
+                            //                     td.ProductInvId == detail.ProductInventoryId)
+                            //        .ToList().Sum(td => td.Quantity);
+                            //quanity = Math.Round(quanity - transactionDetails, 0);
+                            //if (quanity < 0)
+                            //    throw new AggregateException("Lỗi! Số lượng có thể chuyển không đủ xuất.| " +
+                            //                                detail.ProductCode + " | " + detail.LotNumber);
+                            //var model = new Vfi.Models.TransactionDetail {
+                            //    ReferenceId = detail.ProductId,
+                            //    MoP = MyUtilities.Transaction.MoP.Product,
+                            //    Quantity = detail.Quantity,
+                            //    UnitMeasure = detail.UnitMeasure,
+                            //    Active = true,
+                            //    ModifiedUser = HttpContext.User.Identity.Name,
+                            //    ModifiedDate = DateTime.Now,
+                            //    Note = detail.Note,
+                            //    TransactionId = transaction.TransactionId,
+                            //    LotNumber = (detail.LotNumber + "").Trim(),
+                            //    ProductInvId = detail.ProductInventoryId,
+                            //    StoreCode = detail.StoreCode
+                            //};
+                            //transaction.TransactionDetails.Add(model);
+                        }
+                        //if (transaction.TransactionDetails.Any()) {
+                        //    vfi.Transactions.Add(transaction);
+                        //    vfi.SaveChanges();
+                        //}
+                    }
+                }
+                catch (Exception exception) {
+                    ModelState.AddModelError("ProductCodeName", "" + exception.Message);
+                }
+            }
+            Session["SessionRotateTransactionProduct"] = new List<ProductInventoryRotateModel>();
+            return View(new GridModel(new List<ProductInventoryModel>()));
+        }
+
+        [GridAction]
         public ActionResult CreateRotateProductInventory(
             [Bind(Prefix = "inserted")] IEnumerable<ProductInventoryRotateModel> inserteds,
             [Bind(Prefix = "updated")] IEnumerable<ProductInventoryRotateModel> updateds,

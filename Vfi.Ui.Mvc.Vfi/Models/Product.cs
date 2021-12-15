@@ -68,7 +68,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<double> Weight { get; set; }
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }
-        public Nullable<System.DateTime> ModifiedDate { get; set; }
+        public System.DateTime ModifiedDate { get; set; }
         public Nullable<double> ForecastsQuality { get; set; }
         public Nullable<double> UnitPrice { get; set; }
         public Nullable<double> ProductionWeight { get; set; }

@@ -3896,6 +3896,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         p.Material,
                                         ProductionMaterials = p.ProductionMaterials.Where(x=>x.Active),
                                         UnitPrice = p.UnitPrice ?? 0,
+                                        p.ModifiedDate
                                     }).ToList();
                     if (!string.IsNullOrWhiteSpace(productCode)) {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
@@ -3961,7 +3962,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             CustomerCode = product.CustomerCode,
                             ProductId = product.ProductId,
                             ProductCode = product.ProductCode,
-                            UnitPrice = MyUtilities.Product.ProductPrice(product.UnitPrice)
+                            UnitPrice = MyUtilities.Product.ProductPrice(product.UnitPrice),
+                            ModifiedDate = product.ModifiedDate
                         };
                         if (product.MaterialId != null) {
                             entity.MaterialId = product.MaterialId.Value;
@@ -8705,14 +8707,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           }).ToList();
                         var transactionCodes = importCncs.Select(id => id.TransactionCode).Distinct().ToList();
                         var transactionDetails = (from td in vfi.TransactionDetails
-                                                 where transactionCodes.Contains(td.Transaction.TransactionCode) &&
-                                                        td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
-                                                 select new {
-                                                     td.ReferenceId,
-                                                     td.Transaction.WarehouseReceiptId,
-                                                     td.Quantity,
-                                                     td.Transaction.TransactionCode,
-                                                 }).ToList();
+                                                  where transactionCodes.Contains(td.Transaction.TransactionCode) &&
+                                                         td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                                  select new {
+                                                      td.ReferenceId,
+                                                      td.Transaction.WarehouseReceiptId,
+                                                      td.Quantity,
+                                                      td.Transaction.TransactionCode,
+                                                  }).ToList();
                         //var dailyCNC = importCncs.Any(x => x.ImportDate == monthly);
                         foreach (var detail in importCncs) {
                             if (detail.Number1 + detail.Number2 > 0) {
@@ -8761,13 +8763,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                         var warehousesCalculate = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
                         var warehousesName = (from x in vfi.Transactions
-                                            where x.WarehouseReceiptId != null
-                                                 && warehousesCalculate.Contains(x.WarehouseReceiptId.Value)
-                                                 && x.Status == (byte)MyUtilities.Transaction.Status.Open
-                                                 && x.CreatedDate <= monthly
-                                            select new {
-                                                x.Warehouse1.WarehouseName
-                                            }).Distinct().ToList();
+                                              where x.WarehouseReceiptId != null
+                                                   && warehousesCalculate.Contains(x.WarehouseReceiptId.Value)
+                                                   && x.Status == (byte)MyUtilities.Transaction.Status.Open
+                                                   && x.CreatedDate <= monthly
+                                              select x.Warehouse1.WarehouseName).Distinct().ToList();
                         if (warehousesName.Any()) {
                             //var warehouseIds = transactions.Select(x => x.WarehouseReceiptId.Value).Distinct().ToList();
                             //var warehousesName = vfi.Warehouses.Where(x => warehouseIds.Contains(x.WarehouseId))
@@ -8779,7 +8779,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             }
                         }
                     }
-                    
+
+                    var smartProductions = vfi.SmartProductions.Where(sm => sm.ProductId != null && productIds.Contains(sm.ProductId.Value)).ToList();
                     //foreach (var customer in customers) {
                     //var getForecast = customer.UseForecast;
                     var deductionCncMachine = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.DeductionCNCMachine);
@@ -8869,8 +8870,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             sp.DayOfSX1 = importSx1Date.ToString("dd/MM");
                         }
 
-                        var smartProduction =
-                            vfi.SmartProductions.FirstOrDefault(sm => sm.ProductId == product.ProductId);
+                        var smartProduction = smartProductions.FirstOrDefault(sm => sm.ProductId == product.ProductId);
                         sp.OnMachine = (smartProduction != null ? 1 : 0);
 
                         var productPeriodByIds =

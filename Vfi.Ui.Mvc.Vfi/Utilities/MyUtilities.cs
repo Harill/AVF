@@ -1105,6 +1105,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 Export = '1',
                 Rotate = '2',
                 ExportTerm = '3',
+                Combine = '4',
             }
             public enum PeriodType {
                 Year = 1,
@@ -1773,7 +1774,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static string GetAutoProductCode() {
                 string a = "";
                 using (var vfi = new vfiContext()) {
-                    var count = vfi.Products.Count(p => p.ModifiedDate.Value.Year == DateTime.Now.Year);
+                    var count = vfi.Products.Count(p => p.ModifiedDate.Year == DateTime.Now.Year);
                     a = DateTime.Now.ToString("yyMMdd") + (count + 1);
                 }
                 return a;

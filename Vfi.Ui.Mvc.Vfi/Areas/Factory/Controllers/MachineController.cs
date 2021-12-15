@@ -1133,7 +1133,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var model = new List<MachineModel>();
             using (var vfi = new tammaContext()) {
                 model = (from x in vfi.Machines
-                         where x.Active
+                         where (x.Active || x.Production2)
                          && (config.IsMainProcess == null || x.ProcessingType.Warehouse.IsMainProcess == config.IsMainProcess)
                          && (config.IsProduction2 == null || x.ProcessingType.Warehouse.IsProduction2 == config.IsProduction2)
                          && (config.IsProduction2Process == null || x.ProcessingType.Warehouse.IsProduction2Process == config.IsProduction2Process)

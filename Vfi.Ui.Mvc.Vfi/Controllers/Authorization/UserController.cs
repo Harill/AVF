@@ -422,10 +422,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                                         .OrderBy(w => w.Idx)
                                         .ToList();
 
-                    var model = new List<WarehousePermissionModel>();
+                    var model = new List<WarehousePermissionNewModel>();
 
                     foreach (var w in warehouses) {
-                        var entity = new WarehousePermissionModel {
+                        var entity = new WarehousePermissionNewModel {
                             WarehouseId = w.WarehouseId,
                             WarehouseName = w.WarehouseName,
                             Import = false,

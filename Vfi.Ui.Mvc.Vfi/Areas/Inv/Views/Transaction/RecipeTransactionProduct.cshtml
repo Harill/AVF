@@ -655,7 +655,7 @@
             .DataKeys(keys => keys.Add(f => f.RecipeId).RouteKey("recipeId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectProductRecipePicked", "Inv", new { productIds = "", warehouseId = 0 })
-                .Update("CreateRotateProductInventory", "Transaction"))
+                .Update("CreateCombineProductInventory", "Transaction"))
             .Columns(columns => {
                 columns.Bound(f => f.ProductId).Width(30).ReadOnly(true)
                        .ClientTemplate("<#= ++index #>")

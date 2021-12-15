@@ -38,6 +38,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasRequired(t => t.Warehouse)
                 .WithMany(t => t.OrderProgresses)
                 .HasForeignKey(d => d.WarehouseId);
+            this.HasRequired(t => t.OrderDetail)
+                .WithMany(t => t.OrderProgresses)
+                .HasForeignKey(d => d.OrderDetailId);
             this.HasRequired(t => t.Product)
                 .WithMany(t => t.OrderProgresses)
                 .HasForeignKey(d => d.ProductId);

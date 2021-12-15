@@ -30,6 +30,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             _unitOfWork = unitOfWork;
             _warehouseController = warehouseController;
         }
+
         #region view
         public ActionResult CreateSalesOrder() {
             if (!Request.IsAuthenticated) {
@@ -1204,7 +1205,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         }
 
         List<TrackingOrderProgressModel> GetSavedOrderProgressModel(
-            int customerId, string productCode,int warehouseId,
+            int customerId, string productCode, int warehouseId,
             string fromDate, string toDate) {
             var model = new List<TrackingOrderProgressModel>();
             var ci = new CultureInfo("vi-VN");
@@ -1215,45 +1216,173 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                               ? DateTime.Today
                               : Convert.ToDateTime(toDate, ci);
             using (var vfi = new tammaContext()) {
-                var orderProgress = (from x in vfi.OrderProgresses
-                                     where x.StartDate <= tDate && x.StartDate >= fDate && x.WarehouseId == warehouseId
-                                     orderby x.StartDate
-                                     select new {
-                                         x.ProductId,
-                                         x.StartDate,
-                                         x.ExpectedDay,
-                                         x.ProductivityInDay,
-                                         x.OrderDetailId,
-                                         x.WarehouseId,
-                                         x.ExpectedFactor,
-                                         x.NumberProcess,
+                var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if (warehouse == null) {
+                    throw new AggregateException("Lỗi! Không tìm thấy công đoạn! Vui lòng chọn lại công đoạn");
+                }
+                var qcWarehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsQC = true, CanStock = true });
+                var production2WarehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction2 = true, CanStock = true });
+                var platingWarehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsPlating = true, CanStock = true });
+                var warehouseIds = new List<int>();
+                if (warehouse.IsQC) { warehouseIds = qcWarehouseIds; }
+                else if (warehouse.IsProduction2) { warehouseIds = production2WarehouseIds; }
+                else if (warehouse.IsPlating) { warehouseIds = platingWarehouseIds; }
+                else if (warehouse.CanStock) { warehouseIds.Add(warehouseId); }
 
-                                         //FinishDate = MyUtilities.Function.ToDate(x.StartDate, x.ExpectedDay),
-                                     }).ToList();
-                var productIds = orderProgress.Select(x => x.ProductId).Distinct().ToList();
+                var orderProgresses = (from x in vfi.OrderProgresses
+                                       where x.StartDate <= tDate &&
+                                           x.WarehouseId == warehouseId &&
+                                           x.OrderDetail.Order.DueDate != null &&
+                                           x.OrderDetail.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
+                                           x.OrderDetail.RequiedNumber > 0
+                                       orderby x.StartDate
+                                       select new {
+                                           x.ProductId,
+                                           x.StartDate,
+                                           x.ExpectedDay,
+                                           x.ProductivityInDay,
+                                           x.OrderDetailId,
+                                           x.WarehouseId,
+                                           x.ExpectedFactor,
+                                           x.NumberProcess,
+                                           x.ProcessIndex,
+                                           x.OrderDetail.Order.DueDate,
+                                           x.OrderDetail.OrderQty,
+                                           x.OrderDetail.RequiedNumber,
+                                       }).ToList();
+                var productIds = orderProgresses.Select(x => x.ProductId).Distinct().ToList();
                 var products = (from x in vfi.Products
                                 where productIds.Contains(x.ProductId) &&
-                                (customerId == 0 || x.CustomerId == customerId)
+                                    x.Active &&
+                                    (customerId == 0 || x.CustomerId == customerId)
                                 select new {
                                     x.ProductId,
                                     x.ProductCode,
                                     x.Customer.CustomerCode
                                 }).ToList();
+                if (!string.IsNullOrWhiteSpace(productCode)) {
+                    products = products.Where(x => x.ProductCode.Contains(productCode)).ToList();
+                }
+                productIds = products.Select(x => x.ProductId).ToList();
+                var orderDetails = (from x in vfi.OrderDetails
+                                    where x.RequiedNumber > 0 &&
+                                        x.Order.DueDate <= tDate &&
+                                        x.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
+                                        productIds.Contains(x.ProductId)
+                                    select new {
+                                        x.ProductId,
+                                        x.RequiedNumber,
+                                        x.OrderQty,
+                                        x.Order.DueDate
+                                    }).ToList();
+                var productionProcesses = (from x in vfi.ProductionProcesses
+                                           where productIds.Contains(x.ProductId) && x.IsAlert && x.IsNecessary
+                                           orderby x.ProcessIndex
+                                           select new {
+                                               x.ProductId,
+                                               x.WarehouseId,
+                                               x.ProcessIndex,
+                                               x.Warehouse.IsQC,
+                                               x.Warehouse.IsProduction2,
+                                               x.Warehouse.IsPlating,
+                                           }).ToList();
+                var productInvs = (from x in vfi.ProductInventories
+                                   where productIds.Contains(x.ProductId) &&
+                                       //warehouseIds.Contains(x.WarehouseId) &&
+                                       x.TotalQty > 0
+                                   select new {
+                                       x.ProductId,
+                                       x.WarehouseId,
+                                       x.TotalQty,
+                                   }).ToList();
+                var minDate = orderProgresses.Min(x => x.StartDate);
+                var trackingProgressings = new List<TrackingProgressingProcessModel>();
+                if (warehouseId == MyUtilities.Warehouse.Production1) {
+                    trackingProgressings = (from x in vfi.ImportFormSX1Detail
+                                            where x.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                productIds.Contains(x.ProductId) &&
+                                                x.ImportFormSX1.MaterialUseDate >= minDate
+                                            select new TrackingProgressingProcessModel {
+                                                ProductId = x.ProductId,
+                                                Date = x.ImportFormSX1.MaterialUseDate,
+                                                Quantity = x.Number1 + x.Number2,
+                                                ToWarehouseId = 0
+                                            }).ToList();
+                }
+                else if (warehouseId == MyUtilities.Warehouse.Finish) {
+                    trackingProgressings = (from x in vfi.InvoiceDetails
+                                            where x.Active &&
+                                                productIds.Contains(x.ProductId.Value) &&
+                                                x.Invoice.ShipmentDate >= minDate
+                                            select new TrackingProgressingProcessModel {
+                                                ProductId = x.ProductId.Value,
+                                                Date = x.Invoice.ShipmentDate.Value,
+                                                Quantity = x.Piece,
+                                                ToWarehouseId = 0
+                                            }).ToList();
+                }
+                else if (warehouse.IsPlating) {
+                    trackingProgressings = (from x in vfi.ImportNCU_QCBDetail
+                                            where x.ImportNCU_QCB.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                productIds.Contains(x.ProductId) &&
+                                                x.ImportNCU_QCB.ImportDate >= minDate
+                                            select new TrackingProgressingProcessModel {
+                                                ProductId = x.ProductId,
+                                                Date = x.ImportNCU_QCB.ImportDate,
+                                                Quantity = x.RealNumber,
+                                                ToWarehouseId = 0
+                                            }).ToList();
+                }
+                else {
+                    trackingProgressings = (from x in vfi.ProductInventoryPeriods
+                                            where productIds.Contains(x.ProductId) &&
+                                                warehouseIds.Contains(x.WarehouseId) &&
+                                                x.LastPeriodQuantity < x.EarlyPeriodQuantity &&
+                                                x.Transaction.WarehouseReceiptId > 0 &&
+                                                x.PeriodDate >= minDate
+                                            select new TrackingProgressingProcessModel {
+                                                ProductId = x.ProductId,
+                                                Date = x.PeriodDate,
+                                                Quantity = x.Quantity,
+                                                ToWarehouseId = x.Transaction.WarehouseReceiptId.Value
+                                            }).ToList();
+                }
+
+                var rangesDate = new List<DateTime>();
                 foreach (var product in products) {
                     var entity = new TrackingOrderProgressModel {
                         ProductId = product.ProductId,
                         ProductCode = product.ProductCode,
                         CustomerCode = product.CustomerCode,
+                        ProgressIndex = 0,
                     };
-                    var orderProgressById = orderProgress.Where(x => x.ProductId == product.ProductId).ToList();
-                    foreach (var progress in orderProgressById) {
-                        var quantityPerDay = MyUtilities.Function.RoundUp(progress.NumberProcess / progress.ExpectedDay);
+                    var orderDetailsById = orderDetails.Where(x => x.ProductId == entity.ProductId).ToList();
+                    entity.OrderQuantity = orderDetailsById.Sum(x => x.OrderQty.Value);
+                    entity.OrderRequired = orderDetailsById.Sum(x => x.RequiedNumber);
+                    entity.OrderCount = orderDetailsById.Count;
 
-                        var progressDate = progress.StartDate;
-                        var finishDate = MyUtilities.Function.ToDate(progress.StartDate, progress.ExpectedDay);
-                        if (entity.FinishDate < finishDate) {
+                    var orderProgressById = orderProgresses.Where(x => x.ProductId == product.ProductId).ToList();
+                    foreach (var progress in orderProgressById) {
+                        if (entity.ProgressIndex < progress.ProcessIndex) {
+                            entity.ProgressIndex = progress.ProcessIndex;
+                        }
+                        if (entity.NumberProcess < progress.NumberProcess) {
+                            entity.NumberProcess = progress.NumberProcess;
+                        }
+                        if (entity.DesignProductivityInDay < progress.ProductivityInDay) {
+                            entity.DesignProductivityInDay = progress.ProductivityInDay;
+                        }
+                        var finishDate = MyUtilities.Function.ToDate(progress.StartDate, progress.ExpectedDay - 1);
+                        if (entity.FinishDate == null || entity.FinishDate < finishDate) {
                             entity.FinishDate = finishDate;
                         }
+                        if (entity.StartDate == null || entity.StartDate > progress.StartDate) {
+                            entity.StartDate = progress.StartDate;
+                        }
+
+                        var quantityPerDay = progress.ExpectedDay > 0 ? MyUtilities.Function.RoundUp(progress.NumberProcess / progress.ExpectedDay) : 0;
+
+                        var progressDate = progress.StartDate;
                         while (progressDate <= finishDate) {
                             var processDay = entity.Days.FirstOrDefault(x => x.Date == progressDate);
                             if (processDay == null) {
@@ -1266,17 +1395,53 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             else if (quantityPerDay > processDay.Quantity) {
                                 processDay.Quantity = quantityPerDay;
                             }
+                            rangesDate.Add(progressDate);
                             progressDate = MyUtilities.Function.ToDate(progressDate, 1);
                         }
                     }
-                    entity.StartDate = orderProgressById.Min(x => x.StartDate);
-                    entity.NumberProcess = orderProgressById.Max(x => x.NumberProcess);
                     entity.ExpectedDay = entity.Days.Count;
+                    entity.RequiredProductivityInDay = entity.ExpectedDay > 0 ? MyUtilities.Function.RoundUp(entity.NumberProcess / entity.ExpectedDay) : 0;
+
+                    if (warehouse.CanStock) {
+                        entity.InvQuantity = productInvs.Where(x => x.ProductId == entity.ProductId && warehouseIds.Contains(x.WarehouseId)).Sum(x => x.TotalQty);
+                    }
+                    var afterProgress = productionProcesses.Where(x => x.ProcessIndex > entity.ProgressIndex).ToList();
+                    var afterWarehouseIds = afterProgress.Select(x => x.WarehouseId).ToList();
+                    if (afterProgress.Any(x => x.IsQC)) { afterWarehouseIds.AddRange(qcWarehouseIds); }
+                    if (afterProgress.Any(x => x.IsProduction2)) { afterWarehouseIds.AddRange(production2WarehouseIds); }
+                    if (afterProgress.Any(x => x.IsPlating)) { afterWarehouseIds.AddRange(platingWarehouseIds); }
+                    entity.AfterInvQuantity = productInvs.Where(x => x.ProductId == entity.ProductId && afterWarehouseIds.Contains(x.WarehouseId)).Sum(x => x.TotalQty);
+
+                    var nextProcess = afterProgress.FirstOrDefault() != null ? afterProgress.FirstOrDefault().WarehouseId : 0;
+                    var trackingProgressingsById = trackingProgressings.Where(x => x.ProductId == entity.ProductId &&
+                        x.Date >= entity.StartDate &&
+                        x.Date <= entity.FinishDate &&
+                        (x.ToWarehouseId == 0 || x.ToWarehouseId == nextProcess)).ToList();
+                    if (trackingProgressingsById.Any()) {
+                        entity.ProductionQuantity = trackingProgressingsById.Sum(x => x.Quantity);
+                    }
+
                     model.Add(entity);
                 }
-            }
 
-            return model;
+                rangesDate = rangesDate.Distinct().OrderBy(x => x).ToList();
+                var rangesDateCount = rangesDate.Count;
+                var maxScheduleDateCount = 31;
+                foreach (var entity in model) {
+                    foreach (var progressDate in rangesDate) {
+                        var processDay = entity.Days.FirstOrDefault(x => x.Date == progressDate);
+                        if (processDay == null) {
+                            entity.Days.Add(new OrderProgressDay { Date = progressDate, Quantity = 0 });
+                        }
+                    }
+
+                    entity.Days = entity.Days.OrderBy(x => x.Date).ToList();
+                    for (int i = 0; i < maxScheduleDateCount - rangesDateCount; i++) {
+                        entity.Days.Add(new OrderProgressDay { Quantity = 0 });
+                    }
+                }
+            }
+            return model.OrderBy(x => x.CustomerCode).ThenBy(x => x.ProductCode).ToList();
         }
 
         #endregion

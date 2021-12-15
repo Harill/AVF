@@ -53,6 +53,9 @@
                 columns.Bound(f => f.CanInternal).Width(45).Title("Xuất nhập</br>nội bộ")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanInternal' <#=CanInternal? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.CanStock).Width(45).Title("Tính</br>tồn kho")
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanStock' <#=CanStock? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.CanPurchase).Width(45).Title("Nhập</br>mua hàng")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanPurchase' <#=CanPurchase? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });

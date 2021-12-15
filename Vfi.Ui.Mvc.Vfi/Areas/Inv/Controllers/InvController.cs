@@ -1093,175 +1093,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     (int)MyUtilities.Transaction.PeriodType.Year, productId,
                     fromDate, toDate,
                     lotNumber);
-                //using (var vfi = new tammaContext()) {
-                //    vfi.Configuration.LazyLoadingEnabled = false;
-                //    var product = vfi.Products.FirstOrDefault(p => p.ProductId == productId);
-                //    if (product == null)
-                //        throw new AggregateException("Sản phẩm không có thực");
-                //    var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
-                //                             where pip.ProductId == productId
-                //                             select new {
-                //                                 PeriodYear = pip.PeriodDate.Year,
-                //                                 pip.PeriodDate,
-                //                                 pip.WarehouseId,
-                //                                 pip.EarlyPeriodQuantity,
-                //                                 pip.LastPeriodQuantity,
-                //                                 //pip.Transaction,
-                //                                 pip.Quantity,
-                //                                 pip.LotNumber,
-                //                                 pip.Transaction.WarehouseIssueId,
-                //                                 pip.Transaction.WarehouseReceiptId,
-                //                                 IsInternal = pip.Transaction.IsInternal ?? false
-                //                             }).ToList();
-                //    if (!lotNumber.ToLower().Equals("all")) {
-                //        productInvPeriods = productInvPeriods.Where(pip => pip.LotNumber.Equals(lotNumber)).ToList();
-                //    }
-                //    if (!productInvPeriods.Any() && !product.Active)
-                //        throw new AggregateException("Sản phẩm không hoạt động");
-
-                //    var importsProduction = (from sx in vfi.ImportFormSX1Detail
-                //                             where
-                //                                 sx.ProductId == productId &&
-                //                                 sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                //                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                //                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
-                //                                   .Transaction.Status ==
-                //                                 (byte)MyUtilities.Transaction.Status.Approved
-                //                             select new {
-                //                                 Date = sx.ImportFormSX1.ImportDate,
-                //                                 Quantity = (sx.Number1 + sx.Number2),
-                //                                 Processing = (sx.Processing1 + sx.Processing2),
-                //                                 LotNumber = sx.LotNumber + "",
-                //                             }).ToList();
-                //    if (!lotNumber.ToLower().Equals("all")) {
-                //        importsProduction = importsProduction.Where(pip => pip.LotNumber.Equals(lotNumber)).ToList();
-                //    }
-
-                //    var fromDate = new DateTime(2000, 1, 1);
-                //    var toDate = DateTime.Now;
-                //    var cncsProcess = GetCncFormDetailCardModel(productId, fromDate, toDate, lotNumber);
-                //    var production2sProcess = GetProduction2DetailCardModel(productId, fromDate, toDate, lotNumber);
-
-                //    var warehouses = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
-                //    //
-                //    var importsPeriod = productInvPeriods.Where(x => x.WarehouseReceiptId != null
-                //                                                    && warehouses.Contains(x.WarehouseReceiptId.Value))
-                //                                        .ToList();
-
-                //    var listHangTra = (from p in importsPeriod
-                //                       where p.WarehouseId == MyUtilities.Warehouse.Business &&
-                //                             p.WarehouseIssueId == MyUtilities.Warehouse.Business &&
-                //                             p.WarehouseReceiptId == MyUtilities.Warehouse.Finish
-                //                       select p).ToList();
-                //    var importsMore = (from p in importsPeriod
-                //                       where p.WarehouseIssueId == null && !p.IsInternal
-                //                       select p).ToList();
-                //    var importsInternal = (from p in importsPeriod
-                //                           where p.WarehouseIssueId == null && p.IsInternal
-                //                           select p).ToList();
-
-                //    //
-                //    var exportsPeriod = productInvPeriods.Where(x => x.WarehouseIssueId != null
-                //                                                    && warehouses.Contains(x.WarehouseIssueId.Value))
-                //                                         .ToList();
-                //    var exports = (from p in exportsPeriod
-                //                   where p.WarehouseId == MyUtilities.Warehouse.Business &&
-                //                         p.WarehouseIssueId == MyUtilities.Warehouse.Finish &&
-                //                         p.WarehouseReceiptId == MyUtilities.Warehouse.Business
-                //                   select p).ToList();
-                //    var exportsDestroy = (from p in exportsPeriod
-                //                          where
-                //                              p.WarehouseId == MyUtilities.Warehouse.Destroy &&
-                //                              p.WarehouseReceiptId == MyUtilities.Warehouse.Destroy
-                //                          select p).ToList();
-                //    var exportsInternal = (from p in exportsPeriod
-                //                           where p.WarehouseReceiptId == null &&
-                //                                 p.IsInternal
-                //                           select p).ToList();
-                //    var exportsDefect = (from p in exportsPeriod
-                //                         where
-                //                             p.WarehouseId == MyUtilities.Warehouse.Defect &&
-                //                             p.WarehouseReceiptId == MyUtilities.Warehouse.Defect
-                //                         select p).ToList();
-
-                //    var orderDetails = from od in vfi.OrderDetails
-                //                       where
-                //                           (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
-                //                            od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess ||
-                //                            od.Order.Status == (byte)MyUtilities.Sales.Status.Completed) &&
-                //                           od.Order.DueDate != null &&
-                //                           od.ProductId == productId
-                //                       select new {
-                //                           OrderQty = od.OrderQty.Value,
-                //                           od.Order.DueDate.Value.Year
-                //                       };
-
-                //    var forecasts = from fo in vfi.ForecastOrders
-                //                    where
-                //                        fo.ProductId == productId &&
-                //                        fo.Status == (byte)MyUtilities.Transaction.Status.Approved
-                //                    select new {
-                //                        fo.Quantity,
-                //                        fo.ForecastDate.Year
-                //                    };
-
-                //    var years = productInvPeriods.Select(pip => pip.PeriodYear).Distinct().ToList();
-                //    var years2 = orderDetails.Select(od => od.Year).Distinct().ToList();
-                //    var years3 = forecasts.Select(od => od.Year).Distinct().ToList();
-                //    years = years.Union(years2).Union(years3).OrderBy(c => c).ToList();
-                //    foreach (var year in years) {
-                //        //var year = z.x;
-                //        var startYear = new DateTime(year, 1, 1).AddSeconds(-1);
-                //        var entity = new InventoryCardModel {
-                //            ProductId = productId,
-                //            Year = year,
-                //            InventoryStart = 0,
-                //            ImportProduction = 0,
-                //            ImportVirtual = 0,
-                //            ExportSell = 0,
-                //            ExportDefect = 0,
-                //            ExportDestroy = 0,
-                //            LotNumber = lotNumber,
-                //        };
-                //        entity.InventoryStart = productInvPeriods.Where(pip => pip.PeriodDate < startYear
-                //                                                            && warehouses.Contains(pip.WarehouseId))
-                //                                                .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
-
-                //        var import = importsProduction.Where(pip => pip.Date.Year == year);
-                //        if (import.Any()) {
-                //            entity.ImportProduction = import.Sum(p => p.Quantity);
-                //            entity.ImportProcessing = import.Sum(p => p.Processing);
-                //        }
-                //        entity.ImportVirtual = importsMore.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        entity.ImportInternal = importsInternal.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        entity.SendBack = listHangTra.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        //entity.ImportProcessing = importProcessings.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-
-                //        //
-                //        entity.ExportSell = exports.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        entity.ExportDefect = exportsDefect.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        entity.ExportDestroy = exportsDestroy.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        entity.ExportInternal = exportsInternal.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-                //        //entity.ExportProcessing = exportProcessings.Where(pip => pip.PeriodYear == year).Sum(p => p.Quantity);
-
-                //        //
-                //        var cncsInDay = cncsProcess.Where(x => x.Date.Year == year);
-                //        if (cncsInDay.Any()) {
-                //            entity.ProcessCNC = cncsInDay.Sum(x => x.Number);
-                //            entity.ProcessProcessing += cncsInDay.Sum(x => x.Processing);
-                //        }
-                //        var production2InDay = production2sProcess.Where(x => x.Date.Year == year);
-                //        if (production2InDay.Any()) {
-                //            entity.ProcessProduction2 = production2InDay.Sum(x => x.Number1);
-                //            entity.ProcessProcessing += production2InDay.Sum(x => x.Processing1);
-                //        }
-                //        var orderDetail = orderDetails.Where(pip => pip.Year == year);
-                //        if (orderDetail.Any())
-                //            entity.Order = orderDetail.Sum(p => p.OrderQty);
-                //        entity.Forecast = forecasts.Where(pip => pip.Year == year).ToList().Sum(p => p.Quantity);
-                //        model.Add(entity);
-                //    }
-                //}
             }
             catch (Exception ex) {
                 ModelState.AddModelError("MaterialInvPeriod", ex.Message);
@@ -1282,193 +1113,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     (int)MyUtilities.Transaction.PeriodType.Month, productId,
                     fromDate, toDate,
                     lotNumber);
-                //using (var vfi = new tammaContext()) {
-                //    vfi.Configuration.LazyLoadingEnabled = false;
-                //    var product = vfi.Products.FirstOrDefault(p => p.ProductId == productId);
-                //    if (product == null)
-                //        throw new AggregateException("Sản phẩm không có thực");
-                //    var endYear = new DateTime(year, 1, 1, 0, 0, 0).AddYears(1).AddSeconds(-1);
-                //    var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
-                //                            where pip.ProductId == productId && pip.PeriodDate < endYear
-                //                            select new {
-                //                                PeriodMonth = pip.PeriodDate.Month,
-                //                                PeriodYear = pip.PeriodDate.Year,
-                //                                pip.PeriodDate,
-                //                                pip.WarehouseId,
-                //                                pip.EarlyPeriodQuantity,
-                //                                pip.LastPeriodQuantity,
-                //                                pip.Transaction,
-                //                                pip.Quantity,
-                //                                pip.LotNumber,
-                //                            }).ToList();
-                //    if (!lotNumber.ToLower().Equals("all")) {
-                //        productInvPeriods = productInvPeriods.Where(pip => pip.LotNumber.Equals(lotNumber)).ToList();
-                //    }
-                //    if (!productInvPeriods.Any() && !product.Active)
-                //        throw new AggregateException("Sản phẩm không hoạt động");
-                //    var importsProduction = (from sx in vfi.ImportFormSX1Detail
-                //                            where
-                //                            sx.ProductId == productId &&
-                //                                sx.ImportFormSX1.ImportDate.Year == year &&
-                //                                sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                //                                sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                //                                sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
-                //                                  .Transaction.Status ==
-                //                                (byte)MyUtilities.Transaction.Status.Approved
-                //                            select new {
-                //                                Date = sx.ImportFormSX1.ImportDate,
-                //                                Quantity = (sx.Number1 + sx.Number2),
-                //                                Processing = (sx.Processing1 + sx.Processing2),
-                //                                LotNumber = sx.LotNumber + "",
-                //                            }).ToList();
-                //    if (!lotNumber.ToLower().Equals("all")) {
-                //        importsProduction = importsProduction.Where(pip => pip.LotNumber.Equals(lotNumber)).ToList();
-                //    }
-                //    //
-                //    var fromDate = new DateTime(year, 1, 1);
-                //    var toDate = new DateTime(year, 1, 1).AddYears(1).AddSeconds(-1);
-                //    var cncsProcess = GetCncFormDetailCardModel(productId, fromDate, toDate, lotNumber);
-                //    var production2sProcess = GetProduction2DetailCardModel(productId, fromDate, toDate, lotNumber);
-                //    //
-                //    var wareHouses = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
-                //    var listHangTra = (from p in productInvPeriods
-                //                       where p.WarehouseId == MyUtilities.Warehouse.Business &&
-                //                             p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Business &&
-                //                             p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Finish &&
-                //                                p.PeriodYear == year
-                //                       select p).ToList();
-                //    var importVirtualProduction = (from p in productInvPeriods
-                //                                   where
-                //                                       wareHouses.Contains(p.Transaction.WarehouseReceiptId.Value) &&
-                //                                       p.Transaction.WarehouseIssueId == null &&
-                //                                p.PeriodYear == year
-                //                                   select p).ToList();
-
-                //    var exportBusiness = (from p in productInvPeriods
-                //                          where p.WarehouseId == MyUtilities.Warehouse.Business &&
-                //                                p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Finish &&
-                //                                p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Business &&
-                //                                p.PeriodYear == year
-                //                          select p).ToList();
-                //    var exportDestroys = (from p in productInvPeriods
-                //                          where
-                //                              p.WarehouseId == MyUtilities.Warehouse.Destroy &&
-                //                              wareHouses.Contains(p.Transaction.WarehouseIssueId.Value) &&
-                //                              p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy &&
-                //                              p.PeriodYear == year
-                //                          select p).ToList();
-                //    var exportDefects = (from p in productInvPeriods
-                //                         where
-                //                             p.WarehouseId == MyUtilities.Warehouse.Defect &&
-                //                             p.Transaction.WarehouseIssueId != null &&
-                //                             p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect &&
-                //                                p.PeriodYear == year
-                //                         select p).ToList();
-
-                //    var orderDetails = from od in vfi.OrderDetails
-                //                       where
-                //                           (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
-                //                            od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess ||
-                //                            od.Order.Status == (byte)MyUtilities.Sales.Status.Completed) &&
-                //                           od.Order.DueDate != null &&
-                //                           od.Order.DueDate.Value.Year == year &&
-                //                           od.ProductId == productId
-                //                       select new {
-                //                           OrderQty = od.OrderQty.Value,
-                //                           od.Order.DueDate.Value.Month
-                //                       };
-                //    var forecasts = from fo in vfi.ForecastOrders
-                //                    where
-                //                        fo.ProductId == productId &&
-                //                        fo.ForecastDate.Year == year &&
-                //                        fo.Status == (byte)MyUtilities.Transaction.Status.Approved
-                //                    select new {
-                //                        fo.Quantity,
-                //                        fo.ForecastDate.Month
-                //                    };
-
-                //    var months =
-                //        productInvPeriods.Where(pip => pip.PeriodYear == year)
-                //                         .Select(pip => pip.PeriodMonth)
-                //                         .Distinct()
-                //                         .ToList();
-                //    var months2 = orderDetails.Select(od => od.Month).Distinct().ToList();
-                //    var months3 = forecasts.Select(od => od.Month).Distinct().ToList();
-                //    months = months.Union(months2).Union(months3).OrderBy(c => c).ToList();
-                //    foreach (var month in months) {
-                //        //var year = z.x;
-                //        var entity = new InventoryCardModel() {
-                //            ProductId = productId,
-                //            Year = year,
-                //            Month = month,
-                //            InventoryStart = 0,
-                //            ImportProduction = 0,
-                //            ImportVirtual = 0,
-                //            ExportSell = 0,
-                //            ExportDefect = 0,
-                //            ExportDestroy = 0,
-                //            LotNumber = lotNumber,
-                //        };
-                //        var lastMonth = new DateTime(year, month, 1, 0, 0, 0).AddSeconds(-1);
-                //        var invPeriodStartMonth =
-                //            productInvPeriods.Where(
-                //                pip => pip.PeriodDate < lastMonth && wareHouses.Contains(pip.WarehouseId));
-                //        if (invPeriodStartMonth.Any())
-                //            entity.InventoryStart =
-                //                invPeriodStartMonth.Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
-                //        var import = importsProduction.Where(pip => pip.Date.Month == month);
-                //        //var cancel = cancelImport.Where(pip => pip.PeriodMonth == month);
-                //        if (import.Any()) {
-                //            entity.ImportProduction = import.Sum(p => p.Quantity);
-                //            entity.ImportProcessing = import.Sum(p => p.Processing);
-                //        }
-                //        //if (cancel.Any())
-                //        //    entity.ImportProduction -= cancel.Sum(p => p.Quantity);
-                //        var importVirtual = importVirtualProduction.Where(pip => pip.PeriodMonth == month);
-                //        if (importVirtual.Any())
-                //            entity.ImportVirtual = importVirtual.Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
-                //        //var importProcessing = importProcessings.Where(pip => pip.PeriodMonth == month);
-                //        //if (importProcessing.Any())
-                //        //    entity.ImportProcessing = importProcessing.Sum(p => p.Quantity);
-                //        //
-                //        var exportSell = exportBusiness.Where(pip => pip.PeriodMonth == month);
-                //        if (exportSell.Any())
-                //            entity.ExportSell = exportSell.Sum(p => p.Quantity);
-                //        //var sendBack =
-                //        //    listHangTra.Where(ond => ond.CreatedDate.Month == month);
-                //        //if (sendBack.Any())
-                //        //    entity.SendBack = sendBack.Sum(ond => ond.Quantity.Value);
-                //        var sendBack = listHangTra.Where(pip => pip.PeriodMonth == month);
-                //        if (sendBack.Any())
-                //            entity.SendBack = sendBack.Sum(p => p.Quantity);
-                //        var exportDefect = exportDefects.Where(pip => pip.PeriodMonth == month);
-                //        if (exportDefect.Any())
-                //            entity.ExportDefect = exportDefect.Sum(p => p.Quantity);
-                //        var exportDestroy = exportDestroys.Where(pip => pip.PeriodMonth == month);
-                //        if (exportDestroy.Any())
-                //            entity.ExportDestroy = exportDestroy.Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
-                //        //var exportProcessing = exportProcessings.Where(pip => pip.PeriodMonth == month);
-                //        //if (exportProcessing.Any())
-                //        //    entity.ExportProcessing = exportProcessing.Sum(p => p.Quantity);
-
-                //        var cncsInDay = cncsProcess.Where(x => x.Date.Month == month);
-                //        if (cncsInDay.Any()) {
-                //            entity.ProcessCNC = cncsInDay.Sum(x => x.Number);
-                //            entity.ProcessProcessing = cncsInDay.Sum(x => x.Processing);
-                //        }
-                //        var production2InDay = production2sProcess.Where(x => x.Date.Month == month);
-                //        if (production2InDay.Any()) {
-                //            entity.ProcessProduction2 = production2InDay.Sum(x => x.Number1);
-                //            entity.ProcessProcessing += production2InDay.Sum(x => x.Processing1);
-                //        }
-                //        var orderDetail = orderDetails.Where(pip => pip.Month == month);
-                //        if (orderDetail.Any())
-                //            entity.Order = orderDetail.Sum(p => p.OrderQty);
-                //        entity.Forecast = forecasts.Where(pip => pip.Month == month).ToList().Sum(p => p.Quantity);
-                //        if (entity.Show)
-                //            model.Add(entity);
-                //    }
-                //}
             }
             catch (Exception ex) {
                 ModelState.AddModelError("MaterialInvPeriod", ex.Message);
@@ -1491,212 +1135,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     fromDate, toDate,
                     lotNumber);
 
-                //using (var vfi = new tammaContext()) {
-                //    vfi.Configuration.LazyLoadingEnabled = false;
-                //    var product = vfi.Products.FirstOrDefault(p => p.ProductId == productId);
-                //    if (product == null)
-                //        throw new AggregateException("Sản phẩm không có thực");
-                //    var endMonth = new DateTime(year, month, 1, 0, 0, 0).AddMonths(1).AddSeconds(-1);
-                //    var productInvPeriods = from pip in vfi.ProductInventoryPeriods
-                //                            where
-                //                                pip.ProductId == productId &&
-                //                                pip.PeriodDate < endMonth
-                //                            select new {
-                //                                PeriodDay = pip.PeriodDate.Day,
-                //                                PeriodMonth = pip.PeriodDate.Month,
-                //                                PeriodYear = pip.PeriodDate.Year,
-                //                                PeriodDate = pip.PeriodDate,
-                //                                pip.WarehouseId,
-                //                                EarlyPeriodQuantity = pip.EarlyPeriodQuantity,
-                //                                LastPeriodQuantity = pip.LastPeriodQuantity,
-                //                                pip.Transaction,
-                //                                Quantity = pip.Quantity,
-                //                                pip.LotNumber,
-                //                            };
-                //    if (!lotNumber.ToLower().Equals("all")) {
-                //        productInvPeriods = productInvPeriods.Where(pip => pip.LotNumber.Equals(lotNumber));
-                //    }
-                //    if (!productInvPeriods.Any() && !product.Active)
-                //        throw new AggregateException("Sản phẩm không hoạt động");
-                //    var wareHouses = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity2();
-                //    var importProduction = (from sx in vfi.ImportFormSX1Detail
-                //                            where
-                //                            sx.ProductId == productId &&
-                //                                sx.ImportFormSX1.ImportDate.Year == year &&
-                //                                sx.ImportFormSX1.ImportDate.Month == month &&
-                //                                sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                //                                sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                //                                sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
-                //                                  .Transaction.Status ==
-                //                                (byte)MyUtilities.Transaction.Status.Approved
-                //                            select new {
-                //                                Date = sx.ImportFormSX1.ImportDate,
-                //                                Quantity = (sx.Number1 + sx.Number2),
-                //                                Processing = (sx.Processing1 + sx.Processing2),
-                //                                LotNumber = sx.LotNumber + "",
-                //                            }).ToList();
-                //    if (!lotNumber.ToLower().Equals("all")) {
-                //        importProduction = importProduction.Where(pip => pip.LotNumber.Equals(lotNumber)).ToList();
-                //    }
-                //    var fromDate = new DateTime(year, month, 1);
-                //    var toDate = new DateTime(year, month, 1).AddMonths(1).AddSeconds(-1);
-                //    var cncsProcess = GetCncFormDetailCardModel(productId, fromDate, toDate, lotNumber);
-                //    var production2sProcess = GetProduction2DetailCardModel(productId, fromDate, toDate, lotNumber);
-                    
-                //    //var cancelImport = (from p in importProduction
-                //    //                    where
-                //    //                        p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy &&
-                //    //                        p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1 &&
-                //    //                        p.WarehouseId == MyUtilities.Warehouse.Production1 &&
-                //    //                            p.PeriodYear == year &&
-                //    //                            p.PeriodMonth == month
-                //    //                    select p).ToList();
-                //    var importVirtualProduction = (from p in productInvPeriods
-                //                                   where
-                //                                       wareHouses.Contains(p.Transaction.WarehouseReceiptId.Value) &&
-                //                                       p.Transaction.WarehouseIssueId == null &&
-                //                                p.PeriodYear == year &&
-                //                                p.PeriodMonth == month
-                //                                   select p).ToList();
-                //    //var importProcessings = (from p in productInvPeriods
-                //    //                         where
-                //    //                             wareHouses.Contains(p.Transaction.WarehouseReceiptId.Value) &&
-                //    //                             (p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Processing ||
-                //    //                              p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Processing2) &&
-                //    //                             p.PeriodYear == year &&
-                //    //                             p.PeriodMonth == month &&
-                //    //                             (p.WarehouseId == MyUtilities.Warehouse.Processing ||
-                //    //                              p.WarehouseId == MyUtilities.Warehouse.Processing2)
-                //    //                         select p).ToList();
-                //    var exportBusiness = (from p in productInvPeriods
-                //                          where
-                //                              p.WarehouseId == MyUtilities.Warehouse.Business &&
-                //                              p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Finish &&
-                //                              p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Business &&
-                //                              p.PeriodYear == year &&
-                //                              p.PeriodMonth == month
-                //                          select p).ToList();
-                //    //var listHangTra = (from ond in vfi.OrderNoteDetails
-                //    //                   where ond.OrderNote.CreatedDate.Month == month &&
-                //    //                         ond.OrderNote.CreatedDate.Year == year &&
-                //    //                         ond.OrderNote.Transaction.Status ==
-                //    //                         (byte)MyUtilities.Transaction.Status.Approved
-                //    //                         && ond.ProductId == productId
-                //    //                         && ond.OrderNote.NoteType == 1
-                //    //                   select new {
-                //    //                       ond.ProductId,
-                //    //                       ond.Quantity,
-                //    //                       Date = ond.OrderNote.CreatedDate
-                //    //                   }).ToList();
-                //    var listHangTra = (from p in productInvPeriods
-                //                       where p.WarehouseId == MyUtilities.Warehouse.Business &&
-                //                             p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Business &&
-                //                             p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Finish &&
-                //                                p.PeriodYear == year &&
-                //                                p.PeriodMonth == month
-                //                       select p).ToList();
-                //    var exportDestroys = (from p in productInvPeriods
-                //                          where
-                //                              p.WarehouseId == MyUtilities.Warehouse.Destroy &&
-                //                              wareHouses.Contains(p.Transaction.WarehouseIssueId.Value) &&
-                //                              p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy &&
-                //                                p.PeriodYear == year &&
-                //                                p.PeriodMonth == month
-                //                          select p).ToList();
-                //    //var exportProcessings = (from p in productInvPeriods
-                //    //                         where
-                //    //                             wareHouses.Contains(p.Transaction.WarehouseIssueId.Value) &&
-                //    //                            ( p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing ||
-                //    //                             p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing2) &&
-                //    //                            p.PeriodYear == year &&
-                //    //                            p.PeriodMonth == month
-                //    //                         select p).ToList();
-                //    var exportDefects = (from p in productInvPeriods
-                //                         where
-                //                             p.WarehouseId == MyUtilities.Warehouse.Defect &&
-                //                             p.Transaction.WarehouseIssueId != null &&
-                //                             p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect &&
-                //                                p.PeriodYear == year &&
-                //                                p.PeriodMonth == month
-                //                         select p).ToList();
-                //    var days =
-                //        productInvPeriods.Where(pip => pip.PeriodYear == year && pip.PeriodMonth == month)
-                //                         .Select(pip => pip.PeriodDay)
-                //                         .Distinct()
-                //                         .OrderBy(c => c)
-                //                         .ToList();
-                //    //var days2 = listHangTra.Select(od => od.Date.Day).Distinct().ToList();
-                //    //days = days.Union(days2).OrderBy(c => c).ToList();
-                //    //var days2 = orderDetails.Select(od => od.PeriodDay).Distinct().ToList();
-                //    //months = months.Union(months2).ToList();
-
-                //    foreach (var day in days) {
-                //        //var year = z.x;
-                //        var entity = new InventoryCardModel() {
-                //            ProductId = productId,
-                //            Year = year,
-                //            Month = month,
-                //            Day = day,
-                //            InventoryStart = 0,
-                //            ImportProduction = 0,
-                //            ImportVirtual = 0,
-                //            ExportSell = 0,
-                //            ExportDefect = 0,
-                //            ExportDestroy = 0,
-                //            LotNumber = lotNumber
-                //        };
-                //        var lastDay = new DateTime(year, month, day, 0, 0, 0).AddSeconds(-1);
-                //        var invPeriodStartDay = productInvPeriods.Where(pip => pip.PeriodDate < lastDay && wareHouses.Contains(pip.WarehouseId));
-                //        if (invPeriodStartDay.Any())
-                //            entity.InventoryStart =
-                //                invPeriodStartDay.Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
-                //        var import = importProduction.Where(pip => pip.Date.Day == day);
-                //        //var cancel = cancelImport.Where(pip => pip.PeriodDay == day);
-                //        if (import.Any()) {
-                //            entity.ImportProduction = import.Sum(p => p.Quantity);
-                //            entity.ImportProcessing = import.Sum(p => p.Processing);
-                //        }
-                //        //if (cancel.Any())
-                //        //    entity.ImportProduction -= cancel.Sum(p => p.Quantity);
-                //        var importVirtual = importVirtualProduction.Where(pip => pip.PeriodDay == day);
-                //        if (importVirtual.Any())
-                //            entity.ImportVirtual = importVirtual.Sum(p => p.Quantity);
-                //        //var importProcessing = importProcessings.Where(pip => pip.PeriodDay == day);
-                //        //if (importProcessing.Any())
-                //        //    entity.ImportProcessing = importProcessing.Sum(p => p.Quantity);
-                //        //
-                //        var exportSell = exportBusiness.Where(pip => pip.PeriodDay == day);
-                //        if (exportSell.Any())
-                //            entity.ExportSell = exportSell.Sum(p => p.Quantity);
-                //        //var sendBack = listHangTra.Where(ond => ond.Date.Day == day);
-                //        //if (sendBack.Any())
-                //        //    entity.SendBack = sendBack.Sum(ond => ond.Quantity.Value);
-                //        var sendBack = listHangTra.Where(pip => pip.PeriodDay == day);
-                //        if (sendBack.Any())
-                //            entity.SendBack = sendBack.Sum(p => p.Quantity);
-                //        var exportDefect = exportDefects.Where(pip => pip.PeriodDay == day);
-                //        if (exportDefect.Any())
-                //            entity.ExportDefect = exportDefect.Sum(p => p.Quantity);
-                //        var exportDestroy = exportDestroys.Where(pip => pip.PeriodDay == day);
-                //        if (exportDestroy.Any())
-                //            entity.ExportDestroy = exportDestroy.Sum(p => p.Quantity);
-                //        //var exportProcessing = exportProcessings.Where(pip => pip.PeriodDay == day);
-                //        //if (exportProcessing.Any())
-                //        //    entity.ExportProcessing = exportProcessing.Sum(p => p.Quantity);
-                //        var cncsInDay = cncsProcess.Where(x => x.Date.Day == day);
-                //        if (cncsInDay.Any()) {
-                //            entity.ProcessCNC = cncsInDay.Sum(x => x.Number);
-                //            entity.ProcessProcessing = cncsInDay.Sum(x => x.Processing);
-                //        }
-                //        var production2InDay = production2sProcess.Where(x => x.Date.Day == day);
-                //        if (production2InDay.Any()) {
-                //            entity.ProcessProduction2 = production2InDay.Sum(x => x.Number1);
-                //            entity.ProcessProcessing += production2InDay.Sum(x => x.Processing1);
-                //        }
-                //        if (entity.Show)
-                //            model.Add(entity);
-                //    }
-                //}
             }
             catch (Exception ex) {
                 ModelState.AddModelError("MaterialInvPeriod", ex.Message);
@@ -1705,54 +1143,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(model));
         }
 
-        private List<CncFormDetailModel> GetProduction2DetailCardModel(int productId, DateTime fromDate, DateTime toDate, string lotNumber) {
-            var model = new List<CncFormDetailModel>();
-            var warehouseProduction2 = MyUtilities.Warehouse.GetWarehouseIdProduction2_PROCESS();
-            using (var vfi = new tammaContext()) {
-                var transactions = (from td in vfi.TransactionDetails
-                                   where td.ReferenceId == productId &&
-                                           td.Transaction.WarehouseIssueId != null &&
-                                           warehouseProduction2.Contains(td.Transaction.WarehouseIssueId.Value) &&
-                                           td.Transaction.CreatedDate >= fromDate &&
-                                           td.Transaction.CreatedDate <= toDate &&
-                                           td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
-                                   select new {
-                                       td.Transaction.CreatedDate,
-                                       td.Quantity,
-                                       td.QuantityKg,
-                                       WarehouseReceiptId = td.Transaction.WarehouseReceiptId ?? 0,
-                                       TransactionCode = td.Transaction.TransactionCode,
-                                       ProductInvCode = td.ProductInvId != null ? td.ProductInventory.LotNumber : ""
-                                   }).ToList();
-                if (transactions == null || !transactions.Any()) return model;
-                if (!lotNumber.ToLower().Equals("all")) {
-                    transactions = transactions.Where(pip => pip.ProductInvCode.Equals(lotNumber)).ToList();
-                }
-                foreach (var transaction in transactions) {
-                    var entity = new CncFormDetailModel {
-                        Date = transaction.CreatedDate,
-                        MachineName = "SX2",
-                        TransactionCode = transaction.TransactionCode,
-                        ProductInvCode = transaction.ProductInvCode
-                    };
-                    model.Add(entity);
-                    switch (transaction.WarehouseReceiptId) {
-                        case (int)MyUtilities.Warehouse.Id.Processing:
-                            entity.Processing1 = transaction.Quantity;
-                            break;
-                        case (int)MyUtilities.Warehouse.Id.Defect:
-                            entity.DefectProduct1 = transaction.Quantity;
-                            break;
-                        case (int)MyUtilities.Warehouse.Id.Destroy:
-                            break;
-                        default:
-                            entity.Number1 = transaction.Quantity;
-                            break;
-                    }
-                }
-            }
-            return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
-        }
+
         private List<CncFormDetailModel> GetCncFormDetailCardModel(int productId, DateTime fromDate, DateTime toDate, string lotNumber) {
             var model = new List<CncFormDetailModel>();
             using (var vfi = new tammaContext()) {
@@ -1808,7 +1199,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     };
                     model.Add(entity);
                     if (transaction.Status == (byte)MyUtilities.Transaction.Status.Approved) continue;
-                    
+
                     switch (transaction.WarehouseReceiptId) {
                         case (int)MyUtilities.Warehouse.Id.Processing:
                             entity.Processing1 = 0;
@@ -1830,6 +1221,95 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
         }
+
+        private List<CncFormDetailModel> GetProduction2DetailCardModel(int productId, DateTime fromDate, DateTime toDate, string lotNumber) {
+            var model = new List<CncFormDetailModel>();
+            var warehouseProduction2 = MyUtilities.Warehouse.GetWarehouseIdProduction2_PROCESS();
+            using (var vfi = new tammaContext()) {
+                var transactions = (from td in vfi.TransactionDetails
+                                   where td.ReferenceId == productId &&
+                                           td.Transaction.WarehouseIssueId != null &&
+                                           warehouseProduction2.Contains(td.Transaction.WarehouseIssueId.Value) &&
+                                           td.Transaction.CreatedDate >= fromDate &&
+                                           td.Transaction.CreatedDate <= toDate &&
+                                           td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                   select new {
+                                       td.Transaction.CreatedDate,
+                                       td.Quantity,
+                                       td.QuantityKg,
+                                       WarehouseReceiptId = td.Transaction.WarehouseReceiptId ?? 0,
+                                       TransactionCode = td.Transaction.TransactionCode,
+                                       ProductInvCode = td.ProductInvId != null ? td.ProductInventory.LotNumber : ""
+                                   }).ToList();
+                if (transactions == null || !transactions.Any()) return model;
+                if (!lotNumber.ToLower().Equals("all")) {
+                    transactions = transactions.Where(pip => pip.ProductInvCode.Equals(lotNumber)).ToList();
+                }
+                foreach (var transaction in transactions) {
+                    var entity = new CncFormDetailModel {
+                        Date = transaction.CreatedDate,
+                        MachineName = "SX2",
+                        TransactionCode = transaction.TransactionCode,
+                        ProductInvCode = transaction.ProductInvCode
+                    };
+                    model.Add(entity);
+                    switch (transaction.WarehouseReceiptId) {
+                        case (int)MyUtilities.Warehouse.Id.Processing:
+                            entity.Processing1 = transaction.Quantity;
+                            break;
+                        case (int)MyUtilities.Warehouse.Id.Defect:
+                            entity.DefectProduct1 = transaction.Quantity;
+                            break;
+                        case (int)MyUtilities.Warehouse.Id.Destroy:
+                            break;
+                        default:
+                            entity.Number1 = transaction.Quantity;
+                            break;
+                    }
+                }
+            }
+            return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
+        }
+
+        private List<CncFormDetailModel> GetImportInternalCardModel(int productId, DateTime fromDate, DateTime toDate, string lotNumber) {
+            var model = new List<CncFormDetailModel>();
+            using (var vfi = new tammaContext()) {
+                var transactions = (from td in vfi.TransactionDetails
+                                    where td.ReferenceId == productId &&
+                                           td.Transaction.WarehouseIssueId == null &&
+                                            td.Transaction.WarehouseReceiptId != null &&
+                                            td.Transaction.CreatedDate >= fromDate &&
+                                            td.Transaction.CreatedDate <= toDate &&
+                                            td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                            td.IsInternal == true
+                                    select new {
+                                        td.Transaction.CreatedDate,
+                                        td.Quantity,
+                                        td.QuantityKg,
+                                        WarehouseReceiptId = td.Transaction.WarehouseReceiptId ?? 0,
+                                        TransactionCode = td.Transaction.TransactionCode,
+                                        ProductInvCode = td.LotNumber,
+                                        //ProductInvCode = td.ProductInvId != null ? td.ProductInventory.LotNumber : "",
+                                    }).ToList();
+                if (transactions == null || !transactions.Any()) return model;
+                if (!lotNumber.ToLower().Equals("all")) {
+                    transactions = transactions.Where(pip => pip.ProductInvCode.Equals(lotNumber)).ToList();
+                }
+                foreach (var transaction in transactions) {
+                    var entity = new CncFormDetailModel {
+                        Date = transaction.CreatedDate,
+                        MachineName = "Nội bộ",
+                        TransactionCode = transaction.TransactionCode,
+                        ProductInvCode = transaction.ProductInvCode,
+                        Number1 = transaction.Quantity
+                    };
+                    model.Add(entity);
+                    
+                }
+            }
+            return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
+        }
+
 
         [GridAction]
         public ActionResult SelectMaterialInventoryCard(int materialId) {
@@ -2489,6 +1969,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     Index = i,
                                     MachineId = process.MachineId,
                                     MachineName = process.MachineName,
+                                    MachineType = process.MachineType,
                                     MaterialWeight = 0,
                                     ProductId = productId,
                                     ProductCode = product.ProductCode,
@@ -2533,7 +2014,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (production2sProcess.Any()) {
                             var production2 = new ProductionDailyReport {
                                 Index = i,
-                                MachineName = "SX2",
+                                MachineName = "",
+                                MachineType = "Sản xuất 2",
                                 MaterialWeight = 0,
                                 ProductId = productId,
                                 ProductCode = product.ProductCode,
@@ -2548,8 +2030,36 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 DefectQuantity = production2sProcess.Sum(x => x.DefectProduct1),
                             };
                             production2.Shifts.Add(shift);
-                            production2.Shifts.Add(new Shift()); 
+                            production2.Shifts.Add(new Shift());
                             model.Add(production2);
+                        }
+
+                        var processes = GetImportInternalCardModel(productId, fromDate, toDate, lotNumber);
+                        if (processes.Any()) {
+                            foreach (var process in processes) {
+
+                                var production2 = new ProductionDailyReport {
+                                    Index = i,
+                                    MachineName = "",
+                                    MachineType = "Nhập nội bộ",
+                                    MaterialWeight = 0,
+                                    ProductId = productId,
+                                    ProductCode = product.ProductCode,
+                                    ProductionRate = 0,
+                                    UnitWeight = 0,
+                                    Productivity = 0,
+                                    LotNumber = process.ProductInvCode
+                                };
+
+                                var shift = new Shift {
+                                    Quantity = process.Number1,
+                                    ProcessingQuantity = 0,
+                                    DefectQuantity = 0,
+                                };
+                                production2.Shifts.Add(shift);
+                                production2.Shifts.Add(new Shift());
+                                model.Add(production2);
+                            }
                         }
                     }
                 }
@@ -2559,6 +2069,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return View(new GridModel(model.OrderBy(m => m.MachineName)));
         }
+
         [GridAction]
         public ActionResult SelectPrepareMaterialInv(string materialCode,
                                                      int? materialTypeId) {
@@ -12584,7 +12095,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
         #endregion
 
-        #region Production 
+        #region Production
         
         [GridAction]
         public ActionResult SelectProductionLock(string fromDate, string toDate) {

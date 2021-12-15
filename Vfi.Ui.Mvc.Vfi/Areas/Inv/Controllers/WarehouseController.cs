@@ -39,6 +39,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View();
         }
 
+        #region Warehouse
+
+        [GridAction]
+        public ActionResult SelectWarehouse() {
+            return View(new GridModel(GetWarehouseModels()));
+        }
+
         // Data
         public List<WarehouseModel> GetWarehouseModels() {
             var model = new List<WarehouseModel>();
@@ -62,16 +69,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     IsQC = x.IsQC,
                     CanInternal = x.CanInternal,
                     CanPurchase = x.CanPurchase,
+                    CanStock = x.CanStock,
                 }).ToList();
             }
             return model.OrderByDescending(m => m.Active).ThenBy(m => m.Idx).ThenBy(m => m.WarehouseName).ToList();
-        }
-
-        #region Warehouse
-
-        [GridAction]
-        public ActionResult SelectWarehouse() {
-            return View(new GridModel(GetWarehouseModels()));
         }
         [GridAction]
         public ActionResult SelectActiveWarehouse() {
@@ -109,6 +110,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         Active = true,
                         CanInternal = inserted.CanInternal,
                         CanPurchase = inserted.CanPurchase,
+                        CanStock = inserted.CanStock,
                         IsHeatTreatment = inserted.IsHeatTreatment,
                         IsPolish = inserted.IsPolish,
                         IsProduction2 = inserted.IsProduction2,
@@ -155,6 +157,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.Active = updated.Active;
                     entity.CanInternal = updated.CanInternal;
                     entity.CanPurchase = updated.CanPurchase;
+                    entity.CanStock = updated.CanStock;
                     entity.IsHeatTreatment = updated.IsHeatTreatment;
                     entity.IsPolish = updated.IsPolish;
                     entity.IsProduction2 = updated.IsProduction2;
@@ -192,6 +195,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              && (config.IsReprocessing == null || x.IsReprocessing == config.IsReprocessing)
                              && (config.CanInternal == null || x.CanInternal == config.CanInternal)
                              && (config.CanPurchase == null || x.CanPurchase == config.CanPurchase)
+                             && (config.CanStock == null || x.CanStock == config.CanStock)
                              && (!config.Ids.Any() || config.Ids.Contains(x.WarehouseId))
                          orderby x.Idx, x.WarehouseName
                          select new WarehouseCboModel {
@@ -298,21 +302,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult SelectComboBoxWarehouseRotateById(int warehouseId) {
             var warehouseIds = new List<int>();
             using (var vfi = new tammaContext()) {
-                var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
-                if (user == null) {
-                    return new JsonResult {
-                        Data = new SelectList(new List<WarehouseCboModel>(), "WarehouseId", "WarehouseName")
-                    };
-                }
                 var isInvManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement);
                 if (isInvManager) {
                     warehouseIds = vfi.Warehouses.Select(x => x.WarehouseId).ToList();
                 }
                 else {
+                    var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
+                    if (user == null) {
+                        return new JsonResult {
+                            Data = new SelectList(new List<WarehouseCboModel>(), "WarehouseId", "WarehouseName")
+                        };
+                    }
                     warehouseIds = vfi.WarehouseRotates.Where(x => x.Active && x.WarehouseId == warehouseId)
                                                         .Select(x => x.ToWarehouseId)
                                                         .ToList();
-                    warehouseIds.AddRange(MyUtilities.Warehouse.GetWarehouseId_ExceptionRotate());
+                    //warehouseIds.AddRange(MyUtilities.Warehouse.GetWarehouseId_ExceptionRotate());
                     warehouseIds = vfi.WarehousePermissions.Where(x => x.UserId == user.UserId
                                                                     && x.Rotate == true
                                                                     && warehouseIds.Contains(x.WarehouseId.Value))

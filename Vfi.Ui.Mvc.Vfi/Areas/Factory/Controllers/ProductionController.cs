@@ -56,7 +56,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                              ProductId = x.ProductId,
                              ProductCode = x.Product.ProductCode,
                              CustomerId = x.Product.CustomerId,
-                             CustomerCode = x.Product.Customer.CustomerCode
+                             CustomerCode = x.Product.Customer.CustomerCode,
+                             MachineId = x.MachineId ?? 0,
+                             MachineName = x.MachineId != null ? x.Machine.MachineName : ""
                          }).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) {
                     model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
@@ -92,6 +94,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         ModifiedDate = DateTime.Now,
                         ModifiedUser = HttpContext.User.Identity.Name
                     };
+                    var machineId = 0;
+                    try { machineId = Convert.ToInt32(insert.MachineName); }
+                    catch (Exception) { }
+                    if (machineId != 0) { entity.MachineId = machineId; }
+
                     vfi.ProductionHeatTreatments.Add(entity);
                     vfi.SaveChanges();
                 }
@@ -130,6 +137,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     entity.Active = update.Active;
                     entity.ModifiedDate = DateTime.Now;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    var machineId = 0;
+                    try { machineId = Convert.ToInt32(update.MachineName); }
+                    catch (Exception) { }
+                    if (machineId != 0 && machineId != entity.MachineId) { entity.MachineId = machineId; }
+
                     vfi.SaveChanges();
                 }
                 MyUtilities.Product.UpdateProductDesign(productId);
@@ -177,7 +189,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                              ProductId = x.ProductId,
                              ProductCode = x.Product.ProductCode,
                              CustomerId = x.Product.CustomerId,
-                             CustomerCode = x.Product.Customer.CustomerCode
+                             CustomerCode = x.Product.Customer.CustomerCode,
+                             MachineId = x.MachineId ?? 0,
+                             MachineName = x.MachineId != null ? x.Machine.MachineName : ""
                          }).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) {
                     model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
@@ -213,6 +227,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         ModifiedDate = DateTime.Now,
                         ModifiedUser = HttpContext.User.Identity.Name
                     };
+
+                    var machineId = 0;
+                    try { machineId = Convert.ToInt32(insert.MachineName); }
+                    catch (Exception) { }
+                    if (machineId != 0) { entity.MachineId = machineId; }
+
                     vfi.ProductionPolishes.Add(entity);
                     vfi.SaveChanges();
                 }
@@ -251,6 +271,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     entity.Active = update.Active;
                     entity.ModifiedDate = DateTime.Now;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
+
+                    var machineId = 0;
+                    try { machineId = Convert.ToInt32(update.MachineName); }
+                    catch (Exception) { }
+                    if (machineId != 0 && machineId != entity.MachineId) { entity.MachineId = machineId; }
+
                     vfi.SaveChanges();
                 }
                 MyUtilities.Product.UpdateProductDesign(productId);
@@ -419,7 +445,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     SectionIndex = entity.SectionIndex,
                     Productivity = entity.Productivity,
                     Weight = entity.Weight,
-                    IsMainProcess = entity.IsMainProcess
+                    IsMainProcess = entity.IsMainProcess,
+                    MachineId = entity.MachineId ?? 0,
+                    MachineName = entity.MachineId != null ? entity.Machine.MachineName : ""
                 }).ToList();
             }
             return model.OrderBy(m => m.SectionIndex).ToList();
@@ -448,6 +476,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             throw new AggregateException("Lỗi công đoạn ! Chọn lại công đoạn");
                         sectionId = section2.SectionId;
                     }
+
+
                     var entity = new ProductionSection {
                         ProductId = productId,
                         Active = true,
@@ -462,6 +492,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         Weight = insert.Weight,
                         IsMainProcess = insert.IsMainProcess
                     };
+
+                    var machineId = 0;
+                    try { machineId = Convert.ToInt32(insert.MachineName); }
+                    catch (Exception) { }
+                    if (machineId != 0) { entity.MachineId = machineId; }
+
                     var productionProgress =
                             vfi.ProductionProcesses.FirstOrDefault(
                                 pp =>
@@ -526,6 +562,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     }
                     if (sectionId != 0)
                         entity.SectionId = sectionId;
+
+                    var machineId = 0;
+                    try { machineId = Convert.ToInt32(update.MachineName); }
+                    catch (Exception) { }
+                    if (machineId != 0 && machineId != entity.MachineId) { entity.MachineId = machineId; }
+
                     entity.Active = update.Active;
                     entity.Description = update.Description;
                     entity.UpdateDate = DateTime.Now;

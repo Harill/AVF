@@ -21,11 +21,11 @@
                 monthCount = 3;
             var materialCode = $("#MaterialCodeName").data("tAutoComplete").value();
             args.data = $.extend(args.data, {
-                    materialCode: materialCode,
-                    month: month,
-                    year: year,
-                    monthCount: monthCount,
-                }
+                materialCode: materialCode,
+                month: month,
+                year: year,
+                monthCount: monthCount,
+            }
             );
             $("#ForecastByMonthHeader")[0].parentNode.innerHTML =
             ("<span id='ForecastByMonthHeader'>Dự báo</br>"
@@ -62,27 +62,27 @@
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
     <fieldset>
         <legend>Tiêu chí trích lọc</legend>
-        
-        <div class="grid_2">
-                Nguyên liệu
-            </div>
-            <div class="grid_4">
-                @{
-                    Html.Telerik().AutoComplete()
-                        .Name("MaterialCodeName")
-                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new { materialTypeId = 0 }))
-                        //.HtmlAttributes(new { style = "width: 185px; " })
-                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
-                        .Encode(false)
-                        .AutoFill(true)
-                        .HighlightFirstMatch(true)
-                        .Render();
-                }
-            </div>
 
         <div class="grid_2">
-                @Html.Label("Kế hoạch")
-            </div>
+            Nguyên liệu
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("MaterialCodeName")
+                    .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new { materialTypeId = 0 }))
+                    //.HtmlAttributes(new { style = "width: 185px; " })
+                    .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }
+        </div>
+
+        <div class="grid_2">
+            @Html.Label("Kế hoạch")
+        </div>
         <div class="grid_1">
             @{
                 Html.Telerik().IntegerTextBox()
@@ -98,12 +98,12 @@
         <div class="grid_2">
             @Html.Label("Tháng")  | 
         </div>
-       
-      <div class="grid_1">
-              @Html.Label("Tháng")
-            </div>
-            <div class="grid_1">
-                  @{
+
+        <div class="grid_1">
+            @Html.Label("Tháng")
+        </div>
+        <div class="grid_1">
+            @{
                 Html.Telerik().IntegerTextBox()
                     .Name("Month")
                     .Value(DateTime.Now.Month)
@@ -113,21 +113,21 @@
                     .InputHtmlAttributes(new { style = "width: 30px" })
                     .Render();
             }
-            </div>
+        </div>
 
-            <div class="grid_1">
-                @Html.Label("Năm")
-            </div>
-            <div class="grid_1">
+        <div class="grid_1">
+            @Html.Label("Năm")
+        </div>
+        <div class="grid_1">
 
-                @{
-                    Html.Telerik().AutoComplete()
-                        .Name("Year")
-                        .Value(DateTime.Now.Year + "")
-                        .HtmlAttributes(new { style = "width: 42px" })
-                        .Render();
-                }
-            </div>
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("Year")
+                    .Value(DateTime.Now.Year + "")
+                    .HtmlAttributes(new { style = "width: 42px" })
+                    .Render();
+            }
+        </div>
         <div class="grid_3 prefix_1">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridPlan'); ">
                 <span class='t-icon t-insert'></span>
@@ -146,8 +146,7 @@
             .DataKeys(keys => keys.Add(f => f.MaterialId).RouteKey("materialId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectExpectedMaterialPlan", "Reporting"))
-            .Columns(columns =>
-            {
+            .Columns(columns => {
                 columns.Bound(f => f.Index).Title("STT").Width(30)
                        .HtmlAttributes(new { style = "font-weight: center" });
                 columns.Bound(f => f.MaterialTypeName).Title("Loại").Width(50)
@@ -157,14 +156,14 @@
                        .Aggregate(agg => agg.Count())
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
-                       .HtmlAttributes(new {style = "text-align: left;;font-weight: bold"});
+                       .HtmlAttributes(new { style = "text-align: left;;font-weight: bold" });
                 columns.Bound(f => f.TotalInvKg)
                        .HeaderTemplate("Tồn kho<br/>(kg)").Width(50)
                        .Aggregate(agg => agg.Sum())
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                       .FooterHtmlAttributes(new {style = "text-align: right;"})
-                       .HtmlAttributes(new {style = "text-align: right;"});
+                       .FooterHtmlAttributes(new { style = "text-align: right;" })
+                       .HtmlAttributes(new { style = "text-align: right;" });
                 // so lieu
                 columns.Bound(f => f.ForecastInYearKg).Width(50)
                        .HeaderTemplate("Dự báo<br/>năm")
@@ -184,7 +183,7 @@
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
-                       .HtmlAttributes(new {style = "text-align: right;"});
+                       .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ForecastNextMonthKg).Width(50)
                        .HeaderTemplate("DB<br/>tháng kế")
                        .Aggregate(agg => agg.Sum())
@@ -212,14 +211,14 @@
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
-                       .HtmlAttributes(new {style = "text-align: right;"});
+                       .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.RequireNextMonthKg).Width(50)
                        .HeaderTemplate("Yêu cầu NL<br/>tháng kế")
                        .Aggregate(agg => agg.Sum())
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
-                       .HtmlAttributes(new {style = "text-align: right;"});
+                       .HtmlAttributes(new { style = "text-align: right;" });
             })
                 .DetailView(details => details.ClientTemplate(
                 Html.Telerik().TabStrip()
@@ -231,9 +230,8 @@
                                    .Name("gridDetail_<#= MaterialId #>")
                                    .DataBinding(dataDindings => dataDindings.Ajax()
                                                                             .Select("SelectExpectedProductionMaterialPlan", "Reporting",
-                                                                                    new { materialId = "<#= MaterialId #>"}))
-                                   .Columns(columns =>
-                                   {
+                                                                                    new { materialId = "<#= MaterialId #>" }))
+                                   .Columns(columns => {
                                        columns.Bound(f => f.ProductCode).Width(70)
                                               .HeaderTemplate("Mã Sp");
                                        columns.Bound(f => f.UnitWeightByMaterial).Width(70)

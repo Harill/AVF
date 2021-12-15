@@ -22,6 +22,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool Active { get; set; }
         public string Note { get; set; }
         public virtual Warehouse Warehouse { get; set; }
+        public virtual OrderDetail OrderDetail { get; set; }
         public virtual Product Product { get; set; }
     }
 }

@@ -22,7 +22,7 @@
     </script>
 }
 
-<div class="title">Duyệt đơn hàng</div>
+<div class="title">Tiến độ đơn hàng</div>
 
 <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridOrderDetail'); ">
     <span class='t-icon t-insert'></span>
@@ -35,27 +35,8 @@
             .DataKeys(key => key.Add(f => f.OrderDetailId).RouteKey("orderDetailId"))
             .DataBinding(dataDindings => dataDindings.Ajax()
                 .Select("SelectConfirmOrderDetail", "SalesOrder")
-                //.Update("UpdateOrderDetailByOrderId", "SalesOrder", new { orderId = "<#= OrderId #>" })
             )
             .Columns(columns => {
-                //columns.Bound(f => f.OrderDetailId).Title("Tách").Width(25)
-                //    .ClientTemplate("<input type='checkbox' name='chkOrderDetailIds' value='<#= OrderDetailId #>' />")
-                //    .HtmlAttributes(new { style = "text-align:center" }).ReadOnly(true);
-                //columns.Command(command =>
-                //    command.Edit().ButtonType(GridButtonType.Image)
-                //        .UpdateText("Sửa").CancelText("Huỷ").Text("Cập Nhật")
-                //    ).Width(30).Title("").HtmlAttributes(new { style = "text-align:center" });
-                // columns.Bound(f => f.OrderDetailId);
-                // columns.Bound(f => f.OrderId);
-                //columns.Bound(f => f.ProductionApprove).Width(40).Title("SX").ReadOnly(true)
-                //    .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
-                //                    "<#= ProductionApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
-                //columns.Bound(f => f.IsApprove).Width(40).Title("Kho").ReadOnly(true)
-                //    .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
-                //                    "<#= IsApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
-                //columns.Bound(f => f.DetailApproved).Width(40).Title("KD").ReadOnly(true)
-                //    .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
-                //                    "<#= DetailApproved == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
                 columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(100).ReadOnly(true);
                 columns.Bound(f => f.OrderDate).Title("Ngày tạo").Width(85).ReadOnly(true)
                     .Format("{0:dd/MM/yy}")

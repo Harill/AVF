@@ -8,6 +8,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public OrderDetail()
         {
             this.ExportFormTP_KDDetail = new List<ExportFormTP_KDDetail>();
+            this.OrderProgresses = new List<OrderProgress>();
             this.InvoiceDetails = new List<InvoiceDetail>();
             this.OrderStatuses = new List<OrderStatus>();
             this.TimeLines = new List<TimeLine>();
@@ -35,6 +36,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string Note { get; set; }
         public Nullable<bool> IsAlert { get; set; }
         public virtual ICollection<ExportFormTP_KDDetail> ExportFormTP_KDDetail { get; set; }
+        public virtual ICollection<OrderProgress> OrderProgresses { get; set; }
         public virtual Product Product { get; set; }
         public virtual ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public virtual Status Status1 { get; set; }

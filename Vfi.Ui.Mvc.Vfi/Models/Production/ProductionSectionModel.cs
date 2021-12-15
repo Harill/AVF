@@ -29,5 +29,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public int ProductionSectionId { get; set; }
         public int WarehouseId { get; set; }
         public bool IsMainProcess { get; set; }
+
+        public int MachineId { get; set; }
+        [UIHint("_MachineProduction2Template")]
+        public string MachineName { get; set; }
     }
 }

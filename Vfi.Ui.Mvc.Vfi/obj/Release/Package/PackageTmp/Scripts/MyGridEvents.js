@@ -3,7 +3,15 @@ Number.prototype.format = function (n, x) {
     var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
     return this.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
 };
+Date.prototype.ddmm = function () {
+    var mm = this.getMonth() + 1; // getMonth() is zero-based
+    var dd = this.getDate();
 
+    return [(dd > 9 ? '' : '0') + dd,
+            (mm > 9 ? '' : '0') + mm,
+            this.getFullYear()
+    ].join('/');
+};
 function RefreshGrid(gridName) {
     $('#' + gridName).data("tGrid").ajaxRequest();
 }

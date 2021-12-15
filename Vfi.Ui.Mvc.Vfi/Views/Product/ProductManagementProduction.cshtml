@@ -832,10 +832,10 @@
                                                .Title("Tên công đoạn");
                                         columns.Bound(f => f.SectionIndex).Width(50).Title("Tiến trình")
                                                .HtmlAttributes(new { style = "text-align:center;" });
-                                        columns.Bound(f => f.Productivity).Width(50).Title("Năng suất")
-                                               .Title("Năng suất");
+                                        columns.Bound(f => f.Productivity).Width(50).Title("Năng suất");
                                         columns.Bound(f => f.Weight).Width(50).Title("TL đầu ra")
                                                .Format("{0:n3}").HtmlAttributes(new { style = "text-align:right;" });
+                                        columns.Bound(f => f.MachineName).Width(100).Title("Máy");
                                         columns.Bound(f => f.Description).Width(100).Title("Mô tả");
                                         columns.Bound(f => f.Active).Width(40).Title("Kích hoạt")
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
@@ -873,6 +873,7 @@
                                            .HeaderTemplate("CĐ");
                                     columns.Bound(f => f.Name).Width(100)
                                            .HeaderTemplate("Tên");
+                                    columns.Bound(f => f.MachineName).Width(100).Title("Máy");
                                     columns.Bound(f => f.Rate).Width(75)
                                            .HeaderTemplate("SL/Lần")
                                            .Format("{0:n0}")
@@ -920,6 +921,7 @@
                                            .HeaderTemplate("CĐ");
                                     columns.Bound(f => f.Name).Width(100)
                                            .HeaderTemplate("Tên");
+                                    columns.Bound(f => f.MachineName).Width(100).Title("Máy");
                                     columns.Bound(f => f.Rate).Width(75)
                                            .HeaderTemplate("SL/Lần")
                                            .Format("{0:n0}")
