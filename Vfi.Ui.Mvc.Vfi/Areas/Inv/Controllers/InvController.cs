@@ -28,12 +28,14 @@ using Customer = Vfi.Server.Core.DataModel.BaseEntities.Customer;
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class InvController : Controller {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly WarehouseController _warehouseController;
 
         [InjectionConstructor]
-        public InvController(IUnitOfWork unitOfWork
+        public InvController(IUnitOfWork unitOfWork, WarehouseController warehouseController
             ) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
             _unitOfWork = unitOfWork;
+            _warehouseController = warehouseController;
         }
         #region View
         // View
@@ -2332,6 +2334,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             var isManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagementLv2);
             using (var vfi = new tammaContext()) {
+                var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if (warehouse == null) {
+                    throw new AggregateException("Lỗi! Không tìm thấy kho");
+                }
                 var products = (from p in vfi.Products
                                 where p.Active && (customerId == 0 || p.CustomerId == customerId)
                                 select new {
@@ -2360,7 +2366,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        pi.StoreCode,
                                        pi.ByProcessMachineId,
                                    }).ToList();
-                var allWarehouseIds = vfi.Warehouses.Where(x => x.Active).Select(x => x.WarehouseId).ToList();
                 var productionProcessByMachines = (from x in vfi.ProductionProcessByMachines
                                                    where productIds.Contains(x.ProductId) &&
                                                         x.Active
@@ -2373,14 +2378,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                        x.ProcessIndex
                                                    }).ToList();
                 var productionProcesses = (from x in vfi.ProductionProcesses
-                                          where productIds.Contains(x.ProductId) &&
-                                                x.IsNecessary
-                                              select new {
-                                                  x.ProductId,
-                                                  x.WarehouseId,
-                                                  x.Warehouse.WarehouseName,
-                                                  x.ProcessIndex
-                                              }).ToList();
+                                           where productIds.Contains(x.ProductId) &&
+                                                 x.IsNecessary
+                                           select new {
+                                               x.ProductId,
+                                               x.WarehouseId,
+                                               x.Warehouse.WarehouseName,
+                                               x.ProcessIndex
+                                           }).ToList();
+
+                var warehouseIds = new List<int> { };
+                if (isManager) {
+                    warehouseIds = vfi.Warehouses.Where(x => x.Active).Select(x => x.WarehouseId).ToList();
+                }
+                else if (!warehouse.IsMainProcess) {
+                    var rotateWarehouses = vfi.WarehouseRotates.Where(x => x.WarehouseId == warehouseId && x.Active).Select(x => x.ToWarehouseId).ToList();
+                    warehouseIds = vfi.WarehousePermissions.Where(x => x.User.Username.Equals(HttpContext.User.Identity.Name) && x.Rotate == true && rotateWarehouses.Contains(x.WarehouseId.Value))
+                                                            .Select(x => x.WarehouseId.Value).ToList();
+                }
+                else if (warehouse.IsProduction2) {
+                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction2 = true });
+                }
+                else if (warehouse.IsQC) {
+                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsQC = true });
+                }
+                else if (warehouse.IsPlating) {
+                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsPlating = true });
+                }
+                else if (warehouse.IsReprocessing) {
+                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsReprocessing = true });
+                }
+                warehouseIds.AddRange(_warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsOutOfProcess = true }));
+                warehouseIds.Remove(warehouseId);
                 foreach (var product in products) {
                     var productInventorys = productInvs.Where(pi => pi.ProductId == product.ProductId).ToList();
                     var weight = MyUtilities.Product.GetProductInvWeight(product.ProductId, warehouseId);
@@ -2411,7 +2440,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 ProductInventoryId = productInventory.ProductInventoryId,
                                 ProductWeight = weight,
                                 LotNumber = productInventory.LotNumber,
-                                NextWarehouseId = 0,
+                                NextWarehouseId = warehouse.IsMainProcess ? 0 : -1,
                                 NextWarehouseIds = "",
                                 ProductImg = product.DrawingFinish,
                                 UploadDate = product.UploadDate.ToString("yyyyMMddhhmmss"),
@@ -2420,87 +2449,50 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             if (string.IsNullOrWhiteSpace(entity.ProductImg))
                                 entity.ProductImg = "askquestion.jpg";
                             entity.AvailableQty = GetWarehouseInvPeriod(productInventory.ProductInventoryId);
-                            //if (productInventory.ErrorId != null) {
-                            //    entity.Note += productInventory.ProcessError.Description +
-                            //                   (productInventory.ImportDate != null
-                            //                        ? " - Nhập:" + productInventory.ImportDate.Value.ToString("dd/MM/yyyy")
-                            //                        : "");
-                            //}
-                            var warehouseIds = new List<int> { warehouseId };
-                            if (warehouseId == MyUtilities.Warehouse.Production2 ||
-                                warehouseId == MyUtilities.Warehouse.Production2B ||
-                                warehouseId == MyUtilities.Warehouse.Production2C ||
-                                warehouseId == MyUtilities.Warehouse.Production2D)
-                                warehouseIds = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
-                            else if (warehouseId == MyUtilities.Warehouse.QcA ||
-                                warehouseId == MyUtilities.Warehouse.QcB ||
-                                warehouseId == MyUtilities.Warehouse.QcC)
-                                warehouseIds = MyUtilities.Warehouse.GetWarehouseIdQc();
-                            //if (warehouseId == MyUtilities.Warehouse.Production2)
-                            //    warehouseIds = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
-                            else if (warehouseId == MyUtilities.Warehouse.Processing ||
-                                warehouseId == MyUtilities.Warehouse.ReProcessing ||
-                                warehouseId == MyUtilities.Warehouse.Tranfer) {
-                                entity.NextWarehouseId = -1;
-                            }
-                            if (productInventory.ByProcessMachineId != null) {
-                                var ppmById = productionProcessByMachines.FirstOrDefault(x => x.DetailId == productInventory.ByProcessMachineId);
-                                if (ppmById != null) {
-                                    var nextProcess = productionProcessByMachines
-                                        .Where(pp => pp.MachineId == ppmById.MachineId &&
-                                                     pp.ProductId == ppmById.ProductId &&
-                                                     pp.ProcessIndex > ppmById.ProcessIndex)
-                                        .OrderBy(pp => pp.ProcessIndex)
-                                        .FirstOrDefault();
-                                    if (nextProcess != null) {
-                                        warehouseIds.Add(nextProcess.WarehouseId);
-                                        entity.NextProcess = nextProcess.WarehouseName;
-                                        entity.NextWarehouseId = nextProcess.WarehouseId;
-                                        //if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement)) {
-                                        //    entity.NextWarehouseId = -1;
-                                        //}
-                                        //entity.NextWarehouseIds += "|" + nextProcess.WarehouseId + "|";
-                                    }
-                                    //foreach (var id in warehouseIds) {
-                                    //    entity.NextWarehouseIds += "|" + id + "|";
-                                    //}
-                                }
-                            }
-                            if (entity.NextWarehouseId == 0) {
-                                var process =
-                                    productionProcesses.FirstOrDefault(
-                                        pp => pp.ProductId == entity.ProductId &&
-                                              warehouseIds.Contains(pp.WarehouseId));
-                                if (process != null) {
-                                    var nextProcess = productionProcesses
-                                        .Where(pp => pp.ProductId == process.ProductId &&
-                                                     pp.ProcessIndex > process.ProcessIndex)
-                                        .OrderBy(pp => pp.ProcessIndex)
-                                        .FirstOrDefault();
-                                    if (nextProcess != null) {
-                                        warehouseIds.Add(nextProcess.WarehouseId);
-                                        entity.NextProcess = nextProcess.WarehouseName;
-                                        entity.NextWarehouseId = nextProcess.WarehouseId;
-                                        //if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement)) {
-                                        //    entity.NextWarehouseId = -1;
-                                        //}
-                                        //entity.NextWarehouseIds += "|" + nextProcess.WarehouseId + "|";
-                                    }
-                                }
-                            }
+
                             if (isManager) {
-                                foreach (var wid in allWarehouseIds) {
+                                foreach (var wid in warehouseIds) {
                                     entity.NextWarehouseIds += "|" + wid + "|";
                                 }
                             }
                             else {
+                                if (productInventory.ByProcessMachineId != null) {
+                                    var ppmById = productionProcessByMachines.FirstOrDefault(x => x.DetailId == productInventory.ByProcessMachineId);
+                                    if (ppmById != null) {
+                                        var nextProcess = productionProcessByMachines
+                                            .Where(pp => pp.MachineId == ppmById.MachineId &&
+                                                         pp.ProductId == ppmById.ProductId &&
+                                                         pp.ProcessIndex > ppmById.ProcessIndex)
+                                            .OrderBy(pp => pp.ProcessIndex)
+                                            .FirstOrDefault();
+                                        if (nextProcess != null) {
+                                            warehouseIds.Add(nextProcess.WarehouseId);
+                                            entity.NextProcess = nextProcess.WarehouseName;
+                                            entity.NextWarehouseId = nextProcess.WarehouseId;
+                                        }
+                                    }
+                                }
+                                if (entity.NextWarehouseId == 0) {
+                                    var process =
+                                        productionProcesses.FirstOrDefault(
+                                            pp => pp.ProductId == entity.ProductId &&
+                                                  warehouseIds.Contains(pp.WarehouseId));
+                                    if (process != null) {
+                                        var nextProcess = productionProcesses
+                                            .Where(pp => pp.ProductId == process.ProductId &&
+                                                         pp.ProcessIndex > process.ProcessIndex)
+                                            .OrderBy(pp => pp.ProcessIndex)
+                                            .FirstOrDefault();
+                                        if (nextProcess != null) {
+                                            warehouseIds.Add(nextProcess.WarehouseId);
+                                            entity.NextProcess = nextProcess.WarehouseName;
+                                            entity.NextWarehouseId = nextProcess.WarehouseId;
+                                        }
+                                    }
+                                }
                                 foreach (var id in warehouseIds) {
                                     entity.NextWarehouseIds += "|" + id + "|";
                                 }
-                                entity.NextWarehouseIds += "|" + MyUtilities.Warehouse.Processing + "|";
-                                entity.NextWarehouseIds += "|" + MyUtilities.Warehouse.Tranfer + "|";
-                                entity.NextWarehouseIds += "|" + MyUtilities.Warehouse.Defect + "|";
-                                entity.NextWarehouseIds += "|" + MyUtilities.Warehouse.Destroy + "|";
                             }
                             models.Add(entity);
                         }

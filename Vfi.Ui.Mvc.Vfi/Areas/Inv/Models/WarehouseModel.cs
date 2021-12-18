@@ -18,6 +18,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool IsQC { get; set; }
         public bool IsPlating { get; set; }
         public bool CanStock { get; set; }
+        public bool IsOutOfProcess { get; set; }
     }
 
     public class WarehouseCboModel {
@@ -42,6 +43,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool? IsQC { get; set; }
         public bool? IsPlating { get; set; }
         public bool? CanStock { get; set; }
+        public bool? IsOutOfProcess { get; set; }
 
         public bool? AddFirstAll { get; set; }
     }

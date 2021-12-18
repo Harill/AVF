@@ -70,6 +70,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     CanInternal = x.CanInternal,
                     CanPurchase = x.CanPurchase,
                     CanStock = x.CanStock,
+                    IsOutOfProcess = x.IsOutOfProcess,
                 }).ToList();
             }
             return model.OrderByDescending(m => m.Active).ThenBy(m => m.Idx).ThenBy(m => m.WarehouseName).ToList();
@@ -119,6 +120,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         IsMainProcess = inserted.IsMainProcess,
                         IsQC = inserted.IsQC,
                         IsPlating = inserted.IsPlating,
+                        IsOutOfProcess = inserted.IsOutOfProcess,
                         ModifiedUser = HttpContext.User.Identity.Name,
                         ModifiedDate = DateTime.Now,
                     };
@@ -166,6 +168,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsMainProcess = updated.IsMainProcess;
                     entity.IsQC = updated.IsQC;
                     entity.IsPlating = updated.IsPlating;
+                    entity.IsOutOfProcess = updated.IsOutOfProcess;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
                     entity.ModifiedDate = DateTime.Now;
                     if (string.IsNullOrWhiteSpace(entity.ShortName))
@@ -193,6 +196,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              && (config.IsQC == null || x.IsQC == config.IsQC)
                              && (config.IsPlating == null || x.IsPlating == config.IsPlating)
                              && (config.IsReprocessing == null || x.IsReprocessing == config.IsReprocessing)
+                             && (config.IsOutOfProcess == null || x.IsOutOfProcess == config.IsOutOfProcess)
                              && (config.CanInternal == null || x.CanInternal == config.CanInternal)
                              && (config.CanPurchase == null || x.CanPurchase == config.CanPurchase)
                              && (config.CanStock == null || x.CanStock == config.CanStock)

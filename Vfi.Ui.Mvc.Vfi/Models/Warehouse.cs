@@ -51,6 +51,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool IsQC { get; set; }
         public bool IsPlating { get; set; }
         public bool CanStock { get; set; }
+        public bool IsOutOfProcess { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
