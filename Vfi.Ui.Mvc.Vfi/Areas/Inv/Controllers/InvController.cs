@@ -2334,10 +2334,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             var isManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagementLv2);
             using (var vfi = new tammaContext()) {
-                var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
-                if (warehouse == null) {
-                    throw new AggregateException("Lỗi! Không tìm thấy kho");
-                }
                 var products = (from p in vfi.Products
                                 where p.Active && (customerId == 0 || p.CustomerId == customerId)
                                 select new {
@@ -2387,7 +2383,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                x.ProcessIndex
                                            }).ToList();
 
-                var warehouseIds = new List<int> { };
+                var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if (warehouse == null) {
+                    throw new AggregateException("Lỗi! Không tìm thấy kho");
+                }
+                var warehouseIds = new List<int> { warehouseId };
                 if (isManager) {
                     warehouseIds = vfi.Warehouses.Where(x => x.Active).Select(x => x.WarehouseId).ToList();
                 }
@@ -2409,7 +2409,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsReprocessing = true });
                 }
                 warehouseIds.AddRange(_warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsOutOfProcess = true }));
-                warehouseIds.Remove(warehouseId);
+                //warehouseIds.Remove(warehouseId);
                 foreach (var product in products) {
                     var productInventorys = productInvs.Where(pi => pi.ProductId == product.ProductId).ToList();
                     var weight = MyUtilities.Product.GetProductInvWeight(product.ProductId, warehouseId);
