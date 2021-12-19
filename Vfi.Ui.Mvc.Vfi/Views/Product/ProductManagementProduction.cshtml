@@ -1044,6 +1044,67 @@
                                                               )
                                 .ToHtmlString()
                             );
+                        items.Add().Text("Đo kiểm").Content(
+                            Html.Telerik().Grid<ProductionTestingModel>()
+                                .Name("gridProductionTesting_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.WarehouseId).RouteKey("warehouseId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductionTesting", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
+                                                              .Update("UpdateProductionTesting", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    columns.Command(command =>
+                                                    command.Edit().ButtonType(GridButtonType.Image)
+                                        ).Width(45).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.Idx).Width(50).Title("Tiến trình").ReadOnly(true)
+                                           .Format("{0:n0}");
+                                    columns.Bound(f => f.WarehouseName).Width(150).Title("Tên công đoạn").ReadOnly(true)
+                                                .ClientTemplate("<strong><#= WarehouseName #></strong>");
+                                    columns.Bound(f => f.Note).Title("Ghi chú");
+                                    columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                           .Format("{0:dd/MM/yyyy HH:mm}");
+                                    columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                    //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("");
+                                })
+                            .DetailView(details2 => details2.ClientTemplate(
+                                Html.Telerik().Grid<ProductionTestingDetailModel>()
+                                    .Name("gridProductionTestingDetail_<#= ProductId #>_<#= WarehouseId #>")
+                                    .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
+                                    .ToolBar(
+                                        toolbar =>
+                                        toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                    .DataBinding(
+                                        dataBinding => dataBinding.Ajax()
+                                                                    .Select("SelectProductionTestingDetail", "Production", new { area = "", customerId = 0, productCode = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
+                                                                    .Insert("InsertProductionTestingDetail", "Production", new { area = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
+                                                                    .Update("UpdateProductionTestingDetail", "Production", new { area = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
+                                    )
+                                    .Columns(columns => {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.Idx).Width(50).Title("STT")
+                                               .HtmlAttributes(new { style = "text-align:center;" });
+                                        columns.Bound(f => f.TestingCode).Width(100).Title("Code");
+                                        columns.Bound(f => f.TestingName).Width(120).Title("Tên ▲ Ø ± ᴼ");
+                                        columns.Bound(f => f.MachineTypeName).Width(120).Title("Dụng cụ đo");
+                                        columns.Bound(f => f.Active).Width(40)
+                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                                .HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.ModifiedUser).Width(70).Title("Ngày thêm").ReadOnly(true)
+                                               .Format("{0:dd/MM/yyyy}");
+                                        columns.Bound(f => f.ModifiedDate).Width(60).Title("Người thêm").ReadOnly(true);
+                                    })
+                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .ClientEvents(e => e.OnRowDataBound("gridProductionSection_OnRowDataBound")
+                                                        .OnDataBinding("gridProductionSection_OnDataBinding")
+                                                        .OnError("grid_OnError"))
+                                    .ToHtmlString()))
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
                         items.Add().Text("Quy trình công đoạn").Content(
                             Html.Telerik().Grid<ProductionProcessModel>()
                                 .Name("gridProductionProcess_<#= ProductId #>")
@@ -1066,10 +1127,10 @@
                                     columns.Bound(f => f.ProcessIndex).Width(50).Title("Tiến trình")
                                            .Format("{0:n0}");
                                     columns.Bound(f => f.Note).Title("Ghi chú");
-                                    columns.Bound(f => f.IsAlert).Width(75).Title("Cảnh báo ?")
+                                    columns.Bound(f => f.IsAlert).Width(75).Title("Chính thức")
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Alert' <#=IsAlert? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.IsNecessary).Width(75).Title("Bắt buộc ?")
+                                    columns.Bound(f => f.IsNecessary).Width(75).Title("Hoạt động")
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Necessary' <#=IsNecessary? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)

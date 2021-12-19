@@ -171,6 +171,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             StateCode = machine.MachineState.StateCode,
                             StateName = machine.MachineState.Description,
                             //MachineType = "Cames",
+                            ProductId = 0,
                             ProductCode = "__",
                             MaterialCode = "__",
                             MachineFunction = machine.MachineFunction,
@@ -182,6 +183,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             .OrderByDescending(c => c.ModifiedDate)
                             .FirstOrDefault();
                         if (camesInColumn != null) {
+                            entity.ProductId = camesInColumn.ProductId;
                             entity.ProductCode = camesInColumn.ProductCode;
                             entity.ForecastsQuality = camesInColumn.Quantity;
                             entity.Productivity = camesInColumn.RealProductivity;
@@ -549,60 +551,60 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         public ActionResult MachineLog(int id) {
 
-            //if (!Request.IsAuthenticated) {
-            //    return RedirectToAction("Index", "Home", new { area = "" });
-            //}
-            //try {
-            //    using (var vfi = new vfiContext()) {
-            //        var machine = vfi.Machines.FirstOrDefault(m => m.MachineId == id);
-            //        if (machine == null) throw new AggregateException("Lỗi! không tìm thấy máy này");
-            //        var entity = new MachineDiagram {
-            //            MachineId = machine.MachineId,
-            //            MachineName = machine.MachineName,
-            //            Information = "",
-            //            MachineState = machine.StateId ?? 0,
-            //        };
-            //        entity.DiagramName = entity.GetDiagramName(machine);
-            //        if (machine.ProductActive == null) {
-            //            entity.ProductCode = "__";
-            //            entity.EndDate = null;
-            //            entity.StartDate = null;
-            //            entity.Number = 0;
-            //            entity.ProductionPerDay = 0;
-            //            entity.MaterialCode = "__";
-            //        }
-            //        else {
-            //            entity.ProductCode = machine.Product.ProductCode;
-            //            entity.StartDate = machine.StartProductionDate;
-            //            entity.Number = machine.Number ?? 0;
-            //            entity.ProductionPerDay = machine.DayRate ?? 0;
-            //            var materialInvId = (from ifd in vfi.ImportFormSX1Detail
-            //                                 where ifd.ProductId == machine.ProductActive
-            //                                 orderby ifd.DetailId descending
-            //                                 select ifd.MaterialInvId).First();
-            //            if (materialInvId == null)
-            //                entity.MaterialCode = "__";
-            //            else {
-            //                var materialInv =
-            //                    vfi.MaterialInventories.FirstOrDefault(m => m.MaterialInventoryId == materialInvId);
-            //                entity.MaterialCode =
-            //                        MyUtilities.Material.GetMaterialInvDesignNo(
-            //                        materialInv.Material.MaterialName,
-            //                            materialInv.Material.OutDiameter,
-            //                            materialInv.Material.InDiameter,
-            //                            materialInv.Length,
-            //                            materialInv.Material.DiameterType,
-            //                            materialInv.Material.Shape,
-            //                            materialInv.Vendor.VendorCode,
-            //                            materialInv.LotNumber);
-            //            }
-            //        }
-            //        return View(entity);
-            //    }
-            //}
-            //catch (Exception ex) {
-            //    ModelState.AddModelError("ErrorMachine", ex.Message);
-            //}
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            try {
+                using (var vfi = new vfiContext()) {
+                    var machine = vfi.Machines.FirstOrDefault(m => m.MachineId == id);
+                    if (machine == null) throw new AggregateException("Lỗi! không tìm thấy máy này");
+                    var entity = new MachineDiagram {
+                        MachineId = machine.MachineId,
+                        MachineName = machine.MachineName,
+                        Information = "",
+                        MachineState = machine.StateId ?? 0,
+                    };
+                    entity.DiagramName = entity.GetDiagramName(machine);
+                    if (machine.ProductActive == null) {
+                        entity.ProductCode = "__";
+                        entity.EndDate = null;
+                        entity.StartDate = null;
+                        //entity.Number = 0;
+                        //entity.ProductionPerDay = 0;
+                        entity.MaterialCode = "__";
+                    }
+                    else {
+                        entity.ProductCode = machine.Product.ProductCode;
+                        entity.StartDate = machine.StartProductionDate;
+                        //entity.Number = machine.Number ?? 0;
+                        //entity.ProductionPerDay = machine.DayRate ?? 0;
+                        var materialInvId = (from ifd in vfi.ImportFormSX1Detail
+                                             where ifd.ProductId == machine.ProductActive
+                                             orderby ifd.DetailId descending
+                                             select ifd.MaterialInvId).First();
+                        if (materialInvId == null)
+                            entity.MaterialCode = "__";
+                        else {
+                            var materialInv =
+                                vfi.MaterialInventories.FirstOrDefault(m => m.MaterialInventoryId == materialInvId);
+                            entity.MaterialCode =
+                                    MyUtilities.Material.GetMaterialInvDesignNo(
+                                    materialInv.Material.MaterialName,
+                                        materialInv.Material.OutDiameter,
+                                        materialInv.Material.InDiameter,
+                                        materialInv.Length,
+                                        materialInv.Material.DiameterType,
+                                        materialInv.Material.Shape,
+                                        materialInv.Vendor.VendorCode,
+                                        materialInv.LotNumber);
+                        }
+                    }
+                    return View(entity);
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("ErrorMachine", ex.Message);
+            }
             return View();
         }
         #endregion
@@ -5485,13 +5487,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                  IsSaleManagement = 1,
                                  ForWarehouseId = x.ForWarehouseId ?? 0,
                                  WarehouseName = x.ForWarehouseId != null ? x.Warehouse.WarehouseName : "",
+                                 ForIdx = x.ForWarehouseId != null ? x.Warehouse.Idx : 0,
                              }).ToList();
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("GetProcessingType", ex.Message);
             }
-            return model.OrderByDescending(m => m.Active).ThenBy(m => m.TypeName).ToList();
+            return model.OrderByDescending(m => m.Active).ThenBy(x => x.ForIdx).ThenBy(m => m.TypeName).ToList();
         }
 
         [GridAction]
@@ -5588,6 +5591,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             };
         }
 
+        public List<ProcessingTypeModel> GetActiveProcessingType(MachineConfiguration config) {
+            var model = new List<ProcessingTypeModel>();
+            using (var vfi = new vfiContext()) {
+                model = (from x in vfi.ProcessingTypes
+                        where x.Active &&
+                        (config.IsQC == null || (x.ForWarehouseId != null && x.Warehouse.IsQC == config.IsQC))
+                        select new ProcessingTypeModel {
+                            TypeId = x.TypeId,
+                            TypeName = x.TypeName,
+                        }).ToList();
+            }
+            return model.OrderBy(x => x.TypeName).ToList();
+        }
+
+        public ActionResult SelectComboBoxProcessingTypeQc() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveProcessingType(new MachineConfiguration { IsQC = true }), "TypeId", "TypeName"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
 
         public ActionResult GetMachineProcessDiv(int? month, int? year, string machineName) {
             if (month == null || year == null) {

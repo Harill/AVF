@@ -10,6 +10,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.MachineRepairForms = new List<MachineRepairForm>();
             this.MachineRepairForms1 = new List<MachineRepairForm>();
             this.Production2TransactionDetail = new List<Production2TransactionDetail>();
+            this.RealTestings = new List<RealTesting>();
             this.RepairFormDetails = new List<RepairFormDetail>();
             this.SmartProduction2 = new List<SmartProduction2>();
             this.TrackingRepairEmployees = new List<TrackingRepairEmployee>();
@@ -33,6 +34,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms1 { get; set; }
         public virtual ICollection<Production2TransactionDetail> Production2TransactionDetail { get; set; }
+        public virtual ICollection<RealTesting> RealTestings { get; set; }
         public virtual ICollection<RepairFormDetail> RepairFormDetails { get; set; }
         public virtual ICollection<SmartProduction2> SmartProduction2 { get; set; }
         public virtual ICollection<TrackingRepairEmployee> TrackingRepairEmployees { get; set; }

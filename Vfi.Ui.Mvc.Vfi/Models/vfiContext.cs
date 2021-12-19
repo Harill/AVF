@@ -52,9 +52,12 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }
         public DbSet<ProductionSection> ProductionSections { get; set; }
         public DbSet<ProductionSectionProcess> ProductionSectionProcesses { get; set; }
+        public DbSet<ProductionTesting> ProductionTestings { get; set; }
+        public DbSet<ProductionTestingDetail> ProductionTestingDetails { get; set; }
         public DbSet<ProductionTool> ProductionTools { get; set; }
         public DbSet<ProductionToolReplacement> ProductionToolReplacements { get; set; }
         public DbSet<RealProduction> RealProductions { get; set; }
+        public DbSet<RealTesting> RealTestings { get; set; }
         public DbSet<RepairFormDetail> RepairFormDetails { get; set; }
         public DbSet<Section> Sections { get; set; }
         public DbSet<SectionLog> SectionLogs { get; set; }
@@ -238,9 +241,12 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new ProductionProcessByMachineMap());
             modelBuilder.Configurations.Add(new ProductionSectionMap());
             modelBuilder.Configurations.Add(new ProductionSectionProcessMap());
+            modelBuilder.Configurations.Add(new ProductionTestingMap());
+            modelBuilder.Configurations.Add(new ProductionTestingDetailMap());
             modelBuilder.Configurations.Add(new ProductionToolMap());
             modelBuilder.Configurations.Add(new ProductionToolReplacementMap());
             modelBuilder.Configurations.Add(new RealProductionMap());
+            modelBuilder.Configurations.Add(new RealTestingMap());
             modelBuilder.Configurations.Add(new RepairFormDetailMap());
             modelBuilder.Configurations.Add(new SectionMap());
             modelBuilder.Configurations.Add(new SectionLogMap());

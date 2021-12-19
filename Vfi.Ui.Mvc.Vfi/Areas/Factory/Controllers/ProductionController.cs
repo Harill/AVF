@@ -801,6 +801,249 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         #endregion
 
+        #region production testing
+
+        [GridAction]
+        public ActionResult SelectProductionTesting(int customerId, int productId, string productCode) {
+            var model = new List<ProductionTestingModel>();
+            try {
+                model = GetProductionTestingById(customerId, productId, productCode);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTesting", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionTestingModel> GetProductionTestingById(int customerId, int productId, string productCode) {
+            var model = new List<ProductionTestingModel>();
+            using (var vfi = new tammaContext()) {
+                var processes = (from x in vfi.ProductionProcesses
+                                where x.IsNecessary && x.IsAlert &&
+                                (customerId == 0 || x.Product.CustomerId == customerId) &&
+                                (productId == 0 || x.ProductId == productId)
+                                select x).ToList();
+                if(!string.IsNullOrWhiteSpace(productCode)){
+                    processes = processes.Where(x => x.Product.ProductCode.Contains(productCode)).ToList();
+                }
+                foreach (var process in processes) {
+                    var entity = new ProductionTestingModel {
+                        Idx = process.ProcessIndex,
+                        ProductId = process.ProductId,
+                        ProductCode = process.Product.ProductCode,
+                        CustomerId = process.Product.CustomerId,
+                        CustomerCode = process.Product.Customer.CustomerCode,
+                        WarehouseId = process.WarehouseId,
+                        WarehouseName = process.Warehouse.WarehouseName,
+                        ProductionTestingId = 0,
+                        ModifiedUser = "Auto-" + process.ModifiedUser,
+                        ModifiedDate = process.ModifiedDate,
+                    };
+                    var productionTesting = vfi.ProductionTestings.FirstOrDefault(x => x.ProductId == entity.ProductId && x.WarehouseId == entity.WarehouseId);
+                    if (productionTesting != null) {
+                        entity.ProductionTestingId = productionTesting.ProductionTestingId;
+                        entity.Note = productionTesting.Note;
+                        entity.ModifiedUser = productionTesting.ModifiedUser;
+                        entity.ModifiedDate = productionTesting.ModifiedDate;
+                    }
+                    model.Add(entity);
+                }
+            }
+            return model.OrderBy(x => x.CustomerCode).ThenBy(x => x.ProductCode).ThenBy(m => m.Idx).ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionTesting(ProductionTestingModel update, int productId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var productionTesting = vfi.ProductionTestings.FirstOrDefault(x => x.ProductId == productId && x.WarehouseId == update.WarehouseId);
+                    if (productionTesting == null) {
+                        productionTesting = new ProductionTesting {
+                            ProductId = productId,
+                            WarehouseId = update.WarehouseId,
+                            Note = update.Note,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            ModifiedDate = DateTime.Now,
+                        };
+                        vfi.ProductionTestings.Add(productionTesting);
+                    }
+                    else {
+                        productionTesting.Note = productionTesting.Note;
+                        productionTesting.ModifiedUser = HttpContext.User.Identity.Name;
+                        productionTesting.ModifiedDate = DateTime.Now;
+                    }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionTesting", ex.Message);
+            }
+
+            return View(new GridModel(GetProductionTestingById(0, productId, "")));
+        }
+
+        [GridAction]
+        public ActionResult SelectProductionTestingDetail(int customerId, string productCode, int productId, int warehouseId) {
+            var model = new List<ProductionTestingDetailModel>();
+            try {
+                model = GetProductionTestingDetailsById(customerId, productCode,productId,  warehouseId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingDetail", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionTestingDetailModel> GetProductionTestingDetailsById(int customerId, string productCode, int productId, int warehouseId) {
+            var model = new List<ProductionTestingDetailModel>();
+            using (var vfi = new tammaContext()) {
+                var testingDetails = from x in vfi.ProductionTestingDetails
+                                     select new {
+                                         x.Active,
+                                         x.ModifiedUser,
+                                         x.ModifiedDate,
+
+                                         x.DetailId,
+                                         x.TestingCode,
+                                         x.TestingName,
+                                         x.Idx,
+                                         x.ProductionTestingId,
+
+                                         x.ProductionTesting.ProductId,
+                                         x.ProductionTesting.Product.ProductCode,
+                                         x.ProductionTesting.WarehouseId,
+                                         x.ProductionTesting.Warehouse.WarehouseName,
+                                         x.ProductionTesting.Product.CustomerId,
+                                         x.ProductionTesting.Product.Customer.CustomerCode,
+                                         x.MachineTypeId,
+                                         MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
+                                     };
+                //var processes = (from x in vfi.ProductionProcesses
+                //                 where x.IsNecessary && x.IsAlert &&
+                //                 (customerId == 0 || x.Product.CustomerId == customerId) &&
+                //                 (productId == 0 || x.ProductId == productId)
+                //                 select x).ToList();
+                //if (!string.IsNullOrWhiteSpace(productCode)) {
+                //    processes = processes.Where(x => x.Product.ProductCode.Contains(productCode)).ToList();
+                //}
+                foreach (var detail in testingDetails) {
+                    var entity = new ProductionTestingDetailModel {
+                        DetailId = detail.DetailId,
+                        TestingCode = detail.TestingCode,
+                        TestingName = detail.TestingName,
+                        Idx = detail.Idx,
+                        ProductionTestingId = detail.ProductionTestingId,
+
+                        ProductId = detail.ProductId,
+                        ProductCode = detail.ProductCode,
+                        CustomerId = detail.CustomerId,
+                        CustomerCode = detail.CustomerCode,
+                        WarehouseId = detail.WarehouseId,
+                        WarehouseName = detail.WarehouseName,
+                        MachineTypeId = detail.MachineTypeId ?? 0,
+                        MachineTypeName = detail.MachineTypeName,
+
+                        ModifiedUser = detail.ModifiedUser,
+                        ModifiedDate = detail.ModifiedDate,
+                        Active = detail.Active,
+                    };
+                    model.Add(entity);
+                }
+            }
+            return model.OrderBy(m => m.Idx).ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductionTestingDetail(ProductionTestingDetailModel insert, int productId, int warehouseId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var machineTypeId = 0;
+                    try { machineTypeId = Convert.ToInt32(insert.MachineTypeName); }
+                    catch (FormatException) { }
+                    if (insert.ProductionTestingId == 0) {
+                        var productionTesting = new ProductionTesting {
+                            ProductId = productId,
+                            WarehouseId = warehouseId,
+                            Note = "",
+                            ModifiedUser = "Auto-" + HttpContext.User.Identity.Name,
+                            ModifiedDate = DateTime.Now,
+                        };
+                        vfi.ProductionTestings.Add(productionTesting);
+                        vfi.SaveChanges();
+
+                        insert.ProductionTestingId = productionTesting.ProductionTestingId;
+                    }
+                    var detail = new ProductionTestingDetail { 
+                        Idx = insert.Idx,
+                        ProductionTestingId = insert.ProductionTestingId,
+                        TestingCode = insert.TestingCode,
+                        TestingName = insert.TestingName,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        Active = true,
+                    };
+                    if (machineTypeId > 0) { detail.MachineTypeId = machineTypeId; }
+                    vfi.ProductionTestingDetails.Add(detail);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductionTestingDetail", ex.Message);
+            }
+
+            return View(new GridModel(GetProductionTestingDetailsById(0, "", productId, warehouseId)));
+        }
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionTestingDetail(ProductionTestingDetailModel update, int productId, int warehouseId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var detail = vfi.ProductionTestingDetails.FirstOrDefault(x => x.DetailId == update.DetailId);
+                    if (detail == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy chi tiết.");
+                    }
+                    detail.Active = update.Active;
+                    detail.ModifiedUser = HttpContext.User.Identity.Name;
+                    detail.ModifiedDate = DateTime.Now;
+                    detail.Idx = update.Idx;
+                    detail.TestingCode = update.TestingCode;
+                    detail.TestingName = update.TestingName;
+                    
+                    var machineTypeId = 0;
+                    try { machineTypeId = Convert.ToInt32(update.MachineTypeName); }
+                    catch (FormatException) { }
+                    if (machineTypeId > 0) { detail.MachineTypeId = machineTypeId; }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionTestingDetail", ex.Message);
+            }
+
+            return View(new GridModel(GetProductionTestingDetailsById(0, "", productId, warehouseId)));
+        }
+
+        #endregion
+
         [HttpPost]
         public ActionResult PrintProductionForm(int productId) {
             try {

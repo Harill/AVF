@@ -14,7 +14,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.ProductionDefectRemedies = new List<ProductionDefectRemedy>();
             this.ProductionProcesses = new List<ProductionProcess>();
             this.ProductionProcessByMachines = new List<ProductionProcessByMachine>();
+            this.ProductionTestings = new List<ProductionTesting>();
             this.ProductionTools = new List<ProductionTool>();
+            this.RealTestings = new List<RealTesting>();
+            this.RealTestings1 = new List<RealTesting>();
             this.SmartProductions = new List<SmartProduction>();
             this.ProductInventories = new List<ProductInventory>();
             this.ProductInventoryPeriods = new List<ProductInventoryPeriod>();
@@ -59,7 +62,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ProductionDefectRemedy> ProductionDefectRemedies { get; set; }
         public virtual ICollection<ProductionProcess> ProductionProcesses { get; set; }
         public virtual ICollection<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }
+        public virtual ICollection<ProductionTesting> ProductionTestings { get; set; }
         public virtual ICollection<ProductionTool> ProductionTools { get; set; }
+        public virtual ICollection<RealTesting> RealTestings { get; set; }
+        public virtual ICollection<RealTesting> RealTestings1 { get; set; }
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
         public virtual ICollection<ProductInventory> ProductInventories { get; set; }
         public virtual ICollection<ProductInventoryPeriod> ProductInventoryPeriods { get; set; }

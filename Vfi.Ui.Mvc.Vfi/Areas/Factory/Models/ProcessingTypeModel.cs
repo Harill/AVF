@@ -20,6 +20,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public int IsSaleManagement { get; set; }
 
         public int ForWarehouseId { get; set; }
+        public int ForIdx { get; set; }
 
         [DataType("_WarehouseMainProcessTemplate")]
         public string WarehouseName { get; set; }

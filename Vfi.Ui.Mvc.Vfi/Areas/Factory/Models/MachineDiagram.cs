@@ -15,6 +15,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         }
         public int MachineId { get; set; }
         public string MachineName { get; set; }
+        public int ProductId { get; set; }
         [UIHint("_ProductCodeNameTemplate")]
         public string ProductCode { get; set; }
         public string MaterialCode { get; set; }
@@ -40,9 +41,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
             }
         }
         public virtual new string ProductionPerDayFormat { get { return string.Format("{0:n0}", ProductionPerDay); } }
-        [UIHint("_DateTemplate")]
+        [UIHint("_DateTemplateNullable")]
         public virtual new DateTime? StartDate { get; set; }
-        [UIHint("_DateTemplate")]
+        [UIHint("_DateTemplateNullable")]
         public virtual new DateTime? EndDate { get; set; }
 
         public string StartDateString {

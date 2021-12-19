@@ -1,0 +1,174 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model MachineDiagram
+@{
+    ViewBag.Title = "Production Testing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function ShowMachineIndex() {
+            var combobox = document.getElementById('cboMachineIndex');
+            //var combobox = $("#cboMachineIndex");
+            if (combobox.hidden == true)
+                combobox.hidden = false;
+            else
+                combobox.hidden = true;
+        }
+
+        function MachineIndex_OnChange() {
+
+            var machineId = $("#machineId").text();
+            var combobox = $(this).data('tComboBox');
+            var message = "Đổi vị trí với: " + combobox.$text.val();
+            message += "\nĐồng ý lưu ??";
+            if (confirm(message)) {
+                // Save it!
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        machineIdFrom: machineId,
+                        machineIdTo: combobox.$element.val()
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("SwapMachineIndex", "Machine")',
+                    timeout: 20000,
+                    success: function(data) {
+                        if (data == 0) {
+                            alert("lỗi");
+                            combobox.text("");
+                            combobox.close();
+                        } else if (data == 9) {
+                            alert("lỗi ! vui lòng F5 để làm lại");
+                            combobox.text("");
+                            combobox.close();
+                        } else if (data == 8)
+                            alert("lỗi ! vui lòng chọn lại vị trí cần đổi!");
+                        else {
+                            alert("Đổi vị trí: "+data + " thành công");
+                            document.getElementById('MachineDiagramName').innerText = data;
+                            combobox.text("");
+                            combobox.close();
+                            document.getElementById('cboMachineIndex').hidden = true;
+                        }
+                    }
+                });
+            } else {
+                //e.preventDefault();
+                combobox.text("");
+                combobox.close();
+            }
+        }
+
+    </script>
+}
+<span id="machineId" hidden>@Model.MachineId</span>
+<div class="title">Đo kiểm sản xuất</div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+        <fieldset>
+            <legend>Thông tin</legend> 
+          <div class="grid_3">Máy:</div>
+            
+          <div class="grid_3">Sản phẩm</div>
+          <div class="grid_3">Nhân viên đo</div>
+          <div class="grid_3">Trực thuộc</div>
+            
+        <div class="clear"></div>
+            <div class="grid_3">@Model.MachineName</div>
+            <div class="grid_3">@Model.ProductCode</div>
+            <div class="grid_3"></div>
+            <div class="grid_3"></div>
+        </fieldset>
+</div>
+
+@*<div class="title">Cập nhật tình trạng lên máy</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MachineModel>()
+            .Name("gridMachineState")
+            .DataKeys(keys => keys.Add(f => f.MachineId).RouteKey("machineId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                                                     .Select("SelectMachineStateById", "Machine", new {machineId = @Model.MachineId})
+                                                     .Update("UpdateMachineStateById", "Machine", new {machineId = @Model.MachineId})
+            )
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                        ).Width(98).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.StateName).Width(150).Title("Tình trạng");
+                    columns.Bound(f => f.Note).Title("Ghi chú");
+                })
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .KeyboardNavigation(keys => keys.EditOnTab(true))
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable(f => f.Height("auto"))
+            // .Footer(false)
+            .ClientEvents(events => events.OnError("grid_onError"))
+            .Render();
+    }
+</div>
+<div class="clear"></div><br/>*@
+<div class="title">Cập nhật sản phẩm lên máy</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MachineDiagram>()
+            .Name("gridMachinePlan")
+            .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectMachinePlanById", "Machine", new {machineId = @Model.MachineId})
+                                          .Update("UpdateMachinePlan", "Machine"))
+            .Columns(columns =>
+                {
+                    columns.Command(command =>
+                                    command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                        ).Width(98).Title("").HtmlAttributes(new {style = "text-align:center"});
+
+                    columns.Bound(f => f.ProductCode).Width(175).Title("Mã SP")
+                           .ClientTemplate("<strong><#= ProductCode #></strong>");
+                    //columns.Bound(f => f.Number).Width(175).Title("SL lên máy")
+                    //       .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>");
+                    columns.Bound(f => f.ProductionPerDay).Width(175).Title("Năng suất (ngày)")
+                           .ClientTemplate("<#= ProductionPerDay == null ? 0 : $.telerik.formatString('{0:n0}', ProductionPerDay) #>");
+                    columns.Bound(f => f.StartDate).Width(90).Title("Ngày bắt đầu")
+                           .ClientTemplate("<#= StartDate == null ? '__/__/____' : $.telerik.formatString('{0:dd/MM/yyyy}', StartDate) #>");
+                })
+            .Footer(false)
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(e => e.OnError("grid_OnError"))
+            //.HtmlAttributes(new {style = "width: 950px;"})
+            .Render();
+    }
+</div>
+        <div class="clear"></div>
+<div class="title">Nhật ký máy</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<MachineLogModel>()
+            .Name("gridMachineLog")
+            .DataKeys(key => key.Add(f => f.MachineId).RouteKey("machineId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax().Select("SelectMachineLogsById", "Machine", new { machineId = @Model.MachineId }))
+            .Columns(columns =>
+                {
+                    columns.Bound(f => f.ModifiedDate).Title("Ngày ghi").Width(85).Format("{0:dd/MM/yyyy HH:mm:ss}");
+                    columns.Bound(f => f.TypeName).Width(100).Title("Loại");
+                    columns.Bound(f => f.Note).Width(765).Title("Nhật ký");
+                    columns.Bound(f => f.ModifiedUser).Width(70).Title("Người tạo");
+                })
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Scrollable(f => f.Height("auto"))
+            .ClientEvents(e => e.OnError("grid_OnError"))
+            //.HtmlAttributes(new { style = "width: 950px;" })
+            .Sortable()
+            .Filterable()
+            .Pageable(p => p.PageSize(10))
+            .Resizable(resizing => resizing.Columns(true))
+            .Render();    
+    }
+</div>

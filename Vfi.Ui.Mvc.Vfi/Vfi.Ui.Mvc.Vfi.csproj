@@ -452,6 +452,8 @@
     <Compile Include="Areas\Factory\Models\ProductionHeatTreatmentModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionPolishModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionSectionProcessModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionTestDetailModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionTestingModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionToolReplacementModel.cs" />
     <Compile Include="Areas\Factory\Models\RepairFormDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\SectionModel.cs">
@@ -1394,6 +1396,8 @@
     <Compile Include="Models\Mapping\ProductionProcessMap.cs" />
     <Compile Include="Models\Mapping\ProductionSectionMap.cs" />
     <Compile Include="Models\Mapping\ProductionSectionProcessMap.cs" />
+    <Compile Include="Models\Mapping\ProductionTestingDetailMap.cs" />
+    <Compile Include="Models\Mapping\ProductionTestingMap.cs" />
     <Compile Include="Models\Mapping\ProductionToolMap.cs" />
     <Compile Include="Models\Mapping\ProductionToolReplacementMap.cs" />
     <Compile Include="Models\Mapping\ProductMap.cs" />
@@ -1403,6 +1407,7 @@
     <Compile Include="Models\Mapping\QuoteDetailMap.cs" />
     <Compile Include="Models\Mapping\QuoteFormMap.cs" />
     <Compile Include="Models\Mapping\RealProductionMap.cs" />
+    <Compile Include="Models\Mapping\RealTestingMap.cs" />
     <Compile Include="Models\Mapping\RepairFormDetailMap.cs" />
     <Compile Include="Models\Mapping\ScrapReasonMap.cs" />
     <Compile Include="Models\Mapping\SectionLogMap.cs" />
@@ -1511,6 +1516,8 @@
     <Compile Include="Models\ProductChange.cs" />
     <Compile Include="Models\ProductCombinationRecipe.cs" />
     <Compile Include="Models\ProductCombinationRecipeDetail.cs" />
+    <Compile Include="Models\ProductionTesting.cs" />
+    <Compile Include="Models\ProductionTestingDetail.cs" />
     <Compile Include="Models\Production\ProductCombinationRecipeDetailModel.cs" />
     <Compile Include="Models\Production\ProductCombinationRecipeModel.cs" />
     <Compile Include="Models\ProductImg.cs" />
@@ -1565,6 +1572,7 @@
     <Compile Include="Models\QuoteDetail.cs" />
     <Compile Include="Models\QuoteForm.cs" />
     <Compile Include="Models\RealProduction.cs" />
+    <Compile Include="Models\RealTesting.cs" />
     <Compile Include="Models\RepairFormDetail.cs" />
     <Compile Include="Models\ScrapReason.cs" />
     <Compile Include="Models\Section.cs" />
@@ -2829,6 +2837,7 @@
     <Content Include="Areas\Sales\Views\Orders\EditorTemplates\Number1.cshtml" />
     <Content Include="Areas\Sales\Views\Orders\ConfirmOrderProgress.cshtml" />
     <Content Include="Areas\Sales\Views\SalesOrder\TrackingOrderProgress.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\ProductionOnTesting.cshtml" />
     <None Include="Resources\IMG_17012014_143105.png" />
     <Content Include="Resources\approve_icon.jpg" />
     <None Include="Resources\ISO.jpg" />
@@ -2961,6 +2970,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Home\WindowLogOn.ascx" />
+    <Content Include="Views\Product\PageProductionForm.aspx" />
     <Content Include="Views\Product\PageProductTechnicalList.aspx" />
     <Content Include="Views\Product\PageProductList.aspx" />
     <Content Include="Views\Product\PageProductPriceList.aspx" />
@@ -3093,6 +3103,7 @@
     <Content Include="Views\Product\EditorTemplates\_MachineHeatTreamentTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_MachinePolishTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_MachineTestTemplate.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_ProcessingTypeQcTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

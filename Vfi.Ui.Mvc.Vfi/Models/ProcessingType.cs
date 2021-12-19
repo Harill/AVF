@@ -9,6 +9,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         {
             this.Machines = new List<Machine>();
             this.Products = new List<Product>();
+            this.ProductionTestingDetails = new List<ProductionTestingDetail>();
+            this.RealTestings = new List<RealTesting>();
         }
 
         public int TypeId { get; set; }
@@ -23,5 +25,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<Machine> Machines { get; set; }
         public virtual Warehouse Warehouse { get; set; }
         public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<ProductionTestingDetail> ProductionTestingDetails { get; set; }
+        public virtual ICollection<RealTesting> RealTestings { get; set; }
     }
 }

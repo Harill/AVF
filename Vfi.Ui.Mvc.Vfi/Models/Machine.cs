@@ -26,6 +26,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.ProductionProcessByMachines = new List<ProductionProcessByMachine>();
             this.ProductionSections = new List<ProductionSection>();
             this.RealProductions = new List<RealProduction>();
+            this.RealTestings = new List<RealTesting>();
             this.SmartProductions = new List<SmartProduction>();
             this.SmartProduction2 = new List<SmartProduction2>();
             this.ToolInvOnMachines = new List<ToolInvOnMachine>();
@@ -77,6 +78,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }
         public virtual ICollection<ProductionSection> ProductionSections { get; set; }
         public virtual ICollection<RealProduction> RealProductions { get; set; }
+        public virtual ICollection<RealTesting> RealTestings { get; set; }
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
         public virtual ICollection<SmartProduction2> SmartProduction2 { get; set; }
         public virtual ICollection<ToolInvOnMachine> ToolInvOnMachines { get; set; }
