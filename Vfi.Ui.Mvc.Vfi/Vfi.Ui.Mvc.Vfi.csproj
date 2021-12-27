@@ -455,6 +455,7 @@
     <Compile Include="Areas\Factory\Models\ProductionTestDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionTestingModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionToolReplacementModel.cs" />
+    <Compile Include="Areas\Factory\Models\RealTestingModel.cs" />
     <Compile Include="Areas\Factory\Models\RepairFormDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\SectionModel.cs">
       <SubType>Code</SubType>
@@ -552,6 +553,7 @@
     <Compile Include="Areas\Inv\Models\ProductionDefectDailyModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionMonthlyReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionPlanModel.cs" />
+    <Compile Include="Areas\Inv\Models\ProductionTestingDailyModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionWeeklyModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductState.cs" />
     <Compile Include="Areas\Inv\Models\ProductStatusModel.cs" />
@@ -573,11 +575,11 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
-    <Compile Include="Areas\Inv\Reports\RptToolTotal_2021.cs">
+    <Compile Include="Areas\Inv\Reports\RptMachineProductionOnTest.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Areas\Inv\Reports\RptToolTotal_2021.Designer.cs">
-      <DependentUpon>RptToolTotal_2021.cs</DependentUpon>
+    <Compile Include="Areas\Inv\Reports\RptMachineProductionOnTest.Designer.cs">
+      <DependentUpon>RptMachineProductionOnTest.cs</DependentUpon>
     </Compile>
     <Compile Include="Areas\Inv\Reports\RptInvoice_ExportForm.cs">
       <SubType>Component</SubType>
@@ -669,12 +671,6 @@
     <Compile Include="Areas\Inv\Reports\RptErrorMachineList.Designer.cs">
       <DependentUpon>RptErrorMachineList.cs</DependentUpon>
     </Compile>
-    <Compile Include="Areas\Inv\Reports\RptProductionDailySX1_2.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptProductionDailySX1_2.Designer.cs">
-      <DependentUpon>RptProductionDailySX1_2.cs</DependentUpon>
-    </Compile>
     <Compile Include="Areas\Inv\Reports\RptPreparationTools.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -753,12 +749,6 @@
     <Compile Include="Areas\Inv\Reports\RptItemCard.Designer.cs">
       <DependentUpon>RptItemCard.cs</DependentUpon>
     </Compile>
-    <Compile Include="Areas\Inv\Reports\RptProductTotal3.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptProductTotal3.Designer.cs">
-      <DependentUpon>RptProductTotal3.cs</DependentUpon>
-    </Compile>
     <Compile Include="Areas\Inv\Reports\RptExportInMonth.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -794,12 +784,6 @@
     </Compile>
     <Compile Include="Areas\Inv\Reports\RptTransactionDefectForm.Designer.cs">
       <DependentUpon>RptTransactionDefectForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptProductTotal2.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptProductTotal2.Designer.cs">
-      <DependentUpon>RptProductTotal2.cs</DependentUpon>
     </Compile>
     <Compile Include="Areas\Inv\Reports\RptPurchaseOrderTracking.cs">
       <SubType>Component</SubType>
@@ -1681,6 +1665,7 @@
     <Content Include="Areas\Inv\Views\Inv\PageProduction2List.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageExportMaterial.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageProductPriceList.aspx" />
+    <Content Include="Areas\Inv\Views\Reporting\PageMachineProductionOnTestReport.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageProductionMonthlyDate.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageProductReportAllTotal.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageExportProductionInMonthReport.aspx" />
@@ -2837,7 +2822,12 @@
     <Content Include="Areas\Sales\Views\Orders\EditorTemplates\Number1.cshtml" />
     <Content Include="Areas\Sales\Views\Orders\ConfirmOrderProgress.cshtml" />
     <Content Include="Areas\Sales\Views\SalesOrder\TrackingOrderProgress.cshtml" />
-    <Content Include="Areas\Factory\Views\Machine\ProductionOnTesting.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\ProductionOnTesting.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Int.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number2.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number0.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number4.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\ProductionTestingDailyReport.cshtml" />
     <None Include="Resources\IMG_17012014_143105.png" />
     <Content Include="Resources\approve_icon.jpg" />
     <None Include="Resources\ISO.jpg" />
@@ -3103,7 +3093,7 @@
     <Content Include="Views\Product\EditorTemplates\_MachineHeatTreamentTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_MachinePolishTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_MachineTestTemplate.cshtml" />
-    <Content Include="Views\Product\EditorTemplates\_ProcessingTypeQcTemplate.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_ProcessingTypeQCTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -3575,8 +3565,8 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>UploadLocalization.zh-CN1.designer.cs</LastGenOutput>
     </Content>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptToolTotal_2021.resx">
-      <DependentUpon>RptToolTotal_2021.cs</DependentUpon>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptMachineProductionOnTest.resx">
+      <DependentUpon>RptMachineProductionOnTest.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptInvoice_ExportForm.resx">
       <DependentUpon>RptInvoice_ExportForm.cs</DependentUpon>
@@ -3623,9 +3613,6 @@
     <EmbeddedResource Include="Areas\Inv\Reports\RptErrorMachineList.resx">
       <DependentUpon>RptErrorMachineList.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptProductionDailySX1_2.resx">
-      <DependentUpon>RptProductionDailySX1_2.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptPreparationTools.resx">
       <DependentUpon>RptPreparationTools.cs</DependentUpon>
     </EmbeddedResource>
@@ -3666,9 +3653,6 @@
     <EmbeddedResource Include="Areas\Inv\Reports\RptItemCard.resx">
       <DependentUpon>RptItemCard.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptProductTotal3.resx">
-      <DependentUpon>RptProductTotal3.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptExportInMonth.resx">
       <DependentUpon>RptExportInMonth.cs</DependentUpon>
     </EmbeddedResource>
@@ -3687,9 +3671,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptTransactionDefectForm.resx">
       <DependentUpon>RptTransactionDefectForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptProductTotal2.resx">
-      <DependentUpon>RptProductTotal2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptPurchaseOrderTracking.resx">
       <DependentUpon>RptPurchaseOrderTracking.cs</DependentUpon>

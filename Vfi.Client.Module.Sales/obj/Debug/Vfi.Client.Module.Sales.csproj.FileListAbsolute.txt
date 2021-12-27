@@ -71,3 +71,4 @@ C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.Data
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\bin\Debug\Vfi.Server.Core.Repository.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.dll
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Sales\obj\Debug\Vfi.Client.Module.Sales.csprojResolveAssemblyReference.cache

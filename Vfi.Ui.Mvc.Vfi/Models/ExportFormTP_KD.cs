@@ -20,7 +20,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<System.DateTime> DateTransporter { get; set; }
         public Nullable<System.DateTime> DateCreate { get; set; }
         public string TransactionCode { get; set; }
-        public Nullable<int> TotalBox { get; set; }
+        public int TotalBox { get; set; }
         public Nullable<long> OrderId { get; set; }
         public Nullable<bool> CreatedInvoice { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }

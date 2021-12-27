@@ -324,6 +324,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             .OrderByDescending(c => c.ModifiedDate)
                             .FirstOrDefault();
                         if (camesInColumn != null) {
+                            entity.ProductId = camesInColumn.ProductId;
                             entity.ProductCode = camesInColumn.ProductCode;
                             entity.ForecastsQuality = camesInColumn.Quantity;
                             entity.Productivity = camesInColumn.RealProductivity;
@@ -607,6 +608,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             }
             return View();
         }
+
         #endregion
 
         [GridAction]

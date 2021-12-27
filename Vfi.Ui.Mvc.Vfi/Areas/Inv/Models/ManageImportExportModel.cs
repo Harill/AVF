@@ -14,15 +14,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         //public string WarehouseIssueName { get; set; }
         //public string WarehouseReceiptName { get; set; }
         public double TotalQuality { get; set; }
-
+        public string WarehouseName { get; set; }
         public string ModifiedUser { get; set; }
 
         public DateTime? ModidifiedDate { get; set; }
 
-        public DateTime? CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ReportDate { get; set; }
         public string Note { get; set; }
 
+        public int StatusInt { get; set; }
         public string Status { get; set; }
+
+        public string Shift1Name { get; set; }
+        public string Shift2Name { get; set; }
 
     }
 }

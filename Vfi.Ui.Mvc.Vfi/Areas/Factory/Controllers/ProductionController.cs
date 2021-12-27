@@ -18,6 +18,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         #region view
 
+        public ActionResult ProductionOnTesting(int machineId, int productId) {
+            var entity = new MachineDiagram { MachineId = machineId, ProductId = productId };
+            try {
+                using (var vfi = new tammaContext()) {
+                    var machine = vfi.Machines.FirstOrDefault(x => x.MachineId == machineId);
+                    var product = vfi.Products.FirstOrDefault(x => x.ProductId == productId);
+                    entity = new MachineDiagram {
+                        MachineId = machineId,
+                        MachineName = machine != null ? machine.MachineName : "Không tìm thấy máy " + machineId,
+                        ProductId = productId,
+                        ProductCode = product != null ? product.ProductCode : "Không tìm thấy sản phẩm " + productId,
+                    };
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("ProductionOnTesting", ex.Message);
+            }
+            return View(entity);
+        }
 
         #endregion
 
@@ -875,7 +894,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         vfi.ProductionTestings.Add(productionTesting);
                     }
                     else {
-                        productionTesting.Note = productionTesting.Note;
+                        productionTesting.Note = update.Note;
                         productionTesting.ModifiedUser = HttpContext.User.Identity.Name;
                         productionTesting.ModifiedDate = DateTime.Now;
                     }
@@ -901,10 +920,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(model));
         }
 
-        List<ProductionTestingDetailModel> GetProductionTestingDetailsById(int customerId, string productCode, int productId, int warehouseId) {
+        List<ProductionTestingDetailModel> GetProductionTestingDetailsById(int customerId, string productCode, 
+            int productId, int warehouseId) {
             var model = new List<ProductionTestingDetailModel>();
             using (var vfi = new tammaContext()) {
-                var testingDetails = from x in vfi.ProductionTestingDetails
+                var testingDetails = (from x in vfi.ProductionTestingDetails
+                                     where (customerId == 0 || x.ProductionTesting.Product.CustomerId == customerId) &&
+                                     (warehouseId == 0 || x.ProductionTesting.WarehouseId == warehouseId) &&
+                                     (productId == 0 || x.ProductionTesting.ProductId == productId)
                                      select new {
                                          x.Active,
                                          x.ModifiedUser,
@@ -924,15 +947,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                          x.ProductionTesting.Product.Customer.CustomerCode,
                                          x.MachineTypeId,
                                          MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
-                                     };
-                //var processes = (from x in vfi.ProductionProcesses
-                //                 where x.IsNecessary && x.IsAlert &&
-                //                 (customerId == 0 || x.Product.CustomerId == customerId) &&
-                //                 (productId == 0 || x.ProductId == productId)
-                //                 select x).ToList();
-                //if (!string.IsNullOrWhiteSpace(productCode)) {
-                //    processes = processes.Where(x => x.Product.ProductCode.Contains(productCode)).ToList();
-                //}
+                                     }).ToList();
+                if (!string.IsNullOrWhiteSpace(productCode)) {
+                    testingDetails = testingDetails.Where(x => x.ProductCode.Contains(productCode)).ToList();
+                }
                 foreach (var detail in testingDetails) {
                     var entity = new ProductionTestingDetailModel {
                         DetailId = detail.DetailId,
@@ -1042,6 +1060,85 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(GetProductionTestingDetailsById(0, "", productId, warehouseId)));
         }
 
+        public List<RealTestingModel> GetActiveTestingDetails(int productId, int warehouseId) {
+            var model = new List<RealTestingModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.ProductionTestingDetails
+                         where x.Active &&
+                         x.ProductionTesting.ProductId == productId &&
+                         x.ProductionTesting.WarehouseId == warehouseId
+                         orderby x.Idx, x.TestingName
+                         select new RealTestingModel {
+                             ReferenceTestingDetailId = x.DetailId,
+                             Idx = x.Idx,
+                             TestCode = x.TestingCode,
+                             TestName = x.TestingName,
+                             MachineTypeId = x.MachineTypeId,
+                             MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
+                             TestNumber = 0
+                         }).ToList();
+            }
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult SelectProductionTestingProduction1(int productId) {
+            var model = new List<RealTestingModel>();
+            try {
+                model = GetActiveTestingDetails(productId, MyUtilities.Warehouse.Production1);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingProduction1", ex.Message);
+            }
+
+            return View(new GridModel(model));
+        }
+
+        [GridAction]
+        public ActionResult SaveProductionTestingProduction1(
+            [Bind(Prefix = "inserted")] IEnumerable<RealTestingModel> inserteds,
+            [Bind(Prefix = "updated")] IEnumerable<RealTestingModel> updateds,
+            [Bind(Prefix = "deleted")] IEnumerable<RealTestingModel> deleteds,
+            int machineId, int productId, int forWarehouseId, int employeeId) {
+            try {
+                var save = SaveProductionTesting(updateds.ToList(), MyUtilities.Warehouse.Production1, machineId, productId, forWarehouseId, employeeId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SaveProductionTestingProduction1", ex.Message);
+            }
+
+            return View(new GridModel(GetActiveTestingDetails(productId, MyUtilities.Warehouse.Production1)));
+        }
+        public bool SaveProductionTesting(List<RealTestingModel> model, int warehouseId, int machineId, int productId, int forWarehouseId, int employeeId) {
+            using (var vfi = new tammaContext()) {
+
+                foreach (var testing in model) {
+                    var entity = new RealTesting {
+                        Idx = testing.Idx,
+                        ProductId = productId,
+                        WarehouseId = warehouseId,
+                        FromWarehouseId = forWarehouseId,
+                        ProductionMachineId = machineId,
+                        MachineTypeId = testing.MachineTypeId,
+                        TestEmployeeId = employeeId,
+                        ReferenceTestingDetailId = testing.ReferenceTestingDetailId,
+                        TestCode = testing.TestCode,
+                        TestName = testing.TestName,
+                        TestNumber = testing.TestNumber,
+                        Active = true,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+
+                        TestDate = DateTime.Now,
+                        ProductionDate = DateTime.Today,
+                    };
+                    vfi.RealTestings.Add(entity);
+                }
+                vfi.SaveChanges();
+                return true;
+            }
+            return false;
+        }
         #endregion
 
         [HttpPost]

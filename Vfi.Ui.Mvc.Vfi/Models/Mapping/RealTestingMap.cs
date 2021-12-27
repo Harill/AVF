@@ -11,9 +11,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasKey(t => t.RealTestId);
 
             // Properties
-            this.Property(t => t.RealTestId)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
-
             this.Property(t => t.TestCode)
                 .HasMaxLength(50);
 

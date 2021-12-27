@@ -238,6 +238,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return View();
         }
+        public ActionResult ProductionTestingDailyReport() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
         #endregion
 
         [HttpPost]
@@ -4193,8 +4199,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                              p.WarehouseId == MyUtilities.Warehouse.Defect
                                          select p).ToList();
                     var exportsElse = (from p in exportsPeriod
-                                       where (p.IsInternal || p.WarehouseReceiptId != null) &&
-                                            !warehouses.Contains(p.WarehouseReceiptId.Value) &&
+                                       where (p.IsInternal || 
+                                                (p.WarehouseReceiptId != null && !warehouses.Contains(p.WarehouseReceiptId.Value))) &&
                                             p.WarehouseReceiptId != MyUtilities.Warehouse.Defect &&
                                             p.WarehouseReceiptId != MyUtilities.Warehouse.Business &&
                                             p.WarehouseReceiptId != MyUtilities.Warehouse.Destroy &&
@@ -9425,6 +9431,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 tonkho = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, customerId,
                                                "", monthlyDate,
                                                (int)MyUtilities.Report.Calculate.All);
+                using (var vfi = new tammaContext()) {
+                    //var workGroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductReportByMonthly", ex.Message);
@@ -16825,6 +16834,256 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             //RepSales = 7332
                         },
                 };
+        }
+
+        #endregion
+
+        #region
+
+        [GridAction]
+        public ActionResult SelectProductionTestingDailyReport(string reportDate, int shift, int productId, int machineId) {
+            var model = new List<ProductionTestingDailyModel>();
+            if(shift == 0) return View(new GridModel(model));
+            try {
+                model = GetProductionTestingDailyReport(reportDate, shift, productId, machineId,(int) MyUtilities.Report.Calculate.InPeriod);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingDailyReport", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+
+        [HttpPost]
+        public ActionResult PrintMachineProductionOnTest(string reportDate, int shift, int productId, int machineId) {
+            var model = new List<GroupProductionTestingDailyModel>();
+            try {
+                var data = GetProductionTestingDailyReport(reportDate, shift, productId, machineId, (int)MyUtilities.Report.Calculate.All);
+                var groupIds = data.Select(x => x.ReferenceTestingDetailId).Distinct().ToList();
+                var employeeModel = new List<EmployeeModel>();
+                using (var vfi = new tammaContext()) {
+                    var employeeIds = data.FirstOrDefault().EmployeeIds;
+                    employeeModel = (from x in vfi.Employees
+                                     where employeeIds.Contains(x.EmployeeId)
+                                     select new EmployeeModel { 
+                                        EmployeeId = x.EmployeeId,
+                                        EmployeeCode = x.EmployeeCode,
+                                        EmployeeName = x.EmployeeName,
+                                     }).ToList();
+                }
+                foreach (var groupId in groupIds) {
+                    var list = data.Where(x => x.ReferenceTestingDetailId == groupId).ToList();
+                    var first = list.FirstOrDefault();
+                    var group = new GroupProductionTestingDailyModel {
+                        ProductCode = first.ProductCode,
+                        MachineName = first.MachineName,
+                        MachineTypeName = first.MachineTypeName,
+                        TestCode = first.TestCode,
+                        TestName = first.TestName,
+                        ShiftName = first.ShiftName,
+                        CustomerCode = first.CustomerCode,
+                        ProductionDate = first.ProductionDate, 
+                        ProductionTestingNote = first.ProductionTestingNote,
+                        List = list,
+                        Details = first.Details,
+                        Employees = employeeModel,
+                    };
+                    model.Add(group);
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("PrintMachineProductionOnTest", ex.Message);
+            }
+
+            return PartialView("PageMachineProductionOnTestReport", model);
+        }
+
+        List<ProductionTestingDailyModel> GetProductionTestingDailyReport(string date, int shift, int productId, int machineId, int calculateMode) {
+            var model = new List<ProductionTestingDailyModel>();
+            if (shift == 0) return model;
+            try {
+                var reportDate = MyUtilities.Function.ParseDate(date);
+                var startHour = 7;
+                if (shift == 2) {
+                    startHour = 19;
+                }
+                var fromTime = reportDate.AddHours(startHour);
+                var toTime = reportDate.AddHours(startHour + 12);
+                using (var vfi = new tammaContext()) {
+                    var realTestings = (from x in vfi.RealTestings
+                                        where x.Active && x.TestDate >= fromTime && x.TestDate < toTime &&
+                                        (productId == 0 || x.ProductId == productId) &&
+                                        (machineId == 0 || x.ProductionMachineId == machineId)
+                                        orderby x.Idx, x.Warehouse1.Idx, x.TestDate
+                                        select new {
+                                            x.ProductId,
+                                            x.Product.ProductCode,
+                                            x.Product.Customer.CustomerCode,
+                                            x.TestDate,
+                                            x.TestDate.Hour,
+                                            x.ProductionMachineId,
+                                            x.Machine.MachineName,
+                                            MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
+                                            x.ReferenceTestingDetailId,
+                                            x.Idx,
+                                            x.FromWarehouseId,
+                                            WarehouseIdx = x.Warehouse1.Idx,
+                                            FromWarehouseName = x.Warehouse1.WarehouseName,
+                                            x.WarehouseId,
+                                            x.Warehouse.WarehouseName,
+                                            x.TestEmployeeId,
+                                            x.Employee.EmployeeCode,
+                                            x.Employee.EmployeeName,
+                                            x.TestNumber,
+                                            x.TestName,
+                                            x.TestCode,
+                                            ProductionTestingNote = x.ProductionTestingDetail.ProductionTesting.Note
+                                        }).ToList();
+                    var productionShift = vfi.ProductionLocks.FirstOrDefault(x => x.LockDate == reportDate);
+                    var shiftName = shift + "";
+                    if (productionShift != null) {
+                        shiftName = (shift == 1 ? productionShift.Shift1Name : productionShift.Shift2Name);
+                    }
+                    var ids = realTestings.Select(x => new {
+                        x.ProductId,
+                        x.ProductCode,
+                        x.CustomerCode,
+                        x.ProductionMachineId,
+                        x.MachineName,
+                        x.WarehouseId,
+                        x.WarehouseName
+                    }).Distinct().ToList();
+                    var employeeIds = new List<int>();
+                    foreach (var id in ids) {
+                        var realTestingsById = realTestings.Where(x => x.ProductId == id.ProductId && x.ProductionMachineId == id.ProductionMachineId && x.WarehouseId == id.WarehouseId).ToList();
+                        var detailIds = realTestingsById.Select(x => x.ReferenceTestingDetailId).Distinct().ToList();
+                        var employeeTestings = new List<EmployeeTestingModel>();
+                        foreach (var detailId in detailIds) {
+                            var detailTestings = realTestingsById.Where(x => x.ReferenceTestingDetailId == detailId).OrderBy(x => x.WarehouseIdx).ToList();
+                            var fromWarehouseIds = detailTestings.Select(x => x.FromWarehouseId).Distinct().ToList();
+                            foreach (var fromWarehouseId in fromWarehouseIds) {
+                                var detailsByWarehouse = detailTestings.Where(x => x.FromWarehouseId == fromWarehouseId).ToList();
+                                var first = detailsByWarehouse.FirstOrDefault();
+                                if (first == null) continue;
+                                var entity = model.FirstOrDefault(x => x.ReferenceTestingDetailId == detailId &&
+                                                                        x.ProductId == id.ProductId &&
+                                                                        x.MachineId == id.ProductionMachineId &&
+                                                                        x.WarehouseId == id.WarehouseId &&
+                                                                        x.FromWarehouseId == fromWarehouseId);
+                                if (entity == null) {
+                                    entity = new ProductionTestingDailyModel {
+                                        ReferenceTestingDetailId = detailId,
+                                        ProductId = id.ProductId,
+                                        ProductCode = id.ProductCode,
+                                        MachineId = id.ProductionMachineId,
+                                        MachineName = id.MachineName,
+                                        MachineTypeName = first.MachineTypeName,
+                                        TestCode = first.TestCode,
+                                        TestName = first.TestName,
+                                        FromWarehouseId = fromWarehouseId,
+                                        FromWarehouseName = first.FromWarehouseName,
+                                        WarehouseId = id.WarehouseId,
+
+                                        ShiftName = shiftName,
+                                        CustomerCode = id.CustomerCode,
+                                        ProductionDate = reportDate.ToString("dd/MM/yy"),
+                                        ProductionTestingNote = first.ProductionTestingNote
+                                    };
+                                    model.Add(entity);
+                                }
+                                var startTime = fromTime;
+                                while (startTime < toTime) {
+                                    var endTime = startTime.AddHours(1);
+                                    var detail = new ProductionTestingReportDetailModel {
+                                        Hour = startTime.Hour,
+                                        Number = 0
+                                    };
+                                    var detailsByHour = detailsByWarehouse.Where(x => x.TestDate >= startTime && x.TestDate <= endTime).ToList();
+                                    if (detailsByHour.Any()) {
+                                        var last = detailsByHour.LastOrDefault();
+                                        detail.Number = last.TestNumber;
+                                        if (calculateMode == (int)MyUtilities.Report.Calculate.All) {
+                                            var employeeTesting = employeeTestings.FirstOrDefault(x => 
+                                                x.Hour == detail.Hour && 
+                                                x.FromWarehouseId == fromWarehouseId && 
+                                                x.EmployeeId == last.TestEmployeeId);
+                                            if (employeeTesting == null) {
+                                                employeeTesting = new EmployeeTestingModel {
+                                                    Hour = detail.Hour,
+                                                    FromWarehouseId = fromWarehouseId,
+                                                    FromWarehouseName = entity.FromWarehouseName,
+                                                    EmployeeId = last.TestEmployeeId,
+                                                    EmployeeCode = last.EmployeeCode,
+                                                };
+                                                employeeTestings.Add(employeeTesting);
+                                            }
+                                            employeeIds.Add(last.TestEmployeeId);
+                                        }
+                                    }
+                                    entity.Details.Add(detail);
+
+                                    startTime = endTime;
+                                }
+                            }
+                        }
+                        if (calculateMode == (int)MyUtilities.Report.Calculate.All) {
+                            employeeIds = employeeIds.Distinct().ToList();
+                            var employeeWarehouseIds = employeeTestings.Select(x => new { x.FromWarehouseId, x.FromWarehouseName }).Distinct().ToList();
+                            foreach (var fromWarehouseId in employeeWarehouseIds) {
+                                //var employeeTestingsById = employeeTestings.Where(x => x.FromWarehouseId == fromWarehouseId).ToList();
+
+                                var entity = new ProductionTestingDailyModel {
+                                    ReferenceTestingDetailId = 0,
+                                    ProductId = id.ProductId,
+                                    ProductCode = id.ProductCode,
+                                    MachineId = id.ProductionMachineId,
+                                    MachineName = id.MachineName,
+                                    TestName = "Nhân viên kiểm tra",
+                                    FromWarehouseId = fromWarehouseId.FromWarehouseId,
+                                    FromWarehouseName = fromWarehouseId.FromWarehouseName,
+                                    WarehouseId = id.WarehouseId,
+
+                                    ShiftName = shiftName,
+                                    CustomerCode = id.CustomerCode,
+                                    ProductionDate = reportDate.ToString("dd/MM/yy"),
+                                    //Details = first.Details,
+                                    ProductionTestingNote = "",
+                                    //Details = employeeTestingsById.Select(x => new ProductionTestingReportDetailModel { 
+                                    //    Hour = x.Hour,
+                                    //    Number = 0,
+                                    //    EmployeeCode = x.EmployeeCode,
+                                    //}).ToList(),
+                                    EmployeeIds = employeeIds,
+                                };
+                                var first = model.FirstOrDefault();
+                                foreach (var detail in first.Details) {
+                                    var newDetail = new ProductionTestingReportDetailModel {
+                                        Hour = detail.Hour,
+                                        Date = detail.Date,
+                                        Number = 0,
+                                        EmployeeCode = ""
+                                    };
+                                    var employeeTestingsById = employeeTestings.Where(x =>
+                                        x.FromWarehouseId == entity.FromWarehouseId &&
+                                        x.Hour == detail.Hour);
+                                    foreach (var employeeTesting in employeeTestingsById) {
+                                        newDetail.EmployeeCode += employeeTesting.EmployeeCode + "-";
+                                    }
+                                    if (newDetail.EmployeeCode.Length > 0) {
+                                        newDetail.EmployeeCode = newDetail.EmployeeCode.Remove(newDetail.EmployeeCode.Length - 1);
+                                    }
+                                    entity.Details.Add(newDetail);
+                                }
+                                model.Insert(0, entity);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingDailyReport", ex.Message);
+            }
+            return model.OrderBy(x => x.DisplayName).ToList();
         }
 
         #endregion

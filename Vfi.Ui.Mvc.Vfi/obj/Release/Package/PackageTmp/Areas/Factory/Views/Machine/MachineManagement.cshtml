@@ -47,7 +47,7 @@
             columns.Bound(f => f.Active).Width(75).Title("SX1")
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.Production2).Width(75).Title("SX2")
+            columns.Bound(f => f.Production2).Width(75).Title("Khác")
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production2' <#=Production2? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
             

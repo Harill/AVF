@@ -19,6 +19,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool IsPlating { get; set; }
         public bool CanStock { get; set; }
         public bool IsOutOfProcess { get; set; }
+        public bool IsProduction { get; set; }
     }
 
     public class WarehouseCboModel {
@@ -37,6 +38,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool? IsHeatTreatment { get; set; }
         public bool? IsPolish { get; set; }
         public bool? IsReprocessing { get; set; }
+        public bool? IsProduction { get; set; }
         public bool? IsProduction2 { get; set; }
         public bool? IsProduction2Process { get; set; }
         public bool? IsMainProcess { get; set; }

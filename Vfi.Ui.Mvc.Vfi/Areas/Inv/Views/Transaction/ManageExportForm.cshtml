@@ -134,6 +134,8 @@
                     columns.Bound(f => f.FormType).Hidden();
                     columns.Bound(f => f.TransactionCode).Width(100)
                            .Title("Mã Giao Dịch");
+                    columns.Bound(f => f.WarehouseName).Width(100)
+                           .Title("Công đoạn");
                     columns.Bound(f => f.CreatedDate).Width(85)
                            .Format("{0:dd/MM/yyyy}")
                            .Title("Ngày báo cáo");

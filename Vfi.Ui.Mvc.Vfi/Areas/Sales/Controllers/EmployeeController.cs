@@ -57,8 +57,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     ModifiedDate = employee.ModifiedDate,
                     ModifiedUser = employee.ModifiedUser,
                     EmployeeId = employee.EmployeeId,
-                    Repair = employee.Repair ?? false,
-                    QcLine = employee.QcLine ?? false,
+                    Repair = employee.Repair,
+                    QcLine = employee.QcLine,
                     GroupName = employee.GroupName,
                 })
                                 .OrderByDescending(e => e.Active)
@@ -190,46 +190,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             return View(new GridModel(GetEmployeeByModels()));
         }
 
-        public ActionResult SelectComboBoxEmployee() {
-            return new JsonResult {
-                Data = new SelectList(GetEmployeeByModels().Where(f => f.Active), "EmployeeId", "EmployeeCodeName")
-            };
-        }
-
-        public ActionResult SelectComboBoxSalesEmployee() {
-
-            using (var vfi = new tammaContext()) {
-                // var employees = vfi.Employees.Where(e => e.Active).ToList();
-                //model =  employees.Select(employee => new EmployeeModel
-                // {
-                //     Active = employee.Active,
-                //     Production2 = employee.Production2,
-                //     EmployeeCode = employee.EmployeeCode,
-                //     EmployeeName = employee.EmployeeName,
-                //     ModifiedDate = employee.ModifiedDate,
-                //     ModifiedUser = employee.ModifiedUser,
-                //     EmployeeId = employee.EmployeeId,
-                // }).OrderBy(e => e.EmployeeCode).ToList();
-                return new JsonResult {
-                    Data = new SelectList(vfi.Employees.Where(e => e.Active).ToList(), "EmployeeId", "EmployeeName"),
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
-                };
-            }
-        }
-
-        public ActionResult SelectComboBoxSalesUser() {
-
-            using (var vfi = new tammaContext()) {
-                return new JsonResult {
-                    Data = new SelectList(
-                        vfi.Users.Where(e => e.Active == true).OrderBy(e => e.Username).ToList(),
-                        "UserId",
-                        "Username"),
-                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
-                };
-            }
-        }
-
         public ActionResult SelectComboBoxEmployeeProduction2() {
             using (var vfi = new tammaContext()) {
                 var model = from m in vfi.Employees
@@ -246,39 +206,56 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             }
         }
 
-        public ActionResult SelectComboBoxEmployeeRepair() {
+        public List<EmployeeModel> GetActiveEmployeeByConfig(EmployeeConfiguration config) {
+            var model = new List<EmployeeModel>();
             using (var vfi = new tammaContext()) {
-                //var model = vfi.Machines.Where(m => m.Active).ToList();
-                var model = from m in vfi.Employees
-                            where m.Repair == true
-                            select new {
-                                m.EmployeeId,
-                                m.EmployeeName,
-                                m.EmployeeCode,
-                                EmployeeCodeName = m.EmployeeCode + "." + m.EmployeeName,
-                            };
-                return new JsonResult {
-                    Data = new SelectList(model.ToList(), "EmployeeId", "EmployeeCodeName")
-                };
+                model = (from x in vfi.Employees
+                         where (config.IsSales == null || x.Active == config.IsSales) &&
+                         (config.IsQCLine == null || x.QcLine == config.IsQCLine) &&
+                         (config.IsRepair == null || x.Repair == config.IsRepair) &&
+                         (config.IsProduction2 ==null || x.Production2 == config.IsProduction2 || x.Production2B == config.IsProduction2)
+                         select new EmployeeModel {
+                             EmployeeId = x.EmployeeId,
+                             EmployeeName = x.EmployeeName,
+                             EmployeeCode = x.EmployeeCode
+                         }).ToList();
             }
+            return model;
         }
 
-        public ActionResult SelectComboBoxEmployeeQcLine() {
-            using (var vfi = new tammaContext()) {
-                //var model = vfi.Machines.Where(m => m.Active).ToList();
-                var model = from m in vfi.Employees
-                            where m.QcLine == true
-                            select new {
-                                m.EmployeeId,
-                                m.EmployeeName,
-                                m.EmployeeCode,
-                                EmployeeCodeName = m.EmployeeCode + "-" + m.EmployeeName,
-                            };
-                return new JsonResult {
-                    Data = new SelectList(model.ToList(), "EmployeeId", "EmployeeCodeName")
-                };
+        // using for testing employee - tester
+        public ActionResult SelectComboBoxEmployeeByWarehouseId(int warehouseId) {
+            var config = new EmployeeConfiguration { };
+            if (warehouseId > 0) {
+                using (var vfi = new tammaContext()) {
+                    var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                    if (warehouse != null) {
+                        if (warehouse.IsQC) { config.IsQCLine = true; }
+                        if (warehouse.IsProduction) { config.IsProduction = true; }
+                    }
+                }
             }
+            return new JsonResult {
+                Data = new SelectList(GetActiveEmployeeByConfig(config), "EmployeeId", "EmployeeCodeName")
+            };
         }
+
+        public ActionResult SelectComboBoxSalesEmployee() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveEmployeeByConfig(new EmployeeConfiguration { IsSales = true }), "EmployeeId", "EmployeeCodeName")
+            };
+        }
+        public ActionResult SelectComboBoxEmployeeQcLine() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveEmployeeByConfig(new EmployeeConfiguration { IsQCLine = true }), "EmployeeId", "EmployeeCodeName")
+            };
+        }
+        public ActionResult SelectComboBoxEmployeeRepair() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveEmployeeByConfig(new EmployeeConfiguration { IsRepair = true }), "EmployeeId", "EmployeeCodeName")
+            };
+        }
+
         #endregion
     }
 }

@@ -44,6 +44,9 @@
                 columns.Bound(f => f.IsOutOfProcess).Width(45).Title("Quy trình</br>ngoài")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsOutOfProcess' <#=IsOutOfProcess? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.IsProduction).Width(45).Title("Công đoạn</br>SX1")
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction' <#=IsProduction? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.IsProduction2).Width(45).Title("Công đoạn</br>SX2")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2' <#=IsProduction2? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });

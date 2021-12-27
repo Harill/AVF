@@ -35,6 +35,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedUser)
                 .HasMaxLength(50);
 
+            this.Property(t => t.ApprovedUser)
+                .HasMaxLength(50);
+
             // Table & Column Mappings
             this.ToTable("Orders", "Sales");
             this.Property(t => t.OrderId).HasColumnName("OrderId");
@@ -60,6 +63,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedUser).HasColumnName("ModifiedUser");
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.PaymentTermId).HasColumnName("PaymentTermId");
+            this.Property(t => t.ApprovedDate).HasColumnName("ApprovedDate");
+            this.Property(t => t.ApprovedUser).HasColumnName("ApprovedUser");
 
             // Relationships
             this.HasRequired(t => t.Customer)

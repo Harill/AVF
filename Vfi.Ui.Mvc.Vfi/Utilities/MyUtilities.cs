@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
@@ -277,6 +278,15 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 }
                 list.Add(end.Day);
                 return list;
+            }
+            
+            /// <summary>
+            /// Convert string to date with vi-VN timezone.
+            /// </summary>
+            /// <param name="date">IsNullOrWhiteSpace return ToDay.</param>
+            /// <returns></returns>
+            public static DateTime ParseDate(string date) {
+                return string.IsNullOrWhiteSpace(date) ? DateTime.Today : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
             }
 
             public static string GetDayOfWeek(DateTime date) {

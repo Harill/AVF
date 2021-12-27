@@ -403,7 +403,7 @@
                                                 .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', StartDate) #>");
                                             columns.Bound(f => f.FinishDate).Width(100).Title("Ngày HT").ReadOnly(true)
                                                 .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', FinishDate) #>");
-                                            columns.Bound(f => f.Note).Title("Ghi chú");
+                                            columns.Bound(f => f.ProgressNote).Title("Ghi chú");
                                             columns.Bound(f => f.ModifiedUser).Width(85).Title("Người làm").ReadOnly(true);
                                             columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày làm").ReadOnly(true)
                                                 .Format("{0:dd/MM/yyyy HH:mm}");

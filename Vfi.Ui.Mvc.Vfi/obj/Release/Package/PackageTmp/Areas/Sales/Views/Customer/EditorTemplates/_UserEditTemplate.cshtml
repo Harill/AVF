@@ -1,7 +1,7 @@
 ﻿@{
     Html.Telerik().DropDownList()
         .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
-        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxSalesUser", "Employee", new { area = "Sales" }))
+        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxSalesUser", "User", new { area = "" }))
         .HtmlAttributes(new { style = "width: 250px" })
         .DropDownHtmlAttributes(new { style = "width: 360px" })
         .Render();

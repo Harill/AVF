@@ -1,0 +1,128 @@
+﻿@using Telerik.Web.Mvc.UI
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model MachineDiagram
+@{
+    ViewBag.Title = "Production Testing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="@Url.Content("~/Scripts/easytimer.min.js")"   ></script>
+@section Scripts{
+    <script type="text/javascript">
+        
+        $(document).ready(function () {
+            timerTarget();
+            $('#timer').html(new Date().getHours()+":00");
+        });
+        function timerTarget() {
+            var timer = new easytimer.Timer();
+            timer.start();
+            timer.addEventListener('hoursUpdated', function (e) {
+                $('#timer').html(new Date().getHours()+":00");
+            });
+        }
+        function grid_OnSubmitChanges(e) {
+
+            var machineId = $("#machineId").text();
+            var productId = $("#productId").text();
+            var warehouse = $('#Warehouse').data('tDropDownList').value();
+            if (warehouse === "") {
+                warehouse = 0;
+            }
+            var employee = $('#Employee').data('tComboBox').value();
+            if (employee === "") {
+                employee = 0;
+            }
+            e.values = $.extend(e.values,
+                {
+                    forWarehouseId: warehouse,
+                    employeeId: employee,
+                    machineId : @Model.MachineId,
+                    productId: @Model.ProductId,
+                });
+        }
+    </script>
+}
+<span id="machineId" hidden>@Model.MachineId</span>
+<span id="productId" hidden>@Model.ProductId</span>
+<div class="title">Đo kiểm sản xuất</div>
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+
+    <fieldset>
+        <legend>Thông tin</legend>
+        <div class="grid_3">Máy:</div>
+        <div class="grid_3">Sản phẩm</div>
+        <div class="grid_3">Thời gian</div>
+        <div class="grid_4">Trực thuộc</div>
+        <div class="grid_4">Nhân viên đo</div>
+        <div class="clear"></div>
+
+        <div class="grid_3">
+            <h1>@Model.MachineName</h1>
+        </div>
+        <div class="grid_3">
+            <h1>@Model.ProductCode</h1>
+        </div>
+        <div class="grid_3">
+            <h1 id="timer"></h1>
+        </div>
+        <div class="grid_4">
+            <h3>
+            @{
+                Html.Telerik().DropDownList()
+                    .Name("Warehouse")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouseProduction", "Warehouse", new { area = "Inv" }))
+                    //.HtmlAttributes(new { style = "width: 200px" })
+                    .DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .Render();
+            }
+            </h3>
+        </div>
+        <div class="grid_4">
+            <h3>
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Employee")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployeeByWarehouseId", "Employee", new { area = "Sales", warehouseId = 0 }).Delay(350))
+                    //.HtmlAttributes(new { style = "width: 200px" })
+                    .DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .HighlightFirstMatch(true)
+                    .AutoFill(true)
+                    .Render();
+            }</h3>
+        </div>
+    </fieldset>
+</div>
+
+@*<div class="title">Đo kiểm sản phẩm</div>*@
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<RealTestingModel>()
+            .Name("gridMachinePlan")
+            .DataKeys(key => key.Add(f => f.ReferenceTestingDetailId).RouteKey("referenceTestingDetailId"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                            .Select("SelectProductionTestingProduction1", "Production", new { productId = @Model.ProductId })
+                            .Update("SaveProductionTestingProduction1", "Production", new { machineId = @Model.MachineId, productId = @Model.ProductId })
+              )
+            .Columns(columns => {
+                //columns.Command(command =>
+                //                command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                //    ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                columns.Bound(f => f.Idx).Width(175).Title("STT").ReadOnly(true);
+                columns.Bound(f => f.TestName).Width(175).Title("Quy cách").ReadOnly(true)
+                       .ClientTemplate("<strong><#= TestName #></strong>");
+                columns.Bound(f => f.MachineTypeName).Width(175).Title("Dụng cụ").ReadOnly(true)
+                       .ClientTemplate("<strong><#= MachineTypeName #></strong>");
+                columns.Bound(f => f.TestNumber).Width(175).Title("Số đo");
+            })
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .KeyboardNavigation()
+            .ClientEvents(e => e.OnError("grid_OnError")
+                .OnSubmitChanges("grid_OnSubmitChanges"))
+            .Render();
+    }
+</div>

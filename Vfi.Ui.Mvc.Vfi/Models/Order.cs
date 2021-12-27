@@ -36,6 +36,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string ModifiedUser { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }
         public Nullable<int> PaymentTermId { get; set; }
+        public Nullable<System.DateTime> ApprovedDate { get; set; }
+        public string ApprovedUser { get; set; }
         public virtual ICollection<ExportFormTP_KD> ExportFormTP_KD { get; set; }
         public virtual ICollection<WorkOrder> WorkOrders { get; set; }
         public virtual Customer Customer { get; set; }

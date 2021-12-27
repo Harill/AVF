@@ -433,7 +433,8 @@
                                      </div>*@
                                  </div>
                                   <div style="width: 100%; height: 10px; float: left; text-align: center;">
-                                     <span class="itemRight">@{ @Html.ActionLink("Chi tiết hơn", "MachineLog", "Machine", new {id = entity.MachineId}, null)}</span>
+                                     <span class="itemRight">@{ @Html.ActionLink("Chi tiết hơn", "MachineLog", "Machine", new {id = entity.MachineId}, null)}</span> | 
+                                     <span class="itemRight">@{ @Html.ActionLink("Đo kiểm", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
                                  </div>
                              </div>
 

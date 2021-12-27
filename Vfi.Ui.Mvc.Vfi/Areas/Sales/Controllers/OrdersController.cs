@@ -701,6 +701,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     order.DueDate = Convert.ToDateTime(dueDate);
                     order.Status = (byte)MyUtilities.Sales.Status.Waiting;
                     order.Active = true;
+                    order.ApprovedDate = DateTime.Now;
+                    order.ApprovedUser = HttpContext.User.Identity.Name;
                     vfi.SaveChanges();
 
                     // update forecast order

@@ -1544,7 +1544,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             TransactionCode = transaction.TransactionCode,
                             ExportFormId = export.ExportId,
                             Transporter = export.Transporter,
-                            TotalBox = export.TotalBox ?? 0,
+                            TotalBox = export.TotalBox ,
                             ModifiedDate = export.ModifiedDate.Value,
                             ModifiedUser = export.ModifiedUser,
                             DateTransporter = export.DateTransporter.Value,

@@ -229,6 +229,19 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             return View(new GridModel(GetAllUsers().Where(f => !string.Equals("thangle", f.Username))));
         }
 
+        public ActionResult SelectComboBoxSalesUser() {
+
+            using (var vfi = new tammaContext()) {
+                return new JsonResult {
+                    Data = new SelectList(
+                        vfi.Users.Where(e => e.Active == true).OrderBy(e => e.Username).ToList(),
+                        "UserId",
+                        "Username"),
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet
+                };
+            }
+        }
+
         #endregion
 
         #region Profile

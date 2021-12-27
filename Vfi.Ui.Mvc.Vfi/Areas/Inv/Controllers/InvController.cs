@@ -5242,7 +5242,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                      : "",
                             ModifiedUser = export.ModifiedUser,
                             StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status),
-                            TotalBox = export.TotalBox ?? 0,
+                            TotalBox = export.TotalBox ,
                             Note = tDetail.Note,
                             Quality = tDetail.Quality,
                             Weight = tDetail.Weight ?? 0.0,
@@ -5975,7 +5975,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.UnitPrice = orderDetail.UnitPrice;
                             entity.Note = invoice.Note;
                             entity.Weight = (exportDetail.Weight ?? 0.0) / 1000;
-                            entity.Package = export.TotalBox ?? 0;
+                            entity.Package = export.TotalBox ;
                             entity.PaymentTerm = paymentTerm.TermName;
                             entity.ShiftmentDateString = export.DateTransporter.Value.ToString("dd/MM/yyyy");
                             entity.TaxPercent = invoice.TaxPercent;
@@ -6035,7 +6035,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     UM = "pcs",
                                     Note = invoice.Note,
                                     Weight = (exportDetail.Weight ?? 0.0) / 1000,
-                                    Package = export.TotalBox ?? 0,
+                                    Package = export.TotalBox ,
                                     PaymentTerm = paymentTerm.TermName,
                                     ShiftmentDateString = export.DateTransporter.Value.ToString("dd/MM/yyyy"),
                                     TaxPercent = invoice.TaxPercent,
@@ -6117,7 +6117,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 UM = "pcs",
                                 Note = "",
                                 Weight = (exportDetail.Weight ?? 0.0) / 1000,
-                                Package = export.TotalBox ?? 0,
+                                Package = export.TotalBox,
                                 PaymentTerm = paymentTerm.TermName,
                                 ShiftmentDateString = export.DateTransporter.Value.ToString("dd/MM/yyyy"),
                                 TaxPercent = 0,

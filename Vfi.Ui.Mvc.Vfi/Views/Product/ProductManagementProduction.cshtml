@@ -1092,9 +1092,9 @@
                                         columns.Bound(f => f.Active).Width(40)
                                                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                 .HtmlAttributes(new { style = "text-align:center" });
-                                        columns.Bound(f => f.ModifiedUser).Width(70).Title("Ngày thêm").ReadOnly(true)
-                                               .Format("{0:dd/MM/yyyy}");
-                                        columns.Bound(f => f.ModifiedDate).Width(60).Title("Người thêm").ReadOnly(true);
+                                        columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày thêm").ReadOnly(true)
+                                               .Format("{0:dd/MM/yyyy HH:mm}");
+                                        columns.Bound(f => f.ModifiedUser).Width(60).Title("Người thêm").ReadOnly(true);
                                     })
                                     .Editable(editing => editing.Mode(GridEditMode.InLine))
                                     .ClientEvents(e => e.OnRowDataBound("gridProductionSection_OnRowDataBound")

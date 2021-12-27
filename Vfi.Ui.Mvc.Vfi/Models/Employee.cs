@@ -28,8 +28,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<System.DateTime> ModifiedDate { get; set; }
         public bool Production2 { get; set; }
         public bool Production2B { get; set; }
-        public Nullable<bool> Repair { get; set; }
-        public Nullable<bool> QcLine { get; set; }
+        public bool Repair { get; set; }
+        public bool QcLine { get; set; }
         public string GroupName { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms1 { get; set; }

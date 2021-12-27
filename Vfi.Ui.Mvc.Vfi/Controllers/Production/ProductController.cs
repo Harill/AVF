@@ -1282,7 +1282,8 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             RoundPerMinute = production.TrackUpMachine.RoundPerMinute,
                             WorkPiece = production.TrackUpMachine.WorkPiece,
                             Quantity = production.TrackUpMachine.Quantity,
-                            EndDate = production.TrackUpMachine.EndDate
+                            EndDate = production.TrackUpMachine.EndDate,
+                            Note = production.TrackUpMachine.Note,
                         };
                         if (production.TrackUpMachine.Material != null) {
                             entity.MaterialCode = production.TrackUpMachine.Material.MaterialCode;

@@ -125,7 +125,14 @@
                                .HeaderTemplate("<strong>Nguyên liệu</strong>")
                                .HtmlAttributes(new { style = "text-align: center;" });
                         // so lieu
-                        columns.Bound(f => f.TotalInv).Title("Tồn kho").Width(80)
+                        columns.Bound(f => f.TotalInv).Title("Tồn kho</br>Tổng").Width(80)
+                               .Aggregate(agg => agg.Sum())
+                              .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.FinishInv).Title("Tồn kho</br>TP").Width(80)
                                .Aggregate(agg => agg.Sum())
                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -141,20 +148,17 @@
                             .HeaderTemplate("Ngày giao<br/>cuối").Width(100)
                                .ClientTemplate("<#= LastExportDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastExportDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.LastFinishInvDate)
+                            .HeaderTemplate("Ngày chuyển<br/> TP cuối").Width(100)
+                               .ClientTemplate("<#= LastFinishInvDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastFinishInvDate) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.LastRotateDate)
                             .HeaderTemplate("Ngày chuyển<br/> kho cuối").Width(100)
                                .ClientTemplate("<#= LastRotateDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastRotateDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.FinishInv).Title("Tồn kho").Width(80)
-                               .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.LastRotateDate)
-                            .HeaderTemplate("Ngày phát sinh<br/> thành phẩm cuối").Width(100)
-                               .ClientTemplate("<#= LastFinishInvDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastFinishInvDate) #>")
+                        columns.Bound(f => f.ModifiedDate)
+                            .HeaderTemplate("Ngày cuối<br/>cập nhật").Width(100)
+                               .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
 
                     })
