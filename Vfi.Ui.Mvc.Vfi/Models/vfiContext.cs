@@ -54,6 +54,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<ProductionSectionProcess> ProductionSectionProcesses { get; set; }
         public DbSet<ProductionTesting> ProductionTestings { get; set; }
         public DbSet<ProductionTestingDetail> ProductionTestingDetails { get; set; }
+        public DbSet<ProductionTestingMachine> ProductionTestingMachines { get; set; }
+        public DbSet<ProductionTestingNote> ProductionTestingNotes { get; set; }
         public DbSet<ProductionTool> ProductionTools { get; set; }
         public DbSet<ProductionToolReplacement> ProductionToolReplacements { get; set; }
         public DbSet<RealProduction> RealProductions { get; set; }
@@ -243,6 +245,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new ProductionSectionProcessMap());
             modelBuilder.Configurations.Add(new ProductionTestingMap());
             modelBuilder.Configurations.Add(new ProductionTestingDetailMap());
+            modelBuilder.Configurations.Add(new ProductionTestingMachineMap());
+            modelBuilder.Configurations.Add(new ProductionTestingNoteMap());
             modelBuilder.Configurations.Add(new ProductionToolMap());
             modelBuilder.Configurations.Add(new ProductionToolReplacementMap());
             modelBuilder.Configurations.Add(new RealProductionMap());

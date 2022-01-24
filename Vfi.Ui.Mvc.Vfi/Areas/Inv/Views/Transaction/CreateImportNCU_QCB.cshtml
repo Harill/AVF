@@ -204,9 +204,14 @@
             var spanQuantity = e.cell.parentElement.getElementsByClassName("RealNumber")[0];
             var spanQuantityKg = e.cell.parentElement.getElementsByClassName("Weight")[0];
             if (isRotateAll.attr('checked')) {
-                e.dataItem.RealNumber = e.dataItem.ExportQuantity;
+                if (e.dataItem.ExportQuantity <= e.dataItem.ProductInventory) {
+                    e.dataItem.RealNumber = e.dataItem.ExportQuantity;
+                    e.dataItem.Weight = e.dataItem.ExportWeight;
+                } else {
+                    e.dataItem.RealNumber = e.dataItem.ProductInventory;
+                    e.dataItem.Weight = e.dataItem.ProductInventoryG;
+                }
                 spanQuantity.textContent = e.dataItem.RealNumber.format(0);
-                e.dataItem.Weight = e.dataItem.ExportWeight;
                 spanQuantityKg.textContent = e.dataItem.Weight.format(0);
                 calculateSumKg(0);
                 calculateSum(0);
@@ -233,7 +238,7 @@
                     calculateSumKg(quantityKg);
                     calculateSum(0);
                 }
-            }else    if (!isNaN(parseInt(quantity))) {
+            } else if (!isNaN(parseInt(quantity))) {
                 productQuantity = parseInt(quantity);
                 quantityKg = parseFloat(parseInt(productQuantity) * e.dataItem.ProductWeight);
                 spanQuantityKg.textContent = quantityKg.format(0);
@@ -254,6 +259,7 @@
                 calculateSum(quantity);
             }
         }
+
         function calculateSumKg(quantityKg) {
             spanReals = $("span[name='Weight']");
             for (i = 0; i < spanReals.length; i++) {

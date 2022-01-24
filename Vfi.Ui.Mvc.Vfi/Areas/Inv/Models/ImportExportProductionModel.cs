@@ -28,12 +28,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double ImportWeight { get; set; }
         public double ImportQuantity { get; set; }
         public double ImportMore { get; set; }
+        public double ImportPurchase { get; set; }
         public double ImportInternal { get; set; }
         public double ImportReturn { get; set; }
         public double ImportPrice {
-            get { return ImportQuantity * ProductPrice; }
+            get { return (ImportQuantity + ImportPurchase) * ProductPrice; }
         }
-        public double TotalImport { get { return ImportQuantity + ImportReturn + ImportMore + ImportInternal + DiffImport; } }
+        public double TotalImport { get { return ImportQuantity + ImportReturn + ImportMore + ImportPurchase + ImportInternal + DiffImport; } }
         public double TotalImportPrice {
             get { return TotalImport * ProductPrice; }
         }
@@ -122,6 +123,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         //
         public double ImportQuantity {
             get { return Details.Sum(d => d.ImportQuantity); }
+        }
+        public double ImportPurchase {
+            get { return Details.Sum(d => d.ImportPurchase); }
         }
         public double ImportMore {
             get { return Details.Sum(d => d.ImportMore); }

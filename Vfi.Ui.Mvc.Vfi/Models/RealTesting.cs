@@ -14,7 +14,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public System.DateTime ProductionDate { get; set; }
         public System.DateTime TestDate { get; set; }
         public int TestEmployeeId { get; set; }
-        public Nullable<int> MachineTypeId { get; set; }
         public string TestCode { get; set; }
         public string TestName { get; set; }
         public double TestNumber { get; set; }
@@ -22,8 +21,11 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public System.DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }
         public int FromWarehouseId { get; set; }
+        public double MinNumber { get; set; }
+        public double MaxNumber { get; set; }
+        public Nullable<int> MachineId { get; set; }
         public virtual Machine Machine { get; set; }
-        public virtual ProcessingType ProcessingType { get; set; }
+        public virtual Machine Machine1 { get; set; }
         public virtual ProductionTestingDetail ProductionTestingDetail { get; set; }
         public virtual Employee Employee { get; set; }
         public virtual Product Product { get; set; }

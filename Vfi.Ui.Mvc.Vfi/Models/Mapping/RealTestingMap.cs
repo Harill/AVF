@@ -31,7 +31,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ProductionDate).HasColumnName("ProductionDate");
             this.Property(t => t.TestDate).HasColumnName("TestDate");
             this.Property(t => t.TestEmployeeId).HasColumnName("TestEmployeeId");
-            this.Property(t => t.MachineTypeId).HasColumnName("MachineTypeId");
             this.Property(t => t.TestCode).HasColumnName("TestCode");
             this.Property(t => t.TestName).HasColumnName("TestName");
             this.Property(t => t.TestNumber).HasColumnName("TestNumber");
@@ -39,14 +38,17 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.ModifiedUser).HasColumnName("ModifiedUser");
             this.Property(t => t.FromWarehouseId).HasColumnName("FromWarehouseId");
+            this.Property(t => t.MinNumber).HasColumnName("MinNumber");
+            this.Property(t => t.MaxNumber).HasColumnName("MaxNumber");
+            this.Property(t => t.MachineId).HasColumnName("MachineId");
 
             // Relationships
             this.HasRequired(t => t.Machine)
                 .WithMany(t => t.RealTestings)
                 .HasForeignKey(d => d.ProductionMachineId);
-            this.HasOptional(t => t.ProcessingType)
-                .WithMany(t => t.RealTestings)
-                .HasForeignKey(d => d.MachineTypeId);
+            this.HasOptional(t => t.Machine1)
+                .WithMany(t => t.RealTestings1)
+                .HasForeignKey(d => d.MachineId);
             this.HasRequired(t => t.ProductionTestingDetail)
                 .WithMany(t => t.RealTestings)
                 .HasForeignKey(d => d.ReferenceTestingDetailId);

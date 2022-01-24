@@ -197,52 +197,53 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         }
 
 
-        public ActionResult SelectComboBoxMaterialByVendorId(int classified) {
+        public ActionResult SelectComboBoxMaterialByTypeId(int classified, int typeId) {
             try {
                 using (var vfi = new tammaContext()) {
                     switch (classified) {
                         case 1:
-                            var materials =
-                                vfi.Materials.Where(f => f.Active)
-                                   .OrderBy(m => m.MaterialName)
-                                   .ThenBy(m => m.Shape)
-                                   .ThenBy(m => m.DiameterType)
-                                   .ThenBy(m => m.OutDiameter)
-                                   .ThenBy(m => m.InDiameter)
-                                   .ToList();
+                            var materials = (from x in vfi.Materials
+                                             where x.Active && (typeId == 0 || x.MaterialTypeId == typeId)
+                                             orderby x.MaterialName, x.Shape, x.DiameterType, x.OutDiameter, x.InDiameter
+                                             select new { x.MaterialId, x.MaterialCode }).ToList();
                             return new JsonResult {
                                 Data = new SelectList(materials, "MaterialId", "MaterialCode")
                             };
                         case 2:
-                            var fuels =
-                                vfi.Fuels.Where(f => f.Active).OrderBy(f => f.FuelFullCode).ToList();
+                            var fuels = (from x in vfi.Fuels
+                                         where x.Active
+                                         orderby x.FuelFullCode
+                                         select new { x.FuelId, x.FuelFullCode }
+                                        ).ToList();
                             return new JsonResult {
                                 Data = new SelectList(fuels, "FuelId", "FuelFullCode")
                             };
                         case 3:
-                            var tools =
-                                vfi.Tools.Where(t => t.Active).OrderBy(t => t.ToolFullCode).ToList();
+                            var tools = (from x in vfi.Tools
+                                         where x.Active && (typeId == 0 || x.MaterialTypeId == typeId)
+                                         orderby x.ToolFullCode
+                                         select new { x.ToolId, x.ToolFullCode }
+                                        ).ToList();
                             return new JsonResult {
                                 Data = new SelectList(tools, "ToolId", "ToolFullCode")
                             };
                         case 4:
-                            var productionPlatings =
-                                vfi.ProductionPlatings.Where(t => t.Active).ToList();
-                            var model = new List<ProductionPlatingModel>();
-                            foreach (var productionPlating in productionPlatings) {
-                                var entity = new ProductionPlatingModel {
-                                    PlatingId = productionPlating.PlatingId,
-                                    ProductCode = productionPlating.Product.ProductCode,
-                                    PlatingName = productionPlating.PlatingName
-                                };
-                                model.Add(entity);
-                            }
+                            var productionPlatings = (from x in vfi.ProductionPlatings
+                                                      where x.Active
+                                                      orderby x.Product.ProductCode
+                                                      select new ProductionPlatingModel {
+                                                          PlatingId = x.PlatingId,
+                                                          ProductCode = x.Product.ProductCode,
+                                                          PlatingName = x.PlatingName
+                                                      }).ToList();
                             return new JsonResult {
-                                Data = new SelectList(model.OrderBy(m => m.ProductCode), "PlatingId", "ProductPlatingCode")
+                                Data = new SelectList(productionPlatings, "PlatingId", "ProductPlatingCode")
                             };
                         case 6:
-                            var products =
-                                vfi.Products.Where(t => t.Active).OrderBy(t => t.ProductCode).ToList();
+                            var products = (from x in vfi.Products
+                                            where x.Active
+                                            select new { x.ProductId, x.ProductCode }).ToList();
+
                             return new JsonResult {
                                 Data = new SelectList(products, "ProductId", "ProductCode")
                             };
@@ -2807,48 +2808,83 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
         [HttpPost]
         public ActionResult CheckPoReferenceUnitPrice(int classified, int referenceId) {
+            var entity = new InquiryPo { };
             try {
                 using (var vfi = new tammaContext()) {
-                    vfi.Configuration.LazyLoadingEnabled = false;
-                    var unitPrice = 0.0;
-
-                    switch (classified) {
-                        case 1:
-                            var materialInvs =
-                                vfi.MaterialInventories.Where(
-                                    mi =>
-                                    mi.MaterialId == referenceId).OrderByDescending(mi => mi.ImportDate);
-                            if (materialInvs.Any())
-                                unitPrice = materialInvs.FirstOrDefault().UnitPrice;
-
-                            break;
-                        case 2:
-                            var fuelInvs =
-                                vfi.FuelInventories.Where(
-                                    mi =>
-                                    mi.FuelId == referenceId).OrderByDescending(mi => mi.CreateDate);
-                            if (fuelInvs.Any())
-                                unitPrice = fuelInvs.FirstOrDefault().UnitPrice;
-                            break;
-                        case 3:
-                            var toolInvs =
-                                vfi.ToolInventories.Where(
-                                    mi =>
-                                    mi.ToolId == referenceId).OrderByDescending(mi => mi.CreateDate);
-                            if (toolInvs.Any())
-                                unitPrice = toolInvs.FirstOrDefault().UnitPrice;
-                            break;
-                        default:
-                            break;
-
-
+                    var lastPurchase = (from x in vfi.PurchaseOrderDetails
+                                        where x.PurchaseOrder.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                            && x.PurchaseOrder.MaterialClassifiedId == classified
+                                            && x.ReferenceId == referenceId
+                                        orderby x.PurchaseOrder.OrderDate descending
+                                        select x).FirstOrDefault();
+                    if (lastPurchase != null) {
+                        entity.UnitPrice = lastPurchase.UnitPrice;
+                        entity.Currency = (lastPurchase.PurchaseOrder.CurrencyCode + "").Trim();
+                        entity.Unit = (lastPurchase.Unit + "").Trim();
+                        entity.Note = "giá từ PO cũ";
                     }
-                    return Json(unitPrice);
+                    else {
+                        var lastInquiry = (from x in vfi.InquiryPoes
+                                           where x.ClasstifiedId == classified
+                                               && x.ReferenceId == referenceId
+                                               && x.Status != (byte)MyUtilities.Transaction.Status.Cancel
+                                           orderby x.DueDate descending
+                                           select x).FirstOrDefault();
+                        if (lastInquiry != null) {
+                            entity.UnitPrice = lastInquiry.UnitPrice;
+                            entity.Currency = (lastInquiry.Currency + "").Trim();
+                            entity.Unit = (lastInquiry.Unit + "").Trim();
+                            entity.Note = "giá từ YC cũ";
+                        }
+                        else {
+                            switch (classified) {
+                                case 1:
+                                    var materialInv =
+                                        vfi.MaterialInventories.Where(
+                                            mi =>
+                                            mi.MaterialId == referenceId).OrderByDescending(mi => mi.ImportDate).FirstOrDefault();
+                                    if (materialInv != null) {
+                                        entity.UnitPrice = materialInv.UnitPrice;
+                                        entity.Unit = materialInv.UnitMeasure;
+                                        entity.Currency = "VND";
+                                        entity.Note = "giá từ tồn kho";
+                                    }
+
+                                    break;
+                                case 2:
+                                    var fuelInv =
+                                        vfi.FuelInventories.Where(
+                                            mi =>
+                                            mi.FuelId == referenceId).OrderByDescending(mi => mi.CreateDate).FirstOrDefault();
+                                    if (fuelInv != null) {
+                                        entity.UnitPrice = fuelInv.UnitPrice;
+                                        entity.Unit = fuelInv.UnitMeasure;
+                                        entity.Currency = "VND";
+                                        entity.Note = "giá từ tồn kho";
+                                    }
+                                    break;
+                                case 3:
+                                    var toolInv =
+                                        vfi.ToolInventories.Where(
+                                            mi =>
+                                            mi.ToolId == referenceId).OrderByDescending(mi => mi.CreateDate).FirstOrDefault();
+                                    if (toolInv != null) {
+                                        entity.UnitPrice = toolInv.UnitPrice;
+                                        entity.Unit = toolInv.UnitMeasure;
+                                        entity.Currency = "VND";
+                                        entity.Note = "giá từ tồn kho";
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
                 }
             }
-            catch (FormatException) {
-                return Json(0);
-            }
+            catch (Exception ex) { return Json(null); }
+
+            return Json(entity);
         }
 
         [GridAction]
@@ -2890,7 +2926,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         Note = ip.Note,
                         ClassifiedId = ip.ClasstifiedId,
                         ClassifiedName = ip.MaterialClassified.MaterialClassifiedName,
-                        Currency = ip.Currency,
+                        Currency = ip.Currency.Trim(),
                         OrderQty = ip.OrderQty,
                         UnitPrice = ip.UnitPrice,
                         Unit = ip.Unit,
@@ -2970,18 +3006,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 if (insertedDetails != null) {
                     using (var vfi = new tammaContext()) {
                         foreach (var inserted in insertedDetails) {
-                            if (inserted.OrderQty == 0) continue;
                             if (string.IsNullOrWhiteSpace(inserted.Unit))
                                 throw new AggregateException("Lỗi! Chưa chọn đơn vị tính");
-                            if (string.IsNullOrWhiteSpace(inserted.Currency))
+                            //if (inserted.OrderQty == 0) continue;
+                            if (inserted.OrderQty <= 0)
+                                throw new AggregateException("Lỗi! Chưa nhập số lượng yêu cầu");
+                            if (inserted.UnitPrice > 0 && string.IsNullOrWhiteSpace(inserted.Currency))
                                 throw new AggregateException("Lỗi! Chưa chọn tiền tệ");
+                            if (inserted.DueDate == null)
+                                throw new AggregateException("Lỗi! Chưa nhập ngày yêu cầu");
                             var inquiry = new InquiryPo {
                                 ClasstifiedId = materialClassifiedId,
-                                Currency = inserted.Currency,
+                                Currency = (inserted.Currency + ""),
                                 DueDate = inserted.DueDate,
                                 ReferenceId = inserted.ReferenceId,
                                 Status = (byte)MyUtilities.PurchaseOrder.InquiryEnum.Pending,
-                                Unit = inserted.Unit,
+                                Unit = (inserted.Unit + ""),
                                 UnitPrice = inserted.UnitPrice,
                                 OrderQty = inserted.OrderQty,
                                 Note = inserted.Note,
@@ -3014,6 +3054,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     var inquiry = vfi.InquiryPoes.FirstOrDefault(ip => ip.InquiryId == update.InquiryId);
                     if (inquiry == null)
                         throw new AggregateException("Không tìm thấy yêu cầu");
+                    if (update.UnitPrice > 0 && string.IsNullOrWhiteSpace(update.Currency))
+                        throw new AggregateException("Lỗi! Chưa chọn tiền tệ");
                     var vendorUpdateId = 0;
                     try {
                         vendorUpdateId = Convert.ToInt32(update.VendorCode);
@@ -3024,7 +3066,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         inquiry.VendorId = vendorUpdateId;
                     inquiry.Unit = update.Unit;
                     inquiry.UnitPrice = update.UnitPrice;
-                    inquiry.Currency = update.Currency;
+                    if (inquiry.UnitPrice == 0) {
+                        inquiry.Currency = "";
+                    }
+                    else {
+                        inquiry.Currency = (update.Currency + "");
+                    }
                     inquiry.Note = update.Note;
                     inquiry.OrderQty = update.OrderQty;
                     inquiry.DueDate = update.DueDate;
@@ -3163,7 +3210,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             Note = ip.Note,
                             ClassifiedId = ip.ClasstifiedId,
                             ClassifiedName = ip.MaterialClassified.MaterialClassifiedName,
-                            Currency = ip.Currency,
+                            Currency = ip.Currency.Trim(),
                             OrderQty = ip.OrderQty,
                             UnitPrice = ip.UnitPrice,
                             Unit = ip.Unit,
@@ -4583,6 +4630,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 pod => pod.PurchaseOrderDetailId == id);
                         var product = products.FirstOrDefault(m => m.ProductId == poDetail.ReferenceId);
                         var entity = new TransactionFptDetailModel() {
+                            PoDetailId = id,
                             ProductId = product.ProductId,
                             ProductCode = product.ProductCode,
                             RequiredQuantity = poDetail.OrderQty - poDetail.ReceivedQty,
@@ -4605,7 +4653,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             [Bind(Prefix = "inserted")]IEnumerable<TransactionFptDetailModel> insertedDetails,
             [Bind(Prefix = "updated")]IEnumerable<TransactionFptDetailModel> updatedDetails,
             [Bind(Prefix = "deleted")]IEnumerable<TransactionFptDetailModel> deletedDetails,
-            string monthlyDate, int? poId,
+            string monthlyDate, long? poId,
             string exportOrImport, int exchangeRate,
             int warehouseId
             ) {
@@ -4637,7 +4685,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ModifiedUser = HttpContext.User.Identity.Name,
                             ModifiedDate = DateTime.Now,
                             WarehouseIssueId = null,
-                            WarehouseReceiptId = warehouseId
+                            WarehouseReceiptId = warehouseId,
+                            PoId = poId
                         };
                         var importPO = new ImportPurchaseOrder {
                             ImportDate = createdDate,
@@ -4671,6 +4720,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ModifiedDate = DateTime.Now,
                                 StoreCode = detail.StoreCode,
                                 Note = detail.Note,
+                                PoDetailId = detail.PoDetailId,
                             };
                             transaction.TransactionDetails.Add(transactionDetail);
 

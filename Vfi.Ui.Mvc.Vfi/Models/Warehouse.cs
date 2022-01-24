@@ -15,6 +15,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.ProductionProcesses = new List<ProductionProcess>();
             this.ProductionProcessByMachines = new List<ProductionProcessByMachine>();
             this.ProductionTestings = new List<ProductionTesting>();
+            this.ProductionTestingNotes = new List<ProductionTestingNote>();
             this.ProductionTools = new List<ProductionTool>();
             this.RealTestings = new List<RealTesting>();
             this.RealTestings1 = new List<RealTesting>();
@@ -56,6 +57,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool CanStock { get; set; }
         public bool IsOutOfProcess { get; set; }
         public bool IsProduction { get; set; }
+        public bool IsCncMilling { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
@@ -64,6 +66,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ProductionProcess> ProductionProcesses { get; set; }
         public virtual ICollection<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }
         public virtual ICollection<ProductionTesting> ProductionTestings { get; set; }
+        public virtual ICollection<ProductionTestingNote> ProductionTestingNotes { get; set; }
         public virtual ICollection<ProductionTool> ProductionTools { get; set; }
         public virtual ICollection<RealTesting> RealTestings { get; set; }
         public virtual ICollection<RealTesting> RealTestings1 { get; set; }

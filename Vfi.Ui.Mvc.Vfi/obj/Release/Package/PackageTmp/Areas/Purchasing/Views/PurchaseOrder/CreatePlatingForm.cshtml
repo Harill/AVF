@@ -309,10 +309,10 @@
                     columns.Bound(f => f.QuantityRequirement).Width(115).Title("SL")
                            .Format("{0:n}");
                     columns.Bound(f => f.ExportDateRequirement).Width(115).Title("Ngày xuất")
-                           .Format("{0:dd/MM/yyyy}");
+                            .ClientTemplate("<#= ExportDateRequirement == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDExportDateRequirementate) #>");
 
                     columns.Bound(f => f.ImportDateRequirement).Width(115).Title("Ngày giao")
-                           .Format("{0:dd/MM/yyyy}");
+                            .ClientTemplate("<#= ImportDateRequirement == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ImportDateRequirement) #>");
                     columns.Bound(f => f.Note).Width(90).Title("Ghi chú");
                     columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
                 })

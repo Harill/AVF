@@ -83,8 +83,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers
                             SpecialInfo = customer.SpecialInfo,
                             Note = customer.Note,
                             //Active = entity.Active,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = customer.ModifiedUser,
+                            ModifiedDate = customer.ModifiedDate ?? DateTime.Now,
                             AreaId = customer.AreaId,
                             AreaName = customer.Area.AreaName,
                             CustomerTypeId = customer.CustomerTypeId,
@@ -98,7 +98,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers
                             ClassifiedName = customer.CustomerClassified.Name,
                             StartDate = customer.StartDate,
                             State = customer.State,
-                            StateName = MyUtilities.Sales.GetCustomerState(customer.State)
+                            StateName = MyUtilities.Sales.GetCustomerState(customer.State),
+                            IsNotRequireApproveOrder = customer.IsNotRequireApproveOrder
                         };
                     entity.PayType = payType.FirstOrDefault(pt => pt.Id == customer.CustomerPayTypeId).TypeName;
                     models.Add(entity);
@@ -453,7 +454,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers
                             UseForecast = true,
                             State = (byte)MyUtilities.Sales.CustomerState.Active,
                             IsMonitor = true,
-                            StartDate = customerUpdate.StartDate
+                            StartDate = customerUpdate.StartDate,
+                            IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder
                         };
                     if (string.IsNullOrWhiteSpace(customer.CustomerCode))
                         customer.State = (byte)MyUtilities.Sales.CustomerState.NewCustomer;
@@ -604,6 +606,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers
                         customer.StartDate = customerUpdate.StartDate;
                         customer.IsMonitor = customerUpdate.IsMonitor;
                         customer.State = state;
+                        customer.IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder;
                         if (string.IsNullOrWhiteSpace(customer.CustomerCode))
                             customer.State = (byte)MyUtilities.Sales.CustomerState.NewCustomer;
                         else if (customer.State == (byte)MyUtilities.Sales.CustomerState.NewCustomer)

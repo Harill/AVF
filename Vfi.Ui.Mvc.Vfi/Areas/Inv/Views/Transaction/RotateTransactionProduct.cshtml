@@ -5,538 +5,539 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-    .highslide-container div {
-        font-family: Verdana, Helvetica;
-        font-size: 10pt;
-    }
-
-    .highslide-container table {
-        background: none;
-    }
-
-    .highslide {
-        outline: none;
-        text-decoration: none;
-    }
-
-        .highslide img {
-            border: 2px solid silver;
+    <style>
+        .highslide-container div {
+            font-family: Verdana, Helvetica;
+            font-size: 10pt;
         }
 
-        .highslide:hover img {
-            border-color: gray;
+        .highslide-container table {
+            background: none;
         }
 
-    .highslide-active-anchor img {
-        visibility: hidden;
-    }
-
-    .highslide-gallery .highslide-active-anchor img {
-        border-color: black;
-        visibility: visible;
-        cursor: default;
-    }
-
-    .highslide-image {
-        border-width: 2px;
-        border-style: solid;
-        border-color: white;
-    }
-
-    .highslide-wrapper, .highslide-outline {
-        background: white;
-    }
-
-    .glossy-dark {
-        background: #111;
-    }
-
-    .highslide-image-blur {
-    }
-
-    .highslide-number {
-        display: none;
-        font-weight: bold;
-        color: gray;
-        font-size: .9em;
-    }
-
-    .highslide-caption {
-        display: none;
-        font-size: 1em;
-        padding: 5px;
-        width: 100%;
-        text-align: center;
-        font-weight: bold;
-        /*background: white;*/
-    }
-
-    .highslide-heading {
-        display: none;
-        font-weight: bold;
-        margin: 0.4em;
-    }
-
-    .highslide-dimming {
-        /*position: absolute;*/
-        background: black;
-    }
-
-    a.highslide-full-expand {
-        display: block;
-        margin: 0 10px 10px 0;
-        width: 34px;
-        height: 34px;
-    }
-
-    .highslide-loading {
-        display: block;
-        color: black;
-        font-size: 9px;
-        font-weight: bold;
-        text-transform: uppercase;
-        text-decoration: none;
-        padding: 3px;
-        border: 1px solid white;
-        background-color: white;
-        padding-left: 22px;
-        background-repeat: no-repeat;
-        background-position: 3px 1px;
-    }
-
-    a.highslide-credits,
-    a.highslide-credits i {
-        padding: 2px;
-        color: silver;
-        text-decoration: none;
-        font-size: 10px;
-        display: none;
-    }
-
-        a.highslide-credits:hover,
-        a.highslide-credits:hover i {
-            color: white;
-            background-color: gray;
+        .highslide {
+            outline: none;
+            text-decoration: none;
         }
 
-    .highslide-move, .highslide-move * {
-        cursor: move;
-    }
-
-    .highslide-viewport {
-        display: none;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        background: none;
-        left: 0;
-        top: 0;
-    }
-
-    .highslide-overlay {
-        display: none;
-    }
-
-    .hidden-container {
-        display: none;
-    }
-    /* Example of a semitransparent, offset closebutton */
-    .closebutton {
-        position: relative;
-        top: -15px;
-        left: 15px;
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
-        /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
-    }
-
-    .highslide-controls {
-        display: none;
-    }
-</style>
-
-<script type="text/javascript">
-    hs.graphicsDir = '';
-    hs.align = 'center';
-    hs.transitions = ['expand', 'crossfade'];
-    hs.outlineType = '';
-    hs.fadeInOut = true;
-    hs.numberPosition = 'caption';
-    hs.dimmingOpacity = 0.75;
-
-    // Add the controlbar
-    if (hs.addSlideshow)
-        hs.addSlideshow({
-            //slideshowGroup: 'group1',
-            interval: 5000,
-            repeat: false,
-            useControls: true,
-            fixedControls: 'fit',
-            overlayOptions: {
-                opacity: .75,
-                position: 'bottom center',
-                hideOnMouseOut: true
+            .highslide img {
+                border: 2px solid silver;
             }
-        });
-</script>
 
-<script type="text/javascript">
-    function customer_onChange() {
-        RefreshGrid("gridProductInventory");
-    }
-
-    function warehouseIssue_onChange() {
-
-        var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
-        $.ajax({
-            type: 'post',
-            data: {
-                warehouseId: warehouseIssue
-            },
-            dataType: 'json',
-            url: '@Url.Action("SelectComboBoxWarehouseRotateById", "Warehouse", new { area = "Inv" })',
-            timeout: 20000,
-            success: function (data) {
-                $("#WarehouseReceiptName").data('tDropDownList').dataBind(data);
-                RefreshGrid("gridProductInventory");
-                RefreshGrid("gridProductInventoryDetail");
+            .highslide:hover img {
+                border-color: gray;
             }
-        });
-    }
-    function warehouseReceipt_onChange() {
-        RefreshGrid("gridProductInventory");
-    }
-    function gridProductInventory_onDataBinding(args) {
-        $("input[name='chkAll']")[0].checked = false;
-        var customerId = $("#Customer").data('tComboBox').value();
-        var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
 
-        var productCode = $("#ProductCodeName").data("tAutoComplete").value();
-
-        if (warehouseIssue === "") {
-            warehouseIssue = 0;
-        }
-        if (customerId === "") {
-            customerId = 0;
+        .highslide-active-anchor img {
+            visibility: hidden;
         }
 
-        args.data = $.extend(args.data, {
-            customerId: customerId,
-            warehouseId: warehouseIssue,
-            productCode: productCode
-        });
-
-    }
-
-    function autoComplete_onChange() {
-        RefreshGrid("gridProductInventory");
-    }
-</script>
-
-<script type="text/javascript">
-    function PickupProductId() {
-
-        var $checkedRecords = $("input[name='chkProductIds']:checked")
-        //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
-
-        if ($checkedRecords.length < 1) {
-            alert("Vui lọn chọn ít nhất 1 sản phẩm");
-            return;
+        .highslide-gallery .highslide-active-anchor img {
+            border-color: black;
+            visibility: visible;
+            cursor: default;
         }
 
-        //$.ajaxSettings.traditional = false;
-        var a = {};
-        ids = "";
-        //var $b = (a);
-
-        for (var i = 0; i < $checkedRecords.length; i++) {
-            if ($checkedRecords[i] === "0") continue;
-            a[i] = $checkedRecords[i].value;
-
-            ids += $checkedRecords[i].value;
-            if (i < ($checkedRecords.length - 1))
-                ids += ":";
+        .highslide-image {
+            border-width: 2px;
+            border-style: solid;
+            border-color: white;
         }
-        RefreshGrid("gridProductInventoryDetail");
-        //$("#gridProductInventoryDetail").data("tGrid").rebind({
-        //    productIds: ids,
-        //    warehouseIssue: warehouseIssue,
-        //    warehouseReceipt: warehouseReceipt,
-        //    monthlyDate: monthlyDate
-        //});
-        index = 0;
-    }
-    var ids = "";
-    function grid_OnDataBinding(e) {
-        groupIndex = 1;
-        gridData = [];
-        index = 0;
-        var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
-        if (monthlyDate === null)
-            monthlyDate = "";
-        else
-            monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
-        var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
-        if (warehouseIssue === "")
-            warehouseIssue = 0;
-        var warehouseReceipt = $("#WarehouseReceiptName").data('tDropDownList').value();
-        if (warehouseReceipt === "")
-            warehouseReceipt = 0;
-        e.data = $.extend(e.data, {
-            productIds: ids,
-            warehouseIssue: warehouseIssue,
-            warehouseReceipt: warehouseReceipt,
-            monthlyDate: monthlyDate
-        });
-    }
-</script>
 
-<!-- client event grid material inventory -->
-<script type="text/javascript">
-    var spanReals, i, innerText, sumReal = 0, sumRealKg = 0;
+        .highslide-wrapper, .highslide-outline {
+            background: white;
+        }
 
-    function gridProductInventoryDetail_onSave(e) {
-        //tong realnumber
-        var productQuantity = e.dataItem.Quantity;
-        var isRotateAll = $("input[name='IsRotateAll']");
-        var quantityKg = $(e.cell).find('#QuantityKg').val();
-        var quantity = $(e.cell).find('#Quantity').val();
-        var spanIsRotateAll = e.cell.parentElement.getElementsByClassName("IsRotateAll_" + e.dataItem.ProductInventoryIssueId)[0];
-        var spanQuantity = e.cell.parentElement.getElementsByClassName("Quantity")[0];
-        var spanQuantityKg = e.cell.parentElement.getElementsByClassName("QuantityKg")[0];
-        if (typeof spanIsRotateAll === 'undefined') {
-            if (isRotateAll.attr('checked')) {
-                productQuantity = e.dataItem.AvailableQty;
-                spanQuantity.textContent = productQuantity.format(0);
-                quantityKg = e.dataItem.AvailableQtyKg;
+        .glossy-dark {
+            background: #111;
+        }
+
+        .highslide-image-blur {
+        }
+
+        .highslide-number {
+            display: none;
+            font-weight: bold;
+            color: gray;
+            font-size: .9em;
+        }
+
+        .highslide-caption {
+            display: none;
+            font-size: 1em;
+            padding: 5px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            /*background: white;*/
+        }
+
+        .highslide-heading {
+            display: none;
+            font-weight: bold;
+            margin: 0.4em;
+        }
+
+        .highslide-dimming {
+            /*position: absolute;*/
+            background: black;
+        }
+
+        a.highslide-full-expand {
+            display: block;
+            margin: 0 10px 10px 0;
+            width: 34px;
+            height: 34px;
+        }
+
+        .highslide-loading {
+            display: block;
+            color: black;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 3px;
+            border: 1px solid white;
+            background-color: white;
+            padding-left: 22px;
+            background-repeat: no-repeat;
+            background-position: 3px 1px;
+        }
+
+        a.highslide-credits,
+        a.highslide-credits i {
+            padding: 2px;
+            color: silver;
+            text-decoration: none;
+            font-size: 10px;
+            display: none;
+        }
+
+            a.highslide-credits:hover,
+            a.highslide-credits:hover i {
+                color: white;
+                background-color: gray;
+            }
+
+        .highslide-move, .highslide-move * {
+            cursor: move;
+        }
+
+        .highslide-viewport {
+            display: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: none;
+            left: 0;
+            top: 0;
+        }
+
+        .highslide-overlay {
+            display: none;
+        }
+
+        .hidden-container {
+            display: none;
+        }
+        /* Example of a semitransparent, offset closebutton */
+        .closebutton {
+            position: relative;
+            top: -15px;
+            left: 15px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            /* NOTE! For IE6, you also need to update the highslide-ie6.css file. */
+        }
+
+        .highslide-controls {
+            display: none;
+        }
+    </style>
+
+    <script type="text/javascript">
+        hs.graphicsDir = '';
+        hs.align = 'center';
+        hs.transitions = ['expand', 'crossfade'];
+        hs.outlineType = '';
+        hs.fadeInOut = true;
+        hs.numberPosition = 'caption';
+        hs.dimmingOpacity = 0.75;
+
+        // Add the controlbar
+        if (hs.addSlideshow)
+            hs.addSlideshow({
+                //slideshowGroup: 'group1',
+                interval: 5000,
+                repeat: false,
+                useControls: true,
+                fixedControls: 'fit',
+                overlayOptions: {
+                    opacity: .75,
+                    position: 'bottom center',
+                    hideOnMouseOut: true
+                }
+            });
+    </script>
+
+    <script type="text/javascript">
+        function customer_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+
+        function warehouseIssue_onChange() {
+
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            $.ajax({
+                type: 'post',
+                data: {
+                    warehouseId: warehouseIssue
+                },
+                dataType: 'json',
+                url: '@Url.Action("SelectComboBoxWarehouseRotateById", "Warehouse", new { area = "Inv" })',
+                timeout: 20000,
+                success: function (data) {
+                    $("#WarehouseReceiptName").data('tDropDownList').dataBind(data);
+                    RefreshGrid("gridProductInventory");
+                    RefreshGrid("gridProductInventoryDetail");
+                }
+            });
+        }
+        function warehouseReceipt_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+        function gridProductInventory_onDataBinding(args) {
+            $("input[name='chkAll']")[0].checked = false;
+            var customerId = $("#Customer").data('tComboBox').value();
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+
+            var productCode = $("#ProductCodeName").data("tAutoComplete").value();
+
+            if (warehouseIssue === "") {
+                warehouseIssue = 0;
+            }
+            if (customerId === "") {
+                customerId = 0;
+            }
+
+            args.data = $.extend(args.data, {
+                customerId: customerId,
+                warehouseId: warehouseIssue,
+                productCode: productCode
+            });
+
+        }
+
+        function autoComplete_onChange() {
+            RefreshGrid("gridProductInventory");
+        }
+    </script>
+
+    <script type="text/javascript">
+        function PickupProductId() {
+
+            var $checkedRecords = $("input[name='chkProductIds']:checked")
+            //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+
+            //$.ajaxSettings.traditional = false;
+            var a = {};
+            ids = "";
+            //var $b = (a);
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] === "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+            RefreshGrid("gridProductInventoryDetail");
+            //$("#gridProductInventoryDetail").data("tGrid").rebind({
+            //    productIds: ids,
+            //    warehouseIssue: warehouseIssue,
+            //    warehouseReceipt: warehouseReceipt,
+            //    monthlyDate: monthlyDate
+            //});
+            index = 0;
+        }
+        var ids = "";
+        function grid_OnDataBinding(e) {
+            groupIndex = 1;
+            gridData = [];
+            index = 0;
+            var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+            if (monthlyDate === null)
+                monthlyDate = "";
+            else
+                monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+            if (warehouseIssue === "")
+                warehouseIssue = 0;
+            var warehouseReceipt = $("#WarehouseReceiptName").data('tDropDownList').value();
+            if (warehouseReceipt === "")
+                warehouseReceipt = 0;
+            e.data = $.extend(e.data, {
+                productIds: ids,
+                warehouseIssue: warehouseIssue,
+                warehouseReceipt: warehouseReceipt,
+                monthlyDate: monthlyDate
+            });
+        }
+    </script>
+
+    <!-- client event grid material inventory -->
+    <script type="text/javascript">
+        var spanReals, i, innerText, sumReal = 0, sumRealKg = 0;
+
+        function gridProductInventoryDetail_onSave(e) {
+            //tong realnumber
+            var productQuantity = e.dataItem.Quantity;
+            var isRotateAll = $("input[name='IsRotateAll']");
+            var quantityKg = $(e.cell).find('#QuantityKg').val();
+            var quantity = $(e.cell).find('#Quantity').val();
+            var spanIsRotateAll = e.cell.parentElement.getElementsByClassName("IsRotateAll_" + e.dataItem.ProductInventoryIssueId)[0];
+            var spanQuantity = e.cell.parentElement.getElementsByClassName("Quantity")[0];
+            var spanQuantityKg = e.cell.parentElement.getElementsByClassName("QuantityKg")[0];
+            if (typeof spanIsRotateAll === 'undefined') {
+                if (isRotateAll.attr('checked')) {
+                    productQuantity = e.dataItem.AvailableQty;
+                    spanQuantity.textContent = productQuantity.format(0);
+                    quantityKg = e.dataItem.AvailableQtyKg;
+                    spanQuantityKg.textContent = quantityKg.format(0);
+                } else {
+                    productQuantity = e.dataItem.Quantity;
+                    quantityKg = e.dataItem.QuantityKg;
+                }
+                e.dataItem.Quantity = productQuantity;
+                e.dataItem.QuantityKg = quantityKg;
+            }
+            else if (!isNaN(parseInt(quantityKg))) {
+                if (e.dataItem.ProductWeight === 0 && parseFloat(quantityKg) === 0) {
+                    alert("Lỗi! Sản phẩm chưa có trọng lượng! Không thể nhập khối lượng chuyển");
+                } else {
+                    quantityKg = parseInt(quantityKg);
+                    productQuantity = parseInt(quantityKg / e.dataItem.ProductWeight);
+                    spanQuantity.textContent = productQuantity.format(0);
+                    if (productQuantity === e.dataItem.AvailableQty) {
+                        spanIsRotateAll.checked = true;
+                    } else {
+                        spanIsRotateAll.checked = false;
+                    }
+                    e.dataItem.IsRotateAll = spanIsRotateAll.checked;
+                    e.dataItem.Quantity = productQuantity;
+                }
+            } else if (!isNaN(parseInt(quantity))) {
+                productQuantity = parseInt(quantity);
+                quantityKg = productQuantity * e.dataItem.ProductWeight;
                 spanQuantityKg.textContent = quantityKg.format(0);
-            } else {
-                productQuantity = e.dataItem.Quantity;
-                quantityKg = e.dataItem.QuantityKg;
-            }
-            e.dataItem.Quantity = productQuantity;
-            e.dataItem.QuantityKg = quantityKg;
-        }
-        else if (!isNaN(parseInt(quantityKg))) {
-            if (e.dataItem.ProductWeight === 0 && parseFloat(quantityKg) === 0) {
-                alert("Lỗi! Sản phẩm chưa có trọng lượng! Không thể nhập khối lượng chuyển");
-            } else {
-                quantityKg = parseInt(quantityKg);
-                productQuantity = parseInt(quantityKg / e.dataItem.ProductWeight);
-                spanQuantity.textContent = productQuantity.format(0);
                 if (productQuantity === e.dataItem.AvailableQty) {
                     spanIsRotateAll.checked = true;
                 } else {
                     spanIsRotateAll.checked = false;
                 }
                 e.dataItem.IsRotateAll = spanIsRotateAll.checked;
-                e.dataItem.Quantity = productQuantity;
+                e.dataItem.QuantityKg = quantityKg;
             }
-        } else if (!isNaN(parseInt(quantity))) {
-            productQuantity = parseInt(quantity);
-            quantityKg = productQuantity * e.dataItem.ProductWeight;
-            spanQuantityKg.textContent = quantityKg.format(0);
-            if (productQuantity === e.dataItem.AvailableQty) {
-                spanIsRotateAll.checked = true;
-            } else {
-                spanIsRotateAll.checked = false;
+
+            var productInventoryId = e.dataItem.ProductInventoryId;
+            $.ajax({
+                type: 'post',
+                data: {
+                    productInvId: productInventoryId,
+                    quality: productQuantity
+                },
+                dataType: 'json',
+                url: '@Url.Action("CheckProductInventoryById", "Transaction")',
+                timeout: 20000,
+                success: function (data) {
+                    //alert(data);
+                    if (data[0] === 1) {
+                        //alert("");
+                    } else if (data[0] === 0) {
+                        alert("Số lượng bạn nhập với các giao dịch trước đó có thể đã quá so với sản phẩm tồn kho\n" +
+                            "Kho thiếu " +
+                            ((data[1]) * -1));
+                    }
+                }
+            });
+
+            var entity = gridData.filter(function (dataRow) {
+                return dataRow["id"] === e.dataItem.ProductInventoryId;
+            });
+            if (entity.length > 0) {
+                entity = entity[0];
+                entity.quantity = productQuantity;
+                entity.quantityKg = quantityKg;
             }
-            e.dataItem.IsRotateAll = spanIsRotateAll.checked;
-            e.dataItem.QuantityKg = quantityKg;
+
+            calculateTotalSum();
+            calculateSumGroup(e.dataItem.GroupIndex);
         }
 
-        var productInventoryId = e.dataItem.ProductInventoryId;
-        $.ajax({
-            type: 'post',
-            data: {
-                productInvId: productInventoryId,
-                quality: productQuantity
-            },
-            dataType: 'json',
-            url: '@Url.Action("CheckProductInventoryById", "Transaction")',
-            timeout: 20000,
-            success: function (data) {
-                //alert(data);
-                if (data[0] === 1) {
-                    //alert("");
-                } else if (data[0] === 0) {
-                    alert("Số lượng bạn nhập với các giao dịch trước đó có thể đã quá so với sản phẩm tồn kho\n" +
-                        "Kho thiếu " +
-                        ((data[1]) * -1));
+        function calculateSumGroup(groupIndex) {
+            sumReal = 0, sumRealKg = 0;
+            var data = gridData.filter(function (dataRow) {
+                return dataRow["groupIndex"] === groupIndex && dataRow.quantityKg + dataRow.quantity > 0;
+            });
+            if (data.length <= 0) { }
+            else {
+                for (i = 0; i < data.length; i++) {
+                    sumRealKg = sumRealKg + data[i].quantityKg;
+                    sumReal = sumReal + data[i].quantity;
                 }
             }
-        });
-
-        var entity = gridData.filter(function (dataRow) {
-            return dataRow["id"] === e.dataItem.ProductInventoryId;
-        });
-        if (entity.length > 0) {
-            entity = entity[0];
-            entity.quantity = productQuantity;
-            entity.quantityKg = quantityKg;
+            $("#GroupQuantityKg_" + groupIndex).text(sumRealKg.format(0));
+            $("#GroupQuantity_" + groupIndex).text(sumReal.format(0));
         }
 
-        calculateTotalSum();
-        calculateSumGroup(e.dataItem.GroupIndex);
-    }
+        function calculateTotalSum() {
+            sumReal = 0, sumRealKg = 0;
+            var data = gridData.filter(function (dataRow) {
+                return dataRow.quantityKg + dataRow.quantity > 0;
+            });
+            if (data.length <= 0) { }
+            else {
+                for (i = 0; i < gridData.length; i++) {
+                    sumRealKg = sumRealKg + gridData[i].quantityKg;
+                    sumReal = sumReal + gridData[i].quantity;
+                }
+            }
+            $("#TotalQuantityKg").text(sumRealKg.format(0));
+            $("#TotalQuantity").text(sumReal.format(0));
+        }
 
-    function calculateSumGroup(groupIndex) {
-        sumReal = 0, sumRealKg = 0;
-        var data = gridData.filter(function (dataRow) {
-            return dataRow["groupIndex"] === groupIndex && dataRow.quantityKg + dataRow.quantity > 0;
-        });
-        if (data.length <= 0) { }
-        else {
-            for (i = 0; i < data.length; i++) {
-                sumRealKg = sumRealKg + data[i].quantityKg;
-                sumReal = sumReal + data[i].quantity;
+        var index = 0;
+
+        function gridProductInventoryDetail_onSubmitChanges(e) {
+
+            var flag = InputValidation();
+
+            if (flag === false)
+                e.preventDefault();
+            else {
+
+                var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
+                var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                e.values = $.extend(e.values,
+                    {
+                        warehouseIssueId: warehouseIssueName,
+                        warehouseReceiptId: warehouseReceiptName,
+                        date: monthlyDate
+                    }
+                    );
             }
         }
-        $("#GroupQuantityKg_" + groupIndex).text(sumRealKg.format(0));
-        $("#GroupQuantity_" + groupIndex).text(sumReal.format(0));
-    }
 
-    function calculateTotalSum() {
-        sumReal = 0, sumRealKg = 0;
-        var data = gridData.filter(function (dataRow) {
-            return dataRow.quantityKg + dataRow.quantity > 0;
-        });
-        if (data.length <= 0) { }
-        else {
-            for (i = 0; i < gridData.length; i++) {
-                sumRealKg = sumRealKg + gridData[i].quantityKg;
-                sumReal = sumReal + gridData[i].quantity;
+        function gridProductInv_OnRowDataBound(e) {
+            var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            // to mau
+            if (dataItem.ProductWeight === 0)
+                e.row.childNodes[3].style.backgroundColor = "#F4FA58";
+            if (dataItem.AvailableQty === 0 || dataItem.AvailableQty !== dataItem.TotalQty)
+                e.row.childNodes[7].style.backgroundColor = "#F4FA58";
+
+            // validate
+            var canCheck = true;
+            if (dataItem.AvailableQty > 0 && warehouseReceiptName !== "") {
+                var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
+                if (warehouseIssue === '');
+                if (["8", "16", "21"].includes(warehouseIssue)) {
+                    // special case
+                }
+                else {
+                    if (dataItem.NextWarehouseId === -1) { }
+                    else if (warehouseIssue === "31" && warehouseReceiptName === "32") { }
+                    else {
+                        warehouseReceiptName = "|" + warehouseReceiptName + "|";
+                        //if (dataItem.NextWarehouseIds !== warehouseReceiptName) {
+                        if (dataItem.NextWarehouseIds.indexOf(warehouseReceiptName) === -1) {
+                            //e.row.childNodes[0].innerHTML = "";
+                            canCheck = false;
+                        }
+                    }
+                }
+            } else {
+                //e.row.childNodes[0].innerHTML = "";
+                canCheck = false;
+            }
+            if (!canCheck) {
+                e.row.childNodes[0].innerHTML = "";
+            }
+
+        }
+
+        var groupIndex = 0;
+        var gridData = [];
+        var productCode = "";
+        function gridProduct_OnRowDataBound(e) {
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            if (dataItem.ProductCode !== productCode) {
+                groupIndex++;
+                productCode = dataItem.ProductCode;
+            }
+            gridData.push({
+                id: dataItem.ProductInventoryId,
+                groupIndex: dataItem.GroupIndex,
+                quantity: 0,
+                quantityKg: 0,
+            });
+            if (dataItem.ProductWeight === 0)
+                e.row.childNodes[3].style.backgroundColor = "#F4FA58";
+        }
+
+        function checkAll() {
+            if ($("input[name='chkAll']").attr('checked')) {
+                var checkBoxes = $("input[name='chkProductIds']");
+                for (i = 0; i < checkBoxes.length; i++) {
+                    checkBoxes[i].checked = true;
+                }
             }
         }
-        $("#TotalQuantityKg").text(sumRealKg.format(0));
-        $("#TotalQuantity").text(sumReal.format(0));
-    }
 
-    var index = 0;
+    </script>
 
-    function gridProductInventoryDetail_onSubmitChanges(e) {
-
-        var flag = InputValidation();
-
-        if (flag === false)
-            e.preventDefault();
-        else {
-
+    <!-- input validation -->
+    <script type="text/javascript">
+        function InputValidation() {
+            var strMsgAlert = "";
             var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
             var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
 
-            var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
-            if (monthlyDate === null)
-                monthlyDate = "";
-            else
-                monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
-
-            e.values = $.extend(e.values,
-                {
-                    warehouseIssueId: warehouseIssueName,
-                    warehouseReceiptId: warehouseReceiptName,
-                    date: monthlyDate
-                }
-                );
-        }
-    }
-
-    function gridProductInv_OnRowDataBound(e) {
-        var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
-        var dataItem = e.dataItem; //FA5858 F4FA58
-        // to mau
-        if (dataItem.ProductWeight === 0)
-            e.row.childNodes[3].style.backgroundColor = "#F4FA58";
-        if (dataItem.AvailableQty === 0 || dataItem.AvailableQty !== dataItem.TotalQty)
-            e.row.childNodes[7].style.backgroundColor = "#F4FA58";
-
-        // validate
-        var canCheck = true;
-        if (dataItem.AvailableQty > 0 && warehouseReceiptName !== "") {
-            var warehouseIssue = $("#WarehouseIssueName").data('tDropDownList').value();
-            if (warehouseIssue === '');
-            if (["8", "16", "21"].includes(warehouseIssue)) {
-                // special case
+            if (warehouseIssueName === "") {
+                strMsgAlert += "Vui lòng chọn kho xuất.\t\r\n";
             }
-            else {
-                if (dataItem.NextWarehouseId === -1) { }
-                else if (warehouseIssue === "31" && warehouseReceiptName === "32") { }
-                else {
-                    warehouseReceiptName = "|" + warehouseReceiptName + "|";
-                    //if (dataItem.NextWarehouseIds !== warehouseReceiptName) {
-                    if (dataItem.NextWarehouseIds.indexOf(warehouseReceiptName) === -1) {
-                        //e.row.childNodes[0].innerHTML = "";
-                        canCheck = false;
-                    }
-                }
+            if (warehouseReceiptName === "") {
+                strMsgAlert += "Vui lòng chọn kho nhập.\t\r\n";
             }
-        } else {
-            //e.row.childNodes[0].innerHTML = "";
-            canCheck = false;
-        }
-        if (!canCheck) {
-            e.row.childNodes[0].innerHTML = "";
-        }
-
-    }
-
-    var groupIndex = 0;
-    var gridData = [];
-    var productCode = "";
-    function gridProduct_OnRowDataBound(e) {
-        var dataItem = e.dataItem; //FA5858 F4FA58
-        if (dataItem.ProductCode !== productCode) {
-            groupIndex++;
-            productCode = dataItem.ProductCode;
-        }
-        gridData.push({
-            id: dataItem.ProductInventoryId,
-            groupIndex: dataItem.GroupIndex,
-            quantity: 0,
-            quantityKg: 0,
-        });
-        if (dataItem.ProductWeight === 0)
-            e.row.childNodes[3].style.backgroundColor = "#F4FA58";
-    }
-
-    function checkAll() {
-        if ($("input[name='chkAll']").attr('checked')) {
-            var checkBoxes = $("input[name='chkProductIds']");
-            for (i = 0; i < checkBoxes.length; i++) {
-                checkBoxes[i].checked = true;
+            if (warehouseIssueName === warehouseReceiptName) {
+                strMsgAlert += "Không thể cùng kho xuất nhập.\t\r\n";
             }
+
+            if (strMsgAlert === "")
+                return true;
+
+            alert(strMsgAlert);
+            return false;
         }
-    }
+    </script>
 
-</script>
-
-<!-- input validation -->
-<script type="text/javascript">
-    function InputValidation() {
-        var strMsgAlert = "";
-        var warehouseIssueName = $('#WarehouseIssueName').data('tDropDownList').value();
-        var warehouseReceiptName = $('#WarehouseReceiptName').data('tDropDownList').value();
-
-        if (warehouseIssueName === "") {
-            strMsgAlert += "Vui lòng chọn kho xuất.\t\r\n";
-        }
-        if (warehouseReceiptName === "") {
-            strMsgAlert += "Vui lòng chọn kho nhập.\t\r\n";
-        }
-        if (warehouseIssueName === warehouseReceiptName) {
-            strMsgAlert += "Không thể cùng kho xuất nhập.\t\r\n";
-        }
-
-        if (strMsgAlert === "")
-            return true;
-
-        alert(strMsgAlert);
-        return false;
-    }
-</script>
 <div class="title">Luân chuyển kho</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">

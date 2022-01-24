@@ -40,6 +40,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool UseForecast { get; set; }
         public int EmployeeId { get; set; }
         public Nullable<bool> IsMonitor { get; set; }
+        public bool IsNotRequireApproveOrder { get; set; }
         public int ClassifiedId { get; set; }
         public System.DateTime StartDate { get; set; }
         public int State { get; set; }

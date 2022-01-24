@@ -338,21 +338,7 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.ImportReturn).Title("Nhập trả").Width(70)
-                               .Aggregate(agg => agg.Sum())
-                               .Format("{0:n0}")
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.ImportMore).Title("Nhập thêm").Width(70)
-                               .Aggregate(agg => agg.Sum())
-                               .Format("{0:n0}")
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.ImportInternal).Title("Nhập NB").Width(70)
+                        columns.Bound(f => f.ImportPurchase).Title("Nhập mua").Width(70)
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -367,6 +353,35 @@
                                .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" });
 
+                        columns.Bound(f => f.ImportMore).Title("Nhập thêm").Width(70)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ImportInternal).Title("Nhập NB").Width(70)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ImportReturn).Title("Nhập trả").Width(70)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TotalImportPrice).Title("Tổng </br>GT nhập").Width(100)
+                               .Aggregate(agg => agg.Sum())
+                               .Format("{0:n0}")
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" })
+                               .FooterHtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" });
+
                         columns.Bound(f => f.ExportQuantity).Title("Xuất bán").Width(70)
                                .Aggregate(agg => agg.Sum())
                               .Format("{0:n0}")
@@ -374,6 +389,15 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ExportPrice).Title("Giá trị xuất").Width(100)
+                               .Format("{0:n0}")
+                            .Aggregate(agg => agg.Sum())
+                            //.Format("{0:n0}")
+                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" })
+                            .FooterHtmlAttributes(new { style = "text-align: right;border-right:1px solid black;font-weight:bold;" });
+                        
                         columns.Bound(f => f.ExportDefect).Title("Xuất PP").Width(70)
                                .Aggregate(agg => agg.Sum())
                               .Format("{0:n0}")
@@ -395,7 +419,7 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.ExportPrice).Title("Giá trị xuất").Width(100)
+                        columns.Bound(f => f.TotalExportPrice).Title("Tổng </br>GT xuất").Width(100)
                                .Format("{0:n0}")
                             .Aggregate(agg => agg.Sum())
                             //.Format("{0:n0}")

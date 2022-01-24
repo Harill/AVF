@@ -105,6 +105,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static int ApproveInternalTool = 288;
 
             public static bool CheckRole(string userName, int type) {
+                if (string.IsNullOrWhiteSpace(userName)) return false;
                 var check = false;
                 using (var vfi = new vfiContext()) {
                     var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(userName));
@@ -136,6 +137,54 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
         }
 
         public static class Function {
+
+            private static char SplitChar = ';';
+
+            public static string IdsToString(List<int> ids) {
+                var str = "";
+                if (!ids.Any()) return str;
+                foreach (var id in ids) {
+                    str += (id + SplitChar.ToString());
+                }
+                str.Remove(str.Length - 2);
+                return str;
+            }
+
+            public static List<int> StringToIds(string ids) {
+                var list = new List<int>();
+                if (string.IsNullOrWhiteSpace(ids)) return list;
+                var strIds = ids.Split(SplitChar);
+                try {
+                    foreach (var strId in strIds) {
+                        list.Add(Convert.ToInt32(strId));
+                    }
+                }
+                catch (Exception ex) { }
+                return list;
+            }
+
+            public static string IdsToString(List<int> ids, Char splitChar) {
+                var str = "";
+                if (!ids.Any()) return str;
+                foreach (var id in ids) {
+                    str += (id + splitChar.ToString());
+                }
+                str.Remove(str.Length - 2);
+                return str;
+            }
+
+            public static List<int> StringToIds(string ids, Char splitChar) {
+                var list = new List<int>();
+                if (string.IsNullOrWhiteSpace(ids)) return list;
+                var strIds = ids.Split(splitChar);
+                try {
+                    foreach (var strId in strIds) {
+                        list.Add(Convert.ToInt32(strId));
+                    }
+                }
+                catch (Exception ex) { }
+                return list;
+            }
 
             public static void SaveLog(string path, string actionName, string msg) {
 
@@ -319,6 +368,11 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 NotFound = 9,
             }
 
+            public enum Color {
+                None = 0,
+                Red = 1,
+            }
+
             public static string ErrorMessage(int code) {
                 switch (code) {
                     case (int)ErrorCode.NotImplement:
@@ -422,10 +476,13 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                 FactoryFullDayTiming = "FactoryFullDayTiming",
                                 FactoryShiftTiming = "FactoryShiftTiming",
                                 FactoryFullShiftTiming = "FactoryFullShiftTiming",
-                                DayTiming = "DayTiming";
+                                DayTiming = "DayTiming",
+                                BaseInventoryPriceRate = "BaseInventoryPriceRate",
+                                BaseProductionPriceRate = "BaseProductionPriceRate",
+                                ExchangeToVndRate = "ExchangeToVndRate";
 
-            public static int GetParameterValue(string param) {
-                var value = 0;
+            public static double GetParameterValue(string param) {
+                var value = 0.0;
                 using (var vfi = new vfiContext()) {
                     var paramValue = vfi.Parameters.FirstOrDefault(p => p.ParamCode.Equals(param));
                     if (paramValue == null) {
@@ -439,7 +496,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         vfi.Parameters.Add(paramValue);
                         vfi.SaveChanges();
                     }
-                    value = Convert.ToInt32(paramValue.Value);
+                    value = Convert.ToDouble(paramValue.Value);
                 }
                 return value;
             }
@@ -1505,11 +1562,11 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
         public static class Product {
             // 2019-07-09 65 -> 70 : cho bao cao thang 5
-            public static double BaseProductPrice = 0.70;
-            public static double BaseProductionPrice = 0.60;
+            //public static double BaseProductPrice = 0.70;
+            //public static double BaseProductionPrice = 0.60;
             public static double PointValue = 25000;
             public static int ProductionDecimalPoint = 1;
-            public static double ExchangeRateDesign = 22500;
+            //public static double ExchangeRateDesign = 22500;
             public static double MinVndPrice = 50;
             public static int StartShift1_HOUR = 7;
             public static int StartShift2_HOUR = 19;
@@ -1621,50 +1678,43 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return "VND"; // default return
             }
 
-            public static int ParseVndPrice(double? productPrice) {
+            //public static int ParseVndPrice(double? productPrice) {
+            //    var price = productPrice ?? 0;
+
+            //    if (price <= MinVndPrice) {
+            //        price = price * ExchangeRateDesign;
+            //    }
+            //    else {
+            //        price = Math.Round(price, 4);
+            //        var temp = Convert.ToInt32(price);
+            //        if (price - temp != 0)
+            //            price = price * ExchangeRateDesign;
+            //    }
+            //    return Function.RoundUp(price);
+            //}
+
+            public static int ProductVndPrice(double? productPrice, double priceRate, double exchangeRate) {
                 var price = productPrice ?? 0;
 
                 if (price <= MinVndPrice) {
-                    price = price * ExchangeRateDesign;
+                    price = price * exchangeRate * priceRate;
                 }
                 else {
                     price = Math.Round(price, 4);
                     var temp = Convert.ToInt32(price);
                     if (price - temp != 0)
-                        price = price * ExchangeRateDesign;
+                        price = price * exchangeRate;
+                    price = price * priceRate;
                 }
                 return Function.RoundUp(price);
             }
-            public static int ProductPrice(double? productPrice) {
-                var price = productPrice ?? 0;
 
-                if (price <= MinVndPrice) {
-                    price = price * ExchangeRateDesign * BaseProductPrice;
-                }
-                else {
-                    price = Math.Round(price, 4);
-                    var temp = Convert.ToInt32(price);
-                    if (price - temp != 0)
-                        price = price * ExchangeRateDesign;
-                    price = price * BaseProductPrice;
-                }
-                return Function.RoundUp(price);
-            }
-            public static int ProductionPrice(double? productPrice) {
-                var price = productPrice ?? 0;
-
-                if (price <= MinVndPrice) {
-                    price = price * ExchangeRateDesign * BaseProductionPrice;
-                }
-                else {
-                    price = Math.Round(price, 4);
-                    var temp = Convert.ToInt32(price);
-                    if (price - temp != 0)
-                        price = price * ExchangeRateDesign;
-                    price = price * BaseProductionPrice;
-                }
-                return Function.RoundUp(price);
-            }
+            //public static int ProductPrice(double? productPrice) {
+            //    return ProductVndPrice(productPrice, BaseProductPrice, ExchangeRateDesign);
+            //}
+            //public static int ProductionPrice(double? productPrice) {
+            //    return ProductVndPrice(productPrice, BaseProductionPrice, ExchangeRateDesign);
+            //}
 
             public static bool CheckDesign(int productId) {
                 //var chk = false;
@@ -1800,7 +1850,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                             id => id.LotNumber.Contains(lot) && id.ProductId == productId);
                     lot = lot.Trim();
                     if (productInv == null) {
-                        return lot += "1";
+                        return lot += "01";
                     }
                     // san pham co lo san xuat trong tuan cung nguyen lieu
                     productInv =
@@ -1815,7 +1865,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         vfi.ProductInventories.Where(id => id.LotNumber.Contains(lot) && id.ProductId == productId)
                             .Select(id => id.LotNumber)
                             .Distinct().Count();
-                    return lot += (productInvs + 1);
+                    return lot += String.Format("{0:00}", productInvs + 1);
                 }
             }
 

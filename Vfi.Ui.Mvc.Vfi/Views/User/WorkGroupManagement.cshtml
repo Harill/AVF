@@ -1,0 +1,41 @@
+﻿@using Vfi.Server.Core.DataModel.Models.System
+@{
+    ViewBag.Title = "Work Group Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Nhóm hệ thống</div>
+
+<div class="cover-div">
+    @{
+    Html.Telerik().Grid<WorkGroupModel>()
+        .Name("grid")
+        //.ToolBar(
+        //    toolbar =>
+        //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText)
+        //        .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataKeys(keys => keys.Add(f => f.WorkGroupId).RouteKey("workGroupId"))
+        .DataKeys(keys => keys.Add(f => f.WorkGroupCode).RouteKey("workGroupCode"))
+        .DataBinding(dataBinding=>dataBinding.Ajax()
+            .Select("SelectWorkGroup", "User")
+            //.Insert("InsertWorkGroup", "User")
+            .Update("UpdateWorkGroup", "User")
+        )
+        .Columns(columns=> 
+        {
+            columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(50);
+            columns.Bound(f => f.WorkGroupCode).Width(100).ReadOnly(true);
+            columns.Bound(f => f.WorkGroupName).Width(100);
+            columns.Bound(f => f.Description);
+            columns.Bound(f => f.Active).Width(50)
+                .HeaderTemplate("Kích</br>hoạt")
+                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày chỉnh").ReadOnly(true)
+                .Format("{0:dd/MM/yyyy HH:mm}");
+        })
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        .Render();
+    }
+</div>
+

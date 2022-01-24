@@ -97,8 +97,12 @@
         function grid_OnRowDataBound(e) {
             var dataItem = e.dataItem; //FA5858 F4FA58
             // to mau
-            if (dataItem.AvailInv !== dataItem.TotalInv)
+            if (dataItem.AvailInv !== dataItem.TotalInv) {
                 e.row.childNodes[7].style.backgroundColor = "#F4FA58";
+            }
+            else if (dataItem.TotalInv == 0) {
+                e.row.childNodes[6].style.backgroundColor = "#F4FA58";
+            }
         }
     </script>
 }
@@ -188,42 +192,42 @@
                 columns.Bound(f => f.FptTypeName).Width(100).Title("Loại").ReadOnly(true);
                 columns.Bound(f => f.ToolFullCodeName).Width(200).Title("Công cụ").ReadOnly(true);
                 columns.Bound(f => f.UnitMeasure).Width(50).Title("ĐVT").ReadOnly(true);
-                columns.Bound(f => f.LotNumber).Width(50).ReadOnly(true).Title("Lô");
+                columns.Bound(f => f.LotNumber).Width(60).ReadOnly(true).Title("Lô");
                 columns.Bound(f => f.TaxInvoiceDateString).Width(70).ReadOnly(true).Title("Ngày nhập")
                     .HtmlAttributes(new { style = "border-right: solid 1px black;" });
-                columns.Bound(f => f.TotalInv).Width(50).ReadOnly(true)
+                columns.Bound(f => f.TotalInv).Width(70).ReadOnly(true)
                     .HeaderTemplate("Tồn kho")
                     .Format("{0:n1}")
                     .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.AvailInv).Width(50).ReadOnly(true)
+                columns.Bound(f => f.AvailInv).Width(70).ReadOnly(true)
                     .HeaderTemplate("Còn tồn")
                     .Format("{0:n1}")
                     .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.Quantity).Width(60)
+                columns.Bound(f => f.Quantity).Width(70)
                     .HeaderTemplate("SL Phát")
                     .HeaderHtmlAttributes(new { @class = "edit-column" })
                     .HtmlAttributes(new { style = "text-align:right;border-right: solid 1px black;" })
                        .ClientTemplate("<span name='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n1}', Quantity) #></span>")
                        .FooterTemplate("<span id='TotalQuantity'></span>");
 
-                columns.Bound(f => f.MachineInv).Width(50).ReadOnly(true)
-                    .HeaderTemplate("Tồn máy")
-                    .Format("{0:n1}")
-                    .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.MachineUse).Width(60)
-                    .HeaderTemplate("Sử dụng")
-                    .HeaderHtmlAttributes(new { @class = "edit-column" })
-                    .HtmlAttributes(new { style = "text-align:right;" })
-                       .ClientTemplate("<span name='MachineUse'><#= MachineUse == null ? 0 : $.telerik.formatString('{0:n1}', MachineUse) #></span>")
-                       .FooterTemplate("<span id='TotalUse'></span>");
-                columns.Bound(f => f.MachineReturn).Width(60)
-                    .HeaderTemplate("Trả về")
-                    .HeaderHtmlAttributes(new { @class = "edit-column" })
-                    .HtmlAttributes(new { style = "text-align:right;" })
-                       .ClientTemplate("<span name='MachineReturn'><#= MachineReturn == null ? 0 : $.telerik.formatString('{0:n1}', MachineReturn) #></span>")
-                       .FooterTemplate("<span id='TotalReturn'></span>");
+                //columns.Bound(f => f.MachineInv).Width(50).ReadOnly(true)
+                //    .HeaderTemplate("Tồn máy")
+                //    .Format("{0:n1}")
+                //    .HtmlAttributes(new { style = "text-align:right" });
+                //columns.Bound(f => f.MachineUse).Width(60)
+                //    .HeaderTemplate("Sử dụng")
+                //    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                //    .HtmlAttributes(new { style = "text-align:right;" })
+                //       .ClientTemplate("<span name='MachineUse'><#= MachineUse == null ? 0 : $.telerik.formatString('{0:n1}', MachineUse) #></span>")
+                //       .FooterTemplate("<span id='TotalUse'></span>");
+                //columns.Bound(f => f.MachineReturn).Width(60)
+                //    .HeaderTemplate("Trả về")
+                //    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                //    .HtmlAttributes(new { style = "text-align:right;" })
+                //       .ClientTemplate("<span name='MachineReturn'><#= MachineReturn == null ? 0 : $.telerik.formatString('{0:n1}', MachineReturn) #></span>")
+                //       .FooterTemplate("<span id='TotalReturn'></span>");
                 columns.Bound(f => f.Note);
-                columns.Bound(f => f.StatusName).Title("").ReadOnly(true);
+                columns.Bound(f => f.StatusName).Width(360).Title("Ghi chú công cụ").ReadOnly(true);
                 //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(40).Title("");
             })
             .ClientEvents(events => events

@@ -47,6 +47,9 @@
                 columns.Bound(f => f.IsProduction).Width(45).Title("Công đoạn</br>SX1")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction' <#=IsProduction? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.IsCncMilling).Width(45).Title("Công đoạn</br>Phay CNC")
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsCncMilling' <#=IsCncMilling? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.IsProduction2).Width(45).Title("Công đoạn</br>SX2")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2' <#=IsProduction2? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });

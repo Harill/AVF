@@ -16,5 +16,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         [DisplayName(@"Tình trạng")]
         [UIHint("_StateEditTemplate")]
         public string StateName { get; set; }
+
+        public bool IsNotRequireApproveOrder { get; set; }
     }
 }

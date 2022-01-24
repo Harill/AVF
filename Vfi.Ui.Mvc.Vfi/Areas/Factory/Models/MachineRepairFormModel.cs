@@ -31,10 +31,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public int FormId { get; set; }
         public int MachineId { get; set; }
 
-        [UIHint("_MachineEditTemplate")]
+        [UIHint("_MachineProductionEditTemplate")]
         public string MachineName { get; set; }
 
-        [UIHint("_Machine2EditTemplate")]
+        [UIHint("_MachineProduction2EditTemplate")]
         public string MachineName2 { get; set; }
 
         public int ProductId { get; set; }
@@ -224,13 +224,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 
         public double ProductPrice { get; set; }
 
-        public double DiffPoint
-        {
-            get
-            {
+        public double DiffPoint {
+            get {
                 if (Details.Any())
                     return Details.Sum(d => d.DiffPoint);
-                return Math.Round((ProductPrice * MyUtilities.Product.BaseProductionPrice * DiffProductQuantity) / 1000000, 3);
+                return
+                    Math.Round(
+                    (ProductPrice * MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate)
+                    * DiffProductQuantity)
+                    / 1000000
+                    , 3);
             }
         }
 

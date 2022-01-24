@@ -623,7 +623,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("SelectComboBoxMaterialByVendorId", ex.Message);
+                ModelState.AddModelError("SelectComboBoxSectionByProductId", ex.Message);
             }
             return new JsonResult {
                 Data = new SelectList(model, "SectionId", "SectionName"),

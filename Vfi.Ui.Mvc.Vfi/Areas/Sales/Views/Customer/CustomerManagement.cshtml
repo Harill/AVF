@@ -145,6 +145,9 @@
                     //columns.Bound(f => f.UseForecast).Width(75)
                     //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='UseForecast' <#=UseForecast? checked='checked' : '' #> />")
                     //       .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.IsNotRequireApproveOrder).Width(75).Title("Duyệt ĐH?")
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsNotRequireApproveOrder' <#=IsNotRequireApproveOrder? checked='checked' : '' #> />")
+                           .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.IsMonitor).Width(75)
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMonitor' <#=IsMonitor? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });

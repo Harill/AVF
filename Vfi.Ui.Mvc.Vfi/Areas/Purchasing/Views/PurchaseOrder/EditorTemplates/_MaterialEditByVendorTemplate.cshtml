@@ -13,7 +13,7 @@
     Html.Telerik().ComboBox()
         .Name(ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty))
         .DataBinding(binding => binding.Ajax()
-                                       .Select("SelectComboBoxMaterialByVendorId", "PurchaseOrder", new {area = "Purchasing", classified = 0})
+                                       .Select("SelectComboBoxMaterialByTypeId", "PurchaseOrder", new {area = "Purchasing", classified = 0, typeId = 0})
                                        .Delay(350))
         .HtmlAttributes(new {style = "width: 150px"})
         .DropDownHtmlAttributes(new {style = "width: 250px"})

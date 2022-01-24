@@ -572,3 +572,4 @@ C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.csproj.Gener
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMachineProductionOnTest.resources
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptProductTotalAVF.resources

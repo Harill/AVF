@@ -4,8 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 {
-    public class OrderModel
-    {
+    public class OrderModel {
         public long OrderId { get; set; }
 
         public int CustomerId { get; set; }
@@ -43,7 +42,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         public string OrderNumber { get; set; }
         [DisplayName("Mã lệnh mua")]
         public string PoNumber { get; set; }
-        
+
         [DisplayName("Số lô")]
         public string LotNumber { get; set; }
         [DisplayName("Số mẫu")]
@@ -78,7 +77,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         public string Area { get; set; }
 
         public int DetailStatus { get; set; }
-        public bool SalesManager{get;set;}
-
+        public bool SalesManager { get; set; }
+        public bool CanApprove { get; set; }
     }
 }

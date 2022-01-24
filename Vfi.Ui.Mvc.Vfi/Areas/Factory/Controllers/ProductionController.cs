@@ -24,11 +24,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 using (var vfi = new tammaContext()) {
                     var machine = vfi.Machines.FirstOrDefault(x => x.MachineId == machineId);
                     var product = vfi.Products.FirstOrDefault(x => x.ProductId == productId);
+                    var testingNotes = vfi.ProductionTestingNotes.Where(x => x.Active && x.WarehouseId == MyUtilities.Warehouse.Production1 && x.ProductId == productId)
+                                                                .OrderBy(x=> x.Idx)
+                                                                .Select(x=> x.Note)
+                                                                .ToList();
                     entity = new MachineDiagram {
                         MachineId = machineId,
                         MachineName = machine != null ? machine.MachineName : "Không tìm thấy máy " + machineId,
                         ProductId = productId,
                         ProductCode = product != null ? product.ProductCode : "Không tìm thấy sản phẩm " + productId,
+                        Notes = testingNotes
                     };
                 }
             }
@@ -909,6 +914,95 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
 
         [GridAction]
+        public ActionResult SelectProductionTestingNote(int productId, int warehouseId) {
+            var model = new List<ProductionTestingNoteModel>();
+            try {
+                model = GetProductionTestingNotesById(productId, warehouseId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingNote", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionTestingNoteModel> GetProductionTestingNotesById(int productId, int warehouseId) {
+            var model = new List<ProductionTestingNoteModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.ProductionTestingNotes
+                         where x.WarehouseId == warehouseId && x.ProductId == productId
+                         select new ProductionTestingNoteModel {
+                             WarehouseId = warehouseId,
+                             WarehouseName = x.Warehouse.WarehouseName,
+                             ProductId = productId,
+                             ProductCode = x.Product.ProductCode,
+                             NoteId = x.NoteId,
+                             Idx = x.Idx,
+                             Active = x.Active,
+                             ModifiedDate = x.ModifiedDate,
+                             ModifiedUser = x.ModifiedUser,
+                             Note = x.Note,
+                         }).ToList();
+            }
+
+            return model.OrderByDescending(x => x.Active).ThenBy(m => m.Idx).ToList();
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductionTestingNote(ProductionTestingNoteModel insert, int productId, int warehouseId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = new ProductionTestingNote {
+                        Idx = insert.Idx,
+                        Active = true,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        WarehouseId = warehouseId,
+                        ProductId = productId,
+                        Note = insert.Note,
+                    };
+                    vfi.ProductionTestingNotes.Add(entity);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductionTestingNote", ex.Message);
+            }
+            return View(new GridModel(GetProductionTestingNotesById(productId, warehouseId)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionTestingNote(ProductionTestingNoteModel update, int productId, int warehouseId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = vfi.ProductionTestingNotes.FirstOrDefault(x => x.NoteId == update.NoteId);
+                    entity.Active = update.Active;
+                    entity.ModifiedDate = DateTime.Now;
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    entity.Note = update.Note;
+                    entity.Idx = update.Idx;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionTestingNote", ex.Message);
+            }
+
+            return View(new GridModel(GetProductionTestingNotesById(productId, warehouseId)));
+        }
+
+        [GridAction]
         public ActionResult SelectProductionTestingDetail(int customerId, string productCode, int productId, int warehouseId) {
             var model = new List<ProductionTestingDetailModel>();
             try {
@@ -920,37 +1014,39 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(model));
         }
 
-        List<ProductionTestingDetailModel> GetProductionTestingDetailsById(int customerId, string productCode, 
-            int productId, int warehouseId) {
+        List<ProductionTestingDetailModel> GetProductionTestingDetailsById(int customerId, string productCode, int productId, int warehouseId) {
             var model = new List<ProductionTestingDetailModel>();
             using (var vfi = new tammaContext()) {
                 var testingDetails = (from x in vfi.ProductionTestingDetails
-                                     where (customerId == 0 || x.ProductionTesting.Product.CustomerId == customerId) &&
-                                     (warehouseId == 0 || x.ProductionTesting.WarehouseId == warehouseId) &&
-                                     (productId == 0 || x.ProductionTesting.ProductId == productId)
-                                     select new {
-                                         x.Active,
-                                         x.ModifiedUser,
-                                         x.ModifiedDate,
+                                      where (customerId == 0 || x.ProductionTesting.Product.CustomerId == customerId) &&
+                                      (warehouseId == 0 || x.ProductionTesting.WarehouseId == warehouseId) &&
+                                      (productId == 0 || x.ProductionTesting.ProductId == productId)
+                                      select new {
+                                          x.Active,
+                                          x.ModifiedUser,
+                                          x.ModifiedDate,
 
-                                         x.DetailId,
-                                         x.TestingCode,
-                                         x.TestingName,
-                                         x.Idx,
-                                         x.ProductionTestingId,
+                                          x.DetailId,
+                                          x.TestingCode,
+                                          x.TestingName,
+                                          x.Idx,
+                                          x.ProductionTestingId,
+                                          x.MinNumber,
+                                          x.MaxNumber,
+                                          x.TestRate,
 
-                                         x.ProductionTesting.ProductId,
-                                         x.ProductionTesting.Product.ProductCode,
-                                         x.ProductionTesting.WarehouseId,
-                                         x.ProductionTesting.Warehouse.WarehouseName,
-                                         x.ProductionTesting.Product.CustomerId,
-                                         x.ProductionTesting.Product.Customer.CustomerCode,
-                                         x.MachineTypeId,
-                                         MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
-                                     }).ToList();
+                                          x.ProductionTesting.ProductId,
+                                          x.ProductionTesting.Product.ProductCode,
+                                          x.ProductionTesting.WarehouseId,
+                                          x.ProductionTesting.Warehouse.WarehouseName,
+                                          x.ProductionTesting.Product.CustomerId,
+                                          x.ProductionTesting.Product.Customer.CustomerCode,
+                                      }).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) {
                     testingDetails = testingDetails.Where(x => x.ProductCode.Contains(productCode)).ToList();
                 }
+                var testingDetailIds = testingDetails.Select(x => x.DetailId).ToList();
+                var testingMachines = vfi.ProductionTestingMachines.Where(x => x.Active && testingDetailIds.Contains(x.TestingDetailId)).ToList();
                 foreach (var detail in testingDetails) {
                     var entity = new ProductionTestingDetailModel {
                         DetailId = detail.DetailId,
@@ -958,25 +1054,29 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         TestingName = detail.TestingName,
                         Idx = detail.Idx,
                         ProductionTestingId = detail.ProductionTestingId,
-
+                        MinNumber = detail.MinNumber,
+                        MaxNumber = detail.MaxNumber,
+                        TestRate = detail.TestRate,
                         ProductId = detail.ProductId,
                         ProductCode = detail.ProductCode,
                         CustomerId = detail.CustomerId,
                         CustomerCode = detail.CustomerCode,
                         WarehouseId = detail.WarehouseId,
                         WarehouseName = detail.WarehouseName,
-                        MachineTypeId = detail.MachineTypeId ?? 0,
-                        MachineTypeName = detail.MachineTypeName,
 
                         ModifiedUser = detail.ModifiedUser,
                         ModifiedDate = detail.ModifiedDate,
                         Active = detail.Active,
                     };
+                    var testingMachinesById = testingMachines.Where(x => x.TestingDetailId == detail.DetailId).ToList();
+                    foreach (var testingMachine in testingMachinesById) {
+                        entity.TypeIds.Add(testingMachine.MachineTypeId);
+                        entity.MachineTypeName += testingMachine.ProcessingType.TypeName + "/ ";
+                    }
                     model.Add(entity);
                 }
             }
-            return model.OrderBy(m => m.Idx).ToList();
-
+            return model.OrderBy(m => m.Idx).ThenBy(x => x.TestingCode).ThenBy(x => x.TestingName).ToList();
         }
 
         [HttpPost]
@@ -989,9 +1089,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             }
             try {
                 using (var vfi = new tammaContext()) {
-                    var machineTypeId = 0;
-                    try { machineTypeId = Convert.ToInt32(insert.MachineTypeName); }
-                    catch (FormatException) { }
                     if (insert.ProductionTestingId == 0) {
                         var productionTesting = new ProductionTesting {
                             ProductId = productId,
@@ -1012,9 +1109,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         TestingName = insert.TestingName,
                         ModifiedDate = DateTime.Now,
                         ModifiedUser = HttpContext.User.Identity.Name,
+                        MinNumber = insert.MinNumber,
+                        MaxNumber = insert.MaxNumber,
+                        TestRate = insert.TestRate,
                         Active = true,
                     };
-                    if (machineTypeId > 0) { detail.MachineTypeId = machineTypeId; }
                     vfi.ProductionTestingDetails.Add(detail);
                     vfi.SaveChanges();
                 }
@@ -1045,11 +1144,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     detail.Idx = update.Idx;
                     detail.TestingCode = update.TestingCode;
                     detail.TestingName = update.TestingName;
-                    
-                    var machineTypeId = 0;
-                    try { machineTypeId = Convert.ToInt32(update.MachineTypeName); }
-                    catch (FormatException) { }
-                    if (machineTypeId > 0) { detail.MachineTypeId = machineTypeId; }
+                    detail.MinNumber = update.MinNumber;
+                    detail.MaxNumber = update.MaxNumber;
+                    detail.TestRate = update.TestRate;
                     vfi.SaveChanges();
                 }
             }
@@ -1063,23 +1160,129 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         public List<RealTestingModel> GetActiveTestingDetails(int productId, int warehouseId) {
             var model = new List<RealTestingModel>();
             using (var vfi = new tammaContext()) {
-                model = (from x in vfi.ProductionTestingDetails
-                         where x.Active &&
-                         x.ProductionTesting.ProductId == productId &&
-                         x.ProductionTesting.WarehouseId == warehouseId
-                         orderby x.Idx, x.TestingName
+                var list = GetProductionTestingDetailsById(0, "", productId, warehouseId);
+                model = (from x in list
+                         where x.Active
                          select new RealTestingModel {
                              ReferenceTestingDetailId = x.DetailId,
                              Idx = x.Idx,
                              TestCode = x.TestingCode,
                              TestName = x.TestingName,
-                             MachineTypeId = x.MachineTypeId,
-                             MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
-                             TestNumber = 0
+                             TestNumber = 0,
+                             MinNumber = x.MinNumber,
+                             MaxNumber = x.MaxNumber,
+                             TestRate = x.TestRate,
+                             MachineName = "",
+                             MachineId = 0,
+                             TypeIds = x.TypeIds,
+                             MachineTypeName = x.MachineTypeName,
+                             TypeIdsStr = MyUtilities.Function.IdsToString(x.TypeIds)
                          }).ToList();
             }
             return model;
         }
+
+
+
+        [GridAction]
+        public ActionResult SelectProductionTestingMachine(int testingDetailId) {
+            var model = new List<ProductionTestingMachineModel>();
+            try {
+                model = GetProductionTestingMachinesById(testingDetailId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingMachine", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionTestingMachineModel> GetProductionTestingMachinesById(int testingDetailId) {
+            var model = new List<ProductionTestingMachineModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.ProductionTestingMachines
+                        where x.TestingDetailId == testingDetailId
+                        select new ProductionTestingMachineModel {
+                            TestingToolId = x.TestingToolId,
+                            TestingDetailId = testingDetailId,
+                            Idx = x.Idx,
+                            Active = x.Active,
+                            ModifiedDate = x.ModifiedDate,
+                            ModifiedUser = x.ModifiedUser,
+                            MachineTypeId = x.MachineTypeId,
+                            MachineTypeName = x.ProcessingType.TypeName,
+                        }).ToList();
+            }
+
+            return model.OrderByDescending(x => x.Active).ThenBy(m => m.Idx).ToList();
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductionTestingMachine(ProductionTestingMachineModel insert, int testingDetailId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var machineTypeId = 0;
+                    try { machineTypeId = Convert.ToInt32(insert.MachineTypeName); }
+                    catch (FormatException ex) { }
+                    if (machineTypeId == 0) {
+                        throw new AggregateException("Lỗi! Không tìm thấy dụng cụ");
+                    }
+                    var entity = new ProductionTestingMachine { 
+                        Idx = insert.Idx,
+                        Active = true,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        ModifiedDate = DateTime.Now,
+                        TestingDetailId = testingDetailId,
+                        MachineTypeId = machineTypeId,
+                    };
+                    vfi.ProductionTestingMachines.Add(entity);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductionTestingMachine", ex.Message);
+            }
+            return View(new GridModel(GetProductionTestingMachinesById(testingDetailId)));
+        }
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionTestingMachine(ProductionTestingMachineModel update, int testingDetailId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = vfi.ProductionTestingMachines.FirstOrDefault(x => x.TestingToolId == update.TestingToolId);
+                    if (entity == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy dụng cụ đo");
+                    }
+                    entity.Idx = update.Idx;
+                    entity.Active = update.Active;
+                    entity.ModifiedDate = DateTime.Now;
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    var machineTypeId = 0;
+                    try { machineTypeId = Convert.ToInt32(update.MachineTypeName); }
+                    catch (FormatException ex) { }
+                    if (machineTypeId != 0) {
+                        entity.MachineTypeId = machineTypeId;
+                    }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionTestingNote", ex.Message);
+            }
+
+            return View(new GridModel(GetProductionTestingMachinesById(testingDetailId)));
+        }
+
 
         [GridAction]
         public ActionResult SelectProductionTestingProduction1(int productId) {
@@ -1119,7 +1322,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         WarehouseId = warehouseId,
                         FromWarehouseId = forWarehouseId,
                         ProductionMachineId = machineId,
-                        MachineTypeId = testing.MachineTypeId,
+                        //MachineTypeId = testing.MachineTypeId,
                         TestEmployeeId = employeeId,
                         ReferenceTestingDetailId = testing.ReferenceTestingDetailId,
                         TestCode = testing.TestCode,
@@ -1128,10 +1331,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         Active = true,
                         ModifiedDate = DateTime.Now,
                         ModifiedUser = HttpContext.User.Identity.Name,
-
+                        MinNumber = testing.MinNumber,
+                        MaxNumber = testing.MaxNumber,
                         TestDate = DateTime.Now,
                         ProductionDate = DateTime.Today,
+                        
+                        //MachineId = testing.MachineId
                     };
+                    if (testing.MachineId != 0) { entity.MachineId = testing.MachineId; }
+                    //var machineId = 0;
+                    //try { machineId = Convert.ToInt32(testing.MachineId }
                     vfi.RealTestings.Add(entity);
                 }
                 vfi.SaveChanges();

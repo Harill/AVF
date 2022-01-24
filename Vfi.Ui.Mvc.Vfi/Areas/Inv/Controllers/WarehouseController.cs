@@ -72,6 +72,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     CanPurchase = x.CanPurchase,
                     CanStock = x.CanStock,
                     IsOutOfProcess = x.IsOutOfProcess,
+                    IsCncMilling = x.IsCncMilling
                 }).ToList();
             }
             return model.OrderByDescending(m => m.Active).ThenBy(m => m.Idx).ThenBy(m => m.WarehouseName).ToList();
@@ -116,6 +117,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         IsHeatTreatment = inserted.IsHeatTreatment,
                         IsPolish = inserted.IsPolish,
                         IsProduction = inserted.IsProduction,
+                        IsCncMilling = inserted.IsCncMilling,
                         IsProduction2 = inserted.IsProduction2,
                         IsProduction2Process = inserted.IsProduction2Process,
                         IsReprocessing = inserted.IsReprocessing,
@@ -165,6 +167,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsHeatTreatment = updated.IsHeatTreatment;
                     entity.IsPolish = updated.IsPolish;
                     entity.IsProduction = updated.IsProduction;
+                    entity.IsCncMilling = updated.IsCncMilling;
                     entity.IsProduction2 = updated.IsProduction2;
                     entity.IsProduction2Process = updated.IsProduction2Process;
                     entity.IsReprocessing = updated.IsReprocessing;
@@ -193,6 +196,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                          where x.Active
                              && (config.IsMainProcess == null || x.IsMainProcess == config.IsMainProcess)
                              && (config.IsProduction == null || x.IsProduction == config.IsProduction)
+                             && (config.IsCncMilling == null || x.IsCncMilling == config.IsCncMilling)
                              && (config.IsProduction2 == null || x.IsProduction2 == config.IsProduction2)
                              && (config.IsProduction2Process == null || x.IsProduction2Process == config.IsProduction2Process)
                              && (config.IsHeatTreatment == null || x.IsHeatTreatment == config.IsHeatTreatment)
@@ -250,6 +254,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult SelectComboBoxWarehouseProduction() {
             return new JsonResult {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsProduction = true }), "WarehouseId", "WarehouseName")
+            };
+        }
+        public ActionResult SelectComboBoxWarehouseCncMilling() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsCncMilling = true }), "WarehouseId", "WarehouseName")
             };
         }
         public ActionResult SelectComboBoxWarehouseProduction2() {

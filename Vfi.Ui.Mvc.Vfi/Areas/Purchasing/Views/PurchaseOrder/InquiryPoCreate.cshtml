@@ -6,31 +6,6 @@
 }
 @section Scripts{
     <script type="text/javascript">
-
-        function grid_OnEdit(e) {
-
-            var dataItem = e.dataItem;
-            var form = e.form;
-           var  referenceId = dataItem.ReferenceId;
-            var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
-            if (classified != 0) {
-                $.ajax({
-                    type: 'post',
-                    data: { classified: classified, referenceId: referenceId },
-                    dataType: 'json',
-                    url: '@Url.Action("CheckPoReferenceUnitPrice", "PurchaseOrder", new { area = "Purchasing" })',
-                            timeout: 20000,
-                            success: function (data) {
-                                var linePrice = $(form).find("#UnitPrice").data("tTextBox");
-                                if (linePrice != null) {
-                                    linePrice.value(data);
-                                }
-                                dataItem.UnitPrice = data;
-                            }
-            });
-            }
-        }
-
         var orderQty = {};
         var unitPrice = {};
         var materialIds = {};
@@ -40,6 +15,7 @@
         function grid_OnSave(e) {
             // bind data
             var $codeName = $(e.cell).find('#ReferenceCode');
+            var $vendorCode = $(e.cell).find('#VendorCode');
 
             if ($codeName.length > 0) {
                 var codeName = $codeName.data("tComboBox"),
@@ -48,79 +24,89 @@
                 if (codeNameSelectItem) {
                     e.values["ReferenceCode"] = codeNameSelectItem.Text;
                     e.values["ReferenceId"] = codeNameSelectItem.Value;
+                    // get unit price and bind to grid row
+                    var classified = $('#ClassifiedName').data('tDropDownList').value();
+                    var $unitPrice = $(e.cell).find('#UnitPrice');
+                    if (classified > 0 && codeNameSelectItem.Value > 0) {
+                        $.ajax({
+                            type: 'post',
+                            data: { classified: classified, referenceId: codeNameSelectItem.Value },
+                            dataType: 'json',
+                            url: '@Url.Action("CheckPoReferenceUnitPrice", "PurchaseOrder", new { area = "Purchasing" })',
+                        timeout: 20000,
+                        success: function (data) {
+                            if (data) {
+                                e.cell.parentElement.childNodes[2].textContent = data.Unit;
+                                e.dataItem.Unit = data.Unit;
+                                e.cell.parentElement.childNodes[3].textContent = data.Currency;
+                                e.dataItem.Currency = data.Currency;
+                                e.cell.parentElement.childNodes[4].textContent = data.UnitPrice.format(2);
+                                e.dataItem.UnitPrice = data.UnitPrice;
+                                e.cell.parentElement.childNodes[7].textContent = data.Note;
+                                e.dataItem.Note = data.Note;
+                            }
+                        }
+                    });
+                }
                 }
             }
-            var $vendorCode = $(e.cell).find('#VendorCode');
+            else if ($vendorCode.length > 0) {
 
-            if ($vendorCode.length > 0) {
-                var vendorCode = $vendorCode.data("tComboBox"),
-                    vendorCodeSelectItem = vendorCode.selectedIndex > -1 ? vendorCode.data[vendorCode.selectedIndex] : null;
+                {
+                    var vendorCode = $vendorCode.data("tComboBox"),
+                        vendorCodeSelectItem = vendorCode.selectedIndex > -1 ? vendorCode.data[vendorCode.selectedIndex] : null;
 
-                if (vendorCodeSelectItem) {
-                    e.values["VendorCode"] = vendorCodeSelectItem.Text;
-                    e.values["VendorId"] = vendorCodeSelectItem.Value;
+                    if (vendorCodeSelectItem) {
+                        e.values["VendorCode"] = vendorCodeSelectItem.Text;
+                        e.values["VendorId"] = vendorCodeSelectItem.Value;
 
+                    }
                 }
             }
-            // // 
-            var $lineTotal = $(e.cell).find('#LineTotal');
-            if ($lineTotal.length > 0) {
-                var lineTotal = $lineTotal.data("tTextBox");
-                e.values["LineTotal"] = lineTotal.value();
-            }
-            var quantity = $(e.cell).find('#OrderQty').val();
-            var text = "";
-            if (!isNaN(parseInt(quantity))) {
-                var sumOrderQty = 0;
-                var spanOrderQtys = $("span[name='OrderQty']");
-                for (var i = 0; i < spanOrderQtys.length; i++) {
-                    var innerText = spanOrderQtys[i].innerText;
-                    innerText = innerText.replace(/,/g, '');
-                    sumOrderQty = sumOrderQty + parseFloat(innerText);
-                }
-                sumOrderQty = sumOrderQty + parseFloat(quantity);
-                $("#TotalOrderQty").text(sumOrderQty.format(2));
-            }
-            var total = $(e.cell).find('#LineTotal').val();
-            if (!isNaN(parseFloat(total))) {
-                var sumLineTotal = 0;
-                var spanlineTotals = $("span[name='LineTotal']");
-                for (i = 0; i < spanlineTotals.length; i++) {
-                    innerText = spanlineTotals[i].innerText;
-                    innerText = innerText.replace(/,/g, '');
-                    sumLineTotal = sumLineTotal + parseFloat(innerText);
-                }
-                sumLineTotal = sumLineTotal + parseFloat(total);
-                $("#TotalLineTotal").text(sumLineTotal.format(2));
-            }
-            // bind data
         }
 
         function grid_OnSubmitChanges(e) {
 
-                var materialClassified = $('#MaterialClassifiedName').data('tDropDownList').value();
-                e.values = $.extend(e.values,
-                    {
-                        materialClassifiedId: materialClassified,
-                    }
-                );
-            //}
+            var materialClassified = $('#ClassifiedName').data('tDropDownList').value();
+            e.values = $.extend(e.values,
+                {
+                    materialClassifiedId: materialClassified,
+                }
+            );
+        }
+
+        function type_OnDataBinding(e) {
+            var classifiedId = $('#ClassifiedName').data('tDropDownList').value();
+            if (classifiedId == "") classifiedId = 0;
+            e.data = $.extend({}, e.data, { classifiedId: classifiedId });
         }
 
         function materialClassified_OnChange() {
-            var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+            RefreshGrid("grid");
+            RefreshCombobox("TypeName");
+           @* var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
             $.ajax({
                 type: 'post',
                 data: { classified: classified },
                 dataType: 'json',
                 url: '@Url.Action("SelectComboBoxVendorByClassified", "PurchaseOrder", new { area = "Purchasing" })',
-                timeout: 20000,
-                success: function (data) {
-                    RefreshGrid("grid");
-                }
+                    timeout: 20000,
+                    success: function (data) {
+                    }
+                });*@
+            }
+
+        function materialGrid_OnDataBinding(e) {
+            var classified = $('#ClassifiedName').data('tDropDownList').value();
+            if (classifiedId == "") classifiedId = 0;
+            var type = $('#TypeName').data('tComboBox').value();
+            if (type == "") type = 0;
+
+            e.data = $.extend(e.data, {
+                classified: classified,
+                typeId: type,
             });
         }
-
     </script>
 }
 
@@ -136,11 +122,25 @@
         <div class="grid_5">
             @{
                 Html.Telerik().DropDownList()
-                    .Name("MaterialClassifiedName")
+                    .Name("ClassifiedName")
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new { area = "" }))
                     .HtmlAttributes(new { style = "width: 175px" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
                     .ClientEvents(e => e.OnChange("materialClassified_OnChange"))
+                    .Render();                                              
+            }
+        </div>
+
+        <div class="grid_1">Loại</div>
+
+        <div class="grid_5">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("TypeName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialTypeByClassified", "Material", new { area = "", classifiedId = 0 }))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(e => e.OnDataBinding("type_OnDataBinding"))
                     .Render();                                              
             }
         </div>
@@ -154,38 +154,39 @@
         Html.Telerik().Grid<InquiryPoModel>()
             .Name("grid")
             .DataKeys(keys => keys.Add(f => f.InquiryId).RouteKey("inquiryId"))
-            .ToolBar(bar =>
-                         {
-                             bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
-                             bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Hủy");
-                         })
+            .ToolBar(bar => {
+                bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
+                bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Hủy");
+            })
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectPurchaseOrderDetail", "PurchaseOrder")
                 .Update("CreateNewInquiryPo", "PurchaseOrder")
             )
-            .Columns(columns =>
-            {
+            .Columns(columns => {
                 columns.Bound(f => f.VendorCode).Width(150).Title("NCC");
-                columns.Bound(f => f.ReferenceCode).Width(250).Title("Mã");
-                columns.Bound(f => f.Unit).Width(90).Title("ĐVT");
+                columns.Bound(f => f.ReferenceCode).Width(250).Title("Mã (*)")
+                    .HeaderHtmlAttributes(new { @class = "edit-column" });
+                columns.Bound(f => f.Unit).Width(90).Title("ĐVT")
+                    .HeaderHtmlAttributes(new { @class = "edit-column" });
                 columns.Bound(f => f.Currency).Width(90).Title("Tiền tệ");
-                columns.Bound(f => f.OrderQty).Width(100)
+                columns.Bound(f => f.UnitPrice).Width(100).Title("Đơn giá")
+                    .ClientTemplate("<span name='UnitPrice'><#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #></span>");
+                columns.Bound(f => f.OrderQty).Width(100).Title("Số lượng YC (*)")
+                    .HeaderHtmlAttributes(new { @class = "edit-column" })
                     .ClientTemplate("<span name='OrderQty'><#= OrderQty == null ? 0 : $.telerik.formatString('{0:n}', OrderQty) #></span>")
                            .FooterTemplate("<span id='TotalOrderQty'></span>");
-                columns.Bound(f => f.UnitPrice).Width(100)
-                    .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>");
                 //columns.Bound(f => f.LineTotal).Width(100)
                 //       .ClientTemplate("<span name='LineTotal'><#= LineTotal == null ? 0 : $.telerik.formatString('{0:n}', LineTotal) #></span>")
                 //           .FooterTemplate("<span id='TotalLineTotal'></span>");
 
 
-                columns.Bound(f => f.DueDate).Width(100)
-                       .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
-                columns.Bound(f => f.Note);
+                columns.Bound(f => f.DueDate).Width(100).Title("Ngày YC (*)")
+                    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                    .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                columns.Bound(f => f.Note).Title("Ghi chú");
                 columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(70).Title("");
             })
             .ClientEvents(events => events
-                .OnEdit("grid_OnEdit")
                 .OnSave("grid_OnSave")
                 .OnSubmitChanges("grid_OnSubmitChanges")
                 .OnError("grid_OnError")

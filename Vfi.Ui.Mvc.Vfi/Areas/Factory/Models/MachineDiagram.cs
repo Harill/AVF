@@ -40,7 +40,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
                 //return MyUtilities.Product.GetProductionRateInTime(MyUtilities.Product.Second20h, Productivity);
             }
         }
-        public virtual new string ProductionPerDayFormat { get { return string.Format("{0:n0}", ProductionPerDay); } }
+        public virtual new string ProductionPerDayStr { get { return string.Format("{0:n0}", ProductionPerDay); } }
         [UIHint("_DateTemplateNullable")]
         public virtual new DateTime? StartDate { get; set; }
         [UIHint("_DateTemplateNullable")]
@@ -55,18 +55,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         }
         public string Note { get; set; }
         public double ForecastsQuality { get; set; }
-        public string ForecastsQualityFormat { get { return string.Format("{0:n0}", ForecastsQuality); } }
+        public string ForecastsQualityStr { get { return string.Format("{0:n0}", ForecastsQuality); } }
         public string WarrningColor { get; set; }
 
         public string MachineType { get; set; }
 
         public string GetLogNote() {
-            //string a = "Lên máy: " + ProductCode
-            //           + ", số lượng: " + Number + ", năng xuất:" + ProductionPerDay
-            //           + ", ngày bắt đầu:" + StartDate.Value.ToString("dd/MM/yyyy")
-            //           + ", ngày kết thúc:" + EndDate.Value.AddDays(GetRunDay()).ToString("dd/MM/yyyy");
-            //if (!string.IsNullOrWhiteSpace(Note))
-            //    a += ", ghi chú:" + Note;
+            string a = "Lên máy: " + ProductCode
+                //+ ", số lượng: " + Number + ", năng xuất:" + ProductionPerDay
+                       + ", ngày bắt đầu:" + StartDate.Value.ToString("dd/MM/yyyy");
+                       //+ ", ngày kết thúc:" + EndDate.Value.AddDays(GetRunDay()).ToString("dd/MM/yyyy");
+            if (!string.IsNullOrWhiteSpace(Note))
+                a += ", ghi chú:" + Note;
             return "";
         }
         public string GetDiagramName(Machine machine) {
@@ -78,6 +78,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         }
         public int DiagramType { get; set; }
         public string DiagramName { get; set; }
+
+        public List<string> Notes { get; set; }
+
+
+        public double ProcessingQuantity { get; set; }
+        public string ProcessingQuantityStr { get { return string.Format("{0:n0}", ProcessingQuantity); } }
+        public double DefectQuantity { get; set; }
+        public string DefectQuantityStr { get { return string.Format("{0:n0}", DefectQuantity); } }
     }
     public class MachineTypeModel {
         public string Code { get; set; }

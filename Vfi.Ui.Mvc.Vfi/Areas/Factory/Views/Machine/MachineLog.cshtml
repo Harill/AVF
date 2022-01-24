@@ -71,17 +71,17 @@
         <fieldset>
             <legend>Thông tin máy</legend> 
           <div class="grid_3">SP đang chạy</div>
-            
           <div class="grid_3">NS hàng ngày</div>
-          <div class="grid_3">Số lượng lên máy</div>
+          @*<div class="grid_3">Số lượng lên máy</div>*@
           <div class="grid_3">Ngày bắt đầu</div>
           <div class="grid_3">Dự kiến kết thúc</div>
+          <div class="grid_3">Sản lượng</div>
           <div class="grid_2">Lượt đồ</div>
             
         <div class="clear"></div>
             <div class="grid_3">@Model.ProductCode</div>
-            <div class="grid_3">@Model.ProductionPerDay</div>
-            <div class="grid_3">@Model.Number</div>
+            <div class="grid_3">@Model.ProductionPerDayStr</div>
+            @*<div class="grid_3">@Model.Number</div>*@
             <div class="grid_3">@{
                                     if (Model.StartDate == null)
                                     {
@@ -102,6 +102,12 @@
                                         <span>@Model.EndDate.Value.ToString("dd/MM/yyyy")</span>
                                     }
                                 }</div>
+            <div class="grid_3">
+                OK: @Model.ProductionStr<br />
+                NG: @Model.ProcessingQuantityStr<br />
+                PP: @Model.DefectQuantityStr
+
+            </div>
             <div class="grid_2">
                 
                 <span id="MachineDiagramName">@Model.DiagramName </span>
@@ -184,8 +190,8 @@
 
                     columns.Bound(f => f.ProductCode).Width(175).Title("Mã SP")
                            .ClientTemplate("<strong><#= ProductCode #></strong>");
-                    columns.Bound(f => f.Number).Width(175).Title("SL lên máy")
-                           .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>");
+                    //columns.Bound(f => f.Number).Width(175).Title("SL lên máy")
+                    //       .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>");
                     columns.Bound(f => f.ProductionPerDay).Width(175).Title("Năng suất (ngày)")
                            .ClientTemplate("<#= ProductionPerDay == null ? 0 : $.telerik.formatString('{0:n0}', ProductionPerDay) #>");
                     columns.Bound(f => f.StartDate).Width(90).Title("Ngày bắt đầu")

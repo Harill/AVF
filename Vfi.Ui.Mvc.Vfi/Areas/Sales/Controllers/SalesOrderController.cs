@@ -1544,7 +1544,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             TransactionCode = transaction.TransactionCode,
                             ExportFormId = export.ExportId,
                             Transporter = export.Transporter,
-                            TotalBox = export.TotalBox ,
+                            TotalBox = export.TotalBox,
                             ModifiedDate = export.ModifiedDate.Value,
                             ModifiedUser = export.ModifiedUser,
                             DateTransporter = export.DateTransporter.Value,
@@ -2141,6 +2141,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             }
             return View(new GridModel(models));
         }
+
         public List<OrderDetailModel> GetOrderDetailsByOrderId2(long orderId) {
             if (orderId == 0)
                 return new List<OrderDetailModel>();
@@ -2245,7 +2246,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     var orderDetailsById = orderDetails.Where(od => od.ProductId == entity.ProductId).ToList();
                     entity.OrderQty = orderDetailsById.Sum(od => od.OrderQty.Value);
                     entity.RequiredNumber = orderDetailsById.Sum(od => od.RequiedNumber);
-
                     if (order.DueDate == null || order.Status == (byte)MyUtilities.Sales.Status.InProcess ||
                         order.Status == (byte)MyUtilities.Sales.Status.Waiting) {
                         var productInvsById = productInvs.Where(pi => pi.ProductId == entity.ProductId);
@@ -2270,13 +2270,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         }
                         entity.Note = "Tổng ĐH khác: " + string.Format("{0:N0}", total) + " | " + entity.Note;
                     }
-                    var forecastById =
-                        forecast.Where(
-                            f =>
-                                f.ProductId == entity.ProductId &&
-                                f.ForecastDate.Month == order.DueDate.Value.Month &&
-                                f.ForecastDate.Year == order.DueDate.Value.Year).ToList();
-                    entity.ForecastInMonth = forecastById.Sum(f => f.Quantity);
+                    if (order.DueDate != null) {
+                        var forecastById =
+                            forecast.Where(
+                                f =>
+                                    f.ProductId == entity.ProductId &&
+                                    f.ForecastDate.Month == order.DueDate.Value.Month &&
+                                    f.ForecastDate.Year == order.DueDate.Value.Year).ToList();
+                        entity.ForecastInMonth = forecastById.Sum(f => f.Quantity);
+                    }
 
                     model.Add(entity);
                 }

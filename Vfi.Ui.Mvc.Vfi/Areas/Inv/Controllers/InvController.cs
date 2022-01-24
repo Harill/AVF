@@ -10413,6 +10413,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (user == null)
                         throw new AggregateException("Vui lòng đăng nhập lại");
                     var processingType = vfi.ProcessingTypes.FirstOrDefault(m => m.TypeId == 6);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var entity in products) {
                         //if (entity.ProductCode.Equals("HA6"))
                         //    entity.ProductCode = entity.ProductCode;
@@ -10541,7 +10542,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         //        productPrice = Math.Round(productPrice * MyUtilities.Product.ExchangeRateDesign, 0);
                         //    product.UnitPrice = productPrice; //* MyUtilities.Product.DesignPrice;
                         //}
-                        product.UnitPrice = MyUtilities.Product.ParseVndPrice(entity.UnitPrice);
+                        product.UnitPrice = MyUtilities.Product.ProductVndPrice(entity.UnitPrice,1,exchangeRate);
                         var realProductionsByProductId = realProductions.Where(rp => rp.ProductId == product.ProductId);
                         if (realProductionsByProductId.Any()) {
                             var realProductivity =

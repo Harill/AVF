@@ -14,7 +14,7 @@ using Vfi.Client.Module.Authentication.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using User = Vfi.Server.Core.DataModel.BaseEntities.User;
 using UserModel = Vfi.Server.Core.DataModel.Models.System.UserModel;
-using WorkGroup = Vfi.Server.Core.DataModel.BaseEntities.WorkGroup;
+//using WorkGroup = Vfi.Server.Core.DataModel.BaseEntities.WorkGroup;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Server.Core.DataModel.Models.System;
 
@@ -37,42 +37,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             _userService = userService;
             _formAuthenticationService = formAuthenticationService;
         }
-
-        // Get Data
-
-        private IEnumerable<UserModel> GetAllUsers() {
-            var userAccounts = _userService.GetUsers().OrderBy(u => u.Username);
-
-            var listUserAccountModels = userAccounts.Select
-            (user => new UserModel {
-                UserId = user.UserId,
-                Username = user.Username.ToString(),
-                Password = user.Password,
-                Active = user.Active != null && user.Active.Value,
-                Email = user.Email,
-                FullName = user.FullName,
-                //ModifiedDate = user.ModifiedDate
-            }).ToList();
-
-            return listUserAccountModels;
-        }
-
-        private List<UserModel> GetUsersInfo() {
-            var model = new List<UserModel>();
-            using (var vfi = new tammaContext()) {
-                model = (from x in vfi.Users
-                        where x.Active.Value
-                        orderby x.Username
-                        select new UserModel { 
-                            UserId =  x.UserId,
-                            Username = x.Username,
-                            Email = x.Email,
-                            FullName = x.FullName
-                        }).ToList();
-            }
-            return model;
-        }
-
+        #region view
         // View
         [Authentication]
         public ActionResult UserAccount() {
@@ -91,6 +56,13 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         }
         //
         public ActionResult WarehousePermission() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            return View();
+        }
+        //
+        public ActionResult WorkGroupManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
@@ -152,10 +124,43 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         public ActionResult TestingToolInv() {
             return View();
         }
-
-
+        #endregion
 
         #region User
+        
+        // Get Data
+        private IEnumerable<UserModel> GetAllUsers() {
+            var userAccounts = _userService.GetUsers().OrderBy(u => u.Username);
+
+            var listUserAccountModels = userAccounts.Select
+            (user => new UserModel {
+                UserId = user.UserId,
+                Username = user.Username.ToString(),
+                Password = user.Password,
+                Active = user.Active != null && user.Active.Value,
+                Email = user.Email,
+                FullName = user.FullName,
+                //ModifiedDate = user.ModifiedDate
+            }).ToList();
+
+            return listUserAccountModels;
+        }
+
+        private List<UserModel> GetUsersInfo() {
+            var model = new List<UserModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.Users
+                        where x.Active.Value
+                        orderby x.Username
+                        select new UserModel { 
+                            UserId =  x.UserId,
+                            Username = x.Username,
+                            Email = x.Email,
+                            FullName = x.FullName
+                        }).ToList();
+            }
+            return model;
+        }
 
         [GridAction]
         public ActionResult SelectUser() {
@@ -298,13 +303,98 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
 
         #region UserWorkGroup
 
-        //[GridAction]
-        //public ActionResult SelectUser()
-        //{
-        //    var gridModel = new GridModel { Data = GetAllUsers() };
-        //    //return View(gridModel);
-        //    return View(new GridModel(GetAllUsers().Where(f => string.Compare("thangle", f.Username) != 0)));
-        //}
+        [GridAction]
+        public ActionResult SelectWorkGroup() {
+            var model = new List<WorkGroupModel>();
+            try {
+                model = GetWorkGroups();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectWorkGroup", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        public List<WorkGroupModel> GetWorkGroups() {
+            var model = new List<WorkGroupModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.WorkGroups
+                        select new WorkGroupModel { 
+                            WorkGroupId = x.WorkGroupId,
+                            WorkGroupCode = x.WorkGroupCode,
+                            WorkGroupName = x.WorkGroupName,
+                            Active = x.Active,
+                            Description = x.Description,
+                            ModifiedDate = x.ModifiedDate,
+                        }).ToList();
+            }
+
+            return model;
+        }
+
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertWorkGroup(WorkGroupModel inserted) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    if (string.IsNullOrWhiteSpace(inserted.WorkGroupCode)) {
+                        throw new AggregateException("Lỗi! Mã không được để trống");
+                    }
+                    else { inserted.WorkGroupCode = inserted.WorkGroupCode.Trim(); }
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x=> x.WorkGroupCode.Equals(inserted.WorkGroupCode));
+                    if (workgroup != null) {
+                        throw new AggregateException("Lỗi! Bị trùng mã");
+                    }
+                    workgroup = new WorkGroup { 
+                        WorkGroupCode = inserted.WorkGroupCode,
+                        WorkGroupName = inserted.WorkGroupName,
+                        Description = inserted.Description,
+                        ModifiedDate = DateTime.Now,
+                        Active = true,
+                        
+                    };
+                    vfi.WorkGroups.Add(workgroup);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertWorkGroup", ex.Message);
+            }
+            return View(new GridModel(GetWorkGroups()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateWorkGroup(WorkGroupModel updated) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    if (string.IsNullOrWhiteSpace(updated.WorkGroupCode)) {
+                        throw new AggregateException("Lỗi! Mã không được để trống");
+                    }
+                    else { updated.WorkGroupCode = updated.WorkGroupCode.Trim(); }
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.WorkGroupCode.Equals(updated.WorkGroupCode) && x.WorkGroupId != updated.WorkGroupId);
+                    if (workgroup != null) {
+                        throw new AggregateException("Lỗi! Bị trùng mã");
+                    }
+                    workgroup = vfi.WorkGroups.FirstOrDefault(x => x.WorkGroupId == updated.WorkGroupId);
+                    if (workgroup == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy data");
+                    }
+                    workgroup.WorkGroupCode = updated.WorkGroupCode;
+                    workgroup.WorkGroupName = updated.WorkGroupName;
+                    workgroup.Active = updated.Active;
+                    workgroup.Description = updated.Description;
+                    workgroup.ModifiedDate = DateTime.Now;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateWorkGroup", ex.Message);
+            }
+            return View(new GridModel(GetWorkGroups()));
+        }
+
 
         public ActionResult DisplayCheckedUser(int[] checkedRecords) {
             checkedRecords = checkedRecords ?? new int[] { };
@@ -319,12 +409,12 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         public ActionResult AddUserToWorkGroup(string strWorkGroupId, string checkedRecords) {
             var lstUserIds = checkedRecords.Split(':');
 
-            for (var i = 0; i < lstUserIds.Length; i++) {
-                var userWorkGroupModel = new UserWorkGroupModel {
-                    User = new User { UserId = Convert.ToInt32(lstUserIds[i]) },
-                    WorkGroup = new WorkGroup { WorkGroupId = Convert.ToInt32(strWorkGroupId) }
-                };
-            }
+            //for (var i = 0; i < lstUserIds.Length; i++) {
+            //    var userWorkGroupModel = new UserWorkGroupModel {
+            //        User = new User { UserId = Convert.ToInt32(lstUserIds[i]) },
+            //        WorkGroup = new WorkGroup { WorkGroupId = Convert.ToInt32(strWorkGroupId) }
+            //    };
+            //}
 
             return new JsonResult { Data = lstUserIds };
         }
@@ -2194,8 +2284,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             }
             return Json(-1);
         }
-        #endregion
-
 
         [HttpPost]
         public ActionResult TaoTLSX1() {
@@ -2588,6 +2676,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 return vfi.SaveChanges();
             }
         }
+
         #region material use
 
         [HttpPost]
@@ -3685,8 +3774,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         }
 
         #endregion
-
-        #region
         [GridAction]
         public ActionResult SelectWrongOrderProduct() {
             var model = new List<MonitorDetailModel>();

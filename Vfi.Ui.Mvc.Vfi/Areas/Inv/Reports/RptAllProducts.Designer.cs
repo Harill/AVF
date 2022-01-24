@@ -1230,7 +1230,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox24.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Right;
             this.textBox24.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox24.StyleName = "";
-            this.textBox24.Value = "=ImportQuantity";
+            this.textBox24.Value = "=ImportQuantity+ImportPurchase";
             // 
             // textBox27
             // 
@@ -1772,7 +1772,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox101.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Right;
             this.textBox101.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox101.StyleName = "SubCategory";
-            this.textBox101.Value = "=ImportQuantity";
+            this.textBox101.Value = "=ImportQuantity+ImportPurchase";
             // 
             // textBox102
             // 
@@ -2145,7 +2145,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox105.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Right;
             this.textBox105.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox105.StyleName = "SubCategory";
-            this.textBox105.Value = "=sum(ImportQuantity)";
+            this.textBox105.Value = "=sum(ImportQuantity+ImportPurchase)";
             // 
             // textBox106
             // 

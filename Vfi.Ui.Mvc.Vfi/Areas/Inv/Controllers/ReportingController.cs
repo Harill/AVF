@@ -17,6 +17,7 @@ using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.Drawing;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports;
+using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class ReportingController : Controller {
         //
@@ -331,8 +332,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          MaterialUse = (id.MaterialUse1) + (id.MaterialUse2),
                                          id.MaterialInvId
                                      }).ToList();
-                    if (!importSx1.Any())
+                    if (!importSx1.Any()) {
                         throw new AggregateException("Không có gì để báo cáo!");
+                    }
                     var startMonth = importSx1.FirstOrDefault().MaterialUseDate.AddDays(1);
                     var endMonth = importSx1.LastOrDefault().MaterialUseDate;
                     var groupMaterials = (from mt in vfi.MaterialTypes
@@ -342,7 +344,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           select new {
                                               mt.MaterialTypeName,
                                               mt.MaterialTypeId,
-                                          });
+                                          }).ToList();
                     var groupIds = groupMaterials.Select(g => g.MaterialTypeId).ToList();
                     var materials = (from m in vfi.Materials
                                      where m.Active && groupIds.Contains(m.MaterialTypeId)
@@ -413,7 +415,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                 Quantity = em.Quantity,
                                                 em.ExportMaterial.ExportDate,
                                             }).ToList();
-                    var retrieveInMonth = from ms in vfi.MaterialUseDetails
+                    var retrieveInMonth = (from ms in vfi.MaterialUseDetails
                                           where ms.MaterialUseInShift.Type == 2 &&
                                                 ms.MaterialUseInShift.Status ==
                                                 (byte)MyUtilities.Transaction.Status.Approved &&
@@ -422,8 +424,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           select new {
                                               ms.MaterialInvId,
                                               Quantity = ms.EditQuantity + ms.EditQuantity2,
-                                          };
-                    var useInMonth = from ms in vfi.MaterialUseDetails
+                                          }).ToList();
+                    var useInMonth = (from ms in vfi.MaterialUseDetails
                                      where ms.MaterialUseInShift.Type == 1 &&
                                            ms.MaterialUseInShift.Status ==
                                            (byte)MyUtilities.Transaction.Status.Approved &&
@@ -432,7 +434,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      select new {
                                          ms.MaterialInvId,
                                          Quantity = ms.EditQuantity + ms.EditQuantity2,
-                                     };
+                                     }).ToList();
                     foreach (var group in groupMaterials) {
                         var printGroup = new PrintGroupMaterialTotal {
                             GroupName = group.MaterialTypeName,
@@ -2674,6 +2676,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     c.CustomerName,
                                     c.CustomerCode
                                 };
+                var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
+                var inventoryRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseInventoryPriceRate);
                 foreach (var customer in customers) {
                     var entity = new ImportExportProductionModel {
                         CustomerCode = customer.CustomerCode,
@@ -2769,7 +2773,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              .Sum(pip => pip.Quantity);
                         //detail.DiffExport -= detail.TotalExport;
 
-                        detail.ProductPrice = MyUtilities.Product.ProductPrice(product.UnitPrice);
+                        detail.ProductPrice = MyUtilities.Product.ProductVndPrice(product.UnitPrice, inventoryRate, exchangeRate);
 
                         list.Add(detail);
                     }
@@ -3169,6 +3173,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        }).ToList();
                     var productIds = importSx1Details.Select(id => id.ProductId).Distinct().ToList();
                     var productionPricings = vfi.ProductionPricings.Where(pp => productIds.Contains(pp.ProductId));
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
+                    var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
                     foreach (var detail in importSx1Details) {
                         var shiftN = "";
                         for (var str = 'A'; str <= 'D'; str++) {
@@ -3198,7 +3204,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     detail.MaterialName + MyUtilities.Material.GetMaterialDesignNo(
                                         detail.OutDiameter, detail.InDiameter,
                                         detail.DiameterType, detail.Shape),
-                                ProductUnitPrice = MyUtilities.Product.ProductionPrice(detail.ProductPrice),
+                                ProductUnitPrice = MyUtilities.Product.ProductVndPrice(detail.ProductPrice, productionPriceRate, exchangeRate),
                                 DesignProductivity = detail.Productivity ?? 0,
                                 MachineTypeCost = 0,
                                 MaterialLength = detail.Length,
@@ -3471,7 +3477,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     //    detail.MaterialName + MyUtilities.Material.GetMaterialDesignNo(
                                     //        detail.OutDiameter, detail.InDiameter,
                                     //        detail.DiameterType, detail.Shape),
-                                    ProductUnitPrice = MyUtilities.Product.ProductionPrice(detail.ProductPrice),
+                                    ProductUnitPrice = MyUtilities.Product.ProductVndPrice(detail.ProductPrice, productionPriceRate, exchangeRate),
                                     DesignProductivity = detail.MillProductivity ?? 0,
                                 };
                                 if (detail.ProcessingType != null) {
@@ -3755,6 +3761,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                              td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
                                              select td;
 
+                    var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var detail in importCncs) {
                         if (!detail.ShiftName.Contains(shift)) continue;
                         bool isTransaction = false, isProcessing = false, isDefect = false;
@@ -3817,7 +3825,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             //    detail.MaterialName + MyUtilities.Material.GetMaterialDesignNo(
                             //        detail.OutDiameter, detail.InDiameter,
                             //        detail.DiameterType, detail.Shape),
-                            ProductUnitPrice = MyUtilities.Product.ProductionPrice(detail.ProductPrice),
+                            ProductUnitPrice = MyUtilities.Product.ProductVndPrice(detail.ProductPrice, productionPriceRate, exchangeRate),
                         };
                         //if (entity.ProductUnitPrice > 0) {
                         //    var productPrice = Math.Round(entity.ProductUnitPrice, 4);
@@ -3962,13 +3970,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                ProductId = sxg.Key.ProductId,
                                                Date = sxg.Max(gd => gd.ImportFormSX1.ImportDate),
                                            }).ToList();
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
+                    var inventoryRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseInventoryPriceRate);
                     foreach (var product in products) {
                         var entity = new ProductStatusModel {
                             CustomerId = product.CustomerId,
                             CustomerCode = product.CustomerCode,
                             ProductId = product.ProductId,
                             ProductCode = product.ProductCode,
-                            UnitPrice = MyUtilities.Product.ProductPrice(product.UnitPrice),
+                            UnitPrice = MyUtilities.Product.ProductVndPrice(product.UnitPrice, inventoryRate, exchangeRate),
                             ModifiedDate = product.ModifiedDate
                         };
                         if (product.MaterialId != null) {
@@ -4108,7 +4118,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                     pip.Transaction,
                                                     pip.Transaction.WarehouseIssueId,
                                                     pip.Transaction.WarehouseReceiptId,
-                                                    IsInternal = pip.Transaction.IsInternal ?? false
+                                                    IsInternal = pip.Transaction.IsInternal ?? false,
+                                                    IsPurchase = pip.Transaction.PoId != null && pip.Transaction.PoId > 0
                                                 }).ToList();
                     if (caculateModel == (int)MyUtilities.Report.Calculate.InPeriod) {
                         var onPeriods = allProductionPeriods.Where(x => x.PeriodDate >= fDate).ToList();
@@ -4143,9 +4154,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var importsPeriod = allProductionPeriods.Where(x => x.WarehouseReceiptId != null 
                                                                     && warehouses.Contains(x.WarehouseReceiptId.Value)
                                                                     && x.PeriodDate >= fDate).ToList();
-                    var importsMorẻ = (from p in importsPeriod
+                    var importsMore = (from p in importsPeriod
                                        where p.WarehouseIssueId == null &&
-                                             !p.IsInternal
+                                             !p.IsInternal && !p.IsPurchase
+                                       select p).ToList();
+                    var importsPurchase = (from p in importsPeriod
+                                       where p.WarehouseIssueId == null &&
+                                             !p.IsInternal && p.IsPurchase
                                        select p).ToList();
                     var importsInternal = (from p in importsPeriod
                                            where p.WarehouseIssueId == null &&
@@ -4207,6 +4222,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             p.WarehouseReceiptId != MyUtilities.Warehouse.Tranfer &&
                                             p.EarlyPeriodQuantity > p.LastPeriodQuantity
                                        select p).ToList();
+                    var inventoryRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseInventoryPriceRate);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var customer in customers) {
                         var entity = new ImportExportProductionModel {
                             CustomerCode = customer.CustomerCode,
@@ -4236,7 +4253,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                             detail.ImportQuantity = importSx1Details.Where(p => p.ProductId == product.ProductId)
                                                                     .Sum(p => p.Quantity);
-                            detail.ImportMore = importsMorẻ.Where(pip => pip.ProductId == product.ProductId)
+                            detail.ImportPurchase = importsPurchase.Where(pip => pip.ProductId == product.ProductId)
+                                                            .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
+                            detail.ImportMore = importsMore.Where(pip => pip.ProductId == product.ProductId)
                                                             .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
                             detail.ImportInternal = importsInternal.Where(pip => pip.ProductId == product.ProductId)
                                                             .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
@@ -4290,7 +4309,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             //                                .Sum(x => x.Quantity);
                             //detail.DiffExport -= detail.TotalExport;
 
-                            detail.ProductPrice = MyUtilities.Product.ProductPrice(product.UnitPrice);
+                            //detail.ProductPrice = MyUtilities.Product.ProductPrice(product.UnitPrice);
+                            detail.ProductPrice = MyUtilities.Product.ProductVndPrice(product.UnitPrice, inventoryRate, exchangeRate);
 
                             var lastExport = (from p in allProductionPeriods
                                               where
@@ -4933,7 +4953,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 if (reportDate < startDate)
                     startDate = startDate.AddMonths(-1);
                 var importDate = importSx1InDays.FirstOrDefault().ImportDate;
-                var point = MyUtilities.Product.BaseProductionPrice;
+                //var point = MyUtilities.Product.BaseProductionPrice;
+                var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
+                var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
+                //var inventoryRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseInventoryPriceRate);
                 var importSx1s = from i in vfi.ImportFormSX1Detail
                                  where
                                      i.ImportFormSX1.ImportDate <= importDate &&
@@ -4984,10 +5007,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      //                    MyUtilities.Product.ExchangeRateDesign * point, 0),
 
                                      ProductPrice = i.Product.UnitPrice <= MyUtilities.Product.MinVndPrice
-                                                 ? (i.Product.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point
+                                                 ? (i.Product.UnitPrice ?? 0) * exchangeRate * productionPriceRate
                                                  : Math.Round(i.Product.UnitPrice ?? 0, 4) - Math.Round(i.Product.UnitPrice ?? 0, 0) == 0
-                                                     ? (i.Product.UnitPrice ?? 0) * point
-                                                     : (i.Product.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point,
+                                                     ? (i.Product.UnitPrice ?? 0) * productionPriceRate
+                                                     : (i.Product.UnitPrice ?? 0) * exchangeRate * productionPriceRate,
                                  };
                 //var display = (cames || cnc);
                 // shift A
@@ -5791,7 +5814,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
                     if (user == null)
                         return model;
-                    var point = MyUtilities.Product.BaseProductionPrice;
+                    var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     var ci = new CultureInfo("vi-VN");
                     var reportDate = string.IsNullOrWhiteSpace(monthlyDate)
                                          ? DateTime.Today
@@ -5806,7 +5830,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                (byte)MyUtilities.Transaction.Status.Approved
                                                && i.Product.ProductCode.Contains(productCode)
                                            //&& i.MachineId == 68
-                                           select i);
+                                           select i).ToList();
                     var shift1Name = "";
                     var shift2Name = "";
                     var display = (cames || cnc);
@@ -5843,7 +5867,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (reportDate < startDate)
                         startDate = new DateTime(reportDate.AddMonths(-1).Year, reportDate.AddMonths(-1).Month, 26);
                     var importDate = importSx1InDays.FirstOrDefault().ImportFormSX1.ImportDate;
-                    var importSx1s = from i in vfi.ImportFormSX1Detail
+                    var importSx1s = (from i in vfi.ImportFormSX1Detail
                                      where
                                          i.ImportFormSX1.ImportDate <= importDate &&
                                          i.ImportFormSX1.MaterialUseDate >= startDate &&
@@ -5879,40 +5903,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          i.ProductionRate,
                                          i.ProductWeight,
                                          i.MaterialUseDetail,
-                                         //IsUsdOrVnd =
-                                         //Math.Round(i.Product.UnitPrice ?? 0, 4) -
-                                         //Math.Round(i.Product.UnitPrice ?? 0, 0),
-                                         //UnitPriceVnd = (i.Product.UnitPrice ?? 0)*point,
-                                         //UnitPriceUsd =
-                                         //(i.Product.UnitPrice ?? 0)*MyUtilities.Product.ExchangeRateDesign*point,
-                                         //UnitPrice = Math.Round(i.Product.UnitPrice ?? 0, 4) -
-                                         //            Math.Round(i.Product.UnitPrice ?? 0, 0) == 0
-                                         //                ? (i.Product.UnitPrice ?? 0) * point
-                                         //                : (i.Product.UnitPrice ?? 0) *
-                                         //                  MyUtilities.Product.ExchangeRateDesign * point,
 
                                          UnitPrice = i.Product.UnitPrice <= MyUtilities.Product.MinVndPrice
-                                                     ? (i.Product.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point
+                                                     ? (i.Product.UnitPrice ?? 0) * exchangeRate * productionPriceRate
                                                      : Math.Round(i.Product.UnitPrice ?? 0, 4) - Math.Round(i.Product.UnitPrice ?? 0, 0) == 0
-                                                         ? (i.Product.UnitPrice ?? 0) * point
-                                                         : (i.Product.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point,
-                                     };
+                                                         ? (i.Product.UnitPrice ?? 0) * productionPriceRate
+                                                         : (i.Product.UnitPrice ?? 0) * exchangeRate * productionPriceRate,
+                                     }).ToList();
                     if (cames && cnc == false) {
-                        importSx1s = importSx1s.Where(i => !i.Machine1.MachineName.Contains("CNC"));
+                        importSx1s = importSx1s.Where(i => !i.Machine1.MachineName.Contains("CNC")).ToList();
                     }
                     else if (cames == false && cnc) {
-                        importSx1s = importSx1s.Where(i => i.Machine1.MachineName.Contains("CNC"));
+                        importSx1s = importSx1s.Where(i => i.Machine1.MachineName.Contains("CNC")).ToList();
                     }
                     var shiftACostInMonth = 0.0;
                     var shiftAMaterialUse = 0.0;
-                    var shift1ProductionInMonths = importSx1s.Where(i => i.Shift1Name.Contains("A"));
+                    var shift1ProductionInMonths = importSx1s.Where(i => i.Shift1Name.Contains("A")).ToList();
                     if (shift1ProductionInMonths.Any()) {
                         shiftACostInMonth += shift1ProductionInMonths
                                .Sum(i => Math.Round((i.Number1) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
                         shiftAMaterialUse += shift1ProductionInMonths.Sum(i => i.MaterialUse1);
                     }
-                    shift1ProductionInMonths =
-                        importSx1s.Where(i => i.Shift2Name.Contains("A"));
+                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift2Name.Contains("A")).ToList();
                     if (shift1ProductionInMonths.Any()) {
                         shiftACostInMonth += shift1ProductionInMonths.Sum(i => Math.Round((i.Number2) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
                         shiftAMaterialUse += shift1ProductionInMonths.Sum(i => i.MaterialUse2);
@@ -5920,14 +5932,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //
                     var shiftBCostInMonth = 0.0;
                     var shiftBMaterialUse = 0.0;
-                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift1Name.Contains("B"));
+                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift1Name.Contains("B")).ToList();
                     if (shift1ProductionInMonths.Any()) {
                         shiftBCostInMonth += shift1ProductionInMonths
                             .Sum(i => Math.Round((i.Number1) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
                         shiftBMaterialUse += shift1ProductionInMonths.Sum(i => i.MaterialUse1);
                     }
-                    shift1ProductionInMonths =
-                        importSx1s.Where(i => i.Shift2Name.Contains("B"));
+                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift2Name.Contains("B")).ToList();
                     if (shift1ProductionInMonths.Any()) {
                         shiftBCostInMonth += shift1ProductionInMonths
                             .Sum(i => Math.Round((i.Number2) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
@@ -5936,14 +5947,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //
                     var shiftCCostInMonth = 0.0;
                     var shiftCMaterialUse = 0.0;
-                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift1Name.Contains("C"));
+                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift1Name.Contains("C")).ToList();
                     if (shift1ProductionInMonths.Any()) {
                         shiftCCostInMonth += shift1ProductionInMonths
                                .Sum(i => Math.Round((i.Number1) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
                         shiftCMaterialUse += shift1ProductionInMonths.Sum(i => i.MaterialUse1);
                     }
-                    shift1ProductionInMonths =
-                       importSx1s.Where(i => i.Shift2Name.Contains("C"));
+                    shift1ProductionInMonths = importSx1s.Where(i => i.Shift2Name.Contains("C")).ToList();
                     if (shift1ProductionInMonths.Any()) {
                         shiftCCostInMonth += shift1ProductionInMonths
                                .Sum(i => Math.Round((i.Number2) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
@@ -5955,10 +5965,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         //    (phay && m.MachineName.Contains("P")))
                         ).OrderBy(m => m.MachineName);
 
-                    var materialUseDetails = from mud in vfi.MaterialUseDetails
+                    var materialUseDetails = (from mud in vfi.MaterialUseDetails
                                              where mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Approved
                                                    && mud.MaterialUseInShift.UsedDate == reportDate
-                                             select mud;
+                                             select mud).ToList();
                     foreach (var machine in machines) {
                         var text = reportDate.ToString("dd/MM/yyyy");
                         if (machine.MachineName.Contains("CNC"))
@@ -6008,7 +6018,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 if (sx1Detail.MaterialUseDetail != null)
                                     entity.LotNumber = sx1Detail.MaterialUseDetail.Lot;
 
-                                entity.UnitPrice = MyUtilities.Product.ProductionPrice(sx1Detail.UnitPrice);
+                                entity.UnitPrice = MyUtilities.Product.ProductVndPrice(sx1Detail.UnitPrice, productionPriceRate, exchangeRate);
                                 var realProduction =
                                     vfi.RealProductions.FirstOrDefault(
                                         rp => rp.ProductId == entity.ProductId && rp.MachineId == entity.MachineId);
@@ -6092,7 +6102,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     };
                                     if (sx1Detail.MaterialUseDetail != null)
                                         newEntity.LotNumber = sx1Detail.MaterialUseDetail.Lot;
-                                    entity.UnitPrice = MyUtilities.Product.ProductionPrice(sx1Detail.UnitPrice);
+                                    entity.UnitPrice = MyUtilities.Product.ProductVndPrice(sx1Detail.UnitPrice, productionPriceRate,exchangeRate);
                                     var realProduction =
                                         vfi.RealProductions.FirstOrDefault(
                                             rp =>
@@ -6389,14 +6399,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             ShiftCProductionCostInMonth = 0,
                                             DisplaySum = display
                                         };
-                                        entity.UnitPrice = MyUtilities.Product.ProductionPrice(detail.Product.UnitPrice ?? 0);
-                                        //if (detail.Product.UnitPrice != null || detail.Product.UnitPrice != 0) {
-                                        //    var productPrice = Math.Round(detail.Product.UnitPrice ?? 0, 4);
-                                        //    var temp = Convert.ToInt32(productPrice);
-                                        //    if (productPrice - temp != 0)
-                                        //        productPrice = productPrice * MyUtilities.Product.ExchangeRateDesign;
-                                        //    entity.UnitPrice = productPrice * point;
-                                        //}
+                                        entity.UnitPrice = MyUtilities.Product.ProductVndPrice(detail.Product.UnitPrice ?? 0, productionPriceRate, exchangeRate);
+                                        
                                         var realProduction =
                                             vfi.RealProductions.FirstOrDefault(
                                                 rp =>
@@ -6513,7 +6517,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             ShiftCProductionCostInMonth = 0,
                                             DisplaySum = display
                                         };
-                                        entity.UnitPrice = MyUtilities.Product.ProductionPrice(detail.Product.UnitPrice ?? 0);
+                                        entity.UnitPrice = MyUtilities.Product.ProductVndPrice(detail.Product.UnitPrice ?? 0, productionPriceRate,exchangeRate);
                                         var realProduction =
                                             vfi.RealProductions.FirstOrDefault(
                                                 rp =>
@@ -6631,7 +6635,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             DisplaySum = display
                                         };
 
-                                        entity.UnitPrice = MyUtilities.Product.ProductionPrice(detail.Product.UnitPrice ?? 0);
+                                        entity.UnitPrice = MyUtilities.Product.ProductVndPrice(detail.Product.UnitPrice ?? 0, productionPriceRate, exchangeRate);
                                         var realProduction =
                                             vfi.RealProductions.FirstOrDefault(
                                                 rp =>
@@ -8025,7 +8029,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 using (var vfi = new tammaContext()) {
                     var toDate = new DateTime(year, month, 26);
                     var fromDate = toDate.AddMonths(-1);
-                    var importSx1Details = from sxd in vfi.ImportFormSX1Detail
+                    var importSx1Details = (from sxd in vfi.ImportFormSX1Detail
                                            where
                                                (sxd.ImportFormSX1.Shift1Name.Contains(shift) ||
                                                 sxd.ImportFormSX1.Shift2Name.Contains(shift)) &&
@@ -8054,7 +8058,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                sxd.ImportFormSX1.MaterialUseDate,
                                                sxd.Machine1,
                                                sxd.MachineId,
-                                           };
+                                           }).ToList();
+                    var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var sx1Detail in importSx1Details) {
                         var entity = model.FirstOrDefault(m => m.ProductId == sx1Detail.ProductId);
                         var trackUps =
@@ -8075,7 +8081,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 ProductCode = sx1Detail.ProductCode,
                                 ReportDate = new DateTime(year, month, 1),
                                 Shift = shift,
-                                SalePrice = MyUtilities.Product.ProductionPrice(sx1Detail.UnitPrice)
+                                SalePrice = MyUtilities.Product.ProductVndPrice(sx1Detail.UnitPrice, productionPriceRate, exchangeRate)
                             };
                             //entity.SalePrice = sx1Detail.UnitPrice ?? 0*MyUtilities.Product.DesignPrice;
                             //if (sx1Detail.UnitPrice != null || sx1Detail.UnitPrice != 0) {
@@ -8302,7 +8308,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                       : Convert.ToDateTime(monthlyDate, ci);
                     monthly = new DateTime(monthly.Year, monthly.Month, monthly.Day);
 
-                    var point = MyUtilities.Product.BaseProductionPrice;
+                    var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     var products = (from p in vfi.Products
                                     where p.Active && (customerId == 0 || p.CustomerId == customerId)
                                     select new {
@@ -8322,10 +8329,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                                         //UnitPrice = MyUtilities.Product.ProductionPrice(p.UnitPrice),
                                         UnitPrice = p.UnitPrice <= MyUtilities.Product.MinVndPrice
-                                                    ? (p.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point
+                                                    ? (p.UnitPrice ?? 0) * exchangeRate * productionPriceRate
                                                     : Math.Round(p.UnitPrice ?? 0, 4) - Math.Round(p.UnitPrice ?? 0, 0) == 0
-                                                        ? (p.UnitPrice ?? 0) * point
-                                                        : (p.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point,
+                                                        ? (p.UnitPrice ?? 0) * productionPriceRate
+                                                        : (p.UnitPrice ?? 0) * exchangeRate * productionPriceRate,
                                         p.ProcessingType.TypeName
                                     }).ToList();
                     if (!string.IsNullOrWhiteSpace(productName)) {
@@ -8378,10 +8385,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                 //                : (sx.Product.UnitPrice ?? 0) *
                                                 //                  MyUtilities.Product.ExchangeRateDesign * point,
                                                 UnitPrice = sx.Product.UnitPrice <= MyUtilities.Product.MinVndPrice
-                                                            ? (sx.Product.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point
+                                                            ? (sx.Product.UnitPrice ?? 0) * exchangeRate * productionPriceRate
                                                             : Math.Round(sx.Product.UnitPrice ?? 0, 4) - Math.Round(sx.Product.UnitPrice ?? 0, 0) == 0
-                                                                ? (sx.Product.UnitPrice ?? 0) * point
-                                                                : (sx.Product.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point,
+                                                                ? (sx.Product.UnitPrice ?? 0) * productionPriceRate
+                                                                : (sx.Product.UnitPrice ?? 0) * exchangeRate * productionPriceRate,
                                                 Productivity = sx.Product.Productivity ?? 0,
                                                 VF2 = sx.Machine.Contains("VF2"),
                                                 sx.Shift1,
@@ -9379,13 +9386,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             , string monthlyDate) {
             if (string.IsNullOrWhiteSpace(monthlyDate))
                 return View(new GridModel(new List<SoLieuTongHopSanPham>()));
-            var tonkho = new List<SoLieuTongHopSanPham>();
+            var model = new List<SoLieuTongHopSanPham>();
             try {
-                tonkho = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, customerId,
+                model = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, customerId,
                                                productName, monthlyDate,
                                                (int)MyUtilities.Report.Calculate.InPeriod);
 
-                var jsonResult = Json(tonkho.Where(p => p.HienThi).OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode), JsonRequestBehavior.AllowGet);
+                var jsonResult = Json(model.Where(p => p.HienThi).OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode), JsonRequestBehavior.AllowGet);
                 jsonResult.MaxJsonLength = Int32.MaxValue;
                 return jsonResult;
                 // test: with A6 => 3s
@@ -9407,15 +9414,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             bool chkOrder,
             bool chkInventory,
             string monthlyDate) {
-            var tonkho = new List<SoLieuTongHopSanPham>();
+                var model = new List<SoLieuTongHopSanPham>();
             try {
-                tonkho = GetProductCurrentReportTotal(chkOrder, chkInventory,
+                model = GetProductCurrentReportTotal(chkOrder, chkInventory,
                                                     customerId, "", monthlyDate);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductCurrentReport", ex.Message);
             }
-            return PartialView("PageProductReportTotal", tonkho.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
         }
 
         [HttpPost]
@@ -9426,19 +9433,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             bool chkDonHangThangKe,
             bool chkDonHangConLai,
             string monthlyDate) {
-            var tonkho = new List<SoLieuTongHopSanPham>();
+            var model = new List<SoLieuTongHopSanPham>();
             try {
-                tonkho = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, customerId,
+                model = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, customerId,
                                                "", monthlyDate,
                                                (int)MyUtilities.Report.Calculate.All);
+                //if (model.Any()) {
+                //    model = model.Where(x => x.HienThi).ToList();
+                //}
                 using (var vfi = new tammaContext()) {
-                    //var workGroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    var workGroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workGroup != null && workGroup.WorkGroupCode.Equals("AVF")) {
+                        return PartialView("PageProductReportTotalAVF", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+                    }
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductReportByMonthly", ex.Message);
             }
-            return PartialView("PageProductReportTotal", tonkho.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
         }
 
         [HttpPost]
@@ -9448,16 +9461,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             bool chkDonHangThangKe,
             bool chkDonHangConLai,
             string monthlyDate) {
-            var tonkho = new List<SoLieuTongHopSanPham>();
+                var model = new List<SoLieuTongHopSanPham>();
             try {
-                tonkho = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, 0,
+                model = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, 0,
                                                "", monthlyDate,
                                                (int)MyUtilities.Report.Calculate.All);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductReportAllTotal", ex.Message);
             }
-            return PartialView("PageProductReportAllTotal", tonkho.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportAllTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
         }
         [HttpPost]
         public ActionResult PrintProductReportTotal2(
@@ -9466,16 +9479,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             bool chkDonHangThangKe,
             bool chkDonHangConLai,
             string monthlyDate) {
-            var tonkho = new List<SoLieuTongHopSanPham>();
+                var model = new List<SoLieuTongHopSanPham>();
             try {
-                tonkho = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, 0,
+                model = GetProductReportTotal(chkLuyKeSX, chkLuyKeXuat, chkDonHangThangKe, chkDonHangConLai, 0,
                                                "", monthlyDate,
                                                (int)MyUtilities.Report.Calculate.All);
+                using (var vfi = new tammaContext()) {
+                    var workGroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workGroup != null && workGroup.WorkGroupCode.Equals("AVF")) {
+                        return PartialView("PageProductReportTotalAVF", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+                    }
+                }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductReportTotal2", ex.Message);
             }
-            return PartialView("PageProductReportTotal2", tonkho.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportTotal2", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
         }
 
         List<ProductState> GetOrderProgress(int customerId, string productCode, int month, int year) {
@@ -16860,17 +16879,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
                 var data = GetProductionTestingDailyReport(reportDate, shift, productId, machineId, (int)MyUtilities.Report.Calculate.All);
                 var groupIds = data.Select(x => x.ReferenceTestingDetailId).Distinct().ToList();
-                var employeeModel = new List<EmployeeModel>();
-                using (var vfi = new tammaContext()) {
-                    var employeeIds = data.FirstOrDefault().EmployeeIds;
-                    employeeModel = (from x in vfi.Employees
-                                     where employeeIds.Contains(x.EmployeeId)
-                                     select new EmployeeModel { 
-                                        EmployeeId = x.EmployeeId,
-                                        EmployeeCode = x.EmployeeCode,
-                                        EmployeeName = x.EmployeeName,
-                                     }).ToList();
-                }
+                var details = new List<ProductionTestingReportDetailModel>();
                 foreach (var groupId in groupIds) {
                     var list = data.Where(x => x.ReferenceTestingDetailId == groupId).ToList();
                     var first = list.FirstOrDefault();
@@ -16880,15 +16889,43 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         MachineTypeName = first.MachineTypeName,
                         TestCode = first.TestCode,
                         TestName = first.TestName,
+                        TestRate = first.TestRate,
                         ShiftName = first.ShiftName,
                         CustomerCode = first.CustomerCode,
                         ProductionDate = first.ProductionDate, 
                         ProductionTestingNote = first.ProductionTestingNote,
                         List = list,
-                        Details = first.Details,
-                        Employees = employeeModel,
+                        // 
+                        //Details = first.Details,
+                        //Employees = employeeModel,
+                        //Notes = notes
                     };
+                    details = first.Details;
                     model.Add(group);
+                }
+                if (model.Any()) {
+                    var employees = new List<EmployeeModel>();
+                    var notes = new List<ProductionTestingNoteModel>();
+                    using (var vfi = new tammaContext()) {
+                        var employeeIds = data.FirstOrDefault().EmployeeIds;
+                        employees = (from x in vfi.Employees
+                                         where employeeIds.Contains(x.EmployeeId)
+                                         select new EmployeeModel {
+                                             EmployeeId = x.EmployeeId,
+                                             EmployeeCode = x.EmployeeCode,
+                                             EmployeeName = x.EmployeeName,
+                                         }).ToList();
+                        notes = (from x in vfi.ProductionTestingNotes
+                                 where x.Active
+                                 orderby x.Idx
+                                 select new ProductionTestingNoteModel {
+                                     Note = x.Note
+                                 }).ToList();
+                    }
+                    var first = model.FirstOrDefault();
+                    first.Details = details;
+                    first.Employees = employees;
+                    first.Notes = notes;
                 }
             }
             catch (Exception ex) {
@@ -16923,7 +16960,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             x.TestDate.Hour,
                                             x.ProductionMachineId,
                                             x.Machine.MachineName,
-                                            MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
+                                            //MachineTypeName = x.MachineTypeId != null ? x.ProcessingType.TypeName : "",
                                             x.ReferenceTestingDetailId,
                                             x.Idx,
                                             x.FromWarehouseId,
@@ -16937,8 +16974,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             x.TestNumber,
                                             x.TestName,
                                             x.TestCode,
+                                            x.MinNumber,
+                                            x.MaxNumber,
+                                            x.ProductionTestingDetail.TestRate,
                                             ProductionTestingNote = x.ProductionTestingDetail.ProductionTesting.Note
                                         }).ToList();
+                    var testingDetailIds = realTestings.Select(x=> x.ReferenceTestingDetailId).Distinct().ToList();
+                    var testingMachineTypes = from x in vfi.ProductionTestingMachines
+                                             where x.Active && testingDetailIds.Contains(x.TestingDetailId)
+                                             select new { x.TestingDetailId, x.ProcessingType.TypeName };
                     var productionShift = vfi.ProductionLocks.FirstOrDefault(x => x.LockDate == reportDate);
                     var shiftName = shift + "";
                     if (productionShift != null) {
@@ -16960,6 +17004,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         var employeeTestings = new List<EmployeeTestingModel>();
                         foreach (var detailId in detailIds) {
                             var detailTestings = realTestingsById.Where(x => x.ReferenceTestingDetailId == detailId).OrderBy(x => x.WarehouseIdx).ToList();
+                            var testingMachineTypesById = testingMachineTypes.Where(x => x.TestingDetailId == detailId);
+                            var machineTypeName = "";
+                            foreach (var testingMachineType in testingMachineTypesById) {
+                                machineTypeName += testingMachineType.TypeName + "/ ";
+                            }
                             var fromWarehouseIds = detailTestings.Select(x => x.FromWarehouseId).Distinct().ToList();
                             foreach (var fromWarehouseId in fromWarehouseIds) {
                                 var detailsByWarehouse = detailTestings.Where(x => x.FromWarehouseId == fromWarehouseId).ToList();
@@ -16977,9 +17026,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         ProductCode = id.ProductCode,
                                         MachineId = id.ProductionMachineId,
                                         MachineName = id.MachineName,
-                                        MachineTypeName = first.MachineTypeName,
+                                        MachineTypeName = machineTypeName,
                                         TestCode = first.TestCode,
                                         TestName = first.TestName,
+                                        TestRate = first.TestRate,
                                         FromWarehouseId = fromWarehouseId,
                                         FromWarehouseName = first.FromWarehouseName,
                                         WarehouseId = id.WarehouseId,
@@ -16987,7 +17037,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         ShiftName = shiftName,
                                         CustomerCode = id.CustomerCode,
                                         ProductionDate = reportDate.ToString("dd/MM/yy"),
-                                        ProductionTestingNote = first.ProductionTestingNote
+                                        ProductionTestingNote = first.ProductionTestingNote,
+                                        FromDateTimeStr = fromTime.ToString("dd/MM/yyyy HH:mm:ss"),
+                                        ToDateTimeStr = toTime.ToString("dd/MM/yyyy HH:mm:ss"),
                                     };
                                     model.Add(entity);
                                 }
@@ -16996,12 +17048,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     var endTime = startTime.AddHours(1);
                                     var detail = new ProductionTestingReportDetailModel {
                                         Hour = startTime.Hour,
-                                        Number = 0
+                                        Number = 0,
                                     };
                                     var detailsByHour = detailsByWarehouse.Where(x => x.TestDate >= startTime && x.TestDate <= endTime).ToList();
                                     if (detailsByHour.Any()) {
                                         var last = detailsByHour.LastOrDefault();
                                         detail.Number = last.TestNumber;
+                                        detail.MinNumber = last.MinNumber;
+                                        detail.MaxNumber = last.MaxNumber;
                                         if (calculateMode == (int)MyUtilities.Report.Calculate.All) {
                                             var employeeTesting = employeeTestings.FirstOrDefault(x => 
                                                 x.Hour == detail.Hour && 
@@ -17012,6 +17066,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                     Hour = detail.Hour,
                                                     FromWarehouseId = fromWarehouseId,
                                                     FromWarehouseName = entity.FromWarehouseName,
+                                                    Idx = first.WarehouseIdx,
                                                     EmployeeId = last.TestEmployeeId,
                                                     EmployeeCode = last.EmployeeCode,
                                                 };
@@ -17026,9 +17081,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 }
                             }
                         }
-                        if (calculateMode == (int)MyUtilities.Report.Calculate.All) {
+                        if (calculateMode == (int)MyUtilities.Report.Calculate.All && employeeTestings.Any()) {
                             employeeIds = employeeIds.Distinct().ToList();
-                            var employeeWarehouseIds = employeeTestings.Select(x => new { x.FromWarehouseId, x.FromWarehouseName }).Distinct().ToList();
+                            var employeeWarehouseIds = employeeTestings.Select(x => new { x.FromWarehouseId, x.FromWarehouseName, x.Idx }).Distinct().OrderByDescending(x => x.Idx).ToList();
                             foreach (var fromWarehouseId in employeeWarehouseIds) {
                                 //var employeeTestingsById = employeeTestings.Where(x => x.FromWarehouseId == fromWarehouseId).ToList();
 
@@ -17054,6 +17109,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     //    EmployeeCode = x.EmployeeCode,
                                     //}).ToList(),
                                     EmployeeIds = employeeIds,
+                                    FromDateTimeStr = fromTime.ToString("dd/MM/yyyy HH:mm:ss"),
+                                    ToDateTimeStr = toTime.ToString("dd/MM/yyyy HH:mm:ss"),
                                 };
                                 var first = model.FirstOrDefault();
                                 foreach (var detail in first.Details) {
@@ -17061,6 +17118,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         Hour = detail.Hour,
                                         Date = detail.Date,
                                         Number = 0,
+                                        MinNumber = 0,
+                                        MaxNumber = 0,
                                         EmployeeCode = ""
                                     };
                                     var employeeTestingsById = employeeTestings.Where(x =>
@@ -17085,6 +17144,40 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return model.OrderBy(x => x.DisplayName).ToList();
         }
+
+        [GridAction]
+        public ActionResult SelectProductionTestingDailyDetailReport(int productId, int machineId, int warehouseId, int fromWarehouseId, int testingDetailId, string fromDateTimeStr, string toDateTimeStr) {
+            var model = new List<RealTestingModel>();
+            if (testingDetailId == 0) return View(new GridModel(model));
+            try {
+                var fromTime = MyUtilities.Function.ParseDate(fromDateTimeStr);
+                var toTime = MyUtilities.Function.ParseDate(toDateTimeStr);
+                using (var vfi = new tammaContext()) {
+                    model = (from x in vfi.RealTestings
+                             where x.Active &&
+                                x.TestDate >= fromTime && x.TestDate < toTime &&
+                                x.ProductId == productId &&
+                                x.ProductionMachineId == machineId &&
+                                x.ReferenceTestingDetailId == testingDetailId &&
+                                x.FromWarehouseId == fromWarehouseId &&
+                                x.WarehouseId == warehouseId
+                             orderby x.ModifiedDate
+                             select new RealTestingModel {
+                                 TestEmployeeName = x.Employee.EmployeeName,
+                                 TestNumber = x.TestNumber,
+                                 TestDate = x.TestDate,
+                                 MachineName = x.Machine1.MachineName,
+                                 ModifiedDate = x.ModifiedDate,
+                                 ModifiedUser = x.ModifiedUser
+                             }).ToList();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionTestingDailyReport", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
 
         #endregion
     }

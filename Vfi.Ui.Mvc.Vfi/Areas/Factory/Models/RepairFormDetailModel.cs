@@ -122,9 +122,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 
         public double ProductPrice { get; set; }
 
-        public double DiffPoint
-        {
-            get { return Math.Round((ProductPrice*MyUtilities.Product.BaseProductionPrice*DiffProductQuantity)/1000000, 3); }
+        public double DiffPoint {
+            get {
+                return
+                    Math.Round(
+                    (ProductPrice * MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate)
+                    * DiffProductQuantity)
+                    / 1000000
+                    , 3);
+            }
         }
 
         public double DiffValue

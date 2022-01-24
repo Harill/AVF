@@ -23,7 +23,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public string VendorCode { get; set; }
 
         public int ReferenceId { get; set; }
-        [DataType("_MaterialEditByVendorTemplate")]
+        [DataType("_MaterialEditByTypeTemplate")]
         public string ReferenceCode { get; set; }
 
         public int TypeId { get; set; }
@@ -46,11 +46,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public double Price { get { return OrderQty * UnitPrice; } }
         public string PriceStr
         {
-            get
-            {
-                return Currency.Equals("VND") ?
-                    string.Format("{0:n0}", Price) :
-                    string.Format("{0:n2}", Price);
+            get {
+                return Currency.Equals("VND")
+                        ? string.Format("{0:n0}", Price)
+                        : string.Format("{0:n2}", Price);
             }
         }
 
@@ -60,12 +59,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         {
             get
             {
-                return Currency.Equals("VND") ?
+                return (string.IsNullOrWhiteSpace(Currency) && UnitPrice == 0)
+                    ? "" : Currency.Equals("VND") ?
                     string.Format("{0:n0}", UnitPrice) :
-                    string.Format("{0:n3}", UnitPrice);
+                    string.Format("{0:n4}", UnitPrice);
             }
         }
 
+        [Required(ErrorMessage = "*")]
         [DataType("_DateTemplate")]
         public DateTime? DueDate { get; set; }
         public byte Status { get; set; }

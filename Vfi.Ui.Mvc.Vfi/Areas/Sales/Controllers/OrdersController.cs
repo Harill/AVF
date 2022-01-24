@@ -631,7 +631,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         // approve order
         List<OrderModel> GetOrderNeedApprove() {
-            var models = new List<OrderModel>();
+            var model = new List<OrderModel>();
             using (var vfi = new tammaContext()) {
                 var orders = (from x in vfi.Orders
                               where x.DueDate == null && x.Active && x.OrderDetails.Any()
@@ -641,6 +641,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                   x.OrderNumber,
                                   x.PoNumber,
                                   x.Customer.CustomerCode,
+                                  x.Customer.IsNotRequireApproveOrder,
                                   x.ModifiedDate,
                                   x.ModifiedUser,
                                   x.CurrencyCode,
@@ -652,7 +653,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                               }).ToList();
                 var isSalesManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.SaleManagement);
                 foreach (var order in orders) {
-                    var model = new OrderModel {
+                    var entity = new OrderModel {
                         CustomerId = order.CustomerId,
                         OrderId = order.OrderId,
                         OrderNumber = order.OrderNumber,
@@ -666,17 +667,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         OrderDate = order.OrderDate,
                         SalesPersonName = order.SalesPersonName,
                         SalesManager = isSalesManager,
+                        CanApprove = order.IsNotRequireApproveOrder
                     };
                     var detail = order.OrderDetails.FirstOrDefault(od => od.Status != (int)MyUtilities.Sales.Status.Completed);
                     if (detail != null) {
-                        model.DetailStatus = 1;
+                        entity.DetailStatus = 1;
                     }
                     else {
-                        model.DueDate = order.OrderDetails.OrderByDescending(od => od.VFIDueDate).FirstOrDefault().VFIDueDate;
+                        entity.DueDate = order.OrderDetails.OrderByDescending(od => od.VFIDueDate).FirstOrDefault().VFIDueDate;
+                        if (isSalesManager) {
+                            entity.CanApprove = true;
+                        }
                     }
-                    models.Add(model);
+                    model.Add(entity);
                 }
-                return models;
+                return model;
             }
         }
 
@@ -711,7 +716,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         od.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
                         od.Order.DueDate != null &&
                        od.Order.DueDate.Value.Month == order.DueDate.Value.Month &&
-                       od.Order.DueDate.Value.Year == order.DueDate.Value.Year).Select(x => new { x.ProductId, x.OrderQty }).ToList();
+                       od.Order.DueDate.Value.Year == order.DueDate.Value.Year)
+                       .Select(x => new { x.ProductId, x.OrderQty }).ToList();
                     foreach (var productId in productIds) {
                         var forecast = vfi.ForecastOrders.FirstOrDefault(f => f.ProductId == productId &&
                             f.ForecastDate.Month == order.DueDate.Value.Month &&
@@ -732,8 +738,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         var orderDetailsInOrder = order.OrderDetails.Where(od => od.ProductId == productId).ToList();
                         var totalQuantity = orderDetailsById.Sum(od => od.OrderQty.Value) +
                             orderDetailsInOrder.Sum(od => od.OrderQty.Value);
-                        if (forecast.Quantity < totalQuantity)
+                        if (forecast.Quantity < totalQuantity) {
                             forecast.Quantity = totalQuantity;
+                            forecast.ModifiedDate = DateTime.Now;
+                        }
                     }
                     vfi.SaveChanges();
 

@@ -27,15 +27,14 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.Idx).HasColumnName("Idx");
             this.Property(t => t.TestingCode).HasColumnName("TestingCode");
             this.Property(t => t.TestingName).HasColumnName("TestingName");
-            this.Property(t => t.MachineTypeId).HasColumnName("MachineTypeId");
             this.Property(t => t.Active).HasColumnName("Active");
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.ModifiedUser).HasColumnName("ModifiedUser");
+            this.Property(t => t.MinNumber).HasColumnName("MinNumber");
+            this.Property(t => t.MaxNumber).HasColumnName("MaxNumber");
+            this.Property(t => t.TestRate).HasColumnName("TestRate");
 
             // Relationships
-            this.HasOptional(t => t.ProcessingType)
-                .WithMany(t => t.ProductionTestingDetails)
-                .HasForeignKey(d => d.MachineTypeId);
             this.HasRequired(t => t.ProductionTesting)
                 .WithMany(t => t.ProductionTestingDetails)
                 .HasForeignKey(d => d.ProductionTestingId);

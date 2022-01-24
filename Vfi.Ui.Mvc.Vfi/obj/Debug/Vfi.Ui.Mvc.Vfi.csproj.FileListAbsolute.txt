@@ -199,6 +199,8 @@ C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Core.Common.pdb
 C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.csprojResolveAssemblyReference.cache
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptProductTotalAVF.resources
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMachineProductionOnTest.resources
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptInvoice_ExportForm.resources
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptDefectReportForm.resources
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMachineRepairHandover.resources
@@ -394,4 +396,3 @@ C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\System.Web.WebPages.Razor.xml
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Core.Common.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.pdb
-C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMachineProductionOnTest.resources

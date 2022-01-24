@@ -9,110 +9,17 @@
    
     <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>
     <script type="text/javascript" src="@Url.Content("~/Scripts/easytimer.min.js")"   ></script>    <script type="text/javascript">
-        $(function() {
+        $(function () {
             var $container = $("#container-1");
             //khoang cach giua cac item
             $container.isotope({
                 itemSelector: '.element-1',
-                //masonry: {
-                //    columnWidth: 10
-                //},
-                //masonryHorizontal: {
-                //    rowHeight: 120
-                //},
-                //cellsByRow: {
-                //    columnWidth: 240,
-                //    rowHeight: 240
-                //},
-                //cellsByColumn: {
-                //    columnWidth: 240,
-                //    rowHeight: 240
-                //},
-                //getSortData: {
-                //    symbol: function($elem) {
-                //        return $elem.attr('data-symbol');
-                //    },
-                //    category: function($elem) {
-                //        return $elem.attr('data-category');
-                //    },
-                //    number: function($elem) {
-                //        return parseInt($elem.find('.number').text(), 10);
-                //    },
-                //    weight: function($elem) {
-                //        return parseFloat($elem.find('.weight').text().replace(/[\(\)]/g, ''));
-                //    },
-                //    name: function($elem) {
-                //        return $elem.find('.name').text();
-                //    }
-                //}
             });
-            //var $optionSets = $('#options .option-set'),
-            //    $optionLinks = $optionSets.find('a');
-            //$optionLinks.click(function() {
-            //    var $this = $(this); // don't proceed if already selected
-            //    if ($this.hasClass('selected')) {
-            //        return false;
-            //    }
-            //    var $optionSet = $this.parents('.option-set');
-            //    $optionSet.find('.selected').removeClass('selected');
-            //    $this.addClass('selected');
-            //    // make option object dynamically, i.e. { filter: '.my-filter-class' }
-            //    var options = {},
-            //        key = $optionSet.attr('data-option-key'),
-            //        value = $this.attr('data-option-value');
-            //    // parse 'false' as false boolean
-            //    value = value === 'false' ? false : value;
-            //    options[key] = value;
-            //    if (key === 'layoutMode' && typeof changeLayoutMode === 'function') {
-            //        // changes in layout modes need extra logic
-            //        changeLayoutMode($this, options);
-            //    } else {
-            //        // otherwise, apply new options
-            //        $container.isotope(options);
-            //    }
-            //    return false;
-            //});
-            // change layout
-            //var isHorizontal = false;
-
-            //function changeLayoutMode($link, options) {
-            //    var wasHorizontal = isHorizontal;
-            //    isHorizontal = $link.hasClass('horizontal');
-            //    if (wasHorizontal !== isHorizontal) {
-            //        // orientation change
-            //        // need to do some clean up for transitions and sizes
-            //        var style = isHorizontal ?
-            //            { height: '80%', width: $container.width() } :
-            //            { width: 'auto' };
-            //        // stop any animation on container height / width
-            //        $container.filter(':animated').stop();
-            //        // disable transition, apply revised style
-            //        $container.addClass('no-transition').css(style);
-            //        setTimeout(function() {
-            //            $container.removeClass('no-transition').isotope(options);
-            //        }, 100);
-            //    } else {
-            //        $container.isotope(options);
-            //    }
-            //}
-
-            // change size of clicked element
-            $container.delegate('.element-1', 'click', function() {
+            $container.delegate('.element-1', 'click', function () {
                 $(this).toggleClass('large');
                 $container.isotope('reLayout');
             });
-            // toggle variable sizes of all elements
-            //$('#toggle-sizes').find('a').click(function() {
-            //    $container.toggleClass('variable-sizes').isotope('reLayout');
-            //    return false;
-            //});
-            //var $sortBy = $('#sort-by');
-            //$('#shuffle a').click(function() {
-            //    $container.isotope('shuffle');
-            //    $sortBy.find('.selected').removeClass('selected');
-            //    $sortBy.find('[data-option-value="random"]').addClass('selected');
-            //    return false;
-            //});
+
             var $container2 = $("#container-2");
             //khoang cach giua cac item
             $container2.isotope({
@@ -122,6 +29,7 @@
                 $(this).toggleClass('large');
                 $container2.isotope('reLayout');
             });
+
             var $container3 = $("#container-3");
             //khoang cach giua cac item
             $container3.isotope({
@@ -132,11 +40,23 @@
                 $container3.isotope('reLayout');
             });
 
+            var $container4 = $("#container-4");
+            //khoang cach giua cac item
+            $container4.isotope({
+                itemSelector: '.element-4',
+            });
+            $container4.delegate('.element-4', 'click', function () {
+                $(this).toggleClass('large');
+                $container4.isotope('reLayout');
+            });
+
             $('#filters a').click(function () {
                 var selector = $(this).attr('data-filter');
+                
                 $container.isotope({ filter: selector });
                 $container2.isotope({ filter: selector });
                 $container3.isotope({ filter: selector });
+                $container4.isotope({ filter: selector });
                 return false;
             });
         });
@@ -174,136 +94,177 @@
 }
 <style>
     body {
-        background-image:url("")
+        background-image: url("");
     }
 
     .container_24 {
-        width:100%;
+        width: 100%;
     }
+
     .title {
         padding: 0 15px;
     }
-.isotope-item {
-  z-index: 2;
-}
-.isotope-hidden.isotope-item {
-  pointer-events: none;
-  z-index: 1;
-}
-.isotope,
-.isotope .isotope-item {
-  -webkit-transition-duration: 0.8s;
-     -moz-transition-duration: 0.8s;
-      -ms-transition-duration: 0.8s;
-       -o-transition-duration: 0.8s;
-          transition-duration: 0.8s;
-}
-.isotope {
-  -webkit-transition-property: height, width;
-     -moz-transition-property: height, width;
-      -ms-transition-property: height, width;
-       -o-transition-property: height, width;
-          transition-property: height, width;
-}
-.isotope .isotope-item {
-  -webkit-transition-property: -webkit-transform, opacity;
-     -moz-transition-property:    -moz-transform, opacity;
-      -ms-transition-property:     -ms-transform, opacity;
-       -o-transition-property:      -o-transform, opacity;
-          transition-property:         transform, opacity;
-}
-.entity.machine          { background: #F00; background: hsl(   0, 100%, 50%); }
-#revok1 {
-	background-size:cover;
-	background-position:center;
-}
-.entity * {margin: 0;}
-.entity .name {
-  left: 0.5em;  bottom: 1.6em;  font-size: 1.05em;  }
-.clickable .entity:hover {cursor: pointer;
-    border: 1px aquamarine;}.clickable .entity:hover h3 {
-  text-shadow:0 0 10px white,0 0 10px white;
-}.isotope a:hover{
-  text-shadow:0 0 10px white,0 0 10px white;
-    font-size: 14px;
-}.clickable .entity:hover h1 {
-  text-shadow:0 0 5px white,0 0 5px white;
-  font-weight: bold;
-    font-size: 17px;
-}
-.clickable .entity:hover h2 {color: white;}
-
-.entity {
-  width: 260px;
-  height: 40px;
-  margin: 5px;  float: left;
-  overflow: hidden;
-  position: relative;
-  background: #888;
-  color: #222;
-  -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-          border-radius: 10px;
-}
-.entity.large{
-  width: 260px;
-  height: 120px;
-  z-index: 100;
-  -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-          border-radius: 10px;
-}
 
-.itemInfo {
-    width:100%;
-    display:block;
-}
-.itemLeft {
-    text-align: left;
-}
-.itemRight {
-    text-align: Right;
-}
-.column {
-    text-align: Right;
-}
-#container-1 {
-    margin-right: 100px;
-}
+    .isotope-item {
+        z-index: 2;
+    }
+
+    .isotope-hidden.isotope-item {
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .isotope,
+    .isotope .isotope-item {
+        -webkit-transition-duration: 0.8s;
+        -moz-transition-duration: 0.8s;
+        -ms-transition-duration: 0.8s;
+        -o-transition-duration: 0.8s;
+        transition-duration: 0.8s;
+    }
+
+    .isotope {
+        -webkit-transition-property: height, width;
+        -moz-transition-property: height, width;
+        -ms-transition-property: height, width;
+        -o-transition-property: height, width;
+        transition-property: height, width;
+    }
+
+        .isotope .isotope-item {
+            -webkit-transition-property: -webkit-transform, opacity;
+            -moz-transition-property: -moz-transform, opacity;
+            -ms-transition-property: -ms-transform, opacity;
+            -o-transition-property: -o-transform, opacity;
+            transition-property: transform, opacity;
+        }
+
+    .entity.machine {
+        background: #F00;
+        background: hsl( 0, 100%, 50%);
+    }
+
+    #revok1 {
+        background-size: cover;
+        background-position: center;
+    }
+
+    .entity * {
+        margin: 0;
+    }
+
+    .entity .name {
+        left: 0.5em;
+        bottom: 1.6em;
+        font-size: 1.05em;
+    }
+
+    .clickable .entity:hover {
+        cursor: pointer;
+        border: 1px aquamarine;
+    }
+
+        .clickable .entity:hover h3 {
+            text-shadow: 0 0 10px white,0 0 10px white;
+        }
+
+    .isotope a:hover {
+        text-shadow: 0 0 10px white,0 0 10px white;
+        font-size: 14px;
+    }
+
+    .clickable .entity:hover h1 {
+        text-shadow: 0 0 5px white,0 0 5px white;
+        font-weight: bold;
+        font-size: 17px;
+    }
+
+    .clickable .entity:hover h2 {
+        color: white;
+    }
+
+
+    .entity {
+        width: 260px;
+        height: 40px;
+        margin: 5px;
+        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+
+        .entity.large {
+            width: 260px;
+            height: 120px;
+            z-index: 100;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+    .itemInfo {
+        width: 100%;
+        display: block;
+    }
+
+    .itemLeft {
+        text-align: left;
+    }
+
+    .itemRight {
+        text-align: Right;
+    }
+
+    .column {
+        text-align: Right;
+    }
+    
+    #container-1 {
+        margin-right: 100px;
+    }
+    #container-3 {
+        margin-right: 100px;
+    }
+
     #filters {
         margin: 0;
     }
 
-        #options li {
-            float: left;
-            display: list-item;
+    #options li {
+        float: left;
+        display: list-item;
+    }
+
+    #options .selected {
+        background-color: #13F;
+        text-shadow: none;
+        color: white;
+    }
+
+    #options li a {
+        display: block;
+        padding: 0.4em 0.5em;
+        background-color: #DDD;
+        color: #222;
+        font-weight: bold;
+        text-shadow: 0 1px hsla( 0, 0%, 100%, 0.5 );
+        background: none;
+    }
+
+        #options li a:hover {
+            background-color: cornflowerblue;
+            font-weight: bolder;
         }
 
-        #options .selected {
-            background-color: #13F;
-            text-shadow: none;
-            color: white;
+        #options li a:active {
+            background-color: cornflowerblue;
+            font-weight: bolder;
         }
-
-        #options li a {
-            display: block;
-            padding: 0.4em 0.5em;
-            background-color: #DDD;
-            color: #222;
-            font-weight: bold;
-            text-shadow: 0 1px hsla( 0, 0%, 100%, 0.5 );
-            background: none;
-        }
-
-            #options li a:hover {
-                background-color: cornflowerblue;
-                font-weight: bolder;
-            }
-
-            #options li a:active {
-                background-color: cornflowerblue;
-                font-weight: bolder;
-            }
 </style>
 
 <div class="title">Sơ đồ máy CNC</div>
@@ -374,13 +335,11 @@
 <div class="clear"></div>
 @{
     int i = 0;
-    foreach (var list in Model.ListMachineDiagram)
-        {
-            i++;
+    foreach (var list in Model.ListMachineDiagram) {
+        i++;
 <div id='container-@i' class="clickable clearfix isotope" style="position: relative; overflow: hidden; height: auto; width: 270px;float: left;padding-right: 5px">
                  @{
-            foreach (var entity in list)
-                     {
+        foreach (var entity in list) {
                          <div class='element-@i machine-@entity.MachineType entity isotope-item @entity.StateCode @entity.MachineFunction @entity.MachineType' id="revok" data-symbol="@entity.MachineState" data-category="@entity.MachineType" 
                               style="position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
                              <div style="height: 40px; display: block; text-align: center">
@@ -421,7 +380,7 @@
                                      </div>
                                      <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
                                          <span class="itemLeft">Năng suất máy:</span>
-                                         <span class="itemRight">@entity.ProductionPerDayFormat</span>
+                                         <span class="itemRight">@entity.ProductionPerDayStr</span>
                                      </div>
                                      <div style="width: 100%; height: 10px; float: left;padding-bottom: 2px;">
                                         <span class="itemLeft">Tổng sản lượng:</span>
@@ -433,19 +392,19 @@
                                      </div>*@
                                  </div>
                                   <div style="width: 100%; height: 10px; float: left; text-align: center;">
-                                     <span class="itemRight">@{ @Html.ActionLink("Chi tiết hơn", "MachineLog", "Machine", new {id = entity.MachineId}, null)}</span> | 
+                                     <span class="itemRight">@{ @Html.ActionLink("Chi tiết hơn", "MachineLog", "Machine", new { id = entity.MachineId }, null)}</span> | 
                                      <span class="itemRight">@{ @Html.ActionLink("Đo kiểm", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
                                  </div>
                              </div>
 
                          </div>
 
-                     }
+        }
 
                  }
     
             </div>
-        }
+    }
     }   
 
     <div class="clear"></div><br/>

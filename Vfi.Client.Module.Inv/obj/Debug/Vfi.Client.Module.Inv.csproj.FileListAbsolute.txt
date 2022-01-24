@@ -56,6 +56,7 @@ C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Server.Core.DataMod
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Server.Core.Repository.pdb
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Debug\Vfi.Client.Module.Inv.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Inv\obj\Debug\Vfi.Client.Module.Inv.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Debug\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Client.Module.Inv.dll
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Client.Module.Inv.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Microsoft.Practices.Unity.dll
@@ -64,6 +65,5 @@ C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Server.Core.Reposi
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Microsoft.Practices.ServiceLocation.dll
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Server.Core.DataModel.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\bin\Debug\Vfi.Server.Core.Repository.pdb
-C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Debug\Vfi.Client.Module.Inv.csprojResolveAssemblyReference.cache
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Debug\Vfi.Client.Module.Inv.dll
 C:\workspace\vfi_sync\vfi\Vfi.Client.Module.Inv\obj\Debug\Vfi.Client.Module.Inv.pdb

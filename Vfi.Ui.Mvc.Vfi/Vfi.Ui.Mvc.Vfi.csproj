@@ -453,7 +453,9 @@
     <Compile Include="Areas\Factory\Models\ProductionPolishModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionSectionProcessModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionTestDetailModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionTestingMachineModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionTestingModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionTestingNoteModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionToolReplacementModel.cs" />
     <Compile Include="Areas\Factory\Models\RealTestingModel.cs" />
     <Compile Include="Areas\Factory\Models\RepairFormDetailModel.cs" />
@@ -575,6 +577,12 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptProductTotalAVF.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptProductTotalAVF.Designer.cs">
+      <DependentUpon>RptProductTotalAVF.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptMachineProductionOnTest.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1381,7 +1389,9 @@
     <Compile Include="Models\Mapping\ProductionSectionMap.cs" />
     <Compile Include="Models\Mapping\ProductionSectionProcessMap.cs" />
     <Compile Include="Models\Mapping\ProductionTestingDetailMap.cs" />
+    <Compile Include="Models\Mapping\ProductionTestingMachineMap.cs" />
     <Compile Include="Models\Mapping\ProductionTestingMap.cs" />
+    <Compile Include="Models\Mapping\ProductionTestingNoteMap.cs" />
     <Compile Include="Models\Mapping\ProductionToolMap.cs" />
     <Compile Include="Models\Mapping\ProductionToolReplacementMap.cs" />
     <Compile Include="Models\Mapping\ProductMap.cs" />
@@ -1502,6 +1512,8 @@
     <Compile Include="Models\ProductCombinationRecipeDetail.cs" />
     <Compile Include="Models\ProductionTesting.cs" />
     <Compile Include="Models\ProductionTestingDetail.cs" />
+    <Compile Include="Models\ProductionTestingMachine.cs" />
+    <Compile Include="Models\ProductionTestingNote.cs" />
     <Compile Include="Models\Production\ProductCombinationRecipeDetailModel.cs" />
     <Compile Include="Models\Production\ProductCombinationRecipeModel.cs" />
     <Compile Include="Models\ProductImg.cs" />
@@ -1665,6 +1677,7 @@
     <Content Include="Areas\Inv\Views\Inv\PageProduction2List.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageExportMaterial.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageProductPriceList.aspx" />
+    <Content Include="Areas\Inv\Views\Reporting\PageProductReportTotalAVF.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageMachineProductionOnTestReport.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageProductionMonthlyDate.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageProductReportAllTotal.aspx" />
@@ -2655,7 +2668,7 @@
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_MachineStateDetailTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_DateTimeTemplateNullable.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_MachineRepairStatusEditTemplate.cshtml" />
-    <Content Include="Areas\Purchasing\Views\PurchaseOrder\ImportPOManagement.cshtml" />
+    <Content Include="Areas\Purchasing\Views\PurchaseOrder\InquiryPoManagement.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\AddPoTaxInvoiceReference.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\CreatePoTaxInvoice.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\PoTaxInvoicesManagement.cshtml" />
@@ -2664,7 +2677,7 @@
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\AddPoTaxInvoiceMoney.cshtml" />
     <Content Include="Areas\Factory\Views\Section\Production2Plan.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\MachineErrorState2.cshtml" />
-    <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_Machine2EditTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_MachineProduction2EditTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_Employee2EditTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_SectionEditTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_Production2CodeEditTemplate.cshtml" />
@@ -2828,6 +2841,10 @@
     <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number0.cshtml" />
     <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number4.cshtml" />
     <Content Include="Areas\Inv\Views\Reporting\ProductionTestingDailyReport.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\EditorTemplates\_MachineQCTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\EditorTemplates\_MachineQCByTypeTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_MachineProductionEditTemplate.cshtml" />
+    <Content Include="Areas\Purchasing\Views\PurchaseOrder\EditorTemplates\_MaterialEditByTypeTemplate.cshtml" />
     <None Include="Resources\IMG_17012014_143105.png" />
     <Content Include="Resources\approve_icon.jpg" />
     <None Include="Resources\ISO.jpg" />
@@ -2912,6 +2929,7 @@
     <Content Include="Scripts\2013.2.611\telerik.window.min.js" />
     <Content Include="Scripts\common\common.js" />
     <Content Include="Scripts\common\ConfusedValidation.js" />
+    <Content Include="Scripts\SampleTelerikComponentEvent.js" />
     <Content Include="Scripts\easytimer\easytimer.js" />
     <Content Include="Scripts\easytimer\easytimer.min.js" />
     <Content Include="Scripts\easytimer\examples.js" />
@@ -3094,6 +3112,7 @@
     <Content Include="Views\Product\EditorTemplates\_MachinePolishTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_MachineTestTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_ProcessingTypeQCTemplate.cshtml" />
+    <Content Include="Views\User\WorkGroupManagement.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -3565,6 +3584,9 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>UploadLocalization.zh-CN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptProductTotalAVF.resx">
+      <DependentUpon>RptProductTotalAVF.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptMachineProductionOnTest.resx">
       <DependentUpon>RptMachineProductionOnTest.cs</DependentUpon>
     </EmbeddedResource>

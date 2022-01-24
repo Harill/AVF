@@ -7728,7 +7728,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var model = new List<CncFormDetailModel>();
             try {
                 using (var vfi = new tammaContext()) {
-                    var machines = vfi.Machines.Where(m => m.Active && !m.Production2 && m.MachineName.StartsWith("P"));
+                    var machines = (from x in vfi.Machines
+                                    where x.Active && x.ProcessingType.Warehouse.IsCncMilling
+                                    select new { x.MachineId, x.MachineName }).ToList();
+                    var machineIds = machines.Select(x=> x.MachineId).ToList();
+                    var smartProductions = (from x in vfi.SmartProductions
+                                            where x.MachineId != null && machineIds.Contains(x.MachineId.Value)
+                                            select new { x.MachineId, x.ProductInvId }).ToList();
+                    //var productIds = smartProductions.Where(x => x.ProductId != null).Select(x => x.ProductId.Value);
                     foreach (var machine in machines) {
                         var entity = new CncFormDetailModel {
                             MachineId = machine.MachineId,
@@ -7736,8 +7743,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             InvQuantity = 0,
                             ProcessByMachineId = 0,
                         };
-                        var smartProduction =
-                            vfi.SmartProductions.FirstOrDefault(sp => sp.MachineId == machine.MachineId);
+                        var smartProduction = smartProductions.FirstOrDefault(sp => sp.MachineId == machine.MachineId);
                         if (smartProduction != null) {
                             if (smartProduction.ProductInvId != null) {
                                 var productInv =

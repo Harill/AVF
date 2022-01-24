@@ -25,7 +25,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string EmployeeName { get; set; }
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }
-        public Nullable<System.DateTime> ModifiedDate { get; set; }
+        public System.DateTime ModifiedDate { get; set; }
         public bool Production2 { get; set; }
         public bool Production2B { get; set; }
         public bool Repair { get; set; }

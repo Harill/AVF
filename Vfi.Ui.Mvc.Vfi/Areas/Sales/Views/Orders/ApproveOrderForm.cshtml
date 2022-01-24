@@ -10,10 +10,14 @@
 
         function grid_OnRowDataBound(e) {
             var dataItem = e.dataItem; //FA5858 F4FA58
-            if (dataItem.CustomerId !== 107 && dataItem.CustomerId !== 67) {
-                if (dataItem.DetailStatus === 1 || !dataItem.SalesManager) {
-                    e.row.childNodes[1].innerHTML = "";
-                }
+            //if (dataItem.CustomerId !== 107 && dataItem.CustomerId !== 67) {
+            //    if (dataItem.DetailStatus === 1 || !dataItem.SalesManager) {
+            //        e.row.childNodes[1].innerHTML = "";
+            //    }
+            //}
+
+            if (!dataItem.CanApprove) {
+                e.row.childNodes[1].innerHTML = "";
             }
             if (dataItem.StatusColor === 2) {
                 e.row.style.backgroundColor = "#FA5858";

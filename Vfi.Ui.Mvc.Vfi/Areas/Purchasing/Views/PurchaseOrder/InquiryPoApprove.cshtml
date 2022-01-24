@@ -243,7 +243,12 @@
                 columns.Bound(f => f.VendorCode).Width(120).Title("NCC");
                 columns.Bound(f => f.ReferenceCode).Width(150).Title("Mã").ReadOnly(true);
                 columns.Bound(f => f.Unit).Width(50).Title("ĐVT");
+                
                 columns.Bound(f => f.Currency).Width(70).Title("Tiền tệ");
+                columns.Bound(f => f.UnitPrice).Width(100).Title("ĐG")
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .ClientTemplate("<#= UnitPriceStr #>");
+                
                 columns.Bound(f => f.OrderQty).Width(70).Title("SL")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
@@ -251,10 +256,6 @@
                     .FooterHtmlAttributes(new { style = "text-align: right;" })
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                
-                columns.Bound(f => f.UnitPrice).Width(100).Title("ĐG")
-                    .ClientTemplate("<#= UnitPriceStr #>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
                 
                 columns.Bound(f => f.Price).Width(100).Title("TT").ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: right;" })
@@ -264,7 +265,7 @@
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
 
-                columns.Bound(f => f.DueDate).Width(100).Title("Ngày giao")
+                columns.Bound(f => f.DueDate).Width(100).Title("Ngày YC")
                        .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
                 columns.Bound(f => f.TotalInv).Width(70).Title("Tồn kho").ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: right;" })

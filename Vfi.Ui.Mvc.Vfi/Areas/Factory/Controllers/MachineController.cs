@@ -467,6 +467,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             .OrderByDescending(c => c.ModifiedDate)
                             .FirstOrDefault();
                         if (cnc != null) {
+                            entity.ProductId = cnc.ProductId;
                             entity.ProductCode = cnc.ProductCode;
                             entity.ForecastsQuality = cnc.Quantity;
                             entity.Productivity = cnc.RealProductivity;
@@ -564,44 +565,101 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         MachineName = machine.MachineName,
                         Information = "",
                         MachineState = machine.StateId ?? 0,
+                        ProductCode = "__",
+                        MaterialCode = "__",
                     };
                     entity.DiagramName = entity.GetDiagramName(machine);
-                    if (machine.ProductActive == null) {
-                        entity.ProductCode = "__";
-                        entity.EndDate = null;
-                        entity.StartDate = null;
-                        //entity.Number = 0;
-                        //entity.ProductionPerDay = 0;
-                        entity.MaterialCode = "__";
-                    }
-                    else {
-                        entity.ProductCode = machine.Product.ProductCode;
-                        entity.StartDate = machine.StartProductionDate;
-                        //entity.Number = machine.Number ?? 0;
-                        //entity.ProductionPerDay = machine.DayRate ?? 0;
-                        var materialInvId = (from ifd in vfi.ImportFormSX1Detail
-                                             where ifd.ProductId == machine.ProductActive
-                                             orderby ifd.DetailId descending
-                                             select ifd.MaterialInvId).First();
-                        if (materialInvId == null)
-                            entity.MaterialCode = "__";
-                        else {
-                            var materialInv =
-                                vfi.MaterialInventories.FirstOrDefault(m => m.MaterialInventoryId == materialInvId);
+                    var lastTrackUp = MyUtilities.Machine.LastTrackUpMachine(id, null, null, DateTime.Now);
+                    if (lastTrackUp != null) {
+                        entity.ProductCode = lastTrackUp.ProductCode;
+                        entity.StartDate = lastTrackUp.DeliveryDate;
+                        //entity.ProductionPerDay = entity.ProductionPerDay
+
+                        var importProductionDetails = (from x in vfi.ImportFormSX1Detail
+                                                       where x.MachineId == lastTrackUp.MachineId
+                                                       && x.ProductId == lastTrackUp.ProductId
+                                                       && x.ImportFormSX1.MaterialUseDate >= lastTrackUp.DeliveryDate
+                                                       orderby x.ImportFormSX1.MaterialUseDate descending
+                                                       select x).ToList();
+                        if (importProductionDetails.Any()) {
+                            var detail = importProductionDetails.FirstOrDefault();
+                            entity.Productivity = detail.ProductionRate;
+                            entity.Production = importProductionDetails.Sum(x => x.Number1 + x.Number2);
+                            entity.ProcessingQuantity = importProductionDetails.Sum(x => x.Processing1 + x.Processing2);
+                            entity.DefectQuantity = importProductionDetails.Sum(x => x.DefectProduct1 + x.DefectProduct2);
+                            entity.MaterialUse = importProductionDetails.Sum(x => x.MaterialUse1 + x.MaterialUse2);
                             entity.MaterialCode =
                                     MyUtilities.Material.GetMaterialInvDesignNo(
-                                    materialInv.Material.MaterialName,
-                                        materialInv.Material.OutDiameter,
-                                        materialInv.Material.InDiameter,
-                                        materialInv.Length,
-                                        materialInv.Material.DiameterType,
-                                        materialInv.Material.Shape,
-                                        materialInv.Vendor.VendorCode,
-                                        materialInv.LotNumber);
+                                    detail.MaterialInventory.Material.MaterialName,
+                                        detail.MaterialInventory.Material.OutDiameter,
+                                        detail.MaterialInventory.Material.InDiameter,
+                                        detail.MaterialInventory.Length,
+                                        detail.MaterialInventory.Material.DiameterType,
+                                        detail.MaterialInventory.Material.Shape,
+                                        detail.MaterialInventory.Vendor.VendorCode,
+                                        detail.MaterialInventory.LotNumber);
                         }
+                        //entity.MaterialCode = lastTrackUp.MaterialCode;
+                        //var materialInvId = (from ifd in vfi.ImportFormSX1Detail
+                        //                     where ifd.ProductId == lastTrackUp.ProductId && ifd.MachineId == id
+                        //                     orderby ifd.ImportFormSX1.MaterialUseDate descending
+                        //                     select ifd.MaterialInvId).First();
+                        //if (materialInvId == null) {
+                        //    entity.MaterialCode = "__";
+                        //}
+                        //else {
+                        //    var materialInv =
+                        //        vfi.MaterialInventories.FirstOrDefault(m => m.MaterialInventoryId == materialInvId);
+                        //    entity.MaterialCode =
+                        //            MyUtilities.Material.GetMaterialInvDesignNo(
+                        //            materialInv.Material.MaterialName,
+                        //                materialInv.Material.OutDiameter,
+                        //                materialInv.Material.InDiameter,
+                        //                materialInv.Length,
+                        //                materialInv.Material.DiameterType,
+                        //                materialInv.Material.Shape,
+                        //                materialInv.Vendor.VendorCode,
+                        //                materialInv.LotNumber);
+                        //}
                     }
+
+                    //if (machine.ProductActive == null) {
+                    //    entity.ProductCode = "__";
+                    //    entity.EndDate = null;
+                    //    entity.StartDate = null;
+                    //    //entity.Number = 0;
+                    //    //entity.ProductionPerDay = 0;
+                    //    entity.MaterialCode = "__";
+                    //}
+                    //else {
+                    //    entity.ProductCode = machine.Product.ProductCode;
+                    //    entity.StartDate = machine.StartProductionDate;
+                    //    //entity.Number = machine.Number ?? 0;
+                    //    //entity.ProductionPerDay = machine.DayRate ?? 0;
+                    //    var materialInvId = (from ifd in vfi.ImportFormSX1Detail
+                    //                         where ifd.ProductId == machine.ProductActive
+                    //                         orderby ifd.DetailId descending
+                    //                         select ifd.MaterialInvId).First();
+                    //    if (materialInvId == null)
+                    //        entity.MaterialCode = "__";
+                    //    else {
+                    //        var materialInv =
+                    //            vfi.MaterialInventories.FirstOrDefault(m => m.MaterialInventoryId == materialInvId);
+                    //        entity.MaterialCode =
+                    //                MyUtilities.Material.GetMaterialInvDesignNo(
+                    //                materialInv.Material.MaterialName,
+                    //                    materialInv.Material.OutDiameter,
+                    //                    materialInv.Material.InDiameter,
+                    //                    materialInv.Length,
+                    //                    materialInv.Material.DiameterType,
+                    //                    materialInv.Material.Shape,
+                    //                    materialInv.Vendor.VendorCode,
+                    //                    materialInv.LotNumber);
+                    //    }
+
                     return View(entity);
                 }
+
             }
             catch (Exception ex) {
                 ModelState.AddModelError("ErrorMachine", ex.Message);
@@ -832,39 +890,53 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             try {
 
                 using (var vfi = new vfiContext()) {
-                    var user = vfi.Users.FirstOrDefault(u => u.Username.Contains(HttpContext.User.Identity.Name));
-                    if (user == null)
-                        throw new AggregateException(
-                            "Lỗi ! Không thấy tên đăng nhập ! Vui lòng đăng nhập lại hoặc liên hệ Admin");
+                    //var user = vfi.Users.FirstOrDefault(u => u.Username.Contains(HttpContext.User.Identity.Name));
+                    //if (user == null)
+                    //    throw new AggregateException(
+                    //        "Lỗi ! Không thấy tên đăng nhập ! Vui lòng đăng nhập lại hoặc liên hệ Admin");
                     var production2 = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
                         MyUtilities.UserRole.Production2Management);
                     var production1 = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
-                        MyUtilities.UserRole.Production2Management);
-                    var machines = vfi.Machines.ToList();
+                        MyUtilities.UserRole.ProductionManagement);
+                    model = (from x in vfi.Machines
+                                    select new MachineModel {
+                                        MachineId = x.MachineId,
+                                        MachineCode = x.MachineName,
+                                        Active = x.Active,
+                                        DiagramType = x.DiagramType ?? 1,
+                                        ColumnIndex = x.ColumnIndex ?? 1,
+                                        RowIndex = x.RowIndex ?? 1,
+                                        ProcessingTypeId = x.ProcessingTypeId.Value,
+                                        ProcessingTypeName = x.ProcessingType.TypeName,
+                                        Production2 = x.Production2,
+                                        MachineFunction = x.MachineFunction,
+                                        //DiagramTypeName = MyUtilities.Machine.Diagram.GetText(x.DiagramType ?? 1)
+                                    }).ToList();
+                    model.ForEach(x => x.DiagramTypeName = MyUtilities.Machine.Diagram.GetText(x.DiagramType));
                     if (production1 && production2) { }
                     else if (production1) {
-                        machines = machines.Where(m => m.Active).ToList();
+                        model = model.Where(m => m.Active).ToList();
                     }
                     else if (production2) {
-                        machines = machines.Where(m => m.Production2).ToList();
+                        model = model.Where(m => m.Production2).ToList();
                     }
-                    foreach (var machine in machines) {
-                        var entity = new MachineModel {
-                            MachineId = machine.MachineId,
-                            MachineCode = machine.MachineName,
-                            Active = machine.Active,
-                            DiagramType = machine.DiagramType ?? 1,
-                            ColumnIndex = machine.ColumnIndex ?? 1,
-                            RowIndex = machine.RowIndex ?? 1,
-                            ProcessingTypeId = machine.ProcessingTypeId.Value,
-                            ProcessingTypeName = machine.ProcessingType.TypeName,
-                            Production2 = machine.Production2,
-                            MachineFunction = machine.MachineFunction
-                        };
+                    //foreach (var machine in machines) {
+                    //    var entity = new MachineModel {
+                    //        MachineId = machine.MachineId,
+                    //        MachineCode = machine.MachineName,
+                    //        Active = machine.Active,
+                    //        DiagramType = machine.DiagramType ?? 1,
+                    //        ColumnIndex = machine.ColumnIndex ?? 1,
+                    //        RowIndex = machine.RowIndex ?? 1,
+                    //        ProcessingTypeId = machine.ProcessingTypeId.Value,
+                    //        ProcessingTypeName = machine.ProcessingType.TypeName,
+                    //        Production2 = machine.Production2,
+                    //        MachineFunction = machine.MachineFunction
+                    //    };
 
-                        entity.DiagramTypeName = MyUtilities.Machine.Diagram.GetText(entity.DiagramType);
-                        model.Add(entity);
-                    }
+                    //    entity.DiagramTypeName = MyUtilities.Machine.Diagram.GetText(entity.DiagramType);
+                    //    model.Add(entity);
+                    //}
                 }
             }
             catch (Exception ex) {
@@ -904,11 +976,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             diagram = newMachine.DiagramType;
                         }
                         if (diagram == 2) {
-                            if (newMachine.ColumnIndex > 3)
-                                throw new AggregateException("Sai cột ! Sơ đồ máy CNC chỉ có 3 cột");
+                            if (newMachine.ColumnIndex > 4)
+                                throw new AggregateException("Sai cột ! Sơ đồ máy CNC chỉ có 4 cột");
                         }
-                        else if (newMachine.ColumnIndex > 4)
+                        else if (newMachine.ColumnIndex > 4) {
                             throw new AggregateException("Sai cột ! Sơ đồ máy Cames chỉ có 4 cột");
+                        }
                         var processingType = 1;
                         try {
                             processingType = Convert.ToInt32(newMachine.ProcessingTypeName);
@@ -1011,8 +1084,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         diagram = updateMachine.DiagramType;
                     }
                     if (diagram == 2) {
-                        if (updateMachine.ColumnIndex > 3)
-                            throw new AggregateException("Sai cột ! Sơ đồ máy CNC chỉ có 3 cột");
+                        if (updateMachine.ColumnIndex > 4)
+                            throw new AggregateException("Sai cột ! Sơ đồ máy CNC chỉ có 4 cột");
                     }
                     else if (updateMachine.ColumnIndex > 4)
                         throw new AggregateException("Sai cột ! Sơ đồ máy Cames chỉ có 4 cột");
@@ -1139,15 +1212,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 model = (from x in vfi.Machines
                          where (x.Active || x.Production2)
                          && (config.IsMainProcess == null || x.ProcessingType.Warehouse.IsMainProcess == config.IsMainProcess)
+                         && (config.IsProduction == null || x.ProcessingType.Warehouse.IsProduction == config.IsProduction)
                          && (config.IsProduction2 == null || x.ProcessingType.Warehouse.IsProduction2 == config.IsProduction2)
                          && (config.IsProduction2Process == null || x.ProcessingType.Warehouse.IsProduction2Process == config.IsProduction2Process)
                          && (config.IsHeatTreatment == null || x.ProcessingType.Warehouse.IsHeatTreatment == config.IsHeatTreatment)
                          && (config.IsPolish == null || x.ProcessingType.Warehouse.IsPolish == config.IsPolish)
                          && (config.IsReprocessing == null || x.ProcessingType.Warehouse.IsReprocessing == config.IsReprocessing)
+                         && (config.IsQC == null || x.ProcessingType.Warehouse.IsQC == config.IsQC)
+                         && (!config.TypeIds.Any() || (x.ProcessingTypeId != null && config.TypeIds.Contains(x.ProcessingTypeId.Value)))
                          orderby x.MachineName
                          select new MachineModel {
                              MachineId = x.MachineId,
-                             MachineName = x.MachineName
+                             MachineName = x.MachineName,
+                             ProcessingTypeName = x.ProcessingType.TypeName
                          }).ToList();
             }
             if (config.AddFirstAll == true) {
@@ -1162,6 +1239,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         public ActionResult SelectComboBoxMachine() {
             return new JsonResult {
                 Data = new SelectList(GetActiveMachines(new MachineConfiguration { }), "MachineId", "MachineName")
+            };
+        }
+        public ActionResult SelectComboBoxMachineProduction() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsProduction = true }), "MachineId", "MachineName")
             };
         }
         public ActionResult SelectComboBoxMachineProduction2() {
@@ -1191,7 +1273,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
         public ActionResult SelectComboBoxMachineQc() {
             return new JsonResult {
-                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsQC = true, AddFirstAll = true }), "MachineId", "MachineName")
+                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsQC = true }), "MachineId", "MachineFullName")
+            };
+        }
+
+        public ActionResult SelectComboBoxMachineQcByType2(string typeIds) {
+            var ids = MyUtilities.Function.StringToIds(typeIds);
+            return new JsonResult {
+                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsQC = true, TypeIds = ids }).OrderBy(x => x.ProcessingTypeName).ThenBy(x=> x.MachineName).ToList(), 
+                    "MachineId", 
+                    "MachineFullName")
+            };
+        }
+
+        public ActionResult SelectComboBoxMachineQcByType(List<int> typeIds) {
+            return new JsonResult {
+                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsQC = true, TypeIds = typeIds.ToList() }), "MachineId", "MachineFullName")
             };
         }
 
@@ -1948,6 +2045,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         List<RepairFormDetailModel> GetMachineErrorStateDetails(int formId) {
             var model = new List<RepairFormDetailModel>();
+            var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
             using (var vfi = new vfiContext()) {
                 var repairDetails = vfi.RepairFormDetails.Where(rd => rd.FormId == formId);
                 foreach (var repairFormDetail in repairDetails) {
@@ -1995,7 +2093,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                               .ThenByDescending(tp => tp.ModifiedDate).FirstOrDefault();
                     if (trackUpProducion != null) {
                         entity.Productivity = trackUpProducion.RealProductivity;
-                        entity.ProductPrice = MyUtilities.Product.ParseVndPrice(trackUpProducion.Product.UnitPrice);
+                        entity.ProductPrice = MyUtilities.Product.ProductVndPrice(trackUpProducion.Product.UnitPrice,1, exchangeRate);
                         //if (trackUpProducion.Product.UnitPrice != null ||
                         //    trackUpProducion.Product.UnitPrice != 0) {
                         //    var productPrice = Math.Round(trackUpProducion.Product.UnitPrice.Value, 4);
@@ -2346,6 +2444,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                         .ToList();
                         }
                     }
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var machineState in machineStates) {
                         var entity = new MachineRepairFormModel {
                             FormId = machineState.FormId,
@@ -2414,7 +2513,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                       .ThenByDescending(tp => tp.ModifiedDate).FirstOrDefault();
                             if (trackUpProducion != null) {
                                 entity.Productivity = trackUpProducion.RealProductivity;
-                                entity.ProductPrice = MyUtilities.Product.ParseVndPrice(trackUpProducion.Product.UnitPrice);
+                                entity.ProductPrice = MyUtilities.Product.ProductVndPrice(trackUpProducion.Product.UnitPrice,1,exchangeRate);
                                 //if (trackUpProducion.Product.UnitPrice != null ||
                                 //    trackUpProducion.Product.UnitPrice != 0) {
                                 //    var productPrice = Math.Round(trackUpProducion.Product.UnitPrice.Value, 4);
@@ -2454,6 +2553,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     if (status != -1)
                         machineStates = machineStates.Where(mr => mr.Status == status).ToList();
 
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var machineState in machineStates) {
                         var entity = new MachineRepairFormModel {
                             FormId = machineState.FormId,
@@ -2504,7 +2604,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                       .ThenByDescending(tp => tp.ModifiedDate).FirstOrDefault();
                             if (trackUpProducion != null) {
                                 entity.Productivity = trackUpProducion.RealProductivity;
-                                entity.ProductPrice = MyUtilities.Product.ParseVndPrice(trackUpProducion.Product.UnitPrice);
+                                entity.ProductPrice = MyUtilities.Product.ProductVndPrice(trackUpProducion.Product.UnitPrice,1,exchangeRate);
                                 //if (trackUpProducion.Product.UnitPrice != null ||
                                 //    trackUpProducion.Product.UnitPrice != 0) {
                                 //    var productPrice = Math.Round(trackUpProducion.Product.UnitPrice.Value, 4);
@@ -2867,6 +2967,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     else if (status != -1)
                         machineStates = machineStates.Where(mr => mr.Status == status).ToList();
 
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var machineState in machineStates) {
                         var entity = new MachineRepairFormModel {
                             FormId = machineState.FormId,
@@ -2915,7 +3016,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                       .ThenByDescending(tp => tp.ModifiedDate).FirstOrDefault();
                             if (trackUpProducion != null) {
                                 entity.Productivity = trackUpProducion.RealProductivity;
-                                entity.ProductPrice = MyUtilities.Product.ParseVndPrice(trackUpProducion.Product.UnitPrice);
+                                entity.ProductPrice = MyUtilities.Product.ProductVndPrice(trackUpProducion.Product.UnitPrice,1,exchangeRate);
                                 //if (trackUpProducion.Product.UnitPrice != null ||
                                 //    trackUpProducion.Product.UnitPrice != 0) {
                                 //    var productPrice = Math.Round(trackUpProducion.Product.UnitPrice.Value, 4);

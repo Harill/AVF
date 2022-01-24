@@ -596,6 +596,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     if (!String.IsNullOrWhiteSpace(productCode)) {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                     }
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var product in products) {
                         var entity = new ProductPricingModel {
 
@@ -617,7 +618,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             MaterialCode = product.MaterialCode,
                             MaterialPrice = product.MaterialPrice,
                         };
-                        entity.ProductPrice = MyUtilities.Product.ParseVndPrice(entity.ProductPrice);
+                        entity.ProductPrice = MyUtilities.Product.ProductVndPrice(entity.ProductPrice, 1, exchangeRate);
                         if (product.MaterialId != null) {
                             entity.MaterialWeight = MyUtilities.Product.GetProductWeight(product.Material.MaterialName,
                               product.Material.OutDiameter,
@@ -2168,6 +2169,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     if (user == null)
                         throw new AggregateException("Vui lòng đăng nhập lại");
                     var processingType = vfi.ProcessingTypes.FirstOrDefault(m => m.TypeId == 6);
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     foreach (var product in products) {
                         //if (entity.ProductCode.Equals("H2739"))
                         //    model = new List<ProductModel>();
@@ -2318,7 +2320,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         entity.ProductBaseCost = entity.MaterialUnitPrice + entity.MillCost +
                                                   entity.ProcessingSalesCost +
                                                   entity.SectionCost + entity.PlatingCost;
-                        entity.UnitPrice = MyUtilities.Product.ParseVndPrice(product.UnitPrice);
+                        entity.UnitPrice = MyUtilities.Product.ProductVndPrice(product.UnitPrice,1,exchangeRate);
                         //if (product.UnitPrice != 0) {
                         //    var productPrice = Math.Round(product.UnitPrice, 4);
                         //    var temp = Convert.ToInt32(productPrice);

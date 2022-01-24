@@ -184,7 +184,7 @@
 
     <fieldset>
         <legend>Thông tin phiếu lệnh nhập</legend>
-        <div class="grid_3">Hình thức:</div>
+        <div class="grid_2">Hình thức:</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DropDownList()
@@ -195,11 +195,6 @@
                     .ClientEvents(events => events.OnLoad("Type_OnLoad").OnChange("Type_OnChange"))
                     .Render();
             }
-        </div>
-        <div class="grid_1">
-            <button class="t-button" id="btnRefresh" name="btnPickupMaterialId" onclick=" TypeRefresh() ">
-                <span class='t-icon t-refresh'></span>
-            </button>
         </div>
         <div class="grid_3">Số phiếu nhập</div>
         <div class="grid_4">
@@ -217,7 +212,15 @@
                     .Render();
             }
         </div>
-
+        <div class="grid_1">
+            <button class="t-button" id="btnRefresh" name="btnPickupMaterialId" onclick=" TypeRefresh() ">
+                <span class='t-icon t-refresh'></span>
+            </button>
+        </div>
+        <div class="grid_2">Tỉ giá</div>
+        <div class="grid_4">@Html.TextBoxFor(f => f.ExchangeRate, new { style = "width: 70px;" })</div>
+        
+        <div class="clear"></div>
         <div class="grid_2">
             Kho nhập
         </div>
@@ -231,7 +234,7 @@
                     .Render();                                              
             }
         </div>
-        <div class="grid_3">Ngày nhập về</div>
+        <div class="grid_3">Ngày nhập kho</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DatePicker()
@@ -242,8 +245,6 @@
             }
         </div>
 
-        <div class="grid_3">Tỉ giá</div>
-        <div class="grid_5">@Html.TextBoxFor(f => f.ExchangeRate, new { style = "width: 70px;" })</div>
     </fieldset>
 </div>
 <div class="clear"></div>
@@ -298,7 +299,7 @@
         Html.Telerik().Grid<TransactionFptDetailModel>()
             .Name("gridProduct")
             .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Xóa tất cả"))
-            .DataKeys(keys => keys.Add(f => f.FuelId).RouteKey("fuelId"))
+            .DataKeys(keys => keys.Add(f => f.PoDetailId).RouteKey("poDetailId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectProductInPo", "PurchaseOrder", new { ids = "", poId = 0 })
                 .Update("UpdateImportProductPurchase", "PurchaseOrder"))

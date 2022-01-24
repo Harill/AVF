@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "SX tổng hợp";
+    ViewBag.Title = "Đo kiểm SX";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -130,7 +130,7 @@
 
 }
 
-<div class="title">Báo cáo sản xuất tổng hợp</div>
+<div class="title">Đo kiểm sản xuất</div>
 <div class="clear"></div>
 <br />
 
@@ -221,68 +221,95 @@
                                                                      reportDate = "",
                                                                      shift = 0,
                                                                      productId = 0,
-                                                                     machineId=  0
+                                                                     machineId = 0
                                                                  })
                 )
                 .Columns(columns => {
-                        columns.Bound(f => f.ProductId).Width(40)
-                               .ClientTemplate("<#= ++index #>")
-                               .HeaderTemplate("<strong>STT</strong>");
-                        columns.Bound(f => f.DisplayName).Width(120).Title("Máy - Sản phẩm")
-                               .HtmlAttributes(new { style = "text-align: center;" })
-                               .Aggregate(agg => agg.Count())
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
-                               .FooterHtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.TestCode).Width(40).Title("Mục")
-                               .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.TestName).Width(100).Title("Quy cách")
-                               .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.MachineTypeName).Width(100).Title("Thiết bị")
-                               .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.FromWarehouseName).Width(100).Title("Bộ phận")
-                               .HtmlAttributes(new { style = "text-align: center;" });
-                    
-                        // so lieu
+                    columns.Bound(f => f.ProductId).Width(40)
+                           .ClientTemplate("<#= ++index #>")
+                           .HeaderTemplate("<strong>STT</strong>");
+                    columns.Bound(f => f.DisplayName).Width(120).Title("Máy - Sản phẩm")
+                           .HtmlAttributes(new { style = "text-align: center;" })
+                           .Aggregate(agg => agg.Count())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                           .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.TestCode).Width(40).Title("Mục")
+                           .HtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.TestName).Width(100).Title("Quy cách")
+                           .HtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.MachineTypeName).Width(100).Title("Thiết bị")
+                           .HtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.FromWarehouseName).Width(100).Title("Bộ phận")
+                           .HtmlAttributes(new { style = "text-align: center;" });
 
-                        columns.Bound(f => f.Details[0].Number).Width(55)
-                               .HeaderTemplate("<span id='Col1'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[1].Number).Width(55)
-                               .HeaderTemplate("<span id='Col2'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[2].Number).Width(55)
-                               .HeaderTemplate("<span id='Col3'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[3].Number).Width(55)
-                               .HeaderTemplate("<span id='Col4'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[4].Number).Width(55)
-                               .HeaderTemplate("<span id='Col5'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[5].Number).Width(55)
-                               .HeaderTemplate("<span id='Col6'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[6].Number).Width(55)
-                               .HeaderTemplate("<span id='Col7'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[7].Number).Width(55)
-                               .HeaderTemplate("<span id='Col8'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[8].Number).Width(55)
-                               .HeaderTemplate("<span id='Col9'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[9].Number).Width(55)
-                               .HeaderTemplate("<span id='Col10'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[10].Number).Width(55)
-                               .HeaderTemplate("<span id='Col11'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Details[11].Number).Width(55)
-                               .HeaderTemplate("<span id='Col12'>0</span>")
-                               .HtmlAttributes(new { style = "text-align: right;" });
-                    })
+                    // so lieu
 
+                    columns.Bound(f => f.Details[0].Number).Width(55)
+                           .HeaderTemplate("<span id='Col1'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[1].Number).Width(55)
+                           .HeaderTemplate("<span id='Col2'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[2].Number).Width(55)
+                           .HeaderTemplate("<span id='Col3'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[3].Number).Width(55)
+                           .HeaderTemplate("<span id='Col4'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[4].Number).Width(55)
+                           .HeaderTemplate("<span id='Col5'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[5].Number).Width(55)
+                           .HeaderTemplate("<span id='Col6'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[6].Number).Width(55)
+                           .HeaderTemplate("<span id='Col7'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[7].Number).Width(55)
+                           .HeaderTemplate("<span id='Col8'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[8].Number).Width(55)
+                           .HeaderTemplate("<span id='Col9'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[9].Number).Width(55)
+                           .HeaderTemplate("<span id='Col10'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[10].Number).Width(55)
+                           .HeaderTemplate("<span id='Col11'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.Details[11].Number).Width(55)
+                           .HeaderTemplate("<span id='Col12'>0</span>")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                })
+
+                .DetailView(details => details.ClientTemplate(
+                    Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Areas.Factory.Models.RealTestingModel>()
+                        .Name("gridDetail_<#= ReferenceTestingDetailId #>_<#= FromWarehouseId #>")
+                        .DataBinding(dataDindings => dataDindings.Ajax()
+                            .Select("SelectProductionTestingDailyDetailReport", "Reporting",
+                                new {
+                                    productId = "<#= ProductId #>",
+                                    machineId = "<#= MachineId #>",
+                                    testingDetailId = "<#= ReferenceTestingDetailId #>",
+                                    warehouseId = "<#= WarehouseId #>",
+                                    fromWarehouseId = "<#= FromWarehouseId #>",
+                                    fromDateTimeStr = "<#= FromDateTimeStr #>",
+                                    toDateTimeStr = "<#= ToDateTimeStr #>"
+                                }))
+                        .Columns(columns => {
+                            columns.Bound(f => f.TestDate).Width(100).Title("Thời gian")
+                                .Format("{0:HH:mm}");
+                            columns.Bound(f => f.TestEmployeeName).Width(150).Title("Nhân viên");
+                            columns.Bound(f => f.TestNumber).Width(100).Title("Số đo");
+                            columns.Bound(f => f.MachineName).Width(100).Title("Máy đo");
+                            
+                            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm");
+                            columns.Bound(f => f.ModifiedDate).Width(150).Title("Ngày làm")
+                                .Format("{0:dd/MM/yyyy HH:mm}");
+                        })
+                        .ClientEvents(events => events.OnError("grid_OnError"))
+                        .ToHtmlString()))
                 .ClientEvents(events => events
                                             .OnDataBinding("grid_OnDataBinding")
                                             .OnDataBound("grid_OnDataBound")
