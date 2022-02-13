@@ -35,46 +35,60 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         }
 
         #region view
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult CreateOrderForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult OrderManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult InvoicesManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult TaxInvoicesManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult EditOrderForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApproveInvoicesForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApproveOrderForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -82,6 +96,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -89,24 +104,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApproveTaxInvoiceForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApproveTaxInvoiceDetailForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult CancelQualityOrder() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -114,12 +133,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult AddTaxInvoiceDetails() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionTaxInvoice"] = new List<TaxInvoiceDetailModel>();
             return View();
         }
@@ -127,6 +148,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionTaxInvoice"] = new List<TaxInvoiceDetailModel>();
             return View();
         }
@@ -134,6 +156,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionInvoiceDetail"] = new List<OrderDetailModel>();
             return View();
         }
@@ -141,12 +164,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ConfirmOrderProgress() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+        public ActionResult WaitingOrderBalancingPlan() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         #endregion
@@ -392,7 +424,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                         UnitPrice = Math.Round(entity.UnitPrice, 4),
                                         UnitPriceDiscount = Math.Round(entity.UnitPrice, 4),
                                         LineTotal = entity.UnitPrice * (1 - entity.UnitPriceDiscount) * entity.OrderQty,
-                                        CustomerDueDate = entity.CustomerDueDate,
+                                        CustomerDueDate = entity.CustomerDueDate ?? DateTime.Now,
                                         //VFIDueDate =  entity.VFIDueDate,
                                         LotNumber = entity.LotNumber,
                                         ModelNumber = entity.ModelNumber,
@@ -500,6 +532,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             var orderDetails = new List<OrderDetail>();
                             foreach (var entity in insertedOrderDetails) {
                                 if (entity.OrderQty == 0) continue;
+                                if (entity.CustomerDueDate == null) {
+                                    throw new AggregateException("Lỗi! Ngày yêu cầu khách hàng không được để trống " + entity.ProductCode);
+                                }
                                 var detail =
                                     orderDetails.FirstOrDefault(
                                         od =>
@@ -514,7 +549,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                         OrderQty = MyUtilities.Function.RoundUp(entity.OrderQty),
                                         RequiedNumber = MyUtilities.Function.RoundUp(entity.OrderQty),
                                         LineTotal = entity.UnitPrice * (1 - entity.UnitPriceDiscount) * entity.OrderQty,
-                                        CustomerDueDate = entity.CustomerDueDate,
+                                        CustomerDueDate = entity.CustomerDueDate ?? DateTime.Now,
                                         //VFIDueDate =  entity.VFIDueDate,
                                         LotNumber = entity.LotNumber,
                                         ModelNumber = entity.ModelNumber,

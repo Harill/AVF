@@ -339,7 +339,7 @@
                                                "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
                                                "</a><div class='highslide-caption'><#= ProductCode #></div>");
                         columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100).ReadOnly(true);
-                        columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true);
+                        columns.Bound(f => f.LotNumber).Title("Lô").Width(150).ReadOnly(true);
                         columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50).ReadOnly(true);
                         columns.Bound(f => f.AvailableQuantity).Width(75).Title("Tồn kho").ReadOnly(true)
                             .HtmlAttributes(new { style = "text-align: right;" })

@@ -14,6 +14,7 @@
 .t-state-hover,.t-state-hover:hover{background-color:#ffe79c;border-color:#c98400}
 .t-state-active{background-color:#fff;border-color:#828282}
 .t-state-selected{background-color:#ffa517}
+.t-alt.t-state-selected{background-color:#ffa517}
 .t-state-focused{background-color:#fff3cd}
 .t-dropdown .t-state-focused{border-color:#828282}
 .t-state-error,.t-widget.t-state-error,.t-widget .t-state-error,.t-widget.input-validation-error,.t-widget .input-validation-error{border-color:#f00;background-color:#ffc0cb}

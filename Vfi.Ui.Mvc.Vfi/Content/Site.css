@@ -3,10 +3,9 @@ The base color for this template is #5c87b2. If you'd like
 to use a different color start by replacing all instances of
 #5c87b2 with your new color.
 ----------------------------------------------------------*/
-body
-{
+body {
     /*background-color: #5c87b2;*/
-    background-image: url('Images/bg_body.jpg');
+    /*background-image: url('Images/bg_body.jpg');*/
     background-repeat: repeat;
     background-attachment: fixed;
     /*font-size: .75em;*/
@@ -17,36 +16,32 @@ body
     font-family: Verdana, Helvetica, Sans-Serif, Arial;
     margin: 0;
     padding: 0;
-    
     /*color: #696969;*/
     color: #333;
     overflow-x: hidden;
-    overflow-y: scroll; 
-    
+    overflow-y: scroll;
 }
 
-a:link
-{
+a:link {
     color: #034af3;
     text-decoration: none;
 }
-a:visited
-{
+
+a:visited {
     color: #505abc;
     text-decoration: none;
 }
-a:hover
-{
+
+a:hover {
     color: #1d60ff;
     text-decoration: none;
 }
-a:active
-{
+
+a:active {
     color: #12eb87;
 }
 
-p, ul
-{
+p, ul {
     margin-bottom: 20px;
     line-height: 1.6em;
 }
@@ -54,40 +49,37 @@ p, ul
 
 /* HEADINGS   
 ----------------------------------------------------------*/
-h1, h2, h3, h4, h5, h6
-{
+h1, h2, h3, h4, h5, h6 {
     font-size: 1.5em;
     /*color: #000;*/
     font-family: Arial, Helvetica, sans-serif;
 }
 
-h1
-{
+h1 {
     font-size: 1.8em;
     padding-bottom: 0;
     margin-bottom: 0;
 }
-h2
-{
+
+h2 {
     padding: 0 0 10px 0;
 }
-h3
-{
+
+h3 {
     font-size: 1.2em;
 }
-h4
-{
+
+h4 {
     font-size: 1.1em;
 }
-h5, h6
-{
+
+h5, h6 {
     font-size: 1em;
 }
 
 /* this rule styles <h2> tags that are the 
 first child of the left and right table columns */
-.rightColumn > h1, .rightColumn > h2, .leftColumn > h1, .leftColumn > h2
-{
+.rightColumn > h1, .rightColumn > h2, .leftColumn > h1, .leftColumn > h2 {
     margin-top: 0;
 }
 
@@ -96,48 +88,65 @@ first child of the left and right table columns */
 
 /* you can specify a greater or lesser percentage for the 
 page width. Or, you can specify an exact pixel width. */
-.page
-{
+.page {
     /*width: 92%;*/
     margin-left: auto;
     margin-right: auto;
+    padding-top: 5px;
     padding-bottom: 15px;
-    
 }
 
-#header
-{
+/*.logo {
+    width: 5%;
+    height: 60px;
+    float: left;
+    padding-right: 1%;
+}*/
+.logo {
+    float: left;
+    padding-right: 1%;
+    width: 5%;
+    height: 60px;
+    overflow: hidden;
+    margin: 0;
+    position: relative;
+}
+.logo img {
+    position: absolute;
+    max-width: 100%;
+    max-height: 100%;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+#header {
     position: relative;
     margin-bottom: 0px;
     color: #000;
     padding: 0;
-    
 }
 
-#header h1
-{
-    font-weight: bold;
-    padding: 5px 0;
-    margin: 0;
-    color: #fff;
-    border: none;
-    /*line-height: 2em;*/
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 20px !important;
-}
+    #header h1 {
+        font-weight: bold;
+        padding: 5px 0;
+        margin: 0;
+        color: #fff;
+        border: none;
+        /*line-height: 2em;*/
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px !important;
+    }
 
-#main
-{
+#main {
     /*padding: 18px 0px 0px 0px;*/
     padding: 0px 0px 0px 0px;
     /*background-color: #fff;*/
     margin-bottom: 30px;
     _height: 1px; /* only IE6 applies CSS properties starting with an underscore */
-    
 }
 
-#footer
-{
+#footer {
     color: #999;
     padding: 10px 0;
     text-align: center;
@@ -148,8 +157,7 @@ page width. Or, you can specify an exact pixel width. */
 
 /* TAB MENU   
 ----------------------------------------------------------*/
-ul#menu
-{
+ul#menu {
     border-bottom: 1px #5C87B2 solid;
     padding: 0 0 2px;
     position: relative;
@@ -157,54 +165,47 @@ ul#menu
     text-align: right;
 }
 
-ul#menu li
-{
-    display: inline;
-    list-style: none;
-}
+    ul#menu li {
+        display: inline;
+        list-style: none;
+    }
 
-ul#menu li#greeting
-{
-    padding: 10px 20px;
-    font-weight: bold;
-    text-decoration: none;
-    line-height: 2.8em;
-    color: #fff;
-}
+        ul#menu li#greeting {
+            padding: 10px 20px;
+            font-weight: bold;
+            text-decoration: none;
+            line-height: 2.8em;
+            color: #fff;
+        }
 
-ul#menu li a
-{
-    padding: 10px 20px;
-    font-weight: bold;
-    text-decoration: none;
-    line-height: 2.8em;
-    background-color: #e8eef4;
-    color: #034af3;
-}
+        ul#menu li a {
+            padding: 10px 20px;
+            font-weight: bold;
+            text-decoration: none;
+            line-height: 2.8em;
+            background-color: #e8eef4;
+            color: #034af3;
+        }
 
-ul#menu li a:hover
-{
-    background-color: #fff;
-    text-decoration: none;
-}
+            ul#menu li a:hover {
+                background-color: #fff;
+                text-decoration: none;
+            }
 
-ul#menu li a:active
-{
-    background-color: #a6e2a6;
-    text-decoration: none;
-}
+            ul#menu li a:active {
+                background-color: #a6e2a6;
+                text-decoration: none;
+            }
 
-ul#menu li.selected a
-{
-    background-color: #fff;
-    color: #000;
-}
+        ul#menu li.selected a {
+            background-color: #fff;
+            color: #000;
+        }
 
 /* FORM LAYOUT ELEMENTS   
 ----------------------------------------------------------*/
 
-fieldset 
-{
+fieldset {
     /*
     margin: 1em 0;
     padding: 1em;
@@ -212,31 +213,27 @@ fieldset
     border: 1px solid #CCC;
 }
 
-fieldset p 
-{
-    margin: 2px 12px 10px 10px;
-}
+    fieldset p {
+        margin: 2px 12px 10px 10px;
+    }
 
-legend 
-{
+legend {
     font-size: 1.1em;
     font-weight: 600;
     padding: 2px 4px 8px 4px;
 }
 
-input[type="text"] 
-{
+input[type="text"] {
     width: 150px;
     /*border: 1px solid #CCC;*/
 }
 
-input[type="password"] 
-{
+input[type="password"] {
     width: 200px;
     border: 1px solid #CCC;
 }
-textarea
-{
+
+textarea {
     width: 100px;
     border: 1px solid #CCC;
 }
@@ -244,114 +241,98 @@ textarea
 /* TABLE
 ----------------------------------------------------------*/
 
-.table 
-{
+.table {
     /*
   border: solid 1px #e8eef4;
   border-collapse: collapse;
 */
 }
 
-.table td 
-{
-    /*
+    .table td {
+        /*
   padding: 5px;   
   border: solid 1px #e8eef4;
 */
-}
+    }
 
-.table th
-{
-    /*
+    .table th {
+        /*
   padding: 6px 5px;
   text-align: left;
   background-color: #e8eef4; 
 */
- /* border: solid 1px #e8eef4;   */
-}
+        /* border: solid 1px #e8eef4;   */
+    }
 
 
 
 /* MISC  
 ----------------------------------------------------------*/
-.clear
-{
+.clear {
     clear: both;
 }
 
-.error
-{
-    color:Red;
+.error {
+    color: Red;
 }
 
-#menucontainer
-{
+#menucontainer {
     /*margin-top:25px;*/
     clear: both;
 }
 
-div#title
-{
-    display:block;
-    float:left;
-    text-align:left;
+div#title {
+    display: block;
+    float: left;
+    text-align: left;
 }
 
-#logindisplay
-{
-    font-size:1.1em;
-    display:block;
-    text-align:right;
-    margin:10px;
-    color:White;
+#logindisplay {
+    font-size: 1.1em;
+    display: block;
+    text-align: right;
+    margin: 10px;
+    color: White;
     width: 250px;
     float: right;
 }
 
-#logindisplay a:link
-{
-    color: white;
-    text-decoration: underline;
-}
+    #logindisplay a:link {
+        color: white;
+        text-decoration: underline;
+    }
 
-#logindisplay a:visited
-{
-    color: white;
-    text-decoration: underline;
-}
+    #logindisplay a:visited {
+        color: white;
+        text-decoration: underline;
+    }
 
-#logindisplay a:hover
-{
-    color: white;
-    text-decoration: none;
-}
+    #logindisplay a:hover {
+        color: white;
+        text-decoration: none;
+    }
 
 /* Styles for validation helpers
 -----------------------------------------------------------*/
-.field-validation-error
-{
+.field-validation-error {
     color: #ff0000;
 }
 
-.field-validation-valid
-{
+.field-validation-valid {
     display: none;
 }
 
-.input-validation-error
-{
+.input-validation-error {
     border: 1px solid #ff0000;
     background-color: #ffeeee;
 }
 
-.validation-summary-errors
-{
+.validation-summary-errors {
     font-weight: bold;
     color: #ff0000;
 }
 
-.validation-summary-valid
-{
+.validation-summary-valid {
     display: none;
 }
 
@@ -360,29 +341,25 @@ div#title
 .display-label,
 .editor-label,
 .display-field,
-.editor-field
-{
-    margin:0.5em 0 0 0;
+.editor-field {
+    margin: 0.5em 0 0 0;
     /*margin: 0.5em 0;*/
 }
 
-.text-box
-{
+.text-box {
     width: 20em;
 }
 
-.text-box.multi-line
-{
-    height: 6.5em;
-    
-}
-.multi-line
-{
+    .text-box.multi-line {
+        height: 6.5em;
+    }
+
+.multi-line {
     width: 270px;
     font-size: 15px;
 }
-.tri-state
-{
+
+.tri-state {
     width: 6em;
 }
 
@@ -390,11 +367,16 @@ div#title
 /* ------------- */
 /* v.j.thangs2 */
 
-.input{padding: 3px 5px; }
-.input-sort{padding: 3px 5px; width: 75px;}
+.input {
+    padding: 3px 5px;
+}
 
-.gencode
-{
+.input-sort {
+    padding: 3px 5px;
+    width: 75px;
+}
+
+.gencode {
     /*background-color: #F8DBDD;*/
     background-color: #B8FEE9; /*color: #70E8F1; /*border-color: #E17984;*/
     color: red;
@@ -402,57 +384,62 @@ div#title
     font-weight: bolder;
     width: 150px;
 }
-.notified
-{
+
+.notified {
     background-color: #FEC5C8;
-    color:  blue;
+    color: blue;
     font-weight: bold;
 }
-.pickupitem{ cursor: pointer;}
-.pointer{cursor: pointer;}
-.clear{ clear: both; }
 
-.lookupbox
-{
+.pickupitem {
+    cursor: pointer;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.clear {
+    clear: both;
+}
+
+.lookupbox {
     display: block;
 }
 
-.lookupbox ul, li 
-{
+    .lookupbox ul, li {
+        display: block;
+        margin: 0px;
+        padding: 0px;
+        list-style-type: none;
+    }
+
+        .lookupbox ul li {
+            float: left;
+            padding-left: 5px;
+            padding-right: 5px;
+            vertical-align: middle;
+        }
+
+.horizontalbox {
     display: block;
-    margin: 0px;
-    padding: 0px;
-    list-style-type: none;
-}
-.lookupbox ul li
-{
-    float: left;
-    padding-left: 5px;
-    padding-right: 5px;
-    vertical-align: middle;   
-    
-}
-.horizontalbox
-{
-    display: block;    
-}
-.horizontalbox ul, li 
-{
-    display: block;
-    margin: 0px;
-    padding: 0px;
-    list-style-type: none;
-}
-.horizontalbox ul li
-{
-    float: left;
-    padding-left: 5px;
-    padding-right: 5px;
-    vertical-align: middle;
 }
 
-#loading-dialog
-{
+    .horizontalbox ul, li {
+        display: block;
+        margin: 0px;
+        padding: 0px;
+        list-style-type: none;
+    }
+
+        .horizontalbox ul li {
+            float: left;
+            padding-left: 5px;
+            padding-right: 5px;
+            vertical-align: middle;
+        }
+
+#loading-dialog {
     border: 1px solid maroon;
     position: absolute;
     top: 35%;
@@ -461,31 +448,29 @@ div#title
     display: none;
 }
 
-.valign-middle
-    {
-        vertical-align: middle;
-    }
-.addform-margin
-    {
-        margin: 3px;
-        margin-left: 5px;
-    }
-.cover-div
-    {
-        -moz-box-shadow: 0 0 8px 2px #85D3FA;
-        -webkit-box-shadow: 0 0 8px 2px #85D3FA;
-        box-shadow: 0 0 8px 2px #85D3FA;
-        z-index:9999;
-    }
-.title
-{
+.valign-middle {
+    vertical-align: middle;
+}
+
+.addform-margin {
+    margin: 3px;
+    margin-left: 5px;
+}
+
+.cover-div {
+    -moz-box-shadow: 0 0 8px 2px #85D3FA;
+    -webkit-box-shadow: 0 0 8px 2px #85D3FA;
+    box-shadow: 0 0 8px 2px #85D3FA;
+    z-index: 9999;
+}
+
+.title {
     /*color: #ffd176;*/
     /*color: #fcb95f;*/
     /*color: cyan;*/
     /*color: greenyellow;*/
     color: tomato;
     font-weight: lighter;
-        
     font-size: 1.5em;
     margin-top: 15px;
     margin-bottom: 10px;
@@ -493,78 +478,70 @@ div#title
 }
 
 
-.t-info-sha
-    {
-        /**/
-        /*-moz-box-shadow: 0 0 8px 2px #ddd;
+.t-info-sha {
+    /**/
+    /*-moz-box-shadow: 0 0 8px 2px #ddd;
         -webkit-box-shadow: 0 0 8px 2px #ddd;*/
-        
-        background-color: #f5f5f5;
-         
-        border: 1px solid #cccccc;
-        
-        padding-top: 8px;
-        padding-bottom: 12px;
-        
-       
-        -webkit-border-radius: 5px;
-	    -moz-border-radius: 5px;
-	    border-radius: 5px;
-
-	
-        -webkit-box-shadow: #244766 1px 2px 2px;
-	    -moz-box-shadow: #244766 1px 2px 2px;
-	    box-shadow: #244766 1px 2px 2px;
-        
-    }
-
-.imgUnAvailable
-{
-	background: url('Icons/delete16.png') no-repeat;
-	height: 16px;
-	/*width: 16px;*/
-	 width: auto;
-	-moz-box-shadow: 0 0 0 #FFF;
-	margin-top: 2px;
-	padding-left: 1px;
+    background-color: #f5f5f5;
+    border: 1px solid #cccccc;
+    padding-top: 8px;
+    padding-bottom: 12px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -webkit-box-shadow: #244766 1px 2px 2px;
+    -moz-box-shadow: #244766 1px 2px 2px;
+    box-shadow: #244766 1px 2px 2px;
 }
 
-.imgAvailable
-{
-	background: url('Icons/imgchecked.png') no-repeat;
-	height: 16px;
-	/*width: 16px;*/
+.imgUnAvailable {
+    background: url('Icons/delete16.png') no-repeat;
+    height: 16px;
+    /*width: 16px;*/
     width: auto;
-	-moz-box-shadow: 0 0 0 #FFF;
-	margin-top: 2px;
-	padding-left: 1px;
+    -moz-box-shadow: 0 0 0 #FFF;
+    margin-top: 2px;
+    padding-left: 1px;
 }
-.imgLoading
-{
-	background: url(~/../../Images/loader.gif) no-repeat;
-	-moz-box-shadow: 0 0 0 #FFF;
-	height: 16px;
-	/*width: 16px;*/
-	 width: auto;
-	padding-right: 5px;
-	float: left;
+
+.imgAvailable {
+    background: url('Icons/imgchecked.png') no-repeat;
+    height: 16px;
+    /*width: 16px;*/
+    width: auto;
+    -moz-box-shadow: 0 0 0 #FFF;
+    margin-top: 2px;
+    padding-left: 1px;
+}
+
+.imgLoading {
+    background: url(~/../../Images/loader.gif) no-repeat;
+    -moz-box-shadow: 0 0 0 #FFF;
+    height: 16px;
+    /*width: 16px;*/
+    width: auto;
+    padding-right: 5px;
+    float: left;
 }
 /* v.j.thangs2 */
 /* ------------- */
 
 
 /* fix telerik popup panel */
-.field-validation-error
-    {
-        position: relative;
-        display: block;
-    }
-    
-    * html .field-validation-error { position: relative; }
-    *+html .field-validation-error { position: relative; }
-    
-    .field-validation-error span
-    {
+.field-validation-error {
+    position: relative;
+    display: block;
+}
+
+* html .field-validation-error {
+    position: relative;
+}
+
+* + html .field-validation-error {
+    position: relative;
+}
+
+    .field-validation-error span {
         position: relative;
         clear: both;
         white-space: nowrap;
@@ -574,46 +551,42 @@ div#title
         background: transparent url('<%= Url.Content("~/Content/Common/validation-error-message.png") %>') no-repeat 0 0;
         */
     }
-    
-    /* in-form editing */
-    .t-edit-form-container
-    {
-        width: 450px;
-        margin: 1em;
-    }
-    
+
+/* in-form editing */
+.t-edit-form-container {
+    width: 450px;
+    margin: 1em;
+}
+
     .t-edit-form-container .editor-label,
-    .t-edit-form-container .editor-field
-    {
+    .t-edit-form-container .editor-field {
         padding-bottom: 1em;
         float: left;
     }
-    
-    .t-edit-form-container .editor-label
-    {
+
+    .t-edit-form-container .editor-label {
         width: 30%;
         text-align: right;
         padding-right: 3%;
         clear: left;
     }
-    
-    .t-edit-form-container .editor-field
-    {
+
+    .t-edit-form-container .editor-field {
         width: 60%;
     }
-        .t-edit-form-container .editor-field input
-        {
+
+        .t-edit-form-container .editor-field input {
             width: 250px;
         }
 
 .ra {
     position: relative;
 }
- 
-.ra  .t-formatted-value {
-    left: auto;
-    right: 0;
-}
+
+    .ra .t-formatted-value {
+        left: auto;
+        right: 0;
+    }
 
 
 .t-grid .t-alt {

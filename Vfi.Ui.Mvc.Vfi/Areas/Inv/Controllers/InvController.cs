@@ -39,22 +39,32 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
         #region View
         // View
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult MaterialInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ProductionLockManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ProductInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -62,90 +72,105 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult InventoryCard() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MaterialInventoryCard() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult CncInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult DefectInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult HeatTreatmentInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult PlatingInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ProcessingInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult Production2InvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult Production2InvManagementSplit() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult QcInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult SurfaceTreatmentInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult WaitingPlatingInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult FinishInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult PackingInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -153,19 +178,292 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult Production2WaitingInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ProductInvStatistic() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
+        }
+        public ActionResult MaterialOnShelf() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+
+        public ActionResult MaterialInventoryShelfDiagram() {
+
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            var groups = new List<MaterialInvShelfDiagramGroupModel>();
+            var model = new MaterialInvShelfDiagramViewModel { };
+            try {
+                using (var vfi = new tammaContext()) {
+                    var materialTypes = (from x in vfi.MaterialTypes
+                                         where x.MaterialClassifiedId == 1 && x.Active
+                                         orderby x.IdentityCode
+                                         select new MaterialTypeModel {
+                                             MaterialTypeId = x.MaterialTypeId,
+                                             MaterialTypeName = x.MaterialTypeName,
+                                             Count = 0,
+                                             DiagramColor = x.DiagramColor,
+                                         }).ToList();
+                    var shelves = (from x in vfi.InventoryShelves
+                                   where x.Active && x.ClassifiedId == 1
+                                   orderby x.ShelfName
+                                   select new {
+                                       x.ShelfId,
+                                       x.ShelfName,
+                                       x.MaxColumn,
+                                       x.MaxRow,
+                                   }).ToList();
+                    var shelfIds = shelves.Select(x => x.ShelfId).ToList();
+                    var drawers = (from x in vfi.InventoryDrawers
+                                   where shelfIds.Contains(x.ShelfId) && x.Active
+                                   orderby x.AdditionName, x.RowName, x.ColumnName
+                                   select new InventoryDrawerModel {
+                                       DrawerId = x.DrawerId,
+                                       ShelfId = x.ShelfId,
+                                       ColumnName = x.ColumnName,
+                                       RowName = x.RowName,
+                                       ShelftName = x.InventoryShelf.ShelfName,
+                                       AdditionName = x.AdditionName,
+                                       ReferenceInvId = x.ReferenceInvId ?? 0
+                                   }).ToList();
+                    var onShelves = (from x in vfi.OnShelves
+                                     where x.Active
+                                     select x).ToList();
+                    var invIds = onShelves.Select(x => x.ReferenceInvId).Distinct().ToList();
+                    var materialInvs = (from x in vfi.MaterialInventories
+                                        where invIds.Contains(x.MaterialInventoryId)
+                                        select new MaterialInventoryModel {
+                                            MaterialInventoryId = x.MaterialInventoryId,
+                                            LotNumber = x.LotNumber,
+                                            ImportDate = x.ImportDate,
+                                            TotalImportKg = x.ImportQuantityKg,
+                                            QuantityKg = x.TotalQty * x.UnitWeight,
+                                            MaterialName = x.Material.MaterialName,
+                                            OutDiameter = x.Material.OutDiameter,
+                                            InDiameter = x.Material.InDiameter,
+                                            DiameterType = x.Material.DiameterType,
+                                            Shape = x.Material.Shape,
+                                            Length = x.Length,
+                                            VendorId = x.VendorId ?? 0,
+                                            VendorCode = x.Vendor.VendorCode,
+                                            VendorName = x.Vendor.VendorName,
+                                            MaterialTypeId = x.Material.MaterialTypeId,
+                                            MaterialCode = x.Material.MaterialType.DiagramColor
+                                        }).ToList();
+                    model.Types = materialTypes;
+                    var over2YearColor = "FF6666";
+                    var over1YearColor = "FFC061";
+                    var below1YearColor = "";
+                    var states = new List<MaterialInvStateModel>();
+                    states.Add(new MaterialInvStateModel {
+                        Code = "0",
+                        Name = "Dưới 1 năm",
+                        Color = below1YearColor,
+                    });
+                    states.Add(new MaterialInvStateModel {
+                        Code = "1",
+                        Name = "1-2 năm",
+                        Color = over1YearColor,
+                    });
+                    states.Add(new MaterialInvStateModel {
+                        Code = "2",
+                        Name = "Trên 2 năm",
+                        Color = over2YearColor,
+                    });
+                    model.States = states;
+                    var onShelfts = new List<MaterialInvShelfDiagramDetailModel>();
+                    foreach (var shelf in shelves) {
+                        var group = new MaterialInvShelfDiagramGroupModel {
+                            ShelfName = shelf.ShelfName,
+                            ColumnCount = shelf.MaxColumn,
+                            RowCount = shelf.MaxRow,
+                        };
+                        //var columns = drawers.Where(x => x.ShelfId == shelf.ShelfId).Select(x => x.RowName).OrderBy(x => x).Distinct().ToList();
+                        //foreach (var column in columns) {
+                        //    var entity = new MaterialInvShelfDiagramColumnModel {
+                        //        ColumnName = column,
+                        //    };
+                        var drawersById = drawers.Where(x => x.ShelfId == shelf.ShelfId).ToList();
+                        foreach (var drawer in drawersById) {
+                            var entity = new MaterialInvShelfDiagramModel {
+                                DrawerCode = drawer.DrawerCode,
+                                ShelfName = drawer.ShelftName,
+                                ColumnName = drawer.ColumnName,
+                                RowName = drawer.RowName,
+                                AdditionName = drawer.AdditionName,
+                            };
+                            var onShelvesById = onShelves.Where(x => x.DrawerId == drawer.DrawerId).ToList();
+                            if (!onShelvesById.Any()) {
+                                var detail = new MaterialInvShelfDiagramDetailModel {
+                                    ReferenceInvId = 0,
+                                    ReferenceCode = "Chỗ trống"
+                                };
+                                entity.Details.Add(detail);
+                            }
+                            else {
+                                foreach (var onShelf in onShelvesById) {
+                                    var detail = new MaterialInvShelfDiagramDetailModel { };
+                                    var materialInvsById = materialInvs.FirstOrDefault(x => x.MaterialInventoryId == onShelf.ReferenceInvId);
+                                    if (materialInvsById != null) {
+                                        detail.ReferenceInvId = materialInvsById.MaterialInventoryId;
+                                        detail.ReferenceCode = materialInvsById.MaterialName +
+                                            MyUtilities.Material.GetMaterialDesignNo(materialInvsById.OutDiameter,
+                                            materialInvsById.InDiameter,
+                                            materialInvsById.DiameterType,
+                                            materialInvsById.Shape,
+                                            materialInvsById.Length);
+                                        detail.LotNumber = materialInvsById.LotNumber;
+                                        detail.Quantity = materialInvsById.QuantityKg;
+                                        detail.ImportQuantity = materialInvsById.TotalImportKg;
+                                        if (materialInvsById.ImportDate != null) {
+                                            detail.ImportDateStr = materialInvsById.ImportDate.Value.ToString("dd/MM/yy");
+                                            var yearOld = (DateTime.Now - materialInvsById.ImportDate.Value).TotalDays / 365;
+                                            if (yearOld > 2) {
+                                                detail.MaterialStateColor = over2YearColor;
+                                                detail.MaterialStateCode = "2";
+                                            }
+                                            else if (yearOld > 1) {
+                                                detail.MaterialStateColor = over1YearColor;
+                                                detail.MaterialStateCode = "1";
+                                            }
+                                            else {
+                                                detail.MaterialStateColor = below1YearColor;
+                                                detail.MaterialStateCode = "0";
+                                            }
+                                        }
+                                        else {
+                                            detail.MaterialStateColor = over2YearColor;
+                                            detail.MaterialStateCode = "2";
+                                        }
+                                        detail.VendorId = materialInvsById.VendorId;
+                                        detail.VendorName = materialInvsById.VendorName;
+                                        detail.MaterialTypeId = materialInvsById.MaterialTypeId;
+                                        detail.MaterialTypeColor = materialInvsById.MaterialCode;
+                                    }
+                                    entity.Details.Add(detail);
+                                    onShelfts.Add(detail);
+                                }
+                            }
+
+                            group.Drawers.Add(entity);
+                        }
+
+                        groups.Add(group);
+                    }
+                    var notOnShelfInvs = (from x in vfi.MaterialInventories
+                                          where !invIds.Contains(x.MaterialInventoryId) && x.TotalQty > 0
+                                          orderby x.Material.MaterialType.IdentityCode
+                                          select new MaterialInventoryModel {
+                                              MaterialInventoryId = x.MaterialInventoryId,
+                                              LotNumber = x.LotNumber,
+                                              ImportDate = x.ImportDate,
+                                              TotalImportKg = x.ImportQuantityKg,
+                                              QuantityKg = x.TotalQty * x.UnitWeight,
+                                              MaterialName = x.Material.MaterialName,
+                                              OutDiameter = x.Material.OutDiameter,
+                                              InDiameter = x.Material.InDiameter,
+                                              DiameterType = x.Material.DiameterType,
+                                              Shape = x.Material.Shape,
+                                              Length = x.Length,
+                                              VendorId = x.VendorId ?? 0,
+                                              VendorCode = x.Vendor.VendorCode,
+                                              VendorName = x.Vendor.VendorName,
+                                              MaterialTypeId = x.Material.MaterialTypeId,
+                                              MaterialCode = x.Material.MaterialType.DiagramColor
+                                          }).ToList();
+                    if (notOnShelfInvs.Any()) {
+                        var notOnShelf = new MaterialInvShelfDiagramModel { };
+                        foreach (var materialInvsById in notOnShelfInvs) {
+                            var detail = new MaterialInvShelfDiagramDetailModel {
+                                ReferenceInvId = materialInvsById.MaterialInventoryId,
+                                ReferenceCode = materialInvsById.MaterialName +
+                                MyUtilities.Material.GetMaterialDesignNo(materialInvsById.OutDiameter,
+                                materialInvsById.InDiameter,
+                                materialInvsById.DiameterType,
+                                materialInvsById.Shape,
+                                materialInvsById.Length),
+                                LotNumber = materialInvsById.LotNumber,
+                                Quantity = materialInvsById.QuantityKg,
+                                ImportQuantity = materialInvsById.TotalImportKg,
+                                VendorId = materialInvsById.VendorId,
+                                VendorName = materialInvsById.VendorName,
+                                MaterialTypeId = materialInvsById.MaterialTypeId,
+                                MaterialTypeColor = materialInvsById.MaterialCode
+                            };
+                            if (materialInvsById.ImportDate != null) {
+                                detail.ImportDateStr = materialInvsById.ImportDate.Value.ToString("dd/MM/yy");
+                                var yearOld = (DateTime.Now - materialInvsById.ImportDate.Value).TotalDays / 365;
+                                if (yearOld > 2) {
+                                    detail.MaterialStateColor = over2YearColor;
+                                    detail.MaterialStateCode = "2";
+                                }
+                                else if (yearOld > 1) {
+                                    detail.MaterialStateColor = over1YearColor;
+                                    detail.MaterialStateCode = "1";
+                                }
+                                else {
+                                    detail.MaterialStateColor = below1YearColor;
+                                    detail.MaterialStateCode = "0";
+                                }
+                            }
+                            else {
+                                detail.MaterialStateColor = over2YearColor;
+                                detail.MaterialStateCode = "2";
+                            }
+                            notOnShelf.Details.Add(detail);
+                            onShelfts.Add(detail);
+                        }
+                        model.NotOnShelf = notOnShelf;
+                    }
+                    foreach (var state in model.States) {
+                        state.Count = onShelfts.Where(x => x.MaterialStateCode.Equals(state.Code))
+                            .Select(x => x.ReferenceInvId).Distinct().Count();
+                    }
+                    foreach (var type in model.Types) {
+                        type.Count = onShelfts.Where(x => x.MaterialTypeId == type.MaterialTypeId)
+                            .Select(x => x.ReferenceInvId).Distinct().Count();
+                    }
+                    var vendorIds = onShelfts.Select(x => x.VendorId).Distinct().ToList();
+                    var vendors = (from x in vfi.Vendors
+                                   where vendorIds.Contains(x.VendorId)
+                                   orderby x.VendorName
+                                   select new VendorModel {
+                                       VendorId = x.VendorId,
+                                       VendorCode = x.VendorCode,
+                                       VendorName = x.VendorName,
+                                       Count = 0
+                                   }).ToList();
+                    model.Vendors = vendors;
+                    foreach (var vendor in model.Vendors) {
+                        vendor.Count = onShelfts.Where(x => x.VendorId == vendor.VendorId)
+                            .Select(x => x.ReferenceInvId).Distinct().Count();
+                    }
+                }
+                model.Groups = groups;
+            }
+            catch (Exception ex) {
+
+            }
+            ViewData = GetPageConfigData();
+            ViewData["BackgroundImage"] = "";
+            return View(model);
         }
         #endregion
 
@@ -557,7 +855,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         [GridAction]
         public ActionResult SelectMaterialInventory(string materialIds, int warehouseId) {
             return View(new GridModel(new List<MaterialInventoryModel>()));
-            
+
         }
 
         [GridAction]
@@ -853,8 +1151,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         List<InventoryCardModel> GetInventoryCardPeriod(
-            int periodType, int productId, 
-            DateTime fromDate, DateTime toDate, 
+            int periodType, int productId,
+            DateTime fromDate, DateTime toDate,
             string lotNumber) {
             var model = new List<InventoryCardModel>();
             try {
@@ -945,26 +1243,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          select p).ToList();
 
                     var orderDetails = (from od in vfi.OrderDetails
-                                       where
-                                           (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
-                                            od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess ||
-                                            od.Order.Status == (byte)MyUtilities.Sales.Status.Completed) &&
-                                           od.Order.DueDate != null &&
-                                           od.Order.DueDate >= fromDate && od.Order.DueDate <= toDate &&
-                                           od.ProductId == productId
-                                       select new {
-                                           Quantity = od.OrderQty.Value,
-                                           Date = od.Order.DueDate.Value,
-                                       }).ToList();
+                                        where
+                                            (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
+                                             od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess ||
+                                             od.Order.Status == (byte)MyUtilities.Sales.Status.Completed) &&
+                                            od.Order.DueDate != null &&
+                                            od.Order.DueDate >= fromDate && od.Order.DueDate <= toDate &&
+                                            od.ProductId == productId
+                                        select new {
+                                            Quantity = od.OrderQty.Value,
+                                            Date = od.Order.DueDate.Value,
+                                        }).ToList();
                     var forecasts = (from fo in vfi.ForecastOrders
-                                    where
-                                        fo.ProductId == productId &&
-                                        fo.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                        fo.ForecastDate >= fromDate && fo.ForecastDate <= toDate
-                                    select new {
-                                        fo.Quantity,
-                                        Date = fo.ForecastDate,
-                                    }).ToList();
+                                     where
+                                         fo.ProductId == productId &&
+                                         fo.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                         fo.ForecastDate >= fromDate && fo.ForecastDate <= toDate
+                                     select new {
+                                         fo.Quantity,
+                                         Date = fo.ForecastDate,
+                                     }).ToList();
                     var minDates = new List<DateTime>();
                     var maxDates = new List<DateTime>();
                     if (inTimePeriods.Any()) {
@@ -1063,8 +1361,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
                         var production2InDay = production2sProcess.Where(x => x.Date >= startDate && x.Date < endDate);
                         if (production2InDay.Any()) {
-                            entity.ProcessProduction2 = production2InDay.Sum(x => x.Number1);
-                            entity.ProcessProcessing += production2InDay.Sum(x => x.Processing1);
+                            entity.ProcessProduction2 = production2InDay.Sum(x => x.Number);
+                            entity.ProcessProcessing += production2InDay.Sum(x => x.Processing);
                         }
                         entity.Order = orderDetails.Where(x => x.Date >= startDate && x.Date < endDate)
                                                     .Sum(p => p.Quantity);
@@ -1154,6 +1452,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      sx.ProductId == productId &&
                                       sx.ImportFormCnc.ImportDate >= fromDate &&
                                       sx.ImportFormCnc.ImportDate <= toDate
+                                  orderby sx.ImportFormCnc.ImportDate
                                   select new {
                                       Date = sx.ImportFormCnc.ImportDate,
                                       sx.MachineId,
@@ -1221,7 +1520,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                 }
             }
-            return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
+            return model.Where(x => x.Number + x.Processing + x.DefectProduct > 0).ToList();
         }
 
         private List<CncFormDetailModel> GetProduction2DetailCardModel(int productId, DateTime fromDate, DateTime toDate, string lotNumber) {
@@ -1229,20 +1528,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var warehouseProduction2 = MyUtilities.Warehouse.GetWarehouseIdProduction2_PROCESS();
             using (var vfi = new tammaContext()) {
                 var transactions = (from td in vfi.TransactionDetails
-                                   where td.ReferenceId == productId &&
-                                           td.Transaction.WarehouseIssueId != null &&
-                                           warehouseProduction2.Contains(td.Transaction.WarehouseIssueId.Value) &&
-                                           td.Transaction.CreatedDate >= fromDate &&
-                                           td.Transaction.CreatedDate <= toDate &&
-                                           td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
-                                   select new {
-                                       td.Transaction.CreatedDate,
-                                       td.Quantity,
-                                       td.QuantityKg,
-                                       WarehouseReceiptId = td.Transaction.WarehouseReceiptId ?? 0,
-                                       TransactionCode = td.Transaction.TransactionCode,
-                                       ProductInvCode = td.ProductInvId != null ? td.ProductInventory.LotNumber : ""
-                                   }).ToList();
+                                    where td.ReferenceId == productId &&
+                                            td.Transaction.WarehouseIssueId != null &&
+                                            warehouseProduction2.Contains(td.Transaction.WarehouseIssueId.Value) &&
+                                            td.Transaction.CreatedDate >= fromDate &&
+                                            td.Transaction.CreatedDate <= toDate &&
+                                            td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                    orderby td.Transaction.CreatedDate
+                                    select new {
+                                        td.Transaction.CreatedDate,
+                                        td.Quantity,
+                                        td.QuantityKg,
+                                        WarehouseReceiptId = td.Transaction.WarehouseReceiptId ?? 0,
+                                        TransactionCode = td.Transaction.TransactionCode,
+                                        ProductInvCode = td.ProductInvId != null ? td.ProductInventory.LotNumber : ""
+                                    }).ToList();
                 if (transactions == null || !transactions.Any()) return model;
                 if (!lotNumber.ToLower().Equals("all")) {
                     transactions = transactions.Where(pip => pip.ProductInvCode.Equals(lotNumber)).ToList();
@@ -1257,20 +1557,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     model.Add(entity);
                     switch (transaction.WarehouseReceiptId) {
                         case (int)MyUtilities.Warehouse.Id.Processing:
-                            entity.Processing1 = transaction.Quantity;
+                            entity.Processing = transaction.Quantity;
                             break;
                         case (int)MyUtilities.Warehouse.Id.Defect:
-                            entity.DefectProduct1 = transaction.Quantity;
+                            entity.DefectProduct = transaction.Quantity;
                             break;
                         case (int)MyUtilities.Warehouse.Id.Destroy:
                             break;
                         default:
-                            entity.Number1 = transaction.Quantity;
+                            entity.Number = transaction.Quantity;
                             break;
                     }
                 }
             }
-            return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
+            return model.Where(x => x.Number + x.Processing + x.DefectProduct > 0).ToList();
         }
 
         private List<CncFormDetailModel> GetImportInternalCardModel(int productId, DateTime fromDate, DateTime toDate, string lotNumber) {
@@ -1306,7 +1606,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         Number1 = transaction.Quantity
                     };
                     model.Add(entity);
-                    
+
                 }
             }
             return model.Where(x => x.Number1 + x.Processing1 + x.DefectProduct1 > 0).ToList();
@@ -2300,7 +2600,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         model =
                            (from p in vfi.Products
                             orderby p.ProductCode
-                            where p.Active && p.ProductCombinationRecipes.Any(x=> x.Active)
+                            where p.Active && p.ProductCombinationRecipes.Any(x => x.Active)
                             select p.ProductCode).ToList();
                         model = model.Where(p => p.StartsWith(text, StringComparison.OrdinalIgnoreCase)).ToList();
                     }
@@ -2387,9 +2687,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 if (warehouse == null) {
                     throw new AggregateException("Lỗi! Không tìm thấy kho");
                 }
+                var warehouses = vfi.Warehouses.Where(x => x.Active).ToList();
+                var p2Warehouses = warehouses.Where(x => x.IsProduction2).Select(x => x.WarehouseId).ToList();
+                var qcWarehouses = warehouses.Where(x => x.IsQC).Select(x => x.WarehouseId).ToList();
+                var plWarehouses = warehouses.Where(x => x.IsPlating).Select(x => x.WarehouseId).ToList();
+                var rpWarehouses = warehouses.Where(x => x.IsReprocessing).Select(x => x.WarehouseId).ToList();
+                var opWarehouses = warehouses.Where(x => x.IsOutOfProcess).Select(x => x.WarehouseId).ToList();
                 var warehouseIds = new List<int> { warehouseId };
                 if (isManager) {
-                    warehouseIds = vfi.Warehouses.Where(x => x.Active).Select(x => x.WarehouseId).ToList();
+                    warehouseIds = warehouses.Select(x => x.WarehouseId).ToList();
                 }
                 else if (!warehouse.IsMainProcess) {
                     var rotateWarehouses = vfi.WarehouseRotates.Where(x => x.WarehouseId == warehouseId && x.Active).Select(x => x.ToWarehouseId).ToList();
@@ -2397,18 +2703,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                             .Select(x => x.WarehouseId.Value).ToList();
                 }
                 else if (warehouse.IsProduction2) {
-                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction2 = true });
+                    warehouseIds = p2Warehouses;
                 }
                 else if (warehouse.IsQC) {
-                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsQC = true });
+                    warehouseIds = qcWarehouses;
                 }
-                else if (warehouse.IsPlating) {
-                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsPlating = true });
-                }
+                //else if (warehouse.IsPlating) {
+                //    warehouseIds = plWarehouses;
+                //}
                 else if (warehouse.IsReprocessing) {
-                    warehouseIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsReprocessing = true });
+                    warehouseIds = rpWarehouses;
                 }
-                warehouseIds.AddRange(_warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsOutOfProcess = true }));
+                warehouseIds.AddRange(opWarehouses);
                 //warehouseIds.Remove(warehouseId);
                 foreach (var product in products) {
                     var productInventorys = productInvs.Where(pi => pi.ProductId == product.ProductId).ToList();
@@ -2472,12 +2778,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         }
                                     }
                                 }
-                                if (entity.NextWarehouseId == 0) {
-                                    var process =
-                                        productionProcesses.FirstOrDefault(
-                                            pp => pp.ProductId == entity.ProductId &&
-                                                  warehouseIds.Contains(pp.WarehouseId));
-                                    if (process != null) {
+                                var process =
+                                    productionProcesses.FirstOrDefault(
+                                        pp => pp.ProductId == entity.ProductId &&
+                                              warehouseIds.Contains(pp.WarehouseId));
+                                if (process != null) {
+                                    if (entity.NextWarehouseId == 0) {
+
                                         var nextProcess = productionProcesses
                                             .Where(pp => pp.ProductId == process.ProductId &&
                                                          pp.ProcessIndex > process.ProcessIndex)
@@ -2489,7 +2796,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             entity.NextWarehouseId = nextProcess.WarehouseId;
                                         }
                                     }
+                                    var previousProcess = productionProcesses
+                                                .Where(pp => pp.ProductId == process.ProductId &&
+                                                             pp.ProcessIndex < process.ProcessIndex)
+                                                .OrderByDescending(pp => pp.ProcessIndex)
+                                                .FirstOrDefault();
+                                    if (previousProcess != null) {
+                                        warehouseIds.Add(previousProcess.WarehouseId);
+                                    }
                                 }
+                                if (warehouseIds.Any(x => qcWarehouses.Contains(x))) {
+                                    warehouseIds.AddRange(qcWarehouses);
+                                }
+                                else if (warehouseIds.Any(x => p2Warehouses.Contains(x))) {
+                                    warehouseIds.AddRange(p2Warehouses);
+                                }
+                                else if (warehouseIds.Any(x => rpWarehouses.Contains(x))) {
+                                    warehouseIds.AddRange(rpWarehouses);
+                                }
+                                warehouseIds = warehouseIds.Distinct().ToList();
                                 foreach (var id in warehouseIds) {
                                     entity.NextWarehouseIds += "|" + id + "|";
                                 }
@@ -2820,7 +3145,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                            pi.ProductId,
                                            pi.TotalQty
                                        }).ToList();
-                
+
                 foreach (var recipe in recipes) {
                     var entity = new ProductCombinationRecipeModel {
                         RecipeId = recipe.RecipeId,
@@ -2872,7 +3197,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             model = model.Where(x => !checkedRecords.Contains(x.RecipeId)).ToList();
             model.AddRange(GetProductCombinationRecipeModel(0, "", warehouseId, checkedRecords.ToList()));
 
-            model = model.OrderBy(x=> x.CustomerCode).ThenBy(m => m.ProductCode).ToList();
+            model = model.OrderBy(x => x.CustomerCode).ThenBy(m => m.ProductCode).ToList();
             var groupIndex = 1;
             var pIds = model.Select(x => x.ProductId).Distinct().ToList();
             foreach (var productId in pIds) {
@@ -2908,19 +3233,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             using (var vfi = new tammaContext()) {
                 var productInvs = (from pi in vfi.ProductInventories
-                                  where
-                                      checkedRecords.Contains(pi.ProductInventoryId) &&
-                                      pi.WarehouseId == warehouseIssue &&
-                                      pi.TotalQty > 0
-                                  select new {
-                                      pi.ProductInventoryId,
-                                      pi.ProductId,
-                                      pi.Product.Customer.CustomerCode,
-                                      pi.Product.ProductCode,
-                                      pi.TotalQty,
-                                      pi.LotNumber,
-                                      pi.StoreCode
-                                  }).ToList();
+                                   where
+                                       checkedRecords.Contains(pi.ProductInventoryId) &&
+                                       pi.WarehouseId == warehouseIssue &&
+                                       pi.TotalQty > 0
+                                   select new {
+                                       pi.ProductInventoryId,
+                                       pi.ProductId,
+                                       pi.Product.Customer.CustomerCode,
+                                       pi.Product.ProductCode,
+                                       pi.TotalQty,
+                                       pi.LotNumber,
+                                       pi.StoreCode
+                                   }).ToList();
                 foreach (var productInv in productInvs) {
                     var entity = model.FirstOrDefault(m => m.ProductInventoryId == productInv.ProductInventoryId);
                     if (entity == null) {
@@ -2983,12 +3308,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             using (var vfi = new tammaContext()) {
                 var products = (from x in vfi.Products
-                               where checkedRecords.Contains(x.ProductId)
-                               select new {
-                                   x.ProductId,
-                                   x.Customer.CustomerCode,
-                                   x.ProductCode,
-                               }).ToList();
+                                where checkedRecords.Contains(x.ProductId)
+                                select new {
+                                    x.ProductId,
+                                    x.Customer.CustomerCode,
+                                    x.ProductCode,
+                                }).ToList();
                 var productInvs = (from x in vfi.ProductInventories
                                    where checkedRecords.Contains(x.ProductId) &&
                                        x.WarehouseId == warehouseId &&
@@ -3883,7 +4208,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var date = string.IsNullOrWhiteSpace(printDate)
                                           ? DateTime.Today
                                           : Convert.ToDateTime(printDate, ci);
-                    var useTemp = from mud in vfi.MaterialUseDetails
+                    var useTemp = (from mud in vfi.MaterialUseDetails
                                   where mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Open &&
                                         mud.MaterialUseInShift.UsedDate < date
                                   select new {
@@ -3891,7 +4216,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                       mud.MaterialInventory.MaterialId,
                                       mud.MaterialInvId,
                                       Quantity = mud.EditQuantity + mud.EditQuantity2
-                                  };
+                                  }).ToList();
                     var checkDate = date.AddMonths(-1);
                     var lastDate = new DateTime();
                     var lastUse = (from mud in vfi.MaterialUseDetails
@@ -3908,13 +4233,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           mud.MaterialUseInShift.Type == 1
                                select mud).ToList();
                     var lastDateString = lastDate.ToString("dd/MM");
-                    var machines = from m in vfi.Machines
+                    var machines = (from m in vfi.Machines
                                    where m.Active && m.MachineName.Contains("C")
                                    orderby m.MachineName
                                    select new {
                                        m.MachineId,
                                        m.MachineName
-                                   };
+                                   }).ToList();
                     foreach (var machine in machines) {
                         var lastTrack =
                             (from t in vfi.TrackUpMachines
@@ -3939,6 +4264,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              })
                                 .OrderByDescending(t => t.Date)
                                 .FirstOrDefault();
+                        //var lastTrack = MyUtilities.Machine.LastTrackUpMachine(machine.MachineId, null, null, date);
                         if (lastTrack != null) {
                             if (lastTrack.Date < checkDate) {
                                 if (!lastTrack.TrackUpMaterials.Any()) continue;
@@ -3965,23 +4291,47 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 KnifeCut = lastTrack.KnifeCut,
                                 WorkPiece = lastTrack.WorkPiece,
                                 LimitColor = 1
-                            };
+                            }; 
+                            if (lastTrack.TrackUpMaterials.Any()) {
+                                var materiaInv = lastTrack.TrackUpMaterials.LastOrDefault().MaterialInventory;
+                                entity.MaterialInventoryId = materiaInv.MaterialInventoryId;
+                                entity.MaterialInventoryCode = materiaInv.Material.MaterialCode;
+                                entity.StoreCode = materiaInv.StoreCode;
+                                entity.LotNumber = materiaInv.LotNumber;
+                                entity.Length = materiaInv.Length / 1000;
+                                entity.VendorCode = materiaInv.Vendor.VendorCode;
+                                entity.MaterialInvTotal = lastTrack.TrackUpMaterials.LastOrDefault().MaterialInventory.TotalQty;
+
+                                entity.ProductionRate = MyUtilities.Product.GetProductRate(entity.Length * 1000,
+                                                                                           lastTrack.WorkPiece,
+                                                                                           lastTrack.Length,
+                                                                                           lastTrack.KnifeCut);
+
+                                var materialInvs = vfi.MaterialInventories.Where(pi => pi.MaterialId == materiaInv.MaterialId && pi.TotalQty > 0);
+                                if (materialInvs.Any()) {
+                                    entity.MaterialAllInvTotal = materialInvs.Sum(mi => mi.TotalQty);
+                                }
+                            }
+                            else {
+                                entity.Require = 0;
+                                var materialInvs =
+                                    vfi.MaterialInventories.Where(
+                                        mi => mi.MaterialId == entity.MaterialId && Math.Round(mi.TotalQty) > 0).Select(x => x.TotalQty).ToList();
+                                if (materialInvs.Any())
+                                    entity.MaterialAllInvTotal = materialInvs.Sum(mi => mi);
+                            }
                             entity.MaterialLimitQuantity =
-                                MyUtilities.Product.GetMaterialRateInFactoryFullShiftTime(lastTrack.RealProductivity, lastTrack.RealRate);
-                            if (lastTrack.Material.MaterialType.IdentityCode.Equals("A"))
+                                MyUtilities.Product.GetMaterialRateInFactoryFullShiftTime(entity.Productivity, entity.ProductionRate);
+                            if (lastTrack.Material.MaterialType.IdentityCode.Equals("A")) {
                                 entity.IsChange = true;
-                            var totalInvs =
-                                vfi.MaterialInventories.Where(
-                                    mi => mi.MaterialId == entity.MaterialId && Math.Round(mi.TotalQty) > 0);
-                            if (totalInvs.Any())
-                                entity.MaterialAllInvTotal = totalInvs.Sum(mi => mi.TotalQty);
+                            }
                             var materialInvOnmachines =
                                 vfi.MaterialInvOnMachines.Where(
                                     mim =>
                                     mim.MachineId == entity.MachineId &&
-                                    mim.MaterialInventory.MaterialId == entity.MaterialId);
+                                    mim.MaterialInventory.MaterialId == entity.MaterialId).Select(x=> x.TotalQuantity).ToList();
                             if (materialInvOnmachines.Any())
-                                entity.MaterialInvOnMachine = materialInvOnmachines.Sum(mim => mim.TotalQuantity);
+                                entity.MaterialInvOnMachine = materialInvOnmachines.Sum(mim => mim);
                             var waitingUse =
                                 useTemp.Where(
                                     mud =>
@@ -3997,35 +4347,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             if (lastUseBy.Any()) {
                                 entity.DiffMaterial = lastUseBy.Sum(mud => mud.EditQuantity + mud.EditQuantity2);
                             }
-                            if (lastTrack.TrackUpMaterials.Any()) {
-                                var materiaInv = lastTrack.TrackUpMaterials.LastOrDefault().MaterialInventory;
-                                entity.MaterialInventoryId = materiaInv.MaterialInventoryId;
-                                //entity.MaterialId = materiaInv.MaterialId;
-                                //entity.MaterialInventoryCode = MyUtilities.Material.GetMaterialInvDesignNo(materiaInv);
-                                entity.MaterialInventoryCode = materiaInv.Material.MaterialCode;
-                                entity.StoreCode = materiaInv.StoreCode;
-                                entity.LotNumber = materiaInv.LotNumber;
-                                entity.Length = materiaInv.Length / 1000;
-                                entity.VendorCode = materiaInv.Vendor.VendorCode;
-                                entity.MaterialInvTotal =
-                                    lastTrack.TrackUpMaterials.LastOrDefault().MaterialInventory.TotalQty;
-
-                                //if (lastTrack.Length != 0)
-                                entity.ProductionRate = MyUtilities.Product.GetProductRate(entity.Length * 1000,
-                                                                                           lastTrack.WorkPiece,
-                                                                                           lastTrack.Length,
-                                                                                           lastTrack.KnifeCut);
-
-                                var materialInvs = vfi.MaterialInventories.Where(pi => pi.MaterialId == materiaInv.MaterialId && pi.TotalQty > 0);
-                                if (materialInvs.Any()) {
-                                    entity.MaterialAllInvTotal = materialInvs.Sum(mi => mi.TotalQty);
-                                }
-                            }
-                            else {
-                                entity.Require = 0;
-                            }
-                            entity.MaterialLimitQuantity =
-                                MyUtilities.Product.GetMaterialRateInFactoryFullShiftTime(entity.Productivity, entity.ProductionRate);
+                            
                             entity.MaxAssign = MyUtilities.Function.Round5(entity.MaterialLimitQuantity * 2.5);
                             //if (entity.MaxAssign == 0)
                             //    entity.MaxAssign = 5;
@@ -4077,90 +4399,91 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var first = model.FirstOrDefault();
                     first.TotalCames = model.Where(m => !m.MachineName.Contains("CNC") && m.DiffMaterial > 0).Count();
                     first.TotalCnc = model.Where(m => m.MachineName.Contains("CNC") && m.DiffMaterial > 0).Count();
+                    
+                    // no one update
+                    //var materialIds = model.Select(m => m.MaterialId).Distinct().ToList();
+                    //var productIds = model.Select(m => m.ProductId).Distinct().ToList();
+                    //var materialLimitPlans = (from mlp in vfi.MaterialLimitPlans
+                    //                          where materialIds.Contains(mlp.MaterialId) &&
+                    //                                 productIds.Contains(mlp.ProductId) &&
+                    //                                 mlp.IsLock &&
+                    //                                 mlp.ApplyDate <= date
+                    //                          orderby mlp.ApplyDate descending
+                    //                          group mlp by
+                    //                              new {
+                    //                                  mlp.MaterialId,
+                    //                                  mlp.ProductId
+                    //                              }
+                    //                              into gmlp
+                    //                              select new {
+                    //                                  gmlp.Key.MaterialId,
+                    //                                  gmlp.Key.ProductId,
+                    //                                  RawProductionWeight = gmlp.FirstOrDefault().RawProductionWeight,
+                    //                                  Plan = gmlp.FirstOrDefault(),
+                    //                              }).ToList();
+                    //var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                    //var oldestLimit = materialLimitPlans.OrderBy(o => o.Plan.ApplyDate).FirstOrDefault();
+                    //if (oldestLimit != null)
+                    //    fromDate = oldestLimit.Plan.ApplyDate;
+                    //var sx1Details = (from id in vfi.ImportFormSX1Detail
+                    //                  where
+                    //                      id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                    //                      id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                    //                      id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
+                    //                        .Transaction.Status ==
+                    //                      (byte)MyUtilities.Transaction.Status.Approved &&
+                    //                      id.ImportFormSX1.ImportDate >= fromDate &&
+                    //                      materialIds.Contains(id.MaterialInventory.MaterialId) &&
+                    //                      productIds.Contains(id.ProductId)
+                    //                  select new {
 
-                    var materialIds = model.Select(m => m.MaterialId).Distinct().ToList();
-                    var productIds = model.Select(m => m.ProductId).Distinct().ToList();
-                    var materialLimitPlans = (from mlp in vfi.MaterialLimitPlans
-                                              where materialIds.Contains(mlp.MaterialId) &&
-                                                     productIds.Contains(mlp.ProductId) &&
-                                                     mlp.IsLock &&
-                                                     mlp.ApplyDate <= date
-                                              orderby mlp.ApplyDate descending
-                                              group mlp by
-                                                  new {
-                                                      mlp.MaterialId,
-                                                      mlp.ProductId
-                                                  }
-                                                  into gmlp
-                                                  select new {
-                                                      gmlp.Key.MaterialId,
-                                                      gmlp.Key.ProductId,
-                                                      RawProductionWeight = gmlp.FirstOrDefault().RawProductionWeight,
-                                                      Plan = gmlp.FirstOrDefault(),
-                                                  }).ToList();
-                    var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
-                    var oldestLimit = materialLimitPlans.OrderBy(o => o.Plan.ApplyDate).FirstOrDefault();
-                    if (oldestLimit != null)
-                        fromDate = oldestLimit.Plan.ApplyDate;
-                    var sx1Details = (from id in vfi.ImportFormSX1Detail
-                                      where
-                                          id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                                          id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                                          id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
-                                            .Transaction.Status ==
-                                          (byte)MyUtilities.Transaction.Status.Approved &&
-                                          id.ImportFormSX1.ImportDate >= fromDate &&
-                                          materialIds.Contains(id.MaterialInventory.MaterialId) &&
-                                          productIds.Contains(id.ProductId)
-                                      select new {
+                    //                      MaterialId = id.MaterialInventory.MaterialId,
+                    //                      id.ProductId,
+                    //                      MaterialUse = (id.MaterialUse1) + (id.MaterialUse2),
+                    //                      id.ProductionRate,
+                    //                      MaterialWeight = id.MaterialInventory.UnitWeight,
+                    //                      Production = (id.Number1) + (id.Number2) +
+                    //                                   (id.Processing1) + (id.Processing2) +
+                    //                                   (id.DefectProduct1) + (id.DefectProduct2),
+                    //                      id.ImportFormSX1.MaterialUseDate,
+                    //                      id.ImportFormSX1.ImportDate,
+                    //                  }).ToList();
+                    //foreach (var groupPlan in materialLimitPlans) {
+                    //    var limitPlan = groupPlan.Plan;
+                    //    var entities = model.Where(m => m.ProductId == limitPlan.ProductId &&
+                    //                                m.MaterialId == limitPlan.MaterialId);
+                    //    var productions = sx1Details
+                    //        .Where(sd => sd.MaterialId == limitPlan.MaterialId &&
+                    //                        sd.ProductId == limitPlan.ProductId &&
+                    //                        sd.ImportDate >= limitPlan.ApplyDate);
+                    //    var productionQuantity = productions.Sum(p => p.Production) * groupPlan.RawProductionWeight / 1000;
+                    //    var materialUsedQuantity = productions.Sum(p => p.MaterialUse * p.MaterialWeight);
+                    //    var limitColor = 1;
+                    //    if (limitPlan.ProductLimitQuantity > productionQuantity &&
+                    //        limitPlan.MaterialLimitQuantity > materialUsedQuantity) {
+                    //        // nothing happen
+                    //        var maxUse = entities.Sum(e => e.MaterialLimitQuantity * 2);
+                    //        var minLimitLeft = Math.Min(limitPlan.ProductLimitQuantity - productionQuantity, limitPlan.MaterialLimitQuantity - materialUsedQuantity);
+                    //        var day = maxUse > 0 ? minLimitLeft / maxUse : 0;
+                    //        if (day > 7) {
+                    //            limitColor = 0;
+                    //        }
+                    //        else if (day > 5) {
+                    //            limitColor = 3;
+                    //        }
+                    //        else if (day > 3) {
+                    //            limitColor = 2;
+                    //        }
+                    //        else {
 
-                                          MaterialId = id.MaterialInventory.MaterialId,
-                                          id.ProductId,
-                                          MaterialUse = (id.MaterialUse1) + (id.MaterialUse2),
-                                          id.ProductionRate,
-                                          MaterialWeight = id.MaterialInventory.UnitWeight,
-                                          Production = (id.Number1) + (id.Number2) +
-                                                       (id.Processing1) + (id.Processing2) +
-                                                       (id.DefectProduct1) + (id.DefectProduct2),
-                                          id.ImportFormSX1.MaterialUseDate,
-                                          id.ImportFormSX1.ImportDate,
-                                      }).ToList();
-                    foreach (var groupPlan in materialLimitPlans) {
-                        var limitPlan = groupPlan.Plan;
-                        var entities = model.Where(m => m.ProductId == limitPlan.ProductId &&
-                                                    m.MaterialId == limitPlan.MaterialId);
-                        var productions = sx1Details
-                            .Where(sd => sd.MaterialId == limitPlan.MaterialId &&
-                                            sd.ProductId == limitPlan.ProductId &&
-                                            sd.ImportDate >= limitPlan.ApplyDate);
-                        var productionQuantity = productions.Sum(p => p.Production) * groupPlan.RawProductionWeight / 1000;
-                        var materialUsedQuantity = productions.Sum(p => p.MaterialUse * p.MaterialWeight);
-                        var limitColor = 1;
-                        if (limitPlan.ProductLimitQuantity > productionQuantity &&
-                            limitPlan.MaterialLimitQuantity > materialUsedQuantity) {
-                            // nothing happen
-                            var maxUse = entities.Sum(e => e.MaterialLimitQuantity * 2);
-                            var minLimitLeft = Math.Min(limitPlan.ProductLimitQuantity - productionQuantity, limitPlan.MaterialLimitQuantity - materialUsedQuantity);
-                            var day = maxUse > 0 ? minLimitLeft / maxUse : 0;
-                            if (day > 7) {
-                                limitColor = 0;
-                            }
-                            else if (day > 5) {
-                                limitColor = 3;
-                            }
-                            else if (day > 3) {
-                                limitColor = 2;
-                            }
-                            else {
-
-                            }
-                        }
-                        if (limitColor != 1) {
-                            foreach (var entity in entities) {
-                                entity.LimitColor = limitColor;
-                            }
-                        }
-                    }
+                    //        }
+                    //    }
+                    //    if (limitColor != 1) {
+                    //        foreach (var entity in entities) {
+                    //            entity.LimitColor = limitColor;
+                    //        }
+                    //    }
+                    //}
                 }
             }
             catch (Exception ex) {
@@ -5242,7 +5565,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                      : "",
                             ModifiedUser = export.ModifiedUser,
                             StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status),
-                            TotalBox = export.TotalBox ,
+                            TotalBox = export.TotalBox,
                             Note = tDetail.Note,
                             Quality = tDetail.Quality,
                             Weight = tDetail.Weight ?? 0.0,
@@ -5595,7 +5918,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var detailGroups = entity.Details.Select(d => new { d.ProductId, d.UnitPrice }).Distinct().ToList();
                     var newDetails = new List<CustomerIncomeDetailModel>();
                     foreach (var detailGroup in detailGroups) {
-                        var details = entity.Details.Where(d => 
+                        var details = entity.Details.Where(d =>
                             d.ProductId == detailGroup.ProductId &&
                             d.UnitPrice == detailGroup.UnitPrice);
                         var detail = details.FirstOrDefault();
@@ -5975,7 +6298,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.UnitPrice = orderDetail.UnitPrice;
                             entity.Note = invoice.Note;
                             entity.Weight = (exportDetail.Weight ?? 0.0) / 1000;
-                            entity.Package = export.TotalBox ;
+                            entity.Package = export.TotalBox;
                             entity.PaymentTerm = paymentTerm.TermName;
                             entity.ShiftmentDateString = export.DateTransporter.Value.ToString("dd/MM/yyyy");
                             entity.TaxPercent = invoice.TaxPercent;
@@ -6035,7 +6358,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     UM = "pcs",
                                     Note = invoice.Note,
                                     Weight = (exportDetail.Weight ?? 0.0) / 1000,
-                                    Package = export.TotalBox ,
+                                    Package = export.TotalBox,
                                     PaymentTerm = paymentTerm.TermName,
                                     ShiftmentDateString = export.DateTransporter.Value.ToString("dd/MM/yyyy"),
                                     TaxPercent = invoice.TaxPercent,
@@ -6131,7 +6454,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.Quantity += exportDetail.Quality;
                             entity.Weight += (exportDetail.Weight ?? 0.0) / 1000;
                         }
-                       
+
                     }
                 }
             }
@@ -6348,7 +6671,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     model.Add(entity);
                     var entity2 = new SoLieuTongHopSanPham {
                         ProductCode = "TL(g/pc)",
-                        SanXuat1 = product.ProductionWeight ??0,
+                        SanXuat1 = product.ProductionWeight ?? 0,
                         TonKhoSX2CNC = product.CncWeight ?? 0,
                         TonKhoSX2SX2 = product.Production2Weight ?? 0,
                         TonKhoSX2SX2B = product.Production2Weight ?? 0,
@@ -7103,7 +7426,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             //var fromD = new DateTime(to.Year, to.Month, 1).AddDays(-1);
             try {
                 using (var vfi = new tammaContext()) {
-                    var periods = vfi.WorkpieceMaterialPeriods.Where(wmp => wmp.PeriodDate <= toD 
+                    var periods = vfi.WorkpieceMaterialPeriods.Where(wmp => wmp.PeriodDate <= toD
                         && wmp.Type != (int)MyUtilities.Material.WorkpieceType.Defect).ToList();
 
                     var identityCodes = MaterialIdentityCode.GetMaterialIdentityCodes(0);
@@ -7144,7 +7467,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return model;
         }
 
-        List<PrintGroupMaterial> GetMaterialDailyPeriod(int materialType,string materialCode,string monthly) {
+        List<PrintGroupMaterial> GetMaterialDailyPeriod(int materialType, string materialCode, string monthly) {
             var model = new List<PrintGroupMaterial>();
             var ci = new CultureInfo("vi-VN");
             var reportDate = string.IsNullOrWhiteSpace(monthly)
@@ -7408,7 +7731,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         var entity = new PrintMaterialDailyPeriod {
                             MaterialId = material.MaterialId,
                             MaterialName = material.MaterialName,
-                            MaterialDesignNo = 
+                            MaterialDesignNo =
                                 MyUtilities.Material.GetMaterialDesignNo(material.OutDiameter, material.InDiameter, material.DiameterType, material.Shape),
                             Details = new List<PrintMaterialDailyPeriodDetail>(),
                             Show = true,
@@ -8045,8 +8368,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
 
                         var importSx1DetailsByMaterialId = from sx in importSx1Details
-                                        where sx.Material.MaterialId == entity.MaterialId
-                                        select sx;
+                                                           where sx.Material.MaterialId == entity.MaterialId
+                                                           select sx;
                         foreach (var sxDetail in importSx1DetailsByMaterialId) {
                             var useInDay = entity.MaterialUseInDays.FirstOrDefault(x => x.MachineId == sxDetail.MachineId
                                                                         && x.ProductId == sxDetail.ProductId
@@ -10542,7 +10865,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         //        productPrice = Math.Round(productPrice * MyUtilities.Product.ExchangeRateDesign, 0);
                         //    product.UnitPrice = productPrice; //* MyUtilities.Product.DesignPrice;
                         //}
-                        product.UnitPrice = MyUtilities.Product.ProductVndPrice(entity.UnitPrice,1,exchangeRate);
+                        product.UnitPrice = MyUtilities.Product.ProductVndPrice(entity.UnitPrice, 1, exchangeRate);
                         var realProductionsByProductId = realProductions.Where(rp => rp.ProductId == product.ProductId);
                         if (realProductionsByProductId.Any()) {
                             var realProductivity =
@@ -11618,36 +11941,36 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     vfi.Configuration.LazyLoadingEnabled = false;
                     //lay DS san pham da tung luu tru trong kho
                     var products = (from p in vfi.Products
-                                   where p.Active && p.ProductCode.Contains(productCode) &&
-                                         (customerId == 0 || p.CustomerId == customerId)
-                                   select new {
-                                       p.ProductId,
-                                       p.ProductCode,
-                                       p.Customer.CustomerCode,
-                                       p.QcWeight
-                                   }).ToList();
+                                    where p.Active && p.ProductCode.Contains(productCode) &&
+                                          (customerId == 0 || p.CustomerId == customerId)
+                                    select new {
+                                        p.ProductId,
+                                        p.ProductCode,
+                                        p.Customer.CustomerCode,
+                                        p.QcWeight
+                                    }).ToList();
                     var productIds = products.Select(p => p.ProductId).ToList();
                     var warehouseIds = MyUtilities.Warehouse.GetWarehouseId_ReProcessing();
                     var productInvs = (from pi in vfi.ProductInventories
-                                      where warehouseIds.Contains(pi.WarehouseId) &&
-                                            productIds.Contains(pi.ProductId) &&
-                                            pi.TotalQty > 0
-                                      select new {
-                                          pi.ProductInventoryId,
-                                          pi.WarehouseId,
-                                          pi.ProductId,
-                                          pi.ErrorId,
-                                          pi.ProcessError,
-                                          pi.ImportDate,
-                                          pi.DefectId,
-                                          pi.ProductionDefect,
-                                          pi.LotNumber,
-                                          pi.TotalQty,
-                                          pi.Warehouse.WarehouseName,
-                                          pi.StoreCode
-                                      }).ToList();
+                                       where warehouseIds.Contains(pi.WarehouseId) &&
+                                             productIds.Contains(pi.ProductId) &&
+                                             pi.TotalQty > 0
+                                       select new {
+                                           pi.ProductInventoryId,
+                                           pi.WarehouseId,
+                                           pi.ProductId,
+                                           pi.ErrorId,
+                                           pi.ProcessError,
+                                           pi.ImportDate,
+                                           pi.DefectId,
+                                           pi.ProductionDefect,
+                                           pi.LotNumber,
+                                           pi.TotalQty,
+                                           pi.Warehouse.WarehouseName,
+                                           pi.StoreCode
+                                       }).ToList();
                     var productInvIds = productInvs.Select(pi => pi.ProductInventoryId).ToList();
-                    
+
                     foreach (var productInv in productInvs) {
                         var product = products.FirstOrDefault(p => p.ProductId == productInv.ProductId);
                         var entity = new ProcessingInvModel {
@@ -11671,7 +11994,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.DefectId = productInv.DefectId.Value;
                             entity.DefectName = productInv.ProductionDefect.DefectName;
                         }
-                        
+
                         model.Add(entity);
                     }
                 }
@@ -12052,7 +12375,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 .ToList()
                                 .Sum(pip => pip.Quantity);
                         }
-                        if (warehouse9!= 0) {
+                        if (warehouse9 != 0) {
                             var productInvPeriodsById2 = productInvPeriodsById.Where(pip => pip.WarehouseId == warehouse9);
                             entity.Detail9.Weight = MyUtilities.Product.GetProductInvWeight(entity.ProductId, warehouse9);
                             entity.Detail9.Import = productInvPeriodsById2
@@ -12089,7 +12412,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         #endregion
 
         #region Production
-        
+
         [GridAction]
         public ActionResult SelectProductionLock(string fromDate, string toDate) {
             var model = new List<ProductionLockModel>();
@@ -12204,7 +12527,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             CNCLock = update.CNCLock,
                             ModifiedDate = DateTime.Now,
                             ModifiedUser = HttpContext.User.Identity.Name,
-                            Shift1Name  = update.Shift1Name,
+                            Shift1Name = update.Shift1Name,
                             Shift2Name = update.Shift2Name
                         };
                         vfi.ProductionLocks.Add(locked);
@@ -12225,6 +12548,191 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 ModelState.AddModelError("UpdateProductionLock", ex.Message);
             }
             return View(new GridModel(GetProductionLock(fromDate, toDate)));
+        }
+        #endregion
+
+        #region shelf - drawer
+
+        [GridAction]
+        public ActionResult SelectInventoryOnShelf(int classifiedId, string fromDate, string toDate, int drawerId) {
+            var model = new List<OnShelfModel>();
+            try {
+                model = GetInventoryOnShelf(classifiedId, fromDate, toDate, drawerId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectInventoryOnShelf", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<OnShelfModel> GetInventoryOnShelf(int classifiedId, string fromDate, string toDate, int drawerId) {
+            var model = new List<OnShelfModel>();
+            try {
+                var fDate = MyUtilities.Function.ParseDate(fromDate);
+                var tDate = MyUtilities.Function.ParseDate(toDate);
+                using (var vfi = new tammaContext()) {
+                    model = (from x in vfi.OnShelves
+                             where (drawerId == 0
+                                     ? x.OnDate >= fDate && x.OnDate <= tDate
+                                     : x.DrawerId == drawerId)
+                                    && x.Active
+                             select new OnShelfModel {
+                                 OnShelfId = x.OnShelfId,
+                                 OnDate = x.OnDate,
+                                 ModifiedDate = x.ModifiedDate,
+                                 ModifiedUser = x.ModifiedUser,
+                                 DrawerId = x.DrawerId,
+                                 ReferenceId = x.ReferenceId,
+                                 ReferenceInvId = x.ReferenceInvId,
+                                 ClassifiedId = classifiedId
+                             }).ToList();
+                    var referenceInvIds = model.Select(x => x.ReferenceInvId).Distinct().ToList();
+                    var referenceIds = model.Select(x => x.ReferenceId).Distinct().ToList();
+                    var drawerIds = model.Select(x => x.DrawerId).Distinct().ToList();
+                    var drawers = (from x in vfi.InventoryDrawers
+                                   where drawerIds.Contains(x.DrawerId)
+                                   select new InventoryDrawerModel {
+                                       DrawerId = x.DrawerId,
+                                       ColumnName = x.ColumnName,
+                                       RowName = x.RowName,
+                                       ShelftName = x.InventoryShelf.ShelfName
+                                   }).ToList();
+                    switch (classifiedId) {
+                        case 1:
+                            var materialInvs = (from x in vfi.MaterialInventories
+                                                where referenceInvIds.Contains(x.MaterialInventoryId)
+                                                select new MaterialInventoryModel {
+                                                    MaterialInventoryId = x.MaterialInventoryId,
+                                                    VendorCode = x.Vendor.VendorCode,
+                                                    MaterialId = x.MaterialId,
+                                                    MaterialName = x.Material.MaterialName,
+                                                    OutDiameter = x.Material.OutDiameter,
+                                                    InDiameter = x.Material.InDiameter,
+                                                    Shape = x.Material.Shape,
+                                                    DiameterType = x.Material.DiameterType,
+                                                    LotNumber = x.LotNumber,
+                                                    Length = x.Length,
+                                                    Quantity = x.TotalQty,
+                                                    UnitWeight = x.UnitWeight,
+                                                }).ToList();
+                            var materials = (from x in vfi.Materials
+                                             where referenceIds.Contains(x.MaterialId)
+                                             select new {
+                                                 Id = x.MaterialId,
+                                                 Code = x.MaterialCode
+                                             }).ToList();
+                            foreach (var onshelve in model) {
+                                var drawer = drawers.FirstOrDefault(x => x.DrawerId == onshelve.DrawerId);
+                                if (drawer != null) {
+                                    onshelve.DrawerCode = drawer.DrawerCode;
+                                }
+                                if (onshelve.ReferenceInvId > 0) {
+                                    var materialInv = materialInvs.FirstOrDefault(x => x.MaterialInventoryId == onshelve.ReferenceInvId);
+                                    onshelve.ReferenceInvCode = materialInv.MaterialCodeLotNumber;
+                                    onshelve.Unit = "Kg";
+                                    onshelve.Quantity = materialInv.Quantity * materialInv.UnitWeight;
+                                    onshelve.UnitWeight = materialInv.UnitWeight;
+                                    onshelve.LotNumber = materialInv.LotNumber;
+                                    onshelve.OwnerName = materialInv.VendorCode;
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+            return model.OrderByDescending(x => x.OnDate).ThenBy(x => x.DrawerCode).ToList();
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertInventoryOnShelf(OnShelfModel insert, int classifiedId, string fromDate, string toDate) {
+            try {
+                if (!Request.IsAuthenticated) {
+                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+                }
+                using (var vfi = new tammaContext()) {
+                    var drawerId = 0;
+                    try { drawerId = Convert.ToInt32(insert.DrawerCode); }
+                    catch (FormatException) { }
+                    var invId = 0;
+                    try { invId = Convert.ToInt32(insert.ReferenceInvCode); }
+                    catch (FormatException) { }
+                    if (drawerId == 0 || invId == 0) {
+                        throw new AggregateException("Lỗi! Không tìm thấy data, vui lòng chọn lại vị trí kho và tồn");
+                    }
+                    var materialInv = vfi.MaterialInventories.FirstOrDefault(x=> x.MaterialInventoryId == invId);
+                        var onshelf = new OnShelf() { 
+                            DrawerId = drawerId,
+                            ReferenceInvId = invId,
+                            OnDate =  insert.OnDate,
+                            ModifiedDate =  DateTime.Now,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            ReferenceId = materialInv.MaterialId,
+                            Active = true,
+                        };
+                        vfi.OnShelves.Add(onshelf);
+                        vfi.SaveChanges();
+                    //}
+                    //else {
+                    //    onshelf.ModifiedUser = HttpContext.User.Identity.Name;
+                    //    onshelf.ModifiedDate = DateTime.Now;
+                    //}
+                    //var drawer = vfi.InventoryDrawers.FirstOrDefault(x => x.DrawerId == drawerId);
+                    //drawer.ReferenceInvId = onshelf.ReferenceInvId;
+                    //drawer.ReferenceId = onshelf.ReferenceId;
+                    //vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertInventoryOnShelf", ex.Message);
+            }
+            return View(new GridModel(GetInventoryOnShelf(classifiedId, fromDate, toDate, 0)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateInventoryOnShelf(OnShelfModel update, int classifiedId, string fromDate, string toDate) {
+            try {
+                throw new AggregateException("Lỗi! Chưa hổ trợ cập nhật");
+                if (!Request.IsAuthenticated) {
+                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateInventoryOnShelf", ex.Message);
+            }
+            return View(new GridModel(GetInventoryOnShelf(classifiedId, fromDate, toDate, 0)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult DeleteInventoryOnShelf(int onShelfId, int classifiedId, string fromDate, string toDate, int drawerId) {
+            try {
+                if (!Request.IsAuthenticated) {
+                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+                }
+                using (var vfi = new tammaContext()) {
+                    var onShelf = vfi.OnShelves.FirstOrDefault(x => x.OnShelfId == onShelfId);
+                    if (onShelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ chứa NL"); }
+                    onShelf.Active = false;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("DeleteInventoryOnShelf", ex.Message);
+            }
+            return View(new GridModel(GetInventoryOnShelf(classifiedId, fromDate, toDate, drawerId)));
         }
         #endregion
     }

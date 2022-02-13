@@ -4,11 +4,14 @@ using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Client.Module.Authentication.Interfaces;
-using Vfi.Server.Core.DataModel.Models.System;
+//using Vfi.Server.Core.DataModel.Models.System;
 using Microsoft.Practices.Unity;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
+using LogInUserModel = Vfi.Server.Core.DataModel.Models.System.LogInUserModel;
+using System.IO;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers {
     public class HomeController : Controller {
@@ -19,10 +22,17 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers {
             if (_userService == null) _userService = userService;
             if (_formAuthenticationService == null) _formAuthenticationService = formAuthenticationService;
         }
-
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult Index() {
             ViewData["Message"] = "Welcome to ASP.NET MVC!";
-
+            ViewData = GetPageConfigData();
+            //ViewData["BackgroundImage"] = Path.Combine(Server.MapPath("~/Content/Images"), "bg_body-2.jpg");
             return View();
         }
         [HttpPost]

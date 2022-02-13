@@ -103,12 +103,15 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<ImportNCU_QCBDetail> ImportNCU_QCBDetail { get; set; }
         public DbSet<ImportWorkpieceMaterial> ImportWorkpieceMaterials { get; set; }
         public DbSet<ImportWorkpieceMaterialDetail> ImportWorkpieceMaterialDetails { get; set; }
+        public DbSet<InventoryDrawer> InventoryDrawers { get; set; }
+        public DbSet<InventoryShelf> InventoryShelves { get; set; }
         public DbSet<MaterialInventory> MaterialInventories { get; set; }
         public DbSet<MaterialInventoryPeriod> MaterialInventoryPeriods { get; set; }
         public DbSet<MaterialInvOnMachine> MaterialInvOnMachines { get; set; }
         public DbSet<MaterialInvOnMachinePeriod> MaterialInvOnMachinePeriods { get; set; }
         public DbSet<MaterialUseDetail> MaterialUseDetails { get; set; }
         public DbSet<MaterialUseInShift> MaterialUseInShifts { get; set; }
+        public DbSet<OnShelf> OnShelves { get; set; }
         public DbSet<ProcessError> ProcessErrors { get; set; }
         public DbSet<ProductInventory> ProductInventories { get; set; }
         public DbSet<ProductInventoryPeriod> ProductInventoryPeriods { get; set; }
@@ -294,12 +297,15 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new ImportNCU_QCBDetailMap());
             modelBuilder.Configurations.Add(new ImportWorkpieceMaterialMap());
             modelBuilder.Configurations.Add(new ImportWorkpieceMaterialDetailMap());
+            modelBuilder.Configurations.Add(new InventoryDrawerMap());
+            modelBuilder.Configurations.Add(new InventoryShelfMap());
             modelBuilder.Configurations.Add(new MaterialInventoryMap());
             modelBuilder.Configurations.Add(new MaterialInventoryPeriodMap());
             modelBuilder.Configurations.Add(new MaterialInvOnMachineMap());
             modelBuilder.Configurations.Add(new MaterialInvOnMachinePeriodMap());
             modelBuilder.Configurations.Add(new MaterialUseDetailMap());
             modelBuilder.Configurations.Add(new MaterialUseInShiftMap());
+            modelBuilder.Configurations.Add(new OnShelfMap());
             modelBuilder.Configurations.Add(new ProcessErrorMap());
             modelBuilder.Configurations.Add(new ProductInventoryMap());
             modelBuilder.Configurations.Add(new ProductInventoryPeriodMap());

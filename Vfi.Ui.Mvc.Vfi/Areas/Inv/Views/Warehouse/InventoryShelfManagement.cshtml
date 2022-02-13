@@ -1,0 +1,182 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Quản lý kệ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function grid_OnEdit(e) {
+
+            var mode = e.mode;
+            var form = e.form;
+
+            var classifiedName = $(form).find('#ClassifiedName');
+            var classifiedNameData = $(form).find('#ClassifiedName').data('tDropDownList');
+
+            if (mode == 'insert') {
+
+            }
+            else if (mode == 'edit') {
+
+                var nodes = $(form).find('#ClassifiedName');
+                nodes[0].parentNode.parentNode.innerHTML = e.dataItem.ClassifiedName;
+                var nodes = $(form).find('#MaxColumn');
+                nodes[0].parentNode.parentNode.innerHTML = e.dataItem.MaxColumn;
+                var nodes = $(form).find('#MaxRow');
+                nodes[0].parentNode.parentNode.innerHTML = e.dataItem.MaxRow;
+            }
+        }
+
+        function DuplicateDrawer(drawerId) {
+            $.ajax({
+                type: 'post',
+                data: { drawerId: drawerId },
+                dataType: 'json',
+                url: '@Url.Action("DuplicateInventoryDrawer", "Warehouse", new { area = "Inv" })',
+            timeout: 20000,
+            success: function (data) {
+                if (data == 9)
+                    alert("Lỗi !");
+                else {
+                    alert("Nhân bản thành công !");
+                }
+            }
+        });
+        return false;
+    }
+    </script>
+}
+
+<div class="title">Quản lý thông tin kho kệ</div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<InventoryShelfModel>()
+            .Name("gridWarehouse")
+            .DataKeys(key => key.Add(f => f.ShelfId).RouteKey("shelfId"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectInventoryShelf", "Warehouse")
+                                          .Insert("InsertInventoryShelf", "Warehouse")
+                                          .Update("UpdateInventoryShelf", "Warehouse"))
+            .Columns(columns => {
+                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ClassifiedName).Title("Phân loại").Width(150);
+                columns.Bound(f => f.MaxColumn).Title("Số cột").Width(100);
+                columns.Bound(f => f.MaxRow).Title("Số dòng").Width(100);
+                columns.Bound(f => f.ShelfName).Title("Tên kệ");
+                //columns.Bound(f => f.WarehouseName).Title("Kho").Width(100);
+
+                columns.Bound(f => f.Active).Title("Kích hoạt").Width(45)
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(150).ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy HH:mm}");
+                columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(100).ReadOnly(true);
+            })
+
+        .DetailView(details => details.ClientTemplate(
+
+            Html.Telerik().TabStrip()
+                .Name("TabStrip_<#= ShelfId #>")
+                .SelectedIndex(0)
+                .Items(items =>
+
+                       items.Add().Text("Hộc kệ").Content(
+
+                           Html.Telerik().Grid<InventoryDrawerModel>()
+                               .Name("gridDetail_<#= ShelfId #>")
+                               .DataKeys(key => key.Add(f => f.DrawerId).RouteKey("drawerId"))
+                           //.ToolBar(
+                           //    toolbar =>
+                           //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                               .DataBinding(
+                                   dataBinding => dataBinding.Ajax()
+                                                             .Select("SelectInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
+                                       //.Insert("InsertInventoryDrawer", "Warehouse", new { area = "", shelfId = "<#= ShelfId #>" })
+                                                             .Update("UpdateInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
+                                                             //.Delete("DeleteInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
+                               )
+                               .Columns(columns => {
+                                   columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                   columns.Bound(f => f.DrawerCode).Title("Mã").Width(100);
+                                   columns.Bound(f => f.ColumnName).Title("Tên cột").Width(50);
+                                   columns.Bound(f => f.RowName).Title("Tên dòng").Width(50);
+                                   columns.Bound(f => f.AdditionName).Title("").Width(20);
+                                   columns.Bound(f => f.ReferenceInvCode).Title("Đang có").ReadOnly(true);
+                                   //columns.Bound(f => f.ReferenceName).Title("Đang có").Width(100).ReadOnly(true);
+                                   //columns.Bound(f => f.OwnerName).Title("NCC").Width(100).ReadOnly(true);
+                                   //columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true)
+                                   //    .HtmlAttributes(new { style = "text-align:center;" });
+                                   //columns.Bound(f => f.Quantity).Title("Số tồn").Width(100).ReadOnly(true)
+                                   //    .Format("{0:n2}")
+                                   //    .HtmlAttributes(new { style = "text-align:right;" });
+                                   //columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true)
+                                   //    .HtmlAttributes(new { style = "text-align:center;" });
+                                   //columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true)
+                                   //    .Format("{0:n3}")
+                                   //    .HtmlAttributes(new { style = "text-align:right;" });
+                                   //columns.Bound(f => f.DrawerId).Title("Nhân bản").Width(50)
+                                   //       .ClientTemplate("<button class='t-button' id='duplicate_<#= DrawerId #>' onclick=DuplicateDrawer(<#= DrawerId #>) ><span class='t-icon t-insert'></span></button>")
+                                   //       .HtmlAttributes(new { style = "text-align:center" });
+                                   //columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Bỏ NL").Width(35);
+                               })
+                .DetailView(details2 => details2.ClientTemplate(
+
+                    Html.Telerik().TabStrip()
+                        .Name("TabStrip_<#= DrawerId #>")
+                        .SelectedIndex(0)
+                        .Items(items2 =>
+
+                               items2.Add().Text("Đang chứa").Content(
+
+                                   Html.Telerik().Grid<OnShelfModel>()
+                                       .Name("gridInventory_<#= DrawerId #>")
+                                       .DataKeys(key => key.Add(f => f.OnShelfId).RouteKey("onShelfId"))
+                                       .DataBinding(
+                                           dataBinding => dataBinding.Ajax()
+                                                                     .Select("SelectInventoryOnShelf", "Inv", new { area = "Inv", classifiedId = "<#= ClassifiedId #>", fromDate = "", toDate = "", drawerId = "<#= DrawerId #>" })
+                                                                     .Delete("DeleteInventoryOnShelf", "Inv", new { area = "Inv", classifiedId = "<#= ClassifiedId #>", drawerId = "<#= DrawerId #>" })
+                                       )
+                                       .Columns(columns => {
+                                           columns.Bound(f => f.OnDate).Width(100).Title("Ngày")
+                                               .ClientTemplate("<#= OnDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OnDate) #>");
+                                           columns.Bound(f => f.DrawerCode).Width(70).Title("Vị trí");
+                                           columns.Bound(f => f.ReferenceInvCode).Width(150).Title("Nguyên liệu");
+                                           columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true);
+                                           columns.Bound(f => f.OwnerName).Title("NCC").Width(100).ReadOnly(true);
+                                           columns.Bound(f => f.Quantity).Title("Số tồn").Format("{0:n}").Width(100).ReadOnly(true);
+                                           columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true);
+                                           columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true);
+                                           columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(120).ReadOnly(true)
+                                               .Format("{0:dd/MM/yyyy HH:mm}");
+                                           columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(80).ReadOnly(true);
+                                           columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Bỏ NL").Width(35);
+                                       })
+                                       .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                       .ClientEvents(e => e.OnError("grid_OnError"))
+                                       .Pageable(page => page.PageSize(10))
+                                       .ToHtmlString()
+                                   ))
+
+                .ToHtmlString()
+                                   ))
+                               .Editable(editing => editing.Mode(GridEditMode.InLine))
+                               .ClientEvents(e => e.OnError("grid_OnError"))
+                               .Pageable(page => page.PageSize(10))
+                               .ToHtmlString()
+                           ))
+
+                .ToHtmlString()
+                                   ))
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            //.Pageable(page => page.PageSize(10))
+            .Sortable()
+            .ClientEvents(e => e.OnError("grid_OnError").OnEdit("grid_OnEdit"))
+            .Render();
+    }
+</div>

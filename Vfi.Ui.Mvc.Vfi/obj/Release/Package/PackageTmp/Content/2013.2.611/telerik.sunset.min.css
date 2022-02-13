@@ -14,6 +14,7 @@
 .t-state-default{border-color:#854324}
 .t-active-filter{background-color:#d25e21}
 .t-state-selected{border-color:#904c23;background-color:#ea9959}
+.t-alt.t-state-selected{border-color:#904c23;background-color:#ea9959}
 .t-state-hover,.t-state-hover .t-link,.t-group .t-state-hover{color:#fff}
 .t-state-hover,.t-state-hover:hover{background-color:#c5551c;border-color:#854324}
 .t-state-focused{background-color:#cdccb3}

@@ -25,11 +25,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             //_employeeService = employeeService;
         }
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         // View
         public ActionResult EmployeeManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -213,7 +221,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                          where (config.IsSales == null || x.Active == config.IsSales) &&
                          (config.IsQCLine == null || x.QcLine == config.IsQCLine) &&
                          (config.IsRepair == null || x.Repair == config.IsRepair) &&
-                         (config.IsProduction2 ==null || x.Production2 == config.IsProduction2 || x.Production2B == config.IsProduction2)
+                         (config.IsProduction2 == null || x.Production2 == config.IsProduction2 || x.Production2B == config.IsProduction2)
                          select new EmployeeModel {
                              EmployeeId = x.EmployeeId,
                              EmployeeName = x.EmployeeName,

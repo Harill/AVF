@@ -1,0 +1,423 @@
+﻿@model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInvShelfDiagramViewModel
+
+@{
+    ViewBag.Title = "MaterialInventoryShelfDiagram";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+   
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>
+    <script type="text/javascript">
+        $(function () {
+            var containerCount = @Model.Groups.Count + 1;
+            var $containers = [];
+            for (var i = 0; i <= containerCount; i++) {
+                var $container = $("#container-" + i);
+                //khoang cach giua cac item
+                $container.isotope({
+                    itemSelector: '.element-' + i,
+                });
+                $containers.push($container);
+            }
+
+            $('#filters a').click(function () {
+                var selector = $(this).attr('data-filter');
+                $containers.forEach(function (c) {
+                    c.isotope({ filter: selector });
+                });
+                return false;
+            });
+        });
+    </script>
+}
+<style media="screen,print">
+    body {
+        background-image: url("");
+    }
+
+    .container_24 {
+        width: 100%;
+    }
+
+    .title {
+        padding: 0 15px;
+    }
+
+    .isotope-item {
+        z-index: 2;
+    }
+
+    .isotope-hidden.isotope-item {
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .isotope,
+    .isotope .isotope-item {
+        -webkit-transition-duration: 0.8s;
+        -moz-transition-duration: 0.8s;
+        -ms-transition-duration: 0.8s;
+        -o-transition-duration: 0.8s;
+        transition-duration: 0.8s;
+    }
+
+    .isotope {
+        -webkit-transition-property: height, width;
+        -moz-transition-property: height, width;
+        -ms-transition-property: height, width;
+        -o-transition-property: height, width;
+        transition-property: height, width;
+    }
+
+        .isotope .isotope-item {
+            -webkit-transition-property: -webkit-transform, opacity;
+            -moz-transition-property: -moz-transform, opacity;
+            -ms-transition-property: -ms-transform, opacity;
+            -o-transition-property: -o-transform, opacity;
+            transition-property: transform, opacity;
+        }
+
+    #filters {
+        margin: 0;
+    }
+
+    #options li {
+        float: left;
+        display: list-item;
+    }
+
+    #options .selected {
+        background-color: #13F;
+        text-shadow: none;
+        color: white;
+    }
+
+    #options li a {
+        display: block;
+        padding: 0.4em 0.5em;
+        background-color: #DDD;
+        color: #222;
+        font-weight: bold;
+        text-shadow: 0 1px hsla( 0, 0%, 100%, 0.5 );
+        background: none;
+    }
+
+    #options li a:hover {
+        background-color: cornflowerblue;
+        font-weight: bolder;
+    }
+
+    #options li a:active {
+        background-color: cornflowerblue;
+        font-weight: bolder;
+    }
+    
+    .entity * {
+        margin: 0;
+    }
+
+    .entity {
+        width: 220px;
+        height: 165px;
+        margin: 5px;
+        float: left;
+        border: 4px double black;
+        overflow: hidden;
+        position: relative;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+
+    .itemMid {
+        text-align: center;
+    }
+
+    .itemLeft {
+        text-align: left;
+    }
+
+    .itemRight {
+        text-align: right;
+    }
+
+    .entity .line-item {
+        height: 100%;
+        float: left;
+        padding-top: 3px;
+        margin: auto;
+    }
+
+    .entity .line1 {
+        height: 55px;
+        text-align: center;
+    }
+
+    .entity .line2 {
+        height: 45px;
+        text-align: center;
+    }
+    
+    .entity .line3 {
+        height: 45px;
+        text-align: center;
+    }
+    .entity0 {
+        width: 210px;
+        height: 55px;
+        margin: 5px;
+        float: left;
+        border: 1px solid black;
+        overflow: hidden;
+        position: relative;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    .entity0 * {
+        margin: 0;
+    }
+    
+    .entity0 .line0 {
+        height: 15px;
+        padding-top: 2px;
+        text-align: center;
+    }
+    .entity0 .line-item0 {
+        float: left;
+        margin: auto;
+    }
+</style>
+<div class="title">Sơ đồ kho nguyên liệu</div>
+
+<div class="clear"></div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width:50%;float:left">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_2">
+                &nbsp;
+            </div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+            <li><a href="#" data-filter="*" class="selected t-button" onclick="li_OnClick()">Tất cả</a></li>
+                        </ul>
+
+                </section>
+            <div class="grid_2">
+                Loại
+            </div>
+
+            <div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var type in Model.Types) {
+                        <li><a href="#" data-filter=".mt-@type.MaterialTypeId" class="t-button" 
+                            style="background-color: #@type.DiagramColor;">
+                            (@type.Count) @type.MaterialTypeName
+                            </a></li>
+    }
+}
+                    </ul>
+                </section>
+            </div>
+            <div class="clear"></div>
+            <div class="grid_2">
+                Nhà CC
+            </div>
+
+            <div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var vendor in Model.Vendors) {
+                        <li><a href="#" data-filter=".v-@vendor.VendorId" class="t-button">
+                            (@vendor.Count) @vendor.VendorName
+                            </a></li>
+    }
+}
+                        </div>
+            <div class="clear"></div>
+
+            <div>
+            <div class="grid_2">
+                Thời gian
+            </div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var state in Model.States) {
+                        <li><a href="#" data-filter=".s-@state.Code" class="t-button"
+                            style="background-color: #@state.Color;">
+                            (@state.Count) @state.Name
+                            </a></li>
+    }
+}
+                        </div>
+    </fieldset>
+</div>
+<div class="entity">
+    <div class ="line1">
+        <div class="line-item" style='width: 20%;border:1px solid black;'>
+            <span class="itemMid" style="padding-top: 10px;">Vị trí</span>
+        </div>
+        <div class="line-item" style='width: 41%;border:1px solid black;'>
+            <span class="itemMid" style="padding-top: 5px; margin-right: 10px; font-weight: bold;" >Nhà cung cấp</span>
+        </div>
+        <div class="line-item" style='width: 35%;border:1px solid black;'>
+            <span class="itemMid">Lô<br />nguyên liệu</span>
+        </div>
+    </div>
+    <div class ="line2">
+        <div class="line-item" style="width: 99%;border:1px solid black;">
+            <span class="itemMid" style="font-weight: bold;">Mã <br />Nguyên liệu</span>
+        </div>
+    </div>
+    <div class ="line3">
+        <div class="line-item" style="width: 30%;border:1px solid black;">
+            <span class="itemMid">Đang tồn<br /> (kg)</span>
+        </div>
+        <div class="line-item" style="width: 33%;border:1px solid black;">
+            <span class="itemMid">Nhập đầu<br /> (kg)</span>
+        </div>
+        <div class="line-item" style="width: 33%;border:1px solid black;">
+            <span class="itemMid">Ngày nhập</span>
+        </div>
+    </div>
+</div>
+<div class="grid_5">
+    <h3>
+    Ghi chú vị trí:<br />
+    Kệ : 1 2 3 <br />
+    Hàng: A -> E<br />
+    Cột: 1 -> 15<br />
+    Vị trí = Hàng Kệ Cột<br />
+    Ví dụ: <br />
+    - Kệ 1 Hàng 1 Cột 15: A115<br />
+    - Kệ 2 Hàng 3 Cột 4: C204<br />
+        </h3>
+</div>
+
+<div class="clear"></div>
+
+<div style="overflow-x: scroll;">
+@{int i = 0;
+  var columnWidth = 220;
+  var spaceWidth = 19;
+  foreach (var group in Model.Groups) {
+      i++;
+      var containerWidth = group.ColumnCount * (columnWidth + spaceWidth) + "px";
+        <h1 class="name" style="margin-left: 10px">Kệ @group.ShelfName</h1>
+    
+    <div id='container-@i' class="clearfix" style="width:@containerWidth" >
+        @{foreach (var entity in group.Drawers) {
+              var type = "";
+              var vendor = "";
+              var state = "";
+              var referenceCode = "";
+              foreach (var detail in entity.Details) {
+                  type += " mt-" + detail.MaterialTypeId;
+                  vendor += " v-" + detail.VendorId;
+                  state += " s-" + detail.MaterialStateCode;
+                  referenceCode += detail.ReferenceCode + "<br/>";
+              }
+            <div class='element-@i entity-@entity.DrawerCode entity @type @vendor @state' id="revok">
+                
+                <div class ="line1">
+                    <div class="line-item" style='width: 15%;'>
+                        <span class="itemMid" style="font-weight:bold; font-size:large">@entity.RowCode<br />@entity.ColumnCode</span>
+                    </div>
+                    
+                    <div class="line-item" style='width: 53%;'>
+                         @{foreach (var detail in entity.Details) {
+                            <div style="height:33%; width: 100%;">
+                                <span class="itemMid" style="font-weight: bold;"> @detail.VendorName </span>
+                            </div>
+                           }}
+                    </div>
+                    <div class="line-item" style='width: 32%;'>
+                         @{foreach (var detail in entity.Details) {
+                            <div style="height:33%; width: 100%; background-color: #@detail.MaterialStateColor ;">
+                                <span class="itemMid" style="font-weight: bold;"> @detail.LotNumber </span>
+                            </div>
+                           }}
+                    </div>
+                    
+                </div>
+                
+                <div class ="line2">
+                         @{foreach (var detail in entity.Details) {
+                    <div class="line-item" style="height:33%; width: 100%; background-color: #@detail.MaterialTypeColor ;">
+                        <span class="itemMid" style="font-weight: bold;"> @detail.ReferenceCode </span>
+                    </div>
+                           }}
+                </div>
+                <div class ="line3">
+                    
+                         @{foreach (var detail in entity.Details) {
+                    <div class="line-item" style="height:33%; width: 30%; background-color: #@detail.InventoryStateColor ;">
+                        <span class="itemMid"> @detail.QuantityStr </span>
+                    </div>
+                    <div class="line-item" style="height:33%; width: 33%;">
+                        <span class="itemMid"> @detail.ImportQuantityStr</span>
+                    </div>
+                    <div class="line-item" style="height:33%; width: 36%;">
+                        <span class="itemMid">@detail.ImportDateStr</span>
+                    </div>
+                        }}
+                </div>
+                
+            </div>
+          }}
+        </div>
+    
+<div class="clear"></div>
+  }}
+</div>
+<div class="clear"></div>
+
+<h1 class="name" style="margin-left: 10px">Ngoài kệ</h1>
+<div id='container-0' class="clearfix" >
+    @{foreach (var detail in Model.NotOnShelf.Details) {
+        <div class='element-0 entity0 mt-@detail.MaterialTypeId v-@detail.VendorId s-@detail.MaterialStateCode' id="revok">
+                
+            <div class ="line0">
+                <div class="line-item0" style='width: 10%;'>
+                    <span class="itemMid" style="font-weight:bold;">X</span>
+                </div>
+                    
+                <div class="line-item0" style='width: 55%;'>
+                            <span class="itemMid" style="font-weight: bold;"> @detail.VendorName </span>
+                </div>
+                <div class="line-item0" style='width: 35%;background-color: #@detail.MaterialStateColor ;'>
+                            <span class="itemMid" style="font-weight: bold;"> @detail.LotNumber </span>
+                </div>
+                    
+            </div>
+                
+            <div class ="line0" style="height:18px; background-color: #@detail.MaterialTypeColor ;">
+                <div class="line-item0"style="width: 100%;">
+                    <span class="itemMid" style="font-weight: bold;"> @detail.ReferenceCode </span>
+                </div>
+            </div>
+            <div class ="line0">
+                    
+                <div class="line-item0" style="width: 30%;">
+                    <span class="itemMid"> @detail.QuantityStr </span>
+                </div>
+                <div class="line-item0" style="width: 33%;">
+                    <span class="itemMid"> @detail.ImportQuantityStr</span>
+                </div>
+                <div class="line-item0" style="width: 36%;">
+                    <span class="itemMid">@detail.ImportDateStr</span>
+                </div>
+            </div>
+                
+        </div>
+      }}
+</div>
+
+

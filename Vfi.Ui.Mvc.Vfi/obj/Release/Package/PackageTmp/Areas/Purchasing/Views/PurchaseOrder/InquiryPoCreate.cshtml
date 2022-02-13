@@ -107,9 +107,16 @@
                 typeId: type,
             });
         }
+
+        function vendorGrid_OnDataBinding(e) {
+            var classified = $('#ClassifiedName').data('tDropDownList').value();
+            if (classifiedId == "") classifiedId = 0;
+            e.data = $.extend(e.data, {
+                classified: classified,
+            });
+        }
     </script>
 }
-
 
 <div class="title">Tạo phiếu yêu cầu mua hàng</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">

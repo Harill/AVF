@@ -16,6 +16,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
 
             this.Property(t => t.WorkGroupName)
                 .HasMaxLength(50);
+            this.Property(t => t.Theme)
+                .HasMaxLength(50);
+            this.Property(t => t.BackgroundImage)
+                .HasMaxLength(50);
 
             this.Property(t => t.Description)
                 .HasMaxLength(50);
@@ -28,6 +32,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.Description).HasColumnName("Description");
             this.Property(t => t.Active).HasColumnName("Active");
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
+            this.Property(t => t.Theme).HasColumnName("Theme");
+            this.Property(t => t.BackgroundImage).HasColumnName("BackgroundImage");
+            this.Property(t => t.ImagePath).HasColumnName("ImagePath");
         }
     }
 }

@@ -59,7 +59,11 @@
 
 
         }
-
+        function vendorGrid_OnDataBinding(e) {
+            e.data = $.extend(e.data, {
+                classified: classifiedId,
+            });
+        }
     </script>
 
 

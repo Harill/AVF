@@ -19,10 +19,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         //
         // GET: /Purchasing/Tool/
         #region view
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult ToolTransactionManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -30,6 +38,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -37,12 +46,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult AssignToolProduction2() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["ListExportToolInvIds"] = new List<int>();
             return View();
         }
@@ -51,6 +62,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["ListExportToolInvIds"] = new List<int>();
             return View();
         }
@@ -59,6 +71,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -66,6 +79,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -73,6 +87,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -80,6 +95,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -87,6 +103,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -94,18 +111,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolImportExportReport() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ChestManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -113,30 +133,35 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolUseCreate() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolUseRetrieve() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolUseApprovement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolUseInvManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -144,6 +169,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         #endregion
@@ -598,7 +624,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             if (exportDetail != null) {
                                 var machine = vfi.Machines.FirstOrDefault(m => m.MachineId == exportDetail.MachineId);
                                 if (machine != null)
-                                    entity.Note += machine.MachineName;
+                                    entity.Note += "| " + machine.MachineName;
                                 var product = vfi.Products.FirstOrDefault(m => m.ProductId == exportDetail.ProductId);
                                 if (product != null)
                                     entity.Note += ("-" + product.ProductCode);
@@ -1021,7 +1047,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         [GridAction]
         public ActionResult SelectWaitingTransactionTool() {
             try {
-                return View(new GridModel(GetTransactionToolModel().OrderBy(m => m.TransactionDate)));
+                return View(new GridModel(GetTransactionToolModel().OrderByDescending(m => m.TransactionDate)));
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectWaitingTransactionTool", "" + ex.Message);
@@ -1051,17 +1077,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             Status = transaction.Status,
                             EoI = transaction.EoI,
                             Fpt = transaction.Fpt,
+                            FptName = MyUtilities.PurchaseOrder.GetFptName(transaction.Fpt),
                             Type = transaction.Type,
                             PurchasingSignature = transaction.PurchasingSignature,
                             PurchasingSignatureType = 0,
                             AccountantSignatureType = 0,
-                            IsInternal = transaction.IsInternal ?? false
+                            IsInternal = transaction.IsInternal ?? false,
+                            TotalQuantity = transaction.TransactionFptDetails.Sum(td => td.Quantity),
+                            TotalPrice = transaction.TransactionFptDetails.Sum(td => td.Quantity * td.UnitPrice)
                         };
                         var exportTool = transaction.ExportTools.FirstOrDefault();
                         if (exportTool != null) {
                             entity.Department = exportTool.Department;
+                            entity.Note = exportTool.Description;
                         }
-                        if (entity.PoId != 0) {
+                        if (entity.PoId > 0) {
                             entity.PoCode = transaction.PurchaseOrder.RevisionNumber;
                             entity.Note = transaction.PurchaseOrder.RevisionNumber + "-" +
                                           transaction.PurchaseOrder.CurrencyCode.Trim() + "-" +
@@ -1087,14 +1117,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 entity.PurchasingSignatureType = 1;
                             }
                         }
-                        if (entity.Fpt != 0)
-                            entity.FptName = MyUtilities.PurchaseOrder.GetFptName(entity.Fpt);
-                        entity.TotalQuantity = transaction.TransactionFptDetails.Sum(td => td.Quantity);
-                        entity.TotalPrice = transaction.TransactionFptDetails.Sum(td => td.Quantity * td.UnitPrice);
-                        //foreach (var detail in transaction.TransactionFptDetails) {
-                        //    entity.TotalQuantity += detail.Quantity;
-                        //    entity.TotalPrice += (detail.Quantity * detail.UnitPrice);
-                        //}
+
                         entity.AlertColor = 1;
                         if (entity.TransactionDate > DateTime.Now.AddDays(4) ||
                             entity.TransactionDate < DateTime.Now.AddDays(-4))
@@ -1380,7 +1403,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 UnitPrice = detail.UnitPrice,
                                 ToolCode = tool.ToolCode,
                                 ToolName = tool.ToolName,
-                                ToolDesignNo = tool.ToolDesignNo + "-" + tool.ToolMaterial,
+                                ToolDesignNo = tool.ToolCode + tool.ToolDesignNo + "-" + tool.ToolMaterial,
                                 ToolFullCodeName = tool.ToolFullCode,
                                 TransactionDate = transaction.TransactionDate,
                                 TransactionCode = transaction.TransactionCode,
@@ -1422,7 +1445,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         }
                         return PartialView("PagePrintImportTool", model);
                     }
-                    if (transaction.EoI == Convert.ToInt16(MyUtilities.PurchaseOrder.EoILot.Export)) {
+                    else if (transaction.EoI == Convert.ToInt16(MyUtilities.PurchaseOrder.EoILot.Export)) {
+                        var export = vfi.ExportTools.FirstOrDefault(x => x.TransactionId == transactionId);
                         var exportDetails = from ed in vfi.ExportToolDetails
                                             where ed.ExportTool.TransactionId == transactionId
                                             select ed;
@@ -1433,6 +1457,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 Note = detail.Note,
                                 Quantity = detail.Quantity,
                                 UnitPrice = detail.UnitPrice,
+                                Price = detail.Quantity * detail.UnitPrice,
                                 ToolCode = tool.ToolCode,
                                 ToolName = tool.ToolName,
                                 ToolDesignNo = tool.ToolDesignNo + "-" + tool.ToolMaterial,
@@ -1442,28 +1467,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ModifiedDate = transaction.ModifiedDate,
                                 ModifiedUser = transaction.ModifiedUser,
                                 UnitMeasure = detail.UnitMeasure ?? "",
+                                Status = transaction.Status,
+                                StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status),
                                 EoI = transaction.EoI,
+                                EoIName = MyUtilities.PurchaseOrder.GetEoIName(transaction.EoI, transaction.Type),
                                 Type = transaction.Type,
+                                TypeName = tool.MaterialType.MaterialTypeName,
                                 FptType = transaction.Fpt,
+                                FptTypeName = MyUtilities.PurchaseOrder.GetFptName(transaction.Fpt),
                                 PurchasingSignature = transaction.PurchasingSignature,
                                 InventorySignature = transaction.InventorySignature,
                                 ToolMaterial = tool.ToolMaterial,
-                                FptTypeName = tool.MaterialType.MaterialTypeName,
+                                Department = export != null ? export.Department : "",
+                                Description = export != null ? export.Description : "",
                             };
-                            if (transaction.PoId != 0 && transaction.PoId != null)
+                            if (transaction.PoId > 0) {
                                 entity.PoNumber = transaction.PurchaseOrder.RevisionNumber;
-                            if (detail.VendorId != 0 || detail.VendorId != null) {
-                                var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
-                                entity.VendorName = vendor.CompanyName;
                             }
-                            entity.StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
-                            if (entity.FptType != 0)
-                                entity.FptTypeName = MyUtilities.PurchaseOrder.GetFptName(entity.FptType);
-                            if (entity.EoI != 0)
-                                entity.FptTypeName = MyUtilities.PurchaseOrder.GetEoIName(entity.EoI, entity.Type);
-                            entity.Price = entity.UnitPrice * entity.Quantity;
-                            var exportDetail =
-                                exportDetails.FirstOrDefault(ed => ed.TransactionDetailId == detail.DetailId);
+                            if (detail.VendorId > 0) {
+                                var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
+                                entity.VendorName = vendor.VendorName;
+                            }
+                            var exportDetail = exportDetails.FirstOrDefault(ed => ed.TransactionDetailId == detail.DetailId);
                             if (exportDetail != null) {
                                 entity.MachineName = exportDetail.Machine.MachineName;
                                 entity.ProductCode = exportDetail.Product.ProductCode;
@@ -2150,7 +2175,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             [Bind(Prefix = "inserted")] IEnumerable<TransactionFptDetailModel> insertedDetails,
             [Bind(Prefix = "updated")] IEnumerable<TransactionFptDetailModel> updatedDetails,
             [Bind(Prefix = "deleted")] IEnumerable<TransactionFptDetailModel> deletedDetails,
-            string exportDate, int machineId, int productId, string description) {
+            string exportDate, int machineId, int productId, string department, string description) {
             if (updatedDetails != null) {
                 try {
                     if (!Request.IsAuthenticated)
@@ -2189,7 +2214,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             InventorySignature = 0,
                             PurchasingSignature = 0,
                             QcSignature = 0,
-                            ExchangeRate = 1
+                            ExchangeRate = 1,
                         };
                         var exportTool = new ExportTool {
                             TransactionFpt = transaction,
@@ -2199,7 +2224,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ModifiedUser = HttpContext.User.Identity.Name,
                             ExportDate = date,
                             Description = description,
-                            Department = "SX1",
+                            Department = department,
                             MachineId = machineId,
                             ProductId = productId
                         };
@@ -2264,7 +2289,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 TransactionFpt = transaction,
                                 TransactionId = transaction.TransactionId,
                                 VendorId = toolInv.VendorId,
-                                MachineId = exportTool.MachineId
+                                MachineId = exportTool.MachineId,
                             };
                             transaction.TransactionFptDetails.Add(transactionDetail);
 

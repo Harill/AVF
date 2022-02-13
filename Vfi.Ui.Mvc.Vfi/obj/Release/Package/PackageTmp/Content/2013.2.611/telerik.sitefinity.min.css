@@ -24,6 +24,7 @@
 .t-state-hover{border-color:#dee2e7}
 .t-state-active{background-color:#fff;border-color:#ccc}
 .t-state-selected{background-color:#ffffe1}
+.t-alt.t-state-selected{background-color:#ffffe1}
 .t-state-focused{background-color:#fffacd}
 .t-dropdown .t-state-focused{border-color:#ccc;background-color:#f1f1f1}
 .t-state-error,.t-widget.t-state-error,.t-widget .t-state-error,.t-widget.input-validation-error,.t-widget .input-validation-error{border-color:#e50000}

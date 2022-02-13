@@ -5,8 +5,10 @@
 }
 
 @section Scripts{
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jscolor.js")"   ></script>
 <script type="text/javascript">
-    function gridMaterialType_onEdit(e) {
+    function grid_OnEdit(e) {
+
         var mode = e.mode;
         var form = e.form;
 
@@ -24,13 +26,21 @@
                     return item.Text == e.dataItem['MaterialClassifiedName'];
                 });
             });
+            document.getElementById("ColorPick").value = e.dataItem.DiagramColor;
+            document.getElementById("ColorPick").style["background-color"] = '#' + e.dataItem.DiagramColor;
         }
     }
+
+    function grid_OnSave(e) {
+        e.values.DiagramColor = document.getElementById("ColorPick").value;
+    }
+
 </script>
 }
 
 <div class="title">Quản lý loại nguyên liệu</div>
 
+Chọn màu: @Html.TextBox("ColorPick", null, new { @class = "ColorTool" })
 <div class="cover-div">
 @{
     Html.Telerik().Grid<MaterialTypeModel>()
@@ -44,21 +54,26 @@
                 .Select("SelectMaterialType", "Material")
                 .Insert("InsertMaterialType", "Material")
                 .Update("UpdateMaterialType", "Material"))
-        .Columns(columns =>
-        {
-            columns.Bound(f => f.MaterialClassifiedName).Width(175)
+        .Columns(columns => {
+            columns.Command(command =>
+                command.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.MaterialClassifiedName).Title("Phân loại").Width(200)
                 .ClientTemplate("<strong><#= MaterialClassifiedName #></strong>");
-            columns.Bound(f => f.IdentityCode).Width(45);
-            columns.Bound(f => f.MaterialTypeName);
+            columns.Bound(f => f.IdentityCode).Title("Mã loại").Width(45);
+            //columns.Bound(f => f.DiagramColor).Title("Màu sơ đồ").Width(100);
+            columns.Bound(f => f.MaterialTypeName).Title("Tên loại");
             columns.Bound(f => f.Active).Width(45)
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Command(command =>
-                command.Edit().ButtonType(GridButtonType.ImageAndText)
-            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày tạo").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm:ss}");
+            columns.Bound(f => f.ModifiedUser).Width(85).Title("Người tạo").ReadOnly(true);
         })
         .Editable(editing => editing.Mode(GridEditMode.InLine))
-        .ClientEvents(events => events.OnEdit("gridMaterialType_onEdit").OnError("grid_OnError"))
+        .ClientEvents(events => events
+            .OnEdit("grid_OnEdit")
+            .OnSave("grid_OnSave")
+            .OnError("grid_OnError"))
         //.Pageable(page => page.PageSize(10))
         .Sortable()
         .Render();

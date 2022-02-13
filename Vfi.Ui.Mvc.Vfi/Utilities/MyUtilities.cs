@@ -1,15 +1,53 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
     public static class MyUtilities {
+        public static class MySystem {
+            public static PageConfigModel GetPageConfig() {
+                var model = new WorkGroupModel() {
+                    Theme = "office2007",
+                    BackgroundImage = "bg_body.jpg",
+                    ImagePath = "/vfi/Content/Images"
+                }; // set default
+                using (var vfi = new tammaContext()) {
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        model.WorkGroupName = "- " + workgroup.WorkGroupName;
+                        if (!string.IsNullOrWhiteSpace(workgroup.Theme)) {
+                            model.Theme = workgroup.Theme;
+                        }
+                        if (!string.IsNullOrWhiteSpace(workgroup.BackgroundImage)) {
+                            model.BackgroundImage = workgroup.BackgroundImage;
+                        }
+                        if (!string.IsNullOrWhiteSpace(workgroup.LogoImage)) {
+                            model.LogoImage = workgroup.LogoImage;
+                        }
+                        if (!string.IsNullOrWhiteSpace(workgroup.LogoImage)) {
+                            model.LogoImage = workgroup.LogoImage;
+                        }
+                        if (!string.IsNullOrWhiteSpace(workgroup.ImagePath)) {
+                            model.ImagePath = workgroup.ImagePath;
+                        }
+                    }
+                }
+                return new PageConfigModel {
+                    PageName = model.WorkGroupName,
+                    PageTheme = model.ThemeCss,
+                    BackgroundImage = model.BackgroundImage,
+                    LogoImage = model.LogoImage,
+                    ImagePath = model.ImagePath
+                };
+            }
+        }
 
         public static class UserRole {
             /// <summary>

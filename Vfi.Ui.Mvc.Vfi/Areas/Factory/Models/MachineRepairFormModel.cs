@@ -31,7 +31,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public int FormId { get; set; }
         public int MachineId { get; set; }
 
-        [UIHint("_MachineProductionEditTemplate")]
+        [UIHint("_MachineAllProductionEditTemplate")]
         public string MachineName { get; set; }
 
         [UIHint("_MachineProduction2EditTemplate")]

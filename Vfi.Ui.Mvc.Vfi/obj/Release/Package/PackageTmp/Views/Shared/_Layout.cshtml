@@ -29,7 +29,8 @@
         .DefaultGroup(
                         group => group
                             .Add("telerik.common.min.css")
-                            .Add("telerik.office2007.css")
+                                    //.Add("telerik.sunset.css")
+                                            .Add(ViewBag.PageTheme)
                             
                             .Add("~/Content/960/960_24_col.css")
                                     
@@ -43,38 +44,38 @@
     
     @RenderSection("HeadContent", false)
 </head>
-
-<body>
- <div class="container_24">
+<body style="background-image: url('/vfi/Content/Images/Background/@ViewBag.BackgroundImage');">
+<div class="container_24">
     @* <div class="grid_26 page">*@
      <div class="page">
-
-        <div id="header">
+         <div class="logo">
+             <img src="/vfi/Content/Images/Logo/@ViewBag.LogoImage" style="height:100%; width:auto;" />
+         </div>
+        <div id="header" style="width:94%;float:left">
             <div id="title">
-                <h1>Hệ thống quản lý</h1>
+                <h1>Hệ thống quản lý @ViewBag.PageName</h1>
             </div>
 
             <div id="logindisplay">
                 @Html.Partial("_LogOnUserControl")
             </div>
-
-            <div id="menucontainer">
-            </div>
+            
+            <div class="clear"></div>
         </div>
-        
-        <div id="main">
-            <!-- Menu Area , Render menu after login -->
-            <div id="menuArea">
+        <br />
+            <div id="menuArea" style="width:94%; float:left">
                @if (!Request.IsAuthenticated)
-               {             
+               {
                    @: @{ Html.Telerik().Menu().Name("M").Render();} 
                }
                else { 
                    @: @Html.Action("MainMenu", "Menu", new {Area = ""} )
                }
             </div>
+            <!-- Menu Area , Render menu after login -->
             <!-- end Menu Area -->
             <div style="clear: both;"></div>
+        <div id="main">
             @RenderBody()
         </div>
     </div>

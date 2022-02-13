@@ -8,6 +8,7 @@ using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
+using Vfi.Ui.Mvc.Vfi.Utilities;
 //using UnitMeasure = Vfi.Server.Core.DataModel.BaseEntities.UnitMeasure;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Production
@@ -23,9 +24,16 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production
 
         }
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         // View
-        public ActionResult UnitMeasureManagement()
-        {
+        public ActionResult UnitMeasureManagement() {
+            ViewData = GetPageConfigData();
             return View();
         }
 

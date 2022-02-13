@@ -83,11 +83,13 @@
             if (machineId === "")
                 machineId = 0;
             var description = $("#Description").val();
+            var department = $("#Department").val();
             e.values = $.extend(e.values,
                 {
                     exportDate: exportDate,
                     machineId:machineId,
                     productId: productSelectId,
+                    department: department,
                     description: description
                 }
             );
@@ -125,6 +127,22 @@
                         .Render();
                 }
             </div>
+                <div class="clear"></div>
+                <br/>
+                <div class="grid_3">Bộ phận đề xuất</div>
+                <div class="grid_3">
+                    @{
+                        Html.Telerik().AutoComplete()
+                            .Name("Department")
+                            .DataBinding(binding => binding.Ajax().Select("SelectComboBoxDepartment", "Material", new {area = ""}))
+                            .HtmlAttributes(new {style = "width: 130px"})
+                            .DropDownHtmlAttributes(new {style = "width: 130px"})
+                            .AutoFill(true)
+                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Render();
+                    }
+
+                </div>
                 <div class="clear"></div>
                 <br/>
                 <div class="grid_3">Máy</div>

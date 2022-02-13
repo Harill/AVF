@@ -8,6 +8,7 @@ using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
     public class CurrencyController : Controller {
@@ -23,11 +24,19 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             _currencyService = currencyService;
         }
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         // View
         public ActionResult CurrencyManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 

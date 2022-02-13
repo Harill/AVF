@@ -1,0 +1,130 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Kệ NL";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        function grid_OnEdit(args) {
+            var mode = e.from.mode;
+            if (mode == "") { }
+            else if (mode = "") {
+            }
+        }
+        function grid_OnDataBinding(args) {
+
+            var fromDate = $("#FromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            var toDate = $("#ToDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+            args.data = $.extend(args.data, {
+                fromDate: fromDate,
+                toDate: toDate
+            });
+        }
+
+        function drawerGrid_OnDataBinding(e) {
+            e.data = $.extend(e.data, {
+                classifiedId: 1,
+            });
+        }
+
+        function itemGrid_OnDataBinding(e) {
+            e.data = $.extend(e.data, {
+                classified: 1,
+            });
+        }
+        function itemInventoryGrid_OnDataBinding(e) {
+            e.data = $.extend(e.data, {
+                classified: 1,
+                referenceId: 0
+            });
+        }
+    </script>
+}
+
+<div class="title">Lên kệ nguyên liệu</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_1">
+                Ngày
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                    .Name("FromDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
+                    .Render();
+                }
+            </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                    .Name("ToDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Now)
+                    .Render();
+                }
+            </div>
+            <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridLock'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<OnShelfModel>()
+            .Name("gridLock")
+            .DataKeys(key => key.Add(f => f.OnShelfId).RouteKey("onShelfId"))
+            .ToolBar(
+                toolbar =>
+                toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectInventoryOnShelf", "Inv", new { classifiedId = 1, fromDate = "", toDate = "", drawerId = 0 })
+                                          .Insert("InsertInventoryOnShelf", "Inv", new { classifiedId = 1, fromDate = "", toDate = "" })
+                                          .Update("UpdateInventoryOnShelf", "Inv", new { classifiedId = 1, fromDate = "", toDate = "" }))
+            .Columns(columns => {
+                columns.Command(command =>
+                                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                columns.Bound(f => f.OnDate).Width(100).Title("Ngày")
+                    .ClientTemplate("<#= OnDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OnDate) #>");
+                columns.Bound(f => f.DrawerCode).Width(70).Title("Vị trí");
+                columns.Bound(f => f.ReferenceInvCode).Width(150).Title("Nguyên liệu");
+                columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true);
+                columns.Bound(f => f.OwnerName).Title("NCC").Width(100).ReadOnly(true);
+                columns.Bound(f => f.Quantity).Title("Số tồn").Format("{0:n}").Width(100).ReadOnly(true);
+                columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true);
+                columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(120).ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy HH:mm}");
+                columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(80).ReadOnly(true);
+            })
+            .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
+                                          .OnError("grid_OnError"))
+            //.Pageable(page => page.PageSize(7))
+            //.Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

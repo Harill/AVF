@@ -15,6 +15,7 @@
 .t-state-active{background-color:#fff;border-color:#e5e5e5}
 .t-state-active,.t-state-active .t-link{color:#000}
 .t-state-selected{background-color:#25a0da}
+.t-alt.t-state-selected{background-color:#25a0da}
 .t-state-selected,.t-state-selected .t-link,.t-state-selected.t-link{color:#fff}
 .t-state-hover,.t-state-focused{background-color:#e5e5e5;border-color:#e5e5e5}
 .t-state-hover,.t-state-hover:hover,.t-state-hover:hover .t-link,.t-link.t-state-hover:hover,.t-state-focused .t-input{color:#000}

@@ -213,7 +213,7 @@
                 columns.Bound(f => f.ProductCode).Width(250);
                 columns.Bound(f => f.ProductWeight).Width(100).Title("TL sản phẩm (g/pc)")
                     .Format("{0:n3}");
-                columns.Bound(f => f.LotNumber).Title("Lô").Width(100);
+                columns.Bound(f => f.LotNumber).Title("Lô").Width(150);
                 columns.Bound(f => f.TotalQty).Title("Tồn kho xuất (pcs)").Width(100)
                     .Format("{0:n0}");
                 columns.Bound(f => f.AvailableQty).Title("Có thể xuất (pcs)").Width(100)
@@ -251,7 +251,7 @@
             columns.Bound(f => f.ProductCode).Width(200).ReadOnly(true);
             columns.Bound(f => f.TotalQty).Title("Tồn kho(pcs)").ReadOnly(true).Width(100)
                 .Format("{0:n0}");
-            columns.Bound(f => f.LotNumber).Title("Lô").Width(100);
+            columns.Bound(f => f.LotNumber).Title("Lô").Width(150);
             columns.Bound(f => f.Quantity).Width(100).Title("Số lượng(pcs)")
                 .HeaderHtmlAttributes(new { @class = "edit-column" })
                 .Format("{0:n0}")

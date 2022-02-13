@@ -19,6 +19,7 @@
 .t-state-active,.t-state-active .t-link,.t-state-active .t-tabstrip-items .t-state-active .t-link /*nested tabstrips*/{color:#333}
 .t-state-active .t-header,.t-state-active .t-state-hover{color:#fff}
 .t-state-selected{background:#4e8e13}
+.t-alt.t-state-selected{background:#4e8e13}
 .t-state-focused{background-color:#d2d0b6}
 .t-dropdown .t-state-focused{border-color:#4e8e13;background:#6bc31a url('Hay/sprite.png') repeat-x 0 -752px}
 .t-state-selected,.t-state-selected .t-header,.t-state-selected .t-state-hover,.t-state-selected .t-link{color:#fff}

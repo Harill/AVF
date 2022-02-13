@@ -6,8 +6,6 @@
 }
 
 @section Scripts{
-    
-    
     <script type="text/javascript" src="@Url.Content("~/Scripts/jscolor.js")"   ></script>
     
     <script type="text/javascript">
@@ -26,17 +24,12 @@
             //var form = e.form;
             if (mode == 'edit') {
                 document.getElementById("ColorPick").value = e.dataItem.WarrningColor;
+                document.getElementById("ColorPick").style["background-color"] = '#' + e.dataItem.WarrningColor;
             }
         }
 
         function grid_OnSave(e) {
-            var colorPick = $("#ColorPick")[0].value;
-            //colorPick
-            e.values = $.extend(e.values,
-                {
-                    colorPick: colorPick
-                }
-            );
+            e.values.WarrningColor = document.getElementById("ColorPick").value;
         }
 
         function grid_OnRowDataBound(e) {

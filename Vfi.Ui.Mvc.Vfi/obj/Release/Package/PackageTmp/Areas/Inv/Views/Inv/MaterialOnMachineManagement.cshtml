@@ -15,7 +15,8 @@
 
         function grid_OnDataBinding(args) {
 
-            if (startGrid) {
+            if (startGrid && !onLoading) {
+                OnLoadingData();
                 var fromDate = $("#FromDate").data("tDatePicker").value();
                 if (fromDate === null)
                     fromDate = "";
@@ -33,118 +34,170 @@
                 });
             }
         }
+        
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
     </script>
     <!-- report -->
     <script type="text/javascript">
         // in phat nguyen lieu
         function printNewAssignMaterial() {
-            var printDate = $("#PrintDate").data("tDatePicker").value();
-            if (printDate === null)
-                printDate = "";
-            else
-                printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
-            $('#result').load('@Url.Action("PrintNewAssignMaterial", "Inv")',
-                {
-                    printDate: printDate
-                }, function() {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+            if (!onLoading) {
+                OnLoadingData();
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = "";
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                $('#result').load('@Url.Action("PrintNewAssignMaterial", "Inv")',
+                    {
+                        printDate: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
         function printMaterialUseFormByDate() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var fromDate = $("#FromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                var toDate = $("#ToDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
 
-            var fromDate = $("#FromDate").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
-            var toDate = $("#ToDate").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
-
-            //var printDate = $("#PrintDate").data("tDatePicker").value();
-            //if (printDate === null)
-            //    printDate = "";
-            //else
-            //    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
-            $('#result').load('@Url.Action("PrintMaterialUseFormByDate", "Inv")',
-                {
-                    fromDate: fromDate,
-                    toDate: toDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                //var printDate = $("#PrintDate").data("tDatePicker").value();
+                //if (printDate === null)
+                //    printDate = "";
+                //else
+                //    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                $('#result').load('@Url.Action("PrintMaterialUseFormByDate", "Inv")',
+                    {
+                        fromDate: fromDate,
+                        toDate: toDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
 
         // in su dung nguyen lieu
         function printMaterialUseForm() {
-
-            var printDate = $("#PrintDate").data("tDatePicker").value();
-            if (printDate === null)
-                printDate = "";
-            else
-                printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
-            $('#result').load('@Url.Action("PrintMaterialUseForm", "Inv")',
-                {
-                    printDate: printDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = "";
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                $('#result').load('@Url.Action("PrintMaterialUseForm", "Inv")',
+                    {
+                        printDate: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
 
         // in can hang
         function printProduction() {
-
-            var printDate = $("#PrintDate").data("tDatePicker").value();
-            if (printDate === null)
-                printDate = "";
-            else
-                printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
-            $('#result').load('@Url.Action("PrintProduction", "Inv")',
-                {
-                    printDate: printDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = "";
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                $('#result').load('@Url.Action("PrintProduction", "Inv")',
+                    {
+                        printDate: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
         // in can hang 2
         function printProduction2() {
-
-            var printDate = $("#PrintDate").data("tDatePicker").value();
-            if (printDate === null)
-                printDate = "";
-            else
-                printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
-            $('#result').load('@Url.Action("PrintProduction2", "Inv")',
-                {
-                    printDate: printDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = "";
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                $('#result').load('@Url.Action("PrintProduction2", "Inv")',
+                    {
+                        printDate: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
 
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+        var startGrid = false;
         function RefreshGrid2(name) {
-            
-            startGrid = true;
-            RefreshGrid(name);
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
         }
     </script>
 }
 
 <div class="title">Báo cáo xuất nguyên liệu trên máy</div>
 <div class="clear"></div>
-    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
             <div class="grid_2">Ngày</div>
              <div class="grid_3">
@@ -156,29 +209,33 @@
                         .Render();
                 }
             </div>
-        <div class="grid_4">
+        <div class="grid_5">
             <button id="btnPrintAssign" class="t-button" onclick="printNewAssignMaterial();">
                 <span class='t-icon t-insert'></span>
                In Phát nguyên liệu
+                <span class="twoToneButton"></span>
             </button>
         </div>
         
-            <div class="grid_5">
+            <div class="grid_6">
                 <button id="btnPrintUse" class="t-button" onclick="printMaterialUseForm();">
                     <span class='t-icon t-insert'></span>
                     In sử dụng nguyên liệu
+                <span class="twoToneButton"></span>
                 </button>
             </div>
-            <div class="grid_4">
+            <div class="grid_5">
                 <button id="btnPrintProduction" class="t-button" onclick="printProduction();">
                     <span class='t-icon t-insert'></span>
                     In cân hàng (gộp)
+                <span class="twoToneButton"></span>
                 </button>
             </div>
-            <div class="grid_4">
+            <div class="grid_5">
                 <button id="btnPrintProduction2" class="t-button" onclick="printProduction2();">
                     <span class='t-icon t-insert'></span>
                     In cân hàng (tách)
+                <span class="twoToneButton"></span>
                 </button>
             </div>
         <div class="clear"></div>
@@ -204,17 +261,19 @@
                         .Render();
                 }
             </div>
-            <div class="grid_3">
+            <div class="grid_4">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridMaterialUse'); ">
                     <span class='t-icon t-insert'></span>
                     Làm mới
+                <span class="twoToneButton"></span>
                 </button>
             </div>
             
-            <div class="grid_6">
+            <div class="grid_3">
                 <button id="btnPrintReport" class="t-button" onclick=" printMaterialUseFormByDate(); ">
                     <span class='t-icon t-insert'></span>
                     In
+                <span class="twoToneButton"></span>
                 </button>
             </div>
         </fieldset>
@@ -303,6 +362,7 @@
             .Sortable()
             .ClientEvents(events => events
                                         .OnDataBinding("grid_OnDataBinding")
+                                        .OnDataBound("grid_OnDataBound")
                                         .OnError("grid_OnError"))
             .Groupable()
             .Render();

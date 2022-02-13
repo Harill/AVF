@@ -20,6 +20,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public string TransactionCode { get; set; }
         public DateTime TransactionDate { get; set; }
         public string Department { get; set; }
+        public string Description { get; set; }
         public int VendorId { get; set; }
         public string VendorCode { get; set; }
         public string VendorName { get; set; }
@@ -80,6 +81,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public string StatusName { get; set; }
 
         public int Type { get; set; }
+        public string TypeName { get; set; }
         public int EoI { get; set; }
         public string EoIName { get; set; }
         public int FptType { get; set; }

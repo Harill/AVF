@@ -18,16 +18,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         //
         // GET: /Factory/Machine/
         #region View
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult MachineManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineProcess() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -35,18 +44,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineFixManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineErrorManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -54,30 +66,35 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineStateHandover() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineErrorState() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineErrorState2() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult TrackUpMachine() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["InserNewTrack"] = new int();
             return View();
         }
@@ -85,12 +102,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolInventoryRequirementManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -98,30 +117,35 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineRepair2Management() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MachineStateStatistic() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MaterialLimitPlanManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult TrackingRepairEmployee() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -263,6 +287,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 }
 
             }
+            ViewData = GetPageConfigData();
+            ViewData["BackgroundImage"] = "";
             return View(group);
         }
 
@@ -404,6 +430,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 }
 
             }
+            ViewData = GetPageConfigData();
+            ViewData["BackgroundImage"] = "";
             return View(group);
         }
 
@@ -548,6 +576,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 }
 
             }
+            ViewData = GetPageConfigData();
+            ViewData["BackgroundImage"] = "";
             return View(group);
         }
 
@@ -664,6 +694,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("ErrorMachine", ex.Message);
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -1219,6 +1250,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                          && (config.IsPolish == null || x.ProcessingType.Warehouse.IsPolish == config.IsPolish)
                          && (config.IsReprocessing == null || x.ProcessingType.Warehouse.IsReprocessing == config.IsReprocessing)
                          && (config.IsQC == null || x.ProcessingType.Warehouse.IsQC == config.IsQC)
+                         && (config.IsCncMilling == null || x.ProcessingType.Warehouse.IsCncMilling == config.IsCncMilling)
                          && (!config.TypeIds.Any() || (x.ProcessingTypeId != null && config.TypeIds.Contains(x.ProcessingTypeId.Value)))
                          orderby x.MachineName
                          select new MachineModel {
@@ -1240,6 +1272,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return new JsonResult {
                 Data = new SelectList(GetActiveMachines(new MachineConfiguration { }), "MachineId", "MachineName")
             };
+        }
+        public ActionResult SelectComboBoxMachineAllProduction() {
+            var model = new List<MachineModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.Machines
+                         where x.Active 
+                             && x.ProcessingTypeId != null 
+                             && (x.ProcessingType.Warehouse.IsProduction || x.ProcessingType.Warehouse.IsCncMilling || x.ProcessingType.Warehouse.IsProduction2)
+                         orderby x.MachineName
+                         select new MachineModel {
+                             MachineId = x.MachineId,
+                             MachineName = x.MachineName,
+                             ProcessingTypeName = x.ProcessingType.TypeName
+                         }).ToList();
+            }
+            return new JsonResult { Data = new SelectList(model, "MachineId", "MachineName") };
         }
         public ActionResult SelectComboBoxMachineProduction() {
             return new JsonResult {
@@ -1419,7 +1467,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
 
         [GridAction]
-        public ActionResult InsertMachineState(MachineStateModel newModel, string colorPick) {
+        public ActionResult InsertMachineState(MachineStateModel newModel) {
             try {
                 if (!Request.IsAuthenticated) {
                     throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n 1 trong các nguyên nhân như mất thời gian chờ. \r\n Xin vui lòng đăng nhập lại hệ thống.");
@@ -1428,8 +1476,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     throw new AggregateException("Mô tả lỗi không được để trống");
                 if (string.IsNullOrWhiteSpace(newModel.StateCode))
                     throw new AggregateException("Mã lỗi không được để trống");
-                if (string.IsNullOrWhiteSpace(colorPick))
-                    throw new AggregateException("Màu báo hiệu lỗi");
+                //if (string.IsNullOrWhiteSpace(colorPick))
+                //    throw new AggregateException("Màu báo hiệu lỗi");
                 using (var vfi = new vfiContext()) {
                     var model = vfi.MachineStates
                         .FirstOrDefault(ms => ms.Description.Trim().ToUpper().Equals(newModel.Description.ToUpper()) ||
@@ -1441,7 +1489,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             Active = true,
                             ModifiedDate = DateTime.Now,
                             ModifiedUser = HttpContext.User.Identity.Name,
-                            WarrningColor = colorPick,
+                            WarrningColor = newModel.WarrningColor,
                             Timing = 0,
                             StateCode = newModel.StateCode.ToUpper().Trim(),
                             EstimateTime = newModel.EstimateTime,
@@ -1462,7 +1510,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(GetMachineStateList()));
         }
         [GridAction]
-        public ActionResult UpdateMachineState(MachineStateModel updateModel, string colorPick) {
+        public ActionResult UpdateMachineState(MachineStateModel updateModel) {
             try {
                 if (!Request.IsAuthenticated) {
                     throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n 1 trong các nguyên nhân như mất thời gian chờ. \r\n Xin vui lòng đăng nhập lại hệ thống.");
@@ -1471,8 +1519,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     throw new AggregateException("Mô tả lỗi không được để trống");
                 if (string.IsNullOrWhiteSpace(updateModel.StateCode))
                     throw new AggregateException("Mã lỗi không được để trống");
-                if (string.IsNullOrWhiteSpace(colorPick))
-                    throw new AggregateException("Màu báo hiệu lỗi");
+                //if (string.IsNullOrWhiteSpace(colorPick))
+                //    throw new AggregateException("Màu báo hiệu lỗi");
                 using (var vfi = new vfiContext()) {
                     var existModel = vfi.MachineStates.FirstOrDefault(ms => ms.StateId == updateModel.StateId);
                     if (existModel != null) {
@@ -1497,7 +1545,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             }
                             existModel.ModifiedDate = DateTime.Now;
                             existModel.ModifiedUser = HttpContext.User.Identity.Name;
-                            existModel.WarrningColor = colorPick;
+                            existModel.WarrningColor = updateModel.WarrningColor;
                             existModel.Timing = 0;
                             existModel.EstimateTime = updateModel.EstimateTime;
                             existModel.IsSetProduct = updateModel.IsSetProduct;

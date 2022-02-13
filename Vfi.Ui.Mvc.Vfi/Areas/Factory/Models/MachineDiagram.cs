@@ -64,7 +64,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
             string a = "Lên máy: " + ProductCode
                 //+ ", số lượng: " + Number + ", năng xuất:" + ProductionPerDay
                        + ", ngày bắt đầu:" + StartDate.Value.ToString("dd/MM/yyyy");
-                       //+ ", ngày kết thúc:" + EndDate.Value.AddDays(GetRunDay()).ToString("dd/MM/yyyy");
+            //+ ", ngày kết thúc:" + EndDate.Value.AddDays(GetRunDay()).ToString("dd/MM/yyyy");
             if (!string.IsNullOrWhiteSpace(Note))
                 a += ", ghi chú:" + Note;
             return "";
@@ -96,13 +96,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public int Count { get; set; }
     }
     public class GroupMachineDiagram {
-    public GroupMachineDiagram() {
-        ListMachineDiagram = new List<List<MachineDiagram>>();
-        ListState = new List<MachineStateModel>();
-        ListFunction = new List<MachineFunctionModel>();
-        ListType = new List<MachineTypeModel>();
-    }
-        public List<List<MachineDiagram>> ListMachineDiagram{get;set;}
+        public GroupMachineDiagram() {
+            ListMachineDiagram = new List<List<MachineDiagram>>();
+            ListState = new List<MachineStateModel>();
+            ListFunction = new List<MachineFunctionModel>();
+            ListType = new List<MachineTypeModel>();
+        }
+        public List<List<MachineDiagram>> ListMachineDiagram { get; set; }
         public List<MachineStateModel> ListState { get; set; }
         public List<MachineFunctionModel> ListFunction { get; set; }
         public List<MachineTypeModel> ListType { get; set; }

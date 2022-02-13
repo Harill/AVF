@@ -17,6 +17,7 @@
 .t-state-hover,.t-state-hover:hover{background-color:#d1e4fc;border-color:#8daed5}
 .t-state-active{background-color:#fff;border-color:#426682}
 .t-state-selected{background-color:#deecfe}
+.t-alt.t-state-selected{background-color:#deecfe}
 .t-state-focused{background-color:#c4d1e0}
 .t-dropdown .t-state-focused{border-color:#bed4ef;background:#bed4ef url('Windows7/sprite.png') repeat-x 0 -752px}
 .t-state-error,.t-widget.t-state-error,.t-widget .t-state-error,.t-widget.input-validation-error,.t-widget .input-validation-error{border-color:#f00;background-color:#ffc0cb}

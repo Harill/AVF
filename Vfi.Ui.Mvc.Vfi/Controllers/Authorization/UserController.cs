@@ -14,9 +14,11 @@ using Vfi.Client.Module.Authentication.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using User = Vfi.Server.Core.DataModel.BaseEntities.User;
 using UserModel = Vfi.Server.Core.DataModel.Models.System.UserModel;
+using ChangePasswordModel = Vfi.Server.Core.DataModel.Models.System.ChangePasswordModel;
+using FunctionModel = Vfi.Server.Core.DataModel.Models.System.FunctionModel;
 //using WorkGroup = Vfi.Server.Core.DataModel.BaseEntities.WorkGroup;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
-using Vfi.Server.Core.DataModel.Models.System;
+//using Vfi.Server.Core.DataModel.Models.System;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
     [Authorize]
@@ -38,12 +40,21 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             _formAuthenticationService = formAuthenticationService;
         }
         #region view
+
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         // View
         [Authentication]
         public ActionResult UserAccount() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -52,6 +63,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         //
@@ -59,6 +71,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         //
@@ -66,62 +79,106 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult ChangePassword() {
+            ViewData = GetPageConfigData();
             return View(new ChangePasswordModel());
         }
         // 
         [Authentication]
         public ActionResult EditProfile() {
+            ViewData = GetPageConfigData();
             return View();
         }
 
         [Authentication]
         public ActionResult ThinhMapDoor() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult AssignSignature() {
+            ViewData = GetPageConfigData();
             return View();
         }
 
         [Authentication]
         public ActionResult WarehouseRotate() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
 
         [Authentication]
         public ActionResult DbSystemMonitor() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult ItemCard() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult ProductionMonitor() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult TestingFuelInv() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult TestingMaterialInv() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult TestingMaterialInvOnMachine() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult TestingProductInv() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         [Authentication]
         public ActionResult TestingToolInv() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         #endregion
@@ -303,6 +360,17 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
 
         #region UserWorkGroup
 
+        [HttpPost]
+        public ActionResult SelectComboBoxTelerikTheme() {
+            var lst = new List<string> {"black", "common", "default",
+                "forest", "hay", "metro", 
+                "office2007", "office2010black", "office2010blue", "office2010silver", 
+                "outlook", "rtl", "simple", "sitefinity", "sunset", 
+                "telerik", "transparent", "vista", 
+                "web20", "webblue", "windows7" };
+            return new JsonResult { Data = lst };
+        }
+
         [GridAction]
         public ActionResult SelectWorkGroup() {
             var model = new List<WorkGroupModel>();
@@ -323,6 +391,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                             WorkGroupId = x.WorkGroupId,
                             WorkGroupCode = x.WorkGroupCode,
                             WorkGroupName = x.WorkGroupName,
+                            Theme = x.Theme,
                             Active = x.Active,
                             Description = x.Description,
                             ModifiedDate = x.ModifiedDate,
@@ -383,6 +452,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     }
                     workgroup.WorkGroupCode = updated.WorkGroupCode;
                     workgroup.WorkGroupName = updated.WorkGroupName;
+                    workgroup.Theme = updated.Theme;
                     workgroup.Active = updated.Active;
                     workgroup.Description = updated.Description;
                     workgroup.ModifiedDate = DateTime.Now;

@@ -16,10 +16,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
     public class SectionController : Controller {
         //
         // GET: /Factory/Section/
+        #region view
+
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult SectionManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -27,6 +37,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionProductId"] = new List<int>();
             return View();
         }
@@ -35,6 +46,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionSectionInvId"] = new List<int>();
             return View();
         }
@@ -43,6 +55,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -50,6 +63,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -57,6 +71,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -64,6 +79,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -71,6 +87,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -78,6 +95,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -85,6 +103,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -92,6 +111,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -99,9 +119,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
-
+        #endregion
 
         public ActionResult AutoCompletedProductCodeSection(string text) {
             var model = new List<string>();

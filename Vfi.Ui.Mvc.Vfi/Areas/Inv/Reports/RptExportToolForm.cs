@@ -28,7 +28,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             //
 
             this.Name = "NhapCC";
-            this.pictureBox1.Value = Properties.Resources.ql_muahang;
+            //this.pictureBox1.Value = Properties.Resources.ql_muahang;
         }
         
         public void BindDataOwner(object models)

@@ -18,6 +18,7 @@
 .t-state-active .t-header{color:#fff}
 .t-state-active .t-state-hover{color:#333}
 .t-state-selected{background-color:#3e94b4}
+.t-alt.t-state-selected{background-color:#3e94b4}
 .t-state-focused{background-color:#9bacbe}
 .t-dropdown .t-state-focused{border-color:#3187a7;background:#469cbc url('WebBlue/sprite.png') repeat-x 0 -752px}
 .t-state-selected,.t-state-selected .t-link,.t-state-selected.t-link{color:#fff}

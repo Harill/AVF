@@ -18,6 +18,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string ModifiedUser { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }
         public string IdentityCode { get; set; }
+        public string DiagramColor { get; set; }
         public virtual ICollection<Tool> Tools { get; set; }
         public virtual ICollection<Material> Materials { get; set; }
         public virtual MaterialClassified MaterialClassified { get; set; }

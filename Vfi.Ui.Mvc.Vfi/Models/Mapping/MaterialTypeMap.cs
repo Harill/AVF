@@ -21,6 +21,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
                 .IsFixedLength()
                 .HasMaxLength(1);
 
+            this.Property(t => t.DiagramColor)
+                .HasMaxLength(50);
+
             // Table & Column Mappings
             this.ToTable("MaterialType", "Production");
             this.Property(t => t.MaterialTypeId).HasColumnName("MaterialTypeId");
@@ -30,6 +33,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedUser).HasColumnName("ModifiedUser");
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.IdentityCode).HasColumnName("IdentityCode");
+            this.Property(t => t.DiagramColor).HasColumnName("DiagramColor");
 
             // Relationships
             this.HasRequired(t => t.MaterialClassified)

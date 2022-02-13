@@ -29,10 +29,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         }
 
         #region View
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult CreateMaterialPurchaseOrder() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -40,6 +48,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -47,6 +56,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -54,6 +64,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -61,6 +72,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -68,6 +80,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -75,6 +88,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -82,6 +96,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -89,6 +104,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -96,6 +112,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -103,6 +120,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -110,6 +128,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -117,6 +136,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -124,30 +144,35 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult AddPoTaxInvoiceReference() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult CreatePoTaxInvoice() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult PoTaxInvoicesManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApprovePoTaxInvoice() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -155,36 +180,42 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult AddPoTaxInvoiceMoney() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult VendorInDept() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult InquiryPoCreate() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult InquiryPoApprove() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult InquiryPoManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         #endregion
@@ -196,6 +227,45 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             return View(new GridModel(new List<PurchaseOrderDetailModel>()));
         }
 
+        public ActionResult SelectComboBoxReferenceItem(int classified) {
+            return SelectComboBoxMaterialByTypeId(classified, 0);
+        }
+
+        public ActionResult SelectComboBoxReferenceItemInventory(int classified, int referenceId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    switch (classified) {
+                        case 1:
+                            var materialInvs = (from x in vfi.MaterialInventories
+                                                where (referenceId == 0 || x.MaterialId == referenceId)
+                                                    && x.TotalQty > 0
+                                                select new MaterialInventoryModel {
+                                                    MaterialInventoryId = x.MaterialInventoryId,
+                                                    MaterialName = x.Material.MaterialName,
+                                                    OutDiameter = x.Material.OutDiameter,
+                                                    InDiameter = x.Material.InDiameter,
+                                                    Shape = x.Material.Shape,
+                                                    DiameterType = x.Material.DiameterType,
+                                                    LotNumber = x.LotNumber,
+                                                    Length = x.Length,
+                                                }).ToList();
+                            return new JsonResult {
+                                Data = new SelectList(materialInvs.OrderBy(x => x.MaterialCodeLotNumber), "MaterialInventoryId", "MaterialCodeLotNumber")
+                            };
+                        default:
+                            return new JsonResult {
+                                Data = new SelectList(new List<object>())
+                            };
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectComboBoxMaterialByVendorId", ex.Message);
+            }
+            return new JsonResult {
+                Data = new SelectList(new List<object>())
+            };
+        }
 
         public ActionResult SelectComboBoxMaterialByTypeId(int classified, int typeId) {
             try {
@@ -559,7 +629,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 foreach (var importDetail in importDetails1) {
                                     if (importDetail.PoReferenceDetailId != null)
                                         throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
-                                    if (importDetail.ImportPurchaseOrder.Transaction.Status 
+                                    if (importDetail.ImportPurchaseOrder.Transaction.Status
                                         == (byte)MyUtilities.Transaction.Status.Approved) {
                                         var materialInv = vfi.MaterialInventories
                                             .FirstOrDefault(ti => ti.MaterialId == importDetail.MaterialId &&
@@ -1091,7 +1161,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         }
 
         List<TransactionFptModel> GetImportByPoId(long purchaseOrderId) {
-
             var model = new List<TransactionFptModel>();
             using (var vfi = new tammaContext()) {
                 var purchaseOrder = vfi.PurchaseOrders.FirstOrDefault(po => po.PurchaseOrderId == purchaseOrderId);
@@ -1106,7 +1175,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             vfi.ImportPurchaseOrders.Where(
                                 i =>
                                 i.PurchaseOrderId == purchaseOrderId &&
-                                i.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved);
+                                i.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved).ToList();
                         foreach (var importPo in importPos) {
                             var transaction = importPo.Transaction;
                             var entity = new TransactionFptModel {
@@ -1133,14 +1202,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             model.Add(entity);
                         }
                         break;
-                    default:
-                        var transactions = from i in vfi.TransactionFpts
-                                           where
-                                               i.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                               i.PoId == purchaseOrderId &&
-                                               i.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import
-                                           select i;
-                        foreach (var transaction in transactions) {
+                    case 2:
+                    case 3:
+                        var transactionFpts = (from i in vfi.TransactionFpts
+                                               where
+                                                   i.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                   i.PoId == purchaseOrderId &&
+                                                   i.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import
+                                               select i).ToList();
+                        foreach (var transaction in transactionFpts) {
                             var entity = new TransactionFptModel {
                                 TransactionId = transaction.TransactionId,
                                 TransactionCode = transaction.TransactionCode,
@@ -1148,11 +1218,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ModifiedUser = transaction.ModifiedUser,
                                 TransactionDate = transaction.TransactionDate,
                                 PoId = purchaseOrderId,
-                                Type = purchaseOrder.MaterialClassifiedId
+                                Type = purchaseOrder.MaterialClassifiedId,
+                                TotalQuantity = transaction.TransactionFptDetails.Sum(x => x.Quantity)
                             };
-                            foreach (var detail in transaction.TransactionFptDetails) {
-                                entity.TotalQuantity += detail.Quantity;
-                            }
+                            model.Add(entity);
+                        }
+                        break;
+
+                    case 6:
+                        var transactions = (from i in vfi.Transactions
+                                            where
+                                                i.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                i.PoId == purchaseOrderId
+                                            select i).ToList();
+                        foreach (var transaction in transactions) {
+                            var entity = new TransactionFptModel {
+                                TransactionId = transaction.TransactionId,
+                                TransactionCode = transaction.TransactionCode,
+                                ModifiedDate = transaction.ModifiedDate,
+                                ModifiedUser = transaction.ModifiedUser,
+                                TransactionDate = transaction.CreatedDate,
+                                PoId = purchaseOrderId,
+                                Type = purchaseOrder.MaterialClassifiedId,
+                                TotalQuantity = transaction.TransactionDetails.Sum(x => x.Quantity)
+                            };
                             model.Add(entity);
                         }
                         break;
@@ -1169,7 +1258,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 model = GetImportByPoId(purchaseOrderId);
             }
             catch (Exception ex) {
-                ModelState.AddModelError("SelectManageImportFuel", "\n" + ex.Message);
+                ModelState.AddModelError("SelectImportByPoId", "\n" + ex.Message);
             }
             return View(new GridModel(model.OrderBy(m => m.TransactionDate)));
         }
@@ -1182,6 +1271,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     var purchaseOrder = vfi.PurchaseOrders.FirstOrDefault(po => po.PurchaseOrderId == purchaseOrderId);
                     if (purchaseOrder == null)
                         throw new AggregateException("Lỗi! Không tìm thấy phiếu mua");
+                    var vendor = vfi.Vendors.FirstOrDefault(x => x.VendorId == purchaseOrder.VendorId);
                     switch (purchaseOrder.MaterialClassifiedId) {
                         case 1:
                             var importMaterial = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
@@ -1319,14 +1409,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             break;
                         // product
                         case 6:
-                            var transaction = (from tf in vfi.TransactionFpts
+                            var transaction = (from tf in vfi.Transactions
                                                where tf.TransactionId == transactionId
                                                select tf).FirstOrDefault();
                             if (transaction == null)
                                 throw new AggregateException("Lỗi! Không tìm thấy phiếu");
-                            foreach (var detail in transaction.TransactionFptDetails) {
-                                var fuel = vfi.Fuels.FirstOrDefault(f => f.FuelId == detail.FptId);
-                                var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
+                            foreach (var detail in transaction.TransactionDetails) {
+                                var product = vfi.Products.FirstOrDefault(x => x.ProductId == detail.ReferenceId);
                                 var purchaseDetail =
                                     vfi.PurchaseOrderDetails.FirstOrDefault(
                                         pod => pod.PurchaseOrderDetailId == detail.PoDetailId);
@@ -1334,19 +1423,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     purchaseDetail =
                                         vfi.PurchaseOrderDetails.FirstOrDefault(
                                             pod => pod.PurchaseOrderId == purchaseOrder.PurchaseOrderId
-                                                   && pod.ReferenceId == detail.FptId);
+                                                   && pod.ReferenceId == detail.ReferenceId);
                                 }
                                 var entity = new TransactionFptDetailModel {
-                                    DetailId = detail.DetailId,
+                                    DetailId = detail.TransactionDetailId,
                                     LotNumber = detail.LotNumber,
                                     Note = detail.Note,
                                     Quantity = detail.Quantity,
-                                    FuelCode = fuel.FuelCode,
-                                    FuelName = fuel.FuelName,
-                                    FuelDesignNo = fuel.FuelFullCode,
+                                    FuelCode = product.ProductCode,
+                                    FuelName = product.ProductName,
+                                    FuelDesignNo = product.DesignNo,
                                     UnitMeasure = detail.UnitMeasure,
-                                    VendorId = vendor.VendorId,
-                                    VendorName = vendor.VendorName,
                                     TotalInv = 0,
                                     UnitPrice = purchaseDetail.UnitPrice,
                                     Price = detail.Quantity * purchaseDetail.UnitPrice,
@@ -1354,13 +1441,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     TransactionId = transactionId,
                                     PoId = purchaseOrderId
                                 };
-                                entity.Price = entity.UnitPrice * entity.Quantity;
-                                if (!string.IsNullOrWhiteSpace(detail.LotNumber)) {
-                                    var fuelInv =
-                                        vfi.FuelInventories.FirstOrDefault(
-                                            fi => fi.FuelId == fuel.FuelId && fi.VendorId == vendor.VendorId);
-                                    entity.TotalInv = fuelInv == null ? 0 : fuelInv.TotalQuantity;
-                                }
                                 model.Add(entity);
                             }
                             break;
@@ -1370,7 +1450,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("SelectImportFuelByStatus", ex.Message);
+                throw ex;
             }
             return model;
         }

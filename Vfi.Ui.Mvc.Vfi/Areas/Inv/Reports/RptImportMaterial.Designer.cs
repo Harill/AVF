@@ -40,7 +40,6 @@
             this.textBox36 = new Telerik.Reporting.TextBox();
             this.textBox39 = new Telerik.Reporting.TextBox();
             this.textBox38 = new Telerik.Reporting.TextBox();
-            this.textBox40 = new Telerik.Reporting.TextBox();
             this.textBox44 = new Telerik.Reporting.TextBox();
             this.textBox43 = new Telerik.Reporting.TextBox();
             this.textBox42 = new Telerik.Reporting.TextBox();
@@ -78,6 +77,7 @@
             this.textBox11 = new Telerik.Reporting.TextBox();
             this.textBox52 = new Telerik.Reporting.TextBox();
             this.textBox53 = new Telerik.Reporting.TextBox();
+            this.textBox40 = new Telerik.Reporting.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // objectDataSource1
@@ -262,7 +262,6 @@
             this.textBox34,
             this.textBox47,
             this.textBox41,
-            this.textBox37,
             this.textBox35,
             this.textBox36,
             this.textBox39,
@@ -271,7 +270,8 @@
             this.textBox44,
             this.textBox43,
             this.textBox42,
-            this.pictureBox1});
+            this.pictureBox1,
+            this.textBox37});
             this.labelsGroupFooter.Name = "labelsGroupFooter";
             this.labelsGroupFooter.Style.BorderStyle.Top = Telerik.Reporting.Drawing.BorderType.Dotted;
             this.labelsGroupFooter.Style.Font.Name = "Times New Roman";
@@ -413,19 +413,6 @@
             this.textBox38.Style.Font.Name = "Times New Roman";
             this.textBox38.StyleName = "Data";
             this.textBox38.Value = "Thủ kho";
-            // 
-            // textBox40
-            // 
-            this.textBox40.CanGrow = true;
-            this.textBox40.Format = "{0}";
-            this.textBox40.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(3.20845103263855D), Telerik.Reporting.Drawing.Unit.Inch(0.41897392272949219D));
-            this.textBox40.Name = "textBox40";
-            this.textBox40.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.0998421907424927D), Telerik.Reporting.Drawing.Unit.Inch(0.20000000298023224D));
-            this.textBox40.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.Solid;
-            this.textBox40.Style.Font.Bold = true;
-            this.textBox40.Style.Font.Name = "Times New Roman";
-            this.textBox40.StyleName = "Data";
-            this.textBox40.Value = "Mua Hàng";
             // 
             // textBox44
             // 
@@ -922,6 +909,19 @@
             this.textBox53.StyleName = "Data";
             this.textBox53.Value = "Loại :";
             // 
+            // textBox40
+            // 
+            this.textBox40.CanGrow = true;
+            this.textBox40.Format = "{0}";
+            this.textBox40.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(3.20845103263855D), Telerik.Reporting.Drawing.Unit.Inch(0.41897392272949219D));
+            this.textBox40.Name = "textBox40";
+            this.textBox40.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.0998421907424927D), Telerik.Reporting.Drawing.Unit.Inch(0.20000000298023224D));
+            this.textBox40.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.Solid;
+            this.textBox40.Style.Font.Bold = true;
+            this.textBox40.Style.Font.Name = "Times New Roman";
+            this.textBox40.StyleName = "Data";
+            this.textBox40.Value = "Mua Hàng";
+            // 
             // RptImportMaterial
             // 
             this.DataSource = this.objectDataSource1;
@@ -1036,12 +1036,12 @@
         private Telerik.Reporting.TextBox textBox36;
         private Telerik.Reporting.TextBox textBox39;
         private Telerik.Reporting.TextBox textBox38;
-        private Telerik.Reporting.TextBox textBox40;
         private Telerik.Reporting.TextBox textBox44;
         private Telerik.Reporting.TextBox textBox43;
         private Telerik.Reporting.TextBox textBox42;
         private Telerik.Reporting.TextBox textBox52;
         private Telerik.Reporting.TextBox textBox53;
+        private Telerik.Reporting.TextBox textBox40;
 
     }
 }

@@ -20,6 +20,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.RealTestings = new List<RealTesting>();
             this.RealTestings1 = new List<RealTesting>();
             this.SmartProductions = new List<SmartProduction>();
+            this.InventoryShelves = new List<InventoryShelf>();
             this.ProductInventories = new List<ProductInventory>();
             this.ProductInventoryPeriods = new List<ProductInventoryPeriod>();
             this.StockOrders = new List<StockOrder>();
@@ -71,6 +72,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<RealTesting> RealTestings { get; set; }
         public virtual ICollection<RealTesting> RealTestings1 { get; set; }
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
+        public virtual ICollection<InventoryShelf> InventoryShelves { get; set; }
         public virtual ICollection<ProductInventory> ProductInventories { get; set; }
         public virtual ICollection<ProductInventoryPeriod> ProductInventoryPeriods { get; set; }
         public virtual ICollection<StockOrder> StockOrders { get; set; }

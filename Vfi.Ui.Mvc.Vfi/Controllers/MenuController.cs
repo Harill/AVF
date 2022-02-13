@@ -7,14 +7,23 @@ using Telerik.Web.Mvc;
 using Vfi.Client.Module.Authentication.Interfaces;
 using Microsoft.Practices.Unity;
 using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers {
     public class MenuController : Controller {
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult MenuManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 

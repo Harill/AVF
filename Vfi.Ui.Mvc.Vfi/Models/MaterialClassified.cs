@@ -7,6 +7,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
     {
         public MaterialClassified()
         {
+            this.InventoryShelves = new List<InventoryShelf>();
             this.InquiryPoes = new List<InquiryPo>();
             this.MaterialTypes = new List<MaterialType>();
             this.PoTaxInvoices = new List<PoTaxInvoice>();
@@ -20,6 +21,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }
+        public virtual ICollection<InventoryShelf> InventoryShelves { get; set; }
         public virtual ICollection<InquiryPo> InquiryPoes { get; set; }
         public virtual ICollection<MaterialType> MaterialTypes { get; set; }
         public virtual ICollection<PoTaxInvoice> PoTaxInvoices { get; set; }

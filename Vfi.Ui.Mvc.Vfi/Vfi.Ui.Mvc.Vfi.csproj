@@ -485,7 +485,11 @@
     <Compile Include="Areas\Inv\Models\CncFormDetailModel.cs" />
     <Compile Include="Areas\Inv\Models\CncInvModel.cs" />
     <Compile Include="Areas\Inv\Models\FactoryProductionProcessModel.cs" />
+    <Compile Include="Areas\Inv\Models\InventoryDrawerModel.cs" />
+    <Compile Include="Areas\Inv\Models\InventoryShelfModel.cs" />
     <Compile Include="Areas\Inv\Models\MasterPlanReportModel.cs" />
+    <Compile Include="Areas\Inv\Models\MaterialInvShelfDiagramModel.cs" />
+    <Compile Include="Areas\Inv\Models\OnShelfModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductInvStatisticModel.cs" />
     <Compile Include="Areas\Inv\Models\Production2WaitingInvModel.cs" />
     <Compile Include="Areas\Inv\Models\CustomerIncomeModel.cs" />
@@ -1262,6 +1266,8 @@
     <Compile Include="Models\ImportWorkpieceMaterial.cs" />
     <Compile Include="Models\ImportWorkpieceMaterialDetail.cs" />
     <Compile Include="Models\InquiryPo.cs" />
+    <Compile Include="Models\InventoryDrawer.cs" />
+    <Compile Include="Models\InventoryShelf.cs" />
     <Compile Include="Models\Invoice.cs" />
     <Compile Include="Models\InvoiceDetail.cs" />
     <Compile Include="Models\ItemCardModel.cs" />
@@ -1319,6 +1325,8 @@
     <Compile Include="Models\Mapping\ImportWorkpieceMaterialDetailMap.cs" />
     <Compile Include="Models\Mapping\ImportWorkpieceMaterialMap.cs" />
     <Compile Include="Models\Mapping\InquiryPoMap.cs" />
+    <Compile Include="Models\Mapping\InventoryDrawerMap.cs" />
+    <Compile Include="Models\Mapping\InventoryShelfMap.cs" />
     <Compile Include="Models\Mapping\InvoiceDetailMap.cs" />
     <Compile Include="Models\Mapping\InvoiceMap.cs" />
     <Compile Include="Models\Mapping\MachineAppraisalMap.cs" />
@@ -1344,6 +1352,7 @@
     <Compile Include="Models\Mapping\MenuMap.cs" />
     <Compile Include="Models\Mapping\MethodMap.cs" />
     <Compile Include="Models\Mapping\MethodTypeMap.cs" />
+    <Compile Include="Models\Mapping\OnShelfMap.cs" />
     <Compile Include="Models\Mapping\OrderDetailMap.cs" />
     <Compile Include="Models\Mapping\OrderMap.cs" />
     <Compile Include="Models\Mapping\OrderNoteDetailMap.cs" />
@@ -1486,6 +1495,7 @@
     <Compile Include="Models\MenuModel.cs" />
     <Compile Include="Models\Method.cs" />
     <Compile Include="Models\MethodType.cs" />
+    <Compile Include="Models\OnShelf.cs" />
     <Compile Include="Models\Order.cs" />
     <Compile Include="Models\OrderDetail.cs" />
     <Compile Include="Models\OrderNote.cs" />
@@ -1561,6 +1571,7 @@
     <Compile Include="Models\Production\RealProductionModel.cs" />
     <Compile Include="Models\Production\UnitMeasureModel.cs" />
     <Compile Include="Models\Production\WarehousePermissionNewModel.cs" />
+    <Compile Include="Models\Production\WorkGroupModel.cs" />
     <Compile Include="Models\ProductPricingModel.cs" />
     <Compile Include="Models\ProductTotalByMonth.cs" />
     <Compile Include="Models\PurchaseOrder.cs" />
@@ -2397,7 +2408,11 @@
     <Content Include="Content\Icons\up64.png" />
     <Content Include="Content\Icons\Users.png" />
     <Content Include="Content\Icons\Web.png" />
-    <Content Include="Content\Images\bg_body.jpg" />
+    <Content Include="Content\Images\Background\bg_body-2.jpg" />
+    <Content Include="Content\Images\Background\bg_body.jpg" />
+    <Content Include="Content\Images\Logo\Logo-AVF.png" />
+    <Content Include="Content\Images\Logo\Logo-VF.png" />
+    <Content Include="Content\Images\Logo\Logo-vnpt.png" />
     <Content Include="Content\jquery-ui-1.8.13\css\ui-lightness\images\ui-bg_diagonals-thick_18_b81900_40x40.png" />
     <Content Include="Content\jquery-ui-1.8.13\css\ui-lightness\images\ui-bg_diagonals-thick_20_666666_40x40.png" />
     <Content Include="Content\jquery-ui-1.8.13\css\ui-lightness\images\ui-bg_flat_10_000000_40x100.png" />
@@ -2845,22 +2860,50 @@
     <Content Include="Areas\Factory\Views\Production\EditorTemplates\_MachineQCByTypeTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_MachineProductionEditTemplate.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\EditorTemplates\_MaterialEditByTypeTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\EditorTemplates\Number0.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\EditorTemplates\Number2.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\EditorTemplates\NumberAsInt.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\EditorTemplates\_WarehouseMainProcessTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\EditorTemplates\_MaterialClassifiedEditTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\EditorTemplates\_WarehouseEditTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Warehouse\InventoryShelfManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\EditorTemplates\_MachineAllProductionEditTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Inv\MaterialOnShelf.cshtml" />
+    <Content Include="Areas\Inv\Views\Inv\EditorTemplates\_ItemBindingTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Inv\EditorTemplates\_ItemInventoryBindingTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Inv\EditorTemplates\_InventoryDrawerTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Inv\ProductionMachineDiagram.cshtml" />
+    <Content Include="Areas\Inv\Views\Inv\MaterialInventoryShelfDiagram.cshtml" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web-server.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Views\User\EditorTemplates\_TelerikThemeEditTemplate.cshtml" />
+    <Content Include="Areas\Purchasing\Views\PurchaseOrder\ImportPOManagement.cshtml" />
+    <None Include="Web-server.Release.config">
+      <DependentUpon>Web-server.config</DependentUpon>
+    </None>
+    <None Include="Web-server.Debug.config">
+      <DependentUpon>Web-server.config</DependentUpon>
+    </None>
     <None Include="Resources\IMG_17012014_143105.png" />
     <Content Include="Resources\approve_icon.jpg" />
     <None Include="Resources\ISO.jpg" />
     <None Include="Resources\cnc.png" />
-    <None Include="Scripts\arrow.gif">
+    <Content Include="Scripts\jscolor\arrow.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\cross.gif">
+    </Content>
+    <Content Include="Scripts\jscolor\cross.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\hs.png">
+    </Content>
+    <Content Include="Scripts\jscolor\hs.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\hv.png">
+    </Content>
+    <Content Include="Scripts\jscolor\hv.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
     <Content Include="Resources\warning_icon.jpg" />
     <Content Include="Resources\LOGO ISO.jpg" />
     <Content Include="Resources\logo-Mode2l.png" />
@@ -2983,15 +3026,6 @@
     <Content Include="Views\Product\PageProductList.aspx" />
     <Content Include="Views\Product\PageProductPriceList.aspx" />
     <Content Include="Views\User\PageItemCard.aspx" />
-    <Content Include="Web.config">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
-    <Content Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </Content>
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\jquery-1.4.4.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -3113,6 +3147,7 @@
     <Content Include="Views\Product\EditorTemplates\_MachineTestTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_ProcessingTypeQCTemplate.cshtml" />
     <Content Include="Views\User\WorkGroupManagement.cshtml" />
+    <Content Include="Views\Material\EditorTemplates\ColorTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

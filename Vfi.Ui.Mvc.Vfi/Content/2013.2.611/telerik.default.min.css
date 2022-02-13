@@ -15,6 +15,7 @@
 .t-header .t-state-hover{background-color:#dcdada}
 .t-state-active,.t-header .t-state-active{background-color:#fff;border-color:#828282}
 .t-state-selected{background-color:#ddd}
+.t-alt.t-state-selected{background-color:#ddd}
 .t-state-focused{background-color:#c2c2c2}
 .t-dropdown .t-state-focused{border-color:#8a8a8a;background:#8a8a8a url('Default/sprite.png') repeat-x 0 -752px}
 .t-state-error,.t-widget.t-state-error,.t-widget .t-state-error,.t-widget.input-validation-error,.t-widget .input-validation-error{border-color:#f00;background-color:#ffc0cb}

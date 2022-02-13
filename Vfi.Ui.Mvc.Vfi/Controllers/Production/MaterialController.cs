@@ -24,42 +24,59 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
             _unitOfWork = unitOfWork;
         }
-
+        #region view
         // Viewup
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult MaterialClassifiedManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MaterialTypeManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MaterialManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ToolManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult FuelManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
+        #endregion
+
+
+        #region Material Classified
+
         // Data
         public IEnumerable<MaterialClassifiedModel> GetMaterialClassifiedModels() {
             var model = new List<MaterialClassifiedModel>();
-            using (var vfi =new tammaContext()) {
+            using (var vfi = new tammaContext()) {
                 model.AddRange(vfi.MaterialClassifieds.Select(
                     entity => new MaterialClassifiedModel {
                         MaterialClassifiedId = entity.MaterialClassifiedId,
@@ -71,36 +88,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             }
             return model.OrderByDescending(x => x.Active).ThenBy(x => x.MaterialClassifiedName);
         }
-
-        public List<MaterialTypeModel> GetMaterialTypeModels() {
-            var model = new List<MaterialTypeModel>();
-            try {
-                using (var vfi = new tammaContext()) {
-                    model = vfi.MaterialTypes.Select(
-                        entity => new MaterialTypeModel {
-                            MaterialTypeId = entity.MaterialTypeId,
-                            MaterialClassifiedId = entity.MaterialClassifiedId,
-                            MaterialClassifiedName = entity.MaterialClassified != null
-                                                         ? entity.MaterialClassified.
-                                                               MaterialClassifiedName
-                                                         : "",
-                            MaterialTypeName = entity.MaterialTypeName,
-                            Active = entity.Active,
-                            ModifiedUser = entity.ModifiedUser,
-                            ModifiedDate = entity.ModifiedDate,
-                            IdentityCode = entity.IdentityCode,
-
-                        }).ToList();
-
-                }
-            }
-            catch (Exception ex) {
-                throw new AggregateException(ex);
-            }
-            return model;
-        }
-
-        #region Material Classified
 
         [GridAction]
         public ActionResult SelectMaterialClassified() {
@@ -193,6 +180,33 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
         #region Material Type
 
+        public List<MaterialTypeModel> GetMaterialTypeModels() {
+            var model = new List<MaterialTypeModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    model = vfi.MaterialTypes.Select(
+                        entity => new MaterialTypeModel {
+                            MaterialTypeId = entity.MaterialTypeId,
+                            MaterialClassifiedId = entity.MaterialClassifiedId,
+                            MaterialClassifiedName = entity.MaterialClassified.MaterialClassifiedName,
+                            MaterialTypeName = entity.MaterialTypeName,
+                            Active = entity.Active,
+                            ModifiedUser = entity.ModifiedUser,
+                            ModifiedDate = entity.ModifiedDate,
+                            IdentityCode = entity.IdentityCode,
+                            DiagramColor = (entity.DiagramColor + "")
+
+                        })
+                        .OrderBy(x => x.MaterialClassifiedName).ThenByDescending(x => x.Active).ThenBy(x => x.IdentityCode)
+                        .ToList();
+
+                }
+            }
+            catch (Exception ex) {
+                throw new AggregateException(ex);
+            }
+            return model;
+        }
         [GridAction]
         public ActionResult SelectMaterialType() {
             var model = new List<MaterialTypeModel>();
@@ -207,28 +221,29 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
         [HttpPost]
         [GridAction]
-        public ActionResult InsertMaterialType(MaterialTypeModel insertModel) {
+        public ActionResult InsertMaterialType(MaterialTypeModel insert) {
             try {
                 using (var vfi = new tammaContext()) {
                     int classtifiedId = 1;
                     try {
-                        classtifiedId = Convert.ToInt32(insertModel.MaterialClassifiedName);
+                        classtifiedId = Convert.ToInt32(insert.MaterialClassifiedName);
                     }
                     catch (Exception) {
                         classtifiedId =
                             vfi.MaterialClassifieds.FirstOrDefault(
-                                c => c.MaterialClassifiedName.Equals(insertModel.MaterialClassifiedName))
+                                c => c.MaterialClassifiedName.Equals(insert.MaterialClassifiedName))
                                .MaterialClassifiedId;
                     }
-                    var newM = new Vfi.Models.MaterialType {
+                    var entity = new Vfi.Models.MaterialType {
                         Active = true,
-                        MaterialTypeName = insertModel.MaterialTypeName.Trim(),
+                        MaterialTypeName = insert.MaterialTypeName.Trim(),
                         ModifiedUser = HttpContext.User.Identity.Name,
                         ModifiedDate = DateTime.Now,
-                        IdentityCode = insertModel.IdentityCode.Trim().ToUpper(),
+                        IdentityCode = insert.IdentityCode.Trim().ToUpper(),
                         MaterialClassifiedId = classtifiedId,
+                        DiagramColor = insert.DiagramColor
                     };
-                    vfi.MaterialTypes.Add(newM);
+                    vfi.MaterialTypes.Add(entity);
                     vfi.SaveChanges();
                 }
 
@@ -242,26 +257,28 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
         [HttpPost]
         [GridAction]
-        public ActionResult UpdateMaterialType(MaterialTypeModel updateModel) {
+        public ActionResult UpdateMaterialType(MaterialTypeModel update) {
             try {
                 using (var vfi = new tammaContext()) {
-                    int classtifiedId = 1;
+                    int classtifiedId = 0;
                     try {
-                        classtifiedId = Convert.ToInt32(updateModel.MaterialClassifiedName);
+                        classtifiedId = Convert.ToInt32(update.MaterialClassifiedName);
                     }
                     catch (Exception) {
                         classtifiedId =
                             vfi.MaterialClassifieds.FirstOrDefault(
-                                c => c.MaterialClassifiedName.Equals(updateModel.MaterialClassifiedName))
+                                c => c.MaterialClassifiedName.Equals(update.MaterialClassifiedName))
                                .MaterialClassifiedId;
                     }
-                    var update = vfi.MaterialTypes.FirstOrDefault(mt => mt.MaterialTypeId == updateModel.MaterialTypeId);
-                    update.Active = updateModel.Active;
-                    update.MaterialTypeName = updateModel.MaterialTypeName.Trim();
-                    update.ModifiedUser = HttpContext.User.Identity.Name;
-                    update.ModifiedDate = DateTime.Now;
-                    update.IdentityCode = updateModel.IdentityCode.Trim().ToUpper();
-                    update.MaterialClassifiedId = classtifiedId;
+                    var entity = vfi.MaterialTypes.FirstOrDefault(mt => mt.MaterialTypeId == update.MaterialTypeId);
+                    entity.MaterialClassifiedId = classtifiedId;
+                    entity.Active = update.Active;
+                    entity.MaterialTypeName = update.MaterialTypeName.Trim();
+                    entity.IdentityCode = update.IdentityCode.Trim().ToUpper();
+                    entity.DiagramColor = update.DiagramColor;
+
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    entity.ModifiedDate = DateTime.Now;
                     vfi.SaveChanges();
                 }
 

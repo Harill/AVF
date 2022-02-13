@@ -141,9 +141,9 @@
                        .HeaderTemplate("<strong>Tổng tồn kho (pcs)</strong>")
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

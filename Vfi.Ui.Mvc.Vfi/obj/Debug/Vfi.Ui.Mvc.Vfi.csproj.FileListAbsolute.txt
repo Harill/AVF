@@ -289,6 +289,10 @@ C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Repo
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Properties.Resources.resources
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.csproj.GenerateResource.Cache
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\AutoMapper.Net4.dll
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\arrow.gif
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\cross.gif
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\hs.png
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\hv.png
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\evol.colorpicker.min.js
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\highslide-with-gallery.js
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\highslide-with-gallery.min.js
@@ -320,10 +324,6 @@ C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\MicrosoftMvcAjax.js
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\MicrosoftMvcAjax.debug.js
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\MicrosoftMvcValidation.js
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\MicrosoftMvcValidation.debug.js
-C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\arrow.gif
-C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\cross.gif
-C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\hs.png
-C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\hv.png
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Ui.Mvc.Vfi.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\AutoMapper.dll

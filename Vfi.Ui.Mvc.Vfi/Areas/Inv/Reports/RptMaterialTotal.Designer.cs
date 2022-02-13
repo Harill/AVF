@@ -3320,7 +3320,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox4.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
             this.textBox4.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox4.StyleName = "Caption";
-            this.textBox4.Value = "Hủy";
+            this.textBox4.Value = "Hủy + Nội bộ";
             // 
             // textBox77
             // 

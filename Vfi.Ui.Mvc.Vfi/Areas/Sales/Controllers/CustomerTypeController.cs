@@ -8,6 +8,7 @@ using Vfi.Client.Module.Sales.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
+using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
     public class CustomerTypeController : Controller {
@@ -24,11 +25,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             //_customerTypeService = customerTypeService;
         }
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         // View
         public ActionResult CustomerTypeManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -90,7 +99,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                          "Xin vui lòng đăng nhập lại hệ thống.");
                 return View(new GridModel(new List<CustomerType>()));
             }
-            using(var vfi = new tammaContext()){
+            using (var vfi = new tammaContext()) {
                 var customerType = vfi.CustomerTypes.FirstOrDefault(x => x.CustomerTypeId == update.CustomerTypeId);
                 if (customerType == null) {
                     throw new AggregateException("Lỗi! Không tìm thấy loại khách hàng");

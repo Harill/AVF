@@ -30,18 +30,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
             _unitOfWork = unitOfWork;
         }
-
+        #region View
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         // View
         public ActionResult TransactionMaterialByStockOrder() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult TransactionProductByStockOrder() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -49,6 +58,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionExportTransactionMaterialIds"] = new List<int>();
             return View();
         }
@@ -57,6 +67,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionExportInternalTransactionMaterialIds"] = new List<int>();
             return View();
         }
@@ -65,6 +76,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionImportTransactionMaterialIds"] = new List<int>();
             return View();
         }
@@ -72,6 +84,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionImportTransactionMaterialIds"] = new List<int>();
             return View();
         }
@@ -80,6 +93,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["ListTransactionPackings"] = new List<int>();
             return View();
         }
@@ -87,6 +101,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -94,6 +109,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionImportInternalTransactionProduct"] = new List<ProductInventoryRotateModel>();
             return View();
         }
@@ -101,6 +117,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionExportInternalTransactionProduct"] = new List<ProductInventoryRotateModel>();
             return View();
         }
@@ -108,6 +125,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionRotateTransactionProduct"] = new List<ProductInventoryRotateModel>();
             return View();
         }
@@ -116,6 +134,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionRotateTransactionProduct"] = new List<ProductInventoryRotateModel>();
             return View();
         }
@@ -124,12 +143,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApproveTransactionProduct() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -137,6 +158,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -144,67 +166,77 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult TransactionProductManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ExportTransactionMaterialTool() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ImportTransactionMaterialTool() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ChangeOrderDetailForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult CreateCncForm() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult AssignMaterials() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MaterialUseByShift() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ApproveMaterialUse() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult MaterialUseManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ImportMaterialInventory() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
-
+            ViewData = GetPageConfigData();
             Session["SessionImportTransactionMaterialIds"] = new List<int>();
             return View();
         }
@@ -212,6 +244,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["ListImportTransactionMaterialIds"] = new List<int>();
             return View();
         }
@@ -219,24 +252,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ImportWorkpieceMaterial() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ExportWorkpieceMaterial() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult RecipeTransactionProduct() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         // export TP
@@ -244,6 +281,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             //Session["SessionProductExportTerm"] = new List<Vfi.Models.ExportFormTP_KD>();
             Session["SessionRotateTransactionProduct"] = new List<ProductInventoryRotateModel>();
             return View();
@@ -254,6 +292,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionImportDetail"] = new List<Vfi.Models.ImportNCU_QCBDetailModel>();
             return View();
         }
@@ -262,6 +301,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionImportSX1Detail"] = new List<ImportSX1DetailModel>();
             return View();
         }
@@ -269,6 +309,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             // Session["SessionImportSX1Detail"] = new List<ImportSX1DetailModel>();
             return View();
         }
@@ -279,6 +320,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -287,6 +329,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionExportGCN_NCUDetail"] = new List<Vfi.Models.ExportGCN_NCUDetail>();
             return View();
         }
@@ -295,12 +338,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ExportProcessing() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -308,12 +353,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult AssignMaterials_Admin() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -321,9 +368,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             Session["SessionProductLot"] = new List<ProductInventoryRotateModel>();
             return View();
         }
+        #endregion
+
         #region Transaction
 
         public ActionResult SelectComboboxTransactionProcessing() {
@@ -1845,6 +1895,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             throw new AggregateException(msg);
                         }
                     }
+                    if (transaction.PoId != null) {
+                        var importPo =
+                            vfi.ImportPurchaseOrders.FirstOrDefault(
+                                i => i.TransactionId == transaction.TransactionId);
+                        if (importPo != null)
+                            if (importPo.PurchaseOrderId != null)
+                                purchaseOrder =
+                                    vfi.PurchaseOrders.FirstOrDefault(
+                                        po => po.PurchaseOrderId == importPo.PurchaseOrderId);
+                        if (purchaseOrder != null)
+                            isImportPurchase = true;
+                    }
+
                     if (transaction.WarehouseReceiptId == (byte)MyUtilities.Warehouse.Production1) {
                         var importSx = vfi.ImportFormSX1.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
                         if (importSx != null) {
@@ -1882,19 +1945,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             }
                         }
                     }
-                    else if (transaction.WarehouseIssueId == null &&
-                             transaction.WarehouseReceiptId == (byte)MyUtilities.Warehouse.QcA) {
-                        var importPo =
-                            vfi.ImportPurchaseOrders.FirstOrDefault(
-                                i => i.TransactionId == transaction.TransactionId);
-                        if (importPo != null)
-                            if (importPo.PurchaseOrderId != null)
-                                purchaseOrder =
-                                    vfi.PurchaseOrders.FirstOrDefault(
-                                        po => po.PurchaseOrderId == importPo.PurchaseOrderId);
-                        if (purchaseOrder != null)
-                            isImportPurchase = true;
-                    }
+                    //else if (transaction.WarehouseIssueId == null &&
+                    //         transaction.WarehouseReceiptId == (byte)MyUtilities.Warehouse.QcA) {
+                    //    var importPo =
+                    //        vfi.ImportPurchaseOrders.FirstOrDefault(
+                    //            i => i.TransactionId == transaction.TransactionId);
+                    //    if (importPo != null)
+                    //        if (importPo.PurchaseOrderId != null)
+                    //            purchaseOrder =
+                    //                vfi.PurchaseOrders.FirstOrDefault(
+                    //                    po => po.PurchaseOrderId == importPo.PurchaseOrderId);
+                    //    if (purchaseOrder != null)
+                    //        isImportPurchase = true;
+                    //}
                     else if (transaction.WarehouseIssueId == (byte)MyUtilities.Warehouse.Business &&
                              transaction.WarehouseReceiptId == (byte)MyUtilities.Warehouse.Finish) {
                         orderNote =
@@ -7852,7 +7915,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         : Convert.ToDateTime(materialUseDate, ci);
                     if (useDate >= iDate)
                         throw new AggregateException("Lỗi! Xem lại ngày báo cáo!");
-                    if (MyUtilities.Transaction.IsLock(iDate, MyUtilities.Transaction.ProductionLockType.CNC)) {
+                    if (MyUtilities.Transaction.IsLock(useDate, MyUtilities.Transaction.ProductionLockType.CNC)) {
                         throw new AggregateException(
                             @"Ngày nhập SX bị khoá do tính lương! /n Vui lòng liên hệ quản lý tính lương !");
                     }
@@ -9850,6 +9913,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (materialUse.UsedDate >= date) {
                             throw new AggregateException("Ngày báo cáo sai");
                         }
+                        if (MyUtilities.Transaction.IsLock(materialUse.UsedDate, MyUtilities.Transaction.ProductionLockType.Production1)) {
+                            throw new AggregateException(
+                                @"Ngày nhập SX bị khoá do tính lương! /n Vui lòng liên hệ quản lý tính lương !");
+                        }
 
                         var useDetailIds = materialUse.MaterialUseDetails.Select(mud => mud.DetailId).ToList();
 
@@ -10551,7 +10618,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         var useDate = string.IsNullOrWhiteSpace(materialUseDate)
                                        ? DateTime.Today
                                        : Convert.ToDateTime(materialUseDate, ci);
-                        if (MyUtilities.Transaction.IsLock(date, MyUtilities.Transaction.ProductionLockType.Production1)) {
+                        if (MyUtilities.Transaction.IsLock(useDate, MyUtilities.Transaction.ProductionLockType.Production1)) {
                             throw new AggregateException(
                                 @"Ngày nhập SX bị khoá do tính lương! /n Vui lòng liên hệ quản lý tính lương !");
                         }
@@ -11301,7 +11368,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 //BoxNumber = detail.BoxNumber,
                                 Lot =
                                     ((date.Year % 100) + "") +
-                                    (cal.GetWeekOfYear(date, dfi.CalendarWeekRule, dfi.FirstDayOfWeek) + "") +
+                                    (string.Format("{0:00}", cal.GetWeekOfYear(date, dfi.CalendarWeekRule, dfi.FirstDayOfWeek)) + "") +
                                     detail.MachineName,
                             };
                             materialUse1.MaterialUseDetails.Add(materialUseDetail);
@@ -11676,6 +11743,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 // material inventory - material inventory period
                 using (var vfi = new tammaContext()) {
                     var materialUses = vfi.MaterialUseInShifts.Where(f => checkedRecords.Contains(f.UseId));
+                    var endMaterialInvIds = new List<int>();
                     foreach (var useInShift in materialUses) {
                         if (useInShift.Status != (byte)MyUtilities.Transaction.Status.Open) continue;
 
@@ -11724,7 +11792,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 materialOnMachine.TotalQuantity = 0;
                                 if (useInShift.Type == (int)MyUtilities.Material.UseType.Using || useDetail.IsDetroy) {
                                     if (Math.Round(materialOnMachine.MaterialInventory.TotalQty, 2) == 0) {
-                                        materialOnMachine.MaterialInventory.EndDate = DateTime.Now;
+                                        endMaterialInvIds.Add(materialOnMachine.MaterialInvId.Value);
                                     }
                                 }
                             }
@@ -11783,6 +11851,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         useInShift.Status = (byte)MyUtilities.Transaction.Status.Approved;
                     }
                     vfi.SaveChanges();
+
+                    if (endMaterialInvIds.Any()) {
+                        endMaterialInvIds = endMaterialInvIds.Distinct().ToList();
+                        foreach (var materialInvId in endMaterialInvIds) {
+                            var existedOnMachine = vfi.MaterialInvOnMachines.Any(x => x.MaterialInvId == materialInvId && x.TotalQuantity > 0);
+                            if (existedOnMachine) continue;
+                            var materialInv = vfi.MaterialInventories.FirstOrDefault(x => x.MaterialInventoryId == materialInvId);
+                            if (materialInv == null) continue;
+                            materialInv.EndDate = DateTime.Now;
+                        }
+                        vfi.SaveChanges();
+                    }
                 }
             }
             catch (Exception exception) {
@@ -12364,7 +12444,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             IsDetroy = false,
                         };
                         materialInv.TotalQuantity = quantity;
-                        materialInv.MaterialInventory.EndDate = useDate;
+                        materialInv.MaterialInventory.EndDate = DateTime.Now;
                         var materialOnMachinePeriod = new MaterialInvOnMachinePeriod {
                             EarlyQuantity = Math.Round(quantity + entity.MaterialUse1 + entity.MaterialUse2, 2),
                             Quantity = Math.Round(entity.MaterialUse1 + entity.MaterialUse2, 2),

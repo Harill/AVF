@@ -27,17 +27,37 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             _unitOfWork = unitOfWork;
             //_warehouseService = warehouseService;
         }
-
+        #region View
         // View
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult WarehouseManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+        public ActionResult InventoryShelfManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ProcessErrorManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
+        #endregion
 
         #region Warehouse
 
@@ -79,7 +99,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
         [GridAction]
         public ActionResult SelectActiveWarehouse() {
-            return View(new GridModel(GetWarehouseModels().Where(x=> x.Active).ToList()));
+            return View(new GridModel(GetWarehouseModels().Where(x => x.Active).ToList()));
         }
 
         [GridAction]
@@ -298,7 +318,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
         public ActionResult SelectComboBoxInternalWarehouse() {
             return new JsonResult {
-                Data = new SelectList(GetActiveWarehouseModels( new WarehouseConfiguration { CanInternal = true }), "WarehouseId", "WarehouseName")
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { CanInternal = true }), "WarehouseId", "WarehouseName")
             };
         }
         public ActionResult SelectComboBoxPurchaseWarehouse() {
@@ -355,7 +375,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
 
-            var model = GetActiveWarehouseModels(new WarehouseConfiguration {Ids = warehouseIds });
+            var model = GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds });
             return new JsonResult {
                 Data = new SelectList(model, "WarehouseId", "WarehouseName")
             };
@@ -396,6 +416,405 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return new JsonResult {
                 Data = new SelectList(model, "WarehouseId", "WarehouseName")
+            };
+        }
+
+        #endregion
+
+        #region shelf - drawer
+
+        [GridAction]
+        public ActionResult SelectInventoryShelf() {
+            var model = new List<InventoryShelfModel>();
+            try {
+                model = GetInventoryShelves();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectInventoryShelf", @"Lỗi giá trị nhập. (try-catch). " + ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        // Data
+        public List<InventoryShelfModel> GetInventoryShelves() {
+            var model = new List<InventoryShelfModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.InventoryShelves
+                         select new InventoryShelfModel {
+                             ShelfId = x.ShelfId,
+                             ShelfName = x.ShelfName,
+                             ClassifiedId = x.ClassifiedId,
+                             ClassifiedName = x.MaterialClassified.MaterialClassifiedName,
+                             WarehouseId = x.WarehouseId,
+                             WarehouseName = x.WarehouseId != null ? x.Warehouse.WarehouseName : "",
+                             MaxColumn = x.MaxColumn,
+                             MaxRow = x.MaxRow,
+                             Active = x.Active,
+                             ModifiedDate = x.ModifiedDate,
+                             ModifiedUser = x.ModifiedUser,
+                         }).ToList();
+            }
+            return model;
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertInventoryShelf(InventoryShelfModel inserted) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("InsertInventoryShelf",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<InventoryShelfModel>()));
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    if (string.IsNullOrWhiteSpace(inserted.ShelfName)) {
+                        throw new AggregateException("Lỗi! Vui lòng nhập tên kệ");
+                    }
+                    else { inserted.ShelfName = inserted.ShelfName.Trim(); }
+                    if (inserted.MaxRow <= 0 || inserted.MaxColumn <= 0) {
+                        throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
+                    }
+                    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(inserted.ShelfName) && x.ClassifiedId == inserted.ClassifiedId);
+                    if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
+                    var classifiedId = 0;
+                    try { classifiedId = Convert.ToInt32(inserted.ClassifiedName); }
+                    catch (FormatException) { }
+                    if (classifiedId <= 0) { throw new AggregateException("Lỗi! Phân loại kệ lỗi"); }
+
+                    shelf = new InventoryShelf {
+                        ShelfId = inserted.ShelfId,
+                        ShelfName = inserted.ShelfName,
+                        ClassifiedId = classifiedId,
+                        MaxColumn = inserted.MaxColumn,
+                        MaxRow = inserted.MaxRow,
+                        Active = true,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                    };
+                    //if (inserted.WarehouseId > 0) {
+                    //    shelf.WarehouseId = inserted.WarehouseId;
+                    //}
+                    vfi.InventoryShelves.Add(shelf);
+                    var drawers = new List<InventoryDrawer>();
+                    for (var i = 1; i <= inserted.MaxColumn; i++) {
+                        for (var j = 0; j < inserted.MaxRow; j++) {
+                            var drawer = new InventoryDrawer {
+                                InventoryShelf = shelf,
+                                Active = shelf.Active,
+                                ModifiedDate = shelf.ModifiedDate,
+                                ModifiedUser = shelf.ModifiedUser,
+                                ColumnName = string.Format("{0:00}", i),
+                                RowName = Convert.ToChar(65 + j) + "",
+                            };
+                            drawers.Add(drawer);
+                        } 
+                    }
+                    vfi.InventoryDrawers.AddRange(drawers);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("InsertInventoryShelf", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+            return View(new GridModel(GetInventoryShelves()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateInventoryShelf(InventoryShelfModel updated) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("UpdateInventoryShelf",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<InventoryShelfModel>()));
+            }
+            try {
+                throw new AggregateException("Lỗi! Chưa làm chức năng này");
+                using (var vfi = new tammaContext()) {
+                    if (string.IsNullOrWhiteSpace(updated.ShelfName)) {
+                        throw new AggregateException("Lỗi! Vui lòng nhập tên kệ");
+                    }
+                    else { updated.ShelfName = updated.ShelfName.Trim(); }
+
+                    if (updated.MaxRow <= 0 || updated.MaxColumn <= 0) {
+                        throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
+                    }
+
+                    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(updated.ShelfName)
+                                                                        && x.ClassifiedId == updated.ClassifiedId
+                                                                        && x.ShelfId != updated.ShelfId);
+                    if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
+
+                    shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfId == updated.ShelfId);
+                    if (shelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ"); }
+
+                    shelf.ShelfName = updated.ShelfName;
+                    //shelf.ClassifiedId = updated.ClassifiedId;
+                    shelf.Active = updated.Active;
+                    shelf.ModifiedDate = DateTime.Now;
+                    shelf.ModifiedUser = HttpContext.User.Identity.Name;
+                    //if (shelf.MaxRow < updated.MaxRow) { shelf.MaxRow = updated.MaxRow; }
+                    //if (shelf.MaxColumn < updated.MaxColumn) { shelf.MaxColumn = updated.MaxColumn; }
+
+                    //if (updated.WarehouseId > 0) {
+                    //    if (updated.WarehouseId != shelf.WarehouseId) {
+                    //        shelf.WarehouseId = updated.WarehouseId;
+                    //    }
+                    //}
+                    //else { shelf.WarehouseId = null; }
+                    //var drawers = new List<InventoryDrawer>();
+                    //for (var i = 1; i <= inserted.MaxColumn; i++) {
+                    //    for (var j = 0; j < inserted.MaxRow; j++) {
+                    //        var drawer = new InventoryDrawer {
+                    //            InventoryShelf = shelf,
+                    //            Active = shelf.Active,
+                    //            ModifiedDate = shelf.ModifiedDate,
+                    //            ModifiedUser = shelf.ModifiedUser,
+                    //            ColumnName = string.Format("{0:00}", i),
+                    //            RowName = Convert.ToChar(65 + j) + "",
+                    //        };
+                    //        drawers.Add(drawer);
+                    //    }
+                    //}
+                    //vfi.InventoryDrawers.AddRange(drawers);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("UpdateInventoryShelf", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
+            }
+            return View(new GridModel(GetInventoryShelves()));
+        }
+
+        [GridAction]
+        public ActionResult SelectInventoryDrawer(int shelfId) {
+            var model = new List<InventoryDrawerModel>();
+            try {
+                model = GetInventoryDrawers(shelfId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectInventoryDrawer", @"Lỗi giá trị nhập. (try-catch). " + ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        // Data
+        public List<InventoryDrawerModel> GetInventoryDrawers(int shelfId) {
+            var model = new List<InventoryDrawerModel>();
+            using (var vfi = new tammaContext()) {
+                //var shelf = vfi.InventoryShelves.FirstOrDefault(x=> x.ShelfId);
+                //if (shelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ"); }
+                var drawers = (from x in vfi.InventoryDrawers
+                               where x.ShelfId == shelfId
+                               orderby x.RowName, x.ColumnName
+                               select x).ToList();
+                //select new InventoryDrawerModel {
+                //    ShelfId = shelfId,
+                //    DrawerId = x.DrawerId,
+                //    ColumnName = x.ColumnName,
+                //    RowName = x.RowName,
+                //    Active = x.Active,
+                //    ModifiedDate = x.ModifiedDate,
+                //    ModifiedUser = x.ModifiedUser,
+                //});
+                var drawerIds = drawers.Select(x => x.DrawerId).ToList();
+                var onshelves = vfi.OnShelves.Where(x => drawerIds.Contains(x.DrawerId)).ToList();
+                var materialInvIds = onshelves.Where(x=> x.InventoryDrawer.InventoryShelf.ClassifiedId== 1).Select(x => x.ReferenceInvId).Distinct().ToList();
+                var materialInv = (from x in vfi.MaterialInventories
+                                  where materialInvIds.Contains(x.MaterialInventoryId)
+                                  select x).ToList();
+                foreach (var drawer in drawers) {
+                    var entity = new InventoryDrawerModel {
+                        ShelfId = shelfId,
+                        ShelftName = drawer.InventoryShelf.ShelfName,
+                        DrawerId = drawer.DrawerId,
+                        ColumnName = drawer.ColumnName,
+                        RowName = drawer.RowName,
+                        AdditionName = drawer.AdditionName,
+                        Active = drawer.Active,
+                        ModifiedDate = drawer.ModifiedDate,
+                        ModifiedUser = drawer.ModifiedUser,
+                        ClassifiedId = drawer.InventoryShelf.ClassifiedId
+                    };
+                    var onshelfs = onshelves.Where(x => x.DrawerId == drawer.DrawerId);
+                    foreach (var onshelf in onshelfs) {
+                        switch (drawer.InventoryShelf.ClassifiedId) {
+                            case 1: // nguyen lieu
+                                var inv = materialInv.FirstOrDefault(x => x.MaterialInventoryId == drawer.ReferenceInvId);
+                                if (inv != null) {
+                                    entity.ReferenceInvCode += MyUtilities.Material.GetMaterialInvDesignNo(inv) + " | ";
+                                }
+                                break;
+                            default:
+                                entity.ReferenceInvCode += "Không xác định | ";
+                                break;
+                        }
+                    }
+
+                    //if (drawer.ReferenceInvId > 0) {
+                    //    switch (drawer.InventoryShelf.ClassifiedId) {
+                    //        case 1: // nguyen lieu
+                    //            var inv = vfi.MaterialInventories.FirstOrDefault(x => x.MaterialInventoryId == drawer.ReferenceInvId);
+                    //            if (inv != null) {
+                    //                entity.ReferenceCode = inv.Material.MaterialCode;
+                    //                entity.LotNumber = inv.LotNumber;
+                    //                entity.OwnerName = inv.Vendor.VendorName;
+                    //                entity.UnitWeight = inv.UnitWeight;
+                    //                entity.Unit = "Kg";
+                    //                entity.Quantity = inv.TotalQty * inv.UnitWeight;
+                    //            }
+                    //            break;
+                    //        default:
+                    //            break;
+                    //    }
+                    //}
+                    //else if (drawer.ReferenceId > 0) {
+                    //    switch (drawer.InventoryShelf.ClassifiedId) {
+                    //        case 1: // nguyen lieu
+                    //            var material = vfi.Materials.FirstOrDefault(x => x.MaterialId == drawer.ReferenceId);
+                    //            if (material != null) {
+                    //                entity.ReferenceName = material.MaterialCode;
+                    //            }
+                    //            break;
+                    //        default:
+                    //            break;
+                    //    }
+                    //}
+
+                    model.Add(entity);
+                }
+            }
+            return model;
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertInventoryDrawer(InventoryDrawerModel inserted, int shelfId) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("InsertInventoryDrawer",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<InventoryDrawerModel>()));
+            }
+            try {
+                throw new AggregateException("Lỗi! Chưa làm chức năng này");
+                using (var vfi = new tammaContext()) {
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("InsertInventoryDrawer", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+            return View(new GridModel(GetInventoryDrawers(shelfId)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateInventoryDrawer(InventoryDrawerModel updated, int shelfId) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("UpdateInventoryDrawer",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<InventoryDrawerModel>()));
+            }
+            try {
+                throw new AggregateException("Lỗi! Chưa làm chức năng này");
+                using (var vfi = new tammaContext()) {
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("UpdateInventoryDrawer", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
+            }
+            return View(new GridModel(GetInventoryDrawers(shelfId)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult DeleteInventoryDrawer(int drawerId, int shelfId) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("UpdateInventoryDrawer",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<InventoryDrawerModel>()));
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var drawer = vfi.InventoryDrawers.FirstOrDefault(x => x.DrawerId == drawerId);
+                    if (drawer != null) {
+                        drawer.ReferenceId = null;
+                        drawer.ReferenceInvId = null;
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Lỗi! Không tìm thấy kệ");
+                    }
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("DeleteInventoryDrawer", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
+            }
+            return View(new GridModel(GetInventoryDrawers(shelfId)));
+        }
+
+
+        public ActionResult DuplicateInventoryDrawer(int drawerId) {
+            using (var vfi = new tammaContext()) {
+                var drawer = vfi.InventoryDrawers.FirstOrDefault(x => x.DrawerId == drawerId);
+                if (drawer == null) {
+                    return Json(MyUtilities.Monitor.ErrorCode.NotFound);
+                }
+                var newDrawer = new InventoryDrawer {
+                    Active = true,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedUser = HttpContext.User.Identity.Name,
+                    RowName = drawer.RowName,
+                    ColumnName = drawer.ColumnName,
+                    ShelfId = drawer.ShelfId,
+                };
+                var drawerCounts = vfi.InventoryDrawers.Where(x => x.ColumnName.Equals(drawer.ColumnName)
+                                                                && x.RowName.Equals(drawer.RowName)
+                                                                && x.ShelfId == drawer.ShelfId)
+                                                        .ToList()
+                                                        .Count;
+                var additionChar = '\'';
+                newDrawer.AdditionName = new String(additionChar, drawerCounts);
+                vfi.InventoryDrawers.Add(newDrawer);
+                vfi.SaveChanges();
+            }
+            return Json(MyUtilities.Monitor.ErrorCode.NoError);
+        }
+
+        public ActionResult SelectComboBoxInventoryDrawer(int classifiedId) {
+            var model = new List<InventoryDrawerModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    model = (from x in vfi.InventoryDrawers
+                             where x.Active
+                                  && x.InventoryShelf.ClassifiedId == classifiedId
+                             select new InventoryDrawerModel {
+                                 DrawerId = x.DrawerId,
+                                 ColumnName = x.ColumnName,
+                                 RowName = x.RowName,
+                                 AdditionName = x.AdditionName,
+                                 ShelftName = x.InventoryShelf.ShelfName
+                             }).ToList();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectComboBoxInventoryDrawer", ex.Message);
+            }
+            return new JsonResult {
+                Data = new SelectList(model.OrderBy(x => x.DrawerCode), "DrawerId", "DrawerCode")
             };
         }
 

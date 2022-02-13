@@ -7,7 +7,14 @@
  * License: www.highslide.com/#license
  */
 if (!hs) { var hs = {
-// Language strings
+    // Language strings
+    //getDir: function () {
+    //    if (!hs.dir) {
+    //        var detected = hs.detectDir();
+    //        hs.dir = detected !== false ? detected : 'outlines/';
+    //    }
+    //    return hs.dir;
+    //},
 lang : {
 	cssDirection: 'ltr',
 	loadingText : 'Loading...',
@@ -34,7 +41,7 @@ lang : {
 	restoreTitle : ''
 },
 // See http://highslide.com/ref for examples of settings  
-graphicsDir : '',
+graphicsDir: location + '/Scripts/',
 expandCursor : '', // null disables
 restoreCursor : '', // null disables
 expandDuration : 250, // milliseconds

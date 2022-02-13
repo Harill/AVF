@@ -41,24 +41,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             return formatted;
         }
 
-        public static object GetValueFormat(List<SalesReport> list, int index, int valueGet)
+        public static double GetValueFormat(List<SalesReport> list, int index, int valueGet)
         {
-            switch (valueGet)
-            {
-                case 0:
-                    if (list[index].OrderQuantity == 0) return "-";
-                    return string.Format("{0:n0}", list[index].OrderQuantity);
-                case 1:
-                    if (list[index].ExportQuantity == 0) return "-";
-                    return string.Format("{0:n0}", list[index].ExportQuantity);
-                case 2:
-                    if (list[index].ProductionQuantity == 0) return "-";
-                    return string.Format("{0:n0}", list[index].ProductionQuantity);
-                case 3:
-                    if (list[index].ForecastQuantity == 0) return "-";
-                    return string.Format("{0:n0}", list[index].ForecastQuantity);
-            }
-            return "-";
+            return GetValue(list, index, valueGet);
+            //switch (valueGet)
+            //{
+            //    case 0:
+            //        if (list[index].OrderQuantity == 0) return "-";
+            //        return string.Format("{0:n0}", list[index].OrderQuantity);
+            //    case 1:
+            //        if (list[index].ExportQuantity == 0) return "-";
+            //        return string.Format("{0:n0}", list[index].ExportQuantity);
+            //    case 2:
+            //        if (list[index].ProductionQuantity == 0) return "-";
+            //        return string.Format("{0:n0}", list[index].ProductionQuantity);
+            //    case 3:
+            //        if (list[index].ForecastQuantity == 0) return "-";
+            //        return string.Format("{0:n0}", list[index].ForecastQuantity);
+            //}
+            //return "-";
         }
 
         public static double GetValue(List<SalesReport> list, int index, int valueGet)

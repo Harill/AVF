@@ -18,6 +18,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         #region view
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         public ActionResult ProductionOnTesting(int machineId, int productId) {
             var entity = new MachineDiagram { MachineId = machineId, ProductId = productId };
             try {
@@ -40,6 +47,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("ProductionOnTesting", ex.Message);
             }
+            ViewData = GetPageConfigData();
             return View(entity);
         }
 
@@ -698,7 +706,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 }
             }
             return model.OrderBy(x => x.CustomerCode).ThenBy(x => x.ProductCode).ThenBy(m => m.Priority).ToList();
-
         }
 
         [HttpPost]
@@ -823,6 +830,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(GetProductionFuelByProductId(0, productId, "")));
         }
 
+        public ActionResult SelectComboboxProductionFuel(int productId) {
+            var model = new List<FuelModel>();
+            return new JsonResult {
+                Data = new SelectList(model, "FuelId", "FuelName")
+            };
+        }
         #endregion
 
         #region production testing

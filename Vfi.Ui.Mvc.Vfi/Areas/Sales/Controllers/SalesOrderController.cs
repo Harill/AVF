@@ -31,11 +31,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             _warehouseController = warehouseController;
         }
 
+        ViewDataDictionary GetPageConfigData() {
+            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            foreach (var property in viewModel.GetType().GetProperties()) {
+                ViewData[property.Name] = property.GetValue(viewModel, null);
+            }
+            return ViewData;
+        }
         #region view
         public ActionResult CreateSalesOrder() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -43,6 +51,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -50,6 +59,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -57,6 +67,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -64,6 +75,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -71,6 +83,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -78,6 +91,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -85,6 +99,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -92,6 +107,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -99,6 +115,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -106,6 +123,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -113,6 +131,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -120,6 +139,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -127,12 +147,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ForecastOrderPlating() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -140,6 +162,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
 
@@ -147,18 +170,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult ForecastOrderProgress() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         public ActionResult TrackingOrderProgress() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
+            ViewData = GetPageConfigData();
             return View();
         }
         #endregion
@@ -1677,12 +1703,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 using (var vfi = new tammaContext()) {
                     var orderDetail = vfi.OrderDetails.FirstOrDefault(od => od.OrderDetailId == orderDetailId);
                     var date = orderDetail.VFIDueDate != null
-                        ? orderDetail.VFIDueDate.Value
-                        : orderDetail.CustomerDueDate.Value;
+                        ? orderDetail.VFIDueDate
+                        : orderDetail.CustomerDueDate;
+                    if (date == null)
+                        return View(new GridModel(model));
                     var forecasts = from f in vfi.ForecastOrders
                                     where f.ProductId == orderDetail.ProductId &&
-                                          f.ForecastDate.Month == date.Month &&
-                                          f.ForecastDate.Year == date.Year &&
+                                          f.ForecastDate.Month == date.Value.Month &&
+                                          f.ForecastDate.Year == date.Value.Year &&
                                           f.Status == (byte)MyUtilities.Transaction.Status.Approved
                                     select f;
                     foreach (var forecast in forecasts) {
@@ -2400,6 +2428,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         IsProductionManager = isProductionManager ? 1 : 0,
                         IsSaleManager = isSalesManager ? 1 : 0,
                     };
+                    var dueDate = orderDetail.VFIDueDate != null ? orderDetail.VFIDueDate : orderDetail.CustomerDueDate;
 
                     if (orderDetail.DueDate == null || orderDetail.Status == (byte)MyUtilities.Sales.Status.InProcess ||
                         orderDetail.Status == (byte)MyUtilities.Sales.Status.Waiting) {
@@ -2456,7 +2485,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                         od => od.DueDate.Month == orderDetail.VFIDueDate.Value.Month &&
                                               od.DueDate.Year == orderDetail.VFIDueDate.Value.Year).ToList();
                             }
-                            else {
+                            else if (orderDetail.CustomerDueDate != null) {
                                 detailsElse =
                                     detailsElse.Where(
                                         od => od.DueDate.Month == orderDetail.CustomerDueDate.Value.Month &&
@@ -2486,7 +2515,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             detailsElseNotApproveBefore =
                                 detailsElseNotApproveBefore.Where(od => od.DueDate <= orderDetail.VFIDueDate).ToList();
                         }
-                        else {
+                        else if (orderDetail.CustomerDueDate != null) {
                             detailsElseBefore = detailsElseBefore.Where(od => od.DueDate <= orderDetail.CustomerDueDate).ToList();
                             detailsElseNotApproveBefore =
                                 detailsElseNotApproveBefore.Where(od => od.DueDate <= orderDetail.CustomerDueDate)

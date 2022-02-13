@@ -15,6 +15,7 @@
 .t-header .t-state-hover{background-color:#ffe175}
 .t-state-active,.t-header .t-state-active{background-color:#e6e6e6;/*#ffcb36;*/border-color:#444;/*#c28b31 #c29a42 #c2a34c;*/}
 .t-state-selected{background-color:#ffcb36}
+.t-alt.t-state-selected{background-color:#ffcb36}
 .t-state-focused{background-color:#a9a9a9}
 .t-dropdown .t-state-focused{border-color:#f7c840;background:#feed76 url('Office2010Black/sprite.png') repeat-x 0 -752px}
 .t-state-hover,.t-state-selected{color:#000}
