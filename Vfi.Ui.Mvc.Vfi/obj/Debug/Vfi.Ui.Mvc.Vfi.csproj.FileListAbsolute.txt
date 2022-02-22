@@ -396,3 +396,4 @@ C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\System.Web.WebPages.Razor.xml
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Core.Common.pdb
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.pdb
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMaterialOnShelfCard.resources

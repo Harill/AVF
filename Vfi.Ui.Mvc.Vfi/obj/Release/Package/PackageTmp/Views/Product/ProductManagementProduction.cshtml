@@ -1012,6 +1012,7 @@
                                         ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.Priority).Width(50)
                                            .HeaderTemplate("STT");
+                                    
                                     columns.Bound(f => f.FuelFullCodeName).Width(150)
                                            .HeaderTemplate("Thùng");
                                     columns.Bound(f => f.Quota).Width(75)
@@ -1019,7 +1020,7 @@
                                            .HeaderTemplate("SL/Thùng");
                                     columns.Bound(f => f.CrossWeight).Width(75)
                                            .Format("{0:n0}")
-                                           .HeaderTemplate("Trọng lượng");
+                                           .HeaderTemplate("Trọng lượng</br>thùng");
 
                                     columns.Bound(f => f.FuelFullCodeName2).Width(150)
                                            .HeaderTemplate("Túi");
@@ -1029,6 +1030,7 @@
                                     columns.Bound(f => f.CrossWeight2).Width(75)
                                            .Format("{0:n0}")
                                            .HeaderTemplate("Trọng lượng");
+                                    
                                     columns.Bound(f => f.Active).Width(40)
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });

@@ -18,8 +18,21 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.Drawing;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
+using Microsoft.Practices.Unity;
+using Vfi.Server.Core.CrossCutting.UnitOfWork;
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class ReportingController : Controller {
+
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly WarehouseController _warehouseController;
+
+        [InjectionConstructor]
+        public ReportingController(IUnitOfWork unitOfWork, WarehouseController warehouseController
+            ) {
+            if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
+            _unitOfWork = unitOfWork;
+            _warehouseController = warehouseController;
+        }
         //
         // GET: /Inv/Reporting/
         #region view
@@ -281,6 +294,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View();
         }
         public ActionResult ProductionTestingDailyReport() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+        public ActionResult ProductionNGReport() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
@@ -9184,13 +9204,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectExpectedProduction2Plan(string fromDate, string toDate) {
+        public ActionResult SelectExpectedProduction2Plan(string fromDate, string toDate, string productCode, int customerId) {
             if (string.IsNullOrWhiteSpace(fromDate)) {
                 return View(new GridModel(new List<ExpectedProduction2PlanModel>()));
             }
             var model = new List<ExpectedProduction2PlanModel>();
             try {
-                model = GetExpectedProduction2Plan(fromDate, toDate);
+                model = GetExpectedProduction2Plan(fromDate, toDate, productCode, customerId);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectExpectedProduction2Plan", ex.Message);
@@ -9198,10 +9218,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(model));
         }
 
-        public ActionResult PrintExpectedProduction2Plan(string fromDate, string toDate) {
+        public ActionResult PrintExpectedProduction2Plan(string fromDate, string toDate, string productCode, int customerId) {
             var model = new List<ExpectedProduction2PlanModel>();
             try {
-                model = GetExpectedProduction2Plan(fromDate, toDate);
+                model = GetExpectedProduction2Plan(fromDate, toDate, productCode, customerId);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PrintExpectedProduction2Plan", ex.Message);
@@ -9209,7 +9229,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return PartialView("PageExpectedProduction2Plan", model);
         }
 
-        private List<ExpectedProduction2PlanModel> GetExpectedProduction2Plan(string fromDate, string toDate) {
+        private List<ExpectedProduction2PlanModel> GetExpectedProduction2Plan(string fromDate, string toDate, string productCode, int customerId) {
             var model = new List<ExpectedProduction2PlanModel>();
             try {
                 //var fromD = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -9223,14 +9243,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 //var toD = fromD.AddMonths(1).AddSeconds(-1);
                 using (var vfi = new tammaContext()) {
                     var process2s = (from x in vfi.ProductionProcesses
-                                     where x.WarehouseId == MyUtilities.Warehouse.Production2 && x.IsNecessary &&
-                                         x.Product.Active
+                                     where x.Warehouse.IsProduction2 == true && x.IsNecessary &&
+                                         x.Product.Active &&
+                                         (customerId == 0 || x.Product.CustomerId == customerId)
                                      select new {
                                          x.ProductId,
                                          x.Product.ProductCode,
                                          x.Product.Customer.CustomerCode,
                                          x.ProcessIndex
                                      }).ToList();
+                    if (!string.IsNullOrWhiteSpace(productCode)) { process2s = process2s.Where(x => x.ProductCode.Contains(productCode)).ToList(); }
                     var productIds = process2s.Select(pp => pp.ProductId).Distinct().ToList();
                     var allProcesses = (from x in vfi.ProductionProcesses
                                         where productIds.Contains(x.ProductId) && x.IsNecessary
@@ -9261,8 +9283,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          fd.ForecastDate,
                                          fd.Quantity
                                      }).ToList();
-                    var allInvIds = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
-                    var warehouse2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
+
+                    //var allInvIds = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
+                    var allInvIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { CanStock = true });
                     var totalInvs = (from x in vfi.ProductInventories
                                 where productIds.Contains(x.ProductId) &&
                                     allInvIds.Contains(x.WarehouseId) &&
@@ -9294,6 +9317,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             p.Quantity,
                                         }).ToList();
 
+                    //var warehouse2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
+                    var warehouse2Ids = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction2 = true });
+                    var qcIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsQC = true });
+                    //var reprocessIds = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsReprocessing = true });
                     foreach (var process2 in process2s) {
                         var entity = new ExpectedProduction2PlanModel {
                             CustomerCode = process2.CustomerCode,
@@ -9316,6 +9343,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (!nextProcesses.Any())
                             continue;
                         var nextWarehouseIds = nextProcesses.Select(x => x.WarehouseId).Distinct().ToList();
+                        if (nextWarehouseIds.Any(x => qcIds.Contains(x))) { nextWarehouseIds.AddRange(qcIds); }
+                        nextWarehouseIds = nextWarehouseIds.Distinct().ToList();
+
                         var totalInvsById = totalInvs.Where(pi => pi.ProductId == entity.ProductId).ToList();
                         if (totalInvsById.Any()) {
                             entity.TotalInv = totalInvsById.Sum(pi => pi.TotalQty);
@@ -14490,6 +14520,83 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(model.OrderBy(m => m.ProductCode)));
         }
 
+        [GridAction]
+        public ActionResult SelectProductionNGReport(string fromDate, string toDate, string productCode) {
+            var model = new List<ProductionNGReportModel>();
+            try {
+                var fDate = MyUtilities.Function.ParseDate(fromDate);
+                var tDate = MyUtilities.Function.ParseDate(toDate);
+                using (var vfi = new tammaContext()) {
+                    var production1NGs = (from x in vfi.ImportFormSX1Detail
+                                          where x.ImportFormSX1.MaterialUseDate >= fDate && x.ImportFormSX1.MaterialUseDate <= tDate
+                                          && x.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                          select new {
+                                              x.ProductId,
+                                              Reprocess = x.Processing1 + x.Processing2,
+                                              Defect = x.DefectProduct1 + x.DefectProduct2
+                                          });
+                    //var warehouseProcessings = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsReprocessing = true });
+                    //warehouseProcessings.Add(MyUtilities.Warehouse.Defect);
+                    var transactionNGs = (from x in vfi.TransactionDetails
+                                          where x.Transaction.CreatedDate >= fDate && x.Transaction.CreatedDate <= tDate
+                                          && x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                              && x.Transaction.WarehouseIssueId != null
+                                              && x.Transaction.WarehouseReceiptId != null
+                                              && (x.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing
+                                                || x.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect)
+                                          select new {
+                                              ProductId = x.ReferenceId.Value,
+                                              WarehouseIssueId = x.Transaction.WarehouseIssueId.Value,
+                                              WarehouseReceiptId = x.Transaction.WarehouseReceiptId.Value,
+                                              Quantity = x.Quantity,
+                                          }).ToList();
+                    var warehouseCNCs = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsCncMilling = true });
+                    var warehouse2s = _warehouseController.GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction2 = true });
+                    //var cncNGs = transactionReprocessings.Where(x => warehouseCNCs.Contains(x.WarehouseIssueId)).ToList();
+                    //var production2NGs = transactionReprocessings.Where(x => warehouse2s.Contains(x.WarehouseIssueId)).ToList();
+                    var productIds = production1NGs.Select(x => x.ProductId).ToList();
+                    productIds.AddRange(transactionNGs.Select(x => x.ProductId).ToList());
+                    productIds = productIds.Distinct().ToList();
+                    var products = (from x in vfi.Products
+                                    where productIds.Contains(x.ProductId)
+                                    orderby x.Customer.CustomerCode, x.ProductCode
+                                    select new {
+                                        x.ProductId,
+                                        x.ProductCode,
+                                        x.Customer.CustomerCode,
+                                        UnitPrice = x.UnitPrice ?? 0
+                                    }).ToList();
+                    if (!string.IsNullOrWhiteSpace(productCode)) { products = products.Where(x => productCode.Contains(x.ProductCode)).ToList(); }
+                    foreach (var product in products) {
+                        var entity = new ProductionNGReportModel {
+                            ProductId = product.ProductId,
+                            ProductCode = product.ProductCode,
+                            CustomerCode = product.CustomerCode,
+                            UnitPrice = MyUtilities.Product.ProductVndPrice(product.UnitPrice)
+                        };
+                        var production1NGsById = production1NGs.Where(x => x.ProductId == product.ProductId).ToList();
+                        entity.Production1Reprocess = production1NGsById.Sum(x => x.Reprocess);
+                        entity.Production1Defect = production1NGsById.Sum(x => x.Defect);
+
+                        var transactionsById = transactionNGs.Where(x => x.ProductId == product.ProductId && x.WarehouseReceiptId == MyUtilities.Warehouse.Processing).ToList();
+                        entity.TotalReprocess = transactionsById.Sum(x => x.Quantity);
+                        entity.CNCReprocess = transactionsById.Where(x => warehouseCNCs.Contains(x.WarehouseIssueId)).Sum(x => x.Quantity);
+                        entity.Production2Reprocess = transactionsById.Where(x => warehouse2s.Contains(x.WarehouseIssueId)).Sum(x => x.Quantity);
+
+                        transactionsById = transactionNGs.Where(x => x.ProductId == product.ProductId && x.WarehouseReceiptId == MyUtilities.Warehouse.Defect).ToList();
+                        entity.TotalDefect = transactionsById.Sum(x => x.Quantity) + entity.Production1Defect;
+                        entity.CNCDefect = transactionsById.Where(x => warehouseCNCs.Contains(x.WarehouseIssueId)).Sum(x => x.Quantity);
+                        entity.Production2Defect = transactionsById.Where(x => warehouse2s.Contains(x.WarehouseIssueId)).Sum(x => x.Quantity);
+
+                        model.Add(entity);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionNGReport", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
         #region planning
 
         [GridAction]

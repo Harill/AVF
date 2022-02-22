@@ -2526,7 +2526,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             return Json("");
         }
 
-        [HttpPost]
+        [GridAction]
         public ActionResult UpdatePoImportDetail(TransactionFptDetailModel update, int transactionId, long purchaseOrderId) {
             try {
                 var managerlv2 = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagementLv2);
@@ -2542,195 +2542,249 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
                     switch (purchaseOrder.MaterialClassifiedId) {
                         case 1: // material
+                            {
+                                var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
+                                if (transaction == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
+                                if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved)
+                                    break;
 
-                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
-                            if (transaction == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
-                            if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved)
-                                break;
+                                var importPoDetail = vfi.ImportPurchaseOrderDetails
+                                    .FirstOrDefault(i => i.ImportDetailId == update.DetailId);
+                                if (importPoDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
+                                var transactionDetail = transaction.TransactionDetails.FirstOrDefault(td => td.ReferenceId == importPoDetail.MaterialId);
+                                if (transactionDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy giao dịch chi tiết");
+                                var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
+                                    pod.ReferenceId == importPoDetail.MaterialId);
+                                if (poDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
 
-                            var importPoMaterial = vfi.ImportPurchaseOrderDetails
-                                .FirstOrDefault(i => i.ImportDetailId == update.DetailId);
-                            if (importPoMaterial == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
-                            var transactionDetail = transaction.TransactionDetails.FirstOrDefault(td => td.ReferenceId == importPoMaterial.MaterialId);
-                            if (transactionDetail == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy giao dịch chi tiết");
-                            var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
-                                pod.ReferenceId == importPoMaterial.MaterialId);
-                            if (poDetail == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
+                                var inv =
+                                    vfi.MaterialInventories.FirstOrDefault(
+                                        mi =>
+                                        mi.LotNumber.Equals(importPoDetail.LotNumber) &&
+                                        mi.MaterialId == importPoDetail.MaterialId &&
+                                        mi.VendorId == importPoDetail.VendorId &&
+                                        mi.Length == importPoDetail.Length);
+                                if (inv == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
 
-                            var materialByLot =
-                                vfi.MaterialInventories.FirstOrDefault(
-                                    mi =>
-                                    mi.LotNumber.Equals(importPoMaterial.LotNumber) &&
-                                    mi.MaterialId == importPoMaterial.MaterialId &&
-                                    mi.VendorId == importPoMaterial.VendorId &&
-                                    mi.Length == importPoMaterial.Length);
-                            if (materialByLot == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
+                                var periods = vfi.MaterialInventoryPeriods.Where(mip => mip.MaterialInventoryId == inv.MaterialInventoryId);
+                                if (!periods.Any())
+                                    throw new AggregateException("Lỗi! MaterialInventoryPeriods không tìm thấy");
+                                else if (periods.Count() > 1)
+                                    throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
+                                var period = periods.FirstOrDefault();
+                                var quantity = Math.Round(update.Quantity / inv.UnitWeight, 0);
 
-                            var periods = vfi.MaterialInventoryPeriods.Where(mip => mip.MaterialInventoryId == materialByLot.MaterialInventoryId);
-                            if (!periods.Any())
-                                throw new AggregateException("Lỗi! MaterialInventoryPeriods không tìm thấy");
-                            else if (periods.Count() > 1)
-                                throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
-                            var period = periods.FirstOrDefault();
-                            var quantity = Math.Round(update.Quantity / materialByLot.UnitWeight, 0);
+                                poDetail.ReceivedQty = Math.Round(poDetail.ReceivedQty - importPoDetail.QuantityKg + update.Quantity, 2);
+                                if (poDetail.ReceivedQty < 0) { poDetail.ReceivedQty = 0; }
+                                else if (poDetail.ReceivedQty == 0) { poDetail.IsComplete = true; }
+                                else { poDetail.IsComplete = false; }
 
-                            poDetail.ReceivedQty = Math.Round(poDetail.ReceivedQty - importPoMaterial.QuantityKg + update.Quantity, 2);
-                            if (poDetail.ReceivedQty < 0)
-                                poDetail.ReceivedQty = 0;
-                            if (update.Quantity < materialByLot.TotalQty) {
-                                status = (byte)MyUtilities.Sales.Status.Waiting;
-                            }
-                            if (update.Quantity > 0) {
-                                materialByLot.ImportQuantity = quantity;
-                                materialByLot.ImportQuantityKg = update.Quantity;
-                                materialByLot.TotalQty = quantity;
-                                materialByLot.TotalQtyKg = update.Quantity;
-                                period.Quantity = quantity;
-                                period.QuantityKg = update.Quantity;
-                                period.LastPeriodQuantity = quantity;
-                                period.LastPeriodQuantityKg = update.Quantity;
-                                importPoMaterial.Quantity = quantity;
-                                importPoMaterial.QuantityKg = update.Quantity;
-                            }
-                            else {
-                                vfi.MaterialInventoryPeriods.Remove(period);
-                                vfi.MaterialInventories.Remove(materialByLot);
-                                if (transaction.TransactionDetails.Count == 1)
-                                    transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                if (update.Quantity < inv.TotalQty) { status = (byte)MyUtilities.Sales.Status.Waiting; }
+                                
+                                if (update.Quantity > 0) {
+                                    inv.ImportQuantity = quantity;
+                                    inv.ImportQuantityKg = update.Quantity;
+                                    inv.TotalQty = quantity;
+                                    inv.TotalQtyKg = update.Quantity;
+                                    period.Quantity = quantity;
+                                    period.QuantityKg = update.Quantity;
+                                    period.LastPeriodQuantity = quantity;
+                                    period.LastPeriodQuantityKg = update.Quantity;
+                                    importPoDetail.Quantity = quantity;
+                                    importPoDetail.QuantityKg = update.Quantity;
+                                }
                                 else {
-                                    vfi.ImportPurchaseOrderDetails.Remove(importPoMaterial);
-                                    vfi.TransactionDetails.Remove(transactionDetail);
+                                    vfi.MaterialInventoryPeriods.Remove(period);
+                                    vfi.MaterialInventories.Remove(inv);
+                                    if (transaction.TransactionDetails.Count == 1)
+                                        transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                    else {
+                                        vfi.ImportPurchaseOrderDetails.Remove(importPoDetail);
+                                        vfi.TransactionDetails.Remove(transactionDetail);
+                                    }
                                 }
                             }
-
                             break;
                         case 2: //fuel
+                            {
+                                var transaction = vfi.TransactionFpts.FirstOrDefault(t => t.TransactionId == transactionId);
+                                if (transaction == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
+                                if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved)
+                                    break;
 
-                            var transactionFuel = vfi.TransactionFpts.FirstOrDefault(t => t.TransactionId == transactionId);
-                            if (transactionFuel == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
-                            if (transactionFuel.Status != (byte)MyUtilities.Transaction.Status.Approved)
-                                break;
+                                var importPoDetail = transaction.TransactionFptDetails.FirstOrDefault(i => i.DetailId == update.DetailId);
+                                if (importPoDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
+                                var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
+                                    pod.ReferenceId == importPoDetail.FptId);
+                                if (poDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
 
-                            var importFuel = transactionFuel.TransactionFptDetails
-                                .FirstOrDefault(i => i.DetailId == update.DetailId);
-                            if (importFuel == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
-                            var poFuelDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
-                                pod.ReferenceId == importFuel.FptId);
-                            if (poFuelDetail == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
+                                var inv =
+                                    vfi.FuelInventories.FirstOrDefault(
+                                        mi =>
+                                        mi.FuelId == importPoDetail.FptId &&
+                                        mi.LotNumber.Equals(importPoDetail.LotNumber) &&
+                                        mi.VendorId == importPoDetail.VendorId);
+                                if (inv == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
 
-                            var fuelInv =
-                                vfi.FuelInventories.FirstOrDefault(
-                                    mi =>
-                                    mi.FuelId == importFuel.FptId &&
-                                    mi.LotNumber.Equals(importFuel.LotNumber) &&
-                                    mi.VendorId == importFuel.VendorId);
-                            if (fuelInv == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
+                                var periods = vfi.FuelInventoryPeriods.Where(mip => mip.FuelInvId == inv.FuelInvId);
+                                if (!periods.Any())
+                                    throw new AggregateException("Lỗi! FuelInventoryPeriods không tìm thấy");
+                                else if (periods.Count() > 1)
+                                    throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
+                                var period = periods.FirstOrDefault();
 
-                            var fuelPeriods = vfi.FuelInventoryPeriods.Where(mip => mip.FuelInvId == fuelInv.FuelInvId);
-                            if (!fuelPeriods.Any())
-                                throw new AggregateException("Lỗi! FuelInventoryPeriods không tìm thấy");
-                            else if (fuelPeriods.Count() > 1)
-                                throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
-                            var fuelPeriod = fuelPeriods.FirstOrDefault();
+                                poDetail.ReceivedQty = Math.Round(poDetail.ReceivedQty - importPoDetail.Quantity + update.Quantity, 2);
+                                if (poDetail.ReceivedQty < 0) { poDetail.ReceivedQty = 0; }
+                                else if (poDetail.ReceivedQty == 0) { poDetail.IsComplete = true; }
+                                else { poDetail.IsComplete = false; }
 
-                            poFuelDetail.ReceivedQty = Math.Round(poFuelDetail.ReceivedQty - importFuel.Quantity + update.Quantity, 2);
-                            if (poFuelDetail.ReceivedQty < 0)
-                                poFuelDetail.ReceivedQty = 0;
-                            if (poFuelDetail.ReceivedQty == 0) { poFuelDetail.IsComplete = true; }
-                            else { poFuelDetail.IsComplete = false; }
-                            if (update.Quantity < fuelInv.TotalQuantity) {
-                                status = (byte)MyUtilities.Sales.Status.Waiting;
-                            }
-                            if (update.Quantity > 0) {
-                                fuelInv.TotalQuantity = update.Quantity;
-                                fuelPeriod.Quantity = update.Quantity;
-                                fuelPeriod.LastQuantity = update.Quantity;
-                                importFuel.Quantity = update.Quantity;
-                            }
-                            else {
-                                vfi.FuelInventoryPeriods.Remove(fuelPeriod);
-                                vfi.FuelInventories.Remove(fuelInv);
-                                if (transactionFuel.TransactionFptDetails.Count == 1) {
-                                    transactionFuel.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                if (update.Quantity < inv.TotalQuantity) { status = (byte)MyUtilities.Sales.Status.Waiting; }
+
+                                if (update.Quantity > 0) {
+                                    inv.TotalQuantity = update.Quantity;
+                                    period.Quantity = update.Quantity;
+                                    period.LastQuantity = update.Quantity;
+                                    importPoDetail.Quantity = update.Quantity;
                                 }
                                 else {
-                                    vfi.TransactionFptDetails.Remove(importFuel);
+                                    vfi.FuelInventoryPeriods.Remove(period);
+                                    vfi.FuelInventories.Remove(inv);
+                                    if (transaction.TransactionFptDetails.Count == 1) {
+                                        transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                    }
+                                    else {
+                                        vfi.TransactionFptDetails.Remove(importPoDetail);
+                                    }
                                 }
                             }
-
                             break;
-                        case 3: // tool
 
-                            var transactionTool = vfi.TransactionFpts.FirstOrDefault(t => t.TransactionId == transactionId);
-                            if (transactionTool == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
-                            if (transactionTool.Status != (byte)MyUtilities.Transaction.Status.Approved)
-                                break;
+                        case 3: {
+                                var transaction = vfi.TransactionFpts.FirstOrDefault(t => t.TransactionId == transactionId);
+                                if (transaction == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
+                                if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved)
+                                    break;
 
-                            var importTool = transactionTool.TransactionFptDetails
-                                .FirstOrDefault(i => i.DetailId == update.DetailId);
-                            if (importTool == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
-                            var poToolDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
-                                pod.ReferenceId == importTool.FptId);
-                            if (poToolDetail == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
+                                var importPoDetail = transaction.TransactionFptDetails.FirstOrDefault(i => i.DetailId == update.DetailId);
+                                if (importPoDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
+                                var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
+                                    pod.ReferenceId == importPoDetail.FptId);
+                                if (poDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
 
-                            var toolInv =
-                                vfi.ToolInventories.FirstOrDefault(
-                                    mi =>
-                                    mi.ToolId == importTool.FptId &&
-                                    mi.LotNumber.Equals(importTool.LotNumber) &&
-                                    mi.VendorId == importTool.VendorId);
-                            if (toolInv == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
+                                var inv =
+                                    vfi.ToolInventories.FirstOrDefault(
+                                        mi =>
+                                        mi.ToolId == importPoDetail.FptId &&
+                                        mi.LotNumber.Equals(importPoDetail.LotNumber) &&
+                                        mi.VendorId == importPoDetail.VendorId);
+                                if (inv == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
 
-                            var toolPeriods = vfi.ToolInventoryPeriods.Where(mip => mip.ToolInvId == toolInv.ToolInvId);
-                            if (!toolPeriods.Any())
-                                throw new AggregateException("Lỗi! ToolInventoryPeriods không tìm thấy");
-                            else if (toolPeriods.Count() > 1)
-                                throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
-                            var toolPeriod = toolPeriods.FirstOrDefault();
+                                var periods = vfi.ToolInventoryPeriods.Where(mip => mip.ToolInvId == inv.ToolInvId);
+                                if (!periods.Any())
+                                    throw new AggregateException("Lỗi! ToolInventoryPeriods không tìm thấy");
+                                else if (periods.Count() > 1)
+                                    throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
+                                var period = periods.FirstOrDefault();
 
-                            poToolDetail.ReceivedQty = Math.Round(poToolDetail.ReceivedQty - importTool.Quantity + update.Quantity, 2);
-                            if (poToolDetail.ReceivedQty < 0)
-                                poToolDetail.ReceivedQty = 0;
+                                poDetail.ReceivedQty = Math.Round(poDetail.ReceivedQty - importPoDetail.Quantity + update.Quantity, 2);
+                                if (poDetail.ReceivedQty < 0) { poDetail.ReceivedQty = 0; }
+                                else if (poDetail.ReceivedQty == 0) { poDetail.IsComplete = true; }
+                                else { poDetail.IsComplete = false; }
 
-                            if (poToolDetail.ReceivedQty == 0) { poToolDetail.IsComplete = true; }
-                            else { poToolDetail.IsComplete = false; }
+                                if (update.Quantity < inv.TotalQuantity) { status = (byte)MyUtilities.Sales.Status.Waiting; }
 
-                            if (update.Quantity < toolInv.TotalQuantity) {
-                                status = (byte)MyUtilities.Sales.Status.Waiting;
-                            }
-                            if (update.Quantity > 0) {
-                                toolInv.TotalQuantity = update.Quantity;
-                                toolPeriod.Quantity = update.Quantity;
-                                toolPeriod.LastQuantity = update.Quantity;
-                                importTool.Quantity = update.Quantity;
-                            }
-                            else {
-                                vfi.ToolInventoryPeriods.Remove(toolPeriod);
-                                vfi.ToolInventories.Remove(toolInv);
-                                if (transactionTool.TransactionFptDetails.Count == 1) {
-                                    transactionTool.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                if (update.Quantity > 0) {
+                                    inv.TotalQuantity = update.Quantity;
+                                    period.Quantity = update.Quantity;
+                                    period.LastQuantity = update.Quantity;
+                                    importPoDetail.Quantity = update.Quantity;
                                 }
                                 else {
-                                    vfi.TransactionFptDetails.Remove(importTool);
+                                    vfi.ToolInventoryPeriods.Remove(period);
+                                    vfi.ToolInventories.Remove(inv);
+                                    if (transaction.TransactionFptDetails.Count == 1) {
+                                        transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                    }
+                                    else {
+                                        vfi.TransactionFptDetails.Remove(importPoDetail);
+                                    }
                                 }
                             }
-
                             break;
-                        // product
+                            // product
+
+                        case 6: {
+                                var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
+                                if (transaction == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy phiếu giao dịch");
+                                if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved)
+                                    break;
+
+                                var importPoDetail = transaction.TransactionDetails.FirstOrDefault(i => i.TransactionDetailId == update.DetailId);
+                                if (importPoDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết nhập");
+                                var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(pod => pod.PurchaseOrderId == purchaseOrderId &&
+                                    pod.ReferenceId == importPoDetail.ReferenceId);
+                                if (poDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết mua hàng");
+
+                                var inv =
+                                    vfi.ProductInventories.FirstOrDefault(
+                                        mi =>
+                                        mi.ProductId == importPoDetail.ReferenceId &&
+                                        mi.LotNumber.Equals(importPoDetail.LotNumber) &&
+                                        mi.VendorId == importPoDetail.VendorId);
+                                if (inv == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy tồn kho.");
+
+                                var periods = vfi.ProductInventoryPeriods.Where(mip => mip.ProductInvId == inv.ProductInventoryId);
+                                if (!periods.Any())
+                                    throw new AggregateException("Lỗi! ProductInventoryPeriods không tìm thấy");
+                                else if (periods.Count() > 1)
+                                    throw new AggregateException("Lỗi! Chi tiết nhập kho không còn nguyên vẹn! Không thể sửa.");
+                                var period = periods.FirstOrDefault();
+
+                                poDetail.ReceivedQty = Math.Round(poDetail.ReceivedQty - importPoDetail.Quantity + update.Quantity, 2);
+                                if (poDetail.ReceivedQty < 0) { poDetail.ReceivedQty = 0; }
+                                else if (poDetail.ReceivedQty == 0) { poDetail.IsComplete = true; }
+                                else { poDetail.IsComplete = false; }
+
+                                if (update.Quantity < inv.TotalQty) { status = (byte)MyUtilities.Sales.Status.Waiting; }
+
+                                if (update.Quantity > 0) {
+                                    inv.TotalQty = update.Quantity;
+                                    period.Quantity = update.Quantity;
+                                    period.LastPeriodQuantity = update.Quantity;
+                                    importPoDetail.Quantity = update.Quantity;
+                                }
+                                else {
+                                    vfi.ProductInventoryPeriods.Remove(period);
+                                    vfi.ProductInventories.Remove(inv);
+                                    if (transaction.TransactionDetails.Count == 1) {
+                                        transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                                    }
+                                    else {
+                                        vfi.TransactionDetails.Remove(importPoDetail);
+                                    }
+                                }
+                            }
+                            break;
+
                         default:
+                            throw new AggregateException("Lỗi! Chưa hỗ trợ chức năng này!");
                             break;
                     }
                     purchaseOrder.Status = status;
@@ -2740,7 +2794,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("UpdatePoImportDetail", ex.Message);
             }
-            return View(new GridModel(new List<TransactionFptDetailModel>()));
+            return View(new GridModel(GetPoImportDetail(transactionId, purchaseOrderId)));
         }
 
         #endregion
@@ -3023,6 +3077,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         case 1:
                             var material =
                                 vfi.Materials.FirstOrDefault(m => m.MaterialId == entity.ReferenceId);
+                            if (material == null) continue;
                             entity.TypeId = material.MaterialTypeId;
                             entity.TypeName = material.MaterialType.MaterialTypeName;
                             entity.ReferenceCode = material.MaterialCode;
@@ -3037,6 +3092,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         case 2:
                             var fuel =
                                 vfi.Fuels.FirstOrDefault(m => m.FuelId == entity.ReferenceId);
+                            if (fuel == null) continue;
                             entity.ReferenceCode = fuel.FuelFullCode;
 
                             var fuelInvs =
@@ -3048,6 +3104,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         case 3:
                             var tool =
                                 vfi.Tools.FirstOrDefault(m => m.ToolId == entity.ReferenceId);
+                            if (tool == null) continue;
                             entity.TypeId = tool.MaterialTypeId;
                             entity.TypeName = tool.MaterialType.MaterialTypeName;
                             entity.ReferenceCode = tool.ToolFullCode;
@@ -3086,6 +3143,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 if (insertedDetails != null) {
                     using (var vfi = new tammaContext()) {
                         foreach (var inserted in insertedDetails) {
+                            if (inserted.ReferenceId <= 0) {
+                                throw new AggregateException("Lỗi! Vui lòng chọn lại mã " + inserted.ReferenceCode);
+                            }
                             if (string.IsNullOrWhiteSpace(inserted.Unit))
                                 throw new AggregateException("Lỗi! Chưa chọn đơn vị tính");
                             //if (inserted.OrderQty == 0) continue;
@@ -4778,6 +4838,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ExchangeRate = exchangeRate,
                             PurchasingSignature = 0,
                         };
+                        var weeklyLot = MyUtilities.MySystem.LotNumber_Weekly(createdDate);
                         foreach (var detail in updatedDetails) {
                             detail.Quantity = Math.Round(detail.Quantity);
                             if (detail.Quantity == 0) continue;
@@ -4801,6 +4862,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 StoreCode = detail.StoreCode,
                                 Note = detail.Note,
                                 PoDetailId = detail.PoDetailId,
+                                VendorId = purchaseOrder.VendorId,
+                                LotNumber = weeklyLot + purchaseOrder.Vendor.VendorCode
                             };
                             transaction.TransactionDetails.Add(transactionDetail);
 

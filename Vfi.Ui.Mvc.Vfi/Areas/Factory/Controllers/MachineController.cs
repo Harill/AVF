@@ -687,6 +687,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     //                    materialInv.LotNumber);
                     //    }
 
+                    ViewData = GetPageConfigData();
                     return View(entity);
                 }
 

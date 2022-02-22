@@ -5,9 +5,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models
 {
     public partial class InventoryDrawer
     {
-        public InventoryDrawer()
-        {
+        public InventoryDrawer() {
             this.OnShelves = new List<OnShelf>();
+            this.TransactionDetails = new List<TransactionDetail>();
         }
 
         public int DrawerId { get; set; }
@@ -22,5 +22,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string AdditionName { get; set; }
         public virtual InventoryShelf InventoryShelf { get; set; }
         public virtual ICollection<OnShelf> OnShelves { get; set; }
+        public virtual ICollection<TransactionDetail> TransactionDetails { get; set; }
     }
 }

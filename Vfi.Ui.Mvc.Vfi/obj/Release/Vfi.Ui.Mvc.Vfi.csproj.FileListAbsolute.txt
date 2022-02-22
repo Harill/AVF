@@ -573,3 +573,4 @@ C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\arrow.gif
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\cross.gif
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\hs.png
 C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\hv.png
+C:\workspace\vfi_sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMaterialOnShelfCard.resources

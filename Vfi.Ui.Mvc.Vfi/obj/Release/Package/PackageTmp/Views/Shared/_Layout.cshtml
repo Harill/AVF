@@ -44,12 +44,12 @@
     
     @RenderSection("HeadContent", false)
 </head>
-<body style="background-image: url('/vfi/Content/Images/Background/@ViewBag.BackgroundImage');">
+<body style="background-image: url('@ViewBag.ImagePath/Background/@ViewBag.BackgroundImage');">
 <div class="container_24">
     @* <div class="grid_26 page">*@
      <div class="page">
          <div class="logo">
-             <img src="/vfi/Content/Images/Logo/@ViewBag.LogoImage" style="height:100%; width:auto;" />
+             <img src="@ViewBag.ImagePath/Logo/@ViewBag.LogoImage" />
          </div>
         <div id="header" style="width:94%;float:left">
             <div id="title">

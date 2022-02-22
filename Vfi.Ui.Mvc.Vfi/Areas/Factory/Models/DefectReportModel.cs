@@ -20,6 +20,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
                 return Details.Sum(x => x.Quantity);
             }
         }
+        public double DestroyQuantity {
+            get {
+                return Details.Where(x => x.IsDetroy).Sum(x => x.Quantity);
+            }
+        }
     }
 
     public class DefectReportModel {

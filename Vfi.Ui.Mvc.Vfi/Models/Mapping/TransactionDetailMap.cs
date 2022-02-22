@@ -42,6 +42,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.IsInternal).HasColumnName("IsInternal");
             this.Property(t => t.StoreCode).HasColumnName("StoreCode");
             this.Property(t => t.DefectId).HasColumnName("DefectId");
+            this.Property(t => t.DrawerId).HasColumnName("DrawerId");
 
             // Relationships
             this.HasOptional(t => t.Machine)
@@ -71,6 +72,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasOptional(t => t.TransactionProduct)
                 .WithMany(t => t.TransactionDetails)
                 .HasForeignKey(d => d.TransactionProductId);
+            this.HasOptional(t => t.InventoryDrawer)
+                .WithMany(t => t.TransactionDetails)
+                .HasForeignKey(d => d.DrawerId);
 
         }
     }

@@ -3,7 +3,7 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model TransactionModel
 @{
-    ViewBag.Title = "Nhập NL";
+    ViewBag.Title = "Nhập mua NL";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -53,18 +53,30 @@
         });
     }
     function grid_OnSave(e) {
-        var quantity = $(e.cell).find('#QuantityKg').val();
-        var text = "";
-        if (!isNaN(parseInt(quantity))) {
-            var sumOrderQty = 0;
-            var spanOrderQtys = $("span[name='QuantityKg']");
-            for (var i = 0; i < spanOrderQtys.length; i++) {
-                var innerText = spanOrderQtys[i].innerText;
-                innerText = innerText.replace(/,/g, '');
-                sumOrderQty = sumOrderQty + parseInt(innerText);
+
+        var $drawerCode = $(e.cell).find('#DrawerCode');
+
+        if ($drawerCode.length > 0) {
+            var drawerCode = $drawerCode.data("tComboBox"),
+                drawerCodeSelectItem = drawerCode.selectedIndex > -1 ? drawerCode.data[drawerCode.selectedIndex] : null;
+            if (drawerCodeSelectItem) {
+                e.values["DrawerCode"] = drawerCodeSelectItem.Text;
+                e.values["DrawerId"] = drawerCodeSelectItem.Value;
             }
-            sumOrderQty = sumOrderQty + parseInt(quantity);
-            $("#TotalQuantityKg").text(sumOrderQty.format(2));
+        } else {
+            var quantity = $(e.cell).find('#QuantityKg').val();
+            var text = "";
+            if (!isNaN(parseInt(quantity))) {
+                var sumOrderQty = 0;
+                var spanOrderQtys = $("span[name='QuantityKg']");
+                for (var i = 0; i < spanOrderQtys.length; i++) {
+                    var innerText = spanOrderQtys[i].innerText;
+                    innerText = innerText.replace(/,/g, '');
+                    sumOrderQty = sumOrderQty + parseInt(innerText);
+                }
+                sumOrderQty = sumOrderQty + parseInt(quantity);
+                $("#TotalQuantityKg").text(sumOrderQty.format(2));
+            }
         }
     }
 </script>
@@ -214,6 +226,11 @@
             }
         });
         
+    }
+    function drawerGrid_OnDataBinding(e) {
+        e.data = $.extend(e.data, {
+            classifiedId: 1,
+        });
     }
 </script>
 }
@@ -380,7 +397,8 @@
                     ;
                 //columns.Bound(f => f.LotNumber).Width(50)
                 //       .HtmlAttributes(new {style = "text-align:right"});
-                columns.Bound(f => f.StoreCode).Width(100).Title("Sơ đồ");
+                //columns.Bound(f => f.StoreCode).Width(100).Title("Sơ đồ");
+                columns.Bound(f => f.DrawerCode).Width(100).Title("Lên kệ");
                 columns.Bound(f => f.Note);
                 columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(40).Title("");
             })

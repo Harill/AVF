@@ -3,9 +3,10 @@
     ViewBag.Title = "Method Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<script>
+@section Scripts{
+    <script type="text/javascript">
 
-    function Grid_OnEdit(e) {
+    function grid_OnEdit(e) {
         //var dataItem = e.dataItem;
         var mode = e.mode;
         var form = e.form;
@@ -26,6 +27,7 @@
         }
     }
     </script>
+}
 <div class="title">Quản lý phương thức</div>
 <div class="cover-div">
 @{
@@ -59,7 +61,7 @@
                     ).Width(98).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
             })
         .Editable(editing => editing.Mode(GridEditMode.InLine))
-        .ClientEvents(e => e.OnEdit("Grid_OnEdit").OnError("grid_Error"))
+        .ClientEvents(e => e.OnEdit("grid_OnEdit").OnError("grid_Error"))
         //.Pageable(page => page.PageSize(10))
         .Scrollable(f => f.Height(510))
         .Sortable()

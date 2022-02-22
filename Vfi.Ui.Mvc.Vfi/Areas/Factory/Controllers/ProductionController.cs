@@ -832,8 +832,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         public ActionResult SelectComboboxProductionFuel(int productId) {
             var model = new List<FuelModel>();
+            using (var vfi = new tammaContext()) {
+                var productionFuels = vfi.ProductionFuels.Where(x => x.ProductId == productId && x.Active).ToList();
+                foreach (var productionFuel in productionFuels) {
+                    var entity1 = new FuelModel {
+                        FuelId = productionFuel.FuelId,
+                        FuelFullCode = productionFuel.Fuel.FuelFullCode.Trim(),
+                        UnitWeight = productionFuel.Fuel.UnitWeight,
+                        Quota = productionFuel.Quota,
+                        CrossWeight= productionFuel.CrossWeight,
+                    };
+                    model.Add(entity1);
+                    if (productionFuel.Fuel2Id > 0) {
+                        var entity2 = new FuelModel {
+                            FuelId = productionFuel.Fuel2Id.Value,
+                            FuelFullCode = productionFuel.Fuel1.FuelFullCode.Trim(),
+                            UnitWeight = productionFuel.Fuel1.UnitWeight,
+                            Quota = productionFuel.Quota2,
+                            CrossWeight = productionFuel.CrossWeight2,
+                        };
+                        model.Add(entity2);
+                    }
+                }
+            }
             return new JsonResult {
-                Data = new SelectList(model, "FuelId", "FuelName")
+                Data = new SelectList(model, "ProductionFuelId", "FuelFullCode")
             };
         }
         #endregion

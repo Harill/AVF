@@ -558,6 +558,7 @@
     <Compile Include="Areas\Inv\Models\ProductionDailyReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionDefectDailyModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionMonthlyReport.cs" />
+    <Compile Include="Areas\Inv\Models\ProductionNGReportModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionPlanModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionTestingDailyModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionWeeklyModel.cs" />
@@ -581,6 +582,12 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptMaterialOnShelfCard.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptMaterialOnShelfCard.Designer.cs">
+      <DependentUpon>RptMaterialOnShelfCard.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptProductTotalAVF.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1716,6 +1723,7 @@
     <Content Include="Areas\Inv\Views\Reporting\PageFinishedProductionReport.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageExportChangeProductForm.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageMaterialLotCard.aspx" />
+    <Content Include="Areas\Inv\Views\Warehouse\PageMaterialInvOnShelfCard.aspx" />
     <Content Include="Areas\Purchasing\Views\Fuel\PagePrintExportFuel.aspx" />
     <Content Include="Areas\Purchasing\Views\Fuel\PageFuelTotal.aspx" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\PagePrintInquiryForm.aspx" />
@@ -2408,6 +2416,7 @@
     <Content Include="Content\Icons\up64.png" />
     <Content Include="Content\Icons\Users.png" />
     <Content Include="Content\Icons\Web.png" />
+    <Content Include="Content\Images\Background\bg-avf.jpg" />
     <Content Include="Content\Images\Background\bg_body-2.jpg" />
     <Content Include="Content\Images\Background\bg_body.jpg" />
     <Content Include="Content\Images\Logo\Logo-AVF.png" />
@@ -2882,6 +2891,8 @@
     </Content>
     <Content Include="Views\User\EditorTemplates\_TelerikThemeEditTemplate.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\ImportPOManagement.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\ProductionNGReport.cshtml" />
+    <Content Include="Areas\Inv\Views\Transaction\EditorTemplates\_InventoryDrawerTemplate.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
     </None>
@@ -3619,6 +3630,9 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>UploadLocalization.zh-CN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptMaterialOnShelfCard.resx">
+      <DependentUpon>RptMaterialOnShelfCard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptProductTotalAVF.resx">
       <DependentUpon>RptProductTotalAVF.cs</DependentUpon>
     </EmbeddedResource>

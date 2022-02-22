@@ -16,7 +16,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public string RowName { get; set; }
         public string AdditionName { get; set; }
         public string RowCode { get { return RowName + ShelfName; } }
-        public string DrawerCode { get; set; }
+        public string DrawerCode { get { return RowName + ShelfName + "-" + ColumnName + AdditionName; } }
         
         public List<MaterialInvShelfDiagramDetailModel> Details { get; set; }
     }

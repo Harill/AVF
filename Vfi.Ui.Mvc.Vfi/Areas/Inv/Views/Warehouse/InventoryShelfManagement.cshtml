@@ -28,23 +28,60 @@
             }
         }
 
-        function DuplicateDrawer(drawerId) {
+        function gridDrawer_OnRowDataBound(e) {
+            if (!e.dataItem.ReferenceInvCode || e.dataItem.ReferenceInvCode === "")
+                e.row.getElementsByClassName("chkId")[0].parentNode.innerHTML = "";
+        }
+
+        function PrintInventoryOnShelfCard() {
+
+            var $checkedRecords = $("input[name='chkIds']:checked")
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 kệ");
+                return;
+            }
+
+            var a = {};
+            checkedRecords = "";
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] === "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                checkedRecords += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    checkedRecords += ":";
+            }
+            if (checkedRecords.length > 0) {
+                $('#result').load('@Url.Action("PrintInventoryOnShelfCards", "Warehouse")',
+                    {
+                        checkedRecords: checkedRecords,
+                    }, function () {
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+
+        }
+
+        @*function DuplicateDrawer(drawerId) {
             $.ajax({
                 type: 'post',
                 data: { drawerId: drawerId },
                 dataType: 'json',
                 url: '@Url.Action("DuplicateInventoryDrawer", "Warehouse", new { area = "Inv" })',
-            timeout: 20000,
-            success: function (data) {
-                if (data == 9)
-                    alert("Lỗi !");
-                else {
-                    alert("Nhân bản thành công !");
+                timeout: 20000,
+                success: function (data) {
+                    if (data == 9)
+                        alert("Lỗi !");
+                    else {
+                        alert("Nhân bản thành công !");
+                    }
                 }
-            }
-        });
-        return false;
-    }
+            });
+            return false;
+        }*@
     </script>
 }
 
@@ -97,12 +134,18 @@
                                .DataBinding(
                                    dataBinding => dataBinding.Ajax()
                                                              .Select("SelectInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
-                                       //.Insert("InsertInventoryDrawer", "Warehouse", new { area = "", shelfId = "<#= ShelfId #>" })
-                                                             .Update("UpdateInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
-                                                             //.Delete("DeleteInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
+                           //.Insert("InsertInventoryDrawer", "Warehouse", new { area = "", shelfId = "<#= ShelfId #>" })
+                           //.Update("UpdateInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
+                           //.Delete("DeleteInventoryDrawer", "Warehouse", new { area = "Inv", shelfId = "<#= ShelfId #>" })
                                )
                                .Columns(columns => {
-                                   columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                   //columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                   columns.Bound(f => f.DrawerId).Title("In").Width(75)
+                                       .HeaderTemplate("<button class='t-button' onclick='PrintInventoryOnShelfCard()'>In</button>")
+                                       .ClientTemplate("<input type='checkbox' name='chkIds' class='chkId' value='<#= DrawerId #>' />")
+                                       .HtmlAttributes(new { style = "text-align:center" });
+
                                    columns.Bound(f => f.DrawerCode).Title("Mã").Width(100);
                                    columns.Bound(f => f.ColumnName).Title("Tên cột").Width(50);
                                    columns.Bound(f => f.RowName).Title("Tên dòng").Width(50);
@@ -166,7 +209,8 @@
                 .ToHtmlString()
                                    ))
                                .Editable(editing => editing.Mode(GridEditMode.InLine))
-                               .ClientEvents(e => e.OnError("grid_OnError"))
+                               .ClientEvents(e => e.OnError("grid_OnError")
+                                                    .OnRowDataBound("gridDrawer_OnRowDataBound"))
                                .Pageable(page => page.PageSize(10))
                                .ToHtmlString()
                            ))
@@ -180,3 +224,45 @@
             .Render();
     }
 </div>
+
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+)
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

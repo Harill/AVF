@@ -12,6 +12,15 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
     public static class MyUtilities {
         public static class MySystem {
+
+            public static string LotNumber_Weekly(DateTime date) {
+                DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
+                Calendar cal = dfi.Calendar;
+                return string.Format("{0:00}", date.Year % 100) + string.Format("{0:00}", cal.GetWeekOfYear(date, dfi.CalendarWeekRule, dfi.FirstDayOfWeek));
+            }
+            public static string LotNumber_Monthly(DateTime date) {
+                return string.Format("{0:00}", date.Year % 100) + string.Format("{0:00}", date.Month);
+            }
             public static PageConfigModel GetPageConfig() {
                 var model = new WorkGroupModel() {
                     Theme = "office2007",
@@ -413,7 +422,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
             public static string ErrorMessage(int code) {
                 switch (code) {
-                    case (int)ErrorCode.NotImplement:
+                    case 1:
                         return "Sản phẩm thiếu năng suất sản xuất 1";
                     case 2:
                         return "Sản phẩm thiếu năng suất Sản xuất 2";
@@ -1730,6 +1739,13 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             //    }
             //    return Function.RoundUp(price);
             //}
+            public static int ProductVndPrice(double? productPrice) {
+                var exchangeRate = 1.0;
+                using (var vfi = new tammaContext()) {
+                    exchangeRate = Monitor.GetParameterValue(Monitor.ExchangeToVndRate);
+                }
+                return ProductVndPrice(productPrice, 1, exchangeRate);
+            }
 
             public static int ProductVndPrice(double? productPrice, double priceRate, double exchangeRate) {
                 var price = productPrice ?? 0;

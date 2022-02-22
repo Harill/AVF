@@ -183,6 +183,18 @@
             return false;
         }
 
+        ReportViewer.prototype.PrintReport = function () {
+            switch (this.defaultPrintFormat) {
+                case "Default":
+                    this.DefaultPrint();
+                    break;
+                case "PDF":
+                    this.PrintAs("PDF");
+                    previewFrame = document.getElementById(this.previewFrameID);
+                    previewFrame.onload = function () { previewFrame.contentDocument.execCommand("print", true, null); }
+                    break;
+            }
+        };
     </script>
 }
 

@@ -45,9 +45,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public DateTime FirstUseDate { get; set; }
         public DateTime EndDate { get; set; }
         public DateTime? ImportDate { get; set; }
+
+
         public string StoreCode { get; set; }
 
-
+        public int DrawerId { get; set; }
+        [DataType("_InventoryDrawerTemplate")]
+        public string DrawerCode { get; set; }
 
         public int VendorId { get; set; }
         [DisplayName("Nhà cung cấp")]

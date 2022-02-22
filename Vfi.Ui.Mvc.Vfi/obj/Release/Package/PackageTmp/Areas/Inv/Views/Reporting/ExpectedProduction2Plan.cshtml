@@ -12,6 +12,12 @@
 
             if (startGrid && !onLoading) {
                 OnLoadingData();
+                var productCode = $("#ProductCode").data("tAutoComplete").value();
+
+                var customerId = $("#Customer").data('tComboBox').value();
+                if (customerId === "")
+                    customerId = 0;
+
                 var fromDate = $("#FromDate").data("tDatePicker").value();
                 if (fromDate === null)
                     fromDate = "";
@@ -25,6 +31,8 @@
                 e.data = $.extend(e.data, {
                     fromDate: fromDate,
                     toDate: toDate,
+                    productCode: productCode,
+                    customerId: customerId,
                 });
             }
             index = 0;
@@ -32,6 +40,12 @@
         function PrintExpectedProduction2Plan() {
             if (!onLoading) {
                 OnLoadingData();
+                var productCode = $("#ProductCode").data("tAutoComplete").value();
+
+                var customerId = $("#Customer").data('tComboBox').value();
+                if (customerId === "")
+                    customerId = 0;
+
                 var fromDate = $("#FromDate").data("tDatePicker").value();
                 if (fromDate === null)
                     fromDate = "";
@@ -46,7 +60,9 @@
                 $('#result').load('@Url.Action("PrintExpectedProduction2Plan", "Reporting")',
                     {
                         fromDate: fromDate,
-                        toDate: toDate
+                        toDate: toDate,
+                        productCode: productCode,
+                        customerId: customerId,
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');
@@ -110,10 +126,40 @@
 
 
 <div class="title">Kế hoạch sản xuất 2</div>
-<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
     <fieldset>
         <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_2">
+                @Html.Label("Mã KH")
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 275px" })
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                @Html.LabelFor(f => f.ProductCodeName)
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCode")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv"))
+                        .DropDownHtmlAttributes(new { style = "width: 200px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Render();
+                }
+            </div>
         <div class="grid_3">
             @{
                     Html.Telerik().DatePicker()
@@ -157,9 +203,8 @@
             .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectExpectedProduction2Plan", "Reporting",
-                                                             new { fromDate = "", toDate = "" }))
-            .Columns(columns =>
-                {
+                                                             new { fromDate = "", toDate = "", productCode = "", customerId = 0 }))
+            .Columns(columns => {
                     columns.Bound(f => f.ProductId).Width(40)
                            .ClientTemplate("<#= ++index #>")
                            .HeaderTemplate("<strong>STT</strong>");
@@ -187,7 +232,7 @@
                            .HeaderTemplate("NS SX2<br/>1 ngày")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" });
-                    
+
                     columns.Bound(f => f.TotalInv).Width(75)
                            .HeaderTemplate("Tổng tồn")
                            .Format("{0:n0}")
@@ -255,7 +300,7 @@
                            .HeaderTemplate("Ngày</br>HT").Width(60)
                            .ClientTemplate("<#= OrderEndDate == null ? '' : $.telerik.formatString('{0:dd/MM}', OrderEndDate) #>")
                            .HtmlAttributes(new { style = "text-align: center;" });
-                    
+
                     columns.Bound(f => f.ForecastQuantity).Width(75)
                            .HeaderTemplate("Tổng</br>DB")
                            .Format("{0:n0}")

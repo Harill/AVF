@@ -8,9 +8,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
     public class InventoryDrawerModel {
 
         public int DrawerId { get; set; }
-        public string DrawerCode { get { return RowName + ShelftName + "-" + ColumnName + AdditionName; } }
+        public string DrawerCode { get { return RowName + ShelfName + "-" + ColumnName + AdditionName; } }
         public int ShelfId { get; set; }
-        public string ShelftName { get; set; }
+        public string ShelfName { get; set; }
         public string ColumnName { get; set; }
         public string RowName { get; set; }
         public string AdditionName { get; set; }

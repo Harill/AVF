@@ -41,5 +41,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             }
             return a;
         }
+
+        public int Quota { get; set; }
+        public double CrossWeight { get; set; }
+
+        public string ProductionFuelId { get { return FuelId + ":" + Quota + ":" + CrossWeight + ":" + UnitWeight; } }
     }
 }

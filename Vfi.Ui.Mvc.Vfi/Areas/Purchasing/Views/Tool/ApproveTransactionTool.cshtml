@@ -211,6 +211,8 @@
                     .ToHtmlString()
                                        ))
             .Selectable()
+            .Sortable()
+            .Resizable(resizing => resizing.Columns(true))
             .ClientEvents(events => events.OnError("grid_OnError")
                                         .OnRowSelect("grid_OnRowSelect")
                                         .OnDataBound("grid_OnDataBound")

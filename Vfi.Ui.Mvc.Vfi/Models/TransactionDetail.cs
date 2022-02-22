@@ -36,6 +36,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<bool> IsInternal { get; set; }
         public string StoreCode { get; set; }
         public Nullable<int> DefectId { get; set; }
+        public Nullable<int> DrawerId { get; set; }
         public virtual Machine Machine { get; set; }
         public virtual ProductionDefect ProductionDefect { get; set; }
         public virtual ProductionProcessByMachine ProductionProcessByMachine { get; set; }
@@ -49,5 +50,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual Material Material { get; set; }
         public virtual Product Product { get; set; }
         public virtual TransactionProduct TransactionProduct { get; set; }
+        public virtual InventoryDrawer InventoryDrawer { get; set; }
     }
 }

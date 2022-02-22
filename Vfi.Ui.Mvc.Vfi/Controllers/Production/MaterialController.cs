@@ -1304,19 +1304,23 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
         public ActionResult InsertFuel(FuelModel newFuel) {
             try {
                 using (var vfi = new tammaContext()) {
+                    newFuel.FuelName = (newFuel.FuelName + "").Trim();
+                    newFuel.FuelCode = (newFuel.FuelCode + "").Trim();
+                    newFuel.FuelDesignNo = (newFuel.FuelDesignNo + "").Trim();
+                    newFuel.FuelDesctiption = (newFuel.FuelDesctiption + "").Trim();
                     var fuel =
                         vfi.Fuels.FirstOrDefault(
                             t =>
-                            t.FuelCode.Equals(newFuel.FuelCode.Trim()) &&
-                            t.FuelDesignNo.Equals(newFuel.FuelDesignNo.Trim()));
+                            t.FuelCode.Equals(newFuel.FuelCode) &&
+                            t.FuelDesignNo.Equals(newFuel.FuelDesignNo));
                     if (fuel == null) {
                         fuel = new Fuel {
                             FuelName = newFuel.FuelName.Trim(),
-                            FuelCode = (newFuel.FuelCode + "").Trim(),
+                            FuelCode = newFuel.FuelCode,
                             Active = true,
                             //Description = newFuel.Description,
-                            FuelDesctiption = (newFuel.FuelDesctiption + "").Trim(),
-                            FuelDesignNo = (newFuel.FuelDesignNo + "").Trim(),
+                            FuelDesctiption = newFuel.FuelDesctiption,
+                            FuelDesignNo = newFuel.FuelDesignNo,
                             ModifiedDate = DateTime.Now,
                             ModifiedUser = HttpContext.User.Identity.Name,
                             FuelFullCode = newFuel.GetFuelFullCode(),
@@ -1340,18 +1344,22 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
         public ActionResult UpdateFuel(FuelModel updateFuel) {
             try {
                 using (var vfi = new tammaContext()) {
+                    updateFuel.FuelName = updateFuel.FuelName.Trim();
+                    updateFuel.FuelCode = updateFuel.FuelCode.Trim();
+                    updateFuel.FuelDesignNo = updateFuel.FuelDesignNo.Trim();
+                    updateFuel.FuelDesctiption = (updateFuel.FuelDesctiption + "").Trim();
                     var fuel =
                         vfi.Fuels.FirstOrDefault(
                             t =>
-                            t.FuelCode.Equals(updateFuel.FuelCode.Trim()) &&
-                            t.FuelDesignNo.Equals(updateFuel.FuelDesignNo.Trim()) &&
+                            t.FuelCode.Equals(updateFuel.FuelCode) &&
+                            t.FuelDesignNo.Equals(updateFuel.FuelDesignNo) &&
                             t.FuelId != updateFuel.FuelId);
                     if (fuel == null) {
                         fuel = vfi.Fuels.FirstOrDefault(t => t.FuelId == updateFuel.FuelId);
                         if (fuel == null)
                             throw new AggregateException("Sửa nhiên liệu thất bại! Lỗi!");
                         fuel.FuelName = updateFuel.FuelName;
-                        fuel.FuelCode = updateFuel.FuelCode.Trim();
+                        fuel.FuelCode = updateFuel.FuelCode;
                         if (!updateFuel.Active && fuel.Active != updateFuel.Active) {
                             var fuelInvs = vfi.FuelInventories.Where(fi => fi.FuelId == fuel.FuelId && fi.TotalQuantity > 0);
                             if (fuelInvs.Any())
@@ -1359,7 +1367,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             fuel.Active = updateFuel.Active;
                         }
                         fuel.FuelDesctiption = updateFuel.FuelDesctiption;
-                        fuel.FuelDesignNo = updateFuel.FuelDesignNo.Trim();
+                        fuel.FuelDesignNo = updateFuel.FuelDesignNo;
                         fuel.FuelFullCode = updateFuel.GetFuelFullCode();
                         fuel.UnitWeight = updateFuel.UnitWeight;
                         fuel.ModifiedDate = DateTime.Now;

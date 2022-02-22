@@ -3180,51 +3180,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             };
         }
 
-        //[GridAction]
-        //public ActionResult SelectTaxInvoiceProductById(int taxInvoiceId)
-        //{
-        //    var model = new List<InvoiceDetailTempModel>();
-        //    if (taxInvoiceId == 0)
-        //        return View(new GridModel(model));
-        //    try
-        //    {
-        //        using (var vfi = new tammaContext())
-        //        {
-        //            var taxInvoice = vfi.TaxInvoices.FirstOrDefault(ti => ti.Id == taxInvoiceId);
-
-        //            foreach (var detail in taxInvoice.TaxInvoiceProducts)
-        //            {
-        //                var entity = new InvoiceDetailTempModel
-        //                    {
-        //                        DetailId = detail.DetailId,
-        //                        ProductCode = detail.Product.ProductCode,
-        //                        ProductId = detail.Product.ProductId,
-        //                        Quantity = detail.Quantity,
-        //                        UnitPrice = detail.UnitPrice,
-        //                        CurrencyCode = taxInvoice.Currency,
-        //                        TaxPercent = taxInvoice.TaxPercent,
-        //                        ExchangeRate = taxInvoice.ExchangeRate
-        //                    };
-        //                var taxInvoiceProductDetails =
-        //                    vfi.TaxInvoiceProductDetails.Where(
-        //                        tipd =>
-        //                        tipd.TaxInvoiceId == detail.TaxInvoiceId &&
-        //                        tipd.ExportFormTP_KDDetail.ProductId == detail.ProductId && 
-        //                        tipd.Active == true)
-        //                       .ToList();
-        //                entity.Receive = taxInvoiceProductDetails.Sum(tipd => tipd.Quantity);
-        //                model.Add(entity);
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ModelState.AddModelError("SelectProductInTaxInvoice", ex.Message);
-        //    }
-        //    return View(new GridModel(model));
-        //}
-
-
         [GridAction]
         public ActionResult SelectInvoiceDetailById(string detailId) {
             if (string.IsNullOrWhiteSpace(detailId)) {
@@ -3696,7 +3651,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 foreach (var detail in productDetails) {
                     //var exportDetail =
                     //    vfi.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.DetailId == detail.ExportDetailId);
-                    var invoice = vfi.Invoices.FirstOrDefault(i => i.ExportId == detail.ExportFormTP_KDDetail.ExportId);
+                    var invoiceDetail = vfi.InvoiceDetails.FirstOrDefault(i => i.ExportDetailId == detail.ExportDetailId);
                     //var order = vfi.Orders.FirstOrDefault(o => o.OrderId == invoice.OrderId);
                     var entity = new InvoiceDetailTempModel {
                         DetailId = detail.PDetailId,
@@ -3704,9 +3659,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         Quantity = detail.Quantity,
                         UnitPrice = detail.UnitPrice,
                         ExportedDate = detail.ExportDate ?? DateTime.Now,
-                        InvoiceNumber = invoice.InvoiceNumber,
                         CurrencyCode = taxInvoiceProduct.TaxInvoice.Currency,
                         Amount = detail.Quantity * detail.UnitPrice,
+                        InvoiceNumber = invoiceDetail.Invoice.InvoiceNumber,
+                        OrderNumber = invoiceDetail.OrderDetail.Order.OrderNumber
                     };
                     //entity.Amount = entity.Quantity * entity.UnitPrice;
 

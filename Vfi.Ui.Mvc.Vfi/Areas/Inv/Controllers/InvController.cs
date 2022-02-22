@@ -37,6 +37,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             _unitOfWork = unitOfWork;
             _warehouseController = warehouseController;
         }
+
         #region View
         // View
         ViewDataDictionary GetPageConfigData() {
@@ -239,7 +240,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        ShelfId = x.ShelfId,
                                        ColumnName = x.ColumnName,
                                        RowName = x.RowName,
-                                       ShelftName = x.InventoryShelf.ShelfName,
+                                       ShelfName = x.InventoryShelf.ShelfName,
                                        AdditionName = x.AdditionName,
                                        ReferenceInvId = x.ReferenceInvId ?? 0
                                    }).ToList();
@@ -303,8 +304,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         var drawersById = drawers.Where(x => x.ShelfId == shelf.ShelfId).ToList();
                         foreach (var drawer in drawersById) {
                             var entity = new MaterialInvShelfDiagramModel {
-                                DrawerCode = drawer.DrawerCode,
-                                ShelfName = drawer.ShelftName,
+                                ShelfName = drawer.ShelfName,
                                 ColumnName = drawer.ColumnName,
                                 RowName = drawer.RowName,
                                 AdditionName = drawer.AdditionName,
@@ -2547,6 +2547,41 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         #endregion
 
         #region ProductInventory
+
+
+        public ActionResult CheckProductInventoryInfo(int warehouseId, int productId) {
+            // valueCode, weight, invQ, invG
+            var result = new double[] { 0.0, 0.0, 0.0, 0.0 };
+            if (warehouseId == 0 || productId == 0)
+                result[0] = (int)MyUtilities.Monitor.ErrorCode.ReferenceError;
+            else {
+                result[1] = MyUtilities.Product.GetProductInvWeight(productId, warehouseId);
+                using (var vfi = new tammaContext()) {
+                    var invs =
+                        vfi.ProductInventories.Where(
+                            pi => pi.WarehouseId == warehouseId & pi.ProductId == productId).ToList();
+                    if (!invs.Any()) { }
+                    else {
+                        result[2] = invs.Sum(x => x.TotalQty);
+
+                        var transactionDetails = vfi.TransactionDetails.Where(x => x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open
+                            && x.Transaction.WarehouseIssueId == warehouseId
+                            && x.ReferenceId == productId).ToList();
+                        var waitingQuantity = transactionDetails.Sum(x => x.Quantity);
+
+                        result[2] -= waitingQuantity;
+                        if (result[2] < 0) {
+                            result[2] = 0;
+                        }
+                        result[3] = result[2] * result[1];
+
+                        result[0] = (int)MyUtilities.Monitor.ErrorCode.NoError;
+
+                    }
+                }
+            }
+            return Json(result);
+        }
 
         public ActionResult SelectComboBoxProductInv(int warehouseId) {
             var model = new List<ProductInventoryModel>();
@@ -12595,7 +12630,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        DrawerId = x.DrawerId,
                                        ColumnName = x.ColumnName,
                                        RowName = x.RowName,
-                                       ShelftName = x.InventoryShelf.ShelfName
+                                       ShelfName = x.InventoryShelf.ShelfName
                                    }).ToList();
                     switch (classifiedId) {
                         case 1:

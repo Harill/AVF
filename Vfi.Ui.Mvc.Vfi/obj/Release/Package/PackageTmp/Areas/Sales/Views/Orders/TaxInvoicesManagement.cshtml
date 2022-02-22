@@ -9,42 +9,42 @@
 
 @section Scripts{
     <script type="text/javascript">
-        function grid_OnDataBound(args) {
 
-        }
+        function grid_OnDataBinding(args) {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var statusValue = $("#Status").data("tComboBox").value();
+                if (statusValue === "")
+                    statusValue = 0;
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+                }
 
-        function gridProductInventoryForPeriod_onDataBinding(args) {
+                //    if (customerId == 0)
+                //        customerId = 0;
 
-            var statusValue = $("#Status").data("tComboBox").value();
-            if (statusValue === "")
-                statusValue = 0;
-            var fromDate = $("#fromDate").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else {
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                args.data = $.extend(args.data, {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                    status: statusValue
+                });
             }
-            var toDate = $("#toDate").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else {
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
-            }
-
-            //    if (customerId == 0)
-            //        customerId = 0;
-
-            args.data = $.extend(args.data, {
-                fromDate: fromDate,
-                toDate: toDate,
-                status: statusValue
-            });
 
         }
 
 
         function status_onChange() {
-            RefreshGrid("gridTaxInvoicesManagement");
+            RefreshGrid2("gridTaxInvoicesManagement");
         }
 
         function status_onLoad() {
@@ -59,7 +59,6 @@
 
             combobox.dataBind(dataSource);
         }
-
 
         function month_onload() {
             var combobox = $('#Month').data('tComboBox');
@@ -83,40 +82,85 @@
         }
 
         function PrintDeptReport() {
+            if (!onLoading) {
+                OnLoadingData();
+                var month = $("#Month").data("tComboBox").text();
+                if (month === null)
+                    month = new Date().getMonth() + 1;
 
-            var month = $("#Month").data("tComboBox").text();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-           
-            var year = $("#Year").val();
-            if (year === null || year == "")
-                month = new Date().getYear() + 1;
+                var year = $("#Year").val();
+                if (year === null || year == "")
+                    month = new Date().getYear() + 1;
 
-            $('#result').load('@Url.Action("PrintDeptReport", "Orders", new {area = "Sales"})',
-                {
-                    month: month,
-                    year: year
-                }, function() {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                $('#result').load('@Url.Action("PrintDeptReport", "Orders", new {area = "Sales"})',
+                    {
+                        month: month,
+                        year: year
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
+
         function PrintProductDetail() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var combobox = $('#Month').data('tDropDownList').text();
+                var monthlyDate = combobox.text();
 
-            var combobox = $('#Month').data('tDropDownList').text();
-            var monthlyDate = combobox.text();
-
-            $('#result').load('@Url.Action("PrintTaxInvoiceProductDetail", "Inv", new {area = "Inv"})',
-                {
-                    monthlyDate: monthlyDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                $('#result').load('@Url.Action("PrintTaxInvoiceProductDetail", "Inv", new {area = "Inv"})',
+                    {
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
             return false;
         }
 
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+        var startGrid = false;
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
     </script>
 }
 
@@ -153,10 +197,11 @@
                         .Render();
                 }
             </div>
-        <div class="grid_6">
+        <div class="grid_7">
             <button id="btnDeptReport" class='t-button' onclick="return PrintDeptReport();">
                 <span class='t-icon t-insert'></span>
                 Bảng theo dõi công nợ
+                <span class="twoToneButton"></span>
             </button>
         </div>
            @* <div class="grid_6">
@@ -208,10 +253,11 @@
                         .Render();
                 }
             </div>
-             <div class="grid_3">
-            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridTaxInvoicesManagement'); ">
+             <div class="grid_5">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridTaxInvoicesManagement'); ">
                 <span class='t-icon t-insert'></span>
                 Làm mới
+                <span class="twoToneButton"></span>
             </button>
             </div>
         </fieldset>
@@ -228,50 +274,50 @@
                     {
                         columns.Bound(f => f.TaxInvoiceList).Title("Số HĐ").Width(100).ReadOnly(true)
                                .Aggregate(agg => agg.Count())
-                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
-                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>");
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
                         columns.Bound(f => f.SetupDate).Width(100)
                                .ClientTemplate("<#= SetupDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', SetupDate) #>");
                         columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true);
                         columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(60).ReadOnly(true);
                         columns.Bound(f => f.Tax).Title("Thuế").Width(50).ReadOnly(true);
                         columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(60).ReadOnly(true)
-                               .HtmlAttributes(new {style = "text-align: right;"})
-                               .Format("{0:n0}");
-                        columns.Bound(f => f.TotalQuantity).Title("Tổng SL").Width(80).ReadOnly(true)
-                               .HtmlAttributes(new {style = "text-align: right;"})
                                .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TotalQuantity).Title("Tổng SL").Width(80).ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
                                .Aggregate(agg => agg.Sum())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                             ;
 
                         columns.Bound(f => f.TotalAmount).Width(100).ReadOnly(true)
-                               .HtmlAttributes(new {style = "text-align: right;"})
-                               .HeaderTemplate("<strong>Tổng tiền</br>(tiền tệ)</strong>")
+                               .HeaderTemplate("<strong>Tổng tiền</br>(tiền tệ + %)</strong>")
                                .ClientTemplate("<#= TotalAmountFormat #>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
                                .Aggregate(agg => agg.Sum())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
                             ;
                         columns.Bound(f => f.RequiredAmount).Width(100).ReadOnly(true)
-                               .HtmlAttributes(new {style = "text-align: right;"})
                                .HeaderTemplate("<strong>Còn lại</br>(tiền tệ)</strong>")
                                .ClientTemplate("<#= RequiredAmountFormat #>")
+                               .HtmlAttributes(new { style = "text-align: right;" })
                                .Aggregate(agg => agg.Sum())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n}', Sum) #></div>");
                         columns.Bound(f => f.TotalAmountVND).Width(100).ReadOnly(true)
-                               .HtmlAttributes(new {style = "text-align: right;"})
-                               .HeaderTemplate("<strong>Tổng tiền</br>(VNĐ)</strong>")
+                               .HeaderTemplate("<strong>Tổng tiền</br>(VNĐ + %)</strong>")
                                .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
                                .Aggregate(agg => agg.Sum())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>");
                         columns.Bound(f => f.RequiredAmountVND).Width(100).ReadOnly(true)
-                               .HtmlAttributes(new {style = "text-align: right;"})
                                .HeaderTemplate("<strong>Còn lại</br>(VNĐ)</strong>")
-                               .ClientTemplate("{0:n0}")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
                                .Aggregate(agg => agg.Sum())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>");
@@ -333,10 +379,13 @@
                                                        .HtmlAttributes(new {style = "text-align: right;"})
                                                        .Format("{0:n0}");
                                                 columns.Bound(f => f.UnitPriceFormat).ReadOnly(true).Width(50).Title("Đơn giá")
-                                                       .HtmlAttributes(new {style = "text-align: right;"});
-                                                columns.Bound(f => f.AmountFormat).Width(70).Title("Tổng tiền").ReadOnly(true)
-                                                       .HtmlAttributes(new {style = "text-align: right;"});
-                                               }).DetailView(details2 => details2.ClientTemplate(
+                                                       .HtmlAttributes(new { style = "text-align: right;" });
+                                                columns.Bound(f => f.AmountFormat).Width(70).Title("Thành tiền").ReadOnly(true)
+                                                       .HtmlAttributes(new { style = "text-align: right;" });
+                                                columns.Bound(f => f.TotalAmountFormat).Width(70).Title("Tổng tiền (+%)").ReadOnly(true)
+                                                       .HtmlAttributes(new { style = "text-align: right;" });
+                                               })
+                                               .DetailView(details2 => details2.ClientTemplate(
                                                 Html.Telerik().Grid<InvoiceDetailTempModel>()
                                                     .Name("gridTaxInvoiceProductDetail_<#= DetailId #>")
                                                     .DataKeys(key => key.Add(f => f.DetailId).RouteKey("DetailId"))
@@ -349,6 +398,7 @@
                                                             columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
                                                             //columns.Bound(f => f.OrderNumber).Title("Số ĐH").Width(50).ReadOnly(true);
                                                             columns.Bound(f => f.InvoiceNumber).Title("Số Invoice").Width(50).ReadOnly(true);
+                                                            columns.Bound(f => f.OrderNumber).Title("Số Đơn hàng").Width(50).ReadOnly(true);
                                                             columns.Bound(f => f.ExportedDate).Title("Ngày xuất").Width(50).ReadOnly(true)
                                                                    .Format("{0:dd/MM/yyyy}");
                                                             columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Số lượng")
@@ -377,9 +427,9 @@
                 .Sortable()
                 .Reorderable(f => f.Columns(true))
                 .Resizable(f => f.Columns(true))
-                .ClientEvents(events => events.OnDataBinding("gridProductInventoryForPeriod_onDataBinding")
-                                              .OnDataBound("grid_OnDataBound")
+                .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
                                               .OnRowSelect("grid_OnRowSelect")
+                                              .OnDataBound("grid_OnDataBound")
                                               .OnError("grid_OnError")
                 )
                 .Render();

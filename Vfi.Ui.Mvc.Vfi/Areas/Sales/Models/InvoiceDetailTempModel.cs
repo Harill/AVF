@@ -31,6 +31,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
                            : string.Format("{0:n2}", Amount);
             }
         }
+        public double TotalAmount { get { return Amount + (Amount * TaxPercent / 100); } }
+        public string TotalAmountFormat {
+            get {
+                return CurrencyCode.Equals("VND")
+                           ? string.Format("{0:n0}", TotalAmount)
+                           : string.Format("{0:n2}", TotalAmount);
+            }
+        }
 
         [UIHint("_ProductCodeTaxTemplate")]
         public string ProductCode { get; set; }

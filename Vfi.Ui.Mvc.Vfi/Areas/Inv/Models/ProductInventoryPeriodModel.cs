@@ -401,6 +401,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
                     TeamDMonthly = ShiftAFunc.TeamDMonthly + ShiftBFunc.TeamDMonthly + ShiftCFunc.TeamDMonthly,
                     TechnicalDaily = ShiftAFunc.TechnicalDaily + ShiftBFunc.TechnicalDaily + ShiftCFunc.TechnicalDaily,
                     TechnicalMonthly = ShiftAFunc.TechnicalMonthly + ShiftBFunc.TechnicalMonthly + ShiftCFunc.TechnicalMonthly,
+                    
                 };
             }
         } 
@@ -421,6 +422,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double TechnicalDaily { get; set; }
         public double TechnicalMonthly { get; set; }
 
+        public double SupportDepartmentDaily { get { return CncDaily * 0.1 + CamesDaily * 0.1; } }
+        public double SupportDepartmentMonthly { get { return CncMonthly * 0.1 + CamesMonthly * 0.1; } }
+
         public double StaffCncDaily { get { return CncDaily * 0.65; } }
         public double StaffCncMonthly { get { return CncMonthly * 0.65; } }
         public double RepairCncDaily { get { return CncDaily * 0.35; } }
@@ -438,12 +442,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public double TotalDaily {
             get {
-                return ReplaceDaily + CncDaily + TechnicalDaily + TeamDDaiLy + HeadStaffDaily;
+                return ReplaceDaily + CncDaily + TechnicalDaily + TeamDDaiLy + HeadStaffDaily + SupportDepartmentDaily;
             }
         }
         public double TotalMonthly {
             get {
-                return ReplaceMonthly + CncMonthly + TechnicalMonthly + TeamDMonthly + HeadStaffMonthly;
+                return ReplaceMonthly + CncMonthly + TechnicalMonthly + TeamDMonthly + HeadStaffMonthly +SupportDepartmentMonthly;
             }
         }
     }

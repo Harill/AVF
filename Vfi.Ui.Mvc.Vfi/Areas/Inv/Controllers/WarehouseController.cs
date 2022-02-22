@@ -623,7 +623,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 //    ModifiedUser = x.ModifiedUser,
                 //});
                 var drawerIds = drawers.Select(x => x.DrawerId).ToList();
-                var onshelves = vfi.OnShelves.Where(x => drawerIds.Contains(x.DrawerId)).ToList();
+                var onshelves = vfi.OnShelves.Where(x => x.Active && drawerIds.Contains(x.DrawerId)).ToList();
                 var materialInvIds = onshelves.Where(x=> x.InventoryDrawer.InventoryShelf.ClassifiedId== 1).Select(x => x.ReferenceInvId).Distinct().ToList();
                 var materialInv = (from x in vfi.MaterialInventories
                                   where materialInvIds.Contains(x.MaterialInventoryId)
@@ -631,7 +631,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 foreach (var drawer in drawers) {
                     var entity = new InventoryDrawerModel {
                         ShelfId = shelfId,
-                        ShelftName = drawer.InventoryShelf.ShelfName,
+                        ShelfName = drawer.InventoryShelf.ShelfName,
                         DrawerId = drawer.DrawerId,
                         ColumnName = drawer.ColumnName,
                         RowName = drawer.RowName,
@@ -806,7 +806,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                  ColumnName = x.ColumnName,
                                  RowName = x.RowName,
                                  AdditionName = x.AdditionName,
-                                 ShelftName = x.InventoryShelf.ShelfName
+                                 ShelfName = x.InventoryShelf.ShelfName
                              }).ToList();
                 }
             }
@@ -816,6 +816,137 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return new JsonResult {
                 Data = new SelectList(model.OrderBy(x => x.DrawerCode), "DrawerId", "DrawerCode")
             };
+        }
+
+
+        [HttpPost]
+        public ActionResult PrintInventoryOnShelfCards(string checkedRecords) {
+            var model = new List<MaterialInvShelfDiagramModel>();
+            try {
+                int[] ids;
+                try {
+                    var lst = checkedRecords.Split(':');
+                    ids = new int[lst.Count()];
+                    for (var i = 0; i < lst.Count(); i++) {
+                        ids[i] = Convert.ToInt32(lst.ElementAt(i));
+                    }
+                }
+                catch (FormatException) {
+                    return View(new GridModel(new List<ProductInventoryRotateModel>()));
+                }
+                if (ids.Count() <= 0)
+                    return View(new GridModel(model));
+                if (ids[0] == 0) {
+                    return View(new GridModel(model));
+                }
+                var over2YearColor = "FF6666";
+                var over1YearColor = "FFC061";
+                var below1YearColor = "";
+                using (var vfi = new tammaContext()) {
+                    var drawers = (from x in vfi.InventoryDrawers
+                                   where ids.Contains(x.DrawerId)
+                                   select new {
+                                       x.DrawerId,
+                                       AdditionName = x.AdditionName,
+                                       ColumnName = x.ColumnName,
+                                       RowName = x.RowName,
+                                       ShelfName = x.InventoryShelf.ShelfName,
+                                       x.InventoryShelf.ClassifiedId,
+                                   }).ToList();
+
+                    var onShelves = (from x in vfi.OnShelves
+                                     where x.Active && ids.Contains(x.DrawerId)
+                                     select x).ToList();
+                    var invIds = onShelves.Select(x => x.ReferenceInvId).Distinct().ToList();
+                    var classified = drawers.FirstOrDefault().ClassifiedId;
+                    switch (classified) {
+                        case 1: {
+                            var materialInvs = (from x in vfi.MaterialInventories
+                                                where invIds.Contains(x.MaterialInventoryId)
+                                                select new MaterialInventoryModel {
+                                                    MaterialInventoryId = x.MaterialInventoryId,
+                                                    LotNumber = x.LotNumber,
+                                                    ImportDate = x.ImportDate,
+                                                    TotalImportKg = x.ImportQuantityKg,
+                                                    QuantityKg = x.TotalQty * x.UnitWeight,
+                                                    MaterialName = x.Material.MaterialName,
+                                                    OutDiameter = x.Material.OutDiameter,
+                                                    InDiameter = x.Material.InDiameter,
+                                                    DiameterType = x.Material.DiameterType,
+                                                    Shape = x.Material.Shape,
+                                                    Length = x.Length,
+                                                    VendorId = x.VendorId ?? 0,
+                                                    VendorCode = x.Vendor.VendorCode,
+                                                    VendorName = x.Vendor.VendorName,
+                                                    MaterialTypeId = x.Material.MaterialTypeId,
+                                                    MaterialCode = x.Material.MaterialType.DiagramColor
+                                                }).ToList();
+                                foreach (var drawer in drawers) {
+                                    var entity = new MaterialInvShelfDiagramModel {
+                                        ShelfName = drawer.ShelfName,
+                                        ColumnName = drawer.ColumnName,
+                                        RowName = drawer.RowName,
+                                        AdditionName = drawer.AdditionName,
+                                    };
+                                    var onShelvesById = onShelves.Where(x => x.DrawerId == drawer.DrawerId).ToList();
+                                    if (!onShelvesById.Any()) continue;
+                                    foreach (var onShelf in onShelvesById) {
+                                        var detail = new MaterialInvShelfDiagramDetailModel { };
+                                        var materialInvsById = materialInvs.FirstOrDefault(x => x.MaterialInventoryId == onShelf.ReferenceInvId);
+                                        if (materialInvsById != null) {
+                                            detail.ReferenceInvId = materialInvsById.MaterialInventoryId;
+                                            detail.ReferenceCode = materialInvsById.MaterialName;
+                                            detail.ReferenceInvCode = MyUtilities.Material.GetMaterialDesignNo(materialInvsById.OutDiameter,
+                                                materialInvsById.InDiameter,
+                                                materialInvsById.DiameterType,
+                                                materialInvsById.Shape,
+                                                materialInvsById.Length);
+                                            detail.LotNumber = materialInvsById.LotNumber;
+                                            detail.Quantity = materialInvsById.QuantityKg;
+                                            detail.ImportQuantity = materialInvsById.TotalImportKg;
+                                            if (materialInvsById.ImportDate != null) {
+                                                detail.ImportDateStr = materialInvsById.ImportDate.Value.ToString("dd/MM/yy");
+                                                var yearOld = (DateTime.Now - materialInvsById.ImportDate.Value).TotalDays / 365;
+                                                if (yearOld > 2) {
+                                                    detail.MaterialStateColor = over2YearColor;
+                                                    detail.MaterialStateCode = "2";
+                                                }
+                                                else if (yearOld > 1) {
+                                                    detail.MaterialStateColor = over1YearColor;
+                                                    detail.MaterialStateCode = "1";
+                                                }
+                                                else {
+                                                    detail.MaterialStateColor = below1YearColor;
+                                                    detail.MaterialStateCode = "0";
+                                                }
+                                            }
+                                            else {
+                                                detail.MaterialStateColor = over2YearColor;
+                                                detail.MaterialStateCode = "2";
+                                            }
+                                            detail.VendorId = materialInvsById.VendorId;
+                                            detail.VendorName = materialInvsById.VendorName;
+                                            detail.MaterialTypeId = materialInvsById.MaterialTypeId;
+                                            detail.MaterialTypeColor = materialInvsById.MaterialCode;
+                                        }
+                                        entity.Details.Add(detail);
+                                    }
+                                    model.Add(entity);
+                                }
+                            }
+                            return PartialView("PageMaterialInvOnShelfCard", model);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+
+            }
+            catch (Exception exception) {
+                throw new Exception(exception.Message);
+            }
+            return PartialView("PageMaterialInvOnShelfCard", null);
         }
 
         #endregion
