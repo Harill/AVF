@@ -11,8 +11,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public int ReferenceInvId { get; set; }
         public System.DateTime OnDate { get; set; }
         public System.DateTime ModifiedDate { get; set; }
-        public bool Active { get; set; }
         public string ModifiedUser { get; set; }
+        public bool Active { get; set; }
         public virtual InventoryDrawer InventoryDrawer { get; set; }
     }
 }

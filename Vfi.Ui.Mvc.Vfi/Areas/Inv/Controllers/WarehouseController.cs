@@ -30,7 +30,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         #region View
         // View
         ViewDataDictionary GetPageConfigData() {
-            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            var viewModel = MyUtilities.MySystem.GetPageConfig(HttpContext.User.Identity.Name);
             foreach (var property in viewModel.GetType().GetProperties()) {
                 ViewData[property.Name] = property.GetValue(viewModel, null);
             }
@@ -91,6 +91,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     CanInternal = x.CanInternal,
                     CanPurchase = x.CanPurchase,
                     CanStock = x.CanStock,
+                    CanWeighing = x.CanWeighing,
                     IsOutOfProcess = x.IsOutOfProcess,
                     IsCncMilling = x.IsCncMilling
                 }).ToList();
@@ -145,6 +146,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         IsQC = inserted.IsQC,
                         IsPlating = inserted.IsPlating,
                         IsOutOfProcess = inserted.IsOutOfProcess,
+                        CanWeighing = inserted.CanWeighing,
                         ModifiedUser = HttpContext.User.Identity.Name,
                         ModifiedDate = DateTime.Now,
                     };
@@ -177,6 +179,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         throw new AggregateException("Lỗi! Tên kho phải có");
 
                     var entity = vfi.Warehouses.FirstOrDefault(w => w.WarehouseId == updated.WarehouseId);
+                    if (entity == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy kho cần cập nhật");
+                    }
                     entity.WarehouseName = updated.WarehouseName.Trim();
                     entity.ShortName = updated.ShortName.Trim();
                     entity.Idx = updated.Idx;
@@ -195,6 +200,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsQC = updated.IsQC;
                     entity.IsPlating = updated.IsPlating;
                     entity.IsOutOfProcess = updated.IsOutOfProcess;
+                    entity.CanWeighing = updated.CanWeighing;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
                     entity.ModifiedDate = DateTime.Now;
                     if (string.IsNullOrWhiteSpace(entity.ShortName))
@@ -207,6 +213,54 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 ModelState.AddModelError("WarehouseName", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
             }
             return View(new GridModel(GetWarehouseModels()));
+        }
+
+
+        [GridAction]
+        public ActionResult SelectWarehouseConfiguration(int warehouseId) {
+            return View(new GridModel(GetWarehouseModels().Where(x => x.WarehouseId == warehouseId)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateWarehouseConfiguration(WarehouseModel updated) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("UpdateWarehouseConfiguration",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<WarehouseModel>()));
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+
+                    var entity = vfi.Warehouses.FirstOrDefault(w => w.WarehouseId == updated.WarehouseId);
+                    if (entity == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy kho cần cập nhật");
+                    }
+                    //entity.IsMainProcess = updated.IsMainProcess;
+                    //entity.IsOutOfProcess = updated.IsOutOfProcess;
+                    entity.CanInternal = updated.CanInternal;
+                    entity.CanPurchase = updated.CanPurchase;
+                    entity.CanStock = updated.CanStock;
+                    entity.IsHeatTreatment = updated.IsHeatTreatment;
+                    entity.IsPolish = updated.IsPolish;
+                    entity.IsProduction = updated.IsProduction;
+                    entity.IsCncMilling = updated.IsCncMilling;
+                    entity.IsProduction2 = updated.IsProduction2;
+                    entity.IsProduction2Process = updated.IsProduction2Process;
+                    entity.IsReprocessing = updated.IsReprocessing;
+                    entity.IsQC = updated.IsQC;
+                    entity.IsPlating = updated.IsPlating;
+                    entity.CanWeighing = updated.CanWeighing;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("UpdateWarehouseConfiguration", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
+            }
+            return View(new GridModel(GetWarehouseModels().Where(x => x.WarehouseId == updated.WarehouseId)));
         }
 
         public List<WarehouseCboModel> GetActiveWarehouseModels(WarehouseConfiguration config) {
@@ -228,6 +282,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              && (config.CanInternal == null || x.CanInternal == config.CanInternal)
                              && (config.CanPurchase == null || x.CanPurchase == config.CanPurchase)
                              && (config.CanStock == null || x.CanStock == config.CanStock)
+                             && (config.CanWeighing == null || x.CanWeighing == config.CanWeighing)
                              && (!config.Ids.Any() || config.Ids.Contains(x.WarehouseId))
                          orderby x.Idx, x.WarehouseName
                          select new WarehouseCboModel {
@@ -324,6 +379,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult SelectComboBoxPurchaseWarehouse() {
             return new JsonResult {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { CanPurchase = true }), "WarehouseId", "WarehouseName")
+            };
+        }
+        public ActionResult SelectComboBoxWeighingWarehouse() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { CanWeighing = true }), "WarehouseId", "WarehouseName")
             };
         }
         public ActionResult SelectAllComboBoxWarehouse() {
@@ -642,20 +702,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         ClassifiedId = drawer.InventoryShelf.ClassifiedId
                     };
                     var onshelfs = onshelves.Where(x => x.DrawerId == drawer.DrawerId);
+                    var listCodes = new List<string>();
                     foreach (var onshelf in onshelfs) {
                         switch (drawer.InventoryShelf.ClassifiedId) {
                             case 1: // nguyen lieu
-                                var inv = materialInv.FirstOrDefault(x => x.MaterialInventoryId == drawer.ReferenceInvId);
+                                var inv = materialInv.FirstOrDefault(x => x.MaterialInventoryId == onshelf.ReferenceInvId);
                                 if (inv != null) {
-                                    entity.ReferenceInvCode += MyUtilities.Material.GetMaterialInvDesignNo(inv) + " | ";
+                                    listCodes.Add(MyUtilities.Material.GetMaterialInvDesignNo(inv));
                                 }
                                 break;
                             default:
-                                entity.ReferenceInvCode += "Không xác định | ";
+                                listCodes.Add("Không xác định");
                                 break;
                         }
                     }
-
+                    entity.ReferenceInvCode = string.Join(" | ", listCodes);
                     //if (drawer.ReferenceInvId > 0) {
                     //    switch (drawer.InventoryShelf.ClassifiedId) {
                     //        case 1: // nguyen lieu

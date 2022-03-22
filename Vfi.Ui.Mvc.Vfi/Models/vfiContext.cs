@@ -128,6 +128,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionDetail> TransactionDetails { get; set; }
         public DbSet<TransactionProduct> TransactionProducts { get; set; }
+        public DbSet<TransactionWeighing> TransactionWeighings { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<WarehouseType> WarehouseTypes { get; set; }
         public DbSet<Currency> Currencies { get; set; }
@@ -140,6 +141,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<ProductCombinationRecipe> ProductCombinationRecipes { get; set; }
         public DbSet<ProductCombinationRecipeDetail> ProductCombinationRecipeDetails { get; set; }
         public DbSet<UnitMeasure> UnitMeasures { get; set; }
+        public DbSet<WeighingMachine> WeighingMachines { get; set; }
         public DbSet<ImportPurchaseOrder> ImportPurchaseOrders { get; set; }
         public DbSet<ImportPurchaseOrderDetail> ImportPurchaseOrderDetails { get; set; }
         public DbSet<InquiryPo> InquiryPoes { get; set; }
@@ -322,6 +324,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new TransactionMap());
             modelBuilder.Configurations.Add(new TransactionDetailMap());
             modelBuilder.Configurations.Add(new TransactionProductMap());
+            modelBuilder.Configurations.Add(new TransactionWeighingMap());
             modelBuilder.Configurations.Add(new WarehouseMap());
             modelBuilder.Configurations.Add(new WarehouseTypeMap());
             modelBuilder.Configurations.Add(new CurrencyMap());
@@ -334,6 +337,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new ProductCombinationRecipeMap());
             modelBuilder.Configurations.Add(new ProductCombinationRecipeDetailMap());
             modelBuilder.Configurations.Add(new UnitMeasureMap());
+            modelBuilder.Configurations.Add(new WeighingMachineMap());
             modelBuilder.Configurations.Add(new ImportPurchaseOrderMap());
             modelBuilder.Configurations.Add(new ImportPurchaseOrderDetailMap());
             modelBuilder.Configurations.Add(new InquiryPoMap());

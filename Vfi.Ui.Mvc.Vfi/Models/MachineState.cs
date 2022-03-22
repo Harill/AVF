@@ -22,6 +22,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string StateCode { get; set; }
         public int EstimateTime { get; set; }
         public bool IsSetProduct { get; set; }
+        public string NameEN { get; set; }
         public virtual ICollection<Machine> Machines { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }
     }

@@ -19,7 +19,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         #region view
 
         ViewDataDictionary GetPageConfigData() {
-            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            var viewModel = MyUtilities.MySystem.GetPageConfig(HttpContext.User.Identity.Name);
             foreach (var property in viewModel.GetType().GetProperties()) {
                 ViewData[property.Name] = property.GetValue(viewModel, null);
             }
@@ -1267,10 +1267,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         if (transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1 && transaction.ReferenceId != null) {
                             var import = vfi.ImportFormSX1.FirstOrDefault(i => i.ImportId == transaction.ReferenceId);
                             var details = import.ImportFormSX1Detail.Where(x => x.Processing1 + x.Processing2 > 0).ToList();
-                            var defectDetails = transactionDefect.DefectTransactionDetails.Where(x => x.Shift == shift);
+                            //var defectDetails = transactionDefect.DefectTransactionDetails.Where(x => x.Shift == shift);
                             var isFinish = true;
                             foreach (var detail in details) {
-                                var defectDetail = defectDetails.Any(x => x.ProductId == detail.ProductId && x.MachineId == detail.MachineId);
+                                var defectDetail = transactionDefect.DefectTransactionDetails.Any(x => x.ProductId == detail.ProductId && x.MachineId == detail.MachineId);
                                 if (defectDetail) continue;
                                 isFinish = false;
                                 break;

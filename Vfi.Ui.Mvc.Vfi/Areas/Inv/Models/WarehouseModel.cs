@@ -21,6 +21,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool IsOutOfProcess { get; set; }
         public bool IsProduction { get; set; }
         public bool IsCncMilling { get; set; }
+        public bool CanWeighing { get; set; }
     }
 
     public class WarehouseCboModel {
@@ -48,6 +49,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool? CanStock { get; set; }
         public bool? IsOutOfProcess { get; set; }
         public bool? IsCncMilling { get; set; }
+        public bool? CanWeighing { get; set; }
 
         public bool? AddFirstAll { get; set; }
     }

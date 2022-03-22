@@ -27,12 +27,14 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.StockOrders1 = new List<StockOrder>();
             this.Transactions = new List<Transaction>();
             this.Transactions1 = new List<Transaction>();
+            this.TransactionWeighings = new List<TransactionWeighing>();
             this.ForecastOrderDetails = new List<ForecastOrderDetail>();
             this.OrderProgresses = new List<OrderProgress>();
             this.TimeLines = new List<TimeLine>();
             this.WarehousePermissions = new List<WarehousePermission>();
             this.WarehouseRotates = new List<WarehouseRotate>();
             this.WarehouseRotates1 = new List<WarehouseRotate>();
+            this.WeighingMachines = new List<WeighingMachine>();
         }
 
         public int WarehouseId { get; set; }
@@ -59,6 +61,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool IsOutOfProcess { get; set; }
         public bool IsProduction { get; set; }
         public bool IsCncMilling { get; set; }
+        public bool CanWeighing { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
@@ -79,6 +82,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<StockOrder> StockOrders1 { get; set; }
         public virtual ICollection<Transaction> Transactions { get; set; }
         public virtual ICollection<Transaction> Transactions1 { get; set; }
+        public virtual ICollection<TransactionWeighing> TransactionWeighings { get; set; }
         public virtual ICollection<ForecastOrderDetail> ForecastOrderDetails { get; set; }
         public virtual ICollection<OrderProgress> OrderProgresses { get; set; }
         public virtual ICollection<TimeLine> TimeLines { get; set; }
@@ -86,5 +90,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<WarehousePermission> WarehousePermissions { get; set; }
         public virtual ICollection<WarehouseRotate> WarehouseRotates { get; set; }
         public virtual ICollection<WarehouseRotate> WarehouseRotates1 { get; set; }
+        public virtual ICollection<WeighingMachine> WeighingMachines { get; set; }
     }
 }

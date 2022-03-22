@@ -1,0 +1,538 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@{
+    ViewBag.Title = "Cân hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .fieldheader {
+        height: 150px;
+        padding-left: 15px;
+        padding-right: 15px;
+        float: left;
+    }
+
+    .fieldheader1 {
+        width: 35%;
+        min-width: 420px;
+        margin-right: 10px;
+    }
+
+    .fieldheader2 {
+        width: 30%;
+        margin-right: 10px;
+    }
+
+    .fieldheader3 {
+        width: 25%;
+    }
+</style>
+@section Scripts{
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            auto_OnChange();
+        });
+        function auto_OnChange() {
+            if ($("input[name='chkAuto']").attr('checked')) {
+                $("#btnAddData").fadeTo('slow', 0.4);
+            } else {
+                $("#btnAddData")[0].removeAttribute("style");
+            }
+        }
+        
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span>";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+        var onLoading_2 = false;
+        function OnLoadingData_2() {
+            if (!onLoading_2) {
+                onLoading_2 = true;
+                var loadings = document.querySelectorAll('.twoToneButton_2');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span>";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData_2() {
+            if (onLoading_2) {
+                var loadings = document.querySelectorAll('.twoToneButton_2');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading_2 = false;
+            }
+        }
+        function grid_OnDataBound() {
+            OnLoadedData_2();
+        }
+    </script>
+    <script>
+        function product_OnChange() {
+            var warehouse = $("#Warehouse").data('tComboBox').value();
+            if (warehouse === "") warehouse = 0;
+            var product = $("#Product").data('tComboBox').value();
+            if (product === "") product = 0;
+            OnLoadingData();
+            $.ajax({
+                type: 'post',
+                data: { productId: product, warehouseId: warehouse },
+                dataType: 'json',
+                url: '@Url.Action("CheckProductInventoryInfo", "Inv", new { area = "Inv" })',
+                timeout: 20000,
+                success: function (data) {
+                    OnLoadedData();
+                    if (!data || data[0] != 1) { }
+                    else if (data[0] === 1) {
+                        $("#UnitWeight").val(data[1]);
+                        $("#UnitWeight").data("tTextBox").$text[0].innerHTML = data[1].format(4);
+                        $("#InventoryQuantity")[0].innerText = data[2].format(0);
+                        $("#InventoryWeight")[0].innerText = data[3].format(0);
+                    }
+                }
+            });
+        }
+        var quantity = 0;
+        var quantityChanged;
+        function GetWeighingValue() {
+            var unitWeight = $("#UnitWeight").data("tTextBox").value();
+            var packageWeight = $("#PackageWeight").data("tTextBox").value();
+            var tolerance = $("#Tolerance").data("tTextBox").value();
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetWeighingValue", "Transaction", new { area = "Inv" })',
+                timeout: 4000,
+                success: function (data) {
+                    $("#WeighValue")[0].innerText = data.format(1);
+                    if (unitWeight > 0) {
+                        if (quantity != (data * 1000 - packageWeight) / unitWeight) {
+                            quantity = (data * 1000 - packageWeight) / unitWeight;
+                            if (quantity < 0) quantity = 0;
+                            quantityChanged = Date.now();
+                            $("#QuantityValue")[0].innerText = (quantity).format(0);
+                            $("#MinWeight")[0].innerText = (quantity - quantity * tolerance / 100).format(0);
+                            $("#MaxWeight")[0].innerText = (quantity + quantity * tolerance / 100).format(0);
+                            AddData();
+                        }
+                    } else {
+                        $("#QuantityValue")[0].innerText = "0";
+                    }
+                }
+            });
+        }
+
+        var addData = false;
+        function AddData() {            
+            var second = $("#AutoDataSecond").data("tTextBox").value();
+            addData = false;
+            if (quantity > 0) {
+                OnLoadingData_2();
+                var localQuantity = quantity + 0;
+                var interval = setInterval(function () {
+                    if (quantity <= 0) {
+                        addData = true;
+                    }
+                    else if (quantity === localQuantity && Date.now() - quantityChanged > second) {
+                        addData = true;
+                        RefreshGrid("gridTransactionDetail");
+                    }
+                    if (addData) clearInterval(interval);
+                }, second * 1000);
+            }
+        }
+
+        function quantity_OnChange() {
+            if (quantity != $("#Quantity").data("tTextBox").value()) {
+                quantity = $("#Quantity").data("tTextBox").value();
+                quantityChanged = Date.now();
+                AddData();
+            }
+        }
+
+        var index = 0;
+        function grid_OnDataBinding(e) {
+            index = 0;
+            var warehouse = $("#Warehouse").data('tComboBox').value();
+            if (warehouse === "") warehouse = 0;
+            var product = $("#Product").data('tComboBox').value();
+            if (product === "") product = 0;
+            var unitWeight = $("#UnitWeight").data("tTextBox").value();
+            var packageWeight = $("#PackageWeight").data("tTextBox").value();
+
+            e.data = $.extend(e.data, {
+                productId: product,
+                warehouseId: warehouse,
+                productWeight: unitWeight,
+                packageWeight: packageWeight,
+                quantity: quantity
+            });
+        }
+
+        var stopInterval = false;
+        function connect_OnChange(isConnect) {
+            if (isConnect) {
+                $("#btnConnect").fadeTo('slow', 0.4);
+            } else {
+                $("#btnConnect")[0].removeAttribute("style");
+            }
+        }
+        function Connect() {
+            var second = $("#AutoDataSecond").data("tTextBox").value();
+            if (second > 0) {
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ConnectWeighingDevice", "Transaction", new { area = "Inv" })',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data === 1) {
+                            alert("Kết nối thành công");
+                            connect_OnChange(true);
+                            stopInterval = false;
+                            var interval = setInterval(function () {
+                                GetWeighingValue();
+                                if (stopInterval) clearInterval(interval);
+                            }, 3000);
+                        } else if (data === 8) {
+                            alert("Kết nối bị lỗi! Vui lòng rút đầu USB và cắm lại");
+                        } else if (data === 9) {
+                            alert("Không tìm thấy thiết bị");
+                        } else { alert("Kết nối không thành công"); }
+                    }
+                });
+            } else {
+                alert("Lỗi! Vui lòng chỉnh tự động nạp > 0");
+            }
+        }
+
+        function DisConnect() {
+            stopInterval = true;
+            $.ajax({
+                type: 'post',
+                data: { },
+                dataType: 'json',
+                url: '@Url.Action("DisConnectWeighingDevice", "Transaction", new { area = "Inv" })',
+                timeout: 20000,
+                success: function (data) {
+                    if (data === 1) {
+                        $("#btnConnect")[0].removeAttribute("style");
+                        connect_OnChange(false);
+                        alert("Đã ngắt kết nối");
+                    } else { alert("Ngắt kết nối không thành công"); }
+                }
+            });
+        }
+
+        function SaveWeighingData() {
+
+            if (confirm("Đồng ý lưu ?")) {
+                $.post('@Url.Action("SaveTransactionWeighingProduct", "Transaction")',
+                    {},
+                    function (data) {
+                        if (data === 1) {
+                            RefreshGrid("gridTransactionDetail");
+                            alert(data);
+                        }
+                    });
+            }
+            return false;
+        }
+    </script>
+}
+
+<div class="title">Cân hàng</div>
+<div class="clear"></div>
+<br />
+
+<div class="t-info-sha fieldheader fieldheader1">
+    <fieldset>
+        <legend>Thông tin sản phẩm</legend>
+        <div class="grid_6">
+            <div class="grid_1_5">
+                Kho
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Warehouse")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWeighingWarehouse", "Warehouse", new { area = "Inv" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        //.ClientEvents(events => events.OnChange("warehouse_OnChange"))
+                        .Render();
+                }
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_1_5">
+                Sản phẩm
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Product")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductFullCodeName", "Product", new { area = "" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 275px" })
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .ClientEvents(events => { events.OnChange("product_OnChange"); })
+                        .Render();
+                }
+            </div>
+
+            <div class="clear"></div>
+            <br />
+            <div class="grid_1_5">
+                TL SP
+            </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("UnitWeight")
+                        .MinValue(0)
+                        .MaxValue(1000)
+                        .DecimalDigits(4)
+                        .Value(0.000)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
+                        //.ClientEvents(events => { events.OnChange("unitWeight_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">(g/pc)</div>
+        </div>
+        <div class="grid_3">
+            <button class="t-button" id="btnAddData" name="btnAddData" onclick=" AddData() ">
+                <span class='t-icon t-insert'></span>
+                Nạp liệu
+            </button>
+            <span class="twoToneButton"></span>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_3_5">
+                TK (pcs): <span id="InventoryQuantity">0</span>
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_3_5">
+                TK (g): <span id="InventoryWeight">0</span>
+            </div>
+        </div>
+        <br />
+        <div class="grid_2">
+            TL BB
+        </div>
+        <div class="grid_1_5">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("PackageWeight")
+                    .MinValue(0)
+                    .MaxValue(1000000)
+                    .DecimalDigits(0)
+                    .Value(0)
+                    .Spinners(false)
+                    .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                    //.ClientEvents(events => { events.OnChange("crossWeight_OnChange"); })
+                    .Render();
+            }
+        </div>
+        <div class="grid_1">(g)</div>
+        <div class="clear"></div>
+
+    </fieldset>
+</div>
+
+<div class="t-info-sha fieldheader fieldheader2">
+    <fieldset>
+        <legend>Cân hàng</legend>
+        <div style="text-align: center; width: 100%;  font-size: xxx-large;">
+            <span id="WeighValue">~</span>
+            kg
+        </div>
+        <div style="text-align: center; width: 100%;  font-size: xxx-large;">
+            <span id="QuantityValue">~</span>
+            pcs
+            <span class="twoToneButton_2"></span>
+        </div>
+
+    </fieldset>
+</div>
+
+<div class="t-info-sha fieldheader fieldheader3">
+    <fieldset>
+        <legend>Cấu hình đóng gói</legend>
+        <div class="grid_2_5">
+            Tự động nạp
+        </div>
+        <div class="grid_1">
+            <label>
+                <input type="checkbox" id="chkAuto" name="chkAuto" checked onchange="auto_OnChange()" />
+            </label>
+        </div>
+        <div class="grid_1">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("AutoDataSecond")
+                    .MinValue(2)
+                    .MaxValue(10)
+                    .DecimalDigits(0)
+                    .Value(3)
+                    .Spinners(false)
+                    .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
+                    .Render();
+            }
+        </div>
+        giây
+        <div class="clear"></div>
+        <br />
+        <div class="grid_2_5">
+            Dung sai SL
+        </div>
+        <div class="grid_1">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("Tolerance")
+                    .MinValue(1)
+                    .MaxValue(10)
+                    .DecimalDigits(0)
+                    .Value(3)
+                    .Spinners(false)
+                    .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
+                    //.ClientEvents(events => { events.OnChange("tolerance_OnChange"); })
+                    .Render();
+            }
+        </div>
+        <div class="grid_0_5">
+            %
+        </div>
+        <div>
+            <div class="grid_1">
+                <span id="MinWeight">0</span>
+            </div>
+            <div class="grid_0_5" style="text-align: center">
+                ~
+            </div>
+            <div class="grid_1">
+                <span id="MaxWeight">0</span>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <br />
+        <div class="grid_3">
+            <button class="t-button" id="btnConnect" name="btnConnect" onclick=" Connect() ">
+                <span class='t-icon t-insert'></span>
+                Kết nối cân
+            </button> | 
+        </div>
+        <div class="grid_3">
+            <button class="t-button" id="btnDisConnect" name="btnDisConnect" onclick=" DisConnect() ">
+                <span class='t-icon t-delete'></span>
+                Ngắt kết nối
+            </button>
+        </div>
+        <div class="clear"></div>
+        <br />
+        @*<div class="grid_2_5">
+            Số lượng (test)
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("Quantity")
+                    .MinValue(0)
+                    .DecimalDigits(0)
+                    .Value(0)
+                    .Spinners(false)
+                    .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
+                    .ClientEvents(events => { events.OnChange("quantity_OnChange"); })
+                    .Render();
+            }
+        </div>*@
+    </fieldset>
+</div>
+
+<div class="clear"></div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh xuất nhập sản phẩm</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductInventoryRotateModel>()
+            .Name("gridTransactionDetail")
+            .ToolBar(bar => {
+                    bar.Custom().ButtonType(GridButtonType.Text).Text("Lưu dữ liệu cân").Name("A")
+                       .HtmlAttributes(new { onclick = "SaveWeighingData()", href = "#" });
+                    //bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu thay đổi").CancelText("Huỷ tất cả");
+                })
+            //.ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .DataKeys(keys => keys.Add(f => f.TransactionProductId).RouteKey("transactionProductId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("AddTransactionWeighingProduct", "Transaction", new { productId = 0, warehouseId = 0, productWeight = 0, quantity = 0 })
+                .Delete("DeleteTransactionWeighingProduct", "Transaction")
+                )
+            .Columns(columns => {
+                columns.Bound(f => f.ProductId).Width(30).ReadOnly(true)
+                       .ClientTemplate("<#= ++index #>")
+                       .HeaderTemplate("<strong>STT</strong>");
+                columns.Bound(f => f.CustomerCode).Width(70).HeaderTemplate("Khách hàng").ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Width(120).Title("Mã SP").ReadOnly(true);
+                columns.Bound(f => f.ProductWeight).Width(70).ReadOnly(true)
+                    .HeaderTemplate("TL SP (g/pc)")
+                    .Format("{0:n3}")
+                    .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
+                
+                columns.Bound(f => f.QuantityKg).Width(90).HeaderTemplate("Trọng lượng (kg)")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Quantity).Width(90).HeaderTemplate("Số lượng (pcs)")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image).Text("")).Width(50).Title("");
+            })
+            .ClientEvents(events => events
+                .OnDataBinding("grid_OnDataBinding")
+                .OnDataBound("grid_OnDataBound")
+                .OnError("grid_OnError")
+            )
+            .KeyboardNavigation()
+            .Groupable(group => group.Groups(g => g.Add(model => model.ProductCode)))
+            .Render();   
+    }
+</div>
+
+<div class="clear"></div><br />

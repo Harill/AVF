@@ -14,7 +14,7 @@ namespace Vfi.Server.Core.DataModel.Models.Inv
         [DisplayName("Loại kho")]
         public virtual string WarehouseTypeName { get; set; }
 
-        [Required(ErrorMessage = "*")]
+        //[Required(ErrorMessage = "*")]
         [DisplayName("Tên kho")]
         public virtual new string WarehouseName { get; set; }
         [DisplayName("Mô tả")]

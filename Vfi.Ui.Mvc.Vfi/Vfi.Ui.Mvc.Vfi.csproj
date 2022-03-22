@@ -82,6 +82,7 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.30506.0\lib\net40\System.Web.Helpers.dll</HintPath>
@@ -332,6 +333,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>GridLocalization.uk-UA.resx</DependentUpon>
     </Compile>
+    <Compile Include="App_GlobalResources\GridLocalization.vi-VN.designer.cs" />
+    <Compile Include="App_GlobalResources\GridLocalization.vi-VN1.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>GridLocalization.vi-VN.resx</DependentUpon>
+    </Compile>
     <Compile Include="App_GlobalResources\GridLocalization.zh-CN.designer.cs" />
     <Compile Include="App_GlobalResources\GridLocalization.zh-CN1.designer.cs">
       <AutoGen>True</AutoGen>
@@ -575,6 +582,7 @@
     <Compile Include="Areas\Inv\Models\TransactionDetailModel.cs" />
     <Compile Include="Areas\Inv\Models\TransactionModel.cs" />
     <Compile Include="Areas\Inv\Models\TransactionProductModel.cs" />
+    <Compile Include="Areas\Inv\Models\TransactionWeighingModel.cs" />
     <Compile Include="Areas\Inv\Models\WaitingPlatingInvModel.cs" />
     <Compile Include="Areas\Inv\Models\WarehouseModel.cs" />
     <Compile Include="Areas\Inv\Models\WorkpieceImportExportModel.cs" />
@@ -1206,6 +1214,7 @@
     </Compile>
     <Compile Include="Areas\Sales\Models\WaitingOrderBalancingPlanModel.cs" />
     <Compile Include="Areas\Sales\Views\SalesAreaRegistration.cs" />
+    <Content Include="Content\Isotope.css" />
     <Compile Include="Controllers\Authorization\PermissionController.cs" />
     <Compile Include="Controllers\Authorization\UserController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -1472,6 +1481,7 @@
     <Compile Include="Models\Mapping\TransactionFptMap.cs" />
     <Compile Include="Models\Mapping\TransactionMap.cs" />
     <Compile Include="Models\Mapping\TransactionProductMap.cs" />
+    <Compile Include="Models\Mapping\TransactionWeighingMap.cs" />
     <Compile Include="Models\Mapping\UnitMeasureMap.cs" />
     <Compile Include="Models\Mapping\UserMap.cs" />
     <Compile Include="Models\Mapping\UserWorkGroupMap.cs" />
@@ -1480,6 +1490,7 @@
     <Compile Include="Models\Mapping\WarehousePermissionMap.cs" />
     <Compile Include="Models\Mapping\WarehouseRotateMap.cs" />
     <Compile Include="Models\Mapping\WarehouseTypeMap.cs" />
+    <Compile Include="Models\Mapping\WeighingMachineMap.cs" />
     <Compile Include="Models\Mapping\WorkGroupMap.cs" />
     <Compile Include="Models\Mapping\WorkOrderMap.cs" />
     <Compile Include="Models\Mapping\WorkOrderRoutingMap.cs" />
@@ -1644,6 +1655,7 @@
     <Compile Include="Models\TransactionFpt.cs" />
     <Compile Include="Models\TransactionFptDetail.cs" />
     <Compile Include="Models\TransactionProduct.cs" />
+    <Compile Include="Models\TransactionWeighing.cs" />
     <Compile Include="Models\UnitMeasure.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserModel.cs" />
@@ -1655,6 +1667,7 @@
     <Compile Include="Models\WarehousePermission.cs" />
     <Compile Include="Models\WarehouseRotate.cs" />
     <Compile Include="Models\WarehouseType.cs" />
+    <Compile Include="Models\WeighingMachine.cs" />
     <Compile Include="Models\WorkGroup.cs" />
     <Compile Include="Models\WorkOrder.cs" />
     <Compile Include="Models\WorkOrderRouting.cs" />
@@ -1672,6 +1685,7 @@
     <Compile Include="Utilities\CrossFieldValidator.cs" />
     <Compile Include="Utilities\EqualToPropertyAttribute.cs" />
     <Compile Include="Utilities\ICrossFieldValidationAttribute.cs" />
+    <Compile Include="Utilities\MyCacheProvider.cs" />
     <Compile Include="Utilities\MyUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -2893,6 +2907,9 @@
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\ImportPOManagement.cshtml" />
     <Content Include="Areas\Inv\Views\Reporting\ProductionNGReport.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\EditorTemplates\_InventoryDrawerTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\ProductionMachineDiagramAVF.cshtml" />
+    <Content Include="Areas\Inv\Views\Transaction\TransactionWeighing.cshtml" />
+    <Content Include="Areas\Inv\Views\Transaction\TransactionWeighingAddDetail.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
     </None>
@@ -3162,7 +3179,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="App_GlobalResources\App_Data\" />
     <Folder Include="Areas\Factory\Views\Shared\" />
     <Folder Include="Areas\Inv\Reports\tmp\" />
     <Folder Include="Content\FileUpload\ProductImg\" />
@@ -3629,6 +3645,10 @@
     <Content Include="App_GlobalResources\UploadLocalization.zh-CN.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>UploadLocalization.zh-CN1.designer.cs</LastGenOutput>
+    </Content>
+    <Content Include="App_GlobalResources\GridLocalization.vi-VN.resx">
+      <Generator>GlobalResourceProxyGenerator</Generator>
+      <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
     <EmbeddedResource Include="Areas\Inv\Reports\RptMaterialOnShelfCard.resx">
       <DependentUpon>RptMaterialOnShelfCard.cs</DependentUpon>

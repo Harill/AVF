@@ -1,0 +1,552 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model GroupMachineDiagram
+@{
+    ViewBag.Title = "AVF Machine Diagram";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/easytimer.min.js")"   ></script>    <script type="text/javascript">
+        $(function() {
+            var $container = $("#container-1");
+            //khoang cach giua cac item
+            $container.isotope({
+                itemSelector: '.element-1',
+                //masonry: {
+                //    columnWidth: 10
+                //},
+                //masonryHorizontal: {
+                //    rowHeight: 120
+                //},
+                //cellsByRow: {
+                //    columnWidth: 240,
+                //    rowHeight: 240
+                //},
+                //cellsByColumn: {
+                //    columnWidth: 240,
+                //    rowHeight: 240
+                //},
+                //getSortData: {
+                //    symbol: function($elem) {
+                //        return $elem.attr('data-symbol');
+                //    },
+                //    category: function($elem) {
+                //        return $elem.attr('data-category');
+                //    },
+                //    number: function($elem) {
+                //        return parseInt($elem.find('.number').text(), 10);
+                //    },
+                //    weight: function($elem) {
+                //        return parseFloat($elem.find('.weight').text().replace(/[\(\)]/g, ''));
+                //    },
+                //    name: function($elem) {
+                //        return $elem.find('.name').text();
+                //    }
+                //}
+            });
+            //var $optionSets = $('#options .option-set'),
+            //    $optionLinks = $optionSets.find('a');
+            //$optionLinks.click(function() {
+            //    var $this = $(this); // don't proceed if already selected
+            //    if ($this.hasClass('selected')) {
+            //        return false;
+            //    }
+            //    var $optionSet = $this.parents('.option-set');
+            //    $optionSet.find('.selected').removeClass('selected');
+            //    $this.addClass('selected');
+            //    // make option object dynamically, i.e. { filter: '.my-filter-class' }
+            //    var options = {},
+            //        key = $optionSet.attr('data-option-key'),
+            //        value = $this.attr('data-option-value');
+            //    // parse 'false' as false boolean
+            //    value = value === 'false' ? false : value;
+            //    options[key] = value;
+            //    if (key === 'layoutMode' && typeof changeLayoutMode === 'function') {
+            //        // changes in layout modes need extra logic
+            //        changeLayoutMode($this, options);
+            //    } else {
+            //        // otherwise, apply new options
+            //        $container.isotope(options);
+            //    }
+            //    return false;
+            //});
+            // change layout
+            //var isHorizontal = false;
+
+            //function changeLayoutMode($link, options) {
+            //    var wasHorizontal = isHorizontal;
+            //    isHorizontal = $link.hasClass('horizontal');
+            //    if (wasHorizontal !== isHorizontal) {
+            //        // orientation change
+            //        // need to do some clean up for transitions and sizes
+            //        var style = isHorizontal ?
+            //            { height: '80%', width: $container.width() } :
+            //            { width: 'auto' };
+            //        // stop any animation on container height / width
+            //        $container.filter(':animated').stop();
+            //        // disable transition, apply revised style
+            //        $container.addClass('no-transition').css(style);
+            //        setTimeout(function() {
+            //            $container.removeClass('no-transition').isotope(options);
+            //        }, 100);
+            //    } else {
+            //        $container.isotope(options);
+            //    }
+            //}
+
+            // change size of clicked element
+            $container.delegate('.element-1', 'click', function() {
+                $(this).toggleClass('large');
+                $container.isotope('reLayout');
+            });
+            // toggle variable sizes of all elements
+            //$('#toggle-sizes').find('a').click(function() {
+            //    $container.toggleClass('variable-sizes').isotope('reLayout');
+            //    return false;
+            //});
+            //var $sortBy = $('#sort-by');
+            //$('#shuffle a').click(function() {
+            //    $container.isotope('shuffle');
+            //    $sortBy.find('.selected').removeClass('selected');
+            //    $sortBy.find('[data-option-value="random"]').addClass('selected');
+            //    return false;
+            //});
+            var $container2 = $("#container-2");
+            //khoang cach giua cac item
+            $container2.isotope({
+                itemSelector: '.element-2',
+            });
+            $container2.delegate('.element-2', 'click', function () {
+                $(this).toggleClass('large');
+                $container2.isotope('reLayout');
+            });
+            var $container3 = $("#container-3");
+            //khoang cach giua cac item
+            $container3.isotope({
+                itemSelector: '.element-3',
+            });
+            $container3.delegate('.element-3', 'click', function () {
+                $(this).toggleClass('large');
+                $container3.isotope('reLayout');
+            });
+            var $container4 = $("#container-4");
+            //khoang cach giua cac item
+            $container4.isotope({
+                itemSelector: '.element-4',
+            });
+            $container4.delegate('.element-4', 'click', function () {
+                $(this).toggleClass('large');
+                $container4.isotope('reLayout');
+            });
+
+            $('#filters a').click(function () {
+                var selector = $(this).attr('data-filter');
+                $container.isotope({ filter: selector });
+                $container2.isotope({ filter: selector });
+                $container3.isotope({ filter: selector });
+                $container4.isotope({ filter: selector });
+                return false;
+            });
+        });
+        //var timer = new easytimer.Timer();
+        //$(document).ready(function () {
+        //    timer.start();
+        //});
+        //timer.addEventListener('started', function (e) {
+        //    $('#basicUsage .values').html(timer.getTimeValues().toString(['hours', 'minutes', 'seconds']).toString());
+        //});
+    </script>
+    <script>
+        //var timer = new easytimer.Timer();
+        //timer.start({ precision: 'seconds', startValues: { seconds: 90 } });
+        //$('#chronoExample .values').html(timer.getTimeValues().toString());
+        //$('#chronoExample .startButton').click(function () {
+        //    timer.start();
+        //});
+        //$('#chronoExample .pauseButton').click(function () {
+        //    timer.pause();
+        //});
+        //$('#chronoExample .stopButton').click(function () {
+        //    timer.stop();
+        //});
+        //$('#chronoExample .resetButton').click(function () {
+        //    timer.reset();
+        //});
+        //timer.addEventListener('secondsUpdated', function (e) {
+        //    $('#chronoExample .values').html(timer.getTimeValues().toString());
+        //});
+        //timer.addEventListener('started', function (e) {
+        //    $('#chronoExample .values').html(timer.getTimeValues().toString());
+        //});
+        //timer.addEventListener('reset', function (e) {
+        //    $('#chronoExample .values').html(timer.getTimeValues().toString());
+        //});
+
+        //var timer = new easytimer.Timer();
+        //timer.start({ precision: 'seconds', startValues: { seconds: 500 } });
+        //$('#startValuesAndTargetExample .values').html(timer.getTimeValues().toString());
+        //timer.addEventListener('secondsUpdated', function (e) {
+        //    $('#startValuesAndTargetExample .values').html(timer.getTimeValues().toString());
+        //});
+
+        //var timer2 = new easytimer.Timer();
+        //timer2.start({ precision: 'seconds', startValues: { seconds: 200 } });
+        //$('#startValuesAndTargetExample2 .values').html(timer2.getTimeValues().toString());
+        //timer2.addEventListener('secondsUpdated', function (e) {
+        //    $('#startValuesAndTargetExample2 .values').html(timer2.getTimeValues().toString());
+        //});
+
+        //var timer3 = new easytimer.Timer();
+        //timer3.start({ precision: 'seconds', startValues: { seconds: 350 } });
+        //$('#startValuesAndTargetExample3 .values').html(timer3.getTimeValues().toString());
+        //timer3.addEventListener('secondsUpdated', function (e) {
+        //    $('#startValuesAndTargetExample3 .values').html(timer3.getTimeValues().toString());
+        //});
+        $(document).ready(function () {
+            //timerTarget(1);
+            //timerTarget(2);
+            //timerTarget(3);
+            var machineTimings = document.getElementsByClassName('machineTiming');
+            console.log(machineTimings.length);
+            for (var i = 0; i < machineTimings.length; i++) {
+                var element = machineTimings[i];
+                //console.log(element);
+                var machineId = element.getAttribute('machineid');
+                //console.log(machineId);
+                timerTarget2(machineId);
+            }
+        });
+
+        function timerTarget(target) {
+            var timer = new easytimer.Timer();
+            var seconds = $('#machine-' + target).attr('seconds');
+            timer.start({ precision: 'seconds', startValues: { seconds: seconds } });
+            $('#machine-' + target).html(timer.getTimeValues().toString(['days', 'hours', 'minutes', 'seconds']));
+            timer.addEventListener('secondsUpdated', function (e) {
+                $('#machine-' + target).html(timer.getTimeValues().toString(['days', 'hours', 'minutes', 'seconds']));
+            });
+        }
+        function timerTarget2(target) {
+            //console.log('target: ' + target);
+            var timer = new easytimer.Timer();
+            var seconds = $('#machine-' + target).attr('seconds');
+            var sec_num = Math.floor(seconds);
+            //console.log('seconds: '+ seconds);
+            timer.start({ startValues: { seconds: sec_num } });
+            //console.log('hours: ' + timer.getTimeValues().hours);
+            //console.log('minutes: ' + timer.getTimeValues().minutes);
+            //console.log('total minutes: ' + timer.getTotalTimeValues().minutes);
+            //console.log('total seconds: ' + timer.getTotalTimeValues().seconds);
+            timer.addEventListener('secondsUpdated', function (e) {
+                $('#machine-' + target + ' .timing').html(timer.getTimeValues().toString(['hours', 'minutes']));
+                //console.log('total seconds: ' + timer.getTotalTimeValues().seconds);
+                //var totalDays = timer.getTotalTimeValues().days;
+                //if (totalDays > 0)
+                $('#machine-' + target + ' .totalDays').html(dayStr(timer.getTotalTimeValues().days));
+            });
+        }
+        function dayStr(days) {
+            if (days > 0)
+                return days + 'N';
+            return '';
+        }
+    </script>
+}
+
+<link href="@Url.Content("~/Content/Isotope.css")" rel="stylesheet" type="text/css" />
+<style media="screen,print">
+    /* resize container */
+    .container_24 {
+        width: 100%;
+    }
+
+    .title {
+        padding: 0 15px;
+    }
+
+    /* filter area */
+    #filters {
+        margin: 0;
+    }
+
+    #options li {
+        float: left;
+        display: list-item;
+    }
+
+    #options .selected {
+        background-color: #13F;
+        text-shadow: none;
+        color: white;
+    }
+
+    #options li a {
+        display: block;
+        padding: 0.4em 0.5em;
+        background-color: #DDD;
+        color: #222;
+        font-weight: bold;
+        text-shadow: 0 1px hsla( 0, 0%, 100%, 0.5 );
+        background: none;
+    }
+
+        #options li a:hover {
+            background-color: cornflowerblue;
+            font-weight: bolder;
+        }
+
+        #options li a:active {
+            background-color: cornflowerblue;
+            font-weight: bolder;
+        }
+
+
+    /* item list area */
+    .container {
+        position: relative;
+        overflow: hidden;
+        height: auto;
+        width: 270px;
+        float: left;
+    }
+
+    #container-2 {
+        margin-right: 100px;
+    }
+
+    .entity {
+        /*width: 260px;*/
+        height: 44px;
+        margin: 5px;
+        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+
+    .entity.large {
+        /* expanded item */
+        /*width: 260px;*/
+        height: 130px;
+        z-index: 100;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+
+        .entity.machine {
+            background: #F00;
+            background: hsl( 0, 100%, 50%);
+        }
+
+    #revok1 {
+        background-size: cover;
+        background-position: center;
+    }
+
+    .entity * {
+        margin: 0;
+    }
+
+    .entity .line1 {
+        height: 20px;
+    }
+
+    .entity .line2 {
+        height: 20px;
+    }
+
+    .entity .line3 {
+        height: auto;
+        padding-top: 5px;
+        padding-left: 5px;
+    }
+
+    .entity .line4 {
+        height: 20px;
+    }
+
+    .entity .line-item {
+        height: 100%;
+        float: left;
+        padding-top: 2px;
+        margin: auto;
+    }
+
+    .clickable .entity:hover {
+        cursor: pointer;
+        border: 1px aquamarine;
+    }
+
+        .clickable .entity:hover .highlight {
+            text-shadow: 0 0 5px white, 0 0 5px white;
+            font-weight: bold;
+            font-size: larger;
+        }
+
+    .entity a:hover {
+        text-shadow: 0 0 10px white,0 0 10px white;
+        font-size: larger;
+    }
+
+    .itemLeft {
+        text-align: left;
+    }
+
+    .itemRight {
+        text-align: Right;
+    }
+</style>
+
+<div class="title">AVF Machine Diagram</div>
+<div class="clear"></div>
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+        <fieldset>
+            <legend>Filter</legend>
+            <div class="grid_2">
+                &nbsp;
+            </div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+            <li><a href="#" data-filter="*" class="selected t-button" onclick="li_OnClick()">All</a></li>
+                        </ul>
+
+                </section>
+            <div class="grid_2">
+                Status
+            </div>
+
+            <div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var state in Model.ListState) {
+                        <li><a href="#" data-filter=".@state.StateCode" class="t-button" 
+                            style="background-color: #@state.WarrningColor;">
+                            (@state.WarrningPoint) @state.Description
+                            </a></li>
+    }
+}
+
+                       @* <li><a href="#" data-filter=".M-01" class="t-button">Bình thường</a></li>
+                        <li><a href="#" data-filter=":not(.M-01)" class="t-button">Không bình thường</a></li>*@
+                    </ul>
+                </section>
+            </div>
+            <div class="clear"></div>
+            <div class="grid_2">
+                Feature
+            </div>
+
+            <div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var func in Model.ListFunction) {
+                        <li><a href="#" data-filter=".@func.Code" class="t-button">(@func.Count) @func.Code</a></li>
+    }
+}
+                        </div>
+            <div class="clear"></div>
+
+            <div>
+            <div class="grid_2">
+                Type
+            </div>
+                <section id="options" class="clearfix">
+                    <ul id="filters" class="option-set clearfix" data-option-key="filter">
+@{
+    foreach (var type in Model.ListType) {
+                        <li><a href="#" data-filter=".@type.Code" class="t-button">(@type.Count) @type.Code</a></li>
+    }
+}
+                        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+@{
+    int i = 0;
+    var columnWidth = 260;
+    var columnSpace = 10;
+    var space = 100;
+    var divWidth = ((columnWidth + columnSpace) * Model.ListMachineDiagram.Count + space) + "px";
+    var containerWidth = (columnWidth + columnSpace) + "px";
+    var entityWidth = columnWidth + "px";
+    <div style="min-width:@divWidth;">
+        @{
+            foreach (var list in Model.ListMachineDiagram) {
+                i++;
+            <div id='container-@i' class="clickable clearfix isotope container" style="width: @containerWidth;">
+            @{
+                foreach (var entity in list) {
+                    <div class='element-@i entity isotope-item ms-@entity.StateCode mf-@entity.MachineFunction mt-@entity.MachineType'
+                             style="width:@entityWidth; position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
+
+                        <div class="line1">
+                            <div class="line-item" style='width: 60%; text-align: left; background-color: #@entity.WarrningColor;'>
+                                <span class="itemLeft highlight" style="margin-left: 10px">@entity.MachineName | @entity.MachineType | @entity.MachineFunction</span>
+                            </div>
+                            <div class="line-item" style='width: 40%; text-align: right; background-color: #ccc2d6; color: #3333cc;'>
+                                <span class="itemRight" style="padding-top: 5px; margin-right: 10px; font-weight: bold">@entity.ProductCode</span>
+                            </div>
+                        </div>
+
+                        <div class="line2">
+                            <div class="line-item" style='width: 35%; text-align:center; font-weight:bold; background-color: #@entity.WarrningColor; color: #3333cc;'>
+                                <div class="machineTiming" id="machine-@entity.MachineId" machineid ="@entity.MachineId" seconds="@entity.Seconds">
+                                    <timing>
+                                    <day  class="totalDays"></day>
+                                    <time  class="timing">0</time>
+                                </timing>
+                                </div>
+                            </div>
+                            <div class="line-item" style="width: 65%; text-align: center; background-color: #996600; color: white;">
+                                <span class="itemLeft">@entity.MaterialCode</span>
+                            </div>
+                        </div>
+
+                        <div class="line3">
+                            <div style="height: 10px; float: left; padding-bottom: 2px;">
+                                <span class="itemLeft">Status: @entity.StateName</span>
+                            </div><br />
+                            <div style="height: 10px; float: left; padding-bottom: 2px;">
+                                <span class="itemLeft">Start date: @entity.StartDateString</span>
+                            </div><br />
+                            <div style="height: 10px; float: left; padding-bottom: 2px;">
+                                <span class="itemLeft">End date: @entity.EndDateString</span>
+                            </div><br />
+                            <div style="height: 10px; float: left; padding-bottom: 2px;">
+                                <span class="itemLeft">Productivity: @entity.ProductionPerDayStr</span>
+                            </div><br />
+                            <div style="height: 10px; float: left; padding-bottom: 2px;">
+                                <span class="itemLeft">Production Quantity: @entity.ProductionStr</span>
+                            </div>
+                        </div>
+
+                        <div class="line4">
+                            <div style="width: 100%; height: 10px; float: left; text-align: center;">
+                                <span class="itemRight">@{ @Html.ActionLink("More", "MachineLog", "Machine", new { id = entity.MachineId }, null)}</span>| 
+                            <span class="itemRight">@{ @Html.ActionLink("QC/QA", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    if (list.Last().MachineId == entity.MachineId) {
+                    <div style="overflow: hidden; height: 100px; width: 230px; padding-right: 5px; display: block; float: left">
+                    </div>
+                    }
+                }
+                }
+            </div>
+            }
+        }
+    </div>
+}
+
+<div class="clear"></div>
+<br />

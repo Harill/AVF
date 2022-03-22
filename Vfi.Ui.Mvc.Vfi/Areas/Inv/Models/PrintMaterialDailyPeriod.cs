@@ -3,42 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 
-namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
-{
-    public static class QuaterDateTime
-    {
-        public static void GetQuaterDateTime(out DateTime fromDateTime, out DateTime toDateTime, out int quater,
-                                             DateTime date)
-        {
-            fromDateTime = date;
-            toDateTime = date;
-            quater = 0;
-            if (date.Month <= 3)
-            {
-                fromDateTime = new DateTime(date.Year, 1, 1).AddSeconds(-1);
-                toDateTime = new DateTime(date.Year, 4, 1).AddSeconds(-1);
-                quater = 1;
-            }
-            else if (date.Month <= 6)
-            {
-                fromDateTime = new DateTime(date.Year, 4, 1).AddSeconds(-1);
-                toDateTime = new DateTime(date.Year, 7, 1).AddSeconds(-1);
-                quater = 2;
-            }
-            else if (date.Month <= 9)
-            {
-                fromDateTime = new DateTime(date.Year, 7, 1).AddSeconds(-1);
-                toDateTime = new DateTime(date.Year, 10, 1).AddSeconds(-1);
-                quater = 3;
-            }
-            else if (date.Month <= 12)
-            {
-                fromDateTime = new DateTime(date.Year, 10, 1).AddSeconds(-1);
-                toDateTime = new DateTime(date.Year, 1, 1).AddYears(1).AddSeconds(-1);
-                quater = 4;
-            }
-        }
-    }
+namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
 
     public class PrintGroupWorkPiece {
         public string GroupName { get; set; }
@@ -58,10 +23,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double Percentage { get; set; }
     }
 
-    public class PrintGroupMaterial
-    {
-        public PrintGroupMaterial()
-        {
+    public class PrintGroupMaterial {
+        public PrintGroupMaterial() {
             List = new List<PrintMaterialDailyPeriod>();
             GroupWorkPiece = new List<PrintGroupWorkPiece>();
             StatisticMaterialTypes = new List<PrintStatisticMaterialType>();
@@ -85,63 +48,51 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string Quater { get; set; }
         public List<PrintMaterialDailyPeriod> List { get; set; }
 
-        public double Import
-        {
+        public double Import {
             get { return List.Sum(l => l.Import); }
         }
 
-        public double ImportKg
-        {
+        public double ImportKg {
             get { return List.Sum(l => l.ImportKg); }
         }
 
-        public double ImportInMonth
-        {
+        public double ImportInMonth {
             get { return List.Sum(l => l.ImportInMonth); }
         }
 
-        public double ImportInMonthKg
-        {
+        public double ImportInMonthKg {
             get { return List.Sum(l => l.ImportInMonthKg); }
         }
 
-        public double Export
-        {
+        public double Export {
             get { return List.Sum(l => l.Export); }
         }
 
-        public double ExportKg
-        {
+        public double ExportKg {
             get { return List.Sum(l => l.ExportKg); }
         }
 
-        public double ExportInMonth
-        {
+        public double ExportInMonth {
             get { return List.Sum(l => l.ExportInMonth); }
         }
 
-        public double ExportInMonthKg
-        {
+        public double ExportInMonthKg {
             get { return List.Sum(l => l.ExportInMonthKg); }
         }
 
-        public double ExportDestroy
-        {
+        public double ExportDestroy {
             get { return List.Sum(l => l.ExportDestroy); }
         }
 
-        public double ExportDestroyInMonth
-        {
+        public double ExportDestroyInMonth {
             get { return List.Sum(l => l.ExportDestroyInMonth); }
         }
 
-        public double Required
-        {
+        public double Required {
             get { return List.Sum(l => l.Required); }
         }
 
-        public double RequiredKg
-        {
+        public double RequiredKg {
             get { return List.Sum(l => l.RequiredKg); }
         }
 
@@ -151,33 +102,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double LastQuantityKg { get; set; }
         public double MaterialOnMachine { get; set; }
 
-        public double MaterialUse
-        {
+        public double MaterialUse {
             get { return List.Sum(l => l.MaterialUse); }
         }
 
-        public double MaterialUseKg
-        {
+        public double MaterialUseKg {
             get { return List.Sum(l => l.MaterialUseKg); }
         }
 
-        public double MaterialUseInMonth
-        {
+        public double MaterialUseInMonth {
             get { return List.Sum(l => l.MaterialUseInMonth); }
         }
 
-        public double MaterialUseInMonthKg
-        {
+        public double MaterialUseInMonthKg {
             get { return List.Sum(l => l.MaterialUseInMonthKg); }
         }
 
-        public double ProductQuantity
-        {
+        public double ProductQuantity {
             get { return List.Sum(l => l.ProductQuantity); }
         }
 
-        public double ProcessQuantity
-        {
+        public double ProcessQuantity {
             get { return List.Sum(l => l.ProcessQuantity); }
         }
 
@@ -189,18 +134,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             get { return List.Sum(l => l.DefectWeight); }
         }
 
-        public double ProductQuantityInMonth
-        {
+        public double ProductQuantityInMonth {
             get { return List.Sum(l => l.ProductQuantityInMonth); }
         }
 
-        public double ProcessQuantityInMonth
-        {
+        public double ProcessQuantityInMonth {
             get { return List.Sum(l => l.ProcessQuantityInMonth); }
         }
 
-        public double DefectQuantityInMonth
-        {
+        public double DefectQuantityInMonth {
             get { return List.Sum(l => l.DefectQuantityInMonth); }
         }
 
@@ -208,23 +150,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ProductivityInDay { get; set; }
         public double MaterialRate { get; set; }
 
-        public double ProductWeight
-        {
+        public double ProductWeight {
             get { return List.Sum(l => l.ProductWeight); }
         }
 
-        public double ProductWeightInMonth
-        {
+        public double ProductWeightInMonth {
             get { return List.Sum(l => l.ProductWeightInMonth); }
         }
 
-        public double MaterialWorkPiece
-        {
+        public double MaterialWorkPiece {
             get { return MaterialUseKg - ProductWeight; }
         }
 
-        public double MaterialWorkPieceInMonth
-        {
+        public double MaterialWorkPieceInMonth {
             get { return List.Sum(l => l.MaterialWorkPieceInMonth); }
         }
 
@@ -232,13 +170,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string StartDate { get; set; }
         public string EndDate { get; set; }
 
-        public double DifferentQuantity
-        {
+        public double DifferentQuantity {
             get { return List.Sum(l => l.DifferentQuantity); }
         }
 
-        public double DifferentQuantityInMonth
-        {
+        public double DifferentQuantityInMonth {
             get { return List.Sum(l => l.DifferentQuantityInMonth); }
         }
 
@@ -427,10 +363,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public double MaxMaterialUse {
             get {
-                if(!MaterialUseInDays.Any())
-                    return  0;
+                if (!MaterialUseInDays.Any())
+                    return 0;
                 var max = 0.0;
-                var machineIds = MaterialUseInDays.Select(x=> x.MachineId).Distinct();
+                var machineIds = MaterialUseInDays.Select(x => x.MachineId).Distinct();
                 foreach (var machineId in machineIds) {
                     var canMaterialUseInDays = MaterialUseInDays.Any(x => x.MachineId == machineId && x.DayUse >= PlanDate);
                     if (canMaterialUseInDays) {
@@ -453,46 +389,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public DateTime DayUse { get; set; }
     }
 
-    public class MachineExport
-    {
+    public class MachineExport {
         public int MaterialId { get; set; }
         public int MachineId { get; set; }
         public double LastExport { get; set; }
         public DateTime ExportDate { get; set; }
     }
 
-    public class PrintMaterialDailyPeriodDetail
-    {
-        public PrintMaterialDailyPeriodDetail()
-        {
+    public class PrintMaterialDailyPeriodDetail {
+        public PrintMaterialDailyPeriodDetail() {
             OnMachines = new List<PrintMaterialDailyPeriodDetailOnMachine>();
         }
 
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
 
-        public double ProductWeight
-        {
+        public double ProductWeight {
             get { return OnMachines.Sum(om => om.ProductWeight); }
         }
 
-        public double ProductWeightInMonth
-        {
+        public double ProductWeightInMonth {
             get { return OnMachines.Sum(om => om.ProductWeightInMonth); }
         }
 
-        public double MaterialWorkPiece
-        {
+        public double MaterialWorkPiece {
             get { return MaterialUseKg - ProductWeight; }
         }
 
-        public double MaterialWorkPieceInMonth
-        {
+        public double MaterialWorkPieceInMonth {
             get { return MaterialUseInMonthKg - ProductWeightInMonth; }
         }
 
-        public double MaterialUse
-        {
+        public double MaterialUse {
             get { return OnMachines.Sum(om => om.MaterialUse); }
         }
 
@@ -501,14 +429,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         }
 
 
-        public double MaterialUseInMonth
-        {
+        public double MaterialUseInMonth {
             get { return OnMachines.Sum(om => om.MaterialUseInMonth); }
         }
 
-        public double MaterialUseInMonthKg
-        {
-            get { return MaterialUseInMonth*MaterialUnitWeight; }
+        public double MaterialUseInMonthKg {
+            get { return MaterialUseInMonth * MaterialUnitWeight; }
         }
 
         public int DayProducted { get; set; }
@@ -522,53 +448,46 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double MaterialLenght { get; set; }
         public double Import { get; set; }
 
-        public double ImportKg
-        {
-            get { return Import*MaterialUnitWeight; }
+        public double ImportKg {
+            get { return Import * MaterialUnitWeight; }
         }
 
         public double ImportInMonth { get; set; }
 
-        public double ImportInMonthKg
-        {
-            get { return ImportInMonth*MaterialUnitWeight; }
+        public double ImportInMonthKg {
+            get { return ImportInMonth * MaterialUnitWeight; }
         }
 
         public double Export { get; set; }
 
-        public double ExportKg
-        {
-            get { return Export*MaterialUnitWeight; }
+        public double ExportKg {
+            get { return Export * MaterialUnitWeight; }
         }
 
         public double ExportInMonth { get; set; }
 
-        public double ExportInMonthKg
-        {
-            get { return ExportInMonth*MaterialUnitWeight; }
+        public double ExportInMonthKg {
+            get { return ExportInMonth * MaterialUnitWeight; }
         }
 
         public double ExportDestroy { get; set; }
         public double ExportDestroyInMonth { get; set; }
         public double Required { get; set; }
 
-        public double RequiredKg
-        {
-            get { return Required*MaterialUnitWeight; }
+        public double RequiredKg {
+            get { return Required * MaterialUnitWeight; }
         }
 
         public double EarlyQuantity { get; set; }
 
-        public double EarlyQuantityKg
-        {
-            get { return EarlyQuantity*MaterialUnitWeight; }
+        public double EarlyQuantityKg {
+            get { return EarlyQuantity * MaterialUnitWeight; }
         }
 
         public double LastQuantity { get; set; }
 
-        public double LastQuantityKg
-        {
-            get { return LastQuantity*MaterialUnitWeight; }
+        public double LastQuantityKg {
+            get { return LastQuantity * MaterialUnitWeight; }
         }
 
         public double MaterialOnMachine { get; set; }
@@ -577,13 +496,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string Note { get; set; }
         public double LastExport { get; set; }
 
-        public double ProductQuantity
-        {
+        public double ProductQuantity {
             get { return OnMachines.Sum(om => om.ProductQuantity); }
         }
 
-        public double ProcessQuantity
-        {
+        public double ProcessQuantity {
             get { return OnMachines.Sum(om => om.ProcessQuantity); }
         }
 
@@ -595,38 +512,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             get { return OnMachines.Sum(om => om.DefectWeight); }
         }
 
-        public double ProductQuantityInMonth
-        {
+        public double ProductQuantityInMonth {
             get { return OnMachines.Sum(om => om.ProductQuantityInMonth); }
         }
 
-        public double ProcessQuantityInMonth
-        {
+        public double ProcessQuantityInMonth {
             get { return OnMachines.Sum(om => om.ProcessQuantityInMonth); }
         }
 
-        public double DefectQuantityInMonth
-        {
+        public double DefectQuantityInMonth {
             get { return OnMachines.Sum(om => om.DefectQuantityInMonth); }
         }
 
-        public double DifferentQuantity
-        {
+        public double DifferentQuantity {
             get { return OnMachines.Sum(om => om.DifferentQuantity); }
         }
 
-        public double DifferentQuantityInMonth
-        {
+        public double DifferentQuantityInMonth {
             get { return OnMachines.Sum(om => om.DifferentQuantityInMonth); }
         }
 
         public int VendorId { get; set; }
         public string VendorCode { get; set; }
 
-        public bool Show
-        {
-            get
-            {
+        public bool Show {
+            get {
                 return (ImportInMonth + ExportInMonth + MaterialUseInMonth
                         + ProductQuantityInMonth + ProcessQuantityInMonth + DefectQuantityInMonth
                         > 0 || OnMachines.Any());
@@ -645,10 +555,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
     }
 
-    public class PrintMaterialDailyPeriodDetailOnMachine
-    {
-        public PrintMaterialDailyPeriodDetailOnMachine()
-        {
+    public class PrintMaterialDailyPeriodDetailOnMachine {
+        public PrintMaterialDailyPeriodDetailOnMachine() {
             Productivity = 0;
             ProductionRate = 0;
         }
@@ -673,8 +581,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             get { return DefectQuantity * ProductUnitWeight / 1000; }
         }
 
-        public double ProductWeightInMonth
-        {
+        public double ProductWeightInMonth {
             get { return (ProductQuantityInMonth + ProcessQuantityInMonth) * ProductUnitWeight / 1000; }
         }
 
@@ -682,26 +589,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double MaterialUnitWeight { get; set; }
         public double ProductionRate { get; set; }
 
-        public double MaterialRate
-        {
-            get { return ProductionRate > 0 ? ProductivityInDay/ProductionRate : 0; }
+        public double MaterialRate {
+            get { return ProductionRate > 0 ? ProductivityInDay / ProductionRate : 0; }
         }
 
-        public double ProductivityInDay
-        {
+        public double ProductivityInDay {
             get {
                 return MyUtilities.Product.GetProductionRateInFactoryDayTime(Productivity);
                 //return Productivity > 0 ? MyUtilities.Product.Second20h / Productivity : 0;
             }
         }
 
-        public double MaterialWorkPiece
-        {
+        public double MaterialWorkPiece {
             get { return MaterialUseKg - ProductWeight; }
         }
 
-        public double MaterialWorkPieceInMonth
-        {
+        public double MaterialWorkPieceInMonth {
             get { return MaterialUseInMonthKg - ProductWeightInMonth; }
         }
 
@@ -721,9 +624,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         }
 
         public double MaterialUse { get; set; }
-        public double MaterialUseKg
-        {
-            get { return MaterialUse*MaterialUnitWeight; }
+        public double MaterialUseKg {
+            get { return MaterialUse * MaterialUnitWeight; }
         }
 
         public double MaterialUseInPlan { get; set; }
@@ -733,18 +635,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public double MaterialUseInMonth { get; set; }
 
-        public double MaterialUseInMonthKg
-        {
-            get { return MaterialUseInMonth*MaterialUnitWeight; }
+        public double MaterialUseInMonthKg {
+            get { return MaterialUseInMonth * MaterialUnitWeight; }
         }
 
         public int DayProducted { get; set; }
         public byte Status { get; set; }
         public double RequiredPerProduct { get; set; }
 
-        public double RequiredPerProductKg
-        {
-            get { return RequiredPerProduct*MaterialUnitWeight; }
+        public double RequiredPerProductKg {
+            get { return RequiredPerProduct * MaterialUnitWeight; }
         }
 
         public int RequiredStatus { get; set; }
@@ -752,9 +652,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public int MaterialInvId { get; set; }
         public double Export { get; set; }
 
-        public double ExportKg
-        {
-            get { return Export*MaterialUnitWeight; }
+        public double ExportKg {
+            get { return Export * MaterialUnitWeight; }
         }
 
         public int MachineId { get; set; }
@@ -766,14 +665,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double LastExport { get; set; }
         public double ExportInMonth { get; set; }
 
-        public double ExportInMonthKg
-        {
-            get { return ExportInMonth*MaterialUnitWeight; }
+        public double ExportInMonthKg {
+            get { return ExportInMonth * MaterialUnitWeight; }
         }
 
-        public double Performance
-        {
-            get { return ProductivityInDay > 0 ? ProductQuantity/ProductivityInDay*100 : 0; }
+        public double Performance {
+            get { return ProductivityInDay > 0 ? ProductQuantity / ProductivityInDay * 100 : 0; }
         }
 
         public DateTime StartDate { get; set; }

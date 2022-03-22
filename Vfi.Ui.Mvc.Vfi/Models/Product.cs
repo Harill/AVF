@@ -48,6 +48,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.StockOrderDetails = new List<StockOrderDetail>();
             this.TransactionDetails = new List<TransactionDetail>();
             this.TransactionProducts = new List<TransactionProduct>();
+            this.TransactionWeighings = new List<TransactionWeighing>();
             this.OrderProgresses = new List<OrderProgress>();
             this.ForecastOrders = new List<ForecastOrder>();
             this.InvoiceDetails = new List<InvoiceDetail>();
@@ -165,6 +166,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<StockOrderDetail> StockOrderDetails { get; set; }
         public virtual ICollection<TransactionDetail> TransactionDetails { get; set; }
         public virtual ICollection<TransactionProduct> TransactionProducts { get; set; }
+        public virtual ICollection<TransactionWeighing> TransactionWeighings { get; set; }
         public virtual Material Material { get; set; }
         public virtual ICollection<OrderProgress> OrderProgresses { get; set; }
         public virtual ICollection<ForecastOrder> ForecastOrders { get; set; }

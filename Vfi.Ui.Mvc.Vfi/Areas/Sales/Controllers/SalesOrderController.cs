@@ -32,7 +32,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         }
 
         ViewDataDictionary GetPageConfigData() {
-            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            var viewModel = MyUtilities.MySystem.GetPageConfig(HttpContext.User.Identity.Name);
             foreach (var property in viewModel.GetType().GetProperties()) {
                 ViewData[property.Name] = property.GetValue(viewModel, null);
             }

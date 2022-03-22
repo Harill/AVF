@@ -21,6 +21,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string BackgroundImage { get; set; }
         public string LogoImage { get; set; }
         public string ImagePath { get; set; }
+        public string PageTitleColor { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; }
         public virtual ICollection<UserWorkGroup> UserWorkGroups { get; set; }
     }

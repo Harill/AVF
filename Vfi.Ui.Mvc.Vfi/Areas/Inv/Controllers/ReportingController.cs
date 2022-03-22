@@ -37,7 +37,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         // GET: /Inv/Reporting/
         #region view
         ViewDataDictionary GetPageConfigData() {
-            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            var viewModel = MyUtilities.MySystem.GetPageConfig(HttpContext.User.Identity.Name);
             foreach (var property in viewModel.GetType().GetProperties()) {
                 ViewData[property.Name] = property.GetValue(viewModel, null);
             }
@@ -478,15 +478,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                 em.ExportMaterial.ExportDate,
                                             }).ToList();
                     var retrieveInMonth = (from ms in vfi.MaterialUseDetails
-                                          where ms.MaterialUseInShift.Type == 2 &&
+                                           where ms.MaterialUseInShift.Type == (int)MyUtilities.Material.UseType.SendBack &&
                                                 ms.MaterialUseInShift.Status ==
                                                 (byte)MyUtilities.Transaction.Status.Approved &&
                                                 ms.MaterialUseInShift.UsedDate >= startMonth &&
                                                 ms.MaterialUseInShift.UsedDate <= endMonth
-                                          select new {
-                                              ms.MaterialInvId,
-                                              Quantity = ms.EditQuantity + ms.EditQuantity2,
-                                          }).ToList();
+                                           select new {
+                                               ms.MaterialInvId,
+                                               Quantity = ms.EditQuantity + ms.EditQuantity2,
+                                           }).ToList();
                     var useInMonth = (from ms in vfi.MaterialUseDetails
                                      where ms.MaterialUseInShift.Type == 1 &&
                                            ms.MaterialUseInShift.Status ==
@@ -682,12 +682,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             TransactionId = use.UseId
                         };
                         entity.QuantityKg = entity.Quantity * materialInv.UnitWeight;
-                        if (use.MaterialUseInShift.Type == 1) {
+                        if (use.MaterialUseInShift.Type == (int)MyUtilities.Material.UseType.Using) {
                             entity.TypeName = "Sử dụng";
                         }
-                        else if (use.MaterialUseInShift.Type == 2 && use.IsDetroy)
+                        else if (use.MaterialUseInShift.Type == (int)MyUtilities.Material.UseType.SendBack && use.IsDetroy)
                             entity.TypeName = "Huỷ trên máy";
-                        else
+                        else if (use.MaterialUseInShift.Type == (int)MyUtilities.Material.UseType.SendBack && !use.IsDetroy)
                             entity.TypeName = "Thu hồi";
                         model.Add(entity);
                     }
@@ -1200,10 +1200,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             var useByParam = useById.Where(p => p.Type == 1).ToList();
                             byMonth.ExportUse = Math.Round(useByParam.Sum(e => e.QuantityKg), 2);
 
-                            useByParam = useById.Where(p => p.Type == 2 && p.IsDetroy).ToList();
+                            useByParam = useById.Where(p => p.Type == (int)MyUtilities.Material.UseType.SendBack && p.IsDetroy).ToList();
                             byMonth.ExportDestroy = Math.Round(useByParam.Sum(e => e.QuantityKg), 2);
 
-                            useByParam = useById.Where(p => p.Type == 2 && !p.IsDetroy).ToList();
+                            useByParam = useById.Where(p => p.Type == (int)MyUtilities.Material.UseType.SendBack && !p.IsDetroy).ToList();
                             byMonth.ImportMore -= Math.Round(useByParam.Sum(e => e.QuantityKg), 2);
                             if (byMonth.ImportMore < 0) byMonth.ImportMore = 0;
 
@@ -1994,9 +1994,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         x.ImportQuantityKg,
                                         x.StoreCode,
                                         x.InfoImg,
-                                        x.ModifiedDate
+                                        x.ModifiedDate,
+                                        x.TotalQty,
                                     }).ToList();
                 var materialInvIds = materialInvs.Select(mi => mi.MaterialInventoryId).ToList();
+                var onShelves = vfi.OnShelves.Where(x => x.Active && materialInvIds.Contains(x.ReferenceInvId))
+                    .Select(x => new InventoryDrawerModel {
+                        ShelfName = x.InventoryDrawer.InventoryShelf.ShelfName,
+                        ColumnName = x.InventoryDrawer.ColumnName,
+                        RowName = x.InventoryDrawer.RowName,
+                        AdditionName = x.InventoryDrawer.AdditionName,
+                        ReferenceInvId = x.ReferenceInvId
+                    }).ToList();
                 var mip = (from x in vfi.MaterialInventoryPeriods
                            where x.PeriodDate <= tdate &&
                                  materialInvIds.Contains(x.MaterialInventoryId)
@@ -2101,12 +2110,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 : "",
                         FirstImport = string.Format("{0:n2}", materialInv.ImportQuantity),
                         FirstImportKg = string.Format("{0:n2}", materialInv.ImportQuantityKg),
-                        StoreCode = materialInv.StoreCode,
+                        //StoreCode = materialInv.StoreCode,
                         Show = true,
                         Active = false,
                         InfoImg = materialInv.InfoImg,
                         UploadDate = materialInv.ModifiedDate.ToString("yyyyMMddhhmmss")
                     };
+                    var onShelvesById = onShelves.Where(x => x.ReferenceInvId == materialInv.MaterialInventoryId).ToList();
+                    if (onShelvesById.Any()) {
+                        entity.StoreCode = string.Join("+", onShelvesById.Distinct().OrderBy(x => x.DrawerCode).Select(x => x.DrawerCode).ToList());
+                    }
+                    else if (materialInv.TotalQty > 0) {
+                        entity.StoreCode = "Ngoài kệ";
+                    }
                     if (string.IsNullOrWhiteSpace(entity.InfoImg))
                         entity.InfoImg = "askquestion.jpg";
 
@@ -2423,7 +2439,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             em.ExportMaterial.ExportDate,
                                         }).ToList();
                 var retrieveInMonth = from ms in vfi.MaterialUseDetails
-                                      where ms.MaterialUseInShift.Type == 2 &&
+                                      where ms.MaterialUseInShift.Type == (int)MyUtilities.Material.UseType.SendBack &&
                                             ms.MaterialUseInShift.Status ==
                                             (byte)MyUtilities.Transaction.Status.Approved &&
                                             ms.MaterialUseInShift.UsedDate >= startMonth &&
@@ -14194,9 +14210,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 if (exportsById.Any()) {
                                     entity.TotalAssign = exportsById.Sum(ed => ed.Quantity);
                                 }
-                                var usesByDate = uses.Where(md => md.UsedDate == d && md.Type == 2 && !md.IsDetroy).ToList();
+                                var usesByDate = uses.Where(md => md.UsedDate == d && md.Type == (int)MyUtilities.Material.UseType.SendBack && !md.IsDetroy).ToList();
                                 entity.SendBack = usesByDate.Sum(mu => mu.Quantity); // trả NL
-                                usesByDate = uses.Where(md => md.UsedDate == d && md.Type == 2 && md.IsDetroy).ToList();
+                                usesByDate = uses.Where(md => md.UsedDate == d && md.Type == (int)MyUtilities.Material.UseType.SendBack && md.IsDetroy).ToList();
                                 entity.TotalDestroy = usesByDate.Sum(mu => mu.Quantity); // huy NL tren may
                                 alreadyAssign = true;
                             }
@@ -14217,9 +14233,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             if (exportsById.Any()) {
                                 entity.TotalAssign = exportsById.Sum(ed => ed.Quantity);
                             }
-                            var usesByDate = uses.Where(md => md.UsedDate == d && md.Type == 2 && !md.IsDetroy).ToList();
+                            var usesByDate = uses.Where(md => md.UsedDate == d && md.Type == (int)MyUtilities.Material.UseType.SendBack && !md.IsDetroy).ToList();
                             entity.SendBack = usesByDate.Sum(mu => mu.Quantity); // trả NL
-                            usesByDate = uses.Where(md => md.UsedDate == d && md.Type == 2 && md.IsDetroy).ToList();
+                            usesByDate = uses.Where(md => md.UsedDate == d && md.Type == (int)MyUtilities.Material.UseType.SendBack && md.IsDetroy).ToList();
                             entity.TotalDestroy = usesByDate.Sum(mu => mu.Quantity); // huy NL tren may
                             model.Add(entity);
                         }

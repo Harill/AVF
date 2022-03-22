@@ -18,6 +18,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.OrderNotes = new List<OrderNote>();
             this.TransactionDetails = new List<TransactionDetail>();
             this.TransactionProducts = new List<TransactionProduct>();
+            this.TransactionWeighings = new List<TransactionWeighing>();
         }
 
         public long TransactionId { get; set; }
@@ -52,5 +53,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual Warehouse Warehouse1 { get; set; }
         public virtual ICollection<TransactionDetail> TransactionDetails { get; set; }
         public virtual ICollection<TransactionProduct> TransactionProducts { get; set; }
+        public virtual ICollection<TransactionWeighing> TransactionWeighings { get; set; }
     }
 }

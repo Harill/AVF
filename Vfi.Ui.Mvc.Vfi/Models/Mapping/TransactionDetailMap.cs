@@ -54,6 +54,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasOptional(t => t.ProductionProcessByMachine)
                 .WithMany(t => t.TransactionDetails)
                 .HasForeignKey(d => d.NextProcessId);
+            this.HasOptional(t => t.InventoryDrawer)
+                .WithMany(t => t.TransactionDetails)
+                .HasForeignKey(d => d.DrawerId);
             this.HasOptional(t => t.ProcessError)
                 .WithMany(t => t.TransactionDetails)
                 .HasForeignKey(d => d.ErrorId);
@@ -72,9 +75,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasOptional(t => t.TransactionProduct)
                 .WithMany(t => t.TransactionDetails)
                 .HasForeignKey(d => d.TransactionProductId);
-            this.HasOptional(t => t.InventoryDrawer)
-                .WithMany(t => t.TransactionDetails)
-                .HasForeignKey(d => d.DrawerId);
 
         }
     }

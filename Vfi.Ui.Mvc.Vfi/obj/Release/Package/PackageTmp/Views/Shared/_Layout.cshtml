@@ -51,19 +51,19 @@
          <div class="logo">
              <img src="@ViewBag.ImagePath/Logo/@ViewBag.LogoImage" />
          </div>
-        <div id="header" style="width:94%;float:left">
+        <div id="header" style="width:93%;float:left">
             <div id="title">
-                <h1>Hệ thống quản lý @ViewBag.PageName</h1>
+                <h1 style="color: @ViewBag.PageTitleColor;">Hệ thống quản lý @ViewBag.PageName</h1>
             </div>
 
-            <div id="logindisplay">
+            <div id="logindisplay" style="color: @ViewBag.PageTitleColor;">
                 @Html.Partial("_LogOnUserControl")
             </div>
             
             <div class="clear"></div>
         </div>
         <br />
-            <div id="menuArea" style="width:94%; float:left">
+            <div id="menuArea" style="width:93%; float:left">
                @if (!Request.IsAuthenticated)
                {
                    @: @{ Html.Telerik().Menu().Name("M").Render();} 

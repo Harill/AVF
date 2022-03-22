@@ -29,9 +29,7 @@
                                           .Insert("InsertWarehouse", "Warehouse")
                                           .Update("UpdateWarehouse", "Warehouse"))
             .Columns(columns => {
-                columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.Image)
-                    ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.WarehouseName);
                 columns.Bound(f => f.ShortName).Title("Tên ngắn");
                 columns.Bound(f => f.Idx);
@@ -44,47 +42,102 @@
                 columns.Bound(f => f.IsOutOfProcess).Width(45).Title("Quy trình</br>ngoài")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsOutOfProcess' <#=IsOutOfProcess? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsProduction).Width(45).Title("Công đoạn</br>SX1")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction' <#=IsProduction? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsCncMilling).Width(45).Title("Công đoạn</br>Phay CNC")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsCncMilling' <#=IsCncMilling? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsProduction2).Width(45).Title("Công đoạn</br>SX2")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2' <#=IsProduction2? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsProduction2Process).Width(45).Title("Gia công</br>SX2")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2Process' <#=IsProduction2Process? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsHeatTreatment).Width(45).Title("Công đoạn</br>nhiệt luyện")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsHeatTreatment' <#=IsHeatTreatment? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsPolish).Width(45).Title("Công đoạn</br>rung bóng")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPolish' <#=IsPolish? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsPlating).Width(45).Title("Công đoạn</br>xi mạ")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPlating' <#=IsPlating? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsQC).Width(45).Title("Công đoạn</br>QC")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsQC' <#=IsQC? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsReprocessing).Width(45).Title("Công đoạn</br>xử lý lại")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsReprocessing' <#=IsReprocessing? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.CanInternal).Width(45).Title("Xuất nhập</br>nội bộ")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanInternal' <#=CanInternal? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.CanStock).Width(45).Title("Tính</br>tồn kho")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanStock' <#=CanStock? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.CanPurchase).Width(45).Title("Nhập</br>mua hàng")
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanPurchase' <#=CanPurchase? checked='checked' : '' #> />")
-                       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsProduction).Width(45).Title("Công đoạn</br>SX1")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction' <#=IsProduction? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsCncMilling).Width(45).Title("Công đoạn</br>Phay CNC")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsCncMilling' <#=IsCncMilling? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsProduction2).Width(45).Title("Công đoạn</br>SX2")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2' <#=IsProduction2? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsProduction2Process).Width(45).Title("Gia công</br>SX2")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2Process' <#=IsProduction2Process? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsHeatTreatment).Width(45).Title("Công đoạn</br>nhiệt luyện")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsHeatTreatment' <#=IsHeatTreatment? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsPolish).Width(45).Title("Công đoạn</br>rung bóng")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPolish' <#=IsPolish? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsPlating).Width(45).Title("Công đoạn</br>xi mạ")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPlating' <#=IsPlating? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsQC).Width(45).Title("Công đoạn</br>QC")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsQC' <#=IsQC? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.IsReprocessing).Width(45).Title("Công đoạn</br>xử lý lại")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsReprocessing' <#=IsReprocessing? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.CanInternal).Width(45).Title("Xuất nhập</br>nội bộ")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanInternal' <#=CanInternal? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.CanStock).Width(45).Title("Tính</br>tồn kho")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanStock' <#=CanStock? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.CanPurchase).Width(45).Title("Nhập</br>mua hàng")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanPurchase' <#=CanPurchase? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+                //columns.Bound(f => f.CanWeighing).Width(45).Title("Cân</br>hàng")
+                //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanWeighing' <#=CanWeighing? checked='checked' : '' #> />")
+                //       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.ModifiedDate).Width(45).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy HH:mm}");
                 columns.Bound(f => f.ModifiedUser).Width(45).ReadOnly(true);
             })
-            .ClientEvents(e => e.OnError("grid_OnError"))
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().Grid<WarehouseModel>()
+                    .Name("gridDetail_<#= WarehouseId #>")
+                    .DataKeys(key => key.Add(f => f.WarehouseId).RouteKey("warehouseId"))
+                    .DataBinding(dataDindings => dataDindings.Ajax()
+                        .Select("SelectWarehouseConfiguration", "Warehouse", new { warehouseId = "<#= WarehouseId #>", })
+                        .Update("UpdateWarehouseConfiguration", "Warehouse"))
+                    .Columns(columns => {
+                        columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsProduction).Width(45).Title("Công đoạn</br>SX1")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction' <#=IsProduction? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsCncMilling).Width(45).Title("Công đoạn</br>Phay CNC")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsCncMilling' <#=IsCncMilling? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsProduction2).Width(45).Title("Công đoạn</br>SX2")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2' <#=IsProduction2? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsProduction2Process).Width(45).Title("Gia công</br>SX2")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsProduction2Process' <#=IsProduction2Process? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsHeatTreatment).Width(45).Title("Công đoạn</br>nhiệt luyện")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsHeatTreatment' <#=IsHeatTreatment? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsPolish).Width(45).Title("Công đoạn</br>rung bóng")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPolish' <#=IsPolish? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsPlating).Width(45).Title("Công đoạn</br>xi mạ")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPlating' <#=IsPlating? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsQC).Width(45).Title("Công đoạn</br>QC")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsQC' <#=IsQC? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsReprocessing).Width(45).Title("Công đoạn</br>xử lý lại")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsReprocessing' <#=IsReprocessing? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center;border-right:1px solid black;" });
+                        columns.Bound(f => f.CanInternal).Width(45).Title("Xuất/nhập</br>nội bộ")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanInternal' <#=CanInternal? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.CanStock).Width(45).Title("Tính</br>tồn kho")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanStock' <#=CanStock? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.CanPurchase).Width(45).Title("Nhập</br>mua hàng")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanPurchase' <#=CanPurchase? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.CanWeighing).Width(45).Title("Cân</br>hàng")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='CanWeighing' <#=CanWeighing? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                    })
+                    .ClientEvents(events => events.OnError("grid_OnError"))
+                    .ToHtmlString()))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                                .OnRowSelect("grid_OnRowSelect"))
             .Editable(editing => editing.Mode(GridEditMode.InLine))
             //.Pageable(page => page.PageSize(10))
             .Sortable()

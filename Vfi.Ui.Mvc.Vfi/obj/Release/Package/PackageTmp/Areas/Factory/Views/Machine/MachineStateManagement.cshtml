@@ -65,6 +65,8 @@
                         columns.Bound(f => f.StateCode).Width(150).Title("Code");
                         columns.Bound(f => f.Description).Title("Mô tả lỗi")
                                .ClientTemplate("<strong><#= Description #></strong>");
+                        columns.Bound(f => f.NameEN).Title("Mô tả lỗi (EN)")
+                               .ClientTemplate("<strong><#= NameEN #></strong>");
                         columns.Bound(f => f.EstimateTime).Title("Ước lượng<br/>TG").Width(100)
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align: right;" });

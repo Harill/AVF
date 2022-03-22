@@ -36,7 +36,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         #region view
         ViewDataDictionary GetPageConfigData() {
-            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            var viewModel = MyUtilities.MySystem.GetPageConfig(HttpContext.User.Identity.Name);
             foreach (var property in viewModel.GetType().GetProperties()) {
                 ViewData[property.Name] = property.GetValue(viewModel, null);
             }
@@ -751,7 +751,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         od.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
                         od.Order.DueDate != null &&
                        od.Order.DueDate.Value.Month == order.DueDate.Value.Month &&
-                       od.Order.DueDate.Value.Year == order.DueDate.Value.Year)
+                       od.Order.DueDate.Value.Year == order.DueDate.Value.Year &&
+                       od.OrderId != order.OrderId)
                        .Select(x => new { x.ProductId, x.OrderQty }).ToList();
                     foreach (var productId in productIds) {
                         var forecast = vfi.ForecastOrders.FirstOrDefault(f => f.ProductId == productId &&

@@ -5,7 +5,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
 {
     public partial class InventoryDrawer
     {
-        public InventoryDrawer() {
+        public InventoryDrawer()
+        {
             this.OnShelves = new List<OnShelf>();
             this.TransactionDetails = new List<TransactionDetail>();
         }

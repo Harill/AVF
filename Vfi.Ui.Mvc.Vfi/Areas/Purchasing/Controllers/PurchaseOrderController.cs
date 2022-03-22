@@ -30,7 +30,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
         #region View
         ViewDataDictionary GetPageConfigData() {
-            var viewModel = MyUtilities.MySystem.GetPageConfig();
+            var viewModel = MyUtilities.MySystem.GetPageConfig(HttpContext.User.Identity.Name);
             foreach (var property in viewModel.GetType().GetProperties()) {
                 ViewData[property.Name] = property.GetValue(viewModel, null);
             }
@@ -1479,259 +1479,337 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ? DateTime.Now
                                 : Convert.ToDateTime(toDate, ci);
                 using (var vfi = new tammaContext()) {
-                    var index = 0;
-                    // material
-                    if (classifiedId == 0 || classifiedId == 1) {
-                        var importMaterials =
-                            vfi.ImportPurchaseOrders.Where(
-                                i =>
-                                i.ImportDate >= fDate && i.ImportDate <= tDate &&
-                                i.PurchaseOrderId != null &&
-                                i.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                (vendorId == 0 || i.PurchaseOrder.VendorId == vendorId))
-                               .OrderBy(i => i.ImportDate);
-                        foreach (var importPo in importMaterials) {
-                            foreach (var importDetail in importPo.ImportPurchaseOrderDetails) {
-                                var material =
-                                    vfi.Materials.FirstOrDefault(m => m.MaterialId == importDetail.MaterialId);
-                                var purchaseDetail =
-                                    vfi.PurchaseOrderDetails.FirstOrDefault(
-                                        pod => pod.PurchaseOrderId == importPo.PurchaseOrderId
-                                               && pod.ReferenceId == importDetail.MaterialId);
-                                //var materialInv =
-                                //    vfi.MaterialInventories.FirstOrDefault(
-                                //        mi =>
-                                //        mi.MaterialId == importDetail.MaterialId &&
-                                //        mi.LotNumber.Equals(importDetail.LotNumber) &&
-                                //        mi.VendorId == importDetail.VendorId &&
-                                //        mi.Length == importDetail.Length);
-                                var detail = new TransactionFptDetailModel {
-                                    LotNumber = "x" + (importDetail.Length / 1000) + "-" + importDetail.LotNumber,
-                                    Note = importDetail.Note,
-                                    Quantity = importDetail.QuantityKg,
-                                    FuelCode = material.MaterialCode,
-                                    FuelName = material.MaterialName,
-                                    //FuelDesignNo = MaterialModel.GetDesignNo(material),
-                                    UnitMeasure = purchaseDetail.Unit,
-                                    UnitPrice = purchaseDetail.UnitPrice,
-                                    Price = importDetail.QuantityKg * purchaseDetail.UnitPrice,
-                                    CurrencyCode = purchaseDetail.PurchaseOrder.CurrencyCode.Trim(),
-                                    VendorId = purchaseDetail.PurchaseOrder.VendorId,
-                                    VendorName = purchaseDetail.PurchaseOrder.Vendor.VendorName,
-                                    VendorCode = purchaseDetail.PurchaseOrder.Vendor.VendorCode,
-                                    TransactionDate = importPo.ImportDate,
-                                    ModifiedUser = importPo.ModifiedUser,
-                                    ModifiedDate = importPo.ModifiedDate,
-                                    Index = ++index,
-                                    TransactionCode = importPo.Transaction.TransactionCode,
-                                    ExchangeRate = importPo.ExchangeRate,
-                                };
-                                detail.FuelDesignNo = MyUtilities.Material.GetMaterialDesignNo(material.OutDiameter,
-                                                                                               material.InDiameter,
-                                                                                               material.DiameterType,
-                                                                                               material.Shape);
-                                if (importDetail.PoReferenceDetailId != null) {
-                                    detail.TaxInvoiceNumber =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .TaxInvoiceNumber;
-                                    detail.TaxPercent =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .TaxPercent;
-                                    detail.ExchangeRate =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .ExchangeRate;
-                                    detail.TaxInvoiceDate =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .PoDate;
-                                }
-                                detail.Price = importDetail.QuantityKg * purchaseDetail.UnitPrice * detail.ExchangeRate;
-                                model2.Add(detail);
+                    if (classifiedId == 0 || classifiedId == 1) {// material
+                        var importDetails = (from x in vfi.ImportPurchaseOrderDetails
+                                             where x.ImportPurchaseOrder.ImportDate >= fDate
+                                             && x.ImportPurchaseOrder.ImportDate <= tDate
+                                             && x.ImportPurchaseOrder.PurchaseOrderId != null
+                                             && x.ImportPurchaseOrder.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                             && (vendorId == 0 || x.VendorId == vendorId)
+                                             select new TransactionFptDetailModel {
+                                                 FptId = x.MaterialId.Value,
+                                                 FptCode = x.Material.MaterialCode,
+                                                 FptName = x.Material.MaterialName,
+                                                 FptDesignNo = MyUtilities.Material.GetMaterialDesignNo(x.Material.OutDiameter,
+                                                                                            x.Material.InDiameter,
+                                                                                            x.Material.DiameterType,
+                                                                                            x.Material.Shape),
+                                                 LotNumber = "x" + (x.Length / 1000) + "-" + x.LotNumber,
+                                                 Note = x.Note,
+                                                 Quantity = x.QuantityKg,
+                                                 UnitPrice = x.UnitPrice,
+                                                 VendorId = x.VendorId,
+                                                 VendorName = x.Vendor.VendorName,
+                                                 VendorCode = x.Vendor.VendorCode,
+                                                 TransactionDate = x.ImportPurchaseOrder.ImportDate,
+                                                 ModifiedUser = x.ImportPurchaseOrder.ModifiedUser,
+                                                 ModifiedDate = x.ImportPurchaseOrder.ModifiedDate,
+                                                 TransactionCode = x.ImportPurchaseOrder.Transaction.TransactionCode,
+                                                 //ExchangeRate = x.ImportPurchaseOrder.ExchangeRate,
+                                                 CurrencyCode = x.ImportPurchaseOrder.PurchaseOrder.CurrencyCode,
+                                                 PoId = x.ImportPurchaseOrder.PurchaseOrderId.Value,
+                                                 TaxInvoiceNumber = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxInvoiceNumber
+                                                                 : "",
+                                                 TaxPercent = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxPercent
+                                                                 : 0,
+                                                 ExchangeRate = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.ExchangeRate
+                                                                 : x.ImportPurchaseOrder.ExchangeRate,
+                                                 TaxInvoiceDate = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.PoDate
+                                                                 : DateTime.Today,
+                                             }).ToList();
+                        var poIds = importDetails.Select(x => x.PoId).Distinct().ToList();
+                        var purchaseDetails = vfi.PurchaseOrderDetails.Where(x => poIds.Contains(x.PurchaseOrderId))
+                                                .Select(x => new { x.PurchaseOrderId, x.ReferenceId, x.Unit, x.UnitPrice })
+                                                .ToList();
+                        foreach (var detail in importDetails) {
+                            var purchaseDetail = purchaseDetails.FirstOrDefault(
+                                    pod => pod.PurchaseOrderId == detail.PoId
+                                           && pod.ReferenceId == detail.FptId);
+                            if (purchaseDetail != null) {
+                                detail.UnitMeasure = purchaseDetail.Unit;
+                                detail.UnitPrice = purchaseDetail.UnitPrice;
                             }
+                            detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
+                            if (string.IsNullOrWhiteSpace(detail.TaxInvoiceNumber)) { detail.TaxInvoiceDate = null; }
                         }
-                    }
-                    // fuel
-                    if (classifiedId == 0 || classifiedId == 2) {
-                        var transactions = from t in vfi.TransactionFpts
-                                           orderby t.TransactionDate
-                                           where
-                                               t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                               t.TransactionDate >= fDate && t.TransactionDate <= tDate &&
-                                               t.PoId != null &&
-                                               t.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
-                                               t.Fpt == (int)MyUtilities.PurchaseOrder.FptLot.Fuel &&
-                                (vendorId == 0 || t.PurchaseOrder.VendorId == vendorId)
-                                           select t;
-                        foreach (var transaction in transactions) {
-                            foreach (var importDetail in transaction.TransactionFptDetails) {
-                                var purchaseDetail =
-                                    vfi.PurchaseOrderDetails.FirstOrDefault(
-                                        pod => pod.PurchaseOrderId == transaction.PoId
-                                               && pod.ReferenceId == importDetail.FptId);
-
-                                var fuel =
-                                    vfi.Fuels.FirstOrDefault(m => m.FuelId == importDetail.FptId);
-                                var fuelInv =
-                                    vfi.FuelInventories.FirstOrDefault(
-                                        mi =>
-                                        mi.FuelId == importDetail.FptId &&
-                                        mi.LotNumber.Equals(importDetail.LotNumber) &&
-                                        mi.VendorId == importDetail.VendorId);
-                                var detail = new TransactionFptDetailModel {
-                                    Note = importDetail.Note,
-                                    Quantity = importDetail.Quantity,
-                                    UnitMeasure = importDetail.UnitMeasure,
-                                    UnitPrice = purchaseDetail.UnitPrice,
-                                    Price = importDetail.Quantity * purchaseDetail.UnitPrice,
-                                    CurrencyCode = transaction.PurchaseOrder.CurrencyCode.Trim(),
-                                    VendorId = purchaseDetail.PurchaseOrder.VendorId,
-                                    VendorName = purchaseDetail.PurchaseOrder.Vendor.VendorName,
-                                    VendorCode = purchaseDetail.PurchaseOrder.Vendor.VendorCode,
-                                    TransactionDate = transaction.TransactionDate,
-                                    ModifiedUser = transaction.ModifiedUser,
-                                    ModifiedDate = transaction.ModifiedDate,
-                                    Index = ++index,
-                                    TransactionCode = transaction.TransactionCode,
-
-                                    LotNumber = fuelInv.LotNumber,
-                                    FuelCode = fuel.FuelFullCode,
-                                    FuelName = fuel.FuelName,
-                                    FuelDesignNo = fuel.FuelDesignNo,
-                                    ExchangeRate = transaction.ExchangeRate,
-                                };
-
-                                if (importDetail.PoReferenceDetailId != null) {
-                                    detail.TaxInvoiceNumber =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .TaxInvoiceNumber;
-                                    detail.TaxPercent =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .TaxPercent;
-                                    detail.ExchangeRate =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .ExchangeRate;
-                                    detail.TaxInvoiceDate =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .PoDate;
-                                }
-                                detail.Price = importDetail.Quantity * purchaseDetail.UnitPrice * detail.ExchangeRate;
-                                model2.Add(detail);
-                            }
-                        }
-                    }
-                    if (classifiedId == 0 || classifiedId == 3) {
-                        // tool
-                        var transactions = from t in vfi.TransactionFpts
-                                           orderby t.TransactionDate
-                                           where
-                                               t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                               t.TransactionDate >= fDate && t.TransactionDate <= tDate &&
-                                               t.PoId != null &&
-                                               t.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
-                                               t.Fpt == (int)MyUtilities.PurchaseOrder.FptLot.Tool &&
-                                (vendorId == 0 || t.PurchaseOrder.VendorId == vendorId)
-                                           select t;
-                        foreach (var transaction in transactions) {
-                            foreach (var importDetail in transaction.TransactionFptDetails) {
-                                var purchaseDetail =
-                                    vfi.PurchaseOrderDetails.FirstOrDefault(
-                                        pod => pod.PurchaseOrderId == transaction.PoId
-                                               && pod.ReferenceId == importDetail.FptId);
-
-                                var tool =
-                                    vfi.Tools.FirstOrDefault(m => m.ToolId == importDetail.FptId);
-                                var toolInv =
-                                    vfi.ToolInventories.FirstOrDefault(
-                                        mi =>
-                                        mi.ToolId == importDetail.FptId &&
-                                        mi.LotNumber.Equals(importDetail.LotNumber) &&
-                                        mi.VendorId == importDetail.VendorId);
-                                var detail = new TransactionFptDetailModel {
-                                    Note = importDetail.Note,
-                                    Quantity = importDetail.Quantity,
-                                    UnitMeasure = importDetail.UnitMeasure,
-                                    UnitPrice = purchaseDetail.UnitPrice,
-                                    //Price = importDetail.Quantity*purchaseDetail.UnitPrice,
-                                    CurrencyCode = transaction.PurchaseOrder.CurrencyCode.Trim(),
-                                    VendorId = purchaseDetail.PurchaseOrder.VendorId,
-                                    VendorName = purchaseDetail.PurchaseOrder.Vendor.VendorName,
-                                    VendorCode = purchaseDetail.PurchaseOrder.Vendor.VendorCode,
-                                    TransactionDate = transaction.TransactionDate,
-                                    ModifiedUser = transaction.ModifiedUser,
-                                    ModifiedDate = transaction.ModifiedDate,
-                                    Index = ++index,
-                                    TransactionCode = transaction.TransactionCode,
-
-                                    LotNumber = toolInv.LotNumber,
-                                    FuelCode = tool.ToolFullCode,
-                                    FuelName = tool.ToolName,
-                                    FuelDesignNo = tool.ToolDesignNo,
-                                    ExchangeRate = transaction.ExchangeRate,
-                                };
-                                if (importDetail.PoReferenceDetailId != null) {
-                                    detail.TaxInvoiceNumber =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .TaxInvoiceNumber;
-                                    detail.TaxPercent =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .TaxPercent;
-                                    detail.ExchangeRate =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .ExchangeRate;
-                                    detail.TaxInvoiceDate =
-                                        importDetail.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice
-                                                    .PoDate;
-                                    //detail.Price += (detail.Price * detail.TaxPercent / 100);
-                                }
-                                detail.Price = importDetail.Quantity * purchaseDetail.UnitPrice * detail.ExchangeRate;
-                                model2.Add(detail);
-                            }
-                        }
+                        model2.AddRange(importDetails);
                     }
 
-                    if (classifiedId == 0 || classifiedId == 4) {
-                        //plating
-                        var importPlatings = from ip in vfi.ImportNCU_QCB
+                    if (classifiedId == 0 || classifiedId == 2) { // fuel
+                        var importDetails = (from x in vfi.TransactionFptDetails
                                              where
-                                                 ip.Transaction.Status ==
-                                                 (byte)MyUtilities.Transaction.Status.Approved &&
-                                                 ip.ImportDate >= fDate && ip.ImportDate <= tDate &&
-                                                 (vendorId == 0 || ip.PlatingForm.VendorId == vendorId)
-                                             select ip;
-                        foreach (var importPlating in importPlatings) {
-                            foreach (var importDetail in importPlating.ImportNCU_QCBDetail) {
-                                var plating = importDetail.ExportGCN_NCUDetail.PlatingFormDetail;
-                                var detail = new TransactionFptDetailModel {
-                                    Note = importDetail.Note,
-                                    //Quantity = importDetail.,
-                                    UnitMeasure = plating.Unit,
-                                    UnitPrice = plating.UnitPrice,
-                                    //Price = importDetail.Quantity*purchaseDetail.UnitPrice,
-                                    CurrencyCode = plating.PlatingForm.CurrencyCode,
-                                    VendorId = plating.PlatingForm.VendorId,
-                                    VendorName = plating.PlatingForm.Vendor.VendorName,
-                                    VendorCode = plating.PlatingForm.Vendor.VendorCode,
-                                    TransactionDate = importPlating.ImportDate,
-                                    ModifiedUser = importPlating.ModifiedUser,
-                                    ModifiedDate = importPlating.ModifiedDate,
-                                    Index = ++index,
-                                    TransactionCode = importPlating.TransactionCode,
+                                                x.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                x.TransactionFpt.TransactionDate >= fDate && x.TransactionFpt.TransactionDate <= tDate &&
+                                                x.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
+                                                x.TransactionFpt.Fpt == (int)MyUtilities.PurchaseOrder.FptLot.Fuel &&
+                                                x.TransactionFpt.PoId != null &&
+                                                 (vendorId == 0 || x.VendorId == vendorId)
+                                             select new TransactionFptDetailModel {
+                                                 FptId = x.FptId,
+                                                 Note = x.Note,
+                                                 Quantity = x.Quantity,
+                                                 UnitMeasure = x.UnitMeasure,
+                                                 UnitPrice = x.UnitPrice,
+                                                 VendorId = x.VendorId,
+                                                 //VendorName = x.Vendor.VendorName,
+                                                 //VendorCode = x.Vendor.VendorCode,
+                                                 TransactionDate = x.TransactionFpt.TransactionDate,
+                                                 ModifiedUser = x.TransactionFpt.ModifiedUser,
+                                                 ModifiedDate = x.TransactionFpt.ModifiedDate,
+                                                 TransactionCode = x.TransactionFpt.TransactionCode,
+                                                 LotNumber = x.LotNumber,
+                                                 PoId = x.TransactionFpt.PoId.Value,
+                                                 CurrencyCode = x.TransactionFpt.PurchaseOrder.CurrencyCode.Trim(),
+                                                 TaxInvoiceNumber = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxInvoiceNumber
+                                                                 : "",
+                                                 TaxPercent = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxPercent
+                                                                 : 0,
+                                                 ExchangeRate = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.ExchangeRate
+                                                                 : x.TransactionFpt.ExchangeRate,
+                                                 TaxInvoiceDate = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.PoDate
+                                                                 : DateTime.Today,
+                                             }).ToList();
 
-                                    //LotNumber = toolInv.LotNumber,
-                                    FuelCode = importDetail.Product.ProductCode,
-                                    FuelName = importDetail.Product.ProductCode,
-                                    FuelDesignNo = plating.PlatingCode,
-                                    ExchangeRate = plating.PlatingForm.ExchangeRate,
-                                };
-                                if (plating.Unit.Contains("Kg")) {
-                                    detail.Quantity = importDetail.Weight / 1000;
-                                }
-                                else {
-                                    detail.Quantity = importDetail.RealNumber;
-                                }
-                                detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
-                                model2.Add(detail);
+                        var poIds = importDetails.Select(x => x.PoId).Distinct().ToList();
+                        var purchaseDetails = vfi.PurchaseOrderDetails.Where(x => poIds.Contains(x.PurchaseOrderId))
+                                                .Select(x => new {
+                                                    x.PurchaseOrderId,
+                                                    x.ReferenceId,
+                                                    x.Unit,
+                                                    x.UnitPrice,
+                                                    x.PurchaseOrder.Vendor.VendorName,
+                                                    x.PurchaseOrder.Vendor.VendorCode
+                                                })
+                                                .ToList();
+                        var itemIds = importDetails.Select(x => x.FptId).Distinct().ToList();
+                        var items = vfi.Fuels.Where(x => itemIds.Contains(x.FuelId))
+                            .Select(x => new { Id = x.FuelId, Name = x.FuelName, Code = x.FuelFullCode, DesignNo = x.FuelDesignNo })
+                            .ToList();
+                        foreach (var detail in importDetails) {
+                            var purchaseDetail =
+                                purchaseDetails.FirstOrDefault(
+                                    pod => pod.PurchaseOrderId == detail.PoId
+                                           && pod.ReferenceId == detail.FptId);
+
+                            if (purchaseDetail != null) {
+                                detail.UnitMeasure = purchaseDetail.Unit;
+                                detail.UnitPrice = purchaseDetail.UnitPrice;
+                                detail.VendorName = purchaseDetail.VendorName;
+                                detail.VendorCode = purchaseDetail.VendorCode;
+                            }
+                            detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
+                            var item = items.FirstOrDefault(m => m.Id == detail.FptId);
+                            if (item != null) {
+                                detail.FptName = item.Name;
+                                detail.FptCode = item.Code;
+                                detail.FptDesignNo = item.DesignNo;
+                            }
+                            if (string.IsNullOrWhiteSpace(detail.TaxInvoiceNumber)) { detail.TaxInvoiceDate = null; }
+                        }
+                    }
+
+                    if (classifiedId == 0 || classifiedId == 3) {// tool
+                        var importDetails = (from x in vfi.TransactionFptDetails
+                                             where
+                                                x.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                x.TransactionFpt.TransactionDate >= fDate && x.TransactionFpt.TransactionDate <= tDate &&
+                                                x.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
+                                                x.TransactionFpt.Fpt == (int)MyUtilities.PurchaseOrder.FptLot.Tool &&
+                                                x.TransactionFpt.PoId != null &&
+                                                 (vendorId == 0 || x.VendorId == vendorId)
+                                             select new TransactionFptDetailModel {
+                                                 FptId = x.FptId,
+                                                 Note = x.Note,
+                                                 Quantity = x.Quantity,
+                                                 UnitMeasure = x.UnitMeasure,
+                                                 UnitPrice = x.UnitPrice,
+                                                 VendorId = x.VendorId,
+                                                 //VendorName = x.Vendor.VendorName,
+                                                 //VendorCode = x.Vendor.VendorCode,
+                                                 TransactionDate = x.TransactionFpt.TransactionDate,
+                                                 ModifiedUser = x.TransactionFpt.ModifiedUser,
+                                                 ModifiedDate = x.TransactionFpt.ModifiedDate,
+                                                 TransactionCode = x.TransactionFpt.TransactionCode,
+                                                 LotNumber = x.LotNumber,
+                                                 PoId = x.TransactionFpt.PoId.Value,
+                                                 CurrencyCode = x.TransactionFpt.PurchaseOrder.CurrencyCode.Trim(),
+                                                 TaxInvoiceNumber = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxInvoiceNumber
+                                                                 : "",
+                                                 TaxPercent = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxPercent
+                                                                 : 0,
+                                                 ExchangeRate = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.ExchangeRate
+                                                                 : x.TransactionFpt.ExchangeRate,
+                                                 TaxInvoiceDate = x.PoReferenceDetailId != null
+                                                                 ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.PoDate
+                                                                 : DateTime.Today,
+                                             }).ToList();
+
+                        var poIds = importDetails.Select(x => x.PoId).Distinct().ToList();
+                        var purchaseDetails = vfi.PurchaseOrderDetails.Where(x => poIds.Contains(x.PurchaseOrderId))
+                                                .Select(x => new {
+                                                    x.PurchaseOrderId,
+                                                    x.ReferenceId,
+                                                    x.Unit,
+                                                    x.UnitPrice,
+                                                    x.PurchaseOrder.Vendor.VendorName,
+                                                    x.PurchaseOrder.Vendor.VendorCode
+                                                })
+                                                .ToList();
+                        var itemIds = importDetails.Select(x => x.FptId).Distinct().ToList();
+                        var items = vfi.Tools.Where(x => itemIds.Contains(x.ToolId))
+                            .Select(x => new { Id = x.ToolId, Name = x.ToolName, Code = x.ToolFullCode, DesignNo = x.ToolDesignNo })
+                            .ToList();
+                        foreach (var detail in importDetails) {
+                            var purchaseDetail =
+                                purchaseDetails.FirstOrDefault(
+                                    pod => pod.PurchaseOrderId == detail.PoId
+                                           && pod.ReferenceId == detail.FptId);
+
+                            if (purchaseDetail != null) {
+                                detail.UnitMeasure = purchaseDetail.Unit;
+                                detail.UnitPrice = purchaseDetail.UnitPrice;
+                                detail.VendorName = purchaseDetail.VendorName;
+                                detail.VendorCode = purchaseDetail.VendorCode;
+                            }
+                            detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
+                            var item = items.FirstOrDefault(m => m.Id == detail.FptId);
+                            if (item != null) {
+                                detail.FptName = item.Name;
+                                detail.FptCode = item.Code;
+                                detail.FptDesignNo = item.DesignNo;
+                            }
+                            if (string.IsNullOrWhiteSpace(detail.TaxInvoiceNumber)) { detail.TaxInvoiceDate = null; }
+                        }
+                        model2.AddRange(importDetails);
+                    }
+
+                    if (classifiedId == 0 || classifiedId == 4) {//plating
+                        var importDetails = (from x in vfi.ImportNCU_QCBDetail
+                                             where x.ImportNCU_QCB.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                             && x.ImportNCU_QCB.ImportDate >= fDate && x.ImportNCU_QCB.ImportDate <= tDate
+                                             && (vendorId == 0 || x.ImportNCU_QCB.PlatingForm.VendorId == vendorId)
+                                             select new TransactionFptDetailModel {
+
+                                                 Note = x.Note,
+                                                 //Quantity = importDetail.,
+                                                 UnitMeasure = x.ExportGCN_NCUDetail.PlatingFormDetail.Unit,
+                                                 UnitPrice = x.ExportGCN_NCUDetail.PlatingFormDetail.UnitPrice,
+                                                 //Price = importDetail.Quantity*purchaseDetail.UnitPrice,
+                                                 CurrencyCode = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingForm.CurrencyCode,
+                                                 VendorId = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingForm.VendorId,
+                                                 VendorName = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingForm.Vendor.VendorName,
+                                                 VendorCode = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingForm.Vendor.VendorCode,
+                                                 TransactionDate = x.ImportNCU_QCB.ImportDate,
+                                                 ModifiedUser = x.ImportNCU_QCB.ModifiedUser,
+                                                 ModifiedDate = x.ImportNCU_QCB.ModifiedDate,
+                                                 TransactionCode = x.ImportNCU_QCB.TransactionCode,
+
+                                                 //LotNumber = toolInv.LotNumber,
+                                                 FuelCode = x.Product.ProductCode,
+                                                 FuelName = x.Product.ProductCode,
+                                                 FuelDesignNo = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingCode,
+                                                 ExchangeRate = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingForm.ExchangeRate,
+                                                 Quantity = x.ExportGCN_NCUDetail.PlatingFormDetail.Unit.Contains("Kg")
+                                                 ? x.Weight / 1000
+                                                 : x.RealNumber,
+                                             }).ToList();
+                        foreach (var detail in importDetails) {
+
+                            detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
+                        }
+                        model2.AddRange(importDetails);
+                    }
+
+                    if (classifiedId == 0 || classifiedId == 6) { // product
+
+                        var importDetails = (from x in vfi.TransactionDetails
+                                             where
+                                                 x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                                 x.Transaction.CreatedDate >= fDate && x.Transaction.CreatedDate <= tDate &&
+                                                 x.Transaction.PoId != null &&
+                                                 x.Transaction.EoI == MyUtilities.PurchaseOrder.EoILot.Import.ToString() &&
+                                                 (vendorId == 0 || x.VendorId == vendorId)
+                                             select new TransactionFptDetailModel {
+                                                 FptId = x.ReferenceId.Value,
+                                                 Note = x.Note,
+                                                 Quantity = x.Quantity,
+                                                 UnitMeasure = x.UnitMeasure,
+                                                 //UnitPrice = x.UnitPrice,
+                                                 //VendorId = x.VendorId,
+                                                 //VendorName = x.Vendor.VendorName,
+                                                 //VendorCode = x.Vendor.VendorCode,
+                                                 TransactionDate = x.Transaction.CreatedDate,
+                                                 ModifiedUser = x.Transaction.ModifiedUser,
+                                                 ModifiedDate = x.Transaction.ModifiedDate,
+                                                 TransactionCode = x.Transaction.TransactionCode,
+                                                 LotNumber = x.LotNumber,
+                                                 PoId = x.Transaction.PoId.Value,
+                                                 ExchangeRate = 1,
+                                                 //CurrencyCode = x.Transaction.PurchaseOrder.CurrencyCode.Trim(),
+                                                 //TaxInvoiceNumber = x.PoReferenceDetailId != null
+                                                 //                ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxInvoiceNumber
+                                                 //                : "",
+                                                 //TaxPercent = x.PoReferenceDetailId != null
+                                                 //                ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.TaxPercent
+                                                 //                : 0,
+                                                 //ExchangeRate = x.PoReferenceDetailId != null
+                                                 //                ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.ExchangeRate
+                                                 //                : x.TransactionFpt.ExchangeRate,
+                                                 //TaxInvoiceDate = x.PoReferenceDetailId != null
+                                                 //                ? x.PoTaxInvoiceReferenceDetail.PoTaxInvoiceReference.PoTaxInvoice.PoDate
+                                                 //                : null,
+                                             }).ToList();
+
+                        var poIds = importDetails.Select(x => x.PoId).Distinct().ToList();
+                        var purchaseDetails = vfi.PurchaseOrderDetails.Where(x => poIds.Contains(x.PurchaseOrderId))
+                                                .Select(x => new {
+                                                    x.PurchaseOrderId,
+                                                    x.ReferenceId,
+                                                    x.Unit,
+                                                    x.UnitPrice,
+                                                    x.PurchaseOrder.CurrencyCode,
+                                                    x.PurchaseOrder.Vendor.VendorName,
+                                                    x.PurchaseOrder.Vendor.VendorCode
+                                                })
+                                                .ToList();
+                        var itemIds = importDetails.Select(x => x.FptId).Distinct().ToList();
+                        var items = vfi.Products.Where(x => itemIds.Contains(x.ProductId))
+                            .Select(x => new { Id = x.ProductId, Name = x.ProductName, Code = x.ProductCode, DesignNo = x.DesignNo })
+                            .ToList();
+
+                        foreach (var detail in importDetails) {
+                            var purchaseDetail =
+                                purchaseDetails.FirstOrDefault(
+                                    pod => pod.PurchaseOrderId == detail.PoId
+                                           && pod.ReferenceId == detail.FptId);
+
+                            if (purchaseDetail != null) {
+                                detail.UnitMeasure = purchaseDetail.Unit;
+                                detail.UnitPrice = purchaseDetail.UnitPrice;
+                                detail.CurrencyCode = purchaseDetail.CurrencyCode;
+                                detail.VendorCode = purchaseDetail.VendorCode;
+                                detail.VendorName = purchaseDetail.VendorName;
+                            }
+                            detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
+                            var item = items.FirstOrDefault(m => m.Id == detail.FptId);
+                            if (item != null) {
+                                detail.FptName = item.Name;
+                                detail.FptCode = item.Code;
+                                detail.FptDesignNo = item.DesignNo;
                             }
                         }
+                        model2.AddRange(importDetails);
                     }
                 }
             }

@@ -44,12 +44,12 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ExportGCN_NCUDetail> ExportGCN_NCUDetail { get; set; }
         public virtual ICollection<ExportMaterialDetail> ExportMaterialDetails { get; set; }
         public virtual ICollection<ImportNCU_QCBDetail> ImportNCU_QCBDetail { get; set; }
+        public virtual InventoryDrawer InventoryDrawer { get; set; }
         public virtual ProcessError ProcessError { get; set; }
         public virtual ProductInventory ProductInventory { get; set; }
         public virtual Transaction Transaction { get; set; }
         public virtual Material Material { get; set; }
         public virtual Product Product { get; set; }
         public virtual TransactionProduct TransactionProduct { get; set; }
-        public virtual InventoryDrawer InventoryDrawer { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             // Properties
             this.Property(t => t.ModifiedUser)
                 .HasMaxLength(50);
+
             this.Property(t => t.ShelfName)
                 .HasMaxLength(50);
 

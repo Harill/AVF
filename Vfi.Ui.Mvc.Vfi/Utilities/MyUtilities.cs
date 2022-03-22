@@ -11,8 +11,11 @@ using Vfi.Ui.Mvc.Vfi.Models.Production;
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
     public static class MyUtilities {
-        public static class MySystem {
 
+        #region my system
+        public static class MySystem {
+            public static string CultureEN = "en-EN";
+            public static string CultureVN = "vi-VN";
             public static string LotNumber_Weekly(DateTime date) {
                 DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
                 Calendar cal = dfi.Calendar;
@@ -21,13 +24,37 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static string LotNumber_Monthly(DateTime date) {
                 return string.Format("{0:00}", date.Year % 100) + string.Format("{0:00}", date.Month);
             }
-            public static PageConfigModel GetPageConfig() {
+
+            public static string HelloUser(string name) {
+                string a = "Xin chào ";
+                string now = DateTime.Now.ToString("t");
+                string morning = DateTime.Parse("5:30 AM").ToString("t");
+                string noon = DateTime.Parse("10:00 AM").ToString("t");
+                string evening = DateTime.Parse("3:00 PM").ToString("t");
+                string night = DateTime.Parse("5:00 PM").ToString("t");
+                if (DateTime.Parse(now) >= DateTime.Parse(morning) && DateTime.Parse(now) < DateTime.Parse(noon))
+                    a += "buổi sáng: ";
+                else if (DateTime.Parse(now) >= DateTime.Parse(noon) && DateTime.Parse(now) < DateTime.Parse(evening))
+                    a += "buổi trưa: ";
+                else if (DateTime.Parse(now) >= DateTime.Parse(evening) && DateTime.Parse(now) < DateTime.Parse(night))
+                    a += "buổi chiều: ";
+                else
+                    a += "buổi tối: ";
+                a += name;
+                return a;
+            }
+
+            public static PageConfigModel GetPageConfig(string username) {
                 var model = new WorkGroupModel() {
                     Theme = "office2007",
                     BackgroundImage = "bg_body.jpg",
                     ImagePath = "/vfi/Content/Images"
                 }; // set default
                 using (var vfi = new tammaContext()) {
+                    var user = vfi.Users.FirstOrDefault(x => x.Username.Equals(username));
+                    if (user != null) {
+                        model.Description = user.FullName;
+                    }
                     var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
                     if (workgroup != null) {
                         model.WorkGroupName = "- " + workgroup.WorkGroupName;
@@ -46,6 +73,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         if (!string.IsNullOrWhiteSpace(workgroup.ImagePath)) {
                             model.ImagePath = workgroup.ImagePath;
                         }
+                        if (!string.IsNullOrWhiteSpace(workgroup.PageTitleColor)) {
+                            model.PageTitleColor = workgroup.PageTitleColor;
+                        }
                     }
                 }
                 return new PageConfigModel {
@@ -53,11 +83,16 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     PageTheme = model.ThemeCss,
                     BackgroundImage = model.BackgroundImage,
                     LogoImage = model.LogoImage,
-                    ImagePath = model.ImagePath
+                    ImagePath = model.ImagePath,
+                    PageTitleColor= model.PageTitleColor,
+                    UserLoginFullName = model.Description
                 };
             }
         }
 
+        #endregion
+
+        #region user
         public static class UserRole {
             /// <summary>
             /// quyền nhập sx1
@@ -182,10 +217,34 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return !true;
             }
         }
+        #endregion
 
+        #region function utilities
         public static class Function {
 
             private static char SplitChar = ';';
+            public static double GetTimeStamp() {
+                return (DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalSeconds;
+            }
+            public static string StringsJoin(List<string> ids) {
+                var str = "";
+                if (!ids.Any()) return str;
+                foreach (var id in ids) {
+                    str += (id + SplitChar.ToString());
+                }
+                str.Remove(str.Length - 2);
+                return str;
+            }
+            public static List<string> StringsSplit(string ids) {
+                var list = new List<string>();
+                if (string.IsNullOrWhiteSpace(ids)) return list;
+                var strIds = ids.Split(SplitChar);
+                try {
+                    list = strIds.ToList();
+                }
+                catch (Exception ex) { }
+                return list;
+            }
 
             public static string IdsToString(List<int> ids) {
                 var str = "";
@@ -239,9 +298,11 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 var fileName = "LogFile.txt";
                 //var destinationPath = Path.Combine(Server.MapPath("~/Content/Logs"), fileName);
                 var destinationPath = Path.Combine((path + "/Logs"), fileName);
-                var sw = new System.IO.StreamWriter(destinationPath, true);
-                sw.WriteLine(DateTime.Now.ToString("dd/MM/yy hh:mm:ss") + ": " + actionName + ": " + msg);
-                sw.Close();
+                //var sw = new System.IO.StreamWriter(destinationPath, true);
+                using (var sw = new System.IO.StreamWriter(destinationPath, true)) {
+                    sw.WriteLine(DateTime.Now.ToString("dd/MM/yy hh:mm:ss") + ": " + actionName + ": " + msg);
+                }
+                //sw.Close();
             }
 
             public static double Round(double value) {
@@ -389,8 +450,37 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 if (date.DayOfWeek == DayOfWeek.Sunday) return "Chủ nhật";
                 return "Thứ " + date.DayOfWeek;
             }
-        }
 
+            public static void GetQuaterDateTime(out DateTime fromDateTime, out DateTime toDateTime, out int quater,
+                                                 DateTime date) {
+                fromDateTime = date;
+                toDateTime = date;
+                quater = 0;
+                if (date.Month <= 3) {
+                    fromDateTime = new DateTime(date.Year, 1, 1).AddSeconds(-1);
+                    toDateTime = new DateTime(date.Year, 4, 1).AddSeconds(-1);
+                    quater = 1;
+                }
+                else if (date.Month <= 6) {
+                    fromDateTime = new DateTime(date.Year, 4, 1).AddSeconds(-1);
+                    toDateTime = new DateTime(date.Year, 7, 1).AddSeconds(-1);
+                    quater = 2;
+                }
+                else if (date.Month <= 9) {
+                    fromDateTime = new DateTime(date.Year, 7, 1).AddSeconds(-1);
+                    toDateTime = new DateTime(date.Year, 10, 1).AddSeconds(-1);
+                    quater = 3;
+                }
+                else if (date.Month <= 12) {
+                    fromDateTime = new DateTime(date.Year, 10, 1).AddSeconds(-1);
+                    toDateTime = new DateTime(date.Year, 1, 1).AddYears(1).AddSeconds(-1);
+                    quater = 4;
+                }
+            }
+        }
+        #endregion
+
+        #region report
         public static class Report {
 
             public enum Show {
@@ -405,14 +495,22 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
         }
 
         public static class Monitor {
-
+            public class MyJsonResult {
+                public int Code { get; set; }
+                public string Message { get; set; }
+                public MyJsonResult( int code, string message ) {
+                    this.Code = code;
+                    this.Message = message;
+                }
+            }
             public enum ErrorCode {
                 NotImplement = -1,
                 NoThing = 0,
                 NoError = 1,
-                StatusChanged = 8,
+                StatusChanged = 7,
                 ReferenceError = 8,
                 NotFound = 9,
+                Exception = 10,
             }
 
             public enum Color {
@@ -548,7 +646,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return value;
             }
         }
+        #endregion
 
+        #region machine
         public static class Machine {
 
             public static class Diagram {
@@ -740,7 +840,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 }
             }
         }
+        #endregion
 
+        #region warehouse
         public static class Warehouse {
             public enum Id {
                 Production1 = 1,
@@ -1013,7 +1115,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static int ReTesting = 29; //	NULL	GCL(Kiểm tra lại)
             public static int RePolir = 30; //	NULL	GCL(Polir)
         }
+        #endregion
 
+        #region auto number code
         public static class AutoIncrease {
             public enum IncreaseNum {
                 Product = 1,
@@ -1212,7 +1316,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             }
 
         }
+        #endregion
 
+        #region transaction
         public static class Transaction {
             public enum EoIEnum {
                 Import = '0',
@@ -1375,7 +1481,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             }
 
         }
+        #endregion
 
+        #region section
         public static class Section {
             public static double Time = 28800; //8h*60m*60s
             public static double Day = 25;
@@ -1383,7 +1491,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static double Total = Time * Day * Employee;
             public static int ReProcessSection = 22;
         }
+        #endregion
 
+        #region sales
         public static class Sales {
             //2016-06-30 23:59:58.000 hien thi duy nhat bao cao thang 7
             //public static DateTime StartTaxInvoiceDateCheat = new DateTime(2018, 1, 1, 0, 0, 0).AddSeconds(-2);
@@ -1507,7 +1617,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             }
 
         }
+        #endregion
 
+        #region purchasing
         public static class PurchaseOrder {
             public static DateTime StartTaxInvoiceDate = new DateTime(2016, 12, 1, 0, 0, 0).AddSeconds(-1);
 
@@ -1606,7 +1718,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return param;
             }
         }
+        #endregion
 
+        #region product
         public static class Product {
             // 2019-07-09 65 -> 70 : cho bao cao thang 5
             //public static double BaseProductPrice = 0.70;
@@ -2233,7 +2347,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return productionAfter;
             }
         }
+        #endregion
 
+        #region material
         public static class Material {
             public enum WorkpieceExport {
                 Sales = 1,
@@ -2382,7 +2498,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return inv.Vendor.VendorCode + a + "-" + inv.LotNumber;
             }
         }
+        #endregion
 
+        #region tool
         public static class Tool {
             public enum ExportType {
                 Production = 1,
@@ -2419,5 +2537,6 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return str;
             }
         }
+        #endregion
     }
 }

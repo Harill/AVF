@@ -20,6 +20,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.StateCode)
                 .HasMaxLength(50);
 
+            this.Property(t => t.NameEN)
+                .HasMaxLength(50);
+
             // Table & Column Mappings
             this.ToTable("MachineState", "Factory");
             this.Property(t => t.StateId).HasColumnName("StateId");
@@ -33,6 +36,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.StateCode).HasColumnName("StateCode");
             this.Property(t => t.EstimateTime).HasColumnName("EstimateTime");
             this.Property(t => t.IsSetProduct).HasColumnName("IsSetProduct");
+            this.Property(t => t.NameEN).HasColumnName("NameEN");
         }
     }
 }

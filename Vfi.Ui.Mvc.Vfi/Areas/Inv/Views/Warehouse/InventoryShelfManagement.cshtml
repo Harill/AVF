@@ -189,12 +189,15 @@
                                            columns.Bound(f => f.OnDate).Width(100).Title("Ngày")
                                                .ClientTemplate("<#= OnDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OnDate) #>");
                                            columns.Bound(f => f.DrawerCode).Width(70).Title("Vị trí");
-                                           columns.Bound(f => f.ReferenceInvCode).Width(150).Title("Nguyên liệu");
-                                           columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true);
-                                           columns.Bound(f => f.OwnerName).Title("NCC").Width(100).ReadOnly(true);
-                                           columns.Bound(f => f.Quantity).Title("Số tồn").Format("{0:n}").Width(100).ReadOnly(true);
+                                           columns.Bound(f => f.ReferenceInvCode).Width(200).Title("Nguyên liệu");
+                                           columns.Bound(f => f.LotNumber).Title("Lô").Width(70).ReadOnly(true);
+                                           columns.Bound(f => f.OwnerName).Title("NCC").Width(70).ReadOnly(true);
+                                           columns.Bound(f => f.Quantity).Title("Số tồn").Format("{0:n}").Width(100).ReadOnly(true)
+                                                    .HtmlAttributes(new { style = "text-align:right;" });
                                            columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true);
-                                           columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true);
+                                           columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true)
+                                                    .Format("{0:n3}")
+                                                    .HtmlAttributes(new { style = "text-align:right;" });
                                            columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(120).ReadOnly(true)
                                                .Format("{0:dd/MM/yyyy HH:mm}");
                                            columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(80).ReadOnly(true);

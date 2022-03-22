@@ -46,6 +46,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.IsOutOfProcess).HasColumnName("IsOutOfProcess");
             this.Property(t => t.IsProduction).HasColumnName("IsProduction");
             this.Property(t => t.IsCncMilling).HasColumnName("IsCncMilling");
+            this.Property(t => t.CanWeighing).HasColumnName("CanWeighing");
 
             // Relationships
             this.HasOptional(t => t.WarehouseType)

@@ -25,6 +25,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public MaterialInvShelfDiagramDetailModel() {
             Quantity = 0;
             ImportQuantity = 0;
+            MaterialTypeId = 0;
+            VendorId = 0;
+            MaterialStateCode = "";
         }
         public DateTime OnDate { get; set; }
         

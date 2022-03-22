@@ -23,5 +23,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string StateCode { get; set; }
         public int EstimateTime { get; set; }
         public bool IsSetProduct { get; set; }
+
+        public string NameEN { get; set; }
     }
 }

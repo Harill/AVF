@@ -23,24 +23,25 @@ namespace Vfi.Server.Core.DataModel.Models.System
 
         public string PersonalName { get; set; }
 
-        public string Hello()
-        {
-            string a = "Xin chào ";
-            string now = DateTime.Now.ToString("t");
-            string morning = DateTime.Parse("5:30 AM").ToString("t");
-            string noon = DateTime.Parse("10:00 AM").ToString("t");
-            string evening = DateTime.Parse("3:00 PM").ToString("t");
-            string night = DateTime.Parse("5:00 PM").ToString("t");
-            if (DateTime.Parse(now) >= DateTime.Parse(morning) && DateTime.Parse(now) < DateTime.Parse(noon))
-                a += "buổi sáng: ";
-            else if (DateTime.Parse(now) >= DateTime.Parse(noon) && DateTime.Parse(now) < DateTime.Parse(evening))
-                a += "buổi trưa: ";
-            else if (DateTime.Parse(now) >= DateTime.Parse(evening) && DateTime.Parse(now) < DateTime.Parse(night))
-                a += "buổi chiều: ";
-            else
-                a += "buổi tối: ";
-            a += PersonalName;
-            return a;
+        public string Hello {
+            get {
+                string a = "Xin chào ";
+                string now = DateTime.Now.ToString("t");
+                string morning = DateTime.Parse("5:30 AM").ToString("t");
+                string noon = DateTime.Parse("10:00 AM").ToString("t");
+                string evening = DateTime.Parse("3:00 PM").ToString("t");
+                string night = DateTime.Parse("5:00 PM").ToString("t");
+                if (DateTime.Parse(now) >= DateTime.Parse(morning) && DateTime.Parse(now) < DateTime.Parse(noon))
+                    a += "buổi sáng: ";
+                else if (DateTime.Parse(now) >= DateTime.Parse(noon) && DateTime.Parse(now) < DateTime.Parse(evening))
+                    a += "buổi trưa: ";
+                else if (DateTime.Parse(now) >= DateTime.Parse(evening) && DateTime.Parse(now) < DateTime.Parse(night))
+                    a += "buổi chiều: ";
+                else
+                    a += "buổi tối: ";
+                a += PersonalName;
+                return a;
+            }
         }
     }
     
