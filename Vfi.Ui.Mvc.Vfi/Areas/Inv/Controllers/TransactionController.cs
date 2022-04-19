@@ -26,6 +26,7 @@ using System.Threading;
 using System.Runtime.Caching;
 using System.Drawing.Printing;
 
+
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class TransactionController : Controller {
         private readonly IUnitOfWork _unitOfWork;
@@ -388,6 +389,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             ViewData = GetPageConfigData();
             return View();
         }
+        public ActionResult TransactionWeighingManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
 
         #endregion
 
@@ -434,10 +442,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         SerialPort _portCOM = null;
         public ActionResult ConnectWeighingDevice() {
             try {
-                MyUtilities.Function.SaveLog(contentPath(), "ConnectWeighingDevice", "success");
+                MyUtilities.Function.SaveLog("ConnectWeighingDevice", "try");
                 string[] ports = SerialPort.GetPortNames();
                 if (ports.Length > 0) {
-                    _portCOM = new SerialPort(ports[0], 1200, Parity.None, 8, StopBits.Two);
+                    _portCOM = new SerialPort(ports[0], 1200, Parity.None, 8, StopBits.One);
                     //_portCOM.PortName = ports[0]; // alway connect first com port
                     //_portCOM.BaudRate = 1200;
                     //_portCOM.DataBits = 8;
@@ -451,29 +459,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     _portCOM.ErrorReceived += PortCOM_ErrorReceived;
                     _portCOM.Disposed += PortCOM_Disposed;
                     _portCOM.Open();
-                    MyUtilities.Function.SaveLog(contentPath(), "ConnectWeighingDevice", "success");
+                    MyUtilities.Function.SaveLog("ConnectWeighingDevice", "success");
                 }
                 else {
+                    MyUtilities.Function.SaveLog("ConnectWeighingDevice", "failed: not found");
                     return Json((int)MyUtilities.Monitor.ErrorCode.NotFound);
                 }
             }
             catch (Exception ex) {
-                MyUtilities.Function.SaveLog(contentPath(), "DisConnectWeighingDevice", "error: " + ex.Message);
+                MyUtilities.Function.SaveLog("DisConnectWeighingDevice", "failed-error: " + ex.Message);
                 return Json((int)MyUtilities.Monitor.ErrorCode.ReferenceError);
             }
             return Json((int)MyUtilities.Monitor.ErrorCode.NoError);
         }
         void PortCOM_ErrorReceived(object sender, SerialErrorReceivedEventArgs e) {
             var signal = ((SerialPort)sender).ReadExisting();
-            MyUtilities.Function.SaveLog(contentPath(), "PortCOM_ErrorReceived", "signal: " + signal);
+            MyUtilities.Function.SaveLog("PortCOM_ErrorReceived", "signal: " + signal);
         }
         void PortCOM_Disposed(object sender, EventArgs e) {
             var signal = ((SerialPort)sender).ReadExisting();
-            MyUtilities.Function.SaveLog(contentPath(), "PortCOM_Disposed", "signal: " + signal);
+            MyUtilities.Function.SaveLog("PortCOM_Disposed", "signal: " + signal);
         }
         public ActionResult DisConnectWeighingDevice() {
             try {
-                MyUtilities.Function.SaveLog(contentPath(), "DisConnectWeighingDevice", "try:" + _portCOM.ToString());
+                MyUtilities.Function.SaveLog("DisConnectWeighingDevice", "try:" + _portCOM.ToString());
                 if (_portCOM != null) {
                     if (_portCOM.IsOpen) {
                         _portCOM.Close();
@@ -483,18 +492,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     _portCOM.DiscardOutBuffer();
                     _portCOM.Dispose();
                     _portCOM = null;
-                    MyUtilities.Function.SaveLog(contentPath(), "DisConnectWeighingDevice", "success");
+                    MyUtilities.Function.SaveLog("DisConnectWeighingDevice", "success");
                 }
             }
             catch (Exception ex) {
-                MyUtilities.Function.SaveLog(contentPath(), "DisConnectWeighingDevice", "error: " + ex.Message);
+                MyUtilities.Function.SaveLog("DisConnectWeighingDevice", "error: " + ex.Message);
             }
             return Json((int)MyUtilities.Monitor.ErrorCode.NoError);
         }
-        string contentPath() {
-            return Server.MapPath("~/Content");
-        }
-        double _weighingValue = 0.0;
         TransactionDetail _detail = new TransactionDetail() { QuantityKg = 0 };
 
         private readonly object ThisLock = new object();
@@ -502,13 +507,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
                 //var signal = _portCOM.ReadExisting();
                 var signal = ((SerialPort)sender).ReadExisting();
-                MyUtilities.Function.SaveLog(contentPath(), "HandleDataReceive", "signal: " + signal);
+                MyUtilities.Function.SaveLog("HandleDataReceive", "signal: " + signal);
                 MyCacheProvider.Instance.SetItemValue(cacheName, signal);
 
                 Thread.Sleep(800);
             }
             catch (Exception ex) {
-                MyUtilities.Function.SaveLog(contentPath(), "HandleDataReceive", "error: " + ex.Message);
+                MyUtilities.Function.SaveLog("HandleDataReceive", "error: " + ex.Message);
             }
         }
 
@@ -523,13 +528,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var value = 0.0;
             try {
                 var signal = MyCacheProvider.Instance.GetItem(cacheName) as string;
-                MyUtilities.Function.SaveLog(contentPath(), "GetCacheItem", "Value: " + signal);
+                MyUtilities.Function.SaveLog( "GetCacheItem", "Value: " + signal);
                 value = ConvertSignal(signal);
             }
             catch (Exception ex) {
-                MyUtilities.Function.SaveLog(contentPath(), "GetCacheItem", "Exception: " + ex.Message);
+                MyUtilities.Function.SaveLog("GetCacheItem", "Exception: " + ex.Message);
             }
-            MyUtilities.Function.SaveLog(contentPath(), "GetWeighingValue", "weight: " + value);
+            MyUtilities.Function.SaveLog("GetWeighingValue", "weight: " + value);
             return Json(value);
         }
 
@@ -556,7 +561,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                     }
                     catch (FormatException ex) {
-                        MyUtilities.Function.SaveLog(contentPath(), "ConvertSignal", "signal/error: " + ex.Message);
+                        MyUtilities.Function.SaveLog("ConvertSignal", "signal/error: " + ex.Message);
                     }
                 }
             }
@@ -650,7 +655,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     return Json((int)MyUtilities.Monitor.ErrorCode.NoError, JsonRequestBehavior.AllowGet);
                 }
             }
-            catch (Exception exception) {
+            catch (Exception ex) {
                 //ModelState.AddModelError("TransactionProductSaveDefault", "" + exception.Message);
                 return Json((int)MyUtilities.Monitor.ErrorCode.Exception, JsonRequestBehavior.AllowGet);
             }
@@ -658,7 +663,76 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectTransactionWeighingProduct(int warehouseId, int status) {
+        public ActionResult SelectTransactionWeighingManagement(int warehouseId, int status, string fromDate, string toDate) {
+            var model = new List<TransactionWeighingModel>();
+            try {
+                model = GetTransactionWeighingManagement(warehouseId, status, fromDate, toDate);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectTransactionWeighingManagement", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<TransactionWeighingModel> GetTransactionWeighingManagement(int warehouseId, int status, string fromDate, string toDate) {
+            var model = new List<TransactionWeighingModel>();
+            if (status == 0) return model;
+            using (var vfi = new tammaContext()) {
+                var transactionWeighings = (from x in vfi.TransactionWeighings
+                                            where (warehouseId == 0 || x.WarehouseId == warehouseId) &&
+                                                x.Status == status
+                                            select new TransactionWeighingModel {
+                                                WeighingId = x.WeighingId,
+                                                ProductId = x.ProductId,
+                                                ProductCode = x.Product.ProductCode,
+                                                CustomerCode = x.Product.Customer.CustomerCode,
+                                                Quantity = x.Quantity,
+                                                Weight = x.Weight,
+                                                UnitWeight = x.UnitWeight,
+                                                PackageWeight = x.PackageWeight,
+                                                Status = x.Status,
+                                                TransactionId = x.TransactionId ?? 0,
+                                                ModifiedDate = x.ModifiedDate,
+                                                ModifiedUser = x.ModifiedUser,
+                                            }).ToList();
+                if (status != (byte)MyUtilities.Transaction.Status.Open) {
+                    var fDate = MyUtilities.Function.ParseDate(fromDate);
+                    var tDate = MyUtilities.Function.ParseDate(toDate);
+                    transactionWeighings = transactionWeighings.Where(x => x.ModifiedDate >= fDate && x.ModifiedDate <= tDate).ToList();
+                }
+                foreach (var transactionWeighing in transactionWeighings) {
+                    transactionWeighing.StatusName = MyUtilities.Transaction.CastText.GetTextStatus((int)transactionWeighing.Status);
+                    model.Add(transactionWeighing);
+                }
+            }
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult DeleteTransactionWeighingManagement(int weighingId, int warehouseId, int status, string fromDate, string toDate) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var transactionWeighing = vfi.TransactionWeighings.FirstOrDefault(x => x.WeighingId == weighingId);
+                    if (transactionWeighing == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy cân hàng");
+                    }
+                    if (transactionWeighing.Status != (byte)MyUtilities.Transaction.Status.Open) {
+                        throw new AggregateException("Lỗi! Tình trạng cân hàng không thể hủy " 
+                            + MyUtilities.Transaction.CastText.GetTextStatus(transactionWeighing.Status));
+                    }
+                    transactionWeighing.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("DeleteTransactionWeighingManagement", ex.Message);
+            }
+
+            return View(new GridModel(GetTransactionWeighingManagement(warehouseId, status, fromDate, toDate)));
+        }
+
+        [GridAction]
+        public ActionResult SelectTransactionWeighingProduct(int warehouseId, int status, string fromDate, string toDate) {
             var model = new List<TransactionWeighingModel>();
             try {
                 using (var vfi = new tammaContext()) {
@@ -677,8 +751,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                  Status = x.Status,
                                  TransactionId = x.TransactionId ?? 0,
                                  ModifiedDate = x.ModifiedDate,
-                                 ModifiedUser = x.ModifiedUser
+                                 ModifiedUser = x.ModifiedUser,
                              }).ToList();
+                    if (status != (byte)MyUtilities.Transaction.Status.Open) {
+                        var fDate = MyUtilities.Function.ParseDate(fromDate);
+                        var tDate = MyUtilities.Function.ParseDate(toDate);
+                        transactionWeighings = transactionWeighings.Where(x => x.ModifiedDate >= fDate && x.ModifiedDate <= tDate).ToList();
+                    }
                     var productIds = transactionWeighings.Select(x => x.ProductId).Distinct().ToList();
                     var productInvs = (from x in vfi.ProductInventories
                                        where x.WarehouseId == warehouseId &&
@@ -712,7 +791,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     foreach (var transactionWeighing in transactionWeighings) {
                         var productInvsById = productInvs.Where(x => x.ProductId == transactionWeighing.ProductId && x.TotalQty > 0)
                                                         .ToList();
-                        var hasEntity = false;
                         if (!productInvsById.Any()) {
                             model.Add(transactionWeighing);
                         }
@@ -1184,8 +1262,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 using (var vfi = new tammaContext()) {
                     var transactions =
                         vfi.Transactions.Where(f => checkedRecords.Contains(f.TransactionId));
-                    foreach (var transaction in transactions) {
-                        if (transaction.Status != (byte)MyUtilities.Transaction.Status.Open) continue;
+                    var transaction = transactions.FirstOrDefault();
+                    //tra.CreatedUser = HttpContext.User.Identity.Name;
+                    //vfi.SaveChanges();
+                    //return Json("okie");
+
+                    //foreach (var transaction in transactions) {
+                    if (transaction.Status != (byte)MyUtilities.Transaction.Status.Open) {
+                        //continue;
+                        return Json("okie");
+                    }
+                    //transaction.ModifiedDate = DateTime.Now;
+                    //    vfi.SaveChanges();
+                    //    return Json("okie");
+                        //continue;
                         // nhap nguyen lieu
                         if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, transaction.CreatedDate)) {
                             throw new AggregateException(
@@ -1198,15 +1288,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             if (importPO == null)
                                 throw new AggregateException("Lỗi phiếu nhập");
                             PurchaseOrder purchaseOrder = null;
-                            if (importPO.PurchaseOrderId != null)
+                            if (importPO.PurchaseOrderId != null) {
                                 purchaseOrder =
                                     vfi.PurchaseOrders.FirstOrDefault(
                                         po => po.PurchaseOrderId == importPO.PurchaseOrderId);
+                            }
                             foreach (var detail in transaction.TransactionDetails) {
                                 PurchaseOrderDetail poDetail = null;
-                                var importDetail =
-                                    importPO.ImportPurchaseOrderDetails.FirstOrDefault(
-                                        id => id.MaterialId == detail.ReferenceId);
+                                ImportPurchaseOrderDetail importDetail = null;
                                 if (purchaseOrder != null && detail.PoDetailId != null) {
                                     poDetail =
                                         purchaseOrder.PurchaseOrderDetails.FirstOrDefault(
@@ -1216,6 +1305,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             importPO.ImportPurchaseOrderDetails.FirstOrDefault(
                                                 id => id.PoDetailId == detail.PoDetailId);
                                     }
+                                }
+                                else {
+                                    importDetail =
+                                        importPO.ImportPurchaseOrderDetails.FirstOrDefault(
+                                        id => id.MaterialId == detail.ReferenceId
+                                        && (detail.LotNumber == null
+                                            || detail.LotNumber.Equals(id.LotNumber))
+                                                );
                                 }
                                 if (string.IsNullOrWhiteSpace(importDetail.LotNumber))
                                     importDetail.LotNumber = MyUtilities.Material.GetMaterialLot(importDetail.VendorId,
@@ -1227,10 +1324,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         mi.MaterialId == detail.ReferenceId &&
                                         mi.VendorId == importDetail.VendorId &&
                                         mi.Length == importDetail.Length);
-
+                                //var isNewInv = false;
                                 // nhap moi nguyen lieu
                                 if (materialByLot == null) {
-                                    materialByLot = new Vfi.Models.MaterialInventory {
+                                    materialByLot = new MaterialInventory {
                                         TotalQty = 0,
                                         TotalQtyKg = 0,
                                         LotNumber = importDetail.LotNumber,
@@ -1245,8 +1342,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         ImportQuantity = Math.Round((importDetail.Quantity), 2),
                                         ImportQuantityKg = Math.Round((importDetail.QuantityKg), 3),
                                         StoreCode = importDetail.StoreCode,
-                                        Length = importDetail.Length
+                                        Length = importDetail.Length,
                                     };
+                                    //isNewInv = true;
                                     vfi.MaterialInventories.Add(materialByLot);
                                     vfi.SaveChanges();
                                 }
@@ -1309,7 +1407,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 if (purchaseOrder != null && !purchaseOrder.PurchaseOrderDetails.Any(pod => !(pod.IsComplete ?? false)))
                                     purchaseOrder.Status = (byte)MyUtilities.Sales.Status.Completed;
                                 transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
-
+                                //if (isNewInv) {
+                                //    vfi.MaterialInventories.Add(materialByLot);
+                                //}
                                 vfi.SaveChanges();
                             }
                         }
@@ -1317,9 +1417,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             var exportMaterial =
                                 vfi.ExportMaterials.FirstOrDefault(em => em.TransactionId == transaction.TransactionId);
                             var isDestroy = exportMaterial.ShiftType == null;
+                            var invIdsEmpty = new List<int>();
                             // kiem tra ton kho nguyen lieu theo lo
                             var materialInvIds =
-                                exportMaterial.ExportMaterialDetails.Select(u => u.MaterialInvId).Distinct();
+                                exportMaterial.ExportMaterialDetails.Select(u => u.MaterialInvId).Distinct().ToList();
                             foreach (var materialInvId in materialInvIds) {
                                 var materialInvs =
                                     exportMaterial.ExportMaterialDetails.Where(u => u.MaterialInvId == materialInvId);
@@ -1361,6 +1462,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     materialInventory.TotalQtyKg = 0;
                                     if (isDestroy) {
                                         materialInventory.EndDate = DateTime.Now;
+                                        invIdsEmpty.Add(materialInventory.MaterialInventoryId);
                                     }
                                 }
                                 vfi.MaterialInventoryPeriods.Add(materialInvPeriod);
@@ -1410,8 +1512,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
 
                             vfi.SaveChanges();
+                            DeActiveInventoryOnShelf(invIdsEmpty);
                         }
-                    }
+                    //}
                 }
 
             }
@@ -1420,6 +1523,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     Json(@"Lỗi giá trị nhập. (try-catch). " + exception.Message + "\n");
             }
             return Json("okie");
+        }
+
+        public void DeActiveInventoryOnShelf(List<int> materialInvIds) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var onShelfs = vfi.OnShelves.Where(x => materialInvIds.Contains(x.ReferenceInvId)
+                        && x.Active
+                        && x.InventoryDrawer.InventoryShelf.ClassifiedId == 1);
+                    if (onShelfs.Any()) { onShelfs.Each(x => x.Active = false); }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("DeActiveInventoryOnShelf", ex.Message);
+            }
         }
 
         [HttpPost]
@@ -2681,7 +2799,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         DefectId = transactionDetail.DefectId,
                                         ByProcessMachineId = transactionDetail.NextProcessId,
                                         MachineId = transactionDetail.MachineId,
-                                        StoreCode = transactionDetail.StoreCode
+                                        StoreCode = transactionDetail.StoreCode,
+                                        Active = true
                                     };
                                     if (productInvExport != null) {
                                         productInvImport.MaterialInvId = productInvExport.MaterialInvId;
@@ -3568,7 +3687,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (importPo == null) throw new AggregateException("Lỗi phiếu nhập nguyên liệu");
                     foreach (var transactionDetail in transactionDetails) {
                         var importDetail = importPo.ImportPurchaseOrderDetails.FirstOrDefault(
-                                                id => id.MaterialId == transactionDetail.ReferenceId);
+                                                id => id.MaterialId == transactionDetail.ReferenceId
+                                                && (transactionDetail.LotNumber == null 
+                                                    || transactionDetail.LotNumber.Equals(id.LotNumber)));
                         if (transactionDetail.PoDetailId != null) {
                             importDetail =
                                importPo.ImportPurchaseOrderDetails.FirstOrDefault(
@@ -4398,7 +4519,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 ModifiedUser = HttpContext.User.Identity.Name,
                                 ModifiedDate = DateTime.Now,
                                 Note = detail.Note,
-                                IsInternal = transaction.IsInternal
+                                IsInternal = transaction.IsInternal,
+                                LotNumber = detail.LotNumber,
                             };
                             transactionDetail.QuantityKg = transactionDetail.Quantity * detail.UnitWeight;
                             transaction.TransactionDetails.Add(transactionDetail);

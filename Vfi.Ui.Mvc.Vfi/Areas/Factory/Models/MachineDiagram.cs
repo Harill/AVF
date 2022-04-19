@@ -12,6 +12,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
             Production = 0;
             MaterialUse = 0;
             RunDate = DateTime.Now;
+            ProductImgs = new List<ProductImgModel>();
         }
         public int MachineId { get; set; }
         public string MachineName { get; set; }
@@ -80,6 +81,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string DiagramName { get; set; }
 
         public List<string> Notes { get; set; }
+        public List<ProductImgModel> ProductImgs { get; set; }
 
 
         public double ProcessingQuantity { get; set; }

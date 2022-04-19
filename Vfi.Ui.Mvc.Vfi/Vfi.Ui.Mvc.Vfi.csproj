@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -58,11 +59,11 @@
       <HintPath>..\packages\CodeFirstSeeder.0.9.0.0\lib\net40\CodeFirstSeeder.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.0.1\lib\net40\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net40\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.0.1\lib\net40\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.4.4\lib\net40\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Build.Tasks.v4.0">
@@ -166,12 +167,10 @@
     <Reference Include="Telerik.Reporting, Version=6.1.12.611, Culture=neutral, PublicKeyToken=a9d7983dfcc261be, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Telerik.Reporting.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Telerik.ReportViewer.WebForms, Version=6.1.12.611, Culture=neutral, PublicKeyToken=a9d7983dfcc261be, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Telerik.ReportViewer.WebForms.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Telerik.Web.Mvc, Version=2013.2.611.340, Culture=neutral, PublicKeyToken=29ac1a93ec063d92, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -590,6 +589,12 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptTransactionFormGroup.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptTransactionFormGroup.Designer.cs">
+      <DependentUpon>RptTransactionFormGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptMaterialOnShelfCard.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -986,6 +991,12 @@
     <Compile Include="Areas\Inv\Reports\RptMaterialDailyReport.Designer.cs">
       <DependentUpon>RptMaterialDailyReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Areas\Inv\Reports\RptTransactionForm.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptTransactionForm.Designer.cs">
+      <DependentUpon>RptTransactionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptWorkpieceMaterial.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1100,12 +1111,6 @@
     <Compile Include="Areas\Inv\Reports\RptExportGCN_NCUForm.Designer.cs">
       <DependentUpon>RptExportGCN_NCUForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Areas\Inv\Reports\RptTransactionForm.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptTransactionForm.Designer.cs">
-      <DependentUpon>RptTransactionForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Areas\Inv\Reports\RptImportSX1Form.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1214,6 +1219,7 @@
     </Compile>
     <Compile Include="Areas\Sales\Models\WaitingOrderBalancingPlanModel.cs" />
     <Compile Include="Areas\Sales\Views\SalesAreaRegistration.cs" />
+    <Content Include="Areas\Inv\Views\Inv\PageTransactionFormGroup.aspx" />
     <Content Include="Content\Isotope.css" />
     <Compile Include="Controllers\Authorization\PermissionController.cs" />
     <Compile Include="Controllers\Authorization\UserController.cs" />
@@ -2910,6 +2916,7 @@
     <Content Include="Areas\Factory\Views\Machine\ProductionMachineDiagramAVF.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\TransactionWeighing.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\TransactionWeighingAddDetail.cshtml" />
+    <Content Include="Areas\Inv\Views\Transaction\TransactionWeighingManagement.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
     </None>
@@ -3650,6 +3657,9 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptTransactionFormGroup.resx">
+      <DependentUpon>RptTransactionFormGroup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptMaterialOnShelfCard.resx">
       <DependentUpon>RptMaterialOnShelfCard.cs</DependentUpon>
     </EmbeddedResource>
@@ -3854,6 +3864,9 @@
     <EmbeddedResource Include="Areas\Inv\Reports\RptMaterialDailyReport.resx">
       <DependentUpon>RptMaterialDailyReport.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptTransactionForm.resx">
+      <DependentUpon>RptTransactionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptWorkpieceMaterial.resx">
       <DependentUpon>RptWorkpieceMaterial.cs</DependentUpon>
     </EmbeddedResource>
@@ -3911,9 +3924,6 @@
     <EmbeddedResource Include="Areas\Inv\Reports\RptExportGCN_NCUForm.resx">
       <DependentUpon>RptExportGCN_NCUForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptTransactionForm.resx">
-      <DependentUpon>RptTransactionForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptImportSX1Form.resx">
       <DependentUpon>RptImportSX1Form.cs</DependentUpon>
     </EmbeddedResource>
@@ -3956,6 +3966,9 @@
     <Content Include="Views\User\WarehousePermission.cshtml" />
     <Content Include="Views\User\WarehousePerUserChecked.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -3993,4 +4006,12 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="..\packages\AutoMapper.3.3.1\tools\AutoMapper.targets" Condition="Exists('..\packages\AutoMapper.3.3.1\tools\AutoMapper.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.props'))" />
+    <Error Condition="!Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EntityFramework.6.4.4\build\EntityFramework.targets'))" />
+  </Target>
+  <Import Project="..\packages\EntityFramework.6.4.4\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.4.4\build\EntityFramework.targets')" />
 </Project>

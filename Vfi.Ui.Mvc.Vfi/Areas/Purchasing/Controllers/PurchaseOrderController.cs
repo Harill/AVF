@@ -1490,10 +1490,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                  FptId = x.MaterialId.Value,
                                                  FptCode = x.Material.MaterialCode,
                                                  FptName = x.Material.MaterialName,
-                                                 FptDesignNo = MyUtilities.Material.GetMaterialDesignNo(x.Material.OutDiameter,
-                                                                                            x.Material.InDiameter,
-                                                                                            x.Material.DiameterType,
-                                                                                            x.Material.Shape),
+                                                 //FptDesignNo = MyUtilities.Material.GetMaterialDesignNo(x.Material.OutDiameter,
+                                                 //                                           x.Material.InDiameter,
+                                                 //                                           x.Material.DiameterType,
+                                                 //                                           x.Material.Shape),
                                                  LotNumber = "x" + (x.Length / 1000) + "-" + x.LotNumber,
                                                  Note = x.Note,
                                                  Quantity = x.QuantityKg,
@@ -1529,6 +1529,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             var purchaseDetail = purchaseDetails.FirstOrDefault(
                                     pod => pod.PurchaseOrderId == detail.PoId
                                            && pod.ReferenceId == detail.FptId);
+                            detail.FptDesignNo = detail.FptCode.Replace(detail.FptName, "");
                             if (purchaseDetail != null) {
                                 detail.UnitMeasure = purchaseDetail.Unit;
                                 detail.UnitPrice = purchaseDetail.UnitPrice;
@@ -1699,7 +1700,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                              where x.ImportNCU_QCB.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
                                              && x.ImportNCU_QCB.ImportDate >= fDate && x.ImportNCU_QCB.ImportDate <= tDate
                                              && (vendorId == 0 || x.ImportNCU_QCB.PlatingForm.VendorId == vendorId)
-                                             select new TransactionFptDetailModel {
+                                             select new TransactionFptDetailModel
+                                             {
 
                                                  Note = x.Note,
                                                  //Quantity = importDetail.,
@@ -1716,13 +1718,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                  TransactionCode = x.ImportNCU_QCB.TransactionCode,
 
                                                  //LotNumber = toolInv.LotNumber,
-                                                 FuelCode = x.Product.ProductCode,
-                                                 FuelName = x.Product.ProductCode,
-                                                 FuelDesignNo = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingCode,
+                                                 //FptCode = x.Product.ProductCode,
+                                                 FptName = x.Product.ProductName + "-" + x.Product.ProductCode,
+                                                 FptCode = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingCode,
                                                  ExchangeRate = x.ExportGCN_NCUDetail.PlatingFormDetail.PlatingForm.ExchangeRate,
                                                  Quantity = x.ExportGCN_NCUDetail.PlatingFormDetail.Unit.Contains("Kg")
-                                                 ? x.Weight / 1000
-                                                 : x.RealNumber,
+                                                                 ? x.Weight / 1000
+                                                                 : x.RealNumber,
+                                                 LotNumber = x.ProductInventory.LotNumber,
                                              }).ToList();
                         foreach (var detail in importDetails) {
 
@@ -1804,8 +1807,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             detail.Price = detail.Quantity * detail.UnitPrice * detail.ExchangeRate;
                             var item = items.FirstOrDefault(m => m.Id == detail.FptId);
                             if (item != null) {
-                                detail.FptName = item.Name;
-                                detail.FptCode = item.Code;
+                                detail.FptName = item.Name + "-" + item.Code;
+                                detail.FptCode = item.DesignNo;
                                 detail.FptDesignNo = item.DesignNo;
                             }
                         }
@@ -3717,8 +3720,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 FormId = entity.FormId,
                                 ProductId = detailModel.ProductId,
                                 PlatingForm = entity,
-                                ExportDateRequirement = detailModel.ExportDate,
-                                ImportDateRequirement = detailModel.ImportDate,
+                                ExportDateRequirement = detailModel.ExportDateRequirement,
+                                ImportDateRequirement = detailModel.ImportDateRequirement,
                                 PlatingCode = detailModel.PlatingCode,
                                 QuantityRequirement = detailModel.QuantityRequirement,
                                 SaltSprayTime = detailModel.SaltSprayTime + "",

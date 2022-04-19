@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Kho CXL";
+    ViewBag.Title = "Tồn Kho CXL";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -43,8 +43,6 @@
         }
         var index = 0;
 
-        function grid_OnRowDataBound(e) {
-        }
         function grid_OnDataBound() {
             OnLoadedData();
         }
@@ -61,6 +59,7 @@
                 }
             }
         }
+
         function OnLoadedData() {
             if (onLoading) {
                 var loadings = document.querySelectorAll('.twoToneButton');
@@ -85,7 +84,7 @@
     </script>
 }
 
-<div class="title">Báo cáo xuất nhập tồn kho Chờ Xử Lý</div>
+<div class="title">Báo cáo tồn kho Chờ Xử Lý</div>
 <div class="clear"></div>
 <br />
 
@@ -163,7 +162,7 @@
                 .DataKeys(keys => keys.Add(f => f.ProductInvId).RouteKey("productInvId"))
                 .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectProcessingInvQuantity", "Inv",
-                                                                 new { customerId = 0, productCode = "", fromDate = "", toDate = "" }))
+                                                                 new { customerId = 0, productCode = "" }))
                 .Columns(columns =>
                     {
                         columns.Bound(f => f.GlobalIndex).Width(30)

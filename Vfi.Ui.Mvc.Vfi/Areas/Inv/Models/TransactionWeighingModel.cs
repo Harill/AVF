@@ -19,6 +19,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public long TransactionId { get; set; }
         public string TransactionCode { get; set; }
         public byte Status { get; set; }
+        public string StatusName { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }
 

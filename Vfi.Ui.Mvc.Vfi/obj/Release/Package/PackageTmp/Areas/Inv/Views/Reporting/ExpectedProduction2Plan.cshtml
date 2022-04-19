@@ -168,8 +168,6 @@
                         .Value(new DateTime(DateTime.Now.Year,DateTime.Now.Month,1))
                         .Render();
             }
-        </div>
-        <div class="grid_3">
             @{
                     Html.Telerik().DatePicker()
                         .Name("ToDate")
@@ -177,6 +175,8 @@
                         .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1))
                         .Render();
             }
+        </div>
+        <div class="grid_3">
         </div>
         <div class="grid_3">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">

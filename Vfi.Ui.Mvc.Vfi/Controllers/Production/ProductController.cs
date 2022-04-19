@@ -576,11 +576,11 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
 
         [GridAction]
-        public ActionResult SelectProductComparePricing(int customerId, string productCode) {
+        public ActionResult SelectProductComparePricing(int customerId, int materialTypeId, string productCode) {
             var model = new List<ProductPricingModel>();
             try {
                 if (customerId != -1)
-                    model = GetProductComparePricing(customerId, productCode);
+                    model = GetProductComparePricing(customerId,materialTypeId, productCode);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductComparePricing", ex.Message);
@@ -588,7 +588,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             return View(new GridModel(model));
         }
 
-        List<ProductPricingModel> GetProductComparePricing(int customerId, string productCode) {
+        List<ProductPricingModel> GetProductComparePricing(int customerId,int materialTypeId, string productCode) {
             var model = new List<ProductPricingModel>();
             try {
                 using (var vfi = new tammaContext()) {
@@ -610,12 +610,16 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                         p.KnifeCut,
                                         p.Weight,
                                         p.QcWeight,
-                                        
+
                                         p.MaterialId,
                                         p.Material,
+                                        MaterialTypeId = p.MaterialId != null ? p.Material.MaterialTypeId : 0,
                                         MaterialCode = p.MaterialId != null ? p.Material.MaterialCode : "",
                                         MaterialPrice = p.MaterialId != null ? p.Material.UnitPrice : 0,
                                     }).ToList();
+                    if (materialTypeId != 0) {
+                        products = products.Where(x => x.MaterialTypeId == materialTypeId).ToList();
+                    }
                     if (!String.IsNullOrWhiteSpace(productCode)) {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                     }
@@ -1274,7 +1278,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 }
             }
             catch (Exception ex) {
-                return Json("0");
+                ModelState.AddModelError("GetProductPlatingCode", ex.Message);
             }
             return Json("0");
         }
@@ -1289,6 +1293,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                          where
                                              rp.ProductId == productId &&
                                              rp.TrackUpMachine.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                         orderby rp.Machine.MachineName
                                          select new {
                                              rp.Machine,
                                              rp.TrackUpMachine
@@ -1308,6 +1313,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             Quantity = production.TrackUpMachine.Quantity,
                             EndDate = production.TrackUpMachine.EndDate,
                             Note = production.TrackUpMachine.Note,
+                            StatusName = production.Machine.ProcessingType.TypeName,
                         };
                         if (production.TrackUpMachine.Material != null) {
                             entity.MaterialCode = production.TrackUpMachine.Material.MaterialCode;
@@ -1530,7 +1536,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 return Json(ex.Message);
             }
             // Redirect to a view showing the result of the form submissSaveion.    
-            return Json("False");
+            //return Json("False");
         }
 
         [HttpPost]
@@ -1567,7 +1573,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 return Json(ex.Message);
             }
             // Redirect to a view showing the result of the form submissSaveion.    
-            return Json("False");
+            //return Json("False");
         }
         [HttpPost]
         public ActionResult Save2D(IEnumerable<HttpPostedFileBase> Attachment2D, IEnumerable<HttpPostedFileBase> AttachmentReal) {
@@ -1595,7 +1601,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 return Json(ex.Message);
             }
             // Redirect to a view showing the result of the form submission.    
-            return Json("False");
+            //return Json("False");
         }
         public ActionResult CheckProductImage(string upload) {
             try {
@@ -3255,7 +3261,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 }
                 return model.OrderBy(m => m.SectionIndex).ToList();
             }
-            return model;
         }
 
         [GridAction]
@@ -3590,7 +3595,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
         List<ProductImgModel> GetProductImgById(int productId) {
             var model = new List<ProductImgModel>();
             var techicalManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
-                MyUtilities.UserRole.TechicalManagerLv1);
+                MyUtilities.UserRole.TechicalManagerLv2);
             if (!techicalManager)
                 return model;
 
@@ -3604,12 +3609,13 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         ProductId = productId,
                         ProductCode = productImg.Product.ProductCode,
                         ImgUrl = productImg.ImgUrl,
-                        Step = productImg.Step ?? 0,
+                        Step = productImg.Step,
                         Description = productImg.Description,
                         ModifiedDate = productImg.ModifiedDate,
                         ModifiedUser = productImg.ModifiedUser,
                         CanModify = techicalManager,
-                        UploadDate = productImg.ModifiedDate.ToString("yyyyMMddhhmmss")
+                        WarehouseId = productImg.WarehouseId,
+                        WarehouseName = productImg.Warehouse.WarehouseName
                     };
                     model.Add(entity);
                 }
@@ -3627,15 +3633,26 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 }
                 var techicalManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
                     MyUtilities.UserRole.TechicalManagerLv2);
-                if (!techicalManager)
+                if (!techicalManager) {
                     throw new AggregateException("Lỗi! Không có quyền thêm - sửa hình.");
-                if (string.IsNullOrWhiteSpace(insert.ImgUrl))
+                }
+                if (string.IsNullOrWhiteSpace(insert.ImgUrl)) {
                     throw new AggregateException("Lỗi! Không tìm thấy hình được upload!");
+                } 
+                int warehouseId = 0;
+                try {
+                    warehouseId = Convert.ToInt32(insert.WarehouseName);
+                }
+                catch (Exception) { }
+                if (warehouseId == 0) {
+                    throw new AggregateException("Lỗi! Không tìm thấy công đoạn! Vui lòng chọn lại");
+                }
                 var productImg = new ProductImg() {
                     ProductId = productId,
                     ImgUrl = insert.ImgUrl,
                     Step = insert.Step,
                     Description = insert.Description,
+                    WarehouseId = warehouseId,
                     ModifiedDate = DateTime.Now,
                     ModifiedUser = HttpContext.User.Identity.Name
                 };
@@ -3668,11 +3685,19 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         throw new AggregateException("Lỗi! Không tìm thấy bản vẽ sản phẩm!");
 
                     if (!string.IsNullOrWhiteSpace(update.ImgUrl)) {
-                        var productImgs =
-                            vfi.ProductImgs.Where(pi => pi.ImgUrl.Equals(productImg.ImgUrl) && pi.ProductId != productId);
-                        if (!productImgs.Any())
+                        var productImgs = vfi.ProductImgs.Where(pi => pi.ImgUrl.Equals(productImg.ImgUrl));
+                        if (!productImgs.Any()) {
                             DeleteProductImg(productImg.ImgUrl);
+                        }
                         productImg.ImgUrl = update.ImgUrl;
+                    }
+                    int warehouseId = 0;
+                    try {
+                        warehouseId = Convert.ToInt32(update.WarehouseName);
+                    }
+                    catch (Exception) { }
+                    if (warehouseId > 0) {
+                        productImg.WarehouseId = warehouseId;
                     }
                     productImg.Description = update.Description;
                     productImg.Step = update.Step;

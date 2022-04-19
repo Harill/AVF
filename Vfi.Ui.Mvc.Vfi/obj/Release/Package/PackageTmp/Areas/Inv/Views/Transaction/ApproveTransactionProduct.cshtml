@@ -197,13 +197,24 @@
                 e.row.childNodes[1].innerHTML = "";
             }
             if (!e.dataItem.SpecialFormType > 0) {
-                e.row.childNodes[12].innerHTML = "";
+                e.row.childNodes[13].innerHTML = "";
             }
         }
 
         function PrintForm(val) {
             alert(val);
             $('#result').load('@Url.Action("PrintTransactionForm", "Inv")',
+                {
+                    transactionId: val
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
+        function PrintFormGroup(val) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintTransactionFormGroup", "Inv")',
                 {
                     transactionId: val
                 }, function () {
@@ -311,9 +322,12 @@
                 columns.Bound(f => f.ModifiedUser).Width(100).ReadOnly(true);
                 columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.TransactionId).Title("In").Width(45).ReadOnly(true)
+                columns.Bound(f => f.TransactionId).Title("In").Width(45).ReadOnly(true).Filterable(false)
                     .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
                     .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.WarehouseIssueId).Title("In (G)").Width(45).ReadOnly(true).Filterable(false)
+                       .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintFormGroup(<#= TransactionId #>) />")
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.TransactionId).Title("In ĐB").Width(45).ReadOnly(true)
                     .ClientTemplate("<input type='button' id='db_id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintSpecialForm(<#= TransactionId #>,<#= SpecialFormType #>) />")
                     .HtmlAttributes(new { style = "text-align:center" });

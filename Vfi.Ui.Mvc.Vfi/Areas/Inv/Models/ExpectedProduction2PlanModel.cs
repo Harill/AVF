@@ -10,6 +10,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
             Sections = new List<ExpectedProduction2PlanSection>();
             Orders = new List<ExpectedProduction2PlanInfo>();
             Forecasts = new List<ExpectedProduction2PlanInfo>();
+            Statistics = new List<SectionStatistic>();
         }
         public int CustomerId { get; set; }
         public string CustomerCode { get; set; }
@@ -49,7 +50,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public DateTime? ForecastStartDate { get { return Forecasts.Any() ? Forecasts.Min(x => x.StartDate) : (DateTime?)null; } }
         public DateTime? ForecastEndDate { get { return Forecasts.Any() ? Forecasts.Max(x => x.EndDate) : (DateTime?)null; } }
         public DateTime Date { get { return OrderDueDate != null ? OrderDueDate.Value : ForecastDueDate.Value; } }
+
+        public List<SectionStatistic> Statistics { get; set; }
     }
+
 
     public class ExpectedProduction2PlanSection {
         public int SectionId { get; set; }
@@ -59,9 +63,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
     public class ExpectedProduction2PlanInfo {
         public double Quantity { get; set; }
         public double RequireQuantity { get; set; }
-        public DateTime Date { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? Date { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string DateStr { get { return Date != null ? Date.Value.ToString("dd/MM") : ""; } }
+        public string StartDateStr { get { return StartDate != null ? StartDate.Value.ToString("dd/MM") : ""; } }
+        public string EndDateStr { get { return EndDate != null ? EndDate.Value.ToString("dd/MM") : ""; } }
         public double Second { get; set; }
+    }
+
+    public class SectionStatistic {
+        public int SectionId { get; set; }
+        public string SectionName { get; set; }
+
+        public double OrderRequire { get; set; }
+        public double OrderSecond { get; set; }
+
+        public double ForecastRequire { get; set; }
+        public double ForecastSecond { get; set; }
     }
 }

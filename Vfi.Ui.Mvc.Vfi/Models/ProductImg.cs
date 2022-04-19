@@ -11,7 +11,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string Description { get; set; }
         public System.DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }
-        public Nullable<int> Step { get; set; }
+        public int Step { get; set; }
+        public int WarehouseId { get; set; }
         public virtual Product Product { get; set; }
+        public virtual Warehouse Warehouse { get; set; }
     }
 }

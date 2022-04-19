@@ -59,8 +59,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
     }
     public class CustomerIncomeDetailModel
     {
-        private double _totalByCurrency;
-
         public CustomerIncomeDetailModel()
         {
             Quatity = 0;

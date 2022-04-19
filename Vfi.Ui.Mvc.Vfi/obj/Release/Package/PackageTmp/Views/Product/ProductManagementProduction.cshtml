@@ -397,7 +397,7 @@
                 }
             }
         }
-
+        
         function PrintTechnicalList() {
             var customer = $("#Customer").data("tComboBox").value();
             if (customer === "")
@@ -431,7 +431,7 @@
             //var i = 0;
             //var drawing2D = "";
             var editRow = e.target.getElementsByClassName("t-grid-edit-row")[0];
-            var ul2D = editRow.childNodes[1].childNodes[1].childNodes[1];
+            var ul2D = editRow.childNodes[2].childNodes[1].childNodes[1];
             //if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
             //    //drawing2D = e.dataItem.ImgUrl;
             //} else
@@ -446,12 +446,13 @@
                 }
             }
             return true;
-
         }
 
         function gridProductImg_OnRowDataBound(e) {
-            if (!e.dataItem.CanModify)
+            if (!e.dataItem.CanModify) {
                 e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
+                e.row.getElementsByClassName("t-button t-grid-delete t-button-icon")[0].parentNode.innerHTML = "";
+            }
         }
 
         function PrintProductionForm(val) {
@@ -676,6 +677,7 @@
                                     columns.Command(command =>
                                                     command.Edit().ButtonType(GridButtonType.Image)
                                         ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.WarehouseName).Title("Công đoạn").Width(70);
                                     columns.Bound(f => f.ImgUrl).Width(40).Title("Bản vẽ")
                                            .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                                            "<img src='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +

@@ -79,8 +79,8 @@
         function Grid_OnDelete(e) {
             var value = e.values;
             var invoiceId = value.InvoiceId;
-            var note = value.Note;
-            e.data = $.extend(e.data, {
+            var note = value.Note; 
+            e.values = $.extend(e.values, {
                 invoiceId: invoiceId,
                 note: note
             });

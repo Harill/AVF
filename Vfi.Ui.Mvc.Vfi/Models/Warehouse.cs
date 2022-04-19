@@ -11,6 +11,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.DefectTransactionDetails = new List<DefectTransactionDetail>();
             this.MachineAppraisals = new List<MachineAppraisal>();
             this.ProcessingTypes = new List<ProcessingType>();
+            this.ProductImgs = new List<ProductImg>();
             this.ProductionDefectRemedies = new List<ProductionDefectRemedy>();
             this.ProductionProcesses = new List<ProductionProcess>();
             this.ProductionProcessByMachines = new List<ProductionProcessByMachine>();
@@ -66,6 +67,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
         public virtual ICollection<ProcessingType> ProcessingTypes { get; set; }
+        public virtual ICollection<ProductImg> ProductImgs { get; set; }
         public virtual ICollection<ProductionDefectRemedy> ProductionDefectRemedies { get; set; }
         public virtual ICollection<ProductionProcess> ProductionProcesses { get; set; }
         public virtual ICollection<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }

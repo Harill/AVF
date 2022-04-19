@@ -13,12 +13,17 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string ProductCode { get; set; }
         [DataType("_UploadProductImgTemplate")]
         public string ImgUrl { get; set; }
+        [DataType("Int")]
         public int Step { get; set; }
         public string Description { get; set; }
-        public System.DateTime ModifiedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }
 
         public bool CanModify { get; set; }
-        public string UploadDate { get; set; }
+        public string UploadDate { get { return ModifiedDate.ToString("yyyyMMddhhmmss"); } }
+
+        public int WarehouseId { get; set; }
+        [DataType("_WarehouseEditTemplate")]
+        public string WarehouseName { get; set; }
     }
 }

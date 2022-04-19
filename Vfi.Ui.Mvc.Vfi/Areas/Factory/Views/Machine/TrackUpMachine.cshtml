@@ -168,8 +168,8 @@
 @section Scripts{
     <script type="text/javascript">
         var materialId = 0;
-
-        function grid_OnSave(e) {
+        
+        function fecthParam() {
             var month = $("#Month").data("tDropDownList").value();
             if (month === null)
                 month = new Date().getMonth() + 1;
@@ -179,15 +179,17 @@
             var status = $("#Status").data("tComboBox").value();
             if (status === null || status === "")
                 status = 2;
+            return {
+                status: status,
+                month: month,
+                year: year
+            };
+        }
+        function grid_OnSave(e) {
+            var param = fecthParam();
             if (!($('#MaterialCode').data('tComboBox') == undefined))
                 e.values.MaterialCode = $('#MaterialCode').data('tComboBox').text();
-            e.values = $.extend(e.values,
-                {
-                    status: status,
-                    month: month,
-                    year: year
-                }
-            );
+            e.values = $.extend(e.values, param);
         }
 
         function grid_OnEdit(e) {
@@ -223,40 +225,14 @@
             alert(month);
         }
 
-        function grid_OnDelete(args) {
-            var month = $("#Month").data("tDropDownList").value();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-            var year = $("#Year").val();
-            if (year === null || year === "")
-                month = new Date().getYear() + 1;
-            var status = $("#Status").data("tComboBox").value();
-            if (status === null || status === "")
-                status = 2;
-            args.data = $.extend(args.data, {
-                status: status,
-                month: month,
-                year: year
-            });
-            RefreshGrid("gridTrack");
+        function grid_OnDelete(e) {
+            var param = fecthParam();
+            e.values = $.extend(e.values, param);
         }
 
         function grid_OnDataBinding(args) {
-
-            var month = $("#Month").data("tDropDownList").value();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-            var year = $("#Year").val();
-            if (year === null || year === "")
-                month = new Date().getYear() + 1;
-            var status = $("#Status").data("tComboBox").value();
-            if (status === null || status === "")
-                status = 2;
-            args.data = $.extend(args.data, {
-                status: status,
-                month: month,
-                year: year
-            });
+            var param = fecthParam();
+            args.data = $.extend(args.data, param);
         }
 
 
@@ -742,6 +718,7 @@
                     .OnDataBound("grid_OnDataBound")
                     .OnRowDataBound("Grid_OnRowDataBound")
                     .OnEdit("grid_OnEdit")
+                    .OnDelete("grid_OnDelete")
                     .OnRowSelect("grid_OnRowSelect")
                     .OnError("grid_OnError"))
                 .Render();

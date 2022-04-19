@@ -23,11 +23,15 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.ModifiedUser).HasColumnName("ModifiedUser");
             this.Property(t => t.Step).HasColumnName("Step");
+            this.Property(t => t.WarehouseId).HasColumnName("WarehouseId");
 
             // Relationships
             this.HasRequired(t => t.Product)
                 .WithMany(t => t.ProductImgs)
                 .HasForeignKey(d => d.ProductId);
+            this.HasRequired(t => t.Warehouse)
+                .WithMany(t => t.ProductImgs)
+                .HasForeignKey(d => d.WarehouseId);
 
         }
     }

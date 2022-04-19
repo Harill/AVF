@@ -1,7 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Models
 @using Vfi.Ui.Mvc.Vfi.Utilities
-@model ExportFormTP_KD
 @{
     ViewBag.Title = "Phân lô cân hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,10 +8,6 @@
 
 @section Scripts{
     <script type="text/javascript">
-
-        function transaction_OnChange() {
-            RefreshGrid("grid");
-        }
 
         var index = 0;
 
@@ -228,7 +223,7 @@
 ))
             .DataKeys(keys => keys.Add(f => f.IdentityWeighing).RouteKey("identityWeighing"))
             .DataBinding(dataBindings => dataBindings.Ajax()
-                .Select("SelectTransactionWeighingProduct", "Transaction", new { warehouseId = 0, status = (byte)MyUtilities.Transaction.Status.Open })
+                .Select("SelectTransactionWeighingProduct", "Transaction", new { warehouseId = 0, status = (byte)MyUtilities.Transaction.Status.Open, fromDate = "", toDate = "" })
                 )
             .Columns(columns => {
                 columns.Bound(f => f.ProductId).Width(30).ReadOnly(true)

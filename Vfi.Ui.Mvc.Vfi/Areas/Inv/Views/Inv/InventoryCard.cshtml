@@ -637,31 +637,26 @@
                                             .Name("gridRealProduction_<#= ProductId #>")
                                             .DataKeys(key => key.Add(f => f.TrackId).RouteKey("trackId"))
                                             .DataBinding(dataDindings => dataDindings.Ajax()
-                                                                                     .Select("SelectRealProductionById", "Product", new {area="",  productId = "<#= ProductId #>" })
+                                                                                     .Select("SelectRealProductionById", "Product", new { area = "", productId = "<#= ProductId #>" })
                                             )
-                                            .Columns(columns =>
-                                                {
+                                            .Columns(columns => {
                                                     columns.Bound(f => f.DeliveryDate).Width(75).Title("Ngày giao")
                                                            .ClientTemplate("<#= DeliveryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DeliveryDate) #>");
-                                                    columns.Bound(f => f.MachineName).Width(60).Title("Máy")
+                                                    columns.Bound(f => f.MachineName).Width(80).Title("Máy")
                                                            .ClientTemplate("<strong><#= MachineName #></strong>");
-                                                    columns.Bound(f => f.MachineName).Width(60).Title("Tên Máy")
-                                                          .ClientTemplate("<strong><#= MachineName #></strong>"); // todo
+                                                    columns.Bound(f => f.StatusName).Width(80).Title("Tên Máy")
+                                                          .ClientTemplate("<strong><#= StatusName #></strong>"); // todo
                                                     columns.Bound(f => f.MaterialCode).Width(170).Title("Nguyên liệu")
                                                            .ClientTemplate("<strong><#= MaterialCode #></strong>");
-                                                    columns.Bound(f => f.Quantity).Width(170).Title("Số lượng")
-                                                           .Format("{0:n0}");
-                                                    columns.Bound(f => f.Phase).Width(75).Title("Công đoạn");
-                                                    columns.Bound(f => f.RoundPerMinute).Width(50).Title("RPM")
-                                                           .ClientTemplate("<#= RoundPerMinute == null ? 0 : $.telerik.formatString('{0:n0}', RoundPerMinute) #>");
-                                                    columns.Bound(f => f.RealProductivity).Width(50).Title("Năng Suất")
-                                                           .ClientTemplate("<#= RealProductivity == null ? 0 : $.telerik.formatString('{0:n2}', RealProductivity) #>");
+                                                    columns.Bound(f => f.Quantity).Width(65).Title("Số lượng").Format("{0:n0}");
+                                                    columns.Bound(f => f.Phase).Width(65).Title("Công đoạn");
+                                                    columns.Bound(f => f.Quantity).Width(65).Title("Số lượng").Format("{0:n0}");
+                                                    columns.Bound(f => f.RoundPerMinute).Width(50).Title("RPM").Format("{0:n0}");
+                                                    columns.Bound(f => f.RealProductivity).Width(50).Title("Năng Suất").Format("{0:n2}");
                                                     //columns.Bound(f => f.RealRate).Width(50).Title("Định Mức")
                                                     //       .ClientTemplate("<#= RealRate == null ? 0 : $.telerik.formatString('{0:n2}', RealRate) #>");
-                                                    columns.Bound(f => f.WorkPiece).Width(50).Title("Phoi dư")
-                                                           .ClientTemplate("<#= WorkPiece == null ? 0 : $.telerik.formatString('{0:n2}', WorkPiece) #>");
-                                                    columns.Bound(f => f.KnifeCut).Width(50).Title("Dao Cắt")
-                                                           .ClientTemplate("<#= KnifeCut == null ? 0 : $.telerik.formatString('{0:n2}', KnifeCut) #>");
+                                                    columns.Bound(f => f.WorkPiece).Width(50).Title("Phoi dư").Format("{0:n0}");
+                                                    columns.Bound(f => f.KnifeCut).Width(50).Title("Dao Cắt").Format("{0:n1}");
                                                     columns.Bound(f => f.DeliveryEmployee).Width(75).Title("NV Giao");
                                                     columns.Bound(f => f.ReceiveEmployee).Width(75).Title("NV Nhận");
                                                     columns.Bound(f => f.Note).Title("Ghi chú");

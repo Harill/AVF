@@ -47,6 +47,7 @@
             this.textBox20 = new Telerik.Reporting.TextBox();
             this.textBox55 = new Telerik.Reporting.TextBox();
             this.textBox58 = new Telerik.Reporting.TextBox();
+            this.textBox59 = new Telerik.Reporting.TextBox();
             this.labelsGroup = new Telerik.Reporting.Group();
             this.pageFooter = new Telerik.Reporting.PageFooterSection();
             this.currentTimeTextBox = new Telerik.Reporting.TextBox();
@@ -86,7 +87,6 @@
             this.textBox22 = new Telerik.Reporting.TextBox();
             this.textBox9 = new Telerik.Reporting.TextBox();
             this.textBox54 = new Telerik.Reporting.TextBox();
-            this.textBox59 = new Telerik.Reporting.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // objectDataSource1
@@ -284,7 +284,7 @@
             this.textBox41.Format = "";
             this.textBox41.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(2.7000000476837158D), Telerik.Reporting.Drawing.Unit.Inch(0.25D));
             this.textBox41.Name = "textBox41";
-            this.textBox41.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Pixel(105.60000610351563D), Telerik.Reporting.Drawing.Unit.Inch(0.54992103576660156D));
+            this.textBox41.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Pixel(40.800003051757812D), Telerik.Reporting.Drawing.Unit.Inch(0.54992103576660156D));
             this.textBox41.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.Solid;
             this.textBox41.Style.Font.Bold = true;
             this.textBox41.Style.Font.Name = "Times New Roman";
@@ -516,6 +516,19 @@
             this.textBox58.Style.Font.Name = "Times New Roman";
             this.textBox58.StyleName = "Data";
             this.textBox58.Value = "";
+            // 
+            // textBox59
+            // 
+            this.textBox59.CanGrow = true;
+            this.textBox59.Format = "{0:N0}";
+            this.textBox59.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(7.70023775100708D), Telerik.Reporting.Drawing.Unit.Inch(0.049999874085187912D));
+            this.textBox59.Name = "textBox59";
+            this.textBox59.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.70007818937301636D), Telerik.Reporting.Drawing.Unit.Inch(0.20000000298023224D));
+            this.textBox59.Style.Font.Bold = true;
+            this.textBox59.Style.Font.Name = "Times New Roman";
+            this.textBox59.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
+            this.textBox59.StyleName = "Data";
+            this.textBox59.Value = "=sum(PackageInt)";
             // 
             // labelsGroup
             // 
@@ -786,7 +799,7 @@
             this.textBox48.Style.BorderWidth.Left = Telerik.Reporting.Drawing.Unit.Point(0.5D);
             this.textBox48.Style.Font.Name = "Times New Roman";
             this.textBox48.StyleName = "Data";
-            this.textBox48.Value = "=Fields.ImportDateRequirement";
+            this.textBox48.Value = "=ImportDateRequirementStr";
             // 
             // textBox50
             // 
@@ -1068,19 +1081,6 @@
             this.textBox54.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
             this.textBox54.StyleName = "Data";
             this.textBox54.Value = "=Fields.VendorName";
-            // 
-            // textBox59
-            // 
-            this.textBox59.CanGrow = true;
-            this.textBox59.Format = "{0:N0}";
-            this.textBox59.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(7.70023775100708D), Telerik.Reporting.Drawing.Unit.Inch(0.049999874085187912D));
-            this.textBox59.Name = "textBox59";
-            this.textBox59.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.70007818937301636D), Telerik.Reporting.Drawing.Unit.Inch(0.20000000298023224D));
-            this.textBox59.Style.Font.Bold = true;
-            this.textBox59.Style.Font.Name = "Times New Roman";
-            this.textBox59.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
-            this.textBox59.StyleName = "Data";
-            this.textBox59.Value = "=sum(PackageInt)";
             // 
             // RptPlatingForm
             // 

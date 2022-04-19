@@ -25,6 +25,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             }
             return ViewData;
         }
+
         public ActionResult ProductionOnTesting(int machineId, int productId) {
             var entity = new MachineDiagram { MachineId = machineId, ProductId = productId };
             try {
@@ -35,12 +36,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                                 .OrderBy(x=> x.Idx)
                                                                 .Select(x=> x.Note)
                                                                 .ToList();
+                    var productImgs = vfi.ProductImgs.Where(x => x.ProductId == productId && x.WarehouseId == MyUtilities.Warehouse.Production1)
+                                                    .OrderBy(x => x.Step)
+                                                    .Select(x => new ProductImgModel {
+                                                        ImgUrl = x.ImgUrl,
+                                                        ModifiedDate = x.ModifiedDate
+                                                    })
+                                                    .ToList();
+
                     entity = new MachineDiagram {
                         MachineId = machineId,
                         MachineName = machine != null ? machine.MachineName : "Không tìm thấy máy " + machineId,
                         ProductId = productId,
                         ProductCode = product != null ? product.ProductCode : "Không tìm thấy sản phẩm " + productId,
-                        Notes = testingNotes
+                        Notes = testingNotes,
+                        ProductImgs = productImgs
                     };
                 }
             }
@@ -1358,6 +1368,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         WarehouseId = warehouseId,
                         FromWarehouseId = forWarehouseId,
                         ProductionMachineId = machineId,
+                        
                         //MachineTypeId = testing.MachineTypeId,
                         TestEmployeeId = employeeId,
                         ReferenceTestingDetailId = testing.ReferenceTestingDetailId,

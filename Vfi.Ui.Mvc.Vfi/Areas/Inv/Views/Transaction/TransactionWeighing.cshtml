@@ -141,7 +141,9 @@
                             $("#QuantityValue")[0].innerText = (quantity).format(0);
                             $("#MinWeight")[0].innerText = (quantity - quantity * tolerance / 100).format(0);
                             $("#MaxWeight")[0].innerText = (quantity + quantity * tolerance / 100).format(0);
-                            AddData();
+                            if ($("input[name='chkAuto']").attr('checked')) {
+                                AddData();
+                            }
                         }
                     } else {
                         $("#QuantityValue")[0].innerText = "0";
@@ -150,23 +152,27 @@
             });
         }
 
-        var addData = false;
-        function AddData() {            
+        var addedData = false;
+        function AddData() {
             var second = $("#AutoDataSecond").data("tTextBox").value();
-            addData = false;
-            if (quantity > 0) {
-                OnLoadingData_2();
-                var localQuantity = quantity + 0;
-                var interval = setInterval(function () {
-                    if (quantity <= 0) {
-                        addData = true;
-                    }
-                    else if (quantity === localQuantity && Date.now() - quantityChanged > second) {
-                        addData = true;
-                        RefreshGrid("gridTransactionDetail");
-                    }
-                    if (addData) clearInterval(interval);
-                }, second * 1000);
+            if ($("input[name='chkAuto']").attr('checked')) {
+                addedData = false;
+                if (quantity > 0) {
+                    OnLoadingData_2();
+                    var localQuantity = quantity + 0;
+                    var interval = setInterval(function () {
+                        if (quantity <= 0) {
+                            addedData = true;
+                        }
+                        else if (quantity === localQuantity && Date.now() - quantityChanged > second) {
+                            addedData = true;
+                            RefreshGrid("gridTransactionDetail");
+                        }
+                        if (addedData) clearInterval(interval);
+                    }, second * 1000);
+                }
+            } else {
+                RefreshGrid("gridTransactionDetail");
             }
         }
 
@@ -174,7 +180,9 @@
             if (quantity != $("#Quantity").data("tTextBox").value()) {
                 quantity = $("#Quantity").data("tTextBox").value();
                 quantityChanged = Date.now();
-                AddData();
+                if ($("input[name='chkAuto']").attr('checked')) {
+                    AddData();
+                }
             }
         }
 
@@ -260,6 +268,7 @@
                     {},
                     function (data) {
                         if (data === 1) {
+                            quantity = 0;
                             RefreshGrid("gridTransactionDetail");
                             alert(data);
                         }
@@ -412,7 +421,7 @@
                     .MinValue(2)
                     .MaxValue(10)
                     .DecimalDigits(0)
-                    .Value(3)
+                    .Value(4)
                     .Spinners(false)
                     .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
                     .Render();

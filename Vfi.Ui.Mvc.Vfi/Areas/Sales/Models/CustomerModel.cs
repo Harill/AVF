@@ -8,7 +8,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 {
     public class CustomerModel : CustomerDomainModel
     {
-        private string _stateName;
         public string PrintCustomerList { get; set; }
         public bool IsMonitor { get; set; }
 

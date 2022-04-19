@@ -4701,7 +4701,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
 
         [GridAction]
-        public ActionResult DeleteTrack(int trackId) {
+        public ActionResult DeleteTrack(int trackId, int month, int year, int status) {
             try {
                 using (var vfi = new vfiContext()) {
                     var track = vfi.TrackUpMachines.FirstOrDefault(tm => tm.TrackId == trackId);
@@ -4714,7 +4714,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("DeleteTrack", ex.Message);
             }
-            return View(new GridModel(new List<TrackUpMachineModel>()));
+            return View(new GridModel(GetListTrackUpMachine(month, year, status)));
         }
 
         public ActionResult PrintMachineRepair(string fromDate, string toDate) {

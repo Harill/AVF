@@ -7,6 +7,7 @@ using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
+using System.Web;
 
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
@@ -84,9 +85,20 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     BackgroundImage = model.BackgroundImage,
                     LogoImage = model.LogoImage,
                     ImagePath = model.ImagePath,
-                    PageTitleColor= model.PageTitleColor,
+                    PageTitleColor = model.PageTitleColor,
                     UserLoginFullName = model.Description
                 };
+            }
+
+            public static string GetContentPath() {
+                if (System.Web.HttpContext.Current != null)
+                    return System.Web.HttpContext.Current.Server.MapPath("~/Content");
+                return HttpRuntime.AppDomainAppPath + "Content";
+            }
+            public static string GetLogPath() {
+                if (System.Web.HttpContext.Current != null)
+                    return System.Web.HttpContext.Current.Server.MapPath("~/Logs");
+                return HttpRuntime.AppDomainAppPath + "Logs";
             }
         }
 
@@ -288,16 +300,15 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         list.Add(Convert.ToInt32(strId));
                     }
                 }
-                catch (Exception ex) { }
+                catch (Exception ex) { throw ex; }
                 return list;
             }
-
-            public static void SaveLog(string path, string actionName, string msg) {
+            public static void SaveLog(string actionName, string msg) {
 
                 //string actionName = this.ControllerContext.RouteData.Values["action"].ToString();
                 var fileName = "LogFile.txt";
                 //var destinationPath = Path.Combine(Server.MapPath("~/Content/Logs"), fileName);
-                var destinationPath = Path.Combine((path + "/Logs"), fileName);
+                var destinationPath = Path.Combine(MySystem.GetLogPath(), fileName);
                 //var sw = new System.IO.StreamWriter(destinationPath, true);
                 using (var sw = new System.IO.StreamWriter(destinationPath, true)) {
                     sw.WriteLine(DateTime.Now.ToString("dd/MM/yy hh:mm:ss") + ": " + actionName + ": " + msg);
@@ -1433,13 +1444,10 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     switch (type) {
                         case ProductionLockType.Production1:
                             return productionLock.Production1Lock;
-                            break;
                         case ProductionLockType.CNC:
                             return productionLock.CNCLock;
-                            break;
                         case ProductionLockType.Production2:
                             return productionLock.Production2Lock;
-                            break;
                         default:
                             break;
                     }
@@ -1913,7 +1921,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     }
                 }
                 catch (Exception ex) {
-
+                    throw ex;
                 }
                 return false;
             }
@@ -1949,7 +1957,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     }
                 }
                 catch (Exception ex) {
-
+                    throw ex;
                 }
             }
 

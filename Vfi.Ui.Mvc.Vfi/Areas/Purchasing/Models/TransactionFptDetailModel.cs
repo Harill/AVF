@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Vfi.Ui.Mvc.Vfi.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 {

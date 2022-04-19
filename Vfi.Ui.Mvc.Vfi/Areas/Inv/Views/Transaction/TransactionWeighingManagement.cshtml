@@ -1,0 +1,205 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@using Vfi.Ui.Mvc.Vfi.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
+@{
+    ViewBag.Title = "Quản lý cân hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        
+        var index = 0;
+        function fecthParam() {
+            var warehouseIssue = $("#WarehouseIssueName").data('tComboBox').value();
+            if (warehouseIssue === "")
+                warehouseIssue = 0;
+            var statusValue = $("#Status").data("tComboBox").value();
+            if (statusValue === "")
+                statusValue = 0;
+
+            var fromDate = $("#FromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            var toDate = $("#ToDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            return {
+                warehouseId: warehouseIssue,
+                status: statusValue,
+                fromDate: fromDate,
+                toDate: toDate,
+            };
+        }
+
+        function grid_OnDataBinding(args) {
+            var param = fecthParam();
+            args.data = $.extend(args.data, param);
+            index = 0;
+        }
+
+        function grid_OnDelete(e) {
+            var param = fecthParam();
+            e.values = $.extend(e.values, param);
+            index = 0;
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+        var startGrid = false;
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+    </script>
+
+}
+
+<div class="title">Phân lô cân hàng</div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu xuất</legend>
+        <div class="grid_2">
+            Kho
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("WarehouseIssueName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxImportWarehouse", "Warehouse"))
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .HighlightFirstMatch(true)
+                    .AutoFill(true)
+                    .Render();                                              
+            }
+        </div>
+        <div class="grid_2">
+            Tình trạng giao dịch
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Status")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTransactionStatus", "Transaction"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .HighlightFirstMatch(true)
+                    .AutoFill(true)
+                    .Render();
+            }
+        </div>
+        <div class="grid_1">
+            Ngày
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("FromDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1))
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("ToDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        
+        <div class="grid_4">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridTransactionDetail'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+                <span class='t-icon t-refresh'></span>
+            </button>
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">
+    Danh sách sản phẩm cân hàng
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<TransactionWeighingModel>()
+            .Name("gridTransactionDetail")
+            .DataKeys(keys => keys.Add(f => f.WeighingId).RouteKey("weighingId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectTransactionWeighingManagement", "Transaction", new { warehouseId = 0, status = 0 , fromDate = "", toDate = "" })
+                .Delete("DeleteTransactionWeighingManagement", "Transaction"))
+            .Columns(columns => {
+                columns.Bound(f => f.ProductId).Width(30).ReadOnly(true)
+                       .ClientTemplate("<#= ++index #>")
+                       .HeaderTemplate("<strong>STT</strong>");
+                columns.Bound(f => f.CustomerCode).Width(70).HeaderTemplate("Khách hàng").ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Width(120).Title("Mã SP").ReadOnly(true)
+                    .Aggregate(agg => agg.Count())
+                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                    .FooterHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.UnitWeight).Width(70).ReadOnly(true)
+                    .HeaderTemplate("TL SP (g/pc)")
+                    .Format("{0:n3}")
+                    .HtmlAttributes(new { style = "text-align: right;border-right: 1px black solid;" });
+
+                columns.Bound(f => f.Weight).Width(90).HeaderTemplate("Trọng lượng cân(kg)").ReadOnly(true)
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Quantity).Width(90).HeaderTemplate("Số lượng cân(pcs)").ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                
+                columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image).Text("")).Width(50).Title("");
+            })
+            .ClientEvents(events => events
+                .OnDataBinding("grid_OnDataBinding")
+                .OnDelete("grid_OnDelete")
+                .OnError("grid_OnError")
+            )
+            .KeyboardNavigation()
+            .Render();   
+    }
+</div>
+
+<div class="clear"></div>
+<br />

@@ -28,11 +28,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             _unitOfWork = unitOfWork;
             _salesOrderController = salesOrderController;
         }
-        //
-        // GET: /Sales/Orders/
-        string contentPath() {
-            return Server.MapPath("~/Content");
-        }
 
         #region view
         ViewDataDictionary GetPageConfigData() {
@@ -204,10 +199,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     if (fileExtension == ".xls")
                         conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" + destinationPath + ";" +
                                                 "Extended Properties='Excel 8.0;HDR=YES;'";
-                    if (fileExtension == ".xlsx")
+                    else if (fileExtension == ".xlsx")
                         conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + destinationPath + ";" +
                                                 "Extended Properties='Excel 12.0 Xml;HDR=YES;'";
-                    MyUtilities.Function.SaveLog(contentPath(), actionName, "destinationPath: " + destinationPath);
+                    MyUtilities.Function.SaveLog(actionName, "destinationPath: " + destinationPath);
                     try {
                         using (var comm = new OleDbCommand()) {
                             //var sheetName = "Sheet1";
@@ -216,14 +211,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             else
                                 comm.CommandText = "Select * from [" + sheetName.Trim() + "$]";
                             comm.Connection = conn;
+                            comm.CommandType = CommandType.Text;
                             using (var da = new OleDbDataAdapter()) {
                                 da.SelectCommand = comm;
                                 da.Fill(dt);
                             }
+                            //conn.Open();
+                            //using (OleDbDataReader _dr = comm.ExecuteReader()) {
+                            //    dt.Load(_dr);
+                            //}
                         }
                     }
                     catch (Exception ex) {
-                        MyUtilities.Function.SaveLog(contentPath(), actionName, "OleDbCommandError: " + ex.Message);
+                        MyUtilities.Function.SaveLog(actionName, "OleDbCommandError: " + ex.Message);
+                        throw ex;
                     }
                 }
                 using (var vfi = new tammaContext()) {
@@ -231,7 +232,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     oke = error = duplicate = 0;
                     dt.Rows.RemoveAt(0);
                     //dt.Rows.RemoveAt(0);
-                    MyUtilities.Function.SaveLog(contentPath(), actionName, "Row count: " + dt.Rows.Count);
+                    MyUtilities.Function.SaveLog(actionName, "Row count: " + dt.Rows.Count);
 
                     Session["SessionOrderDetailModel"] = new List<OrderDetailModel>();
                     foreach (DataRow row in dt.Rows) {
@@ -241,7 +242,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             productCode = row[3].ToString().Trim();
                         else
                             productCode = row[productIndex - 1].ToString().Trim();
-                        if (string.IsNullOrWhiteSpace(productCode)) break;
+                        if (string.IsNullOrWhiteSpace(productCode)) {
+                            if (string.IsNullOrWhiteSpace(row[1].ToString())) break;
+                            continue;
+                        }
                         var product = vfi.Products.FirstOrDefault(p => p.ProductCode.Equals(productCode));
                         if (product == null) {
                             error++;
@@ -325,17 +329,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 }
             }
             catch (OleDbException oledbEx) {
-                MyUtilities.Function.SaveLog(contentPath(), actionName, "OleDbException: " + oledbEx.Message);
+                MyUtilities.Function.SaveLog(actionName, "OleDbException: " + oledbEx.Message);
                 ModelState.AddModelError("OleDbException", oledbEx.Message);
             }
             catch (Exception ex) {
-                MyUtilities.Function.SaveLog(contentPath(), actionName, "Exception: " + ex.Message);
+                MyUtilities.Function.SaveLog(actionName, "Exception: " + ex.Message);
                 ModelState.AddModelError("SelectOrderDetailByExcel", ex.Message);
             }
             Session["SessionOrderDetailModel"] = model;
 
             var data = new object[] { oke + error + duplicate, oke, error, duplicate, errorIndex };
-            MyUtilities.Function.SaveLog(contentPath(), actionName, "Finish: " + data.ToString());
+            MyUtilities.Function.SaveLog(actionName, "Finish: " + data.ToString());
             return View(new GridModel(model));
 
 
@@ -3058,33 +3062,36 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             using (var vfi = new tammaContext()) {
                 var startTaxInvoiceDate = new DateTime(2014, 12, 31, 10, 0, 0);
                 //vfi.Configuration.LazyLoadingEnabled = false;
-                var invoices = from i in vfi.Invoices
-                               where
-                                   (i.Status == (byte)MyUtilities.Sales.Status.Waiting ||
-                                    i.Status == (byte)MyUtilities.Sales.Status.InProcess)
-                                    && i.ShipmentDate > startTaxInvoiceDate
-                               orderby i.ShipmentDate
-                               //&& i.InvoiceId == 1558
-                               select new {
-                                   i.InvoiceId,
-                                   i.InvoiceNumber,
-                                   i.Customer.CustomerCode,
-                                   i.Customer.ShortName,
-                                   i.ExportId,
-                                   ShipmentDate = i.ShipmentDate.Value,
-                                   //i.OrderId,
-                                   //i.Note,
-                                   //i.Active,
-                                   //i.ExchangeRate,
-                                   //i.TaxPercent,
-                                   //i.ModifiedDate,
-                                   //i.ModifiedUser,
-                               };
+                var invoices = (from i in vfi.Invoices
+                                where
+                                    (i.Status == (byte)MyUtilities.Sales.Status.Waiting ||
+                                     i.Status == (byte)MyUtilities.Sales.Status.InProcess)
+                                     && i.ShipmentDate > startTaxInvoiceDate
+                                     && i.Active
+                                     && i.ExportFormTP_KD.ExportFormTP_KDDetail.Any(ed => !ed.InvoiceDetails.Any(id => id.Active))
+                                orderby i.ShipmentDate
+                                //&& i.InvoiceId == 1558
+                                select new {
+                                    i.InvoiceId,
+                                    i.InvoiceNumber,
+                                    i.Customer.CustomerCode,
+                                    i.Customer.ShortName,
+                                    //i.ExportId,
+                                    ShipmentDate = i.ShipmentDate.Value,
+                                    //i.OrderId,
+                                    //i.Note,
+                                    //i.Active,
+                                    //i.ExchangeRate,
+                                    //i.TaxPercent,
+                                    //i.ModifiedDate,
+                                    //i.ModifiedUser,
+
+                                }).ToList();
                 foreach (var invoice in invoices) {
-                    var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
-                    if (export == null) continue;
-                    var exportDetail = export.ExportFormTP_KDDetail.FirstOrDefault(ed => !ed.InvoiceDetails.Any(id => id.Active));
-                    if (exportDetail == null) continue;
+                    //var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
+                    //if (export == null) continue;
+                    //var exportDetail = export.ExportFormTP_KDDetail.FirstOrDefault(ed => !ed.InvoiceDetails.Any(id => id.Active));
+                    //if (exportDetail == null) continue;
                     var entity = new InvoiceTempModel {
                         InvoiceId = invoice.InvoiceId,
                         InvoiceNumber = invoice.InvoiceNumber + " - " + invoice.ShipmentDate.ToString("dd/MM/yyyy")
@@ -3109,12 +3116,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         public ActionResult SelectComboBoxPaymentMethod() {
             using (var vfi = new tammaContext()) {
-                var model = from m in vfi.Methods
+                var model = (from m in vfi.Methods
                             where m.MethodTypeId == MethodEnumTypeId.PaymentMethod && m.Active.Value
                             select new {
                                 m.MethodId,
                                 m.MethodName
-                            };
+                            }).ToList();
                 return new JsonResult {
                     Data = new SelectList(model, "MethodId", "MethodName")
                 };
@@ -3123,7 +3130,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         public ActionResult SelectOrderInProcessAndComplete() {
             using (var vfi = new tammaContext()) {
-                var orderModels = vfi.Orders.Where(o => o.DueDate != null && o.Active && (o.Status == (byte)MyUtilities.Sales.Status.InProcess || o.Status == (byte)MyUtilities.Sales.Status.Completed)).ToList();
+                var orderModels = vfi.Orders.Where(o => o.DueDate != null && o.Active
+                    && (o.Status == (byte)MyUtilities.Sales.Status.InProcess || o.Status == (byte)MyUtilities.Sales.Status.Completed))
+                    .Select(x => new { x.OrderId, x.OrderNumber })
+                    .ToList();
                 return new JsonResult {
                     Data = new SelectList(orderModels, "OrderId", "OrderNumber")
                 };

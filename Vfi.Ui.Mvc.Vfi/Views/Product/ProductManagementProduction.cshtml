@@ -397,7 +397,7 @@
                 }
             }
         }
-
+        
         function PrintTechnicalList() {
             var customer = $("#Customer").data("tComboBox").value();
             if (customer === "")
@@ -431,7 +431,7 @@
             //var i = 0;
             //var drawing2D = "";
             var editRow = e.target.getElementsByClassName("t-grid-edit-row")[0];
-            var ul2D = editRow.childNodes[1].childNodes[1].childNodes[1];
+            var ul2D = editRow.childNodes[2].childNodes[1].childNodes[1];
             //if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
             //    //drawing2D = e.dataItem.ImgUrl;
             //} else
@@ -446,12 +446,13 @@
                 }
             }
             return true;
-
         }
 
         function gridProductImg_OnRowDataBound(e) {
-            if (!e.dataItem.CanModify)
+            if (!e.dataItem.CanModify) {
                 e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
+                e.row.getElementsByClassName("t-button t-grid-delete t-button-icon")[0].parentNode.innerHTML = "";
+            }
         }
 
         function PrintProductionForm(val) {
@@ -676,6 +677,7 @@
                                     columns.Command(command =>
                                                     command.Edit().ButtonType(GridButtonType.Image)
                                         ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.WarehouseName).Title("Công đoạn").Width(70);
                                     columns.Bound(f => f.ImgUrl).Width(40).Title("Bản vẽ")
                                            .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                                            "<img src='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
@@ -1356,22 +1358,20 @@
                                 .Columns(columns => {
                                     columns.Bound(f => f.DeliveryDate).Width(75).Title("Ngày giao")
                                            .ClientTemplate("<#= DeliveryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DeliveryDate) #>");
-                                    columns.Bound(f => f.MachineName).Width(50).Title("Máy")
+                                    columns.Bound(f => f.MachineName).Width(80).Title("Máy")
                                            .ClientTemplate("<strong><#= MachineName #></strong>");
+                                    columns.Bound(f => f.StatusName).Width(80).Title("Tên Máy")
+                                          .ClientTemplate("<strong><#= StatusName #></strong>"); // todo
                                     columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu")
                                            .ClientTemplate("<strong><#= MaterialCode #></strong>");
-                                    columns.Bound(f => f.Phase).Width(75).Title("Công đoạn");
-                                    columns.Bound(f => f.Quantity).Width(75).Title("Số lượng").Format("{0:n0}");
-                                    columns.Bound(f => f.RoundPerMinute).Width(50).Title("RPM")
-                                           .ClientTemplate("<#= RoundPerMinute == null ? 0 : $.telerik.formatString('{0:n0}', RoundPerMinute) #>");
-                                    columns.Bound(f => f.RealProductivity).Width(50).Title("Năng Suất")
-                                           .ClientTemplate("<#= RealProductivity == null ? 0 : $.telerik.formatString('{0:n2}', RealProductivity) #>");
+                                    columns.Bound(f => f.Phase).Width(65).Title("Công đoạn");
+                                    columns.Bound(f => f.Quantity).Width(65).Title("Số lượng").Format("{0:n0}");
+                                    columns.Bound(f => f.RoundPerMinute).Width(50).Title("RPM").Format("{0:n0}");
+                                    columns.Bound(f => f.RealProductivity).Width(50).Title("Năng Suất").Format("{0:n2}");
                                     //columns.Bound(f => f.RealRate).Width(50).Title("Định Mức")
                                     //       .ClientTemplate("<#= RealRate == null ? 0 : $.telerik.formatString('{0:n2}', RealRate) #>");
-                                    columns.Bound(f => f.WorkPiece).Width(50).Title("Phoi dư")
-                                           .ClientTemplate("<#= WorkPiece == null ? 0 : $.telerik.formatString('{0:n2}', WorkPiece) #>");
-                                    columns.Bound(f => f.KnifeCut).Width(50).Title("Dao Cắt")
-                                           .ClientTemplate("<#= KnifeCut == null ? 0 : $.telerik.formatString('{0:n2}', KnifeCut) #>");
+                                    columns.Bound(f => f.WorkPiece).Width(50).Title("Phoi dư").Format("{0:n0}");
+                                    columns.Bound(f => f.KnifeCut).Width(50).Title("Dao Cắt").Format("{0:n1}");
                                     columns.Bound(f => f.DeliveryEmployee).Width(75).Title("NV Giao");
                                     columns.Bound(f => f.ReceiveEmployee).Width(75).Title("NV Nhận");
                                     columns.Bound(f => f.EndDate).Width(75).Title("Dự kiến HT").Format("{0:dd/MM/yyyy}");

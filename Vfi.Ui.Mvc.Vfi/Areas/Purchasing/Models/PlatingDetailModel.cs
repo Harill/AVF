@@ -21,6 +21,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public DateTime ImportDate { get; set; }
         [DataType("_DateTemplate")]
         public DateTime? ImportDateRequirement { get; set; }
+        public string ImportDateRequirementStr {
+            get {
+                return ImportDateRequirement != null
+                    ? ImportDateRequirement.Value.ToString("dd/MM/yyyy")
+                    : "";
+            }
+        }
         public int DetailId { get; set; }
         public int ProductId { get; set; }
         [DataType("_ProductCodePlatingTemplate2")]

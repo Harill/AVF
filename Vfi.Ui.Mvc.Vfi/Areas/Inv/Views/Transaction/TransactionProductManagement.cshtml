@@ -78,6 +78,17 @@
             });
             return false;
         }
+        function PrintFormGroup(val) {
+            alert(val);
+            $('#result').load('@Url.Action("PrintTransactionFormGroup", "Inv")',
+            {
+                transactionId: val
+            }, function (data) {
+                var window = $('#windowReport').data('tWindow');
+                window.open();
+            });
+            return false;
+        }
         function RollbackTransaction(id) {
             var message = "Phục hồi lệnh trở về chưa duyệt";
             message += "\nĐồng ý ??";
@@ -196,8 +207,11 @@
                 //columns.Bound(f => f.EoI).ClientTemplate("<#= EoI ? 'Xuất' : 'Nhập' #>");
                 //columns.Bound(f => f.EoIName).ReadOnly(true);
                 columns.Bound(f => f.StatusName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.TransactionId).Title("In").Width(45).ReadOnly(true)
+                columns.Bound(f => f.TransactionId).Title("In").Width(45).ReadOnly(true).Filterable(false)
                        .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.WarehouseIssueId).Title("In (G)").Width(45).ReadOnly(true).Filterable(false)
+                       .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintFormGroup(<#= TransactionId #>) />")
                        .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.SpecialNote).Width(150).Title("Ghi chú").ReadOnly(true);
                 columns.Bound(f => f.CreatedUser).Width(100).ReadOnly(true);

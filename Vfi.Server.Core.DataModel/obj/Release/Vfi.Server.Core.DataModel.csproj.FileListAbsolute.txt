@@ -17,3 +17,8 @@ C:\workspace\vfi_sync\vfi\Vfi.Server.Core.DataModel\bin\Release\Vfi.Server.Core.
 C:\workspace\vfi_sync\vfi\Vfi.Server.Core.DataModel\obj\Release\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache
 C:\workspace\vfi_sync\vfi\Vfi.Server.Core.DataModel\obj\Release\Vfi.Server.Core.DataModel.dll
 C:\workspace\vfi_sync\vfi\Vfi.Server.Core.DataModel\obj\Release\Vfi.Server.Core.DataModel.pdb
+C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.DataModel\bin\Release\Vfi.Server.Core.DataModel.dll
+C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.DataModel\bin\Release\Vfi.Server.Core.DataModel.pdb
+C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.DataModel\obj\Release\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache
+C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.DataModel\obj\Release\Vfi.Server.Core.DataModel.dll
+C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.DataModel\obj\Release\Vfi.Server.Core.DataModel.pdb

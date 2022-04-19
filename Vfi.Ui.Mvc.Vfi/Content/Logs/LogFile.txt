@@ -1137,3 +1137,6 @@
 21/03/22 04:21:02: GetCacheItem: Value: 
 21/03/22 04:21:02: GetWeighingValue: weight: 0
 21/03/22 04:21:02: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+27/03/22 01:48:01: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+27/03/22 01:49:38: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+27/03/22 01:49:41: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.

@@ -9259,9 +9259,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 //var toD = fromD.AddMonths(1).AddSeconds(-1);
                 using (var vfi = new tammaContext()) {
                     var process2s = (from x in vfi.ProductionProcesses
-                                     where x.Warehouse.IsProduction2 == true && x.IsNecessary &&
-                                         x.Product.Active &&
-                                         (customerId == 0 || x.Product.CustomerId == customerId)
+                                     where x.Warehouse.IsProduction2 == true
+                                         && x.IsNecessary && x.IsAlert
+                                         && x.Product.Active
+                                         && (customerId == 0 || x.Product.CustomerId == customerId)
                                      select new {
                                          x.ProductId,
                                          x.Product.ProductCode,
@@ -9271,7 +9272,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (!string.IsNullOrWhiteSpace(productCode)) { process2s = process2s.Where(x => x.ProductCode.Contains(productCode)).ToList(); }
                     var productIds = process2s.Select(pp => pp.ProductId).Distinct().ToList();
                     var allProcesses = (from x in vfi.ProductionProcesses
-                                        where productIds.Contains(x.ProductId) && x.IsNecessary
+                                        where productIds.Contains(x.ProductId) && x.IsNecessary && x.IsAlert
                                         select new {
                                             x.ProductId,
                                             x.ProcessIndex,
@@ -9283,6 +9284,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         od.Order.DueDate <= toD &&
                                         od.RequiedNumber > 0 &&
                                         productIds.Contains(od.ProductId)
+                                  orderby od.Order.DueDate.Value
                                   select new {
                                       od.ProductId,
                                       OrderQty = od.OrderQty.Value,
@@ -9294,6 +9296,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                            fd.ForecastDate >= fromD &&
                                            fd.ForecastDate <= toD &&
                                            productIds.Contains(fd.ProductId)
+                                     orderby fd.ForecastDate
                                      select new {
                                          fd.ProductId,
                                          fd.ForecastDate,
@@ -9312,13 +9315,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     x.TotalQty,
                                 }).ToList();
                     var productionSections = (from x in vfi.ProductionSections
-                                              where productIds.Contains(x.ProductId) && x.Active
+                                              where productIds.Contains(x.ProductId) && x.Active && x.IsMainProcess
                                               select new {
                                                   x.ProductId,
                                                   x.ProductionSectionId,
+                                                  x.SectionId,
                                                   x.Section.SectionName,
                                                   x.Productivity,
                                               }).ToList();
+
 
                     var exportsFinish = (from p in vfi.ProductInventoryPeriods
                                         where
@@ -9347,17 +9352,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         var productionSectionsById = productionSections.Where(ps => ps.ProductId == entity.ProductId);
                         foreach (var productionSection in productionSectionsById) {
                             var section = new ExpectedProduction2PlanSection {
-                                SectionId = productionSection.ProductionSectionId,
+                                SectionId = productionSection.SectionId,
                                 SectionName = productionSection.SectionName,
                                 Productivity = productionSection.Productivity
                             };
                             entity.Sections.Add(section);
                         }
+                        if (!entity.Sections.Any()) {
+                            entity.Sections.Add(new ExpectedProduction2PlanSection {
+                                SectionId = 0,
+                                SectionName = "Chưa thiết lập",
+                                Productivity = 0
+                            });
+                        }
                         entity.ExportFinish = exportsFinish.Where(x => x.ProductId == entity.ProductId).Sum(x => x.Quantity);
 
                         var nextProcesses = allProcesses.Where(pp => pp.ProductId == entity.ProductId && pp.ProcessIndex > process2.ProcessIndex);
-                        if (!nextProcesses.Any())
-                            continue;
+                        if (!nextProcesses.Any()) continue;
+
                         var nextWarehouseIds = nextProcesses.Select(x => x.WarehouseId).Distinct().ToList();
                         if (nextWarehouseIds.Any(x => qcIds.Contains(x))) { nextWarehouseIds.AddRange(qcIds); }
                         nextWarehouseIds = nextWarehouseIds.Distinct().ToList();
@@ -9380,19 +9392,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             }
                             var orderInfo = new ExpectedProduction2PlanInfo {
                                 Quantity = orderDetail.RequiedNumber,
-                                Date = orderDetail.DueDate,
-                                Second = entity.SmallestProductivity * (orderDetail.RequiedNumber - beforeProduction2Inv),
                                 RequireQuantity = orderDetail.RequiedNumber - beforeProduction2Inv,
+                                Second = entity.SmallestProductivity * (orderDetail.RequiedNumber - beforeProduction2Inv),
+                                Date = orderDetail.DueDate,
                                 EndDate = orderDetail.DueDate.AddDays(entity.BeforeProduction2Day * -1)
                             };
                             var requireDay = 0;
                             if (entity.ProductivityInDay > 0) { 
                                 requireDay = MyUtilities.Function.RoundUp(orderInfo.RequireQuantity / entity.ProductivityInDay); 
                             }
-                            orderInfo.StartDate = orderInfo.EndDate.AddDays(requireDay * -1);
+                            orderInfo.StartDate = orderInfo.EndDate.Value.AddDays(requireDay * -1);
                             if (orderInfo.StartDate < DateTime.Now) {
                                 orderInfo.StartDate = DateTime.Now;
-                                orderInfo.EndDate = orderInfo.StartDate.AddDays(requireDay);
+                                orderInfo.EndDate = orderInfo.StartDate.Value.AddDays(requireDay);
                             }
                             entity.Orders.Add(orderInfo);
                         }
@@ -9418,24 +9430,63 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 if (entity.ProductivityInDay > 0) {
                                     requireDay = MyUtilities.Function.RoundUp(forecastInfo.RequireQuantity / entity.ProductivityInDay);
                                 }
-                                forecastInfo.StartDate = forecastInfo.EndDate.AddDays(requireDay * -1);
+                                forecastInfo.StartDate = forecastInfo.EndDate.Value.AddDays(requireDay * -1);
                                 if (forecastInfo.StartDate < DateTime.Now) {
                                     forecastInfo.StartDate = DateTime.Now;
-                                    forecastInfo.EndDate = forecastInfo.StartDate.AddDays(requireDay);
+                                    forecastInfo.EndDate = forecastInfo.StartDate.Value.AddDays(requireDay);
                                 }
                                 entity.Forecasts.Add(forecastInfo);
                             }
                         }
-                        if (entity.Orders.Any() || entity.Forecasts.Any())
+                        if (entity.Orders.Any() || entity.Forecasts.Any()) {
+                            if (!entity.Orders.Any()) {
+                                entity.Orders.Add(new ExpectedProduction2PlanInfo {
+                                    Quantity = 0,
+                                    Second = 0,
+                                    RequireQuantity = 0,
+                                });
+                            }
+                            else if (!entity.Forecasts.Any()) {
+                                entity.Forecasts.Add(new ExpectedProduction2PlanInfo {
+                                    Quantity = 0,
+                                    Second = 0,
+                                    RequireQuantity = 0,
+                                });
+                            }
                             model.Add(entity);
+                        }
                     }
                 }
+                var statistics = new List<SectionStatistic>();
+                foreach (var entity in model) {
+                    foreach (var section in entity.Sections) {
+                        var statistic = statistics.FirstOrDefault(x => x.SectionId == section.SectionId);
+                        if (statistic == null) {
+                            statistic = new SectionStatistic { 
+                                SectionId = section.SectionId,
+                                SectionName = section.SectionName
+                            };
+                            statistics.Add(statistic);
+                        }
+                        foreach (var detail in entity.Orders) {
+                            statistic.OrderRequire += detail.RequireQuantity;
+                            statistic.OrderSecond += (detail.RequireQuantity * section.Productivity);
+                        }
+                        foreach (var detail in entity.Forecasts) {
+                            statistic.ForecastRequire += detail.RequireQuantity;
+                            statistic.ForecastSecond += (detail.RequireQuantity * section.Productivity);
+                        }
+                    }
+                }
+                model = model.OrderBy(x => x.Date).ToList();
+                var firstModel = model.FirstOrDefault();
+                firstModel.Statistics = statistics.OrderBy(x => x.SectionName).ToList();
             }
             catch (Exception ex) {
                 ModelState.AddModelError("GetExpectedProduction2Plan", ex.Message);
             }
             //return model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode).ToList();
-            return model.OrderBy(m => m.Date).ToList();
+            return model;
         }
 
         [GridAction]

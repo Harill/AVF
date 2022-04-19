@@ -2732,27 +2732,32 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 var rpWarehouses = warehouses.Where(x => x.IsReprocessing).Select(x => x.WarehouseId).ToList();
                 var opWarehouses = warehouses.Where(x => x.IsOutOfProcess).Select(x => x.WarehouseId).ToList();
                 var warehouseIds = new List<int> { warehouseId };
+                var receiptWarehouseIds = new List<int> { };
                 if (isManager) {
-                    warehouseIds = warehouses.Select(x => x.WarehouseId).ToList();
+                    receiptWarehouseIds = warehouses.Select(x => x.WarehouseId).ToList();
                 }
                 else if (!warehouse.IsMainProcess) {
                     var rotateWarehouses = vfi.WarehouseRotates.Where(x => x.WarehouseId == warehouseId && x.Active).Select(x => x.ToWarehouseId).ToList();
-                    warehouseIds = vfi.WarehousePermissions.Where(x => x.User.Username.Equals(HttpContext.User.Identity.Name) && x.Rotate == true && rotateWarehouses.Contains(x.WarehouseId.Value))
+                    receiptWarehouseIds = vfi.WarehousePermissions.Where(x => x.User.Username.Equals(HttpContext.User.Identity.Name) && x.Rotate == true && rotateWarehouses.Contains(x.WarehouseId.Value))
                                                             .Select(x => x.WarehouseId.Value).ToList();
                 }
                 else if (warehouse.IsProduction2) {
                     warehouseIds = p2Warehouses;
+                    receiptWarehouseIds = p2Warehouses;
                 }
                 else if (warehouse.IsQC) {
                     warehouseIds = qcWarehouses;
+                    receiptWarehouseIds = qcWarehouses;
                 }
                 //else if (warehouse.IsPlating) {
                 //    warehouseIds = plWarehouses;
                 //}
                 else if (warehouse.IsReprocessing) {
                     warehouseIds = rpWarehouses;
+                    receiptWarehouseIds = rpWarehouses;
                 }
-                warehouseIds.AddRange(opWarehouses);
+                receiptWarehouseIds.AddRange(opWarehouses);
+                receiptWarehouseIds.Remove(warehouseId);
                 //warehouseIds.Remove(warehouseId);
                 foreach (var product in products) {
                     var productInventorys = productInvs.Where(pi => pi.ProductId == product.ProductId).ToList();
@@ -2795,7 +2800,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.AvailableQty = GetWarehouseInvPeriod(productInventory.ProductInventoryId);
 
                             if (isManager) {
-                                foreach (var wid in warehouseIds) {
+                                foreach (var wid in receiptWarehouseIds) {
                                     entity.NextWarehouseIds += "|" + wid + "|";
                                 }
                             }
@@ -2810,7 +2815,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             .OrderBy(pp => pp.ProcessIndex)
                                             .FirstOrDefault();
                                         if (nextProcess != null) {
-                                            warehouseIds.Add(nextProcess.WarehouseId);
+                                            receiptWarehouseIds.Add(nextProcess.WarehouseId);
                                             entity.NextProcess = nextProcess.WarehouseName;
                                             entity.NextWarehouseId = nextProcess.WarehouseId;
                                         }
@@ -2829,7 +2834,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             .OrderBy(pp => pp.ProcessIndex)
                                             .FirstOrDefault();
                                         if (nextProcess != null) {
-                                            warehouseIds.Add(nextProcess.WarehouseId);
+                                            receiptWarehouseIds.Add(nextProcess.WarehouseId);
                                             entity.NextProcess = nextProcess.WarehouseName;
                                             entity.NextWarehouseId = nextProcess.WarehouseId;
                                         }
@@ -2840,20 +2845,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                 .OrderByDescending(pp => pp.ProcessIndex)
                                                 .FirstOrDefault();
                                     if (previousProcess != null) {
-                                        warehouseIds.Add(previousProcess.WarehouseId);
+                                        receiptWarehouseIds.Add(previousProcess.WarehouseId);
                                     }
                                 }
-                                if (warehouseIds.Any(x => qcWarehouses.Contains(x))) {
-                                    warehouseIds.AddRange(qcWarehouses);
+
+                                if (receiptWarehouseIds.Any(x => qcWarehouses.Contains(x))) {
+                                    receiptWarehouseIds.AddRange(qcWarehouses);
                                 }
-                                else if (warehouseIds.Any(x => p2Warehouses.Contains(x))) {
-                                    warehouseIds.AddRange(p2Warehouses);
+                                else if (receiptWarehouseIds.Any(x => p2Warehouses.Contains(x))) {
+                                    receiptWarehouseIds.AddRange(p2Warehouses);
                                 }
-                                else if (warehouseIds.Any(x => rpWarehouses.Contains(x))) {
-                                    warehouseIds.AddRange(rpWarehouses);
+                                else if (receiptWarehouseIds.Any(x => rpWarehouses.Contains(x))) {
+                                    receiptWarehouseIds.AddRange(rpWarehouses);
                                 }
-                                warehouseIds = warehouseIds.Distinct().ToList();
-                                foreach (var id in warehouseIds) {
+                                receiptWarehouseIds = receiptWarehouseIds.Distinct().ToList();
+                                foreach (var id in receiptWarehouseIds) {
                                     entity.NextWarehouseIds += "|" + id + "|";
                                 }
                             }
@@ -5114,19 +5120,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
 
         [HttpPost]
-        public ActionResult PrintTransactionForm(
-            int transactionId) {
+        public ActionResult PrintTransactionForm(int transactionId) {
+            var model = new List<TransactionDetailModel>();
             try {
-
-                var model = new List<TransactionDetailModel>();
                 using (var vfi = new tammaContext()) {
                     var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
+                    //if (transaction.WarehouseIssueId != null && transaction.Warehouse.CanWeighing) {
+                    //    return PrintTransactionFormGroup(transactionId);
+                    //}
                     var list = GetTransactionProductDetailByTransactionId(transactionId);
                     foreach (var entity in list) {
-
                         entity.WarehouseIssueName = transaction.WarehouseIssueId != null
                                                   ? transaction.Warehouse.WarehouseName
-                                                  : transaction.Warehouse1.WarehouseName;
+                                                  : "";
+                        entity.WarehouseReceiptName = transaction.WarehouseReceiptId != null
+                                                  ? transaction.Warehouse1.WarehouseName
+                                                  : "";
                         entity.WarehouseReceiptName = transaction.Warehouse1.WarehouseName;
                         entity.Status = transaction.Status;
                         entity.PeriodDate = transaction.CreatedDate;
@@ -5137,14 +5146,57 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                     model = list;
                 }
-
-                return PartialView("PageTransactionForm",
-                                   model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
-
             }
             catch (Exception exception) {
-                throw new Exception(exception.Message);
+                return PartialView("PageTransactionForm", exception.Message);
             }
+            return PartialView("PageTransactionForm", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
+        }
+
+        [HttpPost]
+        public ActionResult PrintTransactionFormGroup(int transactionId) {
+            var model = new List<TransactionProductModel>();
+            try {
+                var list = GetTransactionProductDetailByTransactionId(transactionId);
+                var productIds = list.Select(x => x.ReferenceId.Value).Distinct().ToList();
+                using (var vfi = new tammaContext()) {
+                    var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
+                    foreach (var productId in productIds) {
+                        var details = list.Where(x => x.ReferenceId == productId).ToList();
+                        if (!details.Any()) continue;
+                        var detail = details.FirstOrDefault();
+                        details.ForEach(x => x.QuantityKg = x.QuantityKg / 1000);
+                        var lots = details.Where(x => !string.IsNullOrEmpty(x.LotNumber)).Select(x => x.LotNumber).Distinct().ToArray();
+                        var entity = new TransactionProductModel() {
+                            CustomerCode = detail.CustomerCode,
+                            ProductId = productId,
+                            ProductCode = detail.ProductCode,
+                            WarehouseIssueName = transaction.WarehouseIssueId != null
+                                                      ? transaction.Warehouse.WarehouseName
+                                                      : "",
+                            WarehouseReceiptName = transaction.WarehouseReceiptId != null
+                                                      ? transaction.Warehouse1.WarehouseName
+                                                      : "",
+                            Status = transaction.Status,
+                            PeriodDate = transaction.CreatedDate,
+                            ModifiedDate = transaction.ModifiedDate,
+                            ModifiedUser = transaction.ModifiedUser,
+                            TransactionCode = transaction.TransactionCode,
+                            ProductWeight = detail.UnitWeight,
+                            Quantity = details.Sum(x => x.Quantity.Value),
+                            QuantityKg = details.Sum(x => x.QuantityKg.Value),
+                            Note = String.Join(", ", lots)
+                            //Details = details
+                        };
+                        model.Add(entity);
+                    }
+                    //model = list;
+                }
+            }
+            catch (Exception exception) {
+                return PartialView("PageTransactionFormGroup", exception.Message);
+            }
+            return PartialView("PageTransactionFormGroup", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
         }
 
 
@@ -11907,9 +11959,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult SelectProcessingInvQuantity(
             int customerId, string productCode,
             string fromDate, string toDate) {
-            if (string.IsNullOrWhiteSpace(fromDate)) {
-                return View(new GridModel(new List<ProcessingInvModel>()));
-            }
+            //if (string.IsNullOrWhiteSpace(fromDate)) {
+            //    return View(new GridModel(new List<ProcessingInvModel>()));
+            //}
             var model = new List<ProcessingInvModel>();
             //var ci = new CultureInfo("vi-VN");
             //var from = string.IsNullOrWhiteSpace(fromDate)

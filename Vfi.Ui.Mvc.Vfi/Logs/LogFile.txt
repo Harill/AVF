@@ -1,0 +1,469 @@
+02/04/22 09:41:18: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+02/04/22 09:41:26: ConnectWeighingDevice: success
+02/04/22 09:47:03: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 10:27:44: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 10:29:40: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 10:33:38: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 10:34:32: ConnectWeighingDevice: success
+06/04/22 10:34:54: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 11:36:01: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 11:36:20: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 11:36:45: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 11:38:13: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 11:39:51: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 01:58:31: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 01:58:57: ConnectWeighingDevice: success
+06/04/22 01:58:57: ConnectWeighingDevice: success
+06/04/22 01:59:02: GetCacheItem: Value: 
+06/04/22 01:59:02: GetWeighingValue: weight: 0
+06/04/22 01:59:04: GetCacheItem: Value: 
+06/04/22 01:59:04: GetWeighingValue: weight: 0
+06/04/22 01:59:07: GetCacheItem: Value: 
+06/04/22 01:59:07: GetWeighingValue: weight: 0
+06/04/22 01:59:10: GetCacheItem: Value: 
+06/04/22 01:59:10: GetWeighingValue: weight: 0
+06/04/22 01:59:13: GetCacheItem: Value: 
+06/04/22 01:59:13: GetWeighingValue: weight: 0
+06/04/22 01:59:16: GetCacheItem: Value: 
+06/04/22 01:59:16: GetWeighingValue: weight: 0
+06/04/22 01:59:19: GetCacheItem: Value: 
+06/04/22 01:59:19: GetWeighingValue: weight: 0
+06/04/22 01:59:22: GetCacheItem: Value: 
+06/04/22 01:59:22: GetWeighingValue: weight: 0
+06/04/22 01:59:25: GetCacheItem: Value: 
+06/04/22 01:59:25: GetWeighingValue: weight: 0
+06/04/22 01:59:28: GetCacheItem: Value: 
+06/04/22 01:59:28: GetWeighingValue: weight: 0
+06/04/22 01:59:31: GetCacheItem: Value: 
+06/04/22 01:59:31: GetWeighingValue: weight: 0
+06/04/22 01:59:35: GetCacheItem: Value: 
+06/04/22 01:59:35: GetWeighingValue: weight: 0
+06/04/22 01:59:37: GetCacheItem: Value: 
+06/04/22 01:59:37: GetWeighingValue: weight: 0
+06/04/22 01:59:40: GetCacheItem: Value: 
+06/04/22 01:59:40: GetWeighingValue: weight: 0
+06/04/22 01:59:43: GetCacheItem: Value: 
+06/04/22 01:59:43: GetWeighingValue: weight: 0
+06/04/22 01:59:46: GetCacheItem: Value: 
+06/04/22 01:59:46: GetWeighingValue: weight: 0
+06/04/22 01:59:49: GetCacheItem: Value: 
+06/04/22 01:59:49: GetWeighingValue: weight: 0
+06/04/22 01:59:52: GetCacheItem: Value: 
+06/04/22 01:59:52: GetWeighingValue: weight: 0
+06/04/22 01:59:55: GetCacheItem: Value: 
+06/04/22 01:59:55: GetWeighingValue: weight: 0
+06/04/22 01:59:58: GetCacheItem: Value: 
+06/04/22 01:59:58: GetWeighingValue: weight: 0
+06/04/22 02:00:00: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 02:00:01: GetCacheItem: Value: 
+06/04/22 02:00:01: GetWeighingValue: weight: 0
+06/04/22 02:02:17: ConnectWeighingDevice: try
+06/04/22 02:02:18: ConnectWeighingDevice: success
+06/04/22 02:02:24: GetCacheItem: Value: 
+06/04/22 02:02:24: GetWeighingValue: weight: 0
+06/04/22 02:02:27: GetCacheItem: Value: 
+06/04/22 02:02:27: GetWeighingValue: weight: 0
+06/04/22 02:02:29: GetCacheItem: Value: 
+06/04/22 02:02:29: GetWeighingValue: weight: 0
+06/04/22 02:02:33: GetCacheItem: Value: 
+06/04/22 02:02:33: GetWeighingValue: weight: 0
+06/04/22 02:02:36: GetCacheItem: Value: 
+06/04/22 02:02:36: GetWeighingValue: weight: 0
+06/04/22 02:02:39: GetCacheItem: Value: 
+06/04/22 02:02:39: GetWeighingValue: weight: 0
+06/04/22 02:02:42: GetCacheItem: Value: 
+06/04/22 02:02:42: GetWeighingValue: weight: 0
+06/04/22 02:02:45: GetCacheItem: Value: 
+06/04/22 02:02:45: GetWeighingValue: weight: 0
+06/04/22 02:02:48: GetCacheItem: Value: 
+06/04/22 02:02:48: GetWeighingValue: weight: 0
+06/04/22 02:02:51: GetCacheItem: Value: 
+06/04/22 02:02:51: GetWeighingValue: weight: 0
+06/04/22 02:02:54: GetCacheItem: Value: 
+06/04/22 02:02:54: GetWeighingValue: weight: 0
+06/04/22 02:02:57: GetCacheItem: Value: 
+06/04/22 02:02:57: GetWeighingValue: weight: 0
+06/04/22 02:03:00: GetCacheItem: Value: 
+06/04/22 02:03:00: GetWeighingValue: weight: 0
+06/04/22 02:03:03: GetCacheItem: Value: 
+06/04/22 02:03:03: GetWeighingValue: weight: 0
+06/04/22 02:03:06: GetCacheItem: Value: 
+06/04/22 02:03:06: GetWeighingValue: weight: 0
+06/04/22 02:03:09: GetCacheItem: Value: 
+06/04/22 02:03:09: GetWeighingValue: weight: 0
+06/04/22 02:03:12: GetCacheItem: Value: 
+06/04/22 02:03:12: GetWeighingValue: weight: 0
+06/04/22 02:03:14: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 02:03:15: GetCacheItem: Value: 
+06/04/22 02:03:15: GetWeighingValue: weight: 0
+06/04/22 02:03:58: ConnectWeighingDevice: try
+06/04/22 02:04:07: ConnectWeighingDevice: success
+06/04/22 02:05:39: GetCacheItem: Value: 
+06/04/22 02:05:39: GetWeighingValue: weight: 0
+06/04/22 02:05:42: GetCacheItem: Value: 
+06/04/22 02:05:42: GetWeighingValue: weight: 0
+06/04/22 02:05:45: GetCacheItem: Value: 
+06/04/22 02:05:45: GetWeighingValue: weight: 0
+06/04/22 02:05:48: GetCacheItem: Value: 
+06/04/22 02:05:48: GetWeighingValue: weight: 0
+06/04/22 02:05:51: GetCacheItem: Value: 
+06/04/22 02:05:51: GetWeighingValue: weight: 0
+06/04/22 02:05:54: GetCacheItem: Value: 
+06/04/22 02:05:54: GetWeighingValue: weight: 0
+06/04/22 02:05:57: GetCacheItem: Value: 
+06/04/22 02:05:57: GetWeighingValue: weight: 0
+06/04/22 02:06:00: GetCacheItem: Value: 
+06/04/22 02:06:00: GetWeighingValue: weight: 0
+06/04/22 02:06:03: GetCacheItem: Value: 
+06/04/22 02:06:03: GetWeighingValue: weight: 0
+06/04/22 02:06:06: GetCacheItem: Value: 
+06/04/22 02:06:06: GetWeighingValue: weight: 0
+06/04/22 02:06:09: GetCacheItem: Value: 
+06/04/22 02:06:09: GetWeighingValue: weight: 0
+06/04/22 02:06:12: GetCacheItem: Value: 
+06/04/22 02:06:12: GetWeighingValue: weight: 0
+06/04/22 02:06:15: GetCacheItem: Value: 
+06/04/22 02:06:15: GetWeighingValue: weight: 0
+06/04/22 02:06:18: GetCacheItem: Value: 
+06/04/22 02:06:18: GetWeighingValue: weight: 0
+06/04/22 02:06:21: GetCacheItem: Value: 
+06/04/22 02:06:21: GetWeighingValue: weight: 0
+06/04/22 02:06:24: GetCacheItem: Value: 
+06/04/22 02:06:24: GetWeighingValue: weight: 0
+06/04/22 02:06:27: GetCacheItem: Value: 
+06/04/22 02:06:27: GetWeighingValue: weight: 0
+06/04/22 02:06:30: GetCacheItem: Value: 
+06/04/22 02:06:30: GetWeighingValue: weight: 0
+06/04/22 02:06:33: GetCacheItem: Value: 
+06/04/22 02:06:33: GetWeighingValue: weight: 0
+06/04/22 02:06:36: GetCacheItem: Value: 
+06/04/22 02:06:36: GetWeighingValue: weight: 0
+06/04/22 02:06:39: GetCacheItem: Value: 
+06/04/22 02:06:39: GetWeighingValue: weight: 0
+06/04/22 02:06:42: GetCacheItem: Value: 
+06/04/22 02:06:42: GetWeighingValue: weight: 0
+06/04/22 02:06:45: GetCacheItem: Value: 
+06/04/22 02:06:45: GetWeighingValue: weight: 0
+06/04/22 02:06:48: GetCacheItem: Value: 
+06/04/22 02:06:48: GetWeighingValue: weight: 0
+06/04/22 02:06:51: GetCacheItem: Value: 
+06/04/22 02:06:51: GetWeighingValue: weight: 0
+06/04/22 02:07:12: GetCacheItem: Value: 
+06/04/22 02:07:13: GetWeighingValue: weight: 0
+06/04/22 02:07:14: GetCacheItem: Value: 
+06/04/22 02:07:15: GetWeighingValue: weight: 0
+06/04/22 02:07:16: GetCacheItem: Value: 
+06/04/22 02:07:17: GetCacheItem: Value: 
+06/04/22 02:07:17: GetWeighingValue: weight: 0
+06/04/22 02:07:17: GetWeighingValue: weight: 0
+06/04/22 02:07:18: GetCacheItem: Value: 
+06/04/22 02:07:19: GetCacheItem: Value: 
+06/04/22 02:07:19: GetWeighingValue: weight: 0
+06/04/22 02:07:20: GetWeighingValue: weight: 0
+06/04/22 02:07:20: GetCacheItem: Value: 
+06/04/22 02:07:21: GetWeighingValue: weight: 0
+06/04/22 02:07:21: GetCacheItem: Value: 
+06/04/22 02:07:22: GetCacheItem: Value: 
+06/04/22 02:07:22: GetWeighingValue: weight: 0
+06/04/22 02:07:23: GetWeighingValue: weight: 0
+06/04/22 02:07:24: GetCacheItem: Value: 
+06/04/22 02:07:25: GetWeighingValue: weight: 0
+06/04/22 02:07:34: GetCacheItem: Value: 
+06/04/22 02:07:34: GetWeighingValue: weight: 0
+06/04/22 02:07:34: GetCacheItem: Exception: The process cannot access the file 'C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Logs\LogFile.txt' because it is being used by another process.
+06/04/22 02:07:34: GetWeighingValue: weight: 0
+06/04/22 02:07:34: GetCacheItem: Value: 
+06/04/22 02:07:34: GetWeighingValue: weight: 0
+06/04/22 02:07:34: GetCacheItem: Value: 
+06/04/22 02:07:34: GetWeighingValue: weight: 0
+06/04/22 02:07:43: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 02:08:33: ConnectWeighingDevice: try
+06/04/22 02:08:41: ConnectWeighingDevice: success
+06/04/22 02:10:39: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 02:10:51: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 02:10:54: ConnectWeighingDevice: try
+06/04/22 02:10:54: ConnectWeighingDevice: success
+06/04/22 02:10:54: HandleDataReceive: signal: ???
+06/04/22 02:10:55: PortCOM_ErrorReceived: signal: ?=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2
+06/04/22 02:10:55: HandleDataReceive: signal: .
+06/04/22 02:10:56: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:10:57: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:10:58: HandleDataReceive: signal: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:10:58: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:10:58: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:10:58: GetWeighingValue: weight: 5.2
+06/04/22 02:10:59: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:00: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:11:01: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:02: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:02: GetCacheItem: Value: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:02: GetWeighingValue: weight: 5.2
+06/04/22 02:11:02: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:03: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:04: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:05: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:05: GetCacheItem: Value: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:05: GetWeighingValue: weight: 5.2
+06/04/22 02:11:06: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:06: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:07: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:08: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:08: GetCacheItem: Value: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:08: GetWeighingValue: weight: 5.2
+06/04/22 02:11:09: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:10: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2
+06/04/22 02:11:10: HandleDataReceive: signal: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:11: GetCacheItem: Value: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:11: GetWeighingValue: weight: 5.2
+06/04/22 02:11:11: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:12: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:13: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:14: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:14: GetCacheItem: Value: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:14: GetWeighingValue: weight: 5.2
+06/04/22 02:11:15: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:15: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:16: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:17: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:17: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:17: GetWeighingValue: weight: 5.2
+06/04/22 02:11:18: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:19: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:11:19: HandleDataReceive: signal: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:20: GetCacheItem: Value: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:20: GetWeighingValue: weight: 5.2
+06/04/22 02:11:20: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:21: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:22: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:23: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:23: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:23: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:23: GetWeighingValue: weight: 5.2
+06/04/22 02:11:24: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:25: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:26: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:26: GetCacheItem: Value: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:26: GetWeighingValue: weight: 5.2
+06/04/22 02:11:27: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:27: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2
+06/04/22 02:11:28: HandleDataReceive: signal: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:29: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:29: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:29: GetWeighingValue: weight: 5.2
+06/04/22 02:11:30: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:31: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:32: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:32: GetCacheItem: Value: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:32: GetWeighingValue: weight: 5.2
+06/04/22 02:11:32: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:11:33: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:34: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:35: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:35: GetCacheItem: Value: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:35: GetWeighingValue: weight: 5.2
+06/04/22 02:11:36: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:36: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:37: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:38: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:38: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:38: GetWeighingValue: weight: 5.2
+06/04/22 02:11:39: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:40: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:40: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:41: GetCacheItem: Value: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:41: GetWeighingValue: weight: 5.2
+06/04/22 02:11:41: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:42: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2
+06/04/22 02:11:43: HandleDataReceive: signal: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:44: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:45: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:45: GetCacheItem: Value: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:45: GetWeighingValue: weight: 5.2
+06/04/22 02:11:45: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:11:46: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:47: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:47: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:47: GetWeighingValue: weight: 5.2
+06/04/22 02:11:48: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2
+06/04/22 02:11:49: HandleDataReceive: signal: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:49: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:11:50: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:11:50: GetWeighingValue: weight: 5.2
+06/04/22 02:11:50: HandleDataReceive: signal: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:51: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:11:52: HandleDataReceive: signal: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:53: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:11:53: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:53: GetCacheItem: Value: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:53: GetWeighingValue: weight: 5.2
+06/04/22 02:11:54: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:11:55: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:11:56: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:56: GetCacheItem: Value: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:56: GetWeighingValue: weight: 5.2
+06/04/22 02:11:57: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:11:57: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:58: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:59: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:11:59: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:11:59: GetWeighingValue: weight: 5.2
+06/04/22 02:12:00: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:12:01: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:02: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:12:02: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:12:02: GetWeighingValue: weight: 5.2
+06/04/22 02:12:02: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:12:03: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:04: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2
+06/04/22 02:12:05: HandleDataReceive: signal: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:05: GetCacheItem: Value: .50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:05: GetWeighingValue: weight: 5.2
+06/04/22 02:12:06: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:12:06: HandleDataReceive: signal: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:07: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:12:08: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:08: GetCacheItem: Value: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:08: GetWeighingValue: weight: 5.2
+06/04/22 02:12:09: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:12:10: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:10: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:12:11: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:12:11: GetWeighingValue: weight: 5.2
+06/04/22 02:12:11: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+06/04/22 02:12:12: HandleDataReceive: signal: 2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:13: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5
+06/04/22 02:12:14: HandleDataReceive: signal: 0000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:14: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:12:14: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.500
+06/04/22 02:12:14: GetWeighingValue: weight: 5.2
+06/04/22 02:12:15: HandleDataReceive: signal: 00=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:16: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:17: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:12:17: GetCacheItem: Value: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.
+06/04/22 02:12:17: GetWeighingValue: weight: 5.2
+06/04/22 02:12:18: HandleDataReceive: signal: 50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:19: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50
+06/04/22 02:12:19: DisConnectWeighingDevice: error: Object reference not set to an instance of an object.
+06/04/22 02:12:19: HandleDataReceive: signal: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:20: GetCacheItem: Value: 000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000
+06/04/22 02:12:20: GetWeighingValue: weight: 5.2
+06/04/22 02:12:20: HandleDataReceive: signal: =2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.5000
+06/04/22 02:12:21: HandleDataReceive: signal: 0=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=2.50000=
+18/04/22 02:46:54: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:46:55: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:46:55: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:46:59: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:46:59: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:46:59: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:47:43: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:47:43: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:47:43: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:48:56: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:48:57: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:48:57: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:49:45: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:50:12: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:51:43: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:51:52: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:51:53: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:54:10: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:54:29: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:54:34: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:55:29: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:55:38: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:55:40: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:57:17: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:57:26: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:57:28: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:57:39: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 02:58:45: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+18/04/22 02:58:48: SelectOrderDetailByExcel: Row count: 354
+18/04/22 02:59:50: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:01:30: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:01:30: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:01:30: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+18/04/22 03:01:30: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:02:04: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:02:04: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:02:04: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+18/04/22 03:02:04: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:02:39: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:02:39: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:02:39: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+18/04/22 03:02:39: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:02:56: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:02:56: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:03:26: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+18/04/22 03:03:26: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:04:30: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:04:49: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:04:51: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+18/04/22 03:04:51: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:05:57: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:05:57: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:05:57: SelectOrderDetailByExcel: Exception: There is no row at position 0.
+18/04/22 03:05:57: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:11:05: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:11:06: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:11:06: SelectOrderDetailByExcel: Exception: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:11:06: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:11:25: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:12:25: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:12:25: SelectOrderDetailByExcel: Exception: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:12:25: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:12:27: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:12:27: SelectOrderDetailByExcel: OleDbCommandError: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:12:27: SelectOrderDetailByExcel: Exception: The 'Microsoft.Jet.OLEDB.4.0' provider is not registered on the local machine.
+18/04/22 03:12:27: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:12:37: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:12:37: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 03:12:40: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:13:06: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:13:12: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 03:14:23: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:19:17: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:19:17: SelectOrderDetailByExcel: OleDbCommandError: ExecuteReader requires an open and available Connection. The connection's current state is closed.
+18/04/22 03:19:17: SelectOrderDetailByExcel: Exception: ExecuteReader requires an open and available Connection. The connection's current state is closed.
+18/04/22 03:19:17: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 03:20:43: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 03:20:43: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 03:20:46: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 04:03:00: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 04:03:01: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 04:03:04: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 04:03:18: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 04:03:21: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 04:04:24: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 04:24:54: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 04:24:54: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 04:24:54: SelectOrderDetailByExcel: Finish: System.Object[]
+18/04/22 04:25:26: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa.xls
+18/04/22 04:25:46: SelectOrderDetailByExcel: Row count: 1000
+18/04/22 04:26:51: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:09:08: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:09:08: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:09:08: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:13:22: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:13:22: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:19:01: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:19:08: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:19:08: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:19:09: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:20:17: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:20:17: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:20:18: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:20:44: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:20:44: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:21:46: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:21:55: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:21:55: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:21:56: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:22:16: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:22:16: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:23:02: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:24:27: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:24:27: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:24:28: SelectOrderDetailByExcel: Finish: System.Object[]
+19/04/22 11:24:37: SelectOrderDetailByExcel: destinationPath: C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\Content\FileUpload\bang ma Daiwa 4.xlsx
+19/04/22 11:24:37: SelectOrderDetailByExcel: Row count: 354
+19/04/22 11:26:41: SelectOrderDetailByExcel: Finish: System.Object[]

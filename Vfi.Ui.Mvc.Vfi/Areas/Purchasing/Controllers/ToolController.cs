@@ -1180,7 +1180,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 using (var vfi = new tammaContext()) {
                     var transactions =
                         vfi.TransactionFpts.Where(f => checkedRecords.Contains(f.TransactionId));
-                    foreach (var transaction in transactions) {
+                    var transaction = transactions.FirstOrDefault();
+                    //foreach (var transaction in transactions) {
                         if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, transaction.TransactionDate)) {
                             throw new AggregateException(
                                 @"Không có quyền duyệt phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -1353,11 +1354,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         }
                         vfi.SaveChanges();
                     }
-                }
+                //}
             }
             catch (Exception exception) {
-                return
-                    Json("Lỗi! " + exception.Message);
+                return Json("Lỗi! " + exception.Message);
             }
             return Json("okie");
         }
