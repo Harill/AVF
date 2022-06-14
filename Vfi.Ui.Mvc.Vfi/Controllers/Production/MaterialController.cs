@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
@@ -542,6 +541,28 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
         public ActionResult SelectComboBoxMaterialInventory() {
             using (var vfi = new tammaContext()) {
+                var materialInvs = vfi.MaterialInventories.Where(m => m.TotalQty > 0);
+                var model = materialInvs.Select(m => new MaterialInventoryModel {
+                    MaterialInventoryId = m.MaterialInventoryId,
+                    MaterialCode = m.Material.MaterialCode,
+                    LotNumber = m.LotNumber,
+                    Length = m.Length,
+                    VendorCode = m.Vendor.VendorCode,
+                    MaterialName = m.Material.MaterialName,
+                    OutDiameter = m.Material.OutDiameter,
+                    InDiameter = m.Material.InDiameter,
+                    Shape = m.Material.Shape,
+                    DiameterType = m.Material.DiameterType,
+                }).OrderBy(m => m.MaterialName).ThenBy(m => m.OutDiameter).ThenBy(m => m.InDiameter).ThenBy(m => m.Length);
+                return new JsonResult {
+                    Data =
+                        new SelectList(model.ToList(), "MaterialInventoryId", "MaterialCodeLotNumber")
+                };
+            }
+        }
+
+        public ActionResult SelectComboBoxAllMaterialInventory() {
+            using (var vfi = new tammaContext()) {
                 var materialInvs =
                     vfi.MaterialInventories.Where(m => m.Active && m.LotNumber != "" && m.LotNumber != null);
                 var model = materialInvs.Select(m => new MaterialInventoryModel {
@@ -586,6 +607,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 };
             }
         }
+
         public ActionResult GetMaterialInvTotal(int materialInventoryId) {
             try {
                 //var intRevisionNumber = Convert.ToInt32(revisionNumber);
@@ -598,6 +620,29 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             }
             catch (FormatException) {
                 return Json(0);
+            }
+        }
+
+        public ActionResult GetMaterialInvInfo(int materialInvId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var materialInv = vfi.MaterialInventories.FirstOrDefault(mi => mi.MaterialInventoryId == materialInvId);
+                    if (materialInv == null) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotFound, "", null));
+                    }
+
+                    return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "",
+                        new MaterialInventoryModel {
+                            MaterialId = materialInv.MaterialId,
+                            LotNumber = materialInv.LotNumber,
+                            TotalQty = materialInv.TotalQty,
+                            AvailableQty = materialInv.TotalQty,
+                            Length = materialInv.Length
+                        }));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.Exception, ex.Message, null));
             }
         }
 

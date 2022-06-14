@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Production.Interfaces;
+//using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Models;
@@ -13,15 +13,16 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
     public class CurrencyController : Controller {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ICurrencyService _currencyService;
+        //private readonly ICurrencyService _currencyService;
         [InjectionConstructor]
-        public CurrencyController(IUnitOfWork unitOfWork,
-                                    ICurrencyService currencyService) {
+        public CurrencyController(IUnitOfWork unitOfWork
+            //,                                    ICurrencyService currencyService
+            ) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
-            if (currencyService == null) throw new ArgumentNullException("currencyService");
+            //if (currencyService == null) throw new ArgumentNullException("currencyService");
 
             _unitOfWork = unitOfWork;
-            _currencyService = currencyService;
+            //_currencyService = currencyService;
         }
 
         ViewDataDictionary GetPageConfigData() {

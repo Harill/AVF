@@ -4,8 +4,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Authentication.Interfaces;
-using Microsoft.Practices.Unity;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 
@@ -94,6 +92,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers {
                     entity.HasPermissionExecute = true;
                 }
                 if (entity.IsShow || entity.HasPermissionExecute) {
+                    menuModels.Add(entity);
+                }
+                else if (HttpContext.User.Identity.Name.Equals("admin") && string.IsNullOrWhiteSpace(menu.ActionName)) {
                     menuModels.Add(entity);
                 }
             }

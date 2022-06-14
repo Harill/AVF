@@ -35,6 +35,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.SmartProductions = new List<SmartProduction>();
             this.SmartProduction2 = new List<SmartProduction2>();
             this.TrackUpMachines = new List<TrackUpMachine>();
+            this.WorkOrders = new List<WorkOrder>();
+            this.WorkOrderRoutings = new List<WorkOrderRouting>();
             this.ExportFormQC_TPDetail = new List<ExportFormQC_TPDetail>();
             this.ExportFormTP_KDDetail = new List<ExportFormTP_KDDetail>();
             this.ExportGCN_NCUDetail = new List<ExportGCN_NCUDetail>();
@@ -124,6 +126,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string Note { get; set; }
         public string Currency { get; set; }
         public Nullable<int> BaseProductId { get; set; }
+        public int MaxQuantityInTray { get; set; }
+        public int MaxQuantityInTrayRunTime { get; set; }
+        public string IdentityCode { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<Machine> Machines { get; set; }
@@ -153,6 +158,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
         public virtual ICollection<SmartProduction2> SmartProduction2 { get; set; }
         public virtual ICollection<TrackUpMachine> TrackUpMachines { get; set; }
+        public virtual ICollection<WorkOrder> WorkOrders { get; set; }
+        public virtual ICollection<WorkOrderRouting> WorkOrderRoutings { get; set; }
         public virtual ICollection<ExportFormQC_TPDetail> ExportFormQC_TPDetail { get; set; }
         public virtual ICollection<ExportFormTP_KDDetail> ExportFormTP_KDDetail { get; set; }
         public virtual ICollection<ExportGCN_NCUDetail> ExportGCN_NCUDetail { get; set; }

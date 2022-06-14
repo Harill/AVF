@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
-using Vfi.Client.Module.Authentication.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Telerik.Web.Mvc;
@@ -92,7 +91,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception) {
                 return new JsonResult { Data = "Error" };
             }
-            return new JsonResult { Data = "Nothing happen" };
+            //return new JsonResult { Data = "Nothing happen" };
         }
 
         [HttpPost]
@@ -128,7 +127,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception) {
                 return new JsonResult { Data = "Error" };
             }
-            return new JsonResult { Data = "Nothing happen" };
+            //return new JsonResult { Data = "Nothing happen" };
         }
 
 

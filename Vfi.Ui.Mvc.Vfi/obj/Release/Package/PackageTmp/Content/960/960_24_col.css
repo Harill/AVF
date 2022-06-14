@@ -635,9 +635,20 @@ body {
 .clearfix {
   zoom: 1;
 }
-
+th.t-header {
+    text-align: center !important;
+}
 th.t-header.edit-column {
     background: lightgreen;
+}
+th.t-header.good-column {
+    background: lightgreen;
+}
+th.t-header.ng-column {
+    background: lightyellow;
+}
+th.t-header.defect-column {
+    background: indianred;
 }
 td.t-state-focused {
     background: darkgray;

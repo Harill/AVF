@@ -894,6 +894,25 @@
                     }
                 });
                 break;
+            case 33:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("ProductConfigForWorkOrder", "User")',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data == -1)
+                            alert("lỗi");
+                        else {
+                            alert("Thành công! " + data);
+                            Clear();
+
+                        }
+
+                    }
+                });
+                break;
         default:
            @* $.ajax({
                 type: 'post',
@@ -1283,6 +1302,13 @@
         <div class="grid_10">
             <button class="t-button twoToneButton" onclick=" return TamMaCode(32); ">
                 <span class='t-icon t-insert'></span>Chỉnh tiền tệ sản phẩm
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button twoToneButton" onclick=" return TamMaCode(33); ">
+                <span class='t-icon t-insert'></span>Chỉnh thông số work order sản phẩm
             </button>
         </div>
         <div class="grid_5">(Không thể phục hồi)</div>

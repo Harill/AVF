@@ -6,7 +6,6 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;

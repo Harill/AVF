@@ -8,25 +8,28 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Production.Interfaces;
+//using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
-using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.Globalization;
+using Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
     public class ProductController : Controller {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ProductionController _productionController;
         [InjectionConstructor]
-        public ProductController(IUnitOfWork unitOfWork, IProductService productService) {
+        public ProductController(IUnitOfWork unitOfWork
+            , ProductionController productionController
+            ) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
 
             _unitOfWork = unitOfWork;
+            _productionController = productionController;
         }
         #region view
 
@@ -887,7 +890,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             FinishDesign = false,
                             TaxCode = newProduct.ProductName + " " + newProduct.DesignNo,
                             ProductShape = "",
-                            Note = newProduct.Note
+                            Note = newProduct.Note,
+                            IdentityCode = newProduct.IdentityCode,
+                            MaxQuantityInTray = 0,
+                            MaxQuantityInTrayRunTime = 0
                         };
                         product.ProductCode = MyUtilities.Product.GetAutoProductCode();
                         if (String.IsNullOrWhiteSpace(newProduct.Currency)) {
@@ -1003,8 +1009,27 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     product.WaitingPlatingWeight = updateProduct.WaitingPlatingWeight;
                     product.PlatingWeight = updateProduct.PlatingWeight;
                     product.QcWeight = updateProduct.QcWeight;
-                    //product.FinishWeight = updateProduct.FinishWeight;
+                    //product.FinishWeight = updateProduct.FinishWeight; 
+                    if (product.MaxQuantityInTray <= 0) {
+                        var maxWeight = 20000;
+                        var maxTime = 3 * 24 * 3600;
+                        var quantityWeight = 0;
+                        if (product.ProductionWeight > 0) {
+                            quantityWeight = MyUtilities.Function.RoundDown(maxWeight / product.ProductionWeight.Value);
+                        }
+                        var quantityTime = 0;
+                        if (product.Productivity > 0) {
+                            quantityTime = MyUtilities.Function.RoundDown(maxTime / product.Productivity.Value);
+                        }
+                        product.MaxQuantityInTray = quantityWeight > quantityTime ? quantityTime : quantityWeight;
+                        var packingProductivity = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.PackingProductivity);
+                        product.MaxQuantityInTrayRunTime = _productionController.CalculateProductionWorkOrderRunTime(product, packingProductivity);
+                    }
                     vfi.SaveChanges();
+
+                    product.IdentityCode = String.Format("{0:0000}", product.ProductId);
+                    vfi.SaveChanges();
+
                     return View(new GridModel(SelectAllProducts(false, 0, customerId, productCode, 0, "", "")));
                 }
                 catch (Exception ex) {
@@ -2669,40 +2694,25 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                     productionMaterial.Material.Shape + "");
                         }
                     }
-                    //if (product.Status == (byte)ProductStatusEnum.Calculating)
-                    //    product.Status = (byte)ProductStatusEnum.Calculated;
-                    //product.Drawing2D = updateProduct.attachments;
-                    //askquestion.jpg
-                    //if (product.Status == (byte) ProductStatusEnum.Calculated)
-                    //{
-                    //    try
-                    //    {
-                    //        var status = Convert.ToByte(updateProduct.StatusName);
-                    //        if (status != (byte)ProductStatusEnum.Quoting && status != (byte)ProductStatusEnum.Calculated)
-                    //        {
-                    //            throw new AggregateException("Lỗi! Đã tính năng suất chỉ có thể chuyển thành báo giá!");
-                    //        }
-                    //        product.Status = status;
-                    //    }
-                    //    catch (FormatException)
-                    //    {
-                    //    }
-                    //}
-                    //if (product.Diameter != 0 && product.Length != 0 && product.KnifeCut != 0 &&
-                    //    product.ProcessingDesign != 0 && product.Productivity != 0 && product.ProductionRate != 0 &&
-                    //    !string.IsNullOrWhiteSpace(product.MaterialNameDesign) && product.OutDiameterDesign != 0 &&
-                    //    !string.IsNullOrWhiteSpace(product.ShapeDesign) &&
-                    //    !string.IsNullOrWhiteSpace(product.DiameterTypeDesign) &&
-                    //    product.Status == (byte)ProductStatusEnum.Calculating)
-                    //{
-                    //    //var permission =
-                    //    //    vfi.Permissions.FirstOrDefault(
-                    //    //        p =>
-                    //    //        p.UserID == user.UserId && p.FunctionID == PermisstionSpecialModel.ProductionManagement);
-                    //    //if (permission != null && permission.Modification == true)
-                    //        product.Status = (byte)ProductStatusEnum.Calculated;
-                    //}
+
+                    // auto update work order config
+                    if (product.MaxQuantityInTray <= 0) {
+                        var maxWeight = 20000;
+                        var maxTime = 3 * 24 * 3600;
+                        var quantityWeight = 0;
+                        if (product.ProductionWeight > 0) {
+                            quantityWeight = MyUtilities.Function.RoundDown(maxWeight / product.ProductionWeight.Value);
+                        }
+                        var quantityTime = 0;
+                        if (product.Productivity > 0) {
+                            quantityTime = MyUtilities.Function.RoundDown(maxTime / product.Productivity.Value);
+                        }
+                        product.MaxQuantityInTray = quantityWeight > quantityTime ? quantityTime : quantityWeight;
+                        var packingProductivity = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.PackingProductivity);
+                        product.MaxQuantityInTrayRunTime = _productionController.CalculateProductionWorkOrderRunTime(product, packingProductivity);
+                    }
                     vfi.SaveChanges();
+
                     product.FinishDesign = MyUtilities.Product.CheckDesign(product.ProductId);
                     vfi.SaveChanges();
                 }

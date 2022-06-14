@@ -4,14 +4,12 @@ using System.Configuration;
 using System.Linq;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
-using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Client.Module.Authentication.Interfaces;
 //using Vfi.Server.Core.DataModel.Models.System;
 using Microsoft.Practices.Unity;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using LogInUserModel = Vfi.Server.Core.DataModel.Models.System.LogInUserModel;
-using System.IO;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers {
     public class HomeController : Controller {

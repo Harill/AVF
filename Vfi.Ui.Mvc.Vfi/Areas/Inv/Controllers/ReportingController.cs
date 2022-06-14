@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
 using System.Data.OleDb;
 using System.Globalization;
 using System.IO;
@@ -9,17 +8,16 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.Drawing;
-using Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Microsoft.Practices.Unity;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
+
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class ReportingController : Controller {
 
@@ -742,7 +740,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 return View(new GridModel(model));
             try {
                 using (var vfi = new tammaContext()) {
-                    var tools = from t in vfi.Tools
+                    var tools = (from t in vfi.Tools
                                 where t.Active &&
                                       (toolType == 0 || t.MaterialTypeId == toolType)
                                 select new {
@@ -754,11 +752,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     t.ToolProduction,
                                     t.ToolTypeId,
                                     t.MaterialType.MaterialTypeName
-                                };
-                    if (!string.IsNullOrWhiteSpace(toolName))
-                        tools = tools.Where(t => t.ToolFullCode.Contains(toolName));
+                                }).ToList();
+                    if (!string.IsNullOrWhiteSpace(toolName)) {
+                        tools = tools.Where(t => t.ToolFullCode.Contains(toolName)).ToList();
+                    }
                     var toolIds = tools.Select(t => t.ToolId);
-                    var periods = (from tip in vfi.ToolInventoryPeriods
+                    var imports = (from tip in vfi.ToolInventoryPeriods
                                    where toolIds.Contains(tip.ToolId)
                                          && tip.PeriodDate.Year == year &&
                                          tip.LastQuantity > tip.EarlyQuantity
@@ -768,23 +767,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        tip.PeriodDate.Month,
                                        tip.Quantity
                                    }).ToList();
-                    var toolInvs = from ti in vfi.ToolInventories
+                    var toolInvs = (from ti in vfi.ToolInventories
                                    where toolIds.Contains(ti.ToolId) &&
                                          ti.TotalQuantity > 0
-                                   select ti;
-                    var exports = from ed in vfi.ExportToolDetails
+                                   select ti).ToList();
+                    var exports = (from ed in vfi.ExportToolDetails
                                   where ed.ExportTool.ExportDate.Value.Year == year &&
                                         toolIds.Contains(ed.ToolInventory.ToolId) &&
-                                        ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                        ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                        (exportType == 0 || ed.ExportTool.TransactionFpt.Type == exportType)
                                   select new {
                                       ed.ToolInventory.ToolId,
                                       ed.ExportTool.ExportDate.Value.Month,
                                       ed.ExportTool.TransactionFpt.Type,
                                       ed.Quantity
-                                  };
-                    if (exportType != 0) {
-                        exports = exports.Where(e => e.Type == exportType);
-                    }
+                                  }).ToList();
+
                     foreach (var tool in tools) {
                         var entity = new MaterialYearlyReportModel {
                             MaterialId = tool.ToolId,
@@ -795,12 +793,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             MaterialTypeName = tool.MaterialTypeName,
                             Months = new List<MaterialMonthlyReportModel>()
                         };
-                        var periodsById = periods.Where(p => p.ToolId == entity.MaterialId).ToList();
-                        var exportsByid = exports.Where(p => p.ToolId == entity.MaterialId).ToList();
+                        var importsById = imports.Where(p => p.ToolId == entity.MaterialId).ToList();
+                        var exportsById = exports.Where(p => p.ToolId == entity.MaterialId).ToList();
                         var toolInvsById = toolInvs.Where(ti => ti.ToolId == entity.MaterialId).ToList();
                         entity.TotalInv = toolInvsById.Sum(ti => ti.TotalQuantity);
                         //var emDestroyById = emDestroyInMonth.Where(em => em.MaterialId == entity.MaterialId).ToList();
-                        if (!periodsById.Any() && !exportsByid.Any()) continue;
+                        if (!importsById.Any() && !exportsById.Any()) continue;
                         var months = new List<MaterialMonthlyReportModel>();
                         for (int month = 1; month <= 12; month++) {
                             var byMonth = new MaterialMonthlyReportModel {
@@ -811,21 +809,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 ExportDestroy = 0
                             };
                             months.Add(byMonth);
-                            periodsById =
-                                periods.Where(p => p.ToolId == entity.MaterialId && p.Month == month).ToList();
-                            var periodsByParam = periodsById.Where(p => p.IsPurchase).ToList();
-                            byMonth.Import = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
-                            periodsByParam = periodsById.Where(p => !p.IsPurchase).ToList();
-                            byMonth.ImportMore = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
 
-                            exportsByid =
-                                exports.Where(p => p.ToolId == entity.MaterialId && p.Month == month).ToList();
-                            var exportsParam = exportsByid.Where(p => p.Type != (int)MyUtilities.Tool.ExportType.Destroy).ToList();
-                            byMonth.ExportUse = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
+                            var importsInMonth = importsById.Where(p => p.Month == month).ToList();
+                            if (importsInMonth.Any()) {
+                                var periodsByParam = importsInMonth.Where(p => p.IsPurchase).ToList();
+                                byMonth.Import = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
+                                periodsByParam = importsInMonth.Where(p => !p.IsPurchase).ToList();
+                                byMonth.ImportMore = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
+                            }
 
-                            exportsParam = exportsByid.Where(p => p.Type == (int)MyUtilities.Tool.ExportType.Destroy).ToList();
-                            byMonth.ExportDestroy = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
+                            var exportsInMonth = exports.Where(p => p.ToolId == entity.MaterialId && p.Month == month).ToList();
+                            if (exportsInMonth.Any()) {
+                                var exportsParam = exportsInMonth.Where(p => p.Type != (int)MyUtilities.Tool.ExportType.Destroy).ToList();
+                                byMonth.ExportUse = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
 
+                                exportsParam = exportsInMonth.Where(p => p.Type == (int)MyUtilities.Tool.ExportType.Destroy).ToList();
+                                byMonth.ExportDestroy = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
+                            }
                         }
                         var total = new MaterialMonthlyReportModel {
                             Import = months.Sum(m => m.Import),
@@ -13676,7 +13676,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 if (update.ExpectedFactor == 0) throw new AggregateException("Lỗi! Hệ số không được là 0!");
                 using (var vfi = new tammaContext()) {
                     OrderProgress progress;
-                    if (update.ProgressId != null) {
+                    if (update.ProgressId > 0) {
                         progress = vfi.OrderProgresses.FirstOrDefault(op => op.ProgressId == update.ProgressId);
                         if (progress == null)
                             throw new AggregateException("Lỗi! Không tìm thấy quy trình " + update.WarehouseName);
@@ -14400,7 +14400,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                      od.OrderQty,
                                                      od.RequiedNumber,
                                                  }).ToList();
-                    var index = 1;
+                    //var index = 1;
                     foreach (var material in materials) {
                         var productsById =
                             products.Where(
@@ -15753,7 +15753,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var realProductions = from rp in vfi.RealProductions
                                           where productIds.Contains(rp.ProductId)
                                           select rp;
-                    var saved = false;
+                    //var saved = false;
                 //    foreach (var product in products) {
                 //        // 1
                 //        var entity = new FactoryProductionProcessModel() {

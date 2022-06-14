@@ -22,6 +22,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string EmployeeRepairName { get; set; }
         public string EmployeeQcName { get; set; }
         public string Note { get; set; }
+        public int MaxRunTime { get; set; }
+        public int RunTime { get; set; }
+        public string RunTimeStr { get; set; }
+        public string RunTimePercentedStr { get; set; }
+        public string NotRunTimePercentedStr { get; set; }
+
     }
 
 }

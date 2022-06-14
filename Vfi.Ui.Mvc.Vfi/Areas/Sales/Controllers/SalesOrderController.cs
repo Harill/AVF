@@ -6,13 +6,11 @@ using System.Web;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Sales.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
-using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using Order = Vfi.Server.Core.DataModel.BaseEntities.Order;
 using OrderDetail = Vfi.Server.Core.DataModel.BaseEntities.OrderDetail;
@@ -979,6 +977,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 SaveOrderProgess(update, HttpContext.User.Identity.Name);
             }
             catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionExpectedByOrderDetail", ex.Message);
             }
             return View(new GridModel(GetProductionExpectedByOrderDetail(update.OrderDetailId)));
         }
@@ -2532,7 +2531,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                 entity.VFIDueDate = orderDetail.CustomerDueDate;
                         }
                     }
-                add:
+
                     var lastImport = lastImportDetail.FirstOrDefault(id => id == entity.ProductId);
                     if (lastImport > 0) entity.IsProduction = true;
 
@@ -2912,10 +2911,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             try {
                 if (string.IsNullOrWhiteSpace(currencyCode))
                     throw new AggregateException("Lỗi! Loại tiền tệ lỗi");
-                if (exchangeRate <= 0 || (currencyCode.Equals("VND") && exchangeRate > 1))
-                    throw new AggregateException("Lỗi! Tỉ giá lỗi " + currencyCode + "-" + exchangeRate);
-                if (tax < 0)
-                    throw new AggregateException("Lỗi! Thuế < 0");
+                if (exchangeRate <= 0 || (currencyCode.Equals("VND") && exchangeRate > 1)) {
+                    exchangeRate = 1;
+                }
+                if (tax < 0) { throw new AggregateException("Lỗi! Thuế < 0"); }
                 using (var vfi = new tammaContext()) {
                     var exportDetails = (from ed in vfi.ExportFormTP_KDDetail
                                          where
@@ -3077,6 +3076,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 ModelState.AddModelError("AddExportInvoiceDetail", ex.Message);
             }
             return View(new GridModel(new List<InvoiceDetailTempModel>()));
+        }
+
+        int UpdateInvoiceStatus(List<long> invoiceIds) {
+            var saved = 0;
+            try {
+                using (var vfi = new tammaContext()) {
+                    var invoices = vfi.Invoices.Where(i => invoiceIds.Contains(i.InvoiceId));
+                    foreach (var invoice in invoices) {
+                        if (invoice.ExportFormTP_KD.ExportFormTP_KDDetail.Count(od => od.IsInvoiced == false) == 0)
+                            invoice.Status = (byte)MyUtilities.Sales.Status.Completed;
+                        else
+                            invoice.Status = (byte)MyUtilities.Sales.Status.InProcess;
+                    }
+                    saved += vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) { throw ex; }
+            return saved;
         }
 
         [GridAction]
@@ -3395,10 +3412,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         });
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("-1");
             }
-            return Json("0");
         }
 
         [HttpPost]
@@ -3416,7 +3432,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                       && o.CustomerId == customerId
                                 select o).FirstOrDefault();
                     var info = new TaxInvoiceModel {
-                        CurrencyCode = "VND"
+                        CurrencyCode = "VND",
+                        ExchangeRate = 1
                     };
                     if (last != null) {
                         info.CurrencyCode = last.Currency;
@@ -3426,10 +3443,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     return Json(info);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("-1");
             }
-            return Json("0");
         }
 
         [GridAction]
@@ -7398,12 +7414,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     var qcWarehouses = MyUtilities.Warehouse.GetWarehouseIdQc();
                     var platingWarehouses = MyUtilities.Warehouse.GetWarehouseIds_Plating();
                     var warehouse2_process = MyUtilities.Warehouse.GetWarehouseIdProduction2_PROCESS();
-                    var test = false;
                     foreach (var productId in productIds) {
                         var product = products.FirstOrDefault(p => p.ProductId == productId);
                         if (product == null) continue;
-                        if (model.Count == 56)
-                            test = true;
                         var entity = new ForecastDetailModel {
                             ProductId = product.ProductId,
                             ProductCode = product.ProductCode,

@@ -44,6 +44,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public System.DateTime StartDate { get; set; }
         public int State { get; set; }
         public bool IsNotRequireApproveOrder { get; set; }
+        public bool IsWorkOrder { get; set; }
         public virtual ICollection<ExportFormTP_KD> ExportFormTP_KD { get; set; }
         public virtual ICollection<Product> Products { get; set; }
         public virtual Area Area { get; set; }

@@ -79,6 +79,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<TrackingRepairEmployee> TrackingRepairEmployees { get; set; }
         public DbSet<TrackUpMachine> TrackUpMachines { get; set; }
         public DbSet<TrackUpMaterial> TrackUpMaterials { get; set; }
+        public DbSet<WorkOrder> WorkOrders { get; set; }
+        public DbSet<WorkOrderProcess> WorkOrderProcesses { get; set; }
+        public DbSet<WorkOrderRouting> WorkOrderRoutings { get; set; }
         public DbSet<WorkpieceMaterialPeriod> WorkpieceMaterialPeriods { get; set; }
         public DbSet<ExportChangeProduct> ExportChangeProducts { get; set; }
         public DbSet<ExportFormQC_TP> ExportFormQC_TP { get; set; }
@@ -161,8 +164,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<TransactionFpt> TransactionFpts { get; set; }
         public DbSet<TransactionFptDetail> TransactionFptDetails { get; set; }
         public DbSet<Vendor> Vendors { get; set; }
-        public DbSet<WorkOrder> WorkOrders { get; set; }
-        public DbSet<WorkOrderRouting> WorkOrderRoutings { get; set; }
+        public DbSet<WorkOrder1> WorkOrder1 { get; set; }
+        public DbSet<WorkOrderRouting1> WorkOrderRouting1 { get; set; }
         public DbSet<Area> Areas { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<CustomerAccessPermission> CustomerAccessPermissions { get; set; }
@@ -275,6 +278,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new TrackingRepairEmployeeMap());
             modelBuilder.Configurations.Add(new TrackUpMachineMap());
             modelBuilder.Configurations.Add(new TrackUpMaterialMap());
+            modelBuilder.Configurations.Add(new WorkOrderMap());
+            modelBuilder.Configurations.Add(new WorkOrderProcessMap());
+            modelBuilder.Configurations.Add(new WorkOrderRoutingMap());
             modelBuilder.Configurations.Add(new WorkpieceMaterialPeriodMap());
             modelBuilder.Configurations.Add(new ExportChangeProductMap());
             modelBuilder.Configurations.Add(new ExportFormQC_TPMap());
@@ -357,8 +363,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new TransactionFptMap());
             modelBuilder.Configurations.Add(new TransactionFptDetailMap());
             modelBuilder.Configurations.Add(new VendorMap());
-            modelBuilder.Configurations.Add(new WorkOrderMap());
-            modelBuilder.Configurations.Add(new WorkOrderRoutingMap());
+            modelBuilder.Configurations.Add(new WorkOrder1Map());
+            modelBuilder.Configurations.Add(new WorkOrderRouting1Map());
             modelBuilder.Configurations.Add(new AreaMap());
             modelBuilder.Configurations.Add(new CustomerMap());
             modelBuilder.Configurations.Add(new CustomerAccessPermissionMap());

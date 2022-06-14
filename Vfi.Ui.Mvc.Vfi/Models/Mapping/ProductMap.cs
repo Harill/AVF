@@ -49,6 +49,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
                 .IsFixedLength()
                 .HasMaxLength(3);
 
+            this.Property(t => t.IdentityCode)
+                .HasMaxLength(50);
+
             // Table & Column Mappings
             this.ToTable("Product", "Production");
             this.Property(t => t.ProductId).HasColumnName("ProductId");
@@ -114,6 +117,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.Note).HasColumnName("Note");
             this.Property(t => t.Currency).HasColumnName("Currency");
             this.Property(t => t.BaseProductId).HasColumnName("BaseProductId");
+            this.Property(t => t.MaxQuantityInTray).HasColumnName("MaxQuantityInTray");
+            this.Property(t => t.MaxQuantityInTrayRunTime).HasColumnName("MaxQuantityInTrayRunTime");
+            this.Property(t => t.IdentityCode).HasColumnName("IdentityCode");
 
             // Relationships
             this.HasOptional(t => t.ProcessingType)

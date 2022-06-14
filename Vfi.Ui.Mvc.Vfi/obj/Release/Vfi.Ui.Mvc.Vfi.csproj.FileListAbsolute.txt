@@ -647,10 +647,6 @@ C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\System.Xml.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\System.Xml.Linq.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Unity.Mvc3.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Authentication.dll
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Inv.dll
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Production.dll
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Purchasing.dll
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Sales.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.CrossCutting.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.DataModel.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.Infrastructure.dll
@@ -658,10 +654,6 @@ C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.Repository.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Core.Common.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Microsoft.Practices.ServiceLocation.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Authentication.pdb
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Inv.pdb
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Production.pdb
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Purchasing.pdb
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Module.Sales.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.CrossCutting.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.DataModel.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Server.Core.Infrastructure.pdb
@@ -774,3 +766,5 @@ C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.csproj.Gener
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptTransactionFormGroup.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrder.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptPrintWOAssignMaterial.resources

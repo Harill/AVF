@@ -88,6 +88,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string ProcessingQuantityStr { get { return string.Format("{0:n0}", ProcessingQuantity); } }
         public double DefectQuantity { get; set; }
         public string DefectQuantityStr { get { return string.Format("{0:n0}", DefectQuantity); } }
+        public int WarehouseId { get; set; }
     }
     public class MachineTypeModel {
         public string Code { get; set; }

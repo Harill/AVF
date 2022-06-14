@@ -7,7 +7,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
     {
         public ScrapReason()
         {
-            this.WorkOrders = new List<WorkOrder>();
+            this.WorkOrder1 = new List<WorkOrder1>();
         }
 
         public int ScrapReasonId { get; set; }
@@ -15,6 +15,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }
         public System.DateTime ModifiedDate { get; set; }
-        public virtual ICollection<WorkOrder> WorkOrders { get; set; }
+        public virtual ICollection<WorkOrder1> WorkOrder1 { get; set; }
     }
 }

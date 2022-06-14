@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
@@ -1610,8 +1609,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     };
                 }
             }
-            catch (Exception ex) {
-                return Json("0");
+            catch (Exception) {
             }
             return Json("0");
         }
@@ -2092,7 +2090,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 part2: {
                         assignUpdates = updatedDetails.Where(ud => ud.MachineUse > 0);
                         if (!assignUpdates.Any())
-                            goto part3;
+                            goto part4;
                         var toolUse = new ToolUse {
                             Department = exportTool.Department,
                             ModifiedDate = exportTool.ModifiedDate.Value,
@@ -2127,7 +2125,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
                         assignUpdates = updatedDetails.Where(ud => ud.MachineReturn > 0);
                         if (!assignUpdates.Any())
-                            goto part3;
+                            goto part4;
                         var toolReturn = new ToolUse {
                             Department = exportTool.Department,
                             ModifiedDate = exportTool.ModifiedDate.Value,
@@ -3215,7 +3213,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     rt.ProductionToolId == productionTool.RealToolId &&
                                     rt.TrackId == lastTrack.TrackId);
 
-                                if (replaceTool != null && replaceTool.ReplaceId != null) {
+                                if (replaceTool != null) {
                                     toolId = replaceTool.ReplaceId;
                                 }
                                 var tool = vfi.Tools.FirstOrDefault(t => t.ToolId == toolId);
@@ -3263,7 +3261,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 }
             }
             catch (Exception ex) {
-                return Json("Lỗi");
+                return Json("Lỗi" + ex.Message);
             }
             return PartialView("PageAssignProductionTool",
                 model.OrderBy(m => m.ToolTypeName)
@@ -3339,7 +3337,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 }
             }
             catch (Exception ex) {
-                return Json("Lỗi");
+                return Json("Lỗi" + ex.Message);
             }
             return PartialView("PageAssignProductionTool",
                 model.OrderBy(m => m.ProductCode)

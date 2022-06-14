@@ -4,7 +4,6 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Sales.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
@@ -248,6 +247,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             };
         }
 
+        public ActionResult SelectComboBoxEmployee() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveEmployeeByConfig(new EmployeeConfiguration { }), "EmployeeId", "EmployeeCodeName")
+            };
+        }
         public ActionResult SelectComboBoxSalesEmployee() {
             return new JsonResult {
                 Data = new SelectList(GetActiveEmployeeByConfig(new EmployeeConfiguration { IsSales = true }), "EmployeeId", "EmployeeCodeName")

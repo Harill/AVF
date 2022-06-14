@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
-using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
@@ -12,12 +11,12 @@ using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
 using Vfi.Client.Module.Authentication.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
-using User = Vfi.Server.Core.DataModel.BaseEntities.User;
 using UserModel = Vfi.Server.Core.DataModel.Models.System.UserModel;
 using ChangePasswordModel = Vfi.Server.Core.DataModel.Models.System.ChangePasswordModel;
 using FunctionModel = Vfi.Server.Core.DataModel.Models.System.FunctionModel;
 //using WorkGroup = Vfi.Server.Core.DataModel.BaseEntities.WorkGroup;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
+using Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers;
 //using Vfi.Server.Core.DataModel.Models.System;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
@@ -25,12 +24,14 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
     public class UserController : Controller {
         private readonly IFormAuthenticationService _formAuthenticationService;
         private readonly IUserService _userService;
+        private readonly ProductionController _productionController;
         private readonly IUnitOfWork _unitOfWork;
         [InjectionConstructor]
         public UserController(IFormAuthenticationService formAuthenticationService,
                                 IUserService userService,
                                 IFunctionService functionService,
-                                IUnitOfWork unitOfWork) {
+                                IUnitOfWork unitOfWork,
+                                ProductionController productionController) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
             if (userService == null) throw new ArgumentNullException("userService");
             if (formAuthenticationService == null) throw new ArgumentNullException("formAuthenticationService");
@@ -38,6 +39,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             _unitOfWork = unitOfWork;
             _userService = userService;
             _formAuthenticationService = formAuthenticationService;
+            _productionController = productionController;
         }
         #region view
 
@@ -831,7 +833,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     a += vfi.SaveChanges();
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
             return Json(a);
@@ -985,7 +987,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     a += vfi.SaveChanges();
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
             return Json(a);
@@ -1056,7 +1058,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                         a += vfi.SaveChanges();
                     }
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -1095,7 +1096,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     vfi.RealProductions.AddRange(model);
                     var a = vfi.SaveChanges();
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -1126,7 +1126,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception) {
                 return Json(-1);
             }
-            return Json(-1);
 
         }
 
@@ -1187,7 +1186,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception ex) {
                 return Json(ex);
             }
-            return Json(-1);
 
         }
         [HttpPost]
@@ -1207,7 +1205,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     }
                     a = vfi.SaveChanges();
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -1228,7 +1225,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     }
                     a = vfi.SaveChanges();
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -1258,7 +1254,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     }
                     a = vfi.SaveChanges();
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -1302,10 +1297,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     a = vfi.SaveChanges();
 
                     return Json(a);
-                    return Json(1);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1340,7 +1334,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1364,7 +1358,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1397,7 +1391,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1436,7 +1430,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1480,7 +1474,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 return Json(ex);
                 //return Json(-1);
             }
-            return Json(a);
         }
 
         [HttpPost]
@@ -1530,7 +1523,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1551,10 +1544,45 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
+            catch (Exception) {
+                return Json(-1);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult ProductConfigForWorkOrder() {
+            try {
+                var a = 0;
+                var packingProductivity = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.PackingProductivity);
+                using (var vfi = new tammaContext()) {
+                    var products = vfi.Products;
+                    var maxWeight = 20000;
+                    var maxTime = 3 * 24 * 3600;
+                    foreach (var product in products) {
+                        if (string.IsNullOrWhiteSpace(product.IdentityCode)) {
+                            product.IdentityCode = String.Format("{0:0000}", product.ProductId);
+                        }
+                        var quantityWeight = 0;
+                        if (product.ProductionWeight > 0) {
+                            quantityWeight = MyUtilities.Function.RoundDown(maxWeight / product.ProductionWeight.Value);
+                        }
+                        var quantityTime = 0;
+                        if (product.Productivity > 0) {
+                            quantityTime =MyUtilities.Function.RoundDown(maxTime / product.Productivity.Value);
+                        }
+                        product.MaxQuantityInTray = quantityWeight > quantityTime ? quantityTime : quantityWeight;
+                        product.MaxQuantityInTrayRunTime = _productionController.CalculateProductionWorkOrderRunTime(product, packingProductivity);
+                    }
+
+                    a += vfi.SaveChanges();
+                }
+                return Json(a);
+            }
             catch (Exception ex) {
                 return Json(-1);
             }
         }
+
         [HttpPost]
         public ActionResult ChinhTienTrinhSanPham() {
             try {
@@ -1669,7 +1697,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
             //var processProduction1 = new ProductionProcess
@@ -1836,7 +1864,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 }
                 return Json(a);
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1892,10 +1920,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                         a += vfi.SaveChanges();
                     }
                     return Json(a);
-                    return Json(1);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
         }
@@ -1962,7 +1989,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     vfi.TaxInvoices.Add(taxInvoice);
                     a = vfi.SaveChanges();
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -2089,7 +2115,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     vfi.InvoiceDetails.Add(entity);
                     a = vfi.SaveChanges();
                     return Json(a);
-                    return Json(1);
                 }
             }
             catch (Exception) {
@@ -2322,7 +2347,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     return Json(a);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
             }
             return Json(-1);
         }
@@ -2350,7 +2375,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     return Json(a);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
             }
             return Json(-1);
         }
@@ -2404,7 +2429,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     return Json(a);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
             }
             return Json(-1);
         }
@@ -2450,7 +2475,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     return Json(a);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
             }
             return Json(-1);
         }
@@ -2482,7 +2507,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception ex) {
                 return Json(ex.Message);
             }
-            return Json(-1);
         }
 
         [HttpPost]
@@ -2589,7 +2613,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception ex) {
                 return Json(ex.Message);
             }
-            return Json(-1);
         }
 
         [HttpPost]
@@ -2714,7 +2737,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception ex) {
                 return Json(ex.Message);
             }
-            return Json(-1);
         }
         [HttpPost]
         public ActionResult TaoLienKetSx2() {
@@ -2737,7 +2759,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception ex) {
                 return Json(ex.Message);
             }
-            return Json(-1);
         }
 
         int AddInvoiceDetail(List<InvoiceDetail> list) {
@@ -2793,7 +2814,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             catch (Exception) {
                 return Json(-1);
             }
-            return Json(-1);
         }
         #endregion
 
@@ -2960,10 +2980,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     return Json("Oke");
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
-            return Json(a);
         }
 
         [HttpPost]
@@ -3009,10 +3028,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                     return Json("Oke");
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json(-1);
             }
-            return Json(a);
         }
         #endregion
 

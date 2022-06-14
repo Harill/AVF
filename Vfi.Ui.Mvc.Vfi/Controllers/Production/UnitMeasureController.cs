@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Production.Interfaces;
+//using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
@@ -16,11 +16,12 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production
     public class UnitMeasureController : Controller
     {
         [InjectionConstructor]
-        public UnitMeasureController(IUnitOfWork unitOfWork,
-                                    IUnitMeasureService unitMeasureService)
+        public UnitMeasureController(IUnitOfWork unitOfWork
+            //,                                    IUnitMeasureService unitMeasureService
+            )
         {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
-            if (unitMeasureService == null) throw new ArgumentNullException("unitMeasureService");
+            //if (unitMeasureService == null) throw new ArgumentNullException("unitMeasureService");
 
         }
 

@@ -26,6 +26,28 @@
             index = 0;
         }
         var index = 0;
+        
+        function grid_OnDataBound(data) {
+
+            var grid = $(this).data("tGrid");
+            var data = grid.dataSource._data;
+            if (data && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var dataItem = data[i];
+                    $(".RunTimeStrs")[i].textContent = (7200 - dataItem.aggregates.FixTime.Sum).format(0);
+                    $(".NotRunTimePercentedStrs")[i].textContent = (dataItem.aggregates.FixTime.Sum / 7200 * 100).format(1) + '%';
+                    $(".RunTimePercentedStrs")[i].textContent = ((1 - dataItem.aggregates.FixTime.Sum / 7200) * 100).format(1) + '%';
+                }
+            }
+            //$("#CountingAvailableStatus")[0].innerHTML =
+            //(" <img src='/vfi/Resources/approve_icon.jpg' height='15' width='15'> " +
+            //    normal +
+            //    " <img src='/vfi/Resources/warning_icon.jpg' height='15' width='15'> " +
+            //    warning +
+            //    " <img src='/vfi/Resources/notapprove_icon.jpg' height='15' width='15'> " +
+            //    notApprove);
+            //$("#VfLateCount")[0].innerHTML = (" <img style='background-color:#F4FA58;' height='15' width='15'> " + vfLate);
+        }
     </script>
 }
 
@@ -109,13 +131,23 @@
                     columns.Bound(f => f.EmployeeRepairName).Width(150).Title("NV sửa máy");
                     columns.Bound(f => f.EmployeeQcName).Width(150).Title("NV QC");
                     columns.Bound(f => f.Note).Title("Ghi chú");
+                    columns.Bound(f => f.RunTimeStr).Width(75).Title("Thời gian<br/>máy chạy")
+                        .ClientGroupFooterTemplate("<span class='RunTimeStrs'>0</span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.RunTimePercentedStr).Width(75).Title("Máy chạy<br/>(%)")
+                        .ClientGroupFooterTemplate("<span class='RunTimePercentedStrs'>0</span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.NotRunTimePercentedStr).Width(75).Title("Máy ngưng<br/>(%)")
+                        .ClientGroupFooterTemplate("<span class='NotRunTimePercentedStrs'>0</span>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
                 })
             .Scrollable(f => f.Height(510))
             .ClientEvents(e => e.OnError("grid_OnError")
                 .OnDataBinding("grid_OnDataBinding")
+                .OnDataBound("grid_OnDataBound")
                 .OnRowSelect("grid_OnRowSelect"))
             .Filterable()
-            .Groupable()
+            .Groupable(group => group.Groups(g => g.Add(model => model.MachineName)).Visible(false))
             .Sortable()
             .Reorderable(grid => grid.Columns(true))
             .Resizable(resizing => resizing.Columns(true))

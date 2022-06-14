@@ -118,6 +118,12 @@
                         columns.Bound(f => f.IsQC).Width(45).Title("Công đoạn</br>QC")
                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsQC' <#=IsQC? checked='checked' : '' #> />")
                                .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsPacking).Width(45).Title("Công đoạn</br>đóng gói")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsPacking' <#=IsPacking? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(f => f.IsFinish).Width(45).Title("Công đoạn</br>thành phẩm")
+                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsFinish' <#=IsFinish? checked='checked' : '' #> />")
+                               .HtmlAttributes(new { style = "text-align:center" });
                         columns.Bound(f => f.IsReprocessing).Width(45).Title("Công đoạn</br>xử lý lại")
                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsReprocessing' <#=IsReprocessing? checked='checked' : '' #> />")
                                .HtmlAttributes(new { style = "text-align:center;border-right:1px solid black;" });

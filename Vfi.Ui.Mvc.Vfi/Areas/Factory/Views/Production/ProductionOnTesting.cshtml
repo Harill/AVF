@@ -208,8 +208,6 @@
                 {
                     forWarehouseId: warehouse,
                     employeeId: employee,
-                    machineId : @Model.MachineId,
-                    productId: @Model.ProductId,
                 });
         }
         
@@ -300,7 +298,7 @@
                 @{
                     Html.Telerik().DropDownList()
                         .Name("Warehouse")
-                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouseProduction", "Warehouse", new { area = "Inv" }))
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouseSameType", "Warehouse", new { area = "Inv", warehouseId = @Model.WarehouseId }))
                         //.HtmlAttributes(new { style = "width: 200px" })
                         .DropDownHtmlAttributes(new { style = "width: 150px" })
                         .Render();
@@ -365,8 +363,8 @@
             .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
-                            .Select("SelectProductionTestingProduction1", "Production", new { productId = @Model.ProductId })
-                            .Update("SaveProductionTestingProduction1", "Production", new { machineId = @Model.MachineId, productId = @Model.ProductId })
+                            .Select("SelectProductionTestingProduction1", "Production", new { productId = @Model.ProductId, warehouseId = @Model.WarehouseId })
+                            .Update("SaveProductionTestingProduction1", "Production", new { machineId = @Model.MachineId, productId = @Model.ProductId, warehouseId = @Model.WarehouseId })
               )
             .Columns(columns => {
                 //columns.Command(command =>

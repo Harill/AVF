@@ -8,9 +8,6 @@
 @section Scripts{
     <script type="text/javascript">
 
-        function grid_OnDataBound() {
-        }
-
         function grid_onEdit(e) {
 
             var dataItem = e.dataItem;
@@ -48,10 +45,12 @@
             var ca2 = $("#Ca2Name").data("tDropDownList").value();
             if (ca2 === null)
                 ca2 = "";
+            var factory = $("#Factory").data('tComboBox').value();
             args.data = $.extend(args.data, {
                 onDate: importDate,
                 ca1Name: ca1,
                 ca2Name: ca2,
+                factory: factory,
             });
         }
 
@@ -193,6 +192,17 @@
         function getMaterialUseList() {
             RefreshGrid("gridMaterialUse");
         }
+
+        function Factory_Onload() {
+            var combobox = $('#Factory').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "VF1", Value: "VF1" },
+                { Text: "VF2", Value: "VF2" }
+            ];
+
+            combobox.dataBind(dataSource);
+        }
     </script>
 }
 
@@ -243,6 +253,17 @@
                     .Render();
             }
         </div>
+            <div class="grid_2">Xưởng: </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Factory")
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .DropDownHtmlAttributes(new { style = "width: 100%" })
+                        .ClientEvents(events => events.OnLoad("Factory_Onload"))
+                        .Render();
+                }
+            </div>
         @*<div class="grid_4 prefix_15">*@
             <button id="btnGetMaterialUseList" class="t-button" onclick=" return getMaterialUseList(); ">
                 <span class='t-icon t-insert'></span>
@@ -269,8 +290,8 @@
                 )
                 .Columns(columns =>
                     {
-                        columns.Bound(f => f.MachineName).Width(60).Title("Máy").ReadOnly(true);
-                        columns.Bound(f => f.ProductCode).Width(100).Title("SP đang chạy").ReadOnly(true);
+                        columns.Bound(f => f.MachineName).Width(100).Title("Máy").ReadOnly(true);
+                        columns.Bound(f => f.ProductCode).Width(150).Title("SP đang chạy").ReadOnly(true);
                         columns.Bound(f => f.MaterialCode).Width(200).Title("Mã NL").ReadOnly(true);
                         columns.Bound(f => f.EditQuantity).Width(65).Title("NL tối đa").ReadOnly(true)
                             .HtmlAttributes(new { style = "text-align:center;border-left: 1px black solid;" });
@@ -316,8 +337,6 @@
                                             .OnSave("grid_onSave")
                                             .OnSubmitChanges("grid_onSubmitChanges")
                                             .OnError("grid_OnError")
-                                            //.OnComplete("gridOrderDetailPartial_onComplete")
-                                            .OnDataBound("grid_OnDataBound")
                 )
                 .Editable(editing => editing.Mode(GridEditMode.InCell))
                 .KeyboardNavigation(keys => keys.EditOnTab(true))

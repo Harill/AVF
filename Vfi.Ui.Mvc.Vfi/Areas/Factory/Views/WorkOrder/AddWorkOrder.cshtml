@@ -1,0 +1,463 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model EditWorkOrderModel
+@{
+    ViewBag.Title = "AddWorkOrder";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .fieldheader {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+    .fieldheader1 {
+        width: 35%;
+        min-width: 420px;
+        margin-right: 10px;
+    }
+
+    .fieldheader2 {
+        width: 55%;
+        margin-right: 10px;
+    }
+</style>
+@section Scripts{
+    <script type="text/javascript">
+        var info = {
+            Quantity: 0,
+            KnifeCut : 0,
+            WorkPiece: 0,
+            ProductivityDesign: 0,
+            Productivity: 0,
+            ProductLenght: 0,
+            ProductionRateDesign: 0,
+            ProductionRate: 0,
+            MaterialLength: 0,
+            MaterialRequirementDesign: 0,
+            MaterialRequirement: 0,
+            MaterialAvailable:0,
+            Ids: "",
+            ProductId: 0,
+            MaterialId: 0,
+            OrderDetailId: 0
+        };
+        $(document).ready(function () {
+            // map info
+            info.ProductId = @Model.ProductId
+            info.KnifeCut = @Model.Info.DC
+            info.WorkPiece = @Model.Info.PD
+            info.ProductivityDesign = @Model.Info.NS
+            info.Productivity = @Model.Info.NS
+            info.ProductLenght = @Model.Info.CDSP
+            info.ProductionRateDesign = @Model.Info.DM
+            info.ProductionRate = @Model.Info.DM
+            info.Quantity = @Model.Quantity
+            info.MaterialRequirementDesign = @Model.MaterialRequirement
+            info.MaterialRequirement = @Model.MaterialRequirement
+            info.OrderDetailId = @Model.OrderDetailId
+            //info.MaterialLength = 3000
+            //
+            $("#KnifeCut").val(info.KnifeCut);
+            $("#WorkPiece").val(info.WorkPiece);
+            $("#Productivity").val(info.Productivity);
+            $("#ProductivityDesign")[0].innerText = info.ProductLenght.format(2);
+            
+            $("#ProductLenght")[0].innerText = info.ProductLenght;
+            $("#ProductionRateDesign")[0].innerText = info.ProductionRate;
+            //$("#MaterialLength")[0].innerText = info.MaterialLength;
+
+            $("#MaterialRequirementDesign")[0].innerText = info.MaterialRequirement;
+
+        });
+
+        function grid_OnDataBinding(e) {
+            var quantity = $("#Quantity").data("tTextBox").value();
+            e.data = $.extend(e.data, {
+                quantity: quantity
+            });
+        }
+        function materialInv_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { materialInvId: e.value },
+                dataType: 'json',
+                url: '@Url.Action("GetMaterialInvInfo", "Material", new { area = "" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        $("#MaterialLength")[0].innerText = res.Data.Length;
+                        $("#MaterialInventory")[0].innerText = res.Data.TotalQty;
+                        $("#MaterialAvailable")[0].innerText = res.Data.AvailableQty;
+                        info.MaterialAvailable = res.Data.AvailableQty;
+                        info.MaterialLength = res.Data.Length;
+                        info.MaterialId = res.Data.MaterialId;
+                        CalculateProductionRate();
+                        AlertValidation();
+                    } else {
+                        alert(res.Message);
+                    }
+                }
+            });
+        }
+        function machine_OnChange(e) {
+            $.ajax({
+                type: 'post',
+                data: { machineId: e.value, productId: info.ProductId, materialId: info.MaterialId },
+                dataType: 'json',
+                url: '@Url.Action("GetLastTrackUpMachineInfo", "Machine", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        info.Productivity = res.Data.Productivity;
+                        info.KnifeCut = res.Data.KnifeCut;
+                        info.WorkPiece = res.Data.WorkPiece;
+                        $("#KnifeCut").val(info.KnifeCut);
+                        $("#KnifeCut").data("tTextBox").$text[0].innerHTML = info.KnifeCut.format(1);
+                        $("#WorkPiece").val(info.WorkPiece);
+                        $("#WorkPiece").data("tTextBox").$text[0].innerHTML = info.WorkPiece;
+                        $("#Productivity").val(info.Productivity);
+                        $("#Productivity").data("tTextBox").$text[0].innerHTML = info.Productivity.format(1);
+                        CalculateProductionRate();
+                    } else {
+                        alert(res.Message);
+                    }
+                }
+            });
+        }
+
+        function quantity_OnChange(e) {
+            var quantity = e.newValue;
+            if (quantity > info.Quantity) {
+                $("#AlertQuantity")[0].innerText = "Số lượng lớn hơn số tối đa Work Order sẽ tự động tách ra thành nhiều Work Order";
+            }
+            else {
+                $("#AlertQuantity")[0].innerText = "";
+            }
+        }
+
+        function knifeCut_OnChange(e) {
+            info.KnifeCut = e.newValue;
+            CalculateProductionRate();
+
+        }
+        function workPiece_OnChange(e) {
+            info.WorkPiece = e.newValue;
+            CalculateProductionRate();
+        }
+        function productivity_OnChange(e) {
+            info.Productivity = e.newValue;
+            AlertValidation();
+        }
+
+        function CalculateProductionRate() {
+            info.ProductionRate = ((info.MaterialLength - info.WorkPiece) / (info.ProductLenght + info.KnifeCut));
+            var temp = info.ProductionRate % Math.pow(10, 0);
+            if (temp > 0) info.ProductionRate = info.ProductionRate - temp + Math.pow(10, 0);
+            $("#ProductionRate")[0].innerText = info.ProductionRate;
+            info.MaterialRequirement = (info.Quantity / info.ProductionRate);
+            temp = info.MaterialRequirement % Math.pow(10, 0);
+            if (temp > 0) info.MaterialRequirement = info.MaterialRequirement - temp + Math.pow(10, 0);
+            $("#MaterialRequirement")[0].innerText = info.MaterialRequirement;
+
+        }
+        function AlertValidation() {
+            if (info.Productivity > info.ProductivityDesign) {
+                $("#ProductivityDesign")[0].style.backgroundColor = "yellow";
+            } else {
+                $("#ProductivityDesign")[0].style.backgroundColor = "";
+            }
+            if (info.ProductionRate < info.ProductionRateDesign) {
+                $("#ProductionRateDesign")[0].style.backgroundColor = "yellow";
+            } else {
+                $("#ProductionRateDesign")[0].style.backgroundColor = "";
+            }
+            if (info.MaterialRequirement > info.MaterialAvailable) {
+                $("#MaterialRequirement")[0].style.backgroundColor = "yellow";
+            } else {
+                $("#MaterialRequirement")[0].style.backgroundColor = "";
+            }
+        }
+    </script>
+    <script type="text/javascript">
+
+        function SaveData(active) {
+            var quantity = $("#Quantity").data('tTextBox').value();
+            if (quantity == 0) {
+                alert("Vui lòng nhập số lượng cần làm");
+                return;
+            }
+
+            var materialInvId = $("#MaterialInventoryCbo").data('tComboBox').value();
+            if (materialInvId === "") materialInvId = 0;
+            var machineId = $("#MachineCbo").data('tComboBox').value();
+            if (machineId === "") machineId = 0;
+            if (active && (materialInvId == 0 || machineId == 0)) {
+                alert("Để kích hoạt vui lòng nhập đủ thông tin: nguyên liệu, máy");
+                return;
+            }
+
+            $.ajax({
+                type: 'post',
+                data: {
+                    orderDetailId: info.OrderDetailId, quantity: quantity, materialInvId: materialInvId, machineId: machineId,
+                    productivity: info.Productivity, productionRate: info.ProductionRate,
+                    knifeCut: info.KnifeCut, workPiece: info.WorkPiece,
+                    isActive: (active == 1)
+                },
+                dataType: 'json',
+                url: '@Url.Action("SaveAddWorkOrders", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        alert("Hoàn thành lưu " + (active === 1 ? "và kích hoạt" : "") + res.Data);
+                        window.location.href = '@Url.Action("ActivateWorkOrder", "WorkOrder", new { area = "Factory" })';
+                    } else {
+                        alert(res.Message);
+                    }
+                }
+            });
+
+        }
+    </script>
+}
+
+<div class="title">Tạo thêm Work Order
+<button class="t-button" id="btnSave" name="btnSave" onclick=" SaveData(0) ">
+                <span class='t-icon t-insert' disable ="true"></span>
+                Lưu lại
+            </button>
+<button class="t-button" id="btnSave_Active" name="btnSave_Active" onclick=" SaveData(1) ">
+                <span class='t-icon t-insert'></span>
+               Lưu và kích hoạt
+</button>
+</div>
+<div class="t-info-sha fieldheader grid_6">
+    <fieldset>
+        <legend>Thông tin Work Order</legend>
+            <div class="grid_5">Mã SP: @Model.ProductCode</div>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_5">Đơn hàng: @Model.OrderNumber </div>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_5">Khách hàng: @Model.CustomerCode</div>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_5">Số lượng tối đa: @Model.Quantity</div>
+            <div class="clear"></div>
+            <br />
+    </fieldset>
+</div>
+<div class="t-info-sha fieldheader grid_7">    
+    <fieldset>
+        <legend>Danh sách Work Order</legend>
+            <div class="grid_2_5">Số lượng chạy:</div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("Quantity")
+                        .MinValue(0)
+                        .DecimalDigits(0)
+                        .Value(0)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                        .ClientEvents(events => events.OnChange("quantity_OnChange"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                <button class="t-button" onclick=" RefreshGrid('gridRouting') ">
+                    <span class='t-icon t-insert'></span>
+                    Tính
+                </button>
+            </div>
+            <div class="clear"></div>
+            <br />
+            <span id="AlertQuantity"></span>
+    </fieldset>
+</div>
+<div class="t-info-sha fieldheader grid_21">
+    <fieldset>
+        <legend>Thiết lập</legend>
+            <div class="grid_2">
+                Nguyên liệu
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("MaterialInventoryCbo")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialInventory", "Material", new { area = "" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .ClientEvents(events => events.OnChange("materialInv_OnChange"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_3"> 
+                Dài: <span id="MaterialLength">~</span> (mm)
+            </div>
+            <div class="grid_4"> 
+                Tồn kho: <span id="MaterialInventory">~</span> (cây)
+            </div>
+            <div class="grid_4"> 
+                Có thể: <span id="MaterialAvailable">~</span> (cây)
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                Máy
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("MachineCbo")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachineProductionMoreInfo", "Machine", new { area = "Factory" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 275px" })
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .ClientEvents(events => { events.OnChange("machine_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_2_5"">
+                Năng suất TK:
+            </div>
+            <div class="grid_2_5">
+                <span id="ProductivityDesign">0</span> (s/pc)
+            </div>
+            <div class="grid_2_5" style="text-align:right;">
+                Năng suất TT:
+            </div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("Productivity")
+                        .MinValue(0)
+                        .MaxValue(1000)
+                        .DecimalDigits(1)
+                        .Value(0)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                        .ClientEvents(events => { events.OnChange("productivity_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">(s/pc)</div>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_2_5">
+                Chiều dài SP:
+            </div>
+            <div class="grid_2_5">
+                 <span id="ProductLenght">~</span> (mm)
+            </div>
+            <div class="grid_2" style="text-align:right;">
+                Dao cắt :
+            </div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("KnifeCut")
+                        .MinValue(0)
+                        .MaxValue(100)
+                        .DecimalDigits(1)
+                        .Value(0)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                        .ClientEvents(events => { events.OnChange("knifeCut_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">(mm)</div>
+            <div class="grid_2" style="text-align:right;">
+                Phoi dư :
+            </div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("WorkPiece")
+                        .MinValue(0)
+                        .MaxValue(1000)
+                        .DecimalDigits(0)
+                        .Value(0)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                        .ClientEvents(events => { events.OnChange("workPiece_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">(mm)</div>
+            <div class="clear"></div>
+            <br />
+        
+            <div class="grid_2_5">
+                Định mức TK:
+            </div>
+            <div class="grid_3">
+                 <span id="ProductionRateDesign">0 </span> (pcs/cây)
+            </div>
+            <div class="grid_2_5">
+                Định mức TT:
+            </div>
+            <div class="grid_3">
+                 <span id="ProductionRate">~</span> (pcs/cây)
+            </div>
+        
+            <div class="clear"></div>
+            <br />
+            <div class="grid_2_5">
+               Yêu cầu NL TK:
+            </div>
+            <div class="grid_3">
+                 <span id="MaterialRequirementDesign">~</span> (cây)
+            </div>
+            <div class="grid_2_5">
+               Yêu cầu NL TT:
+            </div>
+            <div class="grid_3">
+                 <span id="MaterialRequirement">~</span> (cây)
+            </div>
+    </fieldset>
+</div>
+
+<div class="clear"></div>
+<br />
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("gridRouting")
+            .DataKeys(key => key.Add(f => f.RoutingId).RouteKey("routingId"))
+            //.ToolBar(
+            //                            toolbar =>
+            //                            toolbar.Insert().Text("Thêm công đoạn mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                        .Select("SelectWorkOrderRoutingByOrderDetail", "WorkOrder", new { area = "Factory", orderDetailId = @Model.OrderDetailId, quantity = 0 })
+            )
+            .Columns(columns => {
+                columns.Bound(f => f.RoutingIndex).Width(70).Title("STT");
+                columns.Bound(f => f.RoutingName).Width(200).Title("Công đoạn");
+                columns.Bound(f => f.PlannedCost).Width(100).Title("Số lượng")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.ActualResourceHrs).Width(200).Title("Thời gian TH(h)")
+                    .Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align:center;" });
+                columns.Bound(f => f.MoreInfo).Title("Mô tả");
+            })
+            .ClientEvents(events => events.OnError("grid_OnError")
+                                            .OnDataBinding("grid_OnDataBinding"))
+            .Selectable()
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Render();
+    }
+</div>

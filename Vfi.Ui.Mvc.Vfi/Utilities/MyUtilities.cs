@@ -268,19 +268,6 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return str;
             }
 
-            public static List<int> StringToIds(string ids) {
-                var list = new List<int>();
-                if (string.IsNullOrWhiteSpace(ids)) return list;
-                var strIds = ids.Split(SplitChar);
-                try {
-                    foreach (var strId in strIds) {
-                        list.Add(Convert.ToInt32(strId));
-                    }
-                }
-                catch (Exception ex) { }
-                return list;
-            }
-
             public static string IdsToString(List<int> ids, Char splitChar) {
                 var str = "";
                 if (!ids.Any()) return str;
@@ -291,6 +278,19 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return str;
             }
 
+            public static List<int> StringToIds(string ids) {
+                var list = new List<int>();
+                if (string.IsNullOrWhiteSpace(ids)) return list;
+                var strIds = ids.Split(SplitChar);
+                try {
+                    foreach (var strId in strIds) {
+                        list.Add(Convert.ToInt32(strId));
+                    }
+                }
+                catch (Exception ex) { throw ex; }
+                return list;
+            }
+
             public static List<int> StringToIds(string ids, Char splitChar) {
                 var list = new List<int>();
                 if (string.IsNullOrWhiteSpace(ids)) return list;
@@ -298,6 +298,18 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 try {
                     foreach (var strId in strIds) {
                         list.Add(Convert.ToInt32(strId));
+                    }
+                }
+                catch (Exception ex) { throw ex; }
+                return list;
+            }
+            public static List<long> StringToBigIds(string ids, Char splitChar) {
+                var list = new List<long>();
+                if (string.IsNullOrWhiteSpace(ids)) return list;
+                var strIds = ids.Split(splitChar);
+                try {
+                    foreach (var strId in strIds) {
+                        list.Add(Convert.ToInt64(strId));
                     }
                 }
                 catch (Exception ex) { throw ex; }
@@ -509,9 +521,11 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public class MyJsonResult {
                 public int Code { get; set; }
                 public string Message { get; set; }
-                public MyJsonResult( int code, string message ) {
+                public Object Data { get; set; }
+                public MyJsonResult( int code, string message, Object data ) {
                     this.Code = code;
                     this.Message = message;
+                    if (data != null) this.Data = data;
                 }
             }
             public enum ErrorCode {
@@ -635,25 +649,31 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                 DayTiming = "DayTiming",
                                 BaseInventoryPriceRate = "BaseInventoryPriceRate",
                                 BaseProductionPriceRate = "BaseProductionPriceRate",
-                                ExchangeToVndRate = "ExchangeToVndRate";
+                                ExchangeToVndRate = "ExchangeToVndRate",
+                                WorkOrderTolerance = "WorkOrderTolerance",
+                                MaterialWorkPieceDesign = "MaterialWorkPieceDesign",
+                                PackingProductivity = "PackingProductivity";
 
             public static double GetParameterValue(string param) {
                 var value = 0.0;
-                using (var vfi = new vfiContext()) {
-                    var paramValue = vfi.Parameters.FirstOrDefault(p => p.ParamCode.Equals(param));
-                    if (paramValue == null) {
-                        paramValue = new Parameter() {
-                            ParamCode = param,
-                            Name = param,
-                            Value = "0",
-                            ModifiedDate = DateTime.Now
+                try {
+                    using (var vfi = new vfiContext()) {
+                        var paramValue = vfi.Parameters.FirstOrDefault(p => p.ParamCode.Equals(param));
+                        if (paramValue == null) {
+                            paramValue = new Parameter() {
+                                ParamCode = param,
+                                Name = param,
+                                Value = "0",
+                                ModifiedDate = DateTime.Now
 
-                        };
-                        vfi.Parameters.Add(paramValue);
-                        vfi.SaveChanges();
+                            };
+                            vfi.Parameters.Add(paramValue);
+                            vfi.SaveChanges();
+                        }
+                        value = Convert.ToDouble(paramValue.Value);
                     }
-                    value = Convert.ToDouble(paramValue.Value);
                 }
+                catch (Exception) { }
                 return value;
             }
         }
@@ -661,7 +681,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
         #region machine
         public static class Machine {
-
+            public static string FactoryVF2 = "VF2";
             public static class Diagram {
                 public enum Type {
                     Cnc = 2,
@@ -821,7 +841,6 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                             ? t.DeliveryDate.Value <= date
                                             : t.StartDate <= date)
                                         || (t.StartDate <= date))
-                                    //select t
                                     select new TrackUpMachineModel() {
                                         MachineId = t.MachineId,
                                         MachineName = t.Machine.MachineName,
@@ -2046,50 +2065,21 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             }
 
             public static double GetProductInvWeight(int productId, int warehouseId) {
-                var weight = 0.0;
+                if (warehouseId == 0) return 0;
                 using (var vfi = new vfiContext()) {
                     var product = vfi.Products.FirstOrDefault(p => p.ProductId == productId);
-                    if (product == null)
-                        return weight;
-                    switch (warehouseId) {
-                        //        1	NULL	Kho SX 1
-                        case (int)Warehouse.Id.Production1:
-                            weight = product.ProductionWeight ?? 0;
-                            break;
-                        //2	NULL	Kho SX 2/ CNC
-                        case (int)Warehouse.Id.Cnc:
-                            weight = product.CncWeight ?? 0;
-                            break;
-                        case (int)Warehouse.Id.Production2:
-                        case (int)Warehouse.Id.Production2B:
-                        case (int)Warehouse.Id.Production2C:
-                        case (int)Warehouse.Id.Production2D:
-                            weight = product.Production2Weight ?? 0;
-                            break;
-                        //3	NULL	Chờ nhiệt luyện
-                        case (int)Warehouse.Id.HeatTreatment:
-                            weight = product.HeatTreatmentWeight ?? 0;
-                            break;
-                        //4	NULL	Chờ rung bóng
-                        case (int)Warehouse.Id.SurfaceTreatment:
-                            weight = product.SurfaceTreatmentWeight ?? 0;
-                            break;
-                        //5	NULL	Chờ GCN
-                        case (int)Warehouse.Id.WaitingPlating:
-                            weight = product.WaitingPlatingWeight ?? 0;
-                            break;
-                        //6	NULL	Kho nhà cung ứng
-                        case (int)Warehouse.Id.Plating:
-                        case (int)Warehouse.Id.PlatingTest:
-                            weight = product.PlatingWeight ?? 0;
-                            break;
-                        default:
-                            weight = product.QcWeight ?? 0;
-                            break;
-                    }
+                    var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                    if (product == null || warehouse == null) return 0;
+                    if (warehouse.IsProduction) return product.ProductionWeight ?? 0;
+                    if (warehouse.IsCncMilling) return product.CncWeight ?? 0;
+                    if (warehouse.IsProduction2 || warehouse.IsProduction2Process) return product.Production2Weight ?? 0;
+                    if (warehouse.IsProduction2Process) return product.Production2Weight ?? 0;
+                    if (warehouse.IsHeatTreatment) return product.HeatTreatmentWeight ?? 0;
+                    if (warehouse.IsPolish) return product.SurfaceTreatmentWeight ?? 0;
+                    if (warehouse.IsPlating) return product.WaitingPlatingWeight ?? 0;
+                    // qc - packing - finish - re-process
+                    return product.QcWeight ?? 0;
                 }
-
-                return weight;
             }
 
             public static List<CalculatedProductProcess> GetCalculatedProductionProcess(int productId) {
@@ -2543,6 +2533,44 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 if (!string.IsNullOrWhiteSpace(toolProduction))
                     str += ("-" + toolProduction);
                 return str;
+            }
+        }
+        #endregion
+
+        #region work order
+        public static class WorkOrder {
+            public enum Status {
+                Pending = 1,
+                Actived = 2,
+                InProcess = 3,
+                Finish = 4,
+                Cancel = 9,
+            }
+            public static string GetText(int status) {
+                var rs = "";
+
+                switch (status) {
+                    case (byte)Status.Pending:
+                        rs = "Đang chờ";
+                        break;
+                    case (byte)Status.Actived:
+                        rs = "Đã kích hoạt";
+                        break;
+                    case (byte)Status.InProcess:
+                        rs = "Đang xử lý";
+                        break;
+                    case (byte)Status.Finish:
+                        rs = "Hoàn thành";
+                        break;
+                    case (byte)Status.Cancel:
+                        rs = "Hủy";
+                        break;
+                    default:
+                        rs = "";
+                        break;
+                }
+
+                return rs;
             }
         }
         #endregion

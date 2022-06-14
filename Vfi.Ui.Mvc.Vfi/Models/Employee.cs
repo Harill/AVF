@@ -15,6 +15,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.SmartProduction2 = new List<SmartProduction2>();
             this.TrackingRepairEmployees = new List<TrackingRepairEmployee>();
             this.TrackingRepairEmployees1 = new List<TrackingRepairEmployee>();
+            this.WorkOrderProcesses = new List<WorkOrderProcess>();
             this.Customers = new List<Customer>();
             this.QuoteForms = new List<QuoteForm>();
             this.Orders = new List<Order>();
@@ -39,6 +40,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<SmartProduction2> SmartProduction2 { get; set; }
         public virtual ICollection<TrackingRepairEmployee> TrackingRepairEmployees { get; set; }
         public virtual ICollection<TrackingRepairEmployee> TrackingRepairEmployees1 { get; set; }
+        public virtual ICollection<WorkOrderProcess> WorkOrderProcesses { get; set; }
         public virtual ICollection<Customer> Customers { get; set; }
         public virtual ICollection<QuoteForm> QuoteForms { get; set; }
         public virtual ICollection<Order> Orders { get; set; }

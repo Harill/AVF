@@ -11,20 +11,14 @@ using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
 using Telerik.Web.Mvc.Extensions;
-using Vfi.Client.Module.Inv.Interfaces;
-using Vfi.Client.Module.Production.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.IO.Ports;
-using System.Xml;
 using System.Threading;
-using System.Runtime.Caching;
-using System.Drawing.Printing;
 
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
@@ -655,7 +649,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     return Json((int)MyUtilities.Monitor.ErrorCode.NoError, JsonRequestBehavior.AllowGet);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 //ModelState.AddModelError("TransactionProductSaveDefault", "" + exception.Message);
                 return Json((int)MyUtilities.Monitor.ErrorCode.Exception, JsonRequestBehavior.AllowGet);
             }
@@ -864,11 +858,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 });
                             }
                         }
-                        catch (FormatException ex) { 
+                        catch (FormatException ex) {
                             return Json(
                                 new MyUtilities.Monitor.MyJsonResult(
-                                    (int)MyUtilities.Monitor.ErrorCode.ReferenceError, 
-                                    "Lỗi data id")); 
+                                    (int)MyUtilities.Monitor.ErrorCode.ReferenceError,
+                                    "Lỗi data id", 
+                                    null)); 
                         }
 
                         var weighingIds = transaction.TransactionDetails.Select(x => x.DrawerId).Distinct().ToList();
@@ -900,18 +895,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             vfi.Transactions.Add(transaction);
                             vfi.SaveChanges();
                             return Json(
-                                new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, ""),
+                                new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "", null),
                                 JsonRequestBehavior.AllowGet);
                         }
                     }
                 }
                 catch (Exception exception) {
                     return Json(
-                          new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.Exception, exception.Message),
+                          new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.Exception, exception.Message, null),
                          JsonRequestBehavior.AllowGet);
                 }
             return Json(
-                new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotImplement, "Không có gì xảy ra"), 
+                new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotImplement, "Không có gì xảy ra", null), 
                 JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -1513,6 +1508,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                             vfi.SaveChanges();
                             DeActiveInventoryOnShelf(invIdsEmpty);
+                            UpdateStatusWorkOrderRoutingMaterial(exportMaterial.ExportId);
                         }
                     //}
                 }
@@ -1523,6 +1519,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     Json(@"Lỗi giá trị nhập. (try-catch). " + exception.Message + "\n");
             }
             return Json("okie");
+        }
+
+        public void UpdateStatusWorkOrderRoutingMaterial(long exportId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var exportDetailIds = vfi.ExportMaterialDetails.Where(x => x.ExportId == exportId).Select(x=> x.ExportDetailId).ToList();
+                    var processes = vfi.WorkOrderProcesses.Where(x => exportDetailIds.Contains(x.ReferenceDetailId));
+                    foreach (var process in processes) {
+                        process.Status = (byte)MyUtilities.WorkOrder.Status.Finish;
+                        process.WorkOrderRouting.Status = (byte)MyUtilities.WorkOrder.Status.Finish;
+                        if (process.WorkOrderRouting.NextRouteId != null) {
+                            process.WorkOrderRouting.WorkOrderRouting2.Status = (byte)MyUtilities.WorkOrder.Status.Actived;
+                        }
+                        process.WorkOrderRouting.ActualCost += process.GoodQuantity;
+                    }
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
         }
 
         public void DeActiveInventoryOnShelf(List<int> materialInvIds) {
@@ -1830,7 +1847,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         //bool checkInventory = isExportTP || isChangeQuantity;
                         transaction.Status = (byte)MyUtilities.Transaction.Status.Processing;
                         vfi.SaveChanges();
-                        var approve = ApproveTransactionProduct(transaction.TransactionId,
+                        var approve = UpdateApproveTransactionProduct(transaction.TransactionId,
                                                                 !(isExportTP || isChangeQuantityTo));
                         if (!approve) {
                             return Json(@"Không thể cập nhật trạng thái lệnh. Xin vui lòng thử lại. (transaction).");
@@ -1870,7 +1887,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             transactionReturn.TransactionDetails.AddRange(transaction.TransactionDetails);
                             vfi.Transactions.Add(transactionReturn);
                             vfi.SaveChanges();
-                            approve = ApproveTransactionProduct(transactionReturn.TransactionId, false);
+                            approve = UpdateApproveTransactionProduct(transactionReturn.TransactionId, false);
                             if (!approve) {
                                 return
                                     Json(
@@ -1924,7 +1941,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             }
                             vfi.Transactions.Add(transactionReturn);
                             vfi.SaveChanges();
-                            approve = ApproveTransactionProduct(transactionReturn.TransactionId, false);
+                            approve = UpdateApproveTransactionProduct(transactionReturn.TransactionId, false);
                             if (!approve) {
                                 return
                                     Json(
@@ -2091,7 +2108,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return Json("null");
         }
 
-        private bool ApproveTransactionProduct(long transactionId, bool checkInventory) {
+        public bool UpdateApproveTransactionProduct(long transactionId, bool checkInventory) {
             bool flag = false;
             try {
                 if (!Request.IsAuthenticated)
@@ -2744,95 +2761,97 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var periods = new List<ProductInventoryPeriod>();
                     //var newInventories = new List<ProductInventory>();
                     if (transactionDefect == null) {
-                        foreach (var transactionDetail in transaction.TransactionDetails) {
-                            var productInvExport =
-                                vfi.ProductInventories.FirstOrDefault(
-                                    pi => pi.ProductInventoryId == transactionDetail.ProductInvId);
-                            if (transaction.WarehouseIssueId != null) {
-                                if (productInvExport == null)
-                                    throw new AggregateException("Lỗi! Không tìm thấy kho cần xuất");
-                                if (!isExportTP && Math.Round(productInvExport.TotalQty - transactionDetail.Quantity, 2) < 0)
-                                    throw new AggregateException("Lỗi! Tồn kho không đủ xuất " +
-                                                                 productInvExport.Product.ProductCode);
-                                var period = new ProductInventoryPeriod() {
-                                    PeriodDate = transaction.CreatedDate,
-                                    ModifiedUser = transaction.ModifiedUser,
-                                    ModifiedDate = DateTime.Now,
-                                    ProductId = productInvExport.ProductId,
-                                    ProductInvId = productInvExport.ProductInventoryId,
-                                    WarehouseId = productInvExport.WarehouseId,
-                                    Quantity = transactionDetail.Quantity,
-                                    TransactionId = transaction.TransactionId,
-                                    EarlyPeriodQuantity = productInvExport.TotalQty,
-                                    LastPeriodQuantity = productInvExport.TotalQty - transactionDetail.Quantity,
-                                    UnitMeasure = "Pcs",
-                                    UnitPrice = productInvExport.Product.UnitPrice,
-                                    LotNumber = productInvExport.LotNumber
-                                };
-                                productInvExport.TotalQty = period.LastPeriodQuantity;
-                                if (Math.Round(productInvExport.TotalQty, 2) == 0) {
-                                    productInvExport.TotalQty = 0;
-                                    productInvExport.ExportDate = DateTime.Now;
-                                }
-                                periods.Add(period);
-                            }
-                            if (transaction.WarehouseReceiptId != null) {
-                                var lotNumber = (transactionDetail.LotNumber + "").Trim();
-                                if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
-                                    lotNumber = "";
-                                }
-                                var productInvImport =
-                                    vfi.ProductInventories.FirstOrDefault(
-                                        pi => pi.WarehouseId == transaction.WarehouseReceiptId &&
-                                              pi.ProductId == transactionDetail.ReferenceId &&
-                                              pi.LotNumber.Equals(lotNumber));
-                                if (productInvImport == null) {
-                                    productInvImport = new ProductInventory {
-                                        WarehouseId = transaction.WarehouseReceiptId.Value,
-                                        ProductId = transactionDetail.ReferenceId.Value,
-                                        ImportDate = transaction.CreatedDate,
-                                        ModifiedDate = DateTime.Now,
-                                        ModifiedUser = HttpContext.User.Identity.Name,
-                                        TotalQty = 0,
-                                        LotNumber = lotNumber,
-                                        ErrorId = transactionDetail.ErrorId,
-                                        DefectId = transactionDetail.DefectId,
-                                        ByProcessMachineId = transactionDetail.NextProcessId,
-                                        MachineId = transactionDetail.MachineId,
-                                        StoreCode = transactionDetail.StoreCode,
-                                        Active = true
-                                    };
-                                    if (productInvExport != null) {
-                                        productInvImport.MaterialInvId = productInvExport.MaterialInvId;
-                                        productInvImport.MachineId = productInvExport.MachineId;
-                                    }
-                                    vfi.ProductInventories.Add(productInvImport);
-                                    vfi.SaveChanges();
-                                }
-                                productInvImport.ExportDate = null;
-                                var period = new ProductInventoryPeriod() {
-                                    PeriodDate = transaction.CreatedDate,
-                                    ModifiedUser = HttpContext.User.Identity.Name,
-                                    ModifiedDate = DateTime.Now,
-                                    ProductId = productInvImport.ProductId,
-                                    ProductInvId = productInvImport.ProductInventoryId,
-                                    WarehouseId = productInvImport.WarehouseId,
-                                    Quantity = transactionDetail.Quantity,
-                                    TransactionId = transaction.TransactionId,
-                                    EarlyPeriodQuantity = productInvImport.TotalQty,
-                                    LastPeriodQuantity = productInvImport.TotalQty + transactionDetail.Quantity,
-                                    UnitMeasure = "Pcs",
-                                    UnitPrice = transactionDetail.Product.UnitPrice,
-                                    LotNumber = lotNumber
-                                };
-                                productInvImport.TotalQty = period.LastPeriodQuantity;
-                                periods.Add(period);
-                            }
-                        }
-                        transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
-                        //vfi.ProductInventories.AddRange(newInventories);
-                        vfi.ProductInventoryPeriods.AddRange(periods);
-                        vfi.SaveChanges();
+                        UpdateProductInvByTransaction(entity.TransactionId, HttpContext.User.Identity.Name);
+
+                        //foreach (var transactionDetail in transaction.TransactionDetails) {
+                        //    var productInvExport =
+                        //        vfi.ProductInventories.FirstOrDefault(
+                        //            pi => pi.ProductInventoryId == transactionDetail.ProductInvId);
+                        //    if (transaction.WarehouseIssueId != null) {
+                        //        if (productInvExport == null)
+                        //            throw new AggregateException("Lỗi! Không tìm thấy kho cần xuất");
+                        //        if (!isExportTP && Math.Round(productInvExport.TotalQty - transactionDetail.Quantity, 2) < 0)
+                        //            throw new AggregateException("Lỗi! Tồn kho không đủ xuất " +
+                        //                                         productInvExport.Product.ProductCode);
+                        //        var period = new ProductInventoryPeriod() {
+                        //            PeriodDate = transaction.CreatedDate,
+                        //            ModifiedUser = transaction.ModifiedUser,
+                        //            ModifiedDate = DateTime.Now,
+                        //            ProductId = productInvExport.ProductId,
+                        //            ProductInvId = productInvExport.ProductInventoryId,
+                        //            WarehouseId = productInvExport.WarehouseId,
+                        //            Quantity = transactionDetail.Quantity,
+                        //            TransactionId = transaction.TransactionId,
+                        //            EarlyPeriodQuantity = productInvExport.TotalQty,
+                        //            LastPeriodQuantity = productInvExport.TotalQty - transactionDetail.Quantity,
+                        //            UnitMeasure = "Pcs",
+                        //            UnitPrice = productInvExport.Product.UnitPrice,
+                        //            LotNumber = productInvExport.LotNumber
+                        //        };
+                        //        productInvExport.TotalQty = period.LastPeriodQuantity;
+                        //        if (Math.Round(productInvExport.TotalQty, 2) == 0) {
+                        //            productInvExport.TotalQty = 0;
+                        //            productInvExport.ExportDate = DateTime.Now;
+                        //        }
+                        //        periods.Add(period);
+                        //    }
+                        //    if (transaction.WarehouseReceiptId != null) {
+                        //        var lotNumber = (transactionDetail.LotNumber + "").Trim();
+                        //        if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
+                        //            lotNumber = "";
+                        //        }
+                        //        var productInvImport =
+                        //            vfi.ProductInventories.FirstOrDefault(
+                        //                pi => pi.WarehouseId == transaction.WarehouseReceiptId &&
+                        //                      pi.ProductId == transactionDetail.ReferenceId &&
+                        //                      pi.LotNumber.Equals(lotNumber));
+                        //        if (productInvImport == null) {
+                        //            productInvImport = new ProductInventory {
+                        //                WarehouseId = transaction.WarehouseReceiptId.Value,
+                        //                ProductId = transactionDetail.ReferenceId.Value,
+                        //                ImportDate = transaction.CreatedDate,
+                        //                ModifiedDate = DateTime.Now,
+                        //                ModifiedUser = HttpContext.User.Identity.Name,
+                        //                TotalQty = 0,
+                        //                LotNumber = lotNumber,
+                        //                ErrorId = transactionDetail.ErrorId,
+                        //                DefectId = transactionDetail.DefectId,
+                        //                ByProcessMachineId = transactionDetail.NextProcessId,
+                        //                MachineId = transactionDetail.MachineId,
+                        //                StoreCode = transactionDetail.StoreCode,
+                        //                Active = true
+                        //            };
+                        //            if (productInvExport != null) {
+                        //                productInvImport.MaterialInvId = productInvExport.MaterialInvId;
+                        //                productInvImport.MachineId = productInvExport.MachineId;
+                        //            }
+                        //            vfi.ProductInventories.Add(productInvImport);
+                        //            vfi.SaveChanges();
+                        //        }
+                        //        productInvImport.ExportDate = null;
+                        //        var period = new ProductInventoryPeriod() {
+                        //            PeriodDate = transaction.CreatedDate,
+                        //            ModifiedUser = HttpContext.User.Identity.Name,
+                        //            ModifiedDate = DateTime.Now,
+                        //            ProductId = productInvImport.ProductId,
+                        //            ProductInvId = productInvImport.ProductInventoryId,
+                        //            WarehouseId = productInvImport.WarehouseId,
+                        //            Quantity = transactionDetail.Quantity,
+                        //            TransactionId = transaction.TransactionId,
+                        //            EarlyPeriodQuantity = productInvImport.TotalQty,
+                        //            LastPeriodQuantity = productInvImport.TotalQty + transactionDetail.Quantity,
+                        //            UnitMeasure = "Pcs",
+                        //            UnitPrice = transactionDetail.Product.UnitPrice,
+                        //            LotNumber = lotNumber
+                        //        };
+                        //        productInvImport.TotalQty = period.LastPeriodQuantity;
+                        //        periods.Add(period);
+                        //    }
+                        //}
+                        //transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
+                        ////vfi.ProductInventories.AddRange(newInventories);
+                        //vfi.ProductInventoryPeriods.AddRange(periods);
+                        //vfi.SaveChanges();
                     }
                     else {
                          foreach (var transactionDetail in transaction.TransactionDetails) {
@@ -3276,6 +3295,106 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(GetWaitingProductTransactions()));
         }
 
+        public int UpdateProductInvByTransaction(long transactionId, string userName) {
+            if (transactionId == 0) return 0;
+            var saved = 0;
+            using (var vfi = new tammaContext()) {
+                var transaction = vfi.Transactions.FirstOrDefault(x => x.TransactionId == transactionId);
+                var periods = new List<ProductInventoryPeriod>();
+                foreach (var transactionDetail in transaction.TransactionDetails) {
+                    var productInvExport =
+                        vfi.ProductInventories.FirstOrDefault(
+                            pi => pi.ProductInventoryId == transactionDetail.ProductInvId);
+                    if (transaction.WarehouseIssueId != null) {
+                        if (productInvExport == null) {
+                            throw new AggregateException("Lỗi! Không tìm thấy kho cần xuất");
+                        }
+                        if (Math.Round(productInvExport.TotalQty - transactionDetail.Quantity, 2) < 0) {
+                            throw new AggregateException("Lỗi! Tồn kho không đủ xuất " +
+                                                         productInvExport.Product.ProductCode);
+                        }
+                        var period = new ProductInventoryPeriod() {
+                            PeriodDate = transaction.CreatedDate,
+                            ModifiedUser = userName,
+                            ModifiedDate = DateTime.Now,
+                            ProductId = productInvExport.ProductId,
+                            ProductInvId = productInvExport.ProductInventoryId,
+                            WarehouseId = productInvExport.WarehouseId,
+                            Quantity = transactionDetail.Quantity,
+                            TransactionId = transaction.TransactionId,
+                            EarlyPeriodQuantity = productInvExport.TotalQty,
+                            LastPeriodQuantity = productInvExport.TotalQty - transactionDetail.Quantity,
+                            UnitMeasure = "Pcs",
+                            UnitPrice = productInvExport.Product.UnitPrice,
+                            LotNumber = productInvExport.LotNumber
+                        };
+                        productInvExport.TotalQty = period.LastPeriodQuantity;
+                        if (Math.Round(productInvExport.TotalQty, 2) == 0) {
+                            productInvExport.TotalQty = 0;
+                            productInvExport.ExportDate = DateTime.Now;
+                        }
+                        periods.Add(period);
+                    }
+                    if (transaction.WarehouseReceiptId != null) {
+                        var lotNumber = (transactionDetail.LotNumber + "").Trim();
+                        if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
+                            lotNumber = "";
+                        }
+                        var productInvImport =
+                            vfi.ProductInventories.FirstOrDefault(
+                                pi => pi.WarehouseId == transaction.WarehouseReceiptId &&
+                                      pi.ProductId == transactionDetail.ReferenceId &&
+                                      pi.LotNumber.Equals(lotNumber));
+                        if (productInvImport == null) {
+                            productInvImport = new ProductInventory {
+                                WarehouseId = transaction.WarehouseReceiptId.Value,
+                                ProductId = transactionDetail.ReferenceId.Value,
+                                ImportDate = transaction.CreatedDate,
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = userName,
+                                TotalQty = 0,
+                                LotNumber = lotNumber,
+                                ErrorId = transactionDetail.ErrorId,
+                                DefectId = transactionDetail.DefectId,
+                                ByProcessMachineId = transactionDetail.NextProcessId,
+                                MachineId = transactionDetail.MachineId,
+                                StoreCode = transactionDetail.StoreCode,
+                                Active = true,
+                            };
+                            if (productInvExport != null) {
+                                productInvImport.MaterialInvId = productInvExport.MaterialInvId;
+                                productInvImport.MachineId = productInvExport.MachineId;
+                            }
+                            vfi.ProductInventories.Add(productInvImport);
+                            vfi.SaveChanges();
+                        }
+                        productInvImport.ExportDate = null;
+                        var period = new ProductInventoryPeriod() {
+                            PeriodDate = transaction.CreatedDate,
+                            ModifiedUser = userName,
+                            ModifiedDate = DateTime.Now,
+                            ProductId = productInvImport.ProductId,
+                            ProductInvId = productInvImport.ProductInventoryId,
+                            WarehouseId = productInvImport.WarehouseId,
+                            Quantity = transactionDetail.Quantity,
+                            TransactionId = transaction.TransactionId,
+                            EarlyPeriodQuantity = productInvImport.TotalQty,
+                            LastPeriodQuantity = productInvImport.TotalQty + transactionDetail.Quantity,
+                            UnitMeasure = "Pcs",
+                            UnitPrice = transactionDetail.Product.UnitPrice,
+                            LotNumber = lotNumber
+                        };
+                        productInvImport.TotalQty = period.LastPeriodQuantity;
+                        periods.Add(period);
+                    }
+                }
+                transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
+                //vfi.ProductInventories.AddRange(newInventories);
+                vfi.ProductInventoryPeriods.AddRange(periods);
+                vfi.SaveChanges();
+            }
+            return saved;
+        }
 
         [HttpPost]
         public ActionResult Save(IEnumerable<HttpPostedFileBase> attachments) {
@@ -8783,31 +8902,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.MaterialUse1 = useDetail.EditQuantity2;
                         entity.BoxNumber = MyUtilities.Function.RoundUp(entity.MaterialUse1);
                         var lastTrack = MyUtilities.Machine.LastTrackUpMachine(entity.MachineId, entity.MaterialId, null, date);
-                        //var lastTrack =
-                        //    (from t in vfi.TrackUpMachines
-                        //     where
-                        //     t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                        //     t.MachineId == entity.MachineId &&
-                        //     ((t.DeliveryDate != null ? t.DeliveryDate.Value <= date : t.StartDate <= date) ||
-                        //      (t.StartDate <= date)) &&
-                        //     t.MaterialId == entity.MaterialId
-                        //     select new {
-                        //         t.MachineId,
-                        //         t.ProductId,
-                        //         t.Product,
-                        //         t.Product.ProductCode,
-                        //         t.RealProductivity,
-                        //         t.RealRate,
-                        //         t.TrackUpMaterials,
-                        //         t.MaterialId,
-                        //         t.Material,
-                        //         t.WorkPiece,
-                        //         t.KnifeCut,
-                        //         Length = t.Product.Length ?? 0,
-                        //         Date = t.DeliveryDate != null ? t.DeliveryDate.Value : t.StartDate
-                        //     })
-                        //    .OrderByDescending(t => t.Date)
-                        //    .FirstOrDefault();
                         if (lastTrack != null) {
                             if (lastTrack.ProductId == 1512) {
                                 var lastProduction =
@@ -8818,6 +8912,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     entity.ProductCode = lastProduction.Product.ProductCode;
                                     entity.ProductWeight = lastProduction.Product.ProductionWeight ?? 0;
                                     entity.Length = lastProduction.Product.Length ?? 0;
+                                    entity.UnitMeasure = lastProduction.UnitMeasure;
                                     var nextProcess =
                                         lastProduction.Product.ProductionProcesses.Where(p => p.WarehouseId != 1 && p.IsNecessary)
                                                  .OrderBy(p => p.ProcessIndex).FirstOrDefault();
@@ -8825,7 +8920,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     entity.WarehouseExportId = nextProcess.WarehouseId;
                                     entity.WarehouseExportName = nextProcess.Warehouse.ShortName;
                                 }
-
                             }
                             else {
                                 entity.ProductId = lastTrack.ProductId;
@@ -8942,7 +9036,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectMaterialInvOnMachineToUse(string onDate, string ca1Name, string ca2Name) {
+        public ActionResult SelectMaterialInvOnMachineToUse(string onDate, string ca1Name, string ca2Name, string factory) {
             if (string.IsNullOrWhiteSpace(onDate))
                 return View(new GridModel(new List<MaterialUseInShiftDetailModel>()));
             if (string.IsNullOrWhiteSpace(ca1Name) && string.IsNullOrWhiteSpace(ca2Name))
@@ -8952,7 +9046,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var date = Convert.ToDateTime(onDate, ci);
             //var earlyDate = new DateTime(date.Year, date.Month, date.Day).AddSeconds(-1);
             using (var vfi = new tammaContext()) {
-                var assignMaterials = from ed in vfi.ExportMaterialDetails
+                var assignMaterials = (from ed in vfi.ExportMaterialDetails
                                       where
                                           //am.ShiftType == 1 &&
                                           //am.ShiftName.Equals(ca1Name) &&
@@ -8964,12 +9058,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           ed.MachineId,
                                           ed.MaterialInvId,
                                           ed.Quantity
-                                      };
-                var materialOnMachines =
-                    vfi.MaterialInvOnMachines.Where(mim => Math.Round(mim.TotalQuantity, 2) > 0);
-                var waitingUses = from mud in vfi.MaterialUseDetails
-                                  where mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Open
-                                  select mud;
+                                      }).ToList();
+                var materialOnMachines = vfi.MaterialInvOnMachines.Where(mim => Math.Round(mim.TotalQuantity, 2) > 0);
+                if (!string.IsNullOrWhiteSpace(factory)) {
+                    if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                        materialOnMachines = materialOnMachines.Where(x => x.Machine.MachineName.Contains(MyUtilities.Machine.FactoryVF2));
+                    }
+                    else {
+                        materialOnMachines = materialOnMachines.Where(x => !x.Machine.MachineName.Contains(MyUtilities.Machine.FactoryVF2));
+                    }
+                }
+                var waitingUses = (from mud in vfi.MaterialUseDetails
+                                   where mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Open
+                                   select new {
+                                       mud.MachineId,
+                                       mud.MaterialInvId,
+                                       mud.EditQuantity,
+                                       mud.EditQuantity2
+                                   }).ToList();
                 foreach (var materialInvOnMachine in materialOnMachines) {
                     var entity = new MaterialUseInShiftDetailModel {
                         MachineId = materialInvOnMachine.MachineId.Value,
@@ -8991,17 +9097,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (assign.Any()) {
                         entity.AssignQuantity = assign.Sum(ed => ed.Quantity);
                     }
-                    var lastTrack =
-                        vfi.TrackUpMachines.Where(
-                            t =>
-                            t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                            t.MachineId == entity.MachineId && t.DeliveryDate <= date &&
-                            t.MaterialId == materialInvOnMachine.MaterialInventory.MaterialId)
-                           .OrderByDescending(t => t.DeliveryDate)
-                           .FirstOrDefault();
+                    //var lastTrack =
+                    //    vfi.TrackUpMachines.Where(
+                    //        t =>
+                    //        t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                    //        t.MachineId == entity.MachineId && t.DeliveryDate <= date &&
+                    //        t.MaterialId == materialInvOnMachine.MaterialInventory.MaterialId)
+                    //       .OrderByDescending(t => t.DeliveryDate)
+                    //       .FirstOrDefault();
+                    var lastTrack = MyUtilities.Machine.LastTrackUpMachine(entity.MachineId, materialInvOnMachine.MaterialInventory.MaterialId, null, date);
                     if (lastTrack != null) {
-                        entity.ProductCode = lastTrack.Product.ProductCode;
-                        var realRate = MyUtilities.Product.GetProductRate(3000, lastTrack.WorkPiece, lastTrack.Product.Length ?? 0, lastTrack.KnifeCut);
+                        entity.ProductCode = lastTrack.ProductCode;
+                        var realRate = MyUtilities.Product.GetProductRate(3000, lastTrack.WorkPiece, lastTrack.ProductLength, lastTrack.KnifeCut);
                         entity.EditQuantity =
                                 MyUtilities.Product.GetMaterialRateInFactoryFullShiftTime(
                                                             lastTrack.RealProductivity,
@@ -10663,7 +10770,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     ModelState.AddModelError("UpdateSavedImportProduction1", exception.Message);
                 }
             }
-            return View(new GridModel(new List<ImportSX1DetailModel>()));
+            return SelectSavedOpenProduction1(importId);
         }
 
         [HttpPost]
@@ -10801,27 +10908,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 MachineId = detail.MachineId
                             };
                             transactionSX1.TransactionDetails.Add(transactionDetailSX1);
-                            var productInv =
-                                vfi.ProductInventories.FirstOrDefault(
-                                    pi =>
-                                        pi.WarehouseId == MyUtilities.Warehouse.Production1 &&
-                                        pi.ProductId == detail.ProductId &&
-                                        pi.LotNumber.Equals(detail.LotNumber));
-                            if (productInv == null) {
-                                productInv = new ProductInventory {
-                                    WarehouseId = MyUtilities.Warehouse.Production1,
-                                    ProductId = detail.ProductId,
-                                    ImportDate = transactionSX1.CreatedDate,
-                                    ModifiedDate = DateTime.Now,
-                                    ModifiedUser = HttpContext.User.Identity.Name,
-                                    TotalQty = 0,
-                                    LotNumber = detail.LotNumber,
-                                    MachineId = detail.MachineId,
-                                    MaterialInvId = detail.MaterialInvId,
-                                };
-                                vfi.ProductInventories.Add(productInv);
-                                vfi.SaveChanges();
-                            }
+                            //var productInv =
+                            //    vfi.ProductInventories.FirstOrDefault(
+                            //        pi =>
+                            //            pi.WarehouseId == MyUtilities.Warehouse.Production1 &&
+                            //            pi.ProductId == detail.ProductId &&
+                            //            pi.LotNumber.Equals(detail.LotNumber));
+                            //if (productInv == null) {
+                            //    productInv = new ProductInventory {
+                            //        WarehouseId = MyUtilities.Warehouse.Production1,
+                            //        ProductId = detail.ProductId,
+                            //        ImportDate = transactionSX1.CreatedDate,
+                            //        ModifiedDate = DateTime.Now,
+                            //        ModifiedUser = HttpContext.User.Identity.Name,
+                            //        TotalQty = 0,
+                            //        LotNumber = detail.LotNumber,
+                            //        MachineId = detail.MachineId,
+                            //        MaterialInvId = detail.MaterialInvId,
+                            //    };
+                            //    vfi.ProductInventories.Add(productInv);
+                            //    vfi.SaveChanges();
+                            //}
                         }
                         if (detail.DefectProduct1 + detail.DefectProduct2 > 0) {
                             var transactionDetailPP = new Vfi.Models.TransactionDetail {
@@ -11066,32 +11173,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.MaterialId, 
                             entity.ProductId, 
                             importProduction1.MaterialUseDate);
-                        //var lastTrack =
-                        //    (from t in vfi.TrackUpMachines
-                        //     where
-                        //     t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                        //     t.MachineId == entity.MachineId &&
-                        //     t.ProductId == entity.ProductId &&
-                        //     ((t.DeliveryDate != null ? t.DeliveryDate.Value <= importProduction1.MaterialUseDate : t.StartDate <= importProduction1.MaterialUseDate) ||
-                        //      (t.StartDate <= importProduction1.MaterialUseDate)) &&
-                        //     t.MaterialId == entity.MaterialId
-                        //     select new {
-                        //         t.MachineId,
-                        //         t.ProductId,
-                        //         t.Product,
-                        //         t.Product.ProductCode,
-                        //         t.RealProductivity,
-                        //         t.RealRate,
-                        //         t.TrackUpMaterials,
-                        //         t.MaterialId,
-                        //         t.Material,
-                        //         t.WorkPiece,
-                        //         t.KnifeCut,
-                        //         Length = t.Product.Length ?? 0,
-                        //         Date = t.DeliveryDate != null ? t.DeliveryDate.Value : t.StartDate
-                        //     })
-                        //    .OrderByDescending(t => t.Date)
-                        //    .FirstOrDefault();
                         if (lastTrack != null) {
                             if (lastTrack.ProductId == 1512) {
                                 var lastProduction =

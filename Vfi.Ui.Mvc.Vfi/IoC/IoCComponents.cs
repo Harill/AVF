@@ -2,14 +2,6 @@
 using Microsoft.Practices.Unity;
 using Vfi.Client.Module.Authentication.Interfaces;
 using Vfi.Client.Module.Authentication.Services;
-using Vfi.Client.Module.Inv.Interfaces;
-using Vfi.Client.Module.Inv.Services;
-using Vfi.Client.Module.Production.Interfaces;
-using Vfi.Client.Module.Production.Services;
-using Vfi.Client.Module.Purchasing.Interfaces;
-using Vfi.Client.Module.Purchasing.Services;
-using Vfi.Client.Module.Sales.Interfaces;
-using Vfi.Client.Module.Sales.Services;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Server.Core.Infrastructure.RepositoryImpl;
 using Vfi.Server.Core.Infrastructure.RepositoryImpl.Inv;
@@ -80,15 +72,15 @@ namespace Vfi.Ui.Mvc.Vfi.IoC
 
             // UnitMeasure
             container.RegisterType<IUnitMeasureRepository, UnitMeasureRepository>(new HttpContextLifetimeManager<IUnitMeasureRepository>());
-            container.RegisterType<IUnitMeasureService, UnitMeasureService>(new HttpContextLifetimeManager<IUnitMeasureService>());
+            //container.RegisterType<IUnitMeasureService, UnitMeasureService>(new HttpContextLifetimeManager<IUnitMeasureService>());
 
             // Currency
             container.RegisterType<ICurrencyRepository, CurrencyRepository>(new HttpContextLifetimeManager<ICurrencyRepository>());
-            container.RegisterType<ICurrencyService, CurrencyService>(new HttpContextLifetimeManager<ICurrencyService>());
+            //container.RegisterType<ICurrencyService, CurrencyService>(new HttpContextLifetimeManager<ICurrencyService>());
 
             // Material
             container.RegisterType<IMaterialRepository, MaterialRepository>(new HttpContextLifetimeManager<IMaterialRepository>());
-            container.RegisterType<IMaterialService, MaterialService>(new HttpContextLifetimeManager<IMaterialService>());
+            //container.RegisterType<IMaterialService, MaterialService>(new HttpContextLifetimeManager<IMaterialService>());
             // MaterialClassified
             container.RegisterType<IMaterialClassifiedRepository, MaterialClassifiedRepository>(new HttpContextLifetimeManager<IMaterialClassifiedRepository>());
             // MaterialType
@@ -96,11 +88,11 @@ namespace Vfi.Ui.Mvc.Vfi.IoC
 
             // Product
             container.RegisterType<IProductRepository, ProductRepository>(new HttpContextLifetimeManager<IProductRepository>());
-            container.RegisterType<IProductService, ProductService>(new HttpContextLifetimeManager<IProductService>());
+            //container.RegisterType<IProductService, ProductService>(new HttpContextLifetimeManager<IProductService>());
 
             // Parameter
             container.RegisterType<IParameterRepository, ParameterRepository>(new HttpContextLifetimeManager<IParameterRepository>());
-            container.RegisterType<IParameterService, ParameterService>(new HttpContextLifetimeManager<IParameterService>());
+            //container.RegisterType<IParameterService, ParameterService>(new HttpContextLifetimeManager<IParameterService>());
 
             #endregion
 
@@ -108,15 +100,15 @@ namespace Vfi.Ui.Mvc.Vfi.IoC
             
             // Vendor
             container.RegisterType<IVendorRepository, VendorRepository>(new HttpContextLifetimeManager<IVendorRepository>());
-            container.RegisterType<IVendorService, VendorService>(new HttpContextLifetimeManager<IVendorService>());
+            //container.RegisterType<IVendorService, VendorService>(new HttpContextLifetimeManager<IVendorService>());
 
             // ShipMethod
             container.RegisterType<IShipMethodRepository, ShipMethodRepository>(new HttpContextLifetimeManager<IShipMethodRepository>());
-            container.RegisterType<IShipMethodService, ShipMethodService>(new HttpContextLifetimeManager<IShipMethodService>());
+            //container.RegisterType<IShipMethodService, ShipMethodService>(new HttpContextLifetimeManager<IShipMethodService>());
 
             // PurchaseOrder
             container.RegisterType<IPurchaseOrderRepository, PurchaseOrderRepository>(new HttpContextLifetimeManager<IPurchaseOrderRepository>());
-            container.RegisterType<IPoService, PoService>(new HttpContextLifetimeManager<IPoService>());
+            //container.RegisterType<IPoService, PoService>(new HttpContextLifetimeManager<IPoService>());
             // PurchaseOrderDetail
             container.RegisterType<IPurchaseOrderDetailRepository, PurchaseOrderDetailRepository>(new HttpContextLifetimeManager<IPurchaseOrderDetailRepository>());
 
@@ -126,17 +118,17 @@ namespace Vfi.Ui.Mvc.Vfi.IoC
 
             // Employee
             container.RegisterType<IEmployeeRepository, EmployeeRepository>(new HttpContextLifetimeManager<IEmployeeRepository>());
-            container.RegisterType<IEmployeeService, EmployeeService>(new HttpContextLifetimeManager<IEmployeeService>());
+            //container.RegisterType<IEmployeeService, EmployeeService>(new HttpContextLifetimeManager<IEmployeeService>());
 
             // Customer
             container.RegisterType<ICustomerRepository, CustomerRepository>(new HttpContextLifetimeManager<ICustomerRepository>());
-            container.RegisterType<ICustomerService, CustomerService>(new HttpContextLifetimeManager<ICustomerService>());
+            //container.RegisterType<ICustomerService, CustomerService>(new HttpContextLifetimeManager<ICustomerService>());
             // CustomerType
             container.RegisterType<ICustomerTypeRepository, CustomerTypeRepository>(new HttpContextLifetimeManager<ICustomerTypeRepository>());
 
             // SalesOrder
             container.RegisterType<IOrderRepository, OrderRepository>(new  HttpContextLifetimeManager<IOrderRepository>());
-            container.RegisterType<IOrderService, OrderService>(new HttpContextLifetimeManager<IOrderService>());
+            //container.RegisterType<IOrderService, OrderService>(new HttpContextLifetimeManager<IOrderService>());
             // SalesOrderDetail
             container.RegisterType<IOrderDetailRepository, OrderDetailRepository>(new HttpContextLifetimeManager<IOrderDetailRepository>());
 
@@ -146,13 +138,13 @@ namespace Vfi.Ui.Mvc.Vfi.IoC
 
             // Warehouse
             container.RegisterType<IWarehouseRepository, WarehouseRepository>(new HttpContextLifetimeManager<IWarehouseRepository>());
-            container.RegisterType<IWarehouseService, WarehouseService>(new HttpContextLifetimeManager<IWarehouseService>());
+            //container.RegisterType<IWarehouseService, WarehouseService>(new HttpContextLifetimeManager<IWarehouseService>());
             // WarehouseType
             container.RegisterType<IWarehouseTypeRepository, WarehouseTypeRepository>(new HttpContextLifetimeManager<IWarehouseTypeRepository>());
 
             // StockOrder
             container.RegisterType<IStockOrderRepository, StockOrderRepository>(new HttpContextLifetimeManager<IStockOrderRepository>());
-            container.RegisterType<IStockOrderService, StockOrderService>(new HttpContextLifetimeManager<IStockOrderService>());
+            //container.RegisterType<IStockOrderService, StockOrderService>(new HttpContextLifetimeManager<IStockOrderService>());
             // StockOrderType
             container.RegisterType<IStockOrderTypeRepository, StockOrderTypeRepository>(new HttpContextLifetimeManager<IStockOrderTypeRepository>());
             // StockOrderDetail
@@ -160,25 +152,25 @@ namespace Vfi.Ui.Mvc.Vfi.IoC
 
             // Transaction
             container.RegisterType<ITransactionRepository, TransactionRepository>(new HttpContextLifetimeManager<ITransactionRepository>());
-            container.RegisterType<ITransactionService, TransactionService>(new HttpContextLifetimeManager<ITransactionService>());
+            //container.RegisterType<ITransactionService, TransactionService>(new HttpContextLifetimeManager<ITransactionService>());
             // TransactionDetail
             container.RegisterType<ITransactionDetailRepository, TransactionDetailRepository>(new HttpContextLifetimeManager<ITransactionDetailRepository>());
 
             // MaterialInventory
             container.RegisterType<IMaterialInventoryRepository, MaterialInventoryRepository>(new HttpContextLifetimeManager<IMaterialInventoryRepository>());
-            container.RegisterType<IMaterialInventoryService, MaterialInventoryService>(new HttpContextLifetimeManager<IMaterialInventoryService>());
+            //container.RegisterType<IMaterialInventoryService, MaterialInventoryService>(new HttpContextLifetimeManager<IMaterialInventoryService>());
             
             // MaterialInventoryPeriod
             container.RegisterType<IMaterialInventoryPeriodRepository, MaterialInventoryPeriodRepository>(new HttpContextLifetimeManager<IMaterialInventoryPeriodRepository>());
-            container.RegisterType<IMaterialInventoryPeriodService, MaterialInventoryPeriodService>(new HttpContextLifetimeManager<IMaterialInventoryPeriodService>());
+            //container.RegisterType<IMaterialInventoryPeriodService, MaterialInventoryPeriodService>(new HttpContextLifetimeManager<IMaterialInventoryPeriodService>());
 
             // ProductInventory
             container.RegisterType<IProductInventoryRepository, ProductInventoryRepository>(new HttpContextLifetimeManager<IProductInventoryRepository>());
-            container.RegisterType<IProductInventoryService, ProductInventoryService>(new HttpContextLifetimeManager<IProductInventoryService>());
+            //container.RegisterType<IProductInventoryService, ProductInventoryService>(new HttpContextLifetimeManager<IProductInventoryService>());
 
             // MaterialInventoryPeriod
             container.RegisterType<IProductInventoryPeriodRepository, ProductInventoryPeriodRepository>(new HttpContextLifetimeManager<IProductInventoryPeriodRepository>());
-            container.RegisterType<IProductInventoryPeriodService, ProductInventoryPeriodService>(new HttpContextLifetimeManager<IProductInventoryPeriodService>());
+            //container.RegisterType<IProductInventoryPeriodService, ProductInventoryPeriodService>(new HttpContextLifetimeManager<IProductInventoryPeriodService>());
 
             #endregion
 

@@ -34,6 +34,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.TrackingRepairEmployees = new List<TrackingRepairEmployee>();
             this.TrackUpMachines = new List<TrackUpMachine>();
             this.TransactionDetails = new List<TransactionDetail>();
+            this.WorkOrderRoutings = new List<WorkOrderRouting>();
         }
 
         public int MachineId { get; set; }
@@ -87,5 +88,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<TrackingRepairEmployee> TrackingRepairEmployees { get; set; }
         public virtual ICollection<TrackUpMachine> TrackUpMachines { get; set; }
         public virtual ICollection<TransactionDetail> TransactionDetails { get; set; }
+        public virtual ICollection<WorkOrderRouting> WorkOrderRoutings { get; set; }
     }
 }

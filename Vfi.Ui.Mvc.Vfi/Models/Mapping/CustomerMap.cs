@@ -86,6 +86,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.StartDate).HasColumnName("StartDate");
             this.Property(t => t.State).HasColumnName("State");
             this.Property(t => t.IsNotRequireApproveOrder).HasColumnName("IsNotRequireApproveOrder");
+            this.Property(t => t.IsWorkOrder).HasColumnName("IsWorkOrder");
 
             // Relationships
             this.HasRequired(t => t.Area)

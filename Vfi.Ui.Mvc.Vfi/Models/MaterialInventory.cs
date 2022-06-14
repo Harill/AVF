@@ -9,6 +9,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         {
             this.SmartProductions = new List<SmartProduction>();
             this.TrackUpMaterials = new List<TrackUpMaterial>();
+            this.WorkOrderRoutings = new List<WorkOrderRouting>();
             this.ExportMaterialDetails = new List<ExportMaterialDetail>();
             this.ImportFormSX1Detail = new List<ImportFormSX1Detail>();
             this.MaterialInventoryPeriods = new List<MaterialInventoryPeriod>();
@@ -43,6 +44,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string InfoImg { get; set; }
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
         public virtual ICollection<TrackUpMaterial> TrackUpMaterials { get; set; }
+        public virtual ICollection<WorkOrderRouting> WorkOrderRoutings { get; set; }
         public virtual ICollection<ExportMaterialDetail> ExportMaterialDetails { get; set; }
         public virtual ICollection<ImportFormSX1Detail> ImportFormSX1Detail { get; set; }
         public virtual Material Material { get; set; }

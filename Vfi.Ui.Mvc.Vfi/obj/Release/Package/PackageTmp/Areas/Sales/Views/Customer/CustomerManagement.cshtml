@@ -148,6 +148,9 @@
                     columns.Bound(f => f.IsNotRequireApproveOrder).Width(75).Title("Duyệt ĐH?")
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsNotRequireApproveOrder' <#=IsNotRequireApproveOrder? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.IsWorkOrder).Width(75).Title("Work Order")
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsWorkOrder' <#=IsWorkOrder? checked='checked' : '' #> />")
+                           .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.IsMonitor).Width(75)
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMonitor' <#=IsMonitor? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });

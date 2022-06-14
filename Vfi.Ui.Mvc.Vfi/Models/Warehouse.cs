@@ -21,6 +21,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.RealTestings = new List<RealTesting>();
             this.RealTestings1 = new List<RealTesting>();
             this.SmartProductions = new List<SmartProduction>();
+            this.WorkOrderRoutings = new List<WorkOrderRouting>();
             this.InventoryShelves = new List<InventoryShelf>();
             this.ProductInventories = new List<ProductInventory>();
             this.ProductInventoryPeriods = new List<ProductInventoryPeriod>();
@@ -63,6 +64,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool IsProduction { get; set; }
         public bool IsCncMilling { get; set; }
         public bool CanWeighing { get; set; }
+        public bool IsPacking { get; set; }
+        public bool IsFinish { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
@@ -77,6 +80,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<RealTesting> RealTestings { get; set; }
         public virtual ICollection<RealTesting> RealTestings1 { get; set; }
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
+        public virtual ICollection<WorkOrderRouting> WorkOrderRoutings { get; set; }
         public virtual ICollection<InventoryShelf> InventoryShelves { get; set; }
         public virtual ICollection<ProductInventory> ProductInventories { get; set; }
         public virtual ICollection<ProductInventoryPeriod> ProductInventoryPeriods { get; set; }

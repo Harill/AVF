@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Purchasing.Interfaces;
+//using Vfi.Client.Module.Purchasing.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
@@ -14,7 +14,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
     public class VendorController : Controller {
         private readonly IUnitOfWork _unitOfWork;
         [InjectionConstructor]
-        public VendorController(IUnitOfWork unitOfWork, IVendorService vendorService) {
+        public VendorController(IUnitOfWork unitOfWork
+            //, IVendorService vendorService
+            ) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
 
             _unitOfWork = unitOfWork;

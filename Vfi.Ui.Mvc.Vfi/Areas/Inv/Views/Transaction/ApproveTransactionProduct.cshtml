@@ -348,10 +348,10 @@
                             .HtmlAttributes(new { style = "text-align:center" });
                         columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50).ReadOnly(true);
 
-                        columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
-                               .ClientTemplate("<a id='<#=TransactionDetailId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
-                                               "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                               "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                        //columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
+                        //       .ClientTemplate("<a id='<#=TransactionDetailId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                        //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                        //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
                         columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100).ReadOnly(true);
                         columns.Bound(f => f.LotNumber).Title("Lô").Width(150).ReadOnly(true);
                         columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50).ReadOnly(true);

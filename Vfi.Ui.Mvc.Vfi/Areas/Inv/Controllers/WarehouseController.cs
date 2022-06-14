@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Inv.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
@@ -88,12 +86,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     IsReprocessing = x.IsReprocessing,
                     IsPlating = x.IsPlating,
                     IsQC = x.IsQC,
+                    IsPacking = x.IsPacking,
+                    IsFinish = x.IsFinish,
+
                     CanInternal = x.CanInternal,
                     CanPurchase = x.CanPurchase,
                     CanStock = x.CanStock,
                     CanWeighing = x.CanWeighing,
                     IsOutOfProcess = x.IsOutOfProcess,
-                    IsCncMilling = x.IsCncMilling
+                    IsCncMilling = x.IsCncMilling,
                 }).ToList();
             }
             return model.OrderByDescending(m => m.Active).ThenBy(m => m.Idx).ThenBy(m => m.WarehouseName).ToList();
@@ -145,6 +146,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         IsMainProcess = inserted.IsMainProcess,
                         IsQC = inserted.IsQC,
                         IsPlating = inserted.IsPlating,
+                        IsPacking = inserted.IsPacking,
+                        IsFinish = inserted.IsFinish,
                         IsOutOfProcess = inserted.IsOutOfProcess,
                         CanWeighing = inserted.CanWeighing,
                         ModifiedUser = HttpContext.User.Identity.Name,
@@ -199,6 +202,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsMainProcess = updated.IsMainProcess;
                     entity.IsQC = updated.IsQC;
                     entity.IsPlating = updated.IsPlating;
+                    entity.IsPacking = updated.IsPacking;
+                    entity.IsFinish = updated.IsFinish;
                     entity.IsOutOfProcess = updated.IsOutOfProcess;
                     entity.CanWeighing = updated.CanWeighing;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
@@ -252,7 +257,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsProduction2Process = updated.IsProduction2Process;
                     entity.IsReprocessing = updated.IsReprocessing;
                     entity.IsQC = updated.IsQC;
+                    entity.IsPacking = updated.IsPacking;
                     entity.IsPlating = updated.IsPlating;
+                    entity.IsFinish = updated.IsFinish;
                     entity.CanWeighing = updated.CanWeighing;
                     vfi.SaveChanges();
                 }
@@ -277,6 +284,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              && (config.IsPolish == null || x.IsPolish == config.IsPolish)
                              && (config.IsQC == null || x.IsQC == config.IsQC)
                              && (config.IsPlating == null || x.IsPlating == config.IsPlating)
+                             && (config.IsPacking == null || x.IsPacking == config.IsPacking)
+                             && (config.IsFinish == null || x.IsFinish == config.IsFinish)
                              && (config.IsReprocessing == null || x.IsReprocessing == config.IsReprocessing)
                              && (config.IsOutOfProcess == null || x.IsOutOfProcess == config.IsOutOfProcess)
                              && (config.CanInternal == null || x.CanInternal == config.CanInternal)
@@ -318,10 +327,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             };
         }
 
+        public ActionResult SelectComboBoxWarehouseSameType(int warehouseId) {
+            var model = new List<WarehouseCboModel>();
+            using (var vfi = new tammaContext()) {
+                var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if (warehouse != null) {
+                    var config = new WarehouseConfiguration { };
+                    if (warehouse.IsProduction) { config.IsProduction = warehouse.IsProduction; }
+                    if (warehouse.IsCncMilling) { config.IsCncMilling = warehouse.IsCncMilling; }
+                    model = GetActiveWarehouseModels(config);
+                }
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "WarehouseId", "WarehouseName")
+            };
+        }
+
         public ActionResult SelectComboBoxWarehouseProductionTesting() {
             var warehouseIds = new List<int>();
-            warehouseIds.Add(GetActiveWarehouseModels(new WarehouseConfiguration { IsProduction = true }).Select(x => x.WarehouseId).FirstOrDefault());
-            warehouseIds.Add(GetActiveWarehouseModels(new WarehouseConfiguration { IsQC = true }).Select(x => x.WarehouseId).FirstOrDefault());
+            warehouseIds.Add(GetActiveWarehouseIds(new WarehouseConfiguration { IsProduction = true }).FirstOrDefault());
+            warehouseIds.Add(GetActiveWarehouseIds(new WarehouseConfiguration { IsQC = true }).FirstOrDefault());
             return new JsonResult {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds }), "WarehouseId", "WarehouseName")
             };
@@ -364,6 +389,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult SelectComboBoxWarehouseQc() {
             return new JsonResult {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsQC = true, AddFirstAll = true }), "WarehouseId", "WarehouseName")
+            };
+        }
+        public ActionResult SelectComboBoxWarehousePacking() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsPacking = true, AddFirstAll = true }), "WarehouseId", "WarehouseName")
+            };
+        }
+        public ActionResult SelectComboBoxWarehouseFinish() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsFinish = true, AddFirstAll = true }), "WarehouseId", "WarehouseName")
             };
         }
         public ActionResult SelectComboBoxWarehousePlating() {

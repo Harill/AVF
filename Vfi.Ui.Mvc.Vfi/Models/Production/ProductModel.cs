@@ -52,6 +52,11 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public string Currency { get; set; }
 
         public string UploadDate { get; set; }
+
+        public string IdentityCode { get; set; }
+
+        public int MaxQuantityInTray { get; set; }
+        public int MaxQuantityInTrayRunTime { get; set; }
         //public double GetProductWeight()
         //{
         //    var w = 0.0;

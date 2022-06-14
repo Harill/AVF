@@ -1,0 +1,163 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Duyệt công đoạn 2";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <!-- approve stockorder -->
+    <script type="text/javascript">
+        function ApproveTransaction() {
+            var $checkedRecords = $("input[name='chkIds']:checked")
+            //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                return;
+            }
+
+            //$.ajaxSettings.traditional = false;
+            var a = {};
+            ids = "";
+            //var $b = (a);
+
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] === "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                ids += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    ids += ":";
+            }
+            $.ajax({
+                type: 'post',
+                data: {
+                    ids: ids
+                },
+                dataType: 'json',
+                url: '@Url.Action("ApproveWorkOrderProduction2Process", "WorkOrder", new { area = "Factory" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            alert("Đã lưu " + res.Data);
+                            RefreshGrid("grid");
+                        } else {
+                            alert(res.Message);
+                        }
+                    }
+                });
+        }
+
+    </script>
+
+}
+
+<div class="title">Duyệt công đoạn 2</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderProcessModel>()
+            .Name("grid")
+            .DataKeys(keys => keys.Add(f => f.ProcessId).RouteKey("processId"))
+            .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_9">
+            <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
+                <span class='t-icon t-insert'></span>
+                Duyệt các sổ lệnh
+                            <span class="twoToneButton"></span>
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectWorkOrderProduction2Approvement", "WorkOrder", new { area = "Factory" })
+    )
+            .Columns(columns => {
+                columns.Bound(f => f.ProcessId).Title("Chọn").Width(75)
+                    .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= ProcessId #>' />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.Date).Title("Ngày").Width(100).ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy hh:mm}");
+                columns.Bound(f => f.UsingQuantity).Title("SL Xử lý").ReadOnly(true).Width(90)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right" });
+                columns.Bound(f => f.GoodQuantity).Title("SL OK").ReadOnly(true).Width(90)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right" });
+                columns.Bound(f => f.NGQuantity).Title("SL NG").ReadOnly(true).Width(90)
+                    .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right" });
+                columns.Bound(f => f.DefectQuantity).Title("SL PP").ReadOnly(true).Width(90)
+                    .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right" });
+
+                //columns.Bound(f => f.EoIName).ReadOnly(true);
+                columns.Bound(f => f.EmployeeName).Width(100).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Width(100).ReadOnly(true);
+                columns.Bound(f => f.MaterialInvCode).Width(100).ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(100).ReadOnly(true);
+            })
+            //.DetailView(details => details.ClientTemplate(
+            //    Html.Telerik().Grid<TransactionDetailModel>()
+            //        .Name("gridTransactionDetail_<#= TransactionId #>")
+            //.DataKeys(keys => keys.Add(f => f.TransactionDetailId).RouteKey("transactionDetailId"))
+            //        .DataBinding(dataDindings => dataDindings.Ajax()
+            //            .Select("SelectTransactionDetailByTransactionId", "Transaction",
+            //                new { transactionId = "<#= TransactionId #>" })
+            //                .Update("UpdateTransactionDetail", "Transaction")
+            //    //.Delete("DeleteTransactionDetail", "Transaction")
+            //                )
+            //        .Columns(columns => {
+            //            columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
+            //                .HtmlAttributes(new { style = "text-align:center" });
+            //            columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50).ReadOnly(true);
+
+            //            //columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
+            //            //       .ClientTemplate("<a id='<#=TransactionDetailId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+            //            //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+            //            //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+            //            columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100).ReadOnly(true);
+            //            columns.Bound(f => f.LotNumber).Title("Lô").Width(150).ReadOnly(true);
+            //            columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50).ReadOnly(true);
+            //            columns.Bound(f => f.AvailableQuantity).Width(75).Title("Tồn kho").ReadOnly(true)
+            //                .HtmlAttributes(new { style = "text-align: right;" })
+            //                .Format("{0:n0}");
+            //            columns.Bound(f => f.Quantity).Width(75).Title("SL (PCS)")
+            //                .HtmlAttributes(new { style = "text-align: right;" })
+            //                .Format("{0:n0}").Aggregate(agg => agg.Sum())
+            //                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+            //                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+            //                .FooterHtmlAttributes(new { style = "text-align: right;" });
+            //            columns.Bound(f => f.QuantityKg).Width(75).Title("SL (g)").ReadOnly(true)
+            //                .HtmlAttributes(new { style = "text-align: right;" })
+            //                .Format("{0:n0}")
+            //                .Aggregate(agg => agg.Sum())
+            //                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+            //                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+            //                .FooterHtmlAttributes(new { style = "text-align: right;" });
+            //            columns.Bound(f => f.StoreCode).Title("Vị trí").Width(70).ReadOnly(true);
+            //            columns.Bound(f => f.Note).Title("Ghi chú").ReadOnly(true);
+            //            columns.Bound(f => f.MaterialCode).Width(250).Title("Nguyên liệu").ReadOnly(true);
+            //            columns.Bound(f => f.MaterialTypeName).Width(75).Title("Loại").ReadOnly(true);
+            //            columns.Bound(f => f.Identity).Width(50).Title("Code").ReadOnly(true);
+            //            //columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
+            //            //       .Width(50);
+            //        })
+            //        .Groupable()
+            //        .ClientEvents(events => events.OnError("grid_OnError")
+            //                                      .OnRowDataBound("gridDetail_OnRowDataBound")
+            //        )
+            //        .ToHtmlString()))
+            .Selectable()
+            .ClientEvents(events => events
+                .OnRowSelect("grid_OnRowSelect")
+                .OnError("grid_OnError"))
+            .Render();
+    }
+</div>

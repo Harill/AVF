@@ -649,10 +649,10 @@
                     .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductInventoryId #>' />")
                     .HtmlAttributes(new { style = "text-align:center" });
 
-                columns.Bound(f => f.ProductImg).Width(50).Title("")
-                       .ClientTemplate("<a id='<#=ProductInventoryId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
-                                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                //columns.Bound(f => f.ProductImg).Width(50).Title("")
+                //       .ClientTemplate("<a id='<#=ProductInventoryId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
                 columns.Bound(f => f.ProductCode).Title("Mã SP").Width(120);
                 columns.Bound(f => f.LotNumber).Width(150).Title("Lô");
                 columns.Bound(f => f.ProductWeight).Width(75)

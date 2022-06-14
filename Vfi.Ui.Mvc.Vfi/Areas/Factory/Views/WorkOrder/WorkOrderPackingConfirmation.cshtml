@@ -1,0 +1,44 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Nhận đóng gói";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Nhận đóng gói</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("grid")
+            .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectWorkOrderPackingConfirmation", "WorkOrder", new { area = "Factory" })
+                .Update("ConfirmWorkOrderPacking", "WorkOrder", new { area = "Factory" })
+            )
+            .Columns(columns => {
+                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("Duyệt")
+                    .HtmlAttributes(new { style = "text-align:center" });
+
+                columns.Bound(f => f.ScheduledStartDate).Title("Kế hoạch").Width(100).ReadOnly(true)
+                    .Format("{0:dd/MM/yyyy HH:mm}");
+                columns.Bound(f => f.ActualStartDate).Title("Thực tế").Width(100).ReadOnly(true);
+                columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
+                columns.Bound(f => f.RoutingName).Title("Công đoạn").Width(200).ReadOnly(true);
+                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(170).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ActualResourceHrs).Title("Thời gian</br>thực hiện").Width(70).ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}");
+                columns.Bound(f => f.PlannedCost).Title("Số lượng</br>(pcs)").Width(70).ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}");
+                columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
+            })
+            .Selectable()
+            .ClientEvents(events => events
+                .OnRowSelect("grid_OnRowSelect")
+                .OnError("grid_OnError"))
+            .Render();
+    }
+</div>

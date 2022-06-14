@@ -8,7 +8,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Order()
         {
             this.ExportFormTP_KD = new List<ExportFormTP_KD>();
-            this.WorkOrders = new List<WorkOrder>();
+            this.WorkOrder1 = new List<WorkOrder1>();
             this.OrderDetails = new List<OrderDetail>();
             this.Orders1 = new List<Order>();
         }
@@ -39,7 +39,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<System.DateTime> ApprovedDate { get; set; }
         public string ApprovedUser { get; set; }
         public virtual ICollection<ExportFormTP_KD> ExportFormTP_KD { get; set; }
-        public virtual ICollection<WorkOrder> WorkOrders { get; set; }
+        public virtual ICollection<WorkOrder1> WorkOrder1 { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual Employee Employee { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }

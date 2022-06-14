@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.Validation;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Purchasing.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Server.Core.DataModel.Models.Inv;
-using Vfi.Server.Core.DataModel.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
@@ -1471,13 +1468,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         public ActionResult SelectImportPoManagement2(int classifiedId, int vendorId, string fromDate, string toDate) {
             var model2 = new List<TransactionFptDetailModel>();
             try {
-                var ci = new CultureInfo("vi-VN");
-                var fDate = string.IsNullOrWhiteSpace(fromDate)
-                                ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)
-                                : Convert.ToDateTime(fromDate, ci);
-                var tDate = string.IsNullOrWhiteSpace(toDate)
-                                ? DateTime.Now
-                                : Convert.ToDateTime(toDate, ci);
+                var fDate = MyUtilities.Function.ParseDate(fromDate);
+                var tDate = MyUtilities.Function.ParseDate(toDate);
                 using (var vfi = new tammaContext()) {
                     if (classifiedId == 0 || classifiedId == 1) {// material
                         var importDetails = (from x in vfi.ImportPurchaseOrderDetails
@@ -1741,7 +1733,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                  x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved &&
                                                  x.Transaction.CreatedDate >= fDate && x.Transaction.CreatedDate <= tDate &&
                                                  x.Transaction.PoId != null &&
-                                                 x.Transaction.EoI == MyUtilities.PurchaseOrder.EoILot.Import.ToString() &&
+                                                 //x.Transaction.EoI == MyUtilities.PurchaseOrder.EoILot.Import.ToString() &&
                                                  (vendorId == 0 || x.VendorId == vendorId)
                                              select new TransactionFptDetailModel {
                                                  FptId = x.ReferenceId.Value,
@@ -4935,7 +4927,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ReferenceId = detail.ProductId,
                                 MoP = false,
                                 Quantity = detail.Quantity,
-                                Price = detail.Price,
+                                Price = detail.UnitPrice * importPO.ExchangeRate,
                                 UnitMeasure = detail.UnitMeasure.Trim(),
                                 Active = true,
                                 ModifiedUser = HttpContext.User.Identity.Name,
@@ -4944,7 +4936,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 Note = detail.Note,
                                 PoDetailId = detail.PoDetailId,
                                 VendorId = purchaseOrder.VendorId,
-                                LotNumber = weeklyLot + purchaseOrder.Vendor.VendorCode
+                                LotNumber = weeklyLot + purchaseOrder.Vendor.VendorCode,
                             };
                             transaction.TransactionDetails.Add(transactionDetail);
 
@@ -4952,7 +4944,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ImportId = importPO.ImportId,
                                 ImportPurchaseOrder = importPO,
                                 Quantity = detail.Quantity,
-                                LotNumber = detail.LotNumber,
+                                LotNumber = transactionDetail.LotNumber,
                                 UnitPrice = detail.UnitPrice * importPO.ExchangeRate,
                                 //UnitWeight = detail.UnitWeight,
                                 Note = detail.Note,

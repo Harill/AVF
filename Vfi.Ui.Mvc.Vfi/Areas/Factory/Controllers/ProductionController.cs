@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Telerik.Web.Mvc;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
-using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
@@ -32,26 +28,51 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 using (var vfi = new tammaContext()) {
                     var machine = vfi.Machines.FirstOrDefault(x => x.MachineId == machineId);
                     var product = vfi.Products.FirstOrDefault(x => x.ProductId == productId);
-                    var testingNotes = vfi.ProductionTestingNotes.Where(x => x.Active && x.WarehouseId == MyUtilities.Warehouse.Production1 && x.ProductId == productId)
-                                                                .OrderBy(x=> x.Idx)
-                                                                .Select(x=> x.Note)
-                                                                .ToList();
-                    var productImgs = vfi.ProductImgs.Where(x => x.ProductId == productId && x.WarehouseId == MyUtilities.Warehouse.Production1)
-                                                    .OrderBy(x => x.Step)
-                                                    .Select(x => new ProductImgModel {
-                                                        ImgUrl = x.ImgUrl,
-                                                        ModifiedDate = x.ModifiedDate
-                                                    })
-                                                    .ToList();
-
-                    entity = new MachineDiagram {
-                        MachineId = machineId,
-                        MachineName = machine != null ? machine.MachineName : "Không tìm thấy máy " + machineId,
-                        ProductId = productId,
-                        ProductCode = product != null ? product.ProductCode : "Không tìm thấy sản phẩm " + productId,
-                        Notes = testingNotes,
-                        ProductImgs = productImgs
-                    };
+                    if (machine.ProcessingType.Warehouse.IsProduction) {
+                        var testingNotes = vfi.ProductionTestingNotes.Where(x => x.Active && x.Warehouse.IsProduction && x.ProductId == productId)
+                                                                    .OrderBy(x => x.Idx)
+                                                                    .Select(x => x.Note)
+                                                                    .ToList();
+                        var productImgs = vfi.ProductImgs.Where(x => x.ProductId == productId && x.Warehouse.IsProduction)
+                                                        .OrderBy(x => x.Step)
+                                                        .Select(x => new ProductImgModel {
+                                                            ImgUrl = x.ImgUrl,
+                                                            ModifiedDate = x.ModifiedDate
+                                                        })
+                                                        .ToList();
+                        entity = new MachineDiagram {
+                            MachineId = machineId,
+                            MachineName = machine != null ? machine.MachineName : "Không tìm thấy máy " + machineId,
+                            ProductId = productId,
+                            ProductCode = product != null ? product.ProductCode : "Không tìm thấy sản phẩm " + productId,
+                            Notes = testingNotes,
+                            ProductImgs = productImgs,
+                            WarehouseId = machine.ProcessingType.ForWarehouseId.Value
+                        };
+                    }
+                    else if (machine.ProcessingType.Warehouse.IsCncMilling) {
+                        var testingNotes = vfi.ProductionTestingNotes.Where(x => x.Active && x.Warehouse.IsCncMilling 
+                                                                            && x.ProductId == productId)
+                                                                    .OrderBy(x => x.Idx)
+                                                                    .Select(x => x.Note)
+                                                                    .ToList();
+                        var productImgs = vfi.ProductImgs.Where(x => x.ProductId == productId && x.Warehouse.IsCncMilling)
+                                                        .OrderBy(x => x.Step)
+                                                        .Select(x => new ProductImgModel {
+                                                            ImgUrl = x.ImgUrl,
+                                                            ModifiedDate = x.ModifiedDate
+                                                        })
+                                                        .ToList();
+                        entity = new MachineDiagram {
+                            MachineId = machineId,
+                            MachineName = machine != null ? machine.MachineName : "Không tìm thấy máy " + machineId,
+                            ProductId = productId,
+                            ProductCode = product != null ? product.ProductCode : "Không tìm thấy sản phẩm " + productId,
+                            Notes = testingNotes,
+                            ProductImgs = productImgs,
+                            WarehouseId = machine.ProcessingType.ForWarehouseId.Value
+                        };
+                    }
                 }
             }
             catch (Exception ex) {
@@ -1331,10 +1352,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
 
         [GridAction]
-        public ActionResult SelectProductionTestingProduction1(int productId) {
+        public ActionResult SelectProductionTestingProduction1(int productId, int warehouseId) {
             var model = new List<RealTestingModel>();
             try {
-                model = GetActiveTestingDetails(productId, MyUtilities.Warehouse.Production1);
+                model = GetActiveTestingDetails(productId, warehouseId);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductionTestingProduction1", ex.Message);
@@ -1348,15 +1369,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             [Bind(Prefix = "inserted")] IEnumerable<RealTestingModel> inserteds,
             [Bind(Prefix = "updated")] IEnumerable<RealTestingModel> updateds,
             [Bind(Prefix = "deleted")] IEnumerable<RealTestingModel> deleteds,
-            int machineId, int productId, int forWarehouseId, int employeeId) {
+            int machineId, int productId, int warehouseId, int forWarehouseId, int employeeId) {
             try {
-                var save = SaveProductionTesting(updateds.ToList(), MyUtilities.Warehouse.Production1, machineId, productId, forWarehouseId, employeeId);
+                var save = SaveProductionTesting(updateds.ToList(), warehouseId, machineId, productId, forWarehouseId, employeeId);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SaveProductionTestingProduction1", ex.Message);
             }
 
-            return View(new GridModel(GetActiveTestingDetails(productId, MyUtilities.Warehouse.Production1)));
+            return View(new GridModel(GetActiveTestingDetails(productId, warehouseId)));
         }
         public bool SaveProductionTesting(List<RealTestingModel> model, int warehouseId, int machineId, int productId, int forWarehouseId, int employeeId) {
             using (var vfi = new tammaContext()) {
@@ -1395,6 +1416,98 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             }
             return false;
         }
+        #endregion
+
+        #region production work order
+
+        [GridAction]
+        public ActionResult SelectProductionWorkOrder(int productId) {
+            var model = new List<ProductionWorkOrderModel>();
+            try {
+                model = GetProductionWorkOrder(productId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionWorkOrder", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionWorkOrderModel> GetProductionWorkOrder(int productId) {
+            var model = new List<ProductionWorkOrderModel>();
+            var packingProductivity = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.PackingProductivity);
+            using (var vfi = new tammaContext()) {
+                var product = vfi.Products.FirstOrDefault(x => x.ProductId == productId);
+                if (product == null) { throw new AggregateException("Lỗi! Không tìm thấy sản phẩm"); }
+                var entity = new ProductionWorkOrderModel {
+                    ProductId = productId,
+                    MaxQuantityInTray = product.MaxQuantityInTray,
+                    ProductionWeight = product.ProductionWeight ?? 0,
+                    ProductionRate = product.ProductionRate ?? 1,
+                    Productivity = product.Productivity ?? 1,
+                    Productivity2 = product.ProductionSections.Where(x => x.Active && x.IsMainProcess).Sum(x => x.Productivity),
+                    ProductivityQC = product.QcProductivity,
+                    ProductivityPacking = packingProductivity
+                };
+
+                model.Add(entity);
+            }
+            return model;
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionWorkOrder(ProductionWorkOrderModel update) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var product = vfi.Products.FirstOrDefault(x => x.ProductId == update.ProductId);
+                    if (product == null) { }
+                    //product.ProductionWeight = update.ProductionWeight;
+                    //product.Productivity = update.Productivity;
+                    product.QcProductivity = update.ProductivityQC;
+                    //product.ProductionRate =  update.ProductionRate;
+                    product.MaxQuantityInTray = update.MaxQuantityInTray;
+                    //product.MaxQuantityInTrayRunTime = update.MaxQuantityInTrayRunTime;
+                    var packingProductivity = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.PackingProductivity);
+                    product.MaxQuantityInTrayRunTime = CalculateProductionWorkOrderRunTime(product, packingProductivity);
+                    vfi.SaveChanges();
+                }
+                
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionWorkOrder", ex.Message);
+            }
+            return View(new GridModel(GetProductionWorkOrder(update.ProductId)));
+        }
+
+        public int CalculateProductionWorkOrderRunTime(Product product,double packingProductivity) {
+            var result = 0;
+            using (var vfi = new tammaContext()) {
+                if (product == null) return result;
+                var time = 0.0;
+                if (product.Productivity > 0) {
+                    time += product.Productivity.Value * product.MaxQuantityInTray;
+                }
+                if (product.ProductionSections.Any(x => x.Active)
+                    && product.ProductionProcesses.Any(x => x.Warehouse.IsProduction2 && x.IsNecessary && x.IsAlert)) {
+                    time += product.ProductionSections.Where(x => x.Active).Sum(x => x.Productivity) * product.MaxQuantityInTray;
+                }
+                if (product.QcProductivity > 0) {
+                    time += product.QcProductivity * product.MaxQuantityInTray;
+                }
+                if (packingProductivity > 0) {
+                    time += packingProductivity * product.MaxQuantityInTray;
+                }
+                result = MyUtilities.Function.RoundUp(time / 3600);
+            }
+            return result;
+        }
+
         #endregion
 
         [HttpPost]

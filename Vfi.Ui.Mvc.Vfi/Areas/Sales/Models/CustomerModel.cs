@@ -17,5 +17,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         public string StateName { get; set; }
 
         public bool IsNotRequireApproveOrder { get; set; }
+        public bool IsWorkOrder { get; set; }
     }
 }

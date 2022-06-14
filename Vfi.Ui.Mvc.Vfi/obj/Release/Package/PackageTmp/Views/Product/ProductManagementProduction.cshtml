@@ -1005,8 +1005,8 @@
                                 .DataBinding(
                                     dataBinding => dataBinding.Ajax()
                                                               .Select("SelectProductionFuel", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
-                                                              .Insert("InsertProductionFuel", "Production", new { area = "Factory", productId = "<#= BaseProductId #>" })
-                                                              .Update("UpdateProductionFuel", "Production", new { area = "Factory", productId = "<#= BaseProductId #>" })
+                                                              .Insert("InsertProductionFuel", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                              .Update("UpdateProductionFuel", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
                                 )
                                 .Columns(columns => {
                                     columns.Command(command =>
@@ -1183,6 +1183,70 @@
                                 .ClientEvents(e => e.OnError("grid_OnError"))
                                 .ToHtmlString()
                             );
+                        items.Add().Text("Work Order").Content(
+                             Html.Telerik().Grid<ProductionWorkOrderModel>()
+                                 .Name("gridProductionWorkOrder_<#= ProductId #>")
+                                 .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                 .DataBinding(
+                                     dataBinding => dataBinding.Ajax()
+                                                               .Select("SelectProductionWorkOrder", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                               .Update("UpdateProductionWorkOrder", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                 )
+                                 .Columns(columns => {
+                                     columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(45).Title("")
+                                            .HtmlAttributes(new { style = "text-align:center" });
+                                     columns.Bound(f => f.ProductionWeight).Width(70).Title("Trọng lượng</br>sản phẩm</br>(g/pc)").ReadOnly(true)
+                                            .Format("{0:n3}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+                                     columns.Bound(f => f.MaxQuantityInTray).Width(70).Title("Số lượng</br>tổng 1 WO</br>(pcs/WO)")
+                                            .Format("{0:n0}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+                                     columns.Bound(f => f.MaxWeightInTray).Width(70).Title("Trọng lượng</br>tổng 1 WO</br>(g/WO)").ReadOnly(true)
+                                            .Format("{0:n0}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+                                     columns.Bound(f => f.MaxQuantityInTrayRunTime).Width(70).Title("Thời gian</br>tổng 1 WO</br>(h/WO)").ReadOnly(true)
+                                            .Format("{0:n0}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+
+                                     //columns.Bound(f => f.ProductionRate).Width(70).Title("Định mức</br>thiết kế</br>(pcs/cây NL)")
+                                     //       .Format("{0:n0}")
+                                     //       .HtmlAttributes(new { style="text-align:center; border-left: 1px solid black;" });
+                                     //columns.Bound(f => f.MaterialRate).Width(70).Title("Nguyên liệu</br> dự kiến</br>(cây)").ReadOnly(true)
+                                     //       .Format("{0:n1}")
+                                     //       .HtmlAttributes(new { style = "text-align:center;" });
+
+                                     columns.Bound(f => f.Productivity).Width(70).Title("NS TK</br>công đoạn 1</br>(s/pc)").ReadOnly(true)
+                                            .Format("{0:n2}")
+                                            .HtmlAttributes(new { style = "text-align:center; border-left: 1px solid black;" });
+                                     columns.Bound(f => f.ProductionTime).Width(70).Title("Thời gian SX</br>công đoạn 1</br>(h/WO)").ReadOnly(true)
+                                            .Format("{0:n1}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+
+                                     columns.Bound(f => f.Productivity2).Width(70).Title("NS TK</br>công đoạn 2</br>(s/pc)").ReadOnly(true)
+                                            .Format("{0:n2}")
+                                            .HtmlAttributes(new { style = "text-align:center; border-left: 1px solid black;" });
+                                     columns.Bound(f => f.Production2Time).Width(70).Title("Thời gian SX</br>công đoạn 2</br>(h/WO)").ReadOnly(true)
+                                            .Format("{0:n1}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+
+                                     columns.Bound(f => f.ProductivityQC).Width(70).Title("NS TK</br>đo kiểm</br>(s/pc)")
+                                            .Format("{0:n2}")
+                                            .HtmlAttributes(new { style = "text-align:center; border-left: 1px solid black;" });
+                                     columns.Bound(f => f.QCTime).Width(70).Title("Thời gian</br>đo kiểm</br>(h/WO)").ReadOnly(true)
+                                            .Format("{0:n1}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+
+                                     columns.Bound(f => f.ProductivityPacking).Width(70).Title("NS TK</br>đóng gói</br>(s/pc)").ReadOnly(true)
+                                            .Format("{0:n2}")
+                                            .HtmlAttributes(new { style = "text-align:center; border-left: 1px solid black;" });
+                                     columns.Bound(f => f.PackingTime).Width(70).Title("Thời gian</br>đóng gói</br>(s/WO)").ReadOnly(true)
+                                            .Format("{0:n1}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
+                                 })
+                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                 .ClientEvents(e => e.OnError("grid_OnError"))
+                                 .ToHtmlString()
+                             );
                         items.Add().Text("Quy trình công đoạn").Content(
                             Html.Telerik().Grid<ProductionProcessModel>()
                                 .Name("gridProductionProcess_<#= ProductId #>")
@@ -1358,22 +1422,20 @@
                                 .Columns(columns => {
                                     columns.Bound(f => f.DeliveryDate).Width(75).Title("Ngày giao")
                                            .ClientTemplate("<#= DeliveryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DeliveryDate) #>");
-                                    columns.Bound(f => f.MachineName).Width(50).Title("Máy")
+                                    columns.Bound(f => f.MachineName).Width(80).Title("Máy")
                                            .ClientTemplate("<strong><#= MachineName #></strong>");
+                                    columns.Bound(f => f.StatusName).Width(80).Title("Tên Máy")
+                                          .ClientTemplate("<strong><#= StatusName #></strong>"); // todo
                                     columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu")
                                            .ClientTemplate("<strong><#= MaterialCode #></strong>");
-                                    columns.Bound(f => f.Phase).Width(75).Title("Công đoạn");
-                                    columns.Bound(f => f.Quantity).Width(75).Title("Số lượng").Format("{0:n0}");
-                                    columns.Bound(f => f.RoundPerMinute).Width(50).Title("RPM")
-                                           .ClientTemplate("<#= RoundPerMinute == null ? 0 : $.telerik.formatString('{0:n0}', RoundPerMinute) #>");
-                                    columns.Bound(f => f.RealProductivity).Width(50).Title("Năng Suất")
-                                           .ClientTemplate("<#= RealProductivity == null ? 0 : $.telerik.formatString('{0:n2}', RealProductivity) #>");
+                                    columns.Bound(f => f.Phase).Width(65).Title("Công đoạn");
+                                    columns.Bound(f => f.Quantity).Width(65).Title("Số lượng").Format("{0:n0}");
+                                    columns.Bound(f => f.RoundPerMinute).Width(50).Title("RPM").Format("{0:n0}");
+                                    columns.Bound(f => f.RealProductivity).Width(50).Title("Năng Suất").Format("{0:n2}");
                                     //columns.Bound(f => f.RealRate).Width(50).Title("Định Mức")
                                     //       .ClientTemplate("<#= RealRate == null ? 0 : $.telerik.formatString('{0:n2}', RealRate) #>");
-                                    columns.Bound(f => f.WorkPiece).Width(50).Title("Phoi dư")
-                                           .ClientTemplate("<#= WorkPiece == null ? 0 : $.telerik.formatString('{0:n2}', WorkPiece) #>");
-                                    columns.Bound(f => f.KnifeCut).Width(50).Title("Dao Cắt")
-                                           .ClientTemplate("<#= KnifeCut == null ? 0 : $.telerik.formatString('{0:n2}', KnifeCut) #>");
+                                    columns.Bound(f => f.WorkPiece).Width(50).Title("Phoi dư").Format("{0:n0}");
+                                    columns.Bound(f => f.KnifeCut).Width(50).Title("Dao Cắt").Format("{0:n1}");
                                     columns.Bound(f => f.DeliveryEmployee).Width(75).Title("NV Giao");
                                     columns.Bound(f => f.ReceiveEmployee).Width(75).Title("NV Nhận");
                                     columns.Bound(f => f.EndDate).Width(75).Title("Dự kiến HT").Format("{0:dd/MM/yyyy}");

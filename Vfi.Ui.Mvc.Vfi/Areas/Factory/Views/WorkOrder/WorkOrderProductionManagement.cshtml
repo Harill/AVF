@@ -1,0 +1,167 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "DS lệnh công đoạn 1";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <!-- grid Monthly -->
+    <script type="text/javascript">
+
+        function grid_OnDataBinding(args) {
+            if (startGrid && !onLoading) {
+                OnLoadingData();
+                var status = $("#Status").data("tComboBox").value();
+                if (status === "")
+                    status = 0;
+                var fromDate = $("#FromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                var toDate = $("#ToDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                args.data = $.extend(args.data, {
+                    status: status,
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+            }
+        }
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+        var startGrid = false;
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+    </script>
+}
+<div class="title">Danh sách lệnh công đoạn 1</div>
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span id="twoToneButton"></span></div>
+
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+        <div class="grid_2">
+            Tình trạng
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Status")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWorkOrderStatus", "WorkOrder"))
+                    .HtmlAttributes(new { style = "width: 150px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .HighlightFirstMatch(true)
+                    .AutoFill(true)
+                    .Render();
+            }
+        </div>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("FromDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today.Month + "/01/" + DateTime.Today.Year)
+                        .Render();
+                }
+            <div class="clear"></div>
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("ToDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+            </div>
+            <div class="grid_3">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                <span class="twoToneButton"></span>
+                </button>
+            </div>
+        </fieldset>
+    </div>
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("grid")
+            .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectWorkOrderProductionManagement", "WorkOrder", new { area = "Factory", 
+                    fromDate = "01/" + DateTime.Today.Month + DateTime.Today.Year, toDate = DateTime.Today, 
+                    status = 0 })
+            )
+            .Columns(columns => {
+                columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(100).ReadOnly(true);
+                //columns.Bound(f => f.RoutingName).Title("Công đoạn").Width(200).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
+                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(170).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
+                columns.Bound(f => f.PlannedCost).Title("Số lượng</br>KH (pcs)").Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.ActualResources).Title("Nguyên liệu</br>phát (cây)").Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.UsingQuantity).Title("Nguyên liệu</br>SD (cây)").Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.GoodQuantity).Title("Số lượng</br>(pcs)").Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.NGQuantity).Title("Số lượng</br>NG (pcs)").Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.DefectQuantity).Title("Số lượng</br>PP (pcs)").Width(70).ReadOnly(true)
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
+            })
+            .Selectable()
+            .ClientEvents(events => events
+                .OnRowSelect("grid_OnRowSelect")
+                .OnDataBinding("grid_OnDataBinding")
+                .OnDataBound("grid_OnDataBound")
+                .OnError("grid_OnError"))
+            .Render();
+    }
+</div>

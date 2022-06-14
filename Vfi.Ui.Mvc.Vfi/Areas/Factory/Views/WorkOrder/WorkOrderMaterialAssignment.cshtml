@@ -1,0 +1,252 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Phát NL theo WO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Scripts{
+    <script type="text/javascript">
+        function EditWorkOrders() {
+            var $checkedRecords = $("input[name='chkIds']:checked")
+
+            if ($checkedRecords.length < 1) {
+                alert("Vui lọn chọn ít nhất 1 kệ");
+                return;
+            }
+
+            var a = {};
+            checkedRecords = "";
+            for (var i = 0; i < $checkedRecords.length; i++) {
+                if ($checkedRecords[i] === "0") continue;
+                a[i] = $checkedRecords[i].value;
+
+                checkedRecords += $checkedRecords[i].value;
+                if (i < ($checkedRecords.length - 1))
+                    checkedRecords += ":";
+            }
+            var employee = $('#Employee').data('tComboBox').value();
+            if (employee === "") {
+                employee = 0;
+            }
+            if (checkedRecords.length > 0 && employee > 0) {
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        ids: checkedRecords,
+                        employeeId: employee,
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("AssignMaterialWorkOrders", "WorkOrder", new { area = "Factory" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            alert("Hoàn thành lưu " + res.Data);
+                            RefreshGrid("grid");
+                        } else {
+                            alert(res.Message);
+                        }
+                    }
+                });
+            } else {
+                alert("Lỗi! Vui lòng chọn nguyên liệu cần phát và nhân viên!");
+            }
+            return false;
+        }
+
+        function printWOAssignMaterial() {
+            if (!onLoading) {
+                OnLoadingData();
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = new Date();
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                var isAll = $("input[name='chkAll']").attr('checked');
+                var haveInventory = $("input[name='chkInventory']").attr('checked');
+                var haveWorkOrder = $("input[name='chkWorkOrder']").attr('checked');
+                $('#result').load('@Url.Action("PrintWOAssignMaterial", "WorkOrder")',
+                    {
+                        printDate: printDate,
+                        isAll: isAll,
+                        haveInventory: haveInventory,
+                        haveWorkOrder: haveWorkOrder
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+    </script>
+    <script type="text/javascript">
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+    </script>
+}
+
+<div class="title">Phát nguyên liệu cho Work Order</div>
+
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+
+    <fieldset>
+        <legend>Thông tin phiếu</legend> 
+        <div class="grid_4">Nhân viên</div>
+        <div class="grid_4">
+            @{
+                    Html.Telerik().ComboBox()
+                        .Name("Employee")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        //.DropDownHtmlAttributes(new { style = "width: 150px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .Render();
+                }
+        </div>
+        
+        <div class="grid_2">Ngày</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("PrintDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="grid_4">
+            <button id="btnPrintAssign" class="t-button" onclick="printWOAssignMaterial();">
+                <span class='t-icon t-insert'></span>
+               In Phát nguyên liệu
+                <span class="twoToneButton"></span>
+            </button>
+        </div>
+        <div class="grid_4">
+            <label>
+                <input type="checkbox" id="chkAll" name="chkAll" />
+                Tất cả máy
+            </label>
+            <br />
+            <label>
+                <input type="checkbox" id="chkInventory" name="chkInventory" checked />
+                Còn tồn kho
+            </label>
+            <br />
+            <label>
+                <input type="checkbox" id="chkWorkOrder" name="chkWorkOrder" checked />
+                Có Work Order
+            </label>
+        </div>
+    </fieldset>
+</div>
+<div class="clear"></div>
+<br />
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("grid")
+            .DataKeys(key => key.Add(f => f.RoutingId).RouteKey("routingId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectWorkOrderMaterialAssignment", "WorkOrder", new { area = "Factory" })
+           )
+            .Columns(columns => {
+                //columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
+                //       .Width(50).Title("")
+                //       .HtmlAttributes(new { style = "text-align:center" });
+
+                columns.Bound(f => f.RoutingId).Title("Chọn").Width(75)
+                    .HeaderTemplate("<button class='t-button' onclick='EditWorkOrders()'>Tạo phiếu</button>")
+                    .ClientTemplate("<input type='checkbox' name='chkIds' class='chkId' value='<#= RoutingId #>' />")
+                    .HtmlAttributes(new { style = "text-align:center" });
+
+                //columns.Bound(f => f.RoutingId).Title("STT").Width(30).ReadOnly(true)
+                //    .ClientTemplate("<#= ++index #>")
+                //       .HeaderHtmlAttributes(new { style = "font-weight: bold" })
+                //       .HtmlAttributes(new { style = "font-weight: center;" });
+                columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
+                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(270).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
+                columns.Bound(f => f.PlannedCost).Title("Số lượng</br>(cây)").Width(70).ReadOnly(true);
+                columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
+
+            })
+            .Selectable()
+            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .ClientEvents(e => e.OnError("grid_OnError"))
+            .Scrollable(f => f.Height("auto"))
+            .Sortable()
+            .Filterable()
+            .Resizable(resizing => resizing.Columns(true))
+            .Scrollable()
+            .Render();
+    }
+</div>
+
+<!-- windown -->
+@{
+    Html.Telerik().Window()
+        .Name("windowReport")
+        .Modal(true)
+        .Draggable(true)
+        .Content
+        (
+    @<text>
+    <div id="result"></div>
+    </text>
+        )
+        //.ClientEvents(e => e.OnLoad("Window_onLoad"));
+        .Visible(false)
+        .Width(960)
+        .Render();
+}
+
+<style type="text/css">
+    #windowReport {
+        /*
+            float: right;
+            Position: relative;
+            */
+        min-height: 580px;
+        top: 15%;
+    }
+
+    #result {
+        height: 520px;
+        overflow: hidden;
+    }
+
+    #ReportBody {
+        padding-bottom: 25px;
+        margin-bottom: 25px;
+    }
+
+    .tb-witdh td {
+        width: 55px;
+    }
+</style>

@@ -1,0 +1,490 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Công đoạn 1 WO";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .fieldheader {
+        /*height: 150px;*/
+        padding-left: 15px;
+        padding-right: 15px;
+        float: left;
+    }
+
+    .fieldheader1 {
+        width: 35%;
+        min-width: 420px;
+        margin-right: 10px;
+    }
+
+    .fieldheader2 {
+        width: 20%;
+        margin-right: 10px;
+    }
+
+    .fieldheader3 {
+        width: 35%;
+    }
+</style>
+@section Scripts{
+    <!-- grid Monthly -->
+    <script>
+        
+        function workOrder_OnChange() {
+            var workOrder = $("#WorkOrder").data('tComboBox').value();
+            if (workOrder === "") workOrder = 0;
+            $.ajax({
+                type: 'post',
+                data: { routingId: workOrder },
+                dataType: 'json',
+                url: '@Url.Action("CheckWorkOrderRoutingInfo", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
+                        $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
+                        $("#RoutingName")[0].innerText = res.Data.RoutingName;
+                        $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
+
+                        $("#ProductCode")[0].innerText = res.Data.ProductCode;
+                        $("#ProductionQuantity")[0].innerText = res.Data.ActualCost;
+                        $("#ProductWeight").val(res.Data.ProductWeight);
+                        $("#ProductWeight").data("tTextBox").$text[0].innerHTML = res.Data.ProductWeight.format(4);
+
+                        $("#MachineName")[0].innerText = res.Data.MachineName;
+                        $("#Productivity")[0].innerText = res.Data.MoreInfoObject.NS;
+                        $("#ProductionRate")[0].innerText = res.Data.MoreInfoObject.DM;
+                        productionRate = res.Data.MoreInfoObject.DM;
+                        $("#KnifeCut")[0].innerText = res.Data.MoreInfoObject.DC;
+                        $("#WorkPiece")[0].innerText = res.Data.MoreInfoObject.PD;
+
+                        $("#MaterialInvCode")[0].innerText = res.Data.MaterialInvCode;
+                        $("#MaterialAssign")[0].innerText = res.Data.ActualResources;
+                        $("#MaterialUse")[0].innerText = res.Data.UsingQuantity;
+                        RefreshGrid("grid");
+                    } else {
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });
+        }
+
+        function grid_OnDataBinding(e) {
+
+            var workOrder = $("#WorkOrder").data('tComboBox').value();
+            if (workOrder === "") workOrder = 0;
+            if (workOrder != 0) {
+                var productWeight = $("#ProductWeight").data("tTextBox").value();
+                if (productWeight === 0) {
+                    alert("Lỗi Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
+                    e.preventDefault();
+                }
+                e.data = $.extend(e.data, {
+                    routingId: workOrder,
+                    productWeight: productWeight,
+                });
+            }
+        }
+
+        function grid_OnSubmitChanges(e) {
+            var workOrder = $("#WorkOrder").data('tComboBox').value();
+            if (workOrder === "") workOrder = 0;
+            var employee = $("#Employee").data('tComboBox').value();
+            if (employee === "") employee = 0;
+            var productWeight = $("#ProductWeight").data("tTextBox").value();
+            if (workOrder === 0 || employee === 0 || productWeight === 0) {
+                alert("Lỗi Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
+                e.preventDefault();
+            }
+            e.values = $.extend(e.values,
+                {
+                    routingId: workOrder,
+                    employeeId: employee,
+                    productWeight: productWeight,
+                    machineId: 0
+                });
+        }
+        productionRate = 0;
+        function grid_OnSave(e) {
+
+            var goodQuantity = $(e.cell).find('#GoodQuantity').val();
+            var goodWeight = $(e.cell).find('#GoodWeight').val();
+            var ngQuantity = $(e.cell).find('#NGQuantity').val();
+            var ngWeight = $(e.cell).find('#NGWeight').val();
+            var defectQuantity = $(e.cell).find('#DefectQuantity').val();
+            var defectWeight = $(e.cell).find('#DefectWeight').val();
+            var usingQuantity = $(e.cell).find('#UsingQuantity').val();
+            var spanProduction = e.cell.parentElement.getElementsByClassName("ProductionQuantity")[0];
+            var productWeight = e.dataItem.ProductWeight;
+            if (!isNaN(parseInt(goodQuantity))) {
+                e.dataItem.GoodQuantity = parseInt(goodQuantity);
+                goodWeight = parseInt(e.dataItem.GoodQuantity * e.dataItem.ProductWeight);
+                e.dataItem.GoodWeight = goodWeight;
+                var span = e.cell.parentElement.getElementsByClassName("GoodWeight")[0];
+                span.textContent = goodWeight.format(0);
+            }
+            else if (!isNaN(parseInt(goodWeight))) {
+                e.dataItem.GoodWeight = parseInt(goodWeight);
+                goodQuantity = parseInt(e.dataItem.GoodWeight / productWeight);
+                e.dataItem.GoodQuantity = goodQuantity;
+                var span = e.cell.parentElement.getElementsByClassName("GoodQuantity")[0];
+                span.textContent = goodQuantity.format(0);
+            }             
+            else if (!isNaN(parseInt(ngQuantity))) {
+                e.dataItem.NGQuantity = parseInt(ngQuantity);
+                ngWeight = parseInt(e.dataItem.NGQuantity * e.dataItem.ProductWeight);
+                e.dataItem.NGWeight = ngWeight;
+                var span = e.cell.parentElement.getElementsByClassName("NGWeight")[0];
+                span.textContent = ngWeight.format(0);
+            }
+            else if (!isNaN(parseInt(ngWeight))) {
+                e.dataItem.NGWeight = parseInt(ngWeight);
+                ngQuantity = parseInt(e.dataItem.NGWeight / productWeight);
+                e.dataItem.NGQuantity = ngQuantity;
+                var span = e.cell.parentElement.getElementsByClassName("NGQuantity")[0];
+                span.textContent = ngQuantity.format(0);
+            }
+            else if (!isNaN(parseInt(defectQuantity))) {
+                e.dataItem.DefectQuantity = parseInt(defectQuantity);
+                defectWeight = parseInt(e.dataItem.DefectQuantity * e.dataItem.ProductWeight);
+                e.dataItem.DefectWeight = defectWeight;
+                var span = e.cell.parentElement.getElementsByClassName("DefectWeight")[0];
+                span.textContent = defectWeight.format(0);
+            }
+            else if (!isNaN(parseInt(defectWeight))) {
+                e.dataItem.DefectWeight = parseInt(defectWeight);
+                defectQuantity = parseInt(e.dataItem.DefectWeight / productWeight);
+                e.dataItem.DefectQuantity = defectQuantity;
+                var span = e.cell.parentElement.getElementsByClassName("DefectQuantity")[0];
+                span.textContent = defectQuantity.format(0);
+            }
+            else if (!isNaN(parseInt(usingQuantity))) {
+                var production = parseInt(parseInt(usingQuantity) * productionRate);
+                e.dataItem.PreviousRouteQuantity = production;
+                spanProduction.textContent = production.format(0);
+            }
+            if (e.dataItem.GoodQuantity + e.dataItem.NGQuantity + e.dataItem.DefectQuantity > e.dataItem.PreviousRouteQuantity) {
+                // wrong: orange;
+                spanProduction.parentNode.bgColor = "orange";
+            }
+            else if (e.dataItem.GoodQuantity + e.dataItem.NGQuantity + e.dataItem.DefectQuantity < e.dataItem.PreviousRouteQuantity) {
+                // not done: yellow
+                spanProduction.parentNode.bgColor = "yellow";
+            } else {
+                // right
+                spanProduction.parentNode.bgColor = "";
+            }
+        }
+    </script>
+}
+
+<div class="title">Nhập công đoạn 1</div>
+<div class="clear"></div>
+<br />
+
+<div class="t-info-sha fieldheader fieldheader1">
+    <fieldset>
+        <legend>Thông tin Work Order</legend>
+            <div class="grid_1_5">
+                Chọn
+            </div>
+            <div class="grid_6">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("WorkOrder")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWorkOrderProduction1Routing", "WorkOrder", new { area = "Factory" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .ClientEvents(events => events.OnChange("workOrder_OnChange"))
+                        .Render();
+                }
+            </div>
+        <div class="grid_1">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshCombobox('WorkOrder'); ">
+                <span class='t-icon t-refresh'></span>
+            </button>
+        </div>
+            <div class="clear"></div>
+        <div class="grid_11">
+            <div class="grid_2">
+                Số Serial
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="SerialNumber">~~</span>
+            </div>
+            <div class="grid_2">
+                Sản phẩm
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="ProductCode">~~</span>
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                Công đoạn
+            </div>
+            <div class="grid_3">
+                <span id="RoutingName">~~</span>
+            </div>            
+            <div class="grid_2">
+                CĐ kế
+            </div>
+            <div class="grid_3">
+                <span id="NextRouteName">~~</span>
+            </div>
+            <div class="clear"></div>
+            <br />
+            
+            <div class="grid_2">
+                Số lượng:
+            </div>
+            <div class="grid_3">
+                <span id="WorkOrderQuantity">0</span>
+            </div>
+            <div class="grid_2">
+                Đã SX:
+            </div>
+            <div class="grid_3">
+                <span id="ProductionQuantity">0</span>
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                TL SP
+            </div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("ProductWeight")
+                        .MinValue(0)
+                        .MaxValue(1000)
+                        .DecimalDigits(4)
+                        .Value(0.000)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
+                        //.ClientEvents(events => { events.OnChange("unitWeight_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_1_5">(g/pc)</div>
+            
+            <div class="grid_2">
+                TL BB
+            </div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("PackageWeight")
+                        .MinValue(0)
+                        .MaxValue(1000000)
+                        .DecimalDigits(0)
+                        .Value(0)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                        //.ClientEvents(events => { events.OnChange("crossWeight_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">(g)</div>
+            <div class="clear"></div>
+            <br />
+        </div>
+    </fieldset>
+</div>
+
+<div class="t-info-sha fieldheader fieldheader2">
+    <fieldset>
+        <legend>Cân hàng</legend>
+        
+        <div class="grid_3">
+            <button class="t-button" id="btnConnect" name="btnConnect" onclick=" Connect() ">
+                <span class='t-icon t-insert'></span>
+                Kết nối cân
+            </button> | 
+        </div>
+        <div class="grid_3">
+            <button class="t-button" id="btnDisConnect" name="btnDisConnect" onclick=" DisConnect() ">
+                <span class='t-icon t-delete'></span>
+                Ngắt kết nối
+            </button>
+        </div>
+        <div class="clear"></div>
+        <br />
+        <div style="text-align: center; width: 100%;  font-size: xxx-large;">
+            <span id="WeighValue">~</span>
+            kg
+        </div>
+        <div style="text-align: center; width: 100%;  font-size: xxx-large;">
+            <span id="QuantityValue">~</span>
+            pcs
+            <span class="twoToneButton_2"></span>
+        </div>
+
+    </fieldset>
+</div>
+
+<div class="t-info-sha fieldheader fieldheader3">
+    <fieldset>
+        <legend>Thông tin sản xuất</legend>
+        <div class="grid_2">Nhân viên</div>
+        <div class="grid_4">
+            @{
+                    Html.Telerik().ComboBox()
+                        .Name("Employee")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        //.DropDownHtmlAttributes(new { style = "width: 150px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .Render();
+                }
+        </div>
+        <div class="clear"></div>
+        <div class="grid_2_5">
+            Máy
+        </div>
+        <div class="grid_3" style="font-size: large;">
+            <span id="MachineName">~~</span>
+        </div>
+        <div class="clear"></div>
+        <div>
+            <div class="grid_6">
+                <div class="grid_2">
+                    Năng suất
+                </div>
+                <div class="grid_3">
+                    <span id="Productivity">0</span> (s/pc)
+                </div>
+        <div class="clear"></div>
+        <br />
+                <div class="grid_2">
+                    Dao cắt
+                </div>
+                <div class="grid_3">
+                    <span id="KnifeCut">0</span> (mm)
+                </div>
+            </div>
+            <div class="grid_6">
+                <div class="grid_2">
+                    Định mức
+                </div>
+                <div class="grid_3">
+                    <span id="ProductionRate">0</span> (pcs/cây)
+                </div>
+        <div class="clear"></div>
+        <br />
+                <div class="grid_2">
+                    Phoi dư
+                </div>
+                <div class="grid_3">
+                    <span id="WorkPiece">0</span> (mm)
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <br />
+        <div class="grid_2_5">
+            Nguyên liệu
+        </div>
+        <div class="grid_8" style="font-size: large;">
+            <span id="MaterialInvCode">~~</span>
+        </div>
+            <div class="clear"></div>
+        <div>
+            <div class="grid_6">
+                <div class="grid_2">
+                    Phát
+                </div>
+                <div class="grid_3">
+                    <span id="MaterialAssign">0</span>
+                </div>
+            </div>
+            <div class="grid_6">
+                <div class="grid_2">
+                    Sử dụng
+                </div>
+                <div class="grid_3">
+                    <span id="MaterialUse">0</span>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div class="clear"></div>
+<br />
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("grid")
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectWorkOrderProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0})
+                .Update("ImportWorkOrderProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0 })
+                )
+            .Columns(columns => {
+                columns.Bound(f => f.ProductWeight).Width(90).HeaderTemplate("Trọng lượng</br>Sản phẩm</br>(g/pc)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                    .Format("{0:n4}")
+                    .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.UsingQuantity).Width(90).HeaderTemplate("Sử dụng</br>nguyên liệu</br>(cây)")
+                    .HeaderHtmlAttributes(new { @class = "edit-column",  style = "text-align: center;" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.PreviousRouteQuantity).Width(90).HeaderTemplate("Định mức</br>Sản phẩm</br>(pcs)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                    .ClientTemplate("<span class='ProductionQuantity'>0</span>")
+                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.GoodQuantity).Width(90).HeaderTemplate("Hàng</br>OK</br>(pcs)")
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .ClientTemplate("<span class='GoodQuantity'><#= GoodQuantity #></span>")
+                    //.Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.GoodWeight).Width(90).HeaderTemplate("Hàng</br>OK</br>(g)")
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    //.Format("{0:n0}")
+                    .ClientTemplate("<span class='GoodWeight'><#= GoodWeight #></span>")
+                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+
+                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("Hàng</br>CPL</br>(pcs)")
+                    .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    .ClientTemplate("<span class='NGQuantity'><#= NGQuantity #></span>")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("Hàng</br>CPL</br>(g)")
+                    .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    //.Format("{0:n0}")
+                    .ClientTemplate("<span class='NGWeight'><#= NGWeight #></span>")
+                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+
+                columns.Bound(f => f.DefectQuantity).Width(90).HeaderTemplate("Phế phẩm</br>(pcs)")
+                    .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .ClientTemplate("<span class='DefectQuantity'><#= DefectQuantity #></span>")
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DefectWeight).Width(90).HeaderTemplate("Phế phẩm</br>(g)")
+                    .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .Format("{0:n0}")
+                    .ClientTemplate("<span class='DefectWeight'><#= DefectWeight #></span>")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+            })
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .ClientEvents(events => events
+                .OnDataBinding("grid_OnDataBinding")
+                .OnSubmitChanges("grid_OnSubmitChanges")
+                .OnSave("grid_OnSave")
+                .OnError("grid_OnError")
+            )
+            .KeyboardNavigation()
+            .Render();   
+    }
+</div>
+
+<div class="clear"></div><br />

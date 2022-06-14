@@ -420,14 +420,14 @@
             )
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.Upload2D).Width(40).Title("Bản vẽ").ReadOnly(true)
-                           .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
-                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
-                    columns.Bound(f => f.UploadReal).Width(40).Title("Hình SP").ReadOnly(true)
-                           .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
-                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    //columns.Bound(f => f.Upload2D).Width(40).Title("Bản vẽ").ReadOnly(true)
+                    //       .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                    //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                    //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    //columns.Bound(f => f.UploadReal).Width(40).Title("Hình SP").ReadOnly(true)
+                    //       .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                    //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                    //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
                     columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true)
                            .HeaderTemplate("<strong>Mã</br>KH</strong>")
                            .HeaderHtmlAttributes(new {style = "text-align:center;"})

@@ -473,14 +473,14 @@
                     columns.Bound(f => f.MachineName).Width(70).Title("Máy")
                         .HtmlAttributes(new {style = "font-weight:bold"});
 
-                    columns.Bound(f => f.DrawingImg).Width(50).Title("").ReadOnly(true)
-                           .ClientTemplate("<a id='<#=TrackId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=DrawingImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
-                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=DrawingImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
-                    columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
-                           .ClientTemplate("<a id='<#=TrackId#>_2' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
-                                           "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                           "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    //columns.Bound(f => f.DrawingImg).Width(50).Title("").ReadOnly(true)
+                    //       .ClientTemplate("<a id='<#=TrackId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=DrawingImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                    //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=DrawingImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                    //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    //columns.Bound(f => f.ProductImg).Width(50).Title("").ReadOnly(true)
+                    //       .ClientTemplate("<a id='<#=TrackId#>_2' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                    //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                    //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
                     columns.Bound(f => f.ProductCode).Width(100).Title("Mã SP")
                         .HtmlAttributes(new {style = "font-weight:bold"})
                         //.ClientTemplate("<strong><#= ProductCode #></strong>")

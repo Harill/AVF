@@ -413,8 +413,11 @@
     <Compile Include="Areas\Factory\Controllers\DefectController.cs" />
     <Compile Include="Areas\Factory\Controllers\MachineController.cs" />
     <Compile Include="Areas\Factory\Controllers\SectionController.cs" />
+    <Compile Include="Areas\Factory\Controllers\WorkOrderController.cs" />
     <Compile Include="Areas\Factory\FactoryAreaRegistration.cs" />
+    <Compile Include="Areas\Factory\Models\ActivateWorkOrderModel.cs" />
     <Compile Include="Areas\Factory\Models\DefectReportModel.cs" />
+    <Compile Include="Areas\Factory\Models\EditWorkOrderModel.cs" />
     <Compile Include="Areas\Factory\Models\MachineStateStatisticModel.cs" />
     <Compile Include="Areas\Factory\Models\MachineErrorCauseModel.cs" />
     <Compile Include="Areas\Factory\Models\MachineDiagram.cs">
@@ -463,6 +466,7 @@
     <Compile Include="Areas\Factory\Models\ProductionTestingModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionTestingNoteModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionToolReplacementModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionWorkOrderModel.cs" />
     <Compile Include="Areas\Factory\Models\RealTestingModel.cs" />
     <Compile Include="Areas\Factory\Models\RepairFormDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\SectionModel.cs">
@@ -478,6 +482,9 @@
     </Compile>
     <Compile Include="Areas\Factory\Models\DefectTransactionDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\DefectTransactionModel.cs" />
+    <Compile Include="Areas\Factory\Models\WorkOrderModel.cs" />
+    <Compile Include="Areas\Factory\Models\WorkOrderProcessModel.cs" />
+    <Compile Include="Areas\Factory\Models\WorkOrderRoutingModel.cs" />
     <Compile Include="Areas\Inv\Controllers\InvController.cs" />
     <Compile Include="Areas\Inv\Controllers\ReportingController.cs" />
     <Compile Include="Areas\Inv\Controllers\StockOrderController.cs" />
@@ -589,6 +596,18 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptWorkOrder.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptWorkOrder.Designer.cs">
+      <DependentUpon>RptWorkOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptPrintWOAssignMaterial.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptPrintWOAssignMaterial.Designer.cs">
+      <DependentUpon>RptPrintWOAssignMaterial.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptTransactionFormGroup.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1219,6 +1238,8 @@
     </Compile>
     <Compile Include="Areas\Sales\Models\WaitingOrderBalancingPlanModel.cs" />
     <Compile Include="Areas\Sales\Views\SalesAreaRegistration.cs" />
+    <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrder.aspx" />
+    <Content Include="Areas\Factory\Views\WorkOrder\PageWOAssignMaterial.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageTransactionFormGroup.aspx" />
     <Content Include="Content\Isotope.css" />
     <Compile Include="Controllers\Authorization\PermissionController.cs" />
@@ -1498,7 +1519,10 @@
     <Compile Include="Models\Mapping\WarehouseTypeMap.cs" />
     <Compile Include="Models\Mapping\WeighingMachineMap.cs" />
     <Compile Include="Models\Mapping\WorkGroupMap.cs" />
+    <Compile Include="Models\Mapping\WorkOrder1Map.cs" />
     <Compile Include="Models\Mapping\WorkOrderMap.cs" />
+    <Compile Include="Models\Mapping\WorkOrderProcessMap.cs" />
+    <Compile Include="Models\Mapping\WorkOrderRouting1Map.cs" />
     <Compile Include="Models\Mapping\WorkOrderRoutingMap.cs" />
     <Compile Include="Models\Mapping\WorkpieceMaterialPeriodMap.cs" />
     <Compile Include="Models\Material.cs" />
@@ -1676,7 +1700,10 @@
     <Compile Include="Models\WeighingMachine.cs" />
     <Compile Include="Models\WorkGroup.cs" />
     <Compile Include="Models\WorkOrder.cs" />
+    <Compile Include="Models\WorkOrder1.cs" />
+    <Compile Include="Models\WorkOrderProcess.cs" />
     <Compile Include="Models\WorkOrderRouting.cs" />
+    <Compile Include="Models\WorkOrderRouting1.cs" />
     <Compile Include="Models\WorkpieceMaterialPeriod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -2917,6 +2944,33 @@
     <Content Include="Areas\Inv\Views\Transaction\TransactionWeighing.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\TransactionWeighingAddDetail.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\TransactionWeighingManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\ActivateWorkOrder.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\EditWorkOrder.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderMaterialAssignment.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProductionProcess.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProductionApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProduction2Confirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProduction2Process.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\_DateTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\_DateTemplateNullable.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\Number.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\Number0Digit.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\Number1Digit.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\Number2Digit.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\Number3Digit.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\NumberAsInt.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\NumberAsShort.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProduction2Approvement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderQCConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderQCProcess.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderQCApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPackingApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPackingConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPackingProcess.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderFinishConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProductionManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\AddWorkOrder.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
     </None>
@@ -3186,7 +3240,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Areas\Factory\Views\Shared\" />
     <Folder Include="Areas\Inv\Reports\tmp\" />
     <Folder Include="Content\FileUpload\ProductImg\" />
     <Folder Include="Content\Logs\" />
@@ -3216,22 +3269,6 @@
     <ProjectReference Include="..\Vfi.Client.Module.Authentication\Vfi.Client.Module.Authentication.csproj">
       <Project>{2813EB3F-1DC2-424E-96D2-8E12B123BC65}</Project>
       <Name>Vfi.Client.Module.Authentication</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Vfi.Client.Module.Inv\Vfi.Client.Module.Inv.csproj">
-      <Project>{01B778B6-CA47-4635-96EC-EC1BA749A4A4}</Project>
-      <Name>Vfi.Client.Module.Inv</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Vfi.Client.Module.Production\Vfi.Client.Module.Production.csproj">
-      <Project>{CFDDA259-BF5A-4ADD-8693-ECB67DC196D9}</Project>
-      <Name>Vfi.Client.Module.Production</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Vfi.Client.Module.Purchasing\Vfi.Client.Module.Purchasing.csproj">
-      <Project>{B1C090AF-E11C-4743-B621-8CCBE1F634C5}</Project>
-      <Name>Vfi.Client.Module.Purchasing</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Vfi.Client.Module.Sales\Vfi.Client.Module.Sales.csproj">
-      <Project>{9A224A48-7494-40CE-A5C7-9DDC81B4B2C7}</Project>
-      <Name>Vfi.Client.Module.Sales</Name>
     </ProjectReference>
     <ProjectReference Include="..\Vfi.Server.Core.CrossCutting\Vfi.Server.Core.CrossCutting.csproj">
       <Project>{D6946A12-1260-45E8-854B-883C34348D9F}</Project>
@@ -3657,6 +3694,12 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptWorkOrder.resx">
+      <DependentUpon>RptWorkOrder.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptPrintWOAssignMaterial.resx">
+      <DependentUpon>RptPrintWOAssignMaterial.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptTransactionFormGroup.resx">
       <DependentUpon>RptTransactionFormGroup.cs</DependentUpon>
     </EmbeddedResource>

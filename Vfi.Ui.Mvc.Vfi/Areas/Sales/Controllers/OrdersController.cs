@@ -13,20 +13,22 @@ using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
-using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
+using Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
     public class OrdersController : Controller {
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly SalesOrderController _salesOrderController;
+        private readonly WorkOrderController _workOrderController;
         [InjectionConstructor]
-        public OrdersController(IUnitOfWork unitOfWork, SalesOrderController salesOrderController) {
+        public OrdersController(IUnitOfWork unitOfWork, SalesOrderController salesOrderController, WorkOrderController workOrderController) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
 
             _unitOfWork = unitOfWork;
             _salesOrderController = salesOrderController;
+            _workOrderController = workOrderController;
         }
 
         #region view
@@ -736,6 +738,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 return Json(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
             try {
                 var orderDetailIds = new List<long>();
+                var isWorkOrder = false;
                 using (var vfi = new tammaContext()) {
                     // save approve order
                     var order = vfi.Orders.FirstOrDefault(o => o.OrderId == orderId);
@@ -787,6 +790,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
                     // save order progress auto
                     orderDetailIds = order.OrderDetails.Select(x => x.OrderDetailId).ToList();
+                    isWorkOrder = order.Customer.IsWorkOrder;
                 }
                 // save order progress auto
                 foreach (var detailId in orderDetailIds) {
@@ -794,6 +798,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     foreach (var progress in orderProgresses) {
                         _salesOrderController.SaveOrderProgess(progress, HttpContext.User.Identity.Name);
                     }
+                }
+
+                // save workorder
+                if (isWorkOrder) {
+                    _workOrderController.SaveWorkOrders(orderId, 0);
                 }
             }
             catch (Exception ex) {
@@ -1968,9 +1977,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     }
                     if (!string.IsNullOrWhiteSpace(productCode)) {
                         var productId = vfi.Products.Where(p => p.ProductCode.Equals(productCode)).Select(x =>  x.ProductId).FirstOrDefault();
-                        if (productId != null)
+                        if (productId != null) {
                             orders = orders.Where(o => o.OrderDetails.Any(od => od.ProductId == productId && od.RequiedNumber > 0))
                                             .ToList();
+                        }
                     }
                     foreach (var order in orders) {
                         var entity = new ManageOrderModel {
@@ -2407,156 +2417,156 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             .OrderByDescending(o => o.ModifiedDate)));
         }
 
-        [GridAction]
-        public ActionResult DeleteInvoice(int invoiceId, string note) {
-            try {
-                if (!Request.IsAuthenticated) {
-                    throw new AggregateException(@"Bạn đã bị mất quyền đăng nhập. \r\n 
-                                         1 trong các nguyên nhân như mất thời gian chờ. \r\n 
-                                         Xin vui lòng đăng nhập lại hệ thống.");
-                }
-                using (var vfi = new tammaContext()) {
-                    var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceId == invoiceId);
-                    if (invoice == null || invoice.Active == false)
-                        return View(new GridModel(PrepareInvoiceTemp("").OrderByDescending(o => o.ModifiedDate)));
-                    if (invoice.Status == (byte)MyUtilities.Sales.Status.InProcess) {
-                        throw new AggregateException("Invoice đã có xuất hóa đơn không thể hủy !");
-                    }
-                    if (invoice.Status != (byte)MyUtilities.Sales.Status.Waiting) {
-                        throw new AggregateException("Lỗi lệnh ! Vui lòng F5 để Refresh");
-                    }
-                    invoice.Note = note;
-                    invoice.Active = false;
-                    invoice.Status = (byte)MyUtilities.Sales.Status.Cancel;
-                    //roll back
-                    var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
-                    var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
-                    var transaction =
-                        vfi.Transactions.FirstOrDefault(t => t.TransactionCode.Equals(export.TransactionCode));
-                    if (transaction != null) {
-                        //giao dich
-                        transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
-                        foreach (var exportDetail in export.ExportFormTP_KDDetail) {
-                            //ton kho
-                            var productInventoryIssue =
-                                vfi.ProductInventories.FirstOrDefault(
-                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Finish);
-                            var productInventoryReceipt =
-                                vfi.ProductInventories.FirstOrDefault(
-                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Business);
+//        [GridAction]
+//        public ActionResult DeleteInvoice(int invoiceId, string note) {
+//            try {
+//                if (!Request.IsAuthenticated) {
+//                    throw new AggregateException(@"Bạn đã bị mất quyền đăng nhập. \r\n 
+//                                         1 trong các nguyên nhân như mất thời gian chờ. \r\n 
+//                                         Xin vui lòng đăng nhập lại hệ thống.");
+//                }
+//                using (var vfi = new tammaContext()) {
+//                    var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceId == invoiceId);
+//                    if (invoice == null || invoice.Active == false)
+//                        return View(new GridModel(PrepareInvoiceTemp("").OrderByDescending(o => o.ModifiedDate)));
+//                    if (invoice.Status == (byte)MyUtilities.Sales.Status.InProcess) {
+//                        throw new AggregateException("Invoice đã có xuất hóa đơn không thể hủy !");
+//                    }
+//                    if (invoice.Status != (byte)MyUtilities.Sales.Status.Waiting) {
+//                        throw new AggregateException("Lỗi lệnh ! Vui lòng F5 để Refresh");
+//                    }
+//                    invoice.Note = note;
+//                    invoice.Active = false;
+//                    invoice.Status = (byte)MyUtilities.Sales.Status.Cancel;
+//                    //roll back
+//                    var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
+//                    var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
+//                    var transaction =
+//                        vfi.Transactions.FirstOrDefault(t => t.TransactionCode.Equals(export.TransactionCode));
+//                    if (transaction != null) {
+//                        //giao dich
+//                        transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+//                        foreach (var exportDetail in export.ExportFormTP_KDDetail) {
+//                            //ton kho
+//                            var productInventoryIssue =
+//                                vfi.ProductInventories.FirstOrDefault(
+//                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Finish);
+//                            var productInventoryReceipt =
+//                                vfi.ProductInventories.FirstOrDefault(
+//                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Business);
 
-                            productInventoryIssue.TotalQty += exportDetail.Quality;
-                            productInventoryReceipt.TotalQty -= exportDetail.Quality;
-                            // luan chuyen
-                            var productInventoryPeriods =
-                                vfi.ProductInventoryPeriods.Where(pip => pip.TransactionId == transaction.TransactionId);
-                            vfi.ProductInventoryPeriods.RemoveRange(productInventoryPeriods);
-                            //don hang
-                            var orderDetail =
-                                order.OrderDetails.FirstOrDefault(od => od.ProductId == exportDetail.ProductId);
-                            orderDetail.RequiedNumber += MyUtilities.Function.RoundUp(exportDetail.Quality);
-                            orderDetail.IsComplete = false;
-                        }
-                    }
-                    if (order.OrderDetails.Count(od => od.OrderQty == od.RequiedNumber) == order.OrderDetails.Count()) {
-                        order.Status = (byte)MyUtilities.Sales.Status.Waiting;
-                    }
-                    else {
-                        order.Status = (byte)MyUtilities.Sales.Status.InProcess;
-                    }
-                    vfi.SaveChanges();
-                }
-            }
-            catch (Exception ex) {
-                ModelState.AddModelError("DeleteInvocie", ex.Message);
-            }
-            return View(new GridModel(PrepareInvoiceTemp("").Where(i => i.Active).OrderByDescending(o => o.ModifiedDate)));
-        }
+//                            productInventoryIssue.TotalQty += exportDetail.Quality;
+//                            productInventoryReceipt.TotalQty -= exportDetail.Quality;
+//                            // luan chuyen
+//                            var productInventoryPeriods =
+//                                vfi.ProductInventoryPeriods.Where(pip => pip.TransactionId == transaction.TransactionId);
+//                            vfi.ProductInventoryPeriods.RemoveRange(productInventoryPeriods);
+//                            //don hang
+//                            var orderDetail =
+//                                order.OrderDetails.FirstOrDefault(od => od.ProductId == exportDetail.ProductId);
+//                            orderDetail.RequiedNumber += MyUtilities.Function.RoundUp(exportDetail.Quality);
+//                            orderDetail.IsComplete = false;
+//                        }
+//                    }
+//                    if (order.OrderDetails.Count(od => od.OrderQty == od.RequiedNumber) == order.OrderDetails.Count()) {
+//                        order.Status = (byte)MyUtilities.Sales.Status.Waiting;
+//                    }
+//                    else {
+//                        order.Status = (byte)MyUtilities.Sales.Status.InProcess;
+//                    }
+//                    vfi.SaveChanges();
+//                }
+//            }
+//            catch (Exception ex) {
+//                ModelState.AddModelError("DeleteInvocie", ex.Message);
+//            }
+//            return View(new GridModel(PrepareInvoiceTemp("").Where(i => i.Active).OrderByDescending(o => o.ModifiedDate)));
+//        }
 
-        [GridAction]
-        public ActionResult DeleteInvoice_New(int invoiceId, string note) {
-            try {
-                if (!Request.IsAuthenticated) {
-                    throw new AggregateException(@"Bạn đã bị mất quyền đăng nhập. \r\n 
-                                         1 trong các nguyên nhân như mất thời gian chờ. \r\n 
-                                         Xin vui lòng đăng nhập lại hệ thống.");
-                }
-                using (var vfi = new tammaContext()) {
-                    var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceId == invoiceId);
-                    if (invoice == null || invoice.Active == false)
-                        return View(new GridModel(PrepareInvoiceTemp("").OrderByDescending(o => o.ModifiedDate)));
-                    if (invoice.Status == (byte)MyUtilities.Sales.Status.InProcess) {
-                        throw new AggregateException("Invoice đã có xuất hóa đơn không thể hủy !");
-                    }
-                    if (invoice.Status != (byte)MyUtilities.Sales.Status.Waiting) {
-                        throw new AggregateException("Lỗi lệnh ! Vui lòng F5 để Refresh");
-                    }
-                    if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, invoice.ShipmentDate.Value)) {
-                        throw new AggregateException(
-                            @"Không có quyền huỷ phiếu xuất tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
-                    }
-                    //roll back
-                    var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
-                    var exportDetailCheck = export.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.InvoiceDetails.Any(id => id.Active));
-                    if (exportDetailCheck != null)
-                        throw new AggregateException("Lỗi! Vui lòng hủy hết lệnh phân đơn hàng trước khi hủy lệnh xuất");
-                    //var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
-                    var transaction =
-                        vfi.Transactions.FirstOrDefault(t => t.TransactionCode.Equals(export.TransactionCode));
-                    if (transaction != null) {
-                        //giao dich
-                        transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
-                        foreach (var exportDetail in export.ExportFormTP_KDDetail) {
-                            //ton kho
-                            var productInventoryIssue =
-                                vfi.ProductInventories.FirstOrDefault(
-                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Finish);
-                            var productInventoryReceipt =
-                                vfi.ProductInventories.FirstOrDefault(
-                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Business);
+//        [GridAction]
+//        public ActionResult DeleteInvoice_New(int invoiceId, string note) {
+//            try {
+//                if (!Request.IsAuthenticated) {
+//                    throw new AggregateException(@"Bạn đã bị mất quyền đăng nhập. \r\n 
+//                                         1 trong các nguyên nhân như mất thời gian chờ. \r\n 
+//                                         Xin vui lòng đăng nhập lại hệ thống.");
+//                }
+//                using (var vfi = new tammaContext()) {
+//                    var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceId == invoiceId);
+//                    if (invoice == null || invoice.Active == false)
+//                        return View(new GridModel(PrepareInvoiceTemp("").OrderByDescending(o => o.ModifiedDate)));
+//                    if (invoice.Status == (byte)MyUtilities.Sales.Status.InProcess) {
+//                        throw new AggregateException("Invoice đã có xuất hóa đơn không thể hủy !");
+//                    }
+//                    if (invoice.Status != (byte)MyUtilities.Sales.Status.Waiting) {
+//                        throw new AggregateException("Lỗi lệnh ! Vui lòng F5 để Refresh");
+//                    }
+//                    if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, invoice.ShipmentDate.Value)) {
+//                        throw new AggregateException(
+//                            @"Không có quyền huỷ phiếu xuất tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
+//                    }
+//                    //roll back
+//                    var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
+//                    var exportDetailCheck = export.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.InvoiceDetails.Any(id => id.Active));
+//                    if (exportDetailCheck != null)
+//                        throw new AggregateException("Lỗi! Vui lòng hủy hết lệnh phân đơn hàng trước khi hủy lệnh xuất");
+//                    //var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
+//                    var transaction =
+//                        vfi.Transactions.FirstOrDefault(t => t.TransactionCode.Equals(export.TransactionCode));
+//                    if (transaction != null) {
+//                        //giao dich
+//                        transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+//                        foreach (var exportDetail in export.ExportFormTP_KDDetail) {
+//                            //ton kho
+//                            var productInventoryIssue =
+//                                vfi.ProductInventories.FirstOrDefault(
+//                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Finish);
+//                            var productInventoryReceipt =
+//                                vfi.ProductInventories.FirstOrDefault(
+//                                    pi => pi.ProductId == exportDetail.ProductId && pi.WarehouseId == MyUtilities.Warehouse.Business);
 
-                            productInventoryIssue.TotalQty += exportDetail.Quality;
-                            productInventoryReceipt.TotalQty -= exportDetail.Quality;
-                        }
-                        // tra lai luan chuyen
-                        var productInventoryPeriods =
-                            vfi.ProductInventoryPeriods.Where(pip => pip.TransactionId == transaction.TransactionId);
-                        vfi.ProductInventoryPeriods.RemoveRange(productInventoryPeriods);
-                        var orderNoteDetails =
-                            vfi.OrderNoteDetails.Where(
-                                ond =>
-                                ond.OrderNote.InvoiceId == invoiceId &&
-                                ond.OrderNote.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved);
-                        if (orderNoteDetails.Any()) {
-                            var transactionIds = orderNoteDetails.Select(ond => ond.OrderNote.TransactionId).ToList();
-                            var productInventoryPeriods2 =
-                                vfi.ProductInventoryPeriods.Where(pip => transactionIds.Contains(pip.TransactionId));
-                            vfi.ProductInventoryPeriods.RemoveRange(productInventoryPeriods2);
-                        }
-                    }
-                    invoice.Note = note;
-                    invoice.Active = false;
-                    invoice.Status = (byte)MyUtilities.Sales.Status.Cancel;
-                    //foreach(var
-                    vfi.SaveChanges();
-                    return
-                        View(
-                            new GridModel(
-                                PrepareInvoiceTemp_New("", invoice.ShipmentDate.Value.Month,
-                                                       invoice.ShipmentDate.Value.Year)
-                                    .OrderByDescending(o => o.ModifiedDate)));
+//                            productInventoryIssue.TotalQty += exportDetail.Quality;
+//                            productInventoryReceipt.TotalQty -= exportDetail.Quality;
+//                        }
+//                        // tra lai luan chuyen
+//                        var productInventoryPeriods =
+//                            vfi.ProductInventoryPeriods.Where(pip => pip.TransactionId == transaction.TransactionId);
+//                        vfi.ProductInventoryPeriods.RemoveRange(productInventoryPeriods);
+//                        var orderNoteDetails =
+//                            vfi.OrderNoteDetails.Where(
+//                                ond =>
+//                                ond.OrderNote.InvoiceId == invoiceId &&
+//                                ond.OrderNote.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved);
+//                        if (orderNoteDetails.Any()) {
+//                            var transactionIds = orderNoteDetails.Select(ond => ond.OrderNote.TransactionId).ToList();
+//                            var productInventoryPeriods2 =
+//                                vfi.ProductInventoryPeriods.Where(pip => transactionIds.Contains(pip.TransactionId));
+//                            vfi.ProductInventoryPeriods.RemoveRange(productInventoryPeriods2);
+//                        }
+//                    }
+//                    invoice.Note = note;
+//                    invoice.Active = false;
+//                    invoice.Status = (byte)MyUtilities.Sales.Status.Cancel;
+//                    //foreach(var
+//                    vfi.SaveChanges();
+//                    return
+//                        View(
+//                            new GridModel(
+//                                PrepareInvoiceTemp_New("", invoice.ShipmentDate.Value.Month,
+//                                                       invoice.ShipmentDate.Value.Year)
+//                                    .OrderByDescending(o => o.ModifiedDate)));
 
-                }
-            }
-            catch (Exception ex) {
-                ModelState.AddModelError("DeleteInvoice_New", ex.Message);
-            }
-            return
-                View(
-                    new GridModel(
-                        PrepareInvoiceTemp_New("", DateTime.Now.Month, DateTime.Now.Year)
-                            .OrderByDescending(o => o.ModifiedDate)));
-        }
+//                }
+//            }
+//            catch (Exception ex) {
+//                ModelState.AddModelError("DeleteInvoice_New", ex.Message);
+//            }
+//            return
+//                View(
+//                    new GridModel(
+//                        PrepareInvoiceTemp_New("", DateTime.Now.Month, DateTime.Now.Year)
+//                            .OrderByDescending(o => o.ModifiedDate)));
+//        }
 
         [GridAction]
         public ActionResult DeleteInvoice_3(int invoiceId, string note) {
@@ -2632,6 +2642,104 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                 ond =>
                                 ond.InvoiceId == invoiceId &&
                                 ond.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open);
+                        foreach (var orderNote in orderNotes) {
+                            orderNote.Transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
+                        }
+                    }
+                    invoice.Note = note;
+                    invoice.Active = false;
+                    invoice.Status = (byte)MyUtilities.Sales.Status.Cancel;
+                    //foreach(var
+                    vfi.SaveChanges();
+                    return
+                        View(
+                            new GridModel(
+                                PrepareInvoiceTemp_New("", invoice.ShipmentDate.Value.Month,
+                                                       invoice.ShipmentDate.Value.Year)
+                                    .OrderByDescending(o => o.ModifiedDate)));
+
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("DeleteInvoice_New", ex.Message);
+            }
+            return
+                View(
+                    new GridModel(
+                        PrepareInvoiceTemp_New("", DateTime.Now.Month, DateTime.Now.Year)
+                            .OrderByDescending(o => o.ModifiedDate)));
+        }
+
+        [GridAction]
+        public ActionResult DeleteInvoice_4(int invoiceId, string note) {
+            try {
+                if (!Request.IsAuthenticated) {
+                    throw new AggregateException(@"Bạn đã bị mất quyền đăng nhập. \r\n 
+                                         1 trong các nguyên nhân như mất thời gian chờ. \r\n 
+                                         Xin vui lòng đăng nhập lại hệ thống.");
+                }
+                using (var vfi = new tammaContext()) {
+                    var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceId == invoiceId);
+                    if (invoice == null || invoice.Active == false)
+                        return View(new GridModel(PrepareInvoiceTemp("").OrderByDescending(o => o.ModifiedDate)));
+                    if (invoice.Status == (byte)MyUtilities.Sales.Status.InProcess) {
+                        throw new AggregateException("Invoice đã có xuất hóa đơn không thể hủy !");
+                    }
+                    if (invoice.Status != (byte)MyUtilities.Sales.Status.Waiting) {
+                        throw new AggregateException("Lỗi lệnh ! Vui lòng F5 để Refresh");
+                    }
+                    if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, invoice.ShipmentDate.Value)) {
+                        throw new AggregateException(
+                            @"Không có quyền huỷ phiếu xuất tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
+                    }
+                    //roll back
+                    var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
+                    var exportDetailCheck = export.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.InvoiceDetails.Any(id => id.Active));
+                    if (exportDetailCheck != null)
+                        throw new AggregateException("Lỗi! Vui lòng hủy hết lệnh phân đơn hàng trước khi hủy lệnh xuất");
+                    //var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
+                    var transaction =
+                        vfi.Transactions.FirstOrDefault(t => t.TransactionCode.Equals(export.TransactionCode));
+                    if (transaction != null) {
+                        //giao dich
+                        transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+                        //foreach (var exportDetail in export.ExportFormTP_KDDetail) {
+                        foreach (var detail in transaction.TransactionDetails) {
+                            var periodExport = vfi.ProductInventoryPeriods.FirstOrDefault(x => x.TransactionId == transaction.TransactionId
+                                                                                    && x.ProductInvId == detail.ProductInvId
+                                                                                    && x.WarehouseId == MyUtilities.Warehouse.Finish);
+                            if (periodExport == null) {
+                                throw new AggregateException("Lỗi data! Liên hệ admin!");
+                            }
+                            var periodImport = vfi.ProductInventoryPeriods.FirstOrDefault(x => x.TransactionId == transaction.TransactionId
+                                                                                && x.WarehouseId == MyUtilities.Warehouse.Business
+                                                                                && x.Quantity == periodExport.Quantity);
+
+                            //ton kho
+                            var productInventoryIssue =
+                                vfi.ProductInventories.FirstOrDefault(pi => pi.ProductInventoryId == periodExport.ProductInvId);
+                            var productInventoryReceipt =
+                                vfi.ProductInventories.FirstOrDefault(pi => pi.ProductInventoryId == periodImport.ProductInvId);
+
+                            productInventoryIssue.TotalQty += periodExport.Quantity;
+                            productInventoryReceipt.TotalQty -= periodExport.Quantity;
+                        }
+                        // tra lai luan chuyen
+                        vfi.ProductInventoryPeriods.RemoveRange(transaction.ProductInventoryPeriods);
+
+                        var orderNotes =
+                            vfi.OrderNotes.Where(
+                                ond =>
+                                ond.InvoiceId == invoiceId &&
+                                ond.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved);
+                        foreach (var orderNote in orderNotes) {
+                            vfi.ProductInventoryPeriods.RemoveRange(orderNote.Transaction.ProductInventoryPeriods);
+                        }
+                        orderNotes =
+                           vfi.OrderNotes.Where(
+                               ond =>
+                               ond.InvoiceId == invoiceId &&
+                               ond.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open);
                         foreach (var orderNote in orderNotes) {
                             orderNote.Transaction.Status = (byte)MyUtilities.Transaction.Status.Cancel;
                         }
@@ -3261,6 +3369,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 return a;
             }
         }
+
 
         [GridAction]
         public ActionResult SendBackQuantityProduct(

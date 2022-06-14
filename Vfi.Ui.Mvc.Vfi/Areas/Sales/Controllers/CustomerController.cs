@@ -4,9 +4,8 @@ using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
-using Vfi.Client.Module.Sales.Interfaces;
+//using Vfi.Client.Module.Sales.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
@@ -18,7 +17,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         private readonly IUnitOfWork _unitOfWork;
         //private readonly ICustomerService _customerService;
         [InjectionConstructor]
-        public CustomerController(IUnitOfWork unitOfWork, ICustomerService customerService) {
+        public CustomerController(IUnitOfWork unitOfWork
+            //, ICustomerService customerService
+            ) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
             //if (customerService == null) throw new ArgumentNullException("customerService");
 
@@ -97,7 +98,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         StartDate = customer.StartDate,
                         State = customer.State,
                         StateName = MyUtilities.Sales.GetCustomerState(customer.State),
-                        IsNotRequireApproveOrder = customer.IsNotRequireApproveOrder
+                        IsNotRequireApproveOrder = customer.IsNotRequireApproveOrder,
+                        IsWorkOrder = customer.IsWorkOrder,
                     };
                     entity.PayType = payType.FirstOrDefault(pt => pt.Id == customer.CustomerPayTypeId).TypeName;
                     models.Add(entity);
@@ -787,10 +789,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             });
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("0");
             }
-            return Json("0");
         }
 
         [HttpPost]

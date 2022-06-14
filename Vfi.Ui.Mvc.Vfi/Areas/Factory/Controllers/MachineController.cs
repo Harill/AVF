@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-//using System.Web;
 using System.Web.Mvc;
-//using System.Web.UI.WebControls;
 using Telerik.Web.Mvc;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
-using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
@@ -1344,6 +1340,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         public ActionResult SelectComboBoxMachineProduction() {
             return new JsonResult {
                 Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsProduction = true }), "MachineId", "MachineName")
+            };
+        }
+        public ActionResult SelectComboBoxMachineProductionMoreInfo() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsProduction = true }), "MachineId", "MachineFullName")
             };
         }
         public ActionResult SelectComboBoxMachineProduction2() {
@@ -3478,7 +3479,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                           : ms.FinishDate.Value,
                                           FinishRepair = ms.FinishDate
                                       }).ToList();
-
+                var dayCount = MyUtilities.Function.DaysNoSunDay(fDate, tDate);
+                var maxRunTime = MyUtilities.Function.RoundDown(dayCount
+                                                * MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.FactoryFullDayTiming)
+                                                / 60);
                 foreach (var repair in repairMachines) {
                     var entity = new MachineStateStatisticModel() {
                         MachineName = repair.MachineRepairForm.Machine.MachineName,
@@ -3490,7 +3494,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         StartDate = repair.StartRepair,
                         FinishDate = repair.FinishRepair,
                         StatusName = MyUtilities.Machine.State.GetRepairStatusText(repair.Status),
-                        Note = repair.MachineRepairForm.Note
+                        Note = repair.MachineRepairForm.Note,
                     };
                     var qcEmployee = repair.MachineRepairForm.Employee1;
                     if (qcEmployee != null) {
@@ -3503,9 +3507,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             repairEmployee.GroupName;
                     }
                     entity.FixTimeHhMm = (entity.FixTime / 60) + ":" + string.Format("{0:00}", (entity.FixTime % 60));
+                    entity.RunTime = maxRunTime - entity.FixTime;
                     model.Add(entity);
                 }
-
 
                 var trackingMachines = (from ms in vfi.TrackingRepairEmployees
                                         where ms.Status != (byte)MyUtilities.Machine.State.RepairStatus.Delete &&
@@ -3541,6 +3545,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         EmployeeRepairName = tracking.RepairEmployee,
                     };
                     entity.FixTimeHhMm = (entity.FixTime / 60) + ":" + string.Format("{0:00}", (entity.FixTime % 60));
+                    entity.RunTime = maxRunTime - entity.FixTime;
                     model.Add(entity);
                 }
             }
@@ -4060,20 +4065,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectAssignMaterials() {
+        public ActionResult SelectAssignMaterials(string factory) {
             var model = new List<SmartProductionModel>();
             try {
                 using (var vfi = new vfiContext()) {
-                    var machines = from m in vfi.Machines
+                    var machines = (from m in vfi.Machines
                                    where m.Active
                                    orderby m.MachineName
                                    //&& m.MachineName.Equals("C16")
                                    select new {
                                        m.MachineId,
                                        m.MachineName
-                                   };
+                                   }).ToList();
+                    if (!string.IsNullOrWhiteSpace(factory)) {
+                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                            machines = machines.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                        else {
+                            machines = machines.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                    }
                     var now = DateTime.Now.AddDays(1);
                     var checkDate = now.AddMonths(-1);
+                    var machineIds = machines.Select(x => x.MachineId).ToList();
+                    var waitingUses = (from x in vfi.MaterialUseDetails
+                                       where x.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Open &&
+                                       machineIds.Contains(x.MachineId)
+                                       select new {
+                                           x.MachineId,
+                                           x.MaterialInvId,
+                                           x.EditQuantity,
+                                           x.EditQuantity2
+                                       }).ToList();
                     foreach (var machine in machines) {
                         var lastTrack =
                             (from t in vfi.TrackUpMachines
@@ -4114,7 +4137,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 ProductCode = lastTrack.Product.ProductCode,
                                 //MaterialAlert = 2.5;
                                 SmartId = lastMaterialInv.DetailId,
-                                IsLimit = true,
+                                //IsLimit = true,
                                 ProductionQuantity = 0,
                                 MaterialUsedQuantity = 0,
                                 MaterialLimitQuantity = 0,
@@ -4134,84 +4157,82 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             if (materialInvOnmachine != null)
                                 entity.MaterialInvOnMachine = materialInvOnmachine.TotalQuantity;
 
-                            var waitingUse =
-                                vfi.MaterialUseDetails.Where(
-                                    mud => mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Open &&
-                                           mud.MachineId == entity.MachineId &&
-                                           mud.MaterialInvId == entity.MaterialInventoryId);
+                            var waitingUse = waitingUses.Where(mud => mud.MachineId == entity.MachineId
+                                                                    && mud.MaterialInvId == entity.MaterialInventoryId);
                             entity.DiffMaterial = entity.MaterialInvOnMachine;
                             if (waitingUse.Any()) {
                                 entity.DiffMaterial = entity.MaterialInvOnMachine -
                                                       waitingUse.Sum(mud => mud.EditQuantity + mud.EditQuantity2);
                             }
-                            if (lastTrack.Product.CustomerId == MyUtilities.Product.DaiwaRing)
-                                entity.IsLimit = false;
+                            //if (lastTrack.Product.CustomerId == MyUtilities.Product.DaiwaRing)
+                            //    entity.IsLimit = false;
                             model.Add(entity);
                         }
                     }
-                    var materialIds = model.Select(m => m.MaterialId).Distinct().ToList();
-                    var productIds = model.Select(m => m.ProductId).Distinct().ToList();
-                    var materialLimitPlans = from mlp in vfi.MaterialLimitPlans
-                                             where materialIds.Contains(mlp.MaterialId) &&
-                                                    productIds.Contains(mlp.ProductId) &&
-                                                    mlp.IsLock
-                                             orderby mlp.ApplyDate
-                                             select mlp;
-                    var materialInvs = from mi in vfi.MaterialInventories
-                                       where mi.TotalQty > 0 && materialIds.Contains(mi.MaterialId)
-                                       select new {
-                                           mi.MaterialId,
-                                           mi.TotalQty,
-                                           mi.UnitWeight
-                                       };
-                    var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
-                    var oldestLimit = materialLimitPlans.OrderBy(o => o.ApplyDate).FirstOrDefault();
-                    if (oldestLimit != null)
-                        fromDate = oldestLimit.ApplyDate;
-                    var sx1Details = (from id in vfi.ImportFormSX1Detail
-                                      where
-                                          id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                                          id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                                          id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
-                                            .Transaction.Status ==
-                                          (byte)MyUtilities.Transaction.Status.Approved &&
-                                          id.ImportFormSX1.MaterialUseDate >= fromDate &&
-                                          materialIds.Contains(id.MaterialInventory.MaterialId) &&
-                                          productIds.Contains(id.ProductId)
-                                      select new {
+                    // material planing checking
+                    //var materialIds = model.Select(m => m.MaterialId).Distinct().ToList();
+                    //var productIds = model.Select(m => m.ProductId).Distinct().ToList();
+                    //var materialLimitPlans = (from mlp in vfi.MaterialLimitPlans
+                    //                         where materialIds.Contains(mlp.MaterialId) &&
+                    //                                productIds.Contains(mlp.ProductId) &&
+                    //                                mlp.IsLock
+                    //                         orderby mlp.ApplyDate
+                    //                         select mlp).ToList();
+                    //var materialInvs = (from mi in vfi.MaterialInventories
+                    //                   where mi.TotalQty > 0 && materialIds.Contains(mi.MaterialId)
+                    //                   select new {
+                    //                       mi.MaterialId,
+                    //                       mi.TotalQty,
+                    //                       mi.UnitWeight
+                    //                   }).ToList();
+                    //var fromDate = new DateTime(DateTime.Now.Year, 1, 1);
+                    //var oldestLimit = materialLimitPlans.OrderBy(o => o.ApplyDate).FirstOrDefault();
+                    //if (oldestLimit != null)
+                    //    fromDate = oldestLimit.ApplyDate;
+                    //var sx1Details = (from id in vfi.ImportFormSX1Detail
+                    //                  where
+                    //                      id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                    //                      id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                    //                      id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
+                    //                        .Transaction.Status ==
+                    //                      (byte)MyUtilities.Transaction.Status.Approved &&
+                    //                      id.ImportFormSX1.MaterialUseDate >= fromDate &&
+                    //                      materialIds.Contains(id.MaterialInventory.MaterialId) &&
+                    //                      productIds.Contains(id.ProductId)
+                    //                  select new {
 
-                                          MaterialId = id.MaterialInventory.MaterialId,
-                                          ProductId = id.ProductId,
-                                          MaterialUse = (id.MaterialUse1) + (id.MaterialUse2),
-                                          MaterialWeight = id.MaterialInventory.UnitWeight,
-                                          Production = (id.Number1) + (id.Number2) +
-                                                       (id.Processing1) + (id.Processing2) +
-                                                       (id.DefectProduct1) + (id.DefectProduct2),
-                                          id.ImportFormSX1.MaterialUseDate,
-                                          id.ImportFormSX1.ImportDate,
-                                      }).ToList();
-                    foreach (var limitPlan in materialLimitPlans) {
-                        var entities = model.Where(m => m.ProductId == limitPlan.ProductId &&
-                                                    m.MaterialId == limitPlan.MaterialId);
-                        var productions = sx1Details
-                            .Where(sd => sd.MaterialId == limitPlan.MaterialId &&
-                                            sd.ProductId == limitPlan.ProductId &&
-                                            sd.ImportDate >= limitPlan.ApplyDate);
-                        var materialInvById = materialInvs.Where(mi => mi.MaterialId == limitPlan.MaterialId)
-                                                            .Sum(mi => mi.TotalQty * mi.UnitWeight);
-                        foreach (var entity in entities) {
-                            entity.TotalMaterialInv = materialInvById;
-                            entity.MaterialLimitQuantity = limitPlan.MaterialLimitQuantity;
-                            entity.ProductLimitQuantity = limitPlan.ProductLimitQuantity;
-                            if (productions.Any()) {
-                                entity.ProductionQuantity = productions.Sum(p => p.Production);
-                                entity.MaterialUsedQuantity = productions.Sum(p => p.MaterialUse * p.MaterialWeight);
-                            }
-                            if (entity.ProductLimitQuantity > entity.ProductionQuantity ||
-                                entity.MaterialLimitQuantity > entity.MaterialUsedQuantity)
-                                entity.IsLimit = false;
-                        }
-                    }
+                    //                      MaterialId = id.MaterialInventory.MaterialId,
+                    //                      ProductId = id.ProductId,
+                    //                      MaterialUse = (id.MaterialUse1) + (id.MaterialUse2),
+                    //                      MaterialWeight = id.MaterialInventory.UnitWeight,
+                    //                      Production = (id.Number1) + (id.Number2) +
+                    //                                   (id.Processing1) + (id.Processing2) +
+                    //                                   (id.DefectProduct1) + (id.DefectProduct2),
+                    //                      id.ImportFormSX1.MaterialUseDate,
+                    //                      id.ImportFormSX1.ImportDate,
+                    //                  }).ToList();
+                    //foreach (var limitPlan in materialLimitPlans) {
+                    //    var entities = model.Where(m => m.ProductId == limitPlan.ProductId &&
+                    //                                m.MaterialId == limitPlan.MaterialId);
+                    //    var productions = sx1Details
+                    //        .Where(sd => sd.MaterialId == limitPlan.MaterialId &&
+                    //                        sd.ProductId == limitPlan.ProductId &&
+                    //                        sd.ImportDate >= limitPlan.ApplyDate);
+                    //    var materialInvById = materialInvs.Where(mi => mi.MaterialId == limitPlan.MaterialId)
+                    //                                        .Sum(mi => mi.TotalQty * mi.UnitWeight);
+                    //    foreach (var entity in entities) {
+                    //        entity.TotalMaterialInv = materialInvById;
+                    //        entity.MaterialLimitQuantity = limitPlan.MaterialLimitQuantity;
+                    //        entity.ProductLimitQuantity = limitPlan.ProductLimitQuantity;
+                    //        if (productions.Any()) {
+                    //            entity.ProductionQuantity = productions.Sum(p => p.Production);
+                    //            entity.MaterialUsedQuantity = productions.Sum(p => p.MaterialUse * p.MaterialWeight);
+                    //        }
+                    //        if (entity.ProductLimitQuantity > entity.ProductionQuantity ||
+                    //            entity.MaterialLimitQuantity > entity.MaterialUsedQuantity)
+                    //            entity.IsLimit = false;
+                    //    }
+                    //}
                 }
             }
             catch (Exception ex) {
@@ -4434,9 +4455,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         [GridAction]
         public ActionResult InsertTrack(TrackUpMachineModel newTrack, int month, int year, int status) {
             try {
-                if (!Request.IsAuthenticated) {
-                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n 1 trong các nguyên nhân như mất thời gian chờ. \r\n Xin vui lòng đăng nhập lại hệ thống.");
-                }
                 using (var vfi = new vfiContext()) {
                     var msg = "";
                     var productId = 0;
@@ -4531,6 +4549,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     }
                     vfi.TrackUpMachines.Add(track);
                     vfi.SaveChanges();
+                    newTrack.TrackId = track.TrackId;
                 }
             }
             catch (Exception ex) {
@@ -4542,23 +4561,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         [GridAction]
         public ActionResult UpdateTrack(TrackUpMachineModel updateTrack, int month, int year, int status) {
             try {
-                if (!Request.IsAuthenticated) {
-                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n 1 trong các nguyên nhân như mất thời gian chờ. \r\n Xin vui lòng đăng nhập lại hệ thống.");
-                }
                 using (var vfi = new vfiContext()) {
 
                     var track = vfi.TrackUpMachines.FirstOrDefault(tm => tm.TrackId == updateTrack.TrackId);
                     if (track == null) throw new AggregateException("Lỗi ! Không tìm thấy phiếu theo dõi !");
 
-                    var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
-                    if (user == null)
-                        throw new AggregateException("Lỗi đăng nhập ! Đăng nhập lại hoặc liên hệ Admin");
                     //var msg = "";
                     if (updateTrack.RoundPerMinute == 0 || updateTrack.RealProductivity == 0 || 
                         // updateTrack.RealRate == 0 ||
                         updateTrack.WorkPiece == 0 || updateTrack.KnifeCut == 0 || updateTrack.Quantity == 0) {
                         throw new AggregateException("Vui lòng điền đầy đủ thông tin RPM - NS - ĐM - Phoi - Dao cắt - SL chạy \n");
                     }
+
                     track.DeliveryDate = updateTrack.DeliveryDate;
                     track.DeliveryEmployee = updateTrack.DeliveryEmployee;
                     track.ReceiveEmployee = updateTrack.ReceiveEmployee;
@@ -4572,10 +4586,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     track.Note = updateTrack.Note;
                     track.Quantity = updateTrack.Quantity;
                     track.ModifiedDate = DateTime.Now;
-                    track.ModifiedUser = user.Username;
-                    var realProduction =
-                        vfi.RealProductions.FirstOrDefault(
-                            rp => rp.ProductId == track.ProductId && rp.MachineId == track.MachineId);
+                    track.ModifiedUser = HttpContext.User.Identity.Name;
                     if (!track.Machine.MachineName.Contains("P")) {
                         var product = vfi.Products.FirstOrDefault(p => p.ProductId == track.ProductId);
                         //if (product.ProductionRate == null || product.ProductionRate == 0)
@@ -4587,6 +4598,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         if (product.KnifeCut == null || track.KnifeCut > product.KnifeCut)
                             product.KnifeCut = track.KnifeCut;
                     }
+
+                    var realProduction =
+                        vfi.RealProductions.FirstOrDefault(
+                            rp => rp.ProductId == track.ProductId && rp.MachineId == track.MachineId);
                     if (realProduction == null) {
                         realProduction = new RealProduction {
                             ProductId = track.ProductId,
@@ -4610,94 +4625,191 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     track.EndDate = MyUtilities.Function.ToDate(track.DeliveryDate.Value, days);
                     vfi.SaveChanges();
 
-                    var productionProcessByMachines =
-                        vfi.ProductionProcessByMachines.Where(
-                            ppm => ppm.Active &&
-                                   ppm.ProductId == track.ProductId &&
-                                   ppm.MachineId == track.MachineId);
-                    if (productionProcessByMachines.Any()) {
-                        //return View(new GridModel(GetListTrackUpMachine(month, year, status)));
-                        // replace old production process: {change}
-                        var productionProcesses =
-                            vfi.ProductionProcesses.Where(pp => pp.ProductId == track.ProductId && pp.IsNecessary); 
-                        foreach (var process in productionProcesses) {
-                            var byMachine = productionProcessByMachines
-                                .FirstOrDefault(ppm => ppm.WarehouseId == process.WarehouseId);
-                            if (byMachine == null) {
-                                byMachine = new ProductionProcessByMachine {
-                                    ProductId = track.ProductId,
-                                    MachineId = track.MachineId,
-                                    WarehouseId = process.WarehouseId,
-                                    Active = true,
-                                    Note = "Auto",
-                                    ModifiedDate = DateTime.Now,
-                                    ModifiedUser = HttpContext.User.Identity.Name,
-                                    ProcessIndex = process.ProcessIndex,
-                                    UnitWeight = MyUtilities.Product.GetProductInvWeight(track.ProductId, process.WarehouseId)
-                                };
-                                vfi.ProductionProcessByMachines.Add(byMachine);
-                            }
-                            else {
-                                byMachine.Active = true;
-                                byMachine.Note = "Auto";
-                                byMachine.ModifiedDate = DateTime.Now;
-                                byMachine.ModifiedUser = HttpContext.User.Identity.Name;
-                                byMachine.ProcessIndex = process.ProcessIndex;
-                                byMachine.UnitWeight =
-                                    MyUtilities.Product.GetProductInvWeight(track.ProductId, process.WarehouseId);
-                            }
-                        }
-                        foreach (var byMachine in productionProcessByMachines) {
-                            if (productionProcesses.Any(x => x.WarehouseId == byMachine.WarehouseId)) continue;
-                            byMachine.Active = false;
-                            byMachine.ModifiedDate = DateTime.Now;
-                            byMachine.ModifiedUser = HttpContext.User.Identity.Name;
-                        }
-                    }
-                    else {
-                        //insert new production process
-                        var productionProcesses =
-                            vfi.ProductionProcesses.Where(pp => pp.ProductId == track.ProductId && pp.IsNecessary);
-                        foreach (var process in productionProcesses) {
-                            var byMachine =
-                                vfi.ProductionProcessByMachines.FirstOrDefault(
-                                    ppm =>
-                                        ppm.ProductId == process.ProductId &&
-                                        ppm.WarehouseId == process.WarehouseId &&
-                                        ppm.MachineId == track.MachineId);
-                            if (byMachine == null) {
-                                byMachine = new ProductionProcessByMachine {
-                                    ProductId = track.ProductId,
-                                    MachineId = track.MachineId,
-                                    WarehouseId = process.WarehouseId,
-                                    Active = true,
-                                    Note = "Auto",
-                                    ModifiedDate = DateTime.Now,
-                                    ModifiedUser = HttpContext.User.Identity.Name,
-                                    ProcessIndex = process.ProcessIndex,
-                                    UnitWeight =
-                                        MyUtilities.Product.GetProductInvWeight(track.ProductId, process.WarehouseId)
-                                };
-                                vfi.ProductionProcessByMachines.Add(byMachine);
-                            }
-                            else {
-                                byMachine.Active = true;
-                                byMachine.Note = "Auto";
-                                byMachine.ModifiedDate = DateTime.Now;
-                                byMachine.ModifiedUser = HttpContext.User.Identity.Name;
-                                byMachine.ProcessIndex = process.ProcessIndex;
-                                byMachine.UnitWeight =
-                                    MyUtilities.Product.GetProductInvWeight(track.ProductId, process.WarehouseId);
-                            }
-                        }
-                    }
-                    vfi.SaveChanges();
+
+                    SaveTrackProcess(track.MachineId, track.ProductId, HttpContext.User.Identity.Name);
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("UpdateTrack", ex.Message);
             }
             return View(new GridModel(GetListTrackUpMachine(month, year, status)));
+        }
+
+        public int SaveTrack(TrackUpMachineModel entity, string username) {
+            var saved = 0;
+            try {
+                using(var vfi = new tammaContext()) {
+                    TrackUpMachine track;
+                    if (entity.TrackId > 0) {
+                        track = vfi.TrackUpMachines.FirstOrDefault(tm => tm.TrackId == entity.TrackId);
+                        if (track == null) throw new AggregateException("Lỗi ! Không tìm thấy phiếu theo dõi !");
+                        track.DeliveryDate = entity.DeliveryDate;
+                        track.DeliveryEmployee = entity.DeliveryEmployee;
+                        track.ReceiveEmployee = entity.ReceiveEmployee;
+                        track.KnifeCut = entity.KnifeCut;
+                        track.RealProductivity = entity.RealProductivity;
+                        track.RealRate = entity.RealRate;
+                        track.Phase = entity.Phase;
+                        track.RoundPerMinute = entity.RoundPerMinute;
+                        track.WorkPiece = entity.WorkPiece;
+                        track.Note = entity.Note;
+                        track.Quantity = entity.Quantity;
+                        track.ModifiedDate = DateTime.Now;
+                        track.ModifiedUser = username;
+                    }
+                    else {
+                        track = new TrackUpMachine {
+                            ProductId = entity.ProductId,
+                            MachineId = entity.MachineId,
+                            MaterialId = entity.MaterialId,
+                            Status = (byte)MyUtilities.Transaction.Status.Approved,
+                            DeliveryDate = entity.DeliveryDate,
+                            StartDate = entity.StartDate.Value,
+                            ForecastDay = entity.ForecastDay,
+                            DeliveryEmployee = (entity.DeliveryEmployee + "").Trim(),
+                            ReceiveEmployee = (entity.ReceiveEmployee + "").Trim(),
+                            KnifeCut = entity.KnifeCut,
+                            RealProductivity = entity.RealProductivity,
+                            RealRate = entity.RealRate,
+                            Phase = entity.Phase,
+                            RoundPerMinute = entity.RoundPerMinute,
+                            WorkPiece = entity.WorkPiece,
+                            Note = entity.Note,
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = username,
+                            Quantity = entity.Quantity,
+                        };
+                        vfi.TrackUpMachines.Add(track);
+                    }
+                    var days =
+                        MyUtilities.Function.RoundUp(
+                            track.Quantity / MyUtilities.Product.GetProductionRateInFactoryDayTime(track.RealProductivity)) - 1;
+                    track.ForecastDay = days;
+                    track.EndDate = MyUtilities.Function.ToDate(track.DeliveryDate.Value, days);
+                    track.ForecastDate = MyUtilities.Function.ToDate(track.StartDate, days);
+                    saved += vfi.SaveChanges();
+
+                    var realProduction =
+                        vfi.RealProductions.FirstOrDefault(
+                            rp => rp.ProductId == track.ProductId && rp.MachineId == track.MachineId);
+                    if (realProduction == null) {
+                        realProduction = new RealProduction {
+                            ProductId = track.ProductId,
+                            MachineId = track.MachineId,
+                            TrackUpMachine = track,
+                        };
+                        vfi.RealProductions.Add(realProduction);
+                    }
+                    else {
+                        if (realProduction.TrackUpMachine.DeliveryDate == null ||
+                            realProduction.TrackUpMachine.DeliveryDate < track.DeliveryDate) {
+                            realProduction.TrackUpMachine = track;
+                        }
+                        else if (realProduction.TrackUpMachine.DeliveryDate == track.DeliveryDate && realProduction.TrackUpMachine.ModifiedDate < track.ModifiedDate) {
+                            realProduction.TrackUpMachine = track;
+                        }
+                    }
+                    saved += vfi.SaveChanges();
+
+                    saved += SaveTrackProcess(track.MachineId, track.ProductId, username);
+
+
+                }
+            }
+            catch (Exception ex) {
+                throw ex;
+            }
+            return saved;
+        }
+
+        public int SaveTrackProcess(int machineId, int productId, string username) {
+            var saved = 0;
+            using (var vfi = new tammaContext()) {
+
+                var productionProcessByMachines =
+                    vfi.ProductionProcessByMachines.Where(
+                        ppm => ppm.Active &&
+                               ppm.ProductId == productId &&
+                               ppm.MachineId == machineId);
+                if (productionProcessByMachines.Any()) {
+                    //return View(new GridModel(GetListTrackUpMachine(month, year, status)));
+                    // replace old production process: {change}
+                    var productionProcesses =
+                        vfi.ProductionProcesses.Where(pp => pp.ProductId == productId && pp.IsNecessary && pp.IsAlert);
+                    foreach (var process in productionProcesses) {
+                        var byMachine = productionProcessByMachines
+                            .FirstOrDefault(ppm => ppm.WarehouseId == process.WarehouseId);
+                        if (byMachine == null) {
+                            byMachine = new ProductionProcessByMachine {
+                                ProductId = productId,
+                                MachineId = machineId,
+                                WarehouseId = process.WarehouseId,
+                                Active = true,
+                                Note = "Auto",
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = username,
+                                ProcessIndex = process.ProcessIndex,
+                                UnitWeight = MyUtilities.Product.GetProductInvWeight(productId, process.WarehouseId)
+                            };
+                            vfi.ProductionProcessByMachines.Add(byMachine);
+                        }
+                        else {
+                            byMachine.Active = true;
+                            byMachine.Note = "Auto";
+                            byMachine.ModifiedDate = DateTime.Now;
+                            byMachine.ModifiedUser = username;
+                            byMachine.ProcessIndex = process.ProcessIndex;
+                            byMachine.UnitWeight =
+                                MyUtilities.Product.GetProductInvWeight(productId, process.WarehouseId);
+                        }
+                    }
+                    foreach (var byMachine in productionProcessByMachines) {
+                        if (productionProcesses.Any(x => x.WarehouseId == byMachine.WarehouseId)) continue;
+                        byMachine.Active = false;
+                        byMachine.ModifiedDate = DateTime.Now;
+                        byMachine.ModifiedUser = username;
+                    }
+                }
+                else {
+                    //insert new production process
+                    var productionProcesses =
+                        vfi.ProductionProcesses.Where(pp => pp.ProductId == productId && pp.IsNecessary);
+                    foreach (var process in productionProcesses) {
+                        var byMachine =
+                            vfi.ProductionProcessByMachines.FirstOrDefault(
+                                ppm =>
+                                    ppm.ProductId == process.ProductId &&
+                                    ppm.WarehouseId == process.WarehouseId &&
+                                    ppm.MachineId == machineId);
+                        if (byMachine == null) {
+                            byMachine = new ProductionProcessByMachine {
+                                ProductId = productId,
+                                MachineId = machineId,
+                                WarehouseId = process.WarehouseId,
+                                Active = true,
+                                Note = "Auto",
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = username,
+                                ProcessIndex = process.ProcessIndex,
+                                UnitWeight =
+                                    MyUtilities.Product.GetProductInvWeight(productId, process.WarehouseId)
+                            };
+                            vfi.ProductionProcessByMachines.Add(byMachine);
+                        }
+                        else {
+                            byMachine.Active = true;
+                            byMachine.Note = "Auto";
+                            byMachine.ModifiedDate = DateTime.Now;
+                            byMachine.ModifiedUser = username;
+                            byMachine.ProcessIndex = process.ProcessIndex;
+                            byMachine.UnitWeight =
+                                MyUtilities.Product.GetProductInvWeight(productId, process.WarehouseId);
+                        }
+                    }
+                }
+                saved += vfi.SaveChanges();
+            }
+            return saved;
         }
 
         [GridAction]
@@ -5396,6 +5508,51 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("UpdateToolInventoryRequirement", ex.Message);
             }
             return View(new GridModel(GetToolInventoryRequirement(toolTypeId, toolName, fromDate, toDate)));
+        }
+
+
+        public ActionResult GetLastTrackUpMachineInfo(int machineId, int productId, int materialId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var track = vfi.TrackUpMachines.Where(x => x.Status == (byte)MyUtilities.Transaction.Status.Approved 
+                                                            && x.DeliveryDate < DateTime.Now 
+                                                            && x.MachineId == machineId 
+                                                            && (productId == 0 || x.ProductId == productId)
+                                                            && (materialId == 0 || x.MaterialId == materialId))
+                                                    .OrderByDescending(x => x.DeliveryDate)
+                                                    .FirstOrDefault();
+                    if (track == null) {
+                        track = vfi.TrackUpMachines.Where(x => x.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                                                && x.DeliveryDate < DateTime.Now
+                                                                && x.MachineId == machineId
+                                                                && (productId == 0 || x.ProductId == productId))
+                                                        .OrderByDescending(x => x.DeliveryDate)
+                                                        .FirstOrDefault();
+                        if (track == null) {
+                            var product = vfi.Products.FirstOrDefault(x => x.ProductId == productId);
+                            if (product == null) {
+                                return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotFound, "Không tìm thấy dữ liệu cũ!", null));
+                            }
+                            return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "",
+                                new TrackUpMachineModel {
+                                    Productivity = product.Productivity ?? 0,
+                                    KnifeCut = product.KnifeCut ?? 0,
+                                    WorkPiece = 0
+                                }));
+                        }
+                    }
+
+                    return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "",
+                        new TrackUpMachineModel {
+                            Productivity = track.RealProductivity,
+                            KnifeCut = track.KnifeCut,
+                            WorkPiece = track.WorkPiece
+                        }));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.Exception, ex.Message, null));
+            }
         }
 
         #endregion

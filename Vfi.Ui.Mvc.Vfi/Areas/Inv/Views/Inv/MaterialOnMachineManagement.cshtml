@@ -28,9 +28,11 @@
                 else
                     toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
 
+                var factory = $("#Factory").data('tComboBox').value();
                 args.data = $.extend(args.data, {
                     fromDate: fromDate,
                     toDate: toDate,
+                    factory: factory,
                 });
             }
         }
@@ -50,9 +52,11 @@
                     printDate = "";
                 else
                     printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                var factory = $("#Factory").data('tComboBox').value();
                 $('#result').load('@Url.Action("PrintNewAssignMaterial", "Inv")',
                     {
-                        printDate: printDate
+                        printDate: printDate,
+                        factory: factory
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');
@@ -76,6 +80,7 @@
                 else
                     toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
 
+                var factory = $("#Factory").data('tComboBox').value();
                 //var printDate = $("#PrintDate").data("tDatePicker").value();
                 //if (printDate === null)
                 //    printDate = "";
@@ -84,7 +89,8 @@
                 $('#result').load('@Url.Action("PrintMaterialUseFormByDate", "Inv")',
                     {
                         fromDate: fromDate,
-                        toDate: toDate
+                        toDate: toDate,
+                        factory: factory
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');
@@ -104,9 +110,11 @@
                     printDate = "";
                 else
                     printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                var factory = $("#Factory").data('tComboBox').value();
                 $('#result').load('@Url.Action("PrintMaterialUseForm", "Inv")',
                     {
-                        printDate: printDate
+                        printDate: printDate,
+                        factory: factory
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');
@@ -126,9 +134,11 @@
                     printDate = "";
                 else
                     printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                var factory = $("#Factory").data('tComboBox').value();
                 $('#result').load('@Url.Action("PrintProduction", "Inv")',
                     {
-                        printDate: printDate
+                        printDate: printDate,
+                        factory: factory,
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');
@@ -147,6 +157,7 @@
                     printDate = "";
                 else
                     printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                var factory = $("#Factory").data('tComboBox').value();
                 $('#result').load('@Url.Action("PrintProduction2", "Inv")',
                     {
                         printDate: printDate
@@ -157,6 +168,18 @@
                     });
             }
             return false;
+        }
+
+
+        function Factory_Onload() {
+            var combobox = $('#Factory').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "VF1", Value: "VF1" },
+                { Text: "VF2", Value: "VF2" }
+            ];
+
+            combobox.dataBind(dataSource);
         }
 
         var onLoading = false;
@@ -198,7 +221,18 @@
 <div class="title">Báo cáo xuất nguyên liệu trên máy</div>
 <div class="clear"></div>
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
-
+        
+            <div class="grid_2">Xưởng: </div>
+            <div class="grid_2">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Factory")
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .DropDownHtmlAttributes(new { style = "width: 100%" })
+                        .ClientEvents(events => events.OnLoad("Factory_Onload"))
+                        .Render();
+                }
+            </div>
             <div class="grid_2">Ngày</div>
              <div class="grid_3">
                 @{

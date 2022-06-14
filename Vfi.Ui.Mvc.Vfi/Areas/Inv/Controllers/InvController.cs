@@ -1,29 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
 using Telerik.Web.Mvc.Extensions;
-using Vfi.Client.Module.Inv.Interfaces;
-using Vfi.Client.Module.Production.Interfaces;
-using Vfi.Client.Module.Sales.Interfaces;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
 using Vfi.Server.Core.DataModel.Models.Inv;
-using Vfi.Server.Core.DataModel.Models.Sales;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
-using MaterialInventory = Vfi.Server.Core.DataModel.BaseEntities.MaterialInventory;
-using MaterialInventoryPeriod = Vfi.Server.Core.DataModel.BaseEntities.MaterialInventoryPeriod;
-using ProductInventory = Vfi.Server.Core.DataModel.BaseEntities.ProductInventory;
-using ProductInventoryPeriod = Vfi.Server.Core.DataModel.BaseEntities.ProductInventoryPeriod;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
-using Customer = Vfi.Server.Core.DataModel.BaseEntities.Customer;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class InvController : Controller {
@@ -1013,7 +1003,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return model;
         }
 
-        List<MaterialInvOnMachineModel> GetMaterialInvOnMachine(string fromDate, string toDate) {
+        List<MaterialInvOnMachineModel> GetMaterialInvOnMachine(string fromDate, string toDate, string factory) {
             var model = new List<MaterialInvOnMachineModel>();
             if (string.IsNullOrWhiteSpace(fromDate))
                 return model;
@@ -1022,51 +1012,72 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 var fDate = Convert.ToDateTime(fromDate, ci);
                 var tDate = Convert.ToDateTime(toDate, ci);
                 using (var vfi = new tammaContext()) {
+                    var machines = vfi.Machines.Where(x => x.ProcessingType.Warehouse.IsProduction).ToList();
+                    if (!string.IsNullOrWhiteSpace(factory)) {
+                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                            machines = machines.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                        else {
+                            machines = machines.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                    }
+                    var machineIds = vfi.Machines.Select(x => x.MachineId).ToList();
                     var exportMaterials = (from ed in vfi.ExportMaterialDetails
                                            where
                                                ed.ExportMaterial.ExportDate >= fDate &&
                                                ed.ExportMaterial.ExportDate <= tDate &&
                                                ed.ExportMaterial.Transaction.Status ==
                                                (byte)MyUtilities.Transaction.Status.Approved &&
-                                               ed.MachineId != null
+                                               ed.MachineId != null &&
+                                               machineIds.Contains(ed.MachineId.Value)
                                            select new {
                                                MachineId = ed.MachineId.Value,
                                                MaterialInvId = ed.MaterialInvId,
                                                Quantity = ed.Quantity,
-                                           });
-                    var muInShift = from mud in vfi.MaterialUseDetails
-                                    where
-                                        mud.MaterialUseInShift.UsedDate >= fDate &&
-                                        mud.MaterialUseInShift.UsedDate <= tDate &&
-                                        mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Approved
-                                    select new {
-                                        mud.DetailId,
-                                        mud.MachineId,
-                                        mud.MaterialInvId,
-                                        mud.IsDetroy,
-                                        mud.EditQuantity,
-                                        mud.EditQuantity2,
-                                        mud.MaterialUseInShift.Type
-                                    };
-                    var machineIds = (from mim in vfi.MaterialInvOnMachines
-                                      where mim.TotalQuantity > 0
+                                           }).ToList();
+                    var muInShift = (from mud in vfi.MaterialUseDetails
+                                     where
+                                         mud.MaterialUseInShift.UsedDate >= fDate &&
+                                         mud.MaterialUseInShift.UsedDate <= tDate &&
+                                         mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                         machineIds.Contains(mud.MachineId)
+                                     select new {
+                                         mud.DetailId,
+                                         mud.MachineId,
+                                         mud.MaterialInvId,
+                                         mud.IsDetroy,
+                                         mud.EditQuantity,
+                                         mud.EditQuantity2,
+                                         mud.MaterialUseInShift.Type
+                                     }).ToList();
+                    machineIds = (from mim in vfi.MaterialInvOnMachines
+                                      where mim.TotalQuantity > 0 &&
+                                            machineIds.Contains(mim.MachineId.Value)
                                       select mim.MachineId.Value).ToList();
                     var machineIds2 = exportMaterials.Select(ed => ed.MachineId).ToList();
                     machineIds.AddRange(machineIds2);
                     machineIds2 = muInShift.Select(ed => ed.MachineId).ToList();
                     machineIds.AddRange(machineIds2);
                     machineIds = machineIds.Distinct().ToList();
-                    var mimPeriods = from p in vfi.MaterialInvOnMachinePeriods
-                                     where
-                                         p.PeriodDate <= tDate &&
-                                         machineIds.Contains(p.MachineId.Value)
-                                     select p;
+                    var mimPeriods = (from p in vfi.MaterialInvOnMachinePeriods
+                                      where
+                                          p.PeriodDate <= tDate &&
+                                          machineIds.Contains(p.MachineId.Value)
+                                      select new {
+                                          MachineId = p.MachineId.Value,
+                                          p.Machine.MachineName,
+                                          MaterialInvId = p.MaterialInvId.Value,
+                                          p.MaterialInventory,
+                                          p.EarlyQuantity,
+                                          p.LastQuantity,
+                                          p.PeriodDate
+                                      }).ToList();
                     //var mimPeriodsByDate = mimPeriods.Where(mim => mim.PeriodDate >= fDate);
                     var loops = (from mim in mimPeriods
                                  select new {
-                                     MachineId = mim.MachineId.Value,
-                                     mim.Machine.MachineName,
-                                     MaterialInvId = mim.MaterialInvId.Value,
+                                     mim.MachineId,
+                                     mim.MachineName,
+                                     mim.MaterialInvId,
                                      mim.MaterialInventory,
                                  }).Distinct().OrderBy(mim => mim.MachineName).ToList();
                     foreach (var period in loops) {
@@ -1120,12 +1131,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
                                 t.DeliveryDate != null)
                                .OrderBy(t => t.DeliveryDate).ToList();
-                        if (tracks.Any()) {
-                            var lastTrack = tracks.LastOrDefault();
+                        var lastTrack = MyUtilities.Machine.LastTrackUpMachine(entity.MachineId, entity.MaterialId, null, DateTime.Now);
+                        if (lastTrack != null) {
                             entity.ProductId = lastTrack.ProductId;
-                            entity.ProductCode = lastTrack.Product.ProductCode;
+                            entity.ProductCode = lastTrack.ProductCode;
                             entity.Productivity = lastTrack.RealProductivity;
-                            entity.ProductionRate = lastTrack.RealRate;
+                            //entity.ProductionRate = lastTrack.RealRate;
+                            entity.ProductionRate = MyUtilities.Product
+                                .GetProductRate(3000, lastTrack.WorkPiece, lastTrack.ProductLength, lastTrack.KnifeCut);
                         }
                         if (entity.Destroy > 0)
                             entity.Note += "| Hủy " + entity.Destroy;
@@ -1142,10 +1155,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectMaterialInvOnMachineTotal(string fromDate, string toDate) {
+        public ActionResult SelectMaterialInvOnMachineTotal(string fromDate, string toDate, string factory) {
             var model = new List<MaterialInvOnMachineModel>();
             try {
-                model = GetMaterialInvOnMachine(fromDate, toDate);
+                model = GetMaterialInvOnMachine(fromDate, toDate, factory);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("MaterialInvPeriod", ex.Message);
@@ -2737,9 +2750,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     receiptWarehouseIds = warehouses.Select(x => x.WarehouseId).ToList();
                 }
                 else if (!warehouse.IsMainProcess) {
-                    var rotateWarehouses = vfi.WarehouseRotates.Where(x => x.WarehouseId == warehouseId && x.Active).Select(x => x.ToWarehouseId).ToList();
-                    receiptWarehouseIds = vfi.WarehousePermissions.Where(x => x.User.Username.Equals(HttpContext.User.Identity.Name) && x.Rotate == true && rotateWarehouses.Contains(x.WarehouseId.Value))
-                                                            .Select(x => x.WarehouseId.Value).ToList();
+                    var rotateWarehouses = vfi.WarehouseRotates.Where(x => x.WarehouseId == warehouseId && x.Active)
+                                                                .Select(x => x.ToWarehouseId)
+                                                                .ToList();
+                    receiptWarehouseIds = vfi.WarehousePermissions.Where(x => x.User.Username.Equals(HttpContext.User.Identity.Name) 
+                                                                            && x.Rotate == true 
+                                                                            && rotateWarehouses.Contains(x.WarehouseId.Value))
+                                                                    .Select(x => x.WarehouseId.Value)
+                                                                    .ToList();
                 }
                 else if (warehouse.IsProduction2) {
                     warehouseIds = p2Warehouses;
@@ -4244,7 +4262,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
         #region Rpt
 
-        public ActionResult PrintNewAssignMaterial(string printDate) {
+        public ActionResult PrintNewAssignMaterial(string printDate, string factory) {
             var model = new List<SmartProductionModel>();
             try {
                 using (var vfi = new tammaContext()) {
@@ -4279,12 +4297,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                select mud).ToList();
                     var lastDateString = lastDate.ToString("dd/MM");
                     var machines = (from m in vfi.Machines
-                                   where m.Active && m.MachineName.Contains("C")
+                                   where m.Active && m.ProcessingType.Warehouse.IsProduction
                                    orderby m.MachineName
                                    select new {
                                        m.MachineId,
                                        m.MachineName
                                    }).ToList();
+                    if (!string.IsNullOrWhiteSpace(factory)) {
+                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                            machines = machines.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                        else {
+                            machines = machines.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                    }
                     var onShelves = vfi.OnShelves.Where(x => x.InventoryDrawer.InventoryShelf.ClassifiedId == 1 && x.Active)
                                                 .Select(x => new InventoryDrawerModel {
                                                     ColumnName = x.InventoryDrawer.ColumnName,
@@ -4561,7 +4587,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
 
-        public ActionResult PrintMaterialUseForm(string printDate) {
+        public ActionResult PrintMaterialUseForm(string printDate, string factory) {
             var model = new List<MaterialInvOnMachineModel>();
             try {
                 using (var vfi = new tammaContext()) {
@@ -4644,6 +4670,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        m.MachineId,
                                        m.MachineName
                                    }).ToList();
+
+                    if (!string.IsNullOrWhiteSpace(factory)) {
+                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                            machines = machines.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                        else {
+                            machines = machines.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                    }
                     foreach (var machine in machines) {
                         var groupInvs = (from mim in vfi.MaterialInvOnMachines
                                          where mim.MachineId == machine.MachineId &&
@@ -4759,19 +4794,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return PartialView("PageMaterialUseForm", model);
         }
 
-        public ActionResult PrintProduction(string printDate) {
+        public ActionResult PrintProduction(string printDate, string factory) {
             var model = new List<SmartProductionModel>();
             try {
                 using (var vfi = new tammaContext()) {
                     var ci = new CultureInfo("vi-VN");
                     var date = Convert.ToDateTime(printDate, ci);
-                    var useDetails = from md in vfi.MaterialUseDetails
+                    var useDetails = (from md in vfi.MaterialUseDetails
                                      where
                                          md.MaterialUseInShift.Status != (byte)MyUtilities.Transaction.Status.Cancel &&
                                          md.MaterialUseInShift.UsedDate == date &&
                                          md.MaterialUseInShift.Type == 1 &&
                                          md.EditQuantity + md.EditQuantity2 > 0
-                                     select md;
+                                     select md).ToList();
                     var shift1Name = "";
                     try {
                         shift1Name = useDetails.FirstOrDefault(id => id.MaterialUseInShift.Shift1.Trim().Length > 0)
@@ -4792,9 +4827,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      md.MaterialInvId,
                                      md.MaterialInventory
                                  }).Distinct().ToList();
+                    if (!string.IsNullOrWhiteSpace(factory)) {
+                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                            loops = loops.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                        else {
+                            loops = loops.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                    }
                     var sameProduct = 1;
                     var useDetailIds = useDetails.Select(ud => ud.DetailId).Distinct().ToList();
-                    var importDetails = from id in vfi.ImportFormSX1Detail
+                    var importDetails = (from id in vfi.ImportFormSX1Detail
                                         where id.ImportFormSX1.Status != (byte)MyUtilities.Transaction.Status.Cancel &&
                                         id.UseDetailId != null &&
                                         useDetailIds.Contains(id.UseDetailId.Value)
@@ -4818,7 +4861,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             id.DefectProduct2,
                                             ProductionMaterial2 = id.ProductionRate > 0 ?
                                             Math.Round((id.Number2 + id.Processing2 + id.DefectProduct2) / id.ProductionRate, 2) : 0,
-                                        };
+                                        }).ToList();
 
                     foreach (var detail in loops) {
                         var entity = new SmartProductionModel {
@@ -4970,7 +5013,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return PartialView("PagePrintProduction", model);
         }
 
-        public ActionResult PrintProduction2(string printDate) {
+        public ActionResult PrintProduction2(string printDate, string factory) {
             var model = new List<SmartProductionModel>();
             try {
                 using (var vfi = new tammaContext()) {
@@ -5002,6 +5045,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      md.MaterialInvId,
                                      md.MaterialInventory
                                  }).Distinct().ToList();
+                    if (!string.IsNullOrWhiteSpace(factory)) {
+                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                            loops = loops.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                        else {
+                            loops = loops.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                        }
+                    }
                     var sameProduct = 1;
                     foreach (var detail in useDetails) {
                         var entity = new SmartProductionModel {
@@ -5103,10 +5154,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return PartialView("PagePrintProduction2", model.OrderBy(m => m.MachineName));
         }
 
-        public ActionResult PrintMaterialUseFormByDate(string fromDate, string toDate) {
+        public ActionResult PrintMaterialUseFormByDate(string fromDate, string toDate, string factory) {
             var model = new List<MaterialInvOnMachineModel>();
             try {
-                model = GetMaterialInvOnMachine(fromDate, toDate);
+                model = GetMaterialInvOnMachine(fromDate, toDate, factory);
             }
             catch (Exception ex) {
                 return PartialView(ex.Message);

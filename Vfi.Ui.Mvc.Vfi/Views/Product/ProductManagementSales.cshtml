@@ -537,6 +537,8 @@
                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                            .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                         ;
+                    columns.Bound(f => f.IdentityCode).Width(120)
+                           .HeaderTemplate("<strong>Mã</br>định danh</strong>");
                     columns.Bound(f => f.Note).Width(200)
                            .HeaderTemplate("<strong>Ghi chú</strong>");
                     columns.Bound(f => f.UnitPrice).Width(75)
