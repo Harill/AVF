@@ -130,6 +130,7 @@
             if (!isNaN(parseInt(goodQuantity))) {
                 goodQuantity = parseInt(goodQuantity);
                 goodWeight = parseInt(goodQuantity * e.dataItem.ProductWeight);
+                e.dataItem.GoodWeight = goodWeight;
                 var span = e.cell.parentElement.getElementsByClassName("GoodWeight")[0];
                 span.textContent = goodWeight.format(0);
                 total = goodQuantity + e.dataItem.NGQuantity + e.dataItem.DefectQuantity;
@@ -137,6 +138,7 @@
             else if (!isNaN(parseInt(goodWeight))) {
                 goodWeight = parseInt(goodWeight);
                 goodQuantity = parseInt(goodWeight / productWeight);
+                e.dataItem.GoodQuantity = goodQuantity;
                 var span = e.cell.parentElement.getElementsByClassName("GoodQuantity")[0];
                 span.textContent = goodQuantity.format(0);
                 total = goodQuantity + e.dataItem.NGQuantity + e.dataItem.DefectQuantity;
@@ -144,6 +146,7 @@
             else if (!isNaN(parseInt(ngQuantity))) {
                 ngQuantity = parseInt(ngQuantity);
                 ngWeight = parseInt(ngQuantity * e.dataItem.ProductWeight);
+                e.dataItem.NGWeight = ngWeight;
                 var span = e.cell.parentElement.getElementsByClassName("NGWeight")[0];
                 span.textContent = ngWeight.format(0);
                 total = e.dataItem.GoodQuantity + ngQuantity + e.dataItem.DefectQuantity;
@@ -151,6 +154,7 @@
             else if (!isNaN(parseInt(ngWeight))) {
                 ngWeight = parseInt(ngWeight);
                 ngQuantity = parseInt(ngWeight / productWeight);
+                e.dataItem.NGQuantity = ngQuantity;
                 var span = e.cell.parentElement.getElementsByClassName("NGQuantity")[0];
                 span.textContent = ngQuantity.format(0);
                 total = e.dataItem.GoodQuantity + ngQuantity + e.dataItem.DefectQuantity;
@@ -158,6 +162,7 @@
             else if (!isNaN(parseInt(defectQuantity))) {
                 defectQuantity = parseInt(defectQuantity);
                 defectWeight = parseInt(defectQuantity * e.dataItem.ProductWeight);
+                e.dataItem.DefectWeight = defectWeight;
                 var span = e.cell.parentElement.getElementsByClassName("DefectWeight")[0];
                 span.textContent = defectWeight.format(0);
                 total = e.dataItem.GoodQuantity + e.dataItem.NGQuantity + defectQuantity;
@@ -165,22 +170,36 @@
             else if (!isNaN(parseInt(defectWeight))) {
                 defectWeight = parseInt(defectWeight);
                 defectQuantity = parseInt(defectWeight / productWeight);
+                e.dataItem.DefectQuantity = defectQuantity;
                 var span = e.cell.parentElement.getElementsByClassName("DefectQuantity")[0];
                 span.textContent = defectQuantity.format(0);
                 total = e.dataItem.GoodQuantity + e.dataItem.NGQuantity + defectQuantity;
             }
             e.dataItem.UsingQuantity = total;
+
+            e.dataItem.DiffQuantity = e.dataItem.PreviousRouteQuantity - total;
+            var spanDiff = e.cell.parentElement.getElementsByClassName("DiffQuantity")[0];
+            spanDiff.textContent = e.dataItem.DiffQuantity.format(0);
+
             var spanProduction = e.cell.parentElement.getElementsByClassName("ProductionQuantity")[0];
-            if (e.dataItem.UsingQuantity > e.dataItem.PreviousRouteQuantity) {
+            if (e.dataItem.DiffQuantity < 0) {
                 // wrong: orange;
-                spanProduction.parentNode.bgColor = "orange";
+                spanDiff.parentNode.bgColor = "orange";
+                spanProduction.parentNode.bgColor = "yellow";
             }
-            else if (e.dataItem.UsingQuantity < e.dataItem.PreviousRouteQuantity) {
+            else if (e.dataItem.DiffQuantity > 0) {
                 // not done: yellow
                 spanProduction.parentNode.bgColor = "yellow";
+                spanDiff.parentNode.bgColor = "";
             } else {
                 // right
                 spanProduction.parentNode.bgColor = "";
+                spanDiff.parentNode.bgColor = "";
+            }
+        }
+        function grid_OnRowDataBound(e) {
+            if (e.dataItem.DiffQuantity < 0) {
+                e.row.lastChild.bgColor = 'orange';
             }
         }
 </script>
@@ -532,6 +551,11 @@
                     .HeaderHtmlAttributes(new { @class = "defect-column" })
                     .Format("{0:n0}")
                     .ClientTemplate("<span class='DefectWeight'><#=  $.telerik.formatString('{0:n0}', DefectWeight) #></span>")
+                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.DiffQuantity).Width(90).HeaderTemplate("Còn lại</br>YC - TT (pcs)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}")
+                    .ClientTemplate("<span class='DiffQuantity'><#= DiffQuantity #></span>")
                     .HtmlAttributes(new { style = "text-align: right;" });
             })
             .Editable(editing => editing.Mode(GridEditMode.InCell))
@@ -539,6 +563,7 @@
                 .OnDataBinding("grid_OnDataBinding")
                 .OnSave("grid_OnSave")
                 .OnDataBound("grid_OnDataBound")
+                .OnRowDataBound("grid_OnRowDataBound")
                 .OnSubmitChanges("grid_OnSubmitChanges")
                 .OnError("grid_OnError")
             )

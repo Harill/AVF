@@ -42,10 +42,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string NextRouteName { get; set; }
 
         public double PreviousRouteQuantity { get; set; }
+        public double RequireQuantity { get; set; }
 
         public double PlannedWeight { get; set; }
 
-        public WorkOrderRoutingInfo MoreInfoObject { get; set; }
+        public object MoreInfoObject { get; set; }
 
         [DataType("Number2Digit")]
         public double UsingQuantity { get; set; }

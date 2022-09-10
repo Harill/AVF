@@ -991,7 +991,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     routings = routings.Where(x => x.ModifiedDate >= fDate && x.ModifiedDate <= tDate).ToList();
                 }
                 foreach (var routing in routings) {
-                    var entity  = new WorkOrderRoutingModel {
+                    var entity = new WorkOrderRoutingModel {
                         RoutingId = routing.RoutingId,
                         RoutingName = routing.RoutingName,
                         WorkOrderId = routing.WorkOrderId,
@@ -1011,7 +1011,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         PlannedCost = routing.PlannedCost,
                         Status = routing.Status,
                         MoreInfo = routing.MoreInfo,
-                        MoreInfoObject = JsonConvert.DeserializeObject<WorkOrderProductionInfo>(routing.MoreInfo),
+                        //MoreInfoObject = JsonConvert.DeserializeObject<WorkOrderProductionInfo>(routing.MoreInfo),
                         NextRouteId = routing.NextRouteId ?? 0,
                         NextRouteName = routing.NextRouteId != null ? routing.WorkOrderRouting2.RoutingName : "",
                         //PreviousRouteQuantity = routing.WorkOrderRouting1.Any()
@@ -1026,6 +1026,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         ActualStartDate = routing.ActualStartDate,
                         ActualEndDate = routing.ActualEndDate,
                     };
+                    var moreInfo = JsonConvert.DeserializeObject<WorkOrderProductionInfo>(routing.MoreInfo);
+                    entity.MoreInfoObject = moreInfo;
                     if (routing.WorkOrderRouting1.Any()) {
                         entity.ActualResources = routing.WorkOrderRouting1.FirstOrDefault().ActualCost;
                     }
@@ -1042,7 +1044,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         }
                         entity.ActualCost = entity.GoodQuantity;
                     }
-                    entity.PreviousRouteQuantity = entity.PlannedCost - entity.UsingQuantity;
+                    if (routing.WarehouseId != null) {
+                        if (routing.Warehouse.IsProduction) {
+                            // production 1 case
+                        }
+                        else {
+                            entity.PreviousRouteQuantity = entity.PlannedCost - entity.UsingQuantity;
+                            entity.RequireQuantity = entity.PreviousRouteQuantity;
+                        }
+                    }
+                    else {
+                        // assign material case
+                    }
                     entity.PlannedWeight = entity.PlannedCost * entity.ProductWeight;
                     model.Add(entity);
                 }
@@ -1337,6 +1350,34 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         //    }
         //    catch (Exception ex) { throw ex; }
         //}
+        
+        [GridAction]
+        public ActionResult SelectWorkOrderProcess(int routingId, double productWeight, double weight) {
+            if (routingId == 0) {
+                return View(new GridModel(new List<WorkOrderRoutingModel>()));
+            }
+            var model = new List<WorkOrderRoutingModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    model = GetWorkOrderRoutingModel(null, 0, 0, routingId, "", "", "");
+                    model.ForEach(x => {
+                        x.ProductWeight = productWeight;
+                        x.UsingQuantity = 0;
+                        x.GoodQuantity = productWeight > 0 ? MyUtilities.Function.RoundDown(weight / productWeight) : 0;
+                        x.GoodWeight = weight;
+                        x.NGQuantity = 0;
+                        x.NGWeight = 0;
+                        x.DefectQuantity = 0;
+                        x.DefectWeight = 0;
+                        x.DiffQuantity = weight > 0 ? x.RequireQuantity - x.GoodQuantity : 0;
+                    });
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectWorkOrderProcess", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
 
         [GridAction]
         public ActionResult SelectWorkOrderProcesses(int routingId) {
@@ -1375,33 +1416,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectWorkOrderProcess(int routingId, double productWeight, double weight) {
-            if (routingId == 0) {
-                return View(new GridModel(new List<WorkOrderRoutingModel>()));
-            }
-            var model = new List<WorkOrderRoutingModel>();
-            try {
-                using (var vfi = new tammaContext()) {
-                    model = GetWorkOrderRoutingModel(null, 0, 0, routingId,"", "", "");
-                    model.ForEach(x => {
-                        x.ProductWeight = productWeight;
-                        x.UsingQuantity = 0;
-                        x.GoodQuantity = MyUtilities.Function.RoundDown(weight / productWeight);
-                        x.GoodWeight = weight;
-                        x.NGQuantity = 0;
-                        x.NGWeight = 0;
-                        x.DefectQuantity = 0;
-                        x.DefectWeight = 0;
-                    });
-                }
-            }
-            catch (Exception ex) {
-                ModelState.AddModelError("SelectWorkOrderProcess", ex.Message);
-            }
-            return View(new GridModel(model));
-        }
-
-        [GridAction]
         public ActionResult ImportWorkOrderProcess(
             [Bind(Prefix = "inserted")] IEnumerable<WorkOrderRoutingModel> inserteds,
             [Bind(Prefix = "updated")] IEnumerable<WorkOrderRoutingModel> updateds,
@@ -1423,6 +1437,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                                     .Sum(x => x.UsingQuantity);
                     }
                     if (usedQuantity + import.UsingQuantity > usingQuantity) {
+                        if (routing.WarehouseId != null && routing.Warehouse.IsProduction) {
+                            throw new AggregateException("Lỗi! Đã sử dụng quá số lượng nguyên liệu");
+                        }
                         throw new AggregateException("Lỗi! Đã sử dụng quá số lượng cho phép");
                     }
                     var date = MyUtilities.Function.ParseDate(processDate);
@@ -3337,8 +3354,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         [GridAction]
         public ActionResult ConfirmWorkOrderPacking(int routingId) {
             if (routingId == 0) {
-                return View(new GridModel(GetWorkOrderRoutingModel(new RoutingConfiguration { IsPacking = true }, 
-                    (byte)MyUtilities.WorkOrder.Status.Actived, 0, 0,"","","")));
+                return View(new GridModel(GetWorkOrderRoutingModel(new RoutingConfiguration { IsPacking = true },
+                    (byte)MyUtilities.WorkOrder.Status.Actived, 0, 0, "", "", "")));
                 //return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotFound, "Không tìm thấy " + routingId, null));
             }
             try {
@@ -3360,8 +3377,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("ConfirmWorkOrderPacking", ex.Message);
             }
-            return View(new GridModel(GetWorkOrderRoutingModel(new RoutingConfiguration { IsPacking = true }, 
-                (byte)MyUtilities.WorkOrder.Status.Actived, 0, 0,"","","")));
+            return View(new GridModel(GetWorkOrderRoutingModel(new RoutingConfiguration { IsPacking = true },
+                (byte)MyUtilities.WorkOrder.Status.Actived, 0, 0, "", "", "")));
         }
 
         [GridAction]

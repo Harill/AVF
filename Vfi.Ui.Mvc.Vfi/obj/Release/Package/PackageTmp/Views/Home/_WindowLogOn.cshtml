@@ -41,8 +41,8 @@
         //menu.render();
         // post strMenuUrl and receive data from MenuController
 
-        document.body.style.backgroundImage = "url('@ViewBag.ImagePath/Background/@ViewBag.BackgroundImage";
-        document.getElementById("logo").src = "@ViewBag.ImagePath/Logo/@ViewBag.LogoImage";
+        @*document.body.style.backgroundImage = "url('@ViewBag.ImagePath/Background/@ViewBag.BackgroundImage";
+        document.getElementById("logo").src = "@ViewBag.ImagePath/Logo/@ViewBag.LogoImage";*@
         $.post("@strMenuUrl", function (data) {
             $("#menuArea").html(data);
         });
