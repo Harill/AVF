@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 {
@@ -13,6 +14,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
             ExchangeRate = 1;
             Qc = "Đạt";
         }
+
+        public string TransactionTitle { get; set; }
 
         public int Index { get; set; }
         public long DetailId { get; set; }
@@ -161,5 +164,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public double MachineReturn { get; set; }
 
         public bool IsDestroy { get; set; }
+
+        public WorkGroupInfo Info { get; set; }
     }
 }

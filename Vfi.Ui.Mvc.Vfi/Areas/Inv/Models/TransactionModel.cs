@@ -54,7 +54,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         [DisplayName("Tình trạng")]
         public virtual string StatusName { get; set; }
 
-        public new virtual bool IsApprove { get; set; }
+        public bool CanApprove { get; set; }
         public new virtual string LotNumber { get; set; }
 
         [DisplayName("Mô tả")]
@@ -88,6 +88,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public int SpecialFormType { get; set; }
 
         public bool IsInternal { get; set; }
+        public bool Highlight { get; set; }
     }
 
 

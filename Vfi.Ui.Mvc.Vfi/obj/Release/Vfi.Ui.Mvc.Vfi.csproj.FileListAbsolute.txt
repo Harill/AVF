@@ -768,3 +768,8 @@ C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptTransactionFormGroup.resources
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrder.resources
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptPrintWOAssignMaterial.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptToolTransactionInternalForm.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptImportProductForm.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Web-server.config
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Web-server.Release.config
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Web-server.Debug.config

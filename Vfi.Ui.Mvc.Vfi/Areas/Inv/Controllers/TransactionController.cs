@@ -20,7 +20,6 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.IO.Ports;
 using System.Threading;
 
-
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
     public class TransactionController : Controller {
         private readonly IUnitOfWork _unitOfWork;
@@ -403,6 +402,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         //    }
         //    return string.Empty;
         //}
+        public void Print() { 
+        }
         //public void Print(int transactionId) {
         //    PrinterSettings 
         //}
@@ -428,23 +429,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             DisConnectWeighingDevice();
             MyCacheProvider.Instance.AddItem(cacheName, 0);
-
-            Session["SessionTransactionWeighingProduct"] = new List<ProductInventoryRotateModel>();
+            var model = (List<ProductInventoryRotateModel>)Session["SessionTransactionWeighingProduct"];
+            if (model == null) {
+                Session["SessionTransactionWeighingProduct"] = new List<ProductInventoryRotateModel>();
+            }
             ViewData = GetPageConfigData();
             return View();
         }
-        SerialPort _portCOM = null;
+
+        static SerialPort _portCOM = null;
+        static MyWeighingService.MyWeighingModel _config = null;
         public ActionResult ConnectWeighingDevice() {
             try {
                 MyUtilities.Function.SaveLog("ConnectWeighingDevice", "try");
-                string[] ports = SerialPort.GetPortNames();
-                if (ports.Length > 0) {
-                    _portCOM = new SerialPort(ports[0], 1200, Parity.None, 8, StopBits.One);
-                    //_portCOM.PortName = ports[0]; // alway connect first com port
-                    //_portCOM.BaudRate = 1200;
-                    //_portCOM.DataBits = 8;
-                    //_portCOM.Parity = Parity.None;
-                    //_portCOM.StopBits = StopBits.Two;
+                //string[] ports = SerialPort.GetPortNames();
+                DisConnectWeighingDevice();
+                _config = MyWeighingService.GetConfig();
+                //if (ports.Length > 0) {
+                if (_config != null && !string.IsNullOrWhiteSpace(_config.PortName)) {
+                    _portCOM = new SerialPort(_config.PortName, _config.BaudRate, Parity.None, 8, StopBits.One);
                     _portCOM.DtrEnable = true;
                     _portCOM.RtsEnable = true;
                     _portCOM.ReadTimeout = SerialPort.InfiniteTimeout;
@@ -452,11 +455,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     _portCOM.DataReceived += HandleDataReceive;
                     _portCOM.ErrorReceived += PortCOM_ErrorReceived;
                     _portCOM.Disposed += PortCOM_Disposed;
-                    _portCOM.Open();
+                    try {
+                        //if (_portCOM.IsOpen) { DisConnectWeighingDevice(); }
+                        //if (!_portCOM.IsOpen)
+                        _portCOM.Open();
+                    }
+                    catch (Exception ex) {
+                        MyUtilities.Function.SaveLog("ConnectWeighingDevice", "failed-connect: not open " + _config.PortName);
+                        return Json((int)MyUtilities.Monitor.ErrorCode.NotFound);
+                    }
                     MyUtilities.Function.SaveLog("ConnectWeighingDevice", "success");
                 }
                 else {
-                    MyUtilities.Function.SaveLog("ConnectWeighingDevice", "failed: not found");
+                    MyUtilities.Function.SaveLog("ConnectWeighingDevice", "failed: not found ");
                     return Json((int)MyUtilities.Monitor.ErrorCode.NotFound);
                 }
             }
@@ -478,14 +489,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
                 MyUtilities.Function.SaveLog("DisConnectWeighingDevice", "try:" + _portCOM.ToString());
                 if (_portCOM != null) {
+                    _portCOM.DataReceived -= HandleDataReceive;
                     if (_portCOM.IsOpen) {
                         _portCOM.Close();
+                        _portCOM.DiscardInBuffer();
+                        _portCOM.DiscardOutBuffer();
                     }
-                    _portCOM.DataReceived -= HandleDataReceive;
-                    _portCOM.DiscardInBuffer();
-                    _portCOM.DiscardOutBuffer();
                     _portCOM.Dispose();
                     _portCOM = null;
+                    _config = null;
                     MyUtilities.Function.SaveLog("DisConnectWeighingDevice", "success");
                 }
             }
@@ -500,10 +512,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         private void HandleDataReceive(object sender, SerialDataReceivedEventArgs e) {
             try {
                 //var signal = _portCOM.ReadExisting();
+                // 2.713 kg
                 var signal = ((SerialPort)sender).ReadExisting();
                 MyUtilities.Function.SaveLog("HandleDataReceive", "signal: " + signal);
                 MyCacheProvider.Instance.SetItemValue(cacheName, signal);
-
                 Thread.Sleep(800);
             }
             catch (Exception ex) {
@@ -523,13 +535,56 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
                 var signal = MyCacheProvider.Instance.GetItem(cacheName) as string;
                 MyUtilities.Function.SaveLog( "GetCacheItem", "Value: " + signal);
-                value = ConvertSignal(signal);
+                if (signal == null) { return Json(-1); }
+                if (_config == null) return Json(0);
+                switch (_config.SignalType) {
+                    case 1:
+                        value = ConvertSignal(signal);
+                        break;
+                    case 2:
+                        // 2.713 kg
+                        value = ConvertSignal2(signal);
+                        break;
+                    default:
+                        value = ConvertSignal(signal);
+                        break;
+                }
             }
             catch (Exception ex) {
                 MyUtilities.Function.SaveLog("GetCacheItem", "Exception: " + ex.Message);
             }
             MyUtilities.Function.SaveLog("GetWeighingValue", "weight: " + value);
             return Json(value);
+        }
+        double ConvertSignal2(string signal) {
+            // 2.713 kg
+            var time = DateTime.Now;
+            var value = 0.0;
+            if (!string.IsNullOrWhiteSpace(signal)) {
+                var data = signal.Split('k').ToList();
+                if (data.Any()) {
+                    var valueStr = data[0];
+                    //var valueStr = "";
+                    //if (data.Count > 1) {
+                    //    valueStr = data[1];
+                    //}
+                    //else {
+                    // valueStr = data[0];
+                    //}
+                    try {
+                        //MyUtilities.Function.SaveLog(contentPath(), "ConvertSignal", "signal/convert: " + valueStr);
+                        if (!string.IsNullOrWhiteSpace(valueStr) && !errorStrs.Contains(valueStr)) {
+                            value = Convert.ToDouble(valueStr);
+                        }
+                        //MyUtilities.Function.SaveLog(contentPath(), "ConvertSignal", "signal/converted: " + value);
+
+                    }
+                    catch (FormatException ex) {
+                        MyUtilities.Function.SaveLog("ConvertSignal", "signal/error: " + ex.Message);
+                    }
+                }
+            }
+            return value;
         }
 
         double ConvertSignal(string signal) {
@@ -624,8 +679,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (string.IsNullOrWhiteSpace(modifiedUser))
                 return Json((int)MyUtilities.Monitor.ErrorCode.StatusChanged, JsonRequestBehavior.AllowGet);
             var model = (List<ProductInventoryRotateModel>)Session["SessionTransactionWeighingProduct"];
-            if (!model.Any())
+            if (model == null || !model.Any()) {
                 return Json((int)MyUtilities.Monitor.ErrorCode.NoThing, JsonRequestBehavior.AllowGet);
+            }
 
             //return View(new GridModel(new List<OrderDetailModel>()));
             try {
@@ -824,6 +880,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             int warehouseIssueId, int warehouseReceiptId, string date) {
                 try {
                     var transactionDate = MyUtilities.Function.ParseDate(date);
+                    if (transactionDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     using (var vfi = new tammaContext()) {
                         var transaction = new Vfi.Models.Transaction {
                             WarehouseIssueId = warehouseIssueId,
@@ -1524,13 +1583,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public void UpdateStatusWorkOrderRoutingMaterial(long exportId) {
             try {
                 using (var vfi = new tammaContext()) {
-                    var exportDetailIds = vfi.ExportMaterialDetails.Where(x => x.ExportId == exportId).Select(x=> x.ExportDetailId).ToList();
+                    var export = vfi.ExportMaterials.FirstOrDefault(x=> x.ExportId == exportId);
+                    var exportDetailIds = export.ExportMaterialDetails.Select(x=> x.ExportDetailId).ToList();
                     var processes = vfi.WorkOrderProcesses.Where(x => exportDetailIds.Contains(x.ReferenceDetailId));
                     foreach (var process in processes) {
                         process.Status = (byte)MyUtilities.WorkOrder.Status.Finish;
                         process.WorkOrderRouting.Status = (byte)MyUtilities.WorkOrder.Status.Finish;
+                        process.WorkOrderRouting.ActualEndDate = export.ExportDate;
                         if (process.WorkOrderRouting.NextRouteId != null) {
                             process.WorkOrderRouting.WorkOrderRouting2.Status = (byte)MyUtilities.WorkOrder.Status.Actived;
+                            process.WorkOrderRouting.WorkOrderRouting2.ActualStartDate = export.ExportDate;
                         }
                         process.WorkOrderRouting.ActualCost += process.GoodQuantity;
                     }
@@ -2753,9 +2815,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 }
                             }
                         }
+                        vfi.SaveChanges();
                     }
                     #endregion
-
                     #region 2. calculate inv
                     var transactionDefect = vfi.DefectTransactions.FirstOrDefault(x => x.ImportTransactionId == transaction.TransactionId);
                     var periods = new List<ProductInventoryPeriod>();
@@ -3003,6 +3065,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
                         if (isComplete)
                             invoice.Status = (byte)MyUtilities.Sales.Status.Completed;
+                        vfi.SaveChanges();
                     }
                     else if (isChangeQuantityTo) {
                         //var transactionReturn = new Vfi.Models.Transaction
@@ -3542,8 +3605,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 MyUtilities.UserRole.PurchasingManagement);
             using (var vfi = new tammaContext()) {
                 var isInvManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagementLv2);
-                var warehouseIds = new List<int>();
-                var canApproveInternal = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ApproveInternalProduct);
+                var warehouseIds = new List<int>(); 
+                var canApproveDefect = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ApproveDefect);
                 if (isInvManager) {
                     warehouseIds = vfi.Warehouses.Where(x => x.Active).Select(x => x.WarehouseId).ToList();
                 }
@@ -3553,19 +3616,52 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         vfi.WarehousePermissions.Where(wp => wp.UserId == userId && wp.Import == true)
                             .Select(wp => wp.WarehouseId.Value)
                             .ToList();
-                    var canApproveDefect = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ApproveDefect);
                     if (canApproveDefect) {
                         warehouseIds.Add(MyUtilities.Warehouse.Defect);
                     }
                 }
+
+                var canApproveInternal = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ApproveInternalProduct);
                 var transactions = (from t in vfi.Transactions
                                     where t.MoP == false &&
                                    (t.Status == (byte)MyUtilities.Transaction.Status.Open ||
                                     t.Status == (byte)MyUtilities.Transaction.Status.Processing) &&
                                    (t.WarehouseReceiptId != null && warehouseIds.Contains(t.WarehouseReceiptId.Value)
                                    || (t.IsInternal == true && canApproveInternal))
-                                    select t).ToList();
-                foreach (var transaction in transactions) {
+                                    orderby t.CreatedDate, t.ModifiedDate
+                                    select new TransactionModel {
+                                        TransactionId = t.TransactionId,
+                                        TransactionCode = t.TransactionCode,
+                                        WarehouseIssueId = t.WarehouseIssueId,
+                                        WarehouseIssueName = t.WarehouseIssueId != null
+                                            ? t.Warehouse.WarehouseName
+                                            : "",
+                                        WarehouseReceiptId = t.WarehouseReceiptId,
+                                        WarehouseReceiptName = t.WarehouseReceiptId != null
+                                            ? t.Warehouse1.WarehouseName
+                                            : "",
+                                        EoI = t.EoI,
+                                        MoP = t.MoP,
+                                        Status = t.Status,
+                                        Description = t.Description,
+                                        CreatedUser = t.CreatedUser,
+                                        CreatedDate = t.CreatedDate,
+                                        ModifiedUser = t.ModifiedUser,
+                                        ModifiedDate = t.ModifiedDate,
+                                        AlertColor = 0,
+                                        IsInternal = t.IsInternal ?? false,
+                                        CanApprove = false,
+                                        Highlight = t.WarehouseReceiptId != null
+                                            ? t.Warehouse1.IsOutOfProcess
+                                            : false,
+                                        //t.TransactionDetails,
+                                        TotalQuality = t.TransactionDetails.Any()
+                                            ? t.TransactionDetails.Sum(y => y.Quantity)
+                                            : t.TransactionProducts.Any()
+                                                ? t.TransactionProducts.Sum(y => y.Quantity)
+                                                : 0
+                                    }).ToList();
+                foreach (var entity in transactions) {
                     //if (transaction.WarehouseReceiptId == (byte)MyUtilities.Warehouse.Defect) {
                     //    if (!canApproveDefect)
                     //        continue;
@@ -3576,43 +3672,65 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //else if (!userWarehousePermission.Contains(transaction.WarehouseReceiptId.Value))
                     //    continue;
 
-                    var entity = new TransactionModel {
-                        TransactionId = transaction.TransactionId,
-                        TransactionCode = transaction.TransactionCode,
-                        WarehouseIssueId = transaction.WarehouseIssueId,
-                        WarehouseIssueName = transaction.WarehouseIssueId != null
-                            ? transaction.Warehouse.WarehouseName
-                            : "",
-                        WarehouseReceiptId = transaction.WarehouseReceiptId,
-                        WarehouseReceiptName = transaction.WarehouseReceiptId != null
-                            ? transaction.Warehouse1.WarehouseName
-                            : "",
-                        EoI = transaction.EoI,
-                        EoIName = MyUtilities.Transaction.CastText.GetTextEoI(transaction.EoI),
-                        MoP = transaction.MoP,
-                        Status = transaction.Status,
-                        StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status),
-                        Description = transaction.Description,
-                        CreatedUser = transaction.CreatedUser,
-                        CreatedDate = transaction.CreatedDate,
-                        ModifiedUser = transaction.ModifiedUser,
-                        ModifiedDate = transaction.ModifiedDate,
-                        //TotalQuality = transactionDetails.Sum(t => t.Quantity),
-                        AlertColor = 0,
-                        IsInternal = transaction.IsInternal ?? false
-                    };
+                    //var entity = new TransactionModel {
+                    //    TransactionId = transaction.TransactionId,
+                    //    TransactionCode = transaction.TransactionCode,
+                    //    WarehouseIssueId = transaction.WarehouseIssueId,
+                    //    WarehouseIssueName = transaction.WarehouseIssueId != null
+                    //        ? transaction.Warehouse.WarehouseName
+                    //        : "",
+                    //    WarehouseReceiptId = transaction.WarehouseReceiptId,
+                    //    WarehouseReceiptName = transaction.WarehouseReceiptId != null
+                    //        ? transaction.Warehouse1.WarehouseName
+                    //        : "",
+                    //    EoI = transaction.EoI,
+                    //    EoIName = MyUtilities.Transaction.CastText.GetTextEoI(transaction.EoI),
+                    //    MoP = transaction.MoP,
+                    //    Status = transaction.Status,
+                    //    StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status),
+                    //    Description = transaction.Description,
+                    //    CreatedUser = transaction.CreatedUser,
+                    //    CreatedDate = transaction.CreatedDate,
+                    //    ModifiedUser = transaction.ModifiedUser,
+                    //    ModifiedDate = transaction.ModifiedDate,
+                    //    //TotalQuality = transactionDetails.Sum(t => t.Quantity),
+                    //    AlertColor = 0,
+                    //    IsInternal = transaction.IsInternal ?? false,
+                    //    CanApprove = false
+                    //};
+                    entity.EoIName = MyUtilities.Transaction.CastText.GetTextEoI(entity.EoI);
+                    entity.StatusName = MyUtilities.Transaction.CastText.GetTextStatus(entity.Status);
 
-                    if (transaction.WarehouseIssueId != null 
-                        || isInvManager 
-                        || transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect 
-                        || transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production1) {
-                        entity.IsApprove = true;
+                    if (entity.Status != (byte)MyUtilities.Transaction.Status.Open) {
                     }
+                    else if (entity.IsInternal) {
+                        entity.SpecialNote += " (nội bộ)";
+                        if (canApproveInternal) {
+                            entity.CanApprove = true;
+                        }
+                        entity.Highlight = true;
+                    }
+                    else if (entity.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
+                        // phan loi cxl
+                        var transactionDefect = vfi.DefectTransactions.FirstOrDefault(x => x.ImportTransactionId == entity.TransactionId);
+                        if (transactionDefect == null) {
+                            entity.SpecialNote = "Chưa phân lỗi | " + entity.SpecialNote;
+                        }
+                        else if (transactionDefect.Status != (byte)MyUtilities.Transaction.Status.Approved) {
+                            entity.SpecialNote = "Chưa hoàn thành phân lỗi | " + entity.SpecialNote;
+                        }
+                        else {
+                            entity.CanApprove = true;
+                        }
+                    }
+                        else if (entity.WarehouseReceiptId == MyUtilities.Warehouse.Defect && canApproveDefect) {
+                        entity.CanApprove = true;
+                    }
+                    //else if (isInvManager) {
+                    //    entity.CanApprove = true;
+                    //}
                     else {
-                        entity.IsApprove = false;
-                    }
-                    if (transaction.Status == (byte)MyUtilities.Transaction.Status.Processing) {
-                        entity.IsApprove = false;
+                        entity.CanApprove = true;
                     }
 
                     // chu ky dien tu
@@ -3680,23 +3798,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.SpecialNote += " - Tổng thùng:" + form.TotalBox;
                             entity.SpecialFormType = (int)MyUtilities.Transaction.FormTypeEnum.ExportTP;
                         }
-                    }
-                    if (entity.IsInternal) {
-                        entity.SpecialNote += " (nội bộ)";
-                    }
-                    // phan loi cxl
-                    if (entity.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
-                        var transactionDefect = vfi.DefectTransactions.FirstOrDefault(x => x.ImportTransactionId == entity.TransactionId);
-                        if (transactionDefect == null) {
-                            entity.SpecialNote = "Chưa phân lỗi | " + entity.SpecialNote;
-                            entity.IsApprove = false;
-                        }
-                        else {
-                            if (transactionDefect.Status != (byte)MyUtilities.Transaction.Status.Approved) {
-                                entity.SpecialNote = "Chưa hoàn thành phân lỗi | " + entity.SpecialNote;
-                                entity.IsApprove = false;
-                            }
-                        }
+                        entity.Highlight = true;
                     }
 
                     if (entity.CreatedDate > DateTime.Today.AddDays(4) ||
@@ -3705,14 +3807,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     else if (entity.CreatedDate > DateTime.Today.AddDays(1) ||
                              entity.CreatedDate < DateTime.Today.AddDays(-1))
                         entity.AlertColor = 1;
-                    var transactionDetails = transaction.TransactionDetails;
-                    if (transactionDetails.Any())
-                        entity.TotalQuality = transactionDetails.Sum(t => t.Quantity);
-                    else {
-                        var transactionProducts = transaction.TransactionProducts;
-                        if (transactionProducts.Any())
-                            entity.TotalQuality = transactionProducts.Sum(t => t.Quantity);
-                    }
+                    //var transactionDetails = transaction.TransactionDetails;
+                    //if (transactionDetails.Any())
+                    //    entity.TotalQuality = transactionDetails.Sum(t => t.Quantity);
+                    //else {
+                    //    var transactionProducts = transaction.TransactionProducts;
+                    //    if (transactionProducts.Any())
+                    //        entity.TotalQuality = transactionProducts.Sum(t => t.Quantity);
+                    //}
                     model.Add(entity);
                 }
             }
@@ -4340,15 +4442,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (!Request.IsAuthenticated)
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
 
-                    var modifiedUser = HttpContext.User.Identity.Name;
-                    if (string.IsNullOrWhiteSpace(modifiedUser))
-                        throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
-                    ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(monthlyDate)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(monthlyDate, ci);
-
+                    var createdDate = MyUtilities.Function.ParseDate(monthlyDate);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -4471,14 +4568,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (!Request.IsAuthenticated)
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
 
-                    //var modifiedUser = HttpContext.User.Identity.Name;
-                    //if (string.IsNullOrWhiteSpace(modifiedUser))
-                    //    throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
-                    //ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(monthlyDate)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(monthlyDate, ci);
+                    var createdDate = MyUtilities.Function.ParseDate(monthlyDate);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -4583,15 +4676,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (!Request.IsAuthenticated)
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
 
-                    var modifiedUser = HttpContext.User.Identity.Name;
-                    if (string.IsNullOrWhiteSpace(modifiedUser))
-                        throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
-                    ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(monthlyDate)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(monthlyDate, ci);
-
+                    var createdDate = MyUtilities.Function.ParseDate(monthlyDate);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -4730,10 +4818,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
             if (updateds != null) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(date)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(date, ci);
+                    var createdDate = MyUtilities.Function.ParseDate(date);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -4798,10 +4886,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
             if (updateds != null) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(date)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(date, ci);
+                    var createdDate = MyUtilities.Function.ParseDate(date);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -4882,13 +4970,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (updateds != null) {
                 try {
                     updateds = updateds.Where(x => Math.Round(x.Quantity) > 0);
-                    if(updateds.Any()){
+                    if (!updateds.Any()) {
                         return View(new GridModel(new List<ProductInventoryModel>()));
                     }
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(date)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(date, ci);
+                    var createdDate = MyUtilities.Function.ParseDate(date);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -4922,53 +5010,76 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         };
                         foreach (var detail in updateds) {
                             detail.Quantity = Math.Round(detail.Quantity);
-                            var recipeDetails = vfi.ProductCombinationRecipeDetails.Where(x => detail.RecipeId == x.RecipeId && x.RequireNumber > 0);
-                            var productIds = recipeDetails.Select(x => x.FromProductId).ToList();
-                            var requiredQuantity = detail.Quantity;
-                            while (requiredQuantity > 0) { 
-
+                            if (detail.AvailableQuantity < detail.Quantity) {
+                                throw new AggregateException("Lỗi! Không đủ số lượng đế ghép");
                             }
-                            var productInvs = vfi.ProductInventories.Where(pi => productIds.Contains(pi.ProductId) && pi.WarehouseId == warehouseId);
-                            //var quanity = Math.Round(productInv.TotalQty - detail.Quantity, 0);
-                            //if (quanity < 0)
-                            //    throw new AggregateException("Lỗi! Số lượng tồn kho không đủ xuất.| " +
-                            //                                 detail.ProductCode + " | " + detail.LotNumber);
-                            //var transactionDetails =
-                            //    vfi.TransactionDetails
-                            //        .Where(td => td.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open &&
-                            //                     td.ProductInvId == detail.ProductInventoryId)
-                            //        .ToList().Sum(td => td.Quantity);
-                            //quanity = Math.Round(quanity - transactionDetails, 0);
-                            //if (quanity < 0)
-                            //    throw new AggregateException("Lỗi! Số lượng có thể chuyển không đủ xuất.| " +
-                            //                                detail.ProductCode + " | " + detail.LotNumber);
-                            //var model = new Vfi.Models.TransactionDetail {
-                            //    ReferenceId = detail.ProductId,
-                            //    MoP = MyUtilities.Transaction.MoP.Product,
-                            //    Quantity = detail.Quantity,
-                            //    UnitMeasure = detail.UnitMeasure,
-                            //    Active = true,
-                            //    ModifiedUser = HttpContext.User.Identity.Name,
-                            //    ModifiedDate = DateTime.Now,
-                            //    Note = detail.Note,
-                            //    TransactionId = transaction.TransactionId,
-                            //    LotNumber = (detail.LotNumber + "").Trim(),
-                            //    ProductInvId = detail.ProductInventoryId,
-                            //    StoreCode = detail.StoreCode
-                            //};
-                            //transaction.TransactionDetails.Add(model);
+                            var recipe = vfi.ProductCombinationRecipes.FirstOrDefault(x => x.RecipeId == detail.RecipeId);
+                            var recipeDetails = recipe.ProductCombinationRecipeDetails.Where(x => x.RequireNumber > 0).ToList();
+                            var productIds = recipeDetails.Select(x => x.FromProductId).ToList();
+                            var productInvs = vfi.ProductInventories.Where(pi => pi.TotalQty > 0 
+                                                                        && productIds.Contains(pi.ProductId) 
+                                                                        && pi.WarehouseId == warehouseId)
+                                                                    .ToList();
+                            foreach (var productId in productIds) {
+                                foreach (var recipeDetail in recipeDetails) {
+                                    var requireQuantity = detail.Quantity * recipeDetail.RequireNumber;
+                                    while (requireQuantity > 0) {
+                                        var productInvsById = productInvs.Where(x => x.ProductId == productId);
+                                        var recipeQuantity = 0.0;
+                                        foreach (var productInv in productInvsById) {
+                                            if (productInv.TotalQty > requireQuantity) {
+                                                recipeQuantity = requireQuantity;
+                                                requireQuantity = 0;
+                                            }
+                                            else {
+                                                recipeQuantity = productInv.TotalQty;
+                                                requireQuantity -= productInv.TotalQty;
+                                            }
+                                            var productBase = new Vfi.Models.TransactionDetail {
+                                                ReferenceId = productId,
+                                                MoP = MyUtilities.Transaction.MoP.Product,
+                                                Quantity = recipeQuantity,
+                                                UnitMeasure = productInv.UnitMeasure,
+                                                Active = true,
+                                                ModifiedUser = HttpContext.User.Identity.Name,
+                                                ModifiedDate = DateTime.Now,
+                                                Note = "chuyển đổi " + recipe.Product.ProductCode,
+                                                LotNumber = (productInv.LotNumber + "").Trim(),
+                                                ProductInvId = productInv.ProductInventoryId
+                                            };
+                                            transactionExport.TransactionDetails.Add(productBase);
+                                            if (requireQuantity <= 0) break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            var productRecipe = new Vfi.Models.TransactionDetail {
+                                ReferenceId = recipe.ProductId,
+                                MoP = MyUtilities.Transaction.MoP.Product,
+                                Quantity = detail.Quantity,
+                                QuantityKg = detail.Quantity * detail.ProductWeight,
+                                UnitMeasure = "Pcs",
+                                Active = true,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                Note = detail.DetailDescription,
+                                LotNumber = (detail.LotNumber + "").Trim(),
+                            };
+                            transactionImport.TransactionDetails.Add(productRecipe);
                         }
-                        //if (transaction.TransactionDetails.Any()) {
-                        //    vfi.Transactions.Add(transaction);
-                        //    vfi.SaveChanges();
-                        //}
+                        if (transactionImport.TransactionDetails.Any()) {
+                            vfi.Transactions.Add(transactionImport);
+                            vfi.Transactions.Add(transactionExport);
+                            vfi.SaveChanges();
+                        }
                     }
                 }
                 catch (Exception exception) {
                     ModelState.AddModelError("ProductCodeName", "" + exception.Message);
                 }
             }
-            Session["SessionRotateTransactionProduct"] = new List<ProductInventoryRotateModel>();
+            Session["SessionRecipeTransactionProduct"] = new List<ProductInventoryRotateModel>();
             return View(new GridModel(new List<ProductInventoryModel>()));
         }
 
@@ -4983,10 +5094,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
             if (updateds != null) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(date)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(date, ci);
+                    var createdDate = MyUtilities.Function.ParseDate(date);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -5065,10 +5176,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
             if (updateds != null) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var createdDate = string.IsNullOrWhiteSpace(date)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(date, ci);
+                    var createdDate = MyUtilities.Function.ParseDate(date);
+                    if (createdDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, createdDate)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -5239,49 +5350,45 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
         #region Tâm ma
         [GridAction]
-        public ActionResult SelectFormByStatus(byte? status, string transactionId, string fromDate, string toDate) {
-            //return View(new GridModel(new List<ExportForm>()));
-
-
+        public ActionResult SelectFormByStatus(byte status, string transactionId, string fromDate, string toDate, int warehouseId) {
+            if (string.IsNullOrWhiteSpace(fromDate))
+                return View(new GridModel(new List<ManageImportExportModel>()));
             var model = new List<ManageImportExportModel>();
-            if (status == null || status == 0) {
-                return View(new GridModel(model));
-            }
-            var ci = new CultureInfo("vi-VN");
-            DateTime toDay = DateTime.Today;
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseDate(toDate);
 
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                            ? new DateTime(toDay.Year, toDay.Month, 1)
-                            : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                            ? toDay
-                            : Convert.ToDateTime(toDate, ci);
-
+            //if (status == 0) { status = (byte)MyUtilities.Transaction.Status.Approved; }
             using (var vfi = new tammaContext()) {
                 // function code = ImportSX1
                 var productionDates = vfi.ProductionLocks.Where(x => x.LockDate >= fDate && x.LockDate <= tDate).Select(x => new { x.LockDate, x.Shift1Name, x.Shift2Name }).ToList();
-                if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ImportSx1)) {
+                var warehouse = vfi.Warehouses.FirstOrDefault(x => x.WarehouseId == warehouseId);
+                if ((warehouse == null || warehouse.IsProduction)
+                    && MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ImportSx1)) {
                     var list = (from x in vfi.ImportFormSX1
-                                      where x.ImportDate >= fDate && x.ImportDate <= tDate
-                                      select new ManageImportExportModel {
-                                          ModifiedUser = x.ModifiedUser,
-                                          ModidifiedDate = x.ModifiedDate,
-                                          CreatedDate = x.MaterialUseDate,
-                                          ReportDate = x.ImportDate,
-                                          TransactionCode = x.TransactionCode,
-                                          TransactionId = 0,
-                                          TotalQuality = x.ImportFormSX1Detail.Sum(y => y.Number1 + y.Number2 + y.Processing1 + y.Processing2),
-                                          StatusInt = x.Status,
-                                          FormType = (byte)MyUtilities.Transaction.FormTypeEnum.ImportSX1,
+                                where x.ImportDate >= fDate && x.ImportDate <= tDate
+                                && (status == 0 || x.Status == status)
+                                select new ManageImportExportModel {
+                                    ModifiedUser = x.ModifiedUser,
+                                    ModidifiedDate = x.ModifiedDate,
+                                    CreatedDate = x.MaterialUseDate,
+                                    ReportDate = x.ImportDate,
+                                    TransactionCode = x.TransactionCode,
+                                    TransactionId = 0,
+                                    TotalQuality = x.ImportFormSX1Detail.Sum(y => y.Number1 + y.Number2 + y.Processing1 + y.Processing2),
+                                    StatusInt = x.Status,
+                                    //Status = MyUtilities.Transaction.CastText.GetTextStatus(x.Status), // error LINQ
+                                    FormType = (byte)MyUtilities.Transaction.FormTypeEnum.ImportSX1,
 
-                                          Shift1Name = x.Shift1Name,
-                                          Shift2Name = x.Shift2Name,
-                                          WarehouseName = "Sản xuất 1"
-                                      }).ToList();
+                                    Shift1Name = x.Shift1Name,
+                                    Shift2Name = x.Shift2Name,
+                                    WarehouseName = "Sản xuất 1"
+                                }).ToList();
                     var transactionCodes = list.Select(x => x.TransactionCode).Distinct().ToList();
                     var transactions = vfi.Transactions.Where(
-                                            t =>transactionCodes.Contains(t.TransactionCode) &&
-                                                t.WarehouseReceiptId == MyUtilities.Warehouse.Production1)
+                                            t => transactionCodes.Contains(t.TransactionCode) &&
+                                                t.WarehouseReceiptId != null &&
+                                                t.Warehouse1.IsProduction &&
+                                                (status == 0 || t.Status == status))
                                         .Select(x => new { x.TransactionId, x.TransactionCode, x.Status, x.Warehouse1.WarehouseName })
                                         .ToList();
                     foreach (var entity in list) {
@@ -5290,27 +5397,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (transaction != null) {
                             entity.TransactionId = transaction.TransactionId;
                             entity.WarehouseName = transaction.WarehouseName;
-                            entity.Status = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
-                        }
-                        var productionDate = productionDates.FirstOrDefault(x => x.LockDate == entity.CreatedDate);
-                        if (productionDate != null) {
-                            entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
-                                    + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca:" + productionDate.Shift1Name)
-                                    + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca:" + productionDate.Shift2Name);
-                        }
-                        else {
-                            entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
-                                    + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca 1:" + entity.Shift1Name)
-                                    + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca 2:" + entity.Shift2Name);
+                            if (transaction.Status != entity.StatusInt) {
+                                entity.Status += " " + MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
+                            }
+                            var productionDate = productionDates.FirstOrDefault(x => x.LockDate == entity.CreatedDate);
+                            if (productionDate != null) {
+                                entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
+                                        + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca:" + productionDate.Shift1Name)
+                                        + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca:" + productionDate.Shift2Name);
+                            }
+                            else {
+                                entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
+                                        + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca 1:" + entity.Shift1Name)
+                                        + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca 2:" + entity.Shift2Name);
+                            }
                         }
                         model.Add(entity);
                     }
                 }
 
-                if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ImportCNC)) {
+                if ((warehouse == null || warehouse.IsCncMilling)
+                    && MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ImportCNC)) {
                     //var importSX1s = vfi.ImportFormCncs.Where(i => i.ImportDate >= fDate && i.ImportDate <= tDate);
                     var list = (from x in vfi.ImportFormCncs
-                                      where x.ImportDate >= fDate && x.ImportDate <= tDate
+                                where x.ImportDate >= fDate && x.ImportDate <= tDate
                                       select new ManageImportExportModel {
                                           ModifiedUser = x.ModifiedUser,
                                           ModidifiedDate = x.ModifiedDate,
@@ -5329,7 +5439,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var transactionCodes = list.Select(x => x.TransactionCode).Distinct().ToList();
                     var transactions = vfi.Transactions.Where(
                                             t => transactionCodes.Contains(t.TransactionCode) &&
-                                                t.WarehouseIssueId == MyUtilities.Warehouse.Cnc)
+                                                t.Warehouse.IsCncMilling &&
+                                                (status == 0 || t.Status == status))
                                         .Select(x => new { x.TransactionId, x.Status, x.TransactionCode, x.Warehouse.WarehouseName })
                                         .ToList();
                     foreach (var entity in list) {
@@ -5337,24 +5448,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (transaction != null) {
                             entity.TransactionId = transaction.TransactionId;
                             entity.WarehouseName = transaction.WarehouseName;
+                            entity.StatusInt = transaction.Status;
                             entity.Status = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
-                        }
-                        var productionDate = productionDates.FirstOrDefault(x => x.LockDate == entity.CreatedDate);
-                        if (productionDate != null) {
-                            entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
-                                    + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca:" + productionDate.Shift1Name)
-                                    + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca:" + productionDate.Shift2Name);
-                        }
-                        else {
-                            entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
-                                    + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca 1:" + entity.Shift1Name)
-                                    + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca 2:" + entity.Shift2Name);
+                            var productionDate = productionDates.FirstOrDefault(x => x.LockDate == entity.CreatedDate);
+                            if (productionDate != null) {
+                                entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
+                                        + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca:" + productionDate.Shift1Name)
+                                        + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca:" + productionDate.Shift2Name);
+                            }
+                            else {
+                                entity.Note = " Ngày SX:" + entity.CreatedDate.ToString("dd/MM/yyyy")
+                                        + (string.IsNullOrWhiteSpace(entity.Shift1Name) ? "" : " Ca 1:" + entity.Shift1Name)
+                                        + (string.IsNullOrWhiteSpace(entity.Shift2Name) ? "" : " Ca 2:" + entity.Shift2Name);
+                            }
                         }
                         model.Add(entity);
                     }
                 }
                 // function code = Export GCN - NCU
-                if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ExportPlating)) {
+                if ((warehouse == null || warehouse.IsPlating)
+                    && MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ExportPlating)) {
                     var list = (from x in vfi.ExportGCN_NCU
                                 where x.ExportDate >= fDate && x.ExportDate <= tDate
                                 select new ManageImportExportModel {
@@ -5367,14 +5480,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     TotalQuality = x.ExportGCN_NCUDetail.Sum(y => y.RealNumber),
                                     //StatusInt = x.Status,
                                     FormType = (byte)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU,
-                                    Note = "NCC" + x.PlatingForm.Vendor.VendorName,
+                                    Note = "NCC " + x.PlatingForm.Vendor.VendorName,
                                     WarehouseName = "Xuất GCN"
                                 }).ToList();
                     var transactionCodes = list.Select(x => x.TransactionCode).Distinct().ToList();
                     var transactions = vfi.Transactions.Where(
                                                 t =>
                                                 transactionCodes.Contains(t.TransactionCode) &&
-                                                t.WarehouseIssueId == MyUtilities.Warehouse.WaitingPlating)
+                                                t.Warehouse1.IsPlating &&
+                                                (status == 0 || t.Status == status))
                                         .Select(x => new { x.TransactionId, x.Status, x.TransactionCode, x.Warehouse1.WarehouseName })
                                         .ToList();
 
@@ -5383,6 +5497,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (transaction != null) {
                             entity.TransactionId = transaction.TransactionId;
                             entity.WarehouseName = "Xuất " + transaction.WarehouseName;
+                            entity.StatusInt = transaction.Status;
                             entity.Status = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
                         }
                         model.Add(entity);
@@ -5420,7 +5535,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
 
                 // function code = Import NCU - QCB
-                if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ImportPlating)) {
+                if ((warehouse == null || warehouse.IsPlating)
+                    && MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ImportPlating)) {
 
                     var list = (from x in vfi.ImportNCU_QCB
                                 where x.ImportDate >= fDate && x.ImportDate <= tDate
@@ -5434,14 +5550,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     TotalQuality = x.ImportNCU_QCBDetail.Sum(y => y.RealNumber),
                                     //StatusInt = x.Status,
                                     FormType = (byte)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB,
-                                    Note = "NCC" + x.PlatingForm.Vendor.VendorName,
+                                    Note = "NCC " + x.PlatingForm.Vendor.VendorName,
                                     WarehouseName = "Nhập GCN"
                                 }).ToList();
                     var transactionCodes = list.Select(x => x.TransactionCode).Distinct().ToList();
                     var transactions = vfi.Transactions.Where(
                                                 t =>
                                                 transactionCodes.Contains(t.TransactionCode) &&
-                                                t.WarehouseReceiptId == MyUtilities.Warehouse.QcB)
+                                                t.Warehouse.IsPlating &&
+                                                (status == 0 || t.Status == status))
                                         .Select(x => new { x.TransactionId, x.Status, x.TransactionCode, x.Warehouse.WarehouseName })
                                         .ToList();
 
@@ -5450,6 +5567,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (transaction != null) {
                             entity.TransactionId = transaction.TransactionId;
                             entity.WarehouseName = "Nhập " + transaction.WarehouseName;
+                            entity.StatusInt = transaction.Status;
                             entity.Status = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
                         }
                         model.Add(entity);
@@ -5487,7 +5605,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
 
                 // function code = export tp - kd
-                if (MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ExportFinish)) {
+                if ((warehouse == null || warehouse.IsFinish)
+                    && MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ExportFinish)) {
 
                     var list = (from x in vfi.ExportFormTP_KD
                                 where x.DateCreate >= fDate && x.DateCreate <= tDate
@@ -5499,7 +5618,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     TransactionCode = x.TransactionCode,
                                     TransactionId = 0,
                                     TotalQuality = x.ExportFormTP_KDDetail.Sum(y => y.Quality),
-                                    StatusInt = x.TotalBox ,
+                                    Box = x.TotalBox,
                                     FormType = (byte)MyUtilities.Transaction.FormTypeEnum.ExportTP,
                                     Note = "KH: " + x.Customer.CustomerCode,
                                     WarehouseName = "Thành phẩm"
@@ -5508,16 +5627,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var transactions = vfi.Transactions.Where(
                                                 t =>
                                                 transactionCodes.Contains(t.TransactionCode) &&
-                                                t.WarehouseIssueId == MyUtilities.Warehouse.Finish)
+                                                t.Warehouse.IsFinish &&
+                                                (status == 0 || t.Status == status))
                                         .Select(x => new { x.TransactionId, x.Status, x.TransactionCode, x.Warehouse.WarehouseName })
                                         .ToList();
 
                     foreach (var entity in list) {
-                        entity.Note += "- Số thùng: " + entity.StatusInt ;
                         var transaction = transactions.FirstOrDefault(t => t.TransactionCode.Equals(entity.TransactionCode));
                         if (transaction != null) {
+                            entity.Note += "- Số thùng: " + entity.Box;
                             entity.TransactionId = transaction.TransactionId;
                             entity.WarehouseName = transaction.WarehouseName;
+                            entity.StatusInt = transaction.Status;
                             entity.Status = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
                         }
                         model.Add(entity);
@@ -5630,140 +5751,148 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 var isInvManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement);
 
                 switch (formType) {
-                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportSX1:
-                        var transaction1 = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
-                        var import1 =
-                            vfi.ImportFormSX1.FirstOrDefault(i => i.TransactionCode.Equals(transaction1.TransactionCode));
-                        var importDetails1 = vfi.ImportFormSX1Detail.Where(id => id.ImportId == import1.ImportId);
-                        foreach (var tDetail in importDetails1) {
-                            var model = new ManageImportExportDetailModel {
-                                DetailId = tDetail.DetailId,
-                                ProductCode =
-                                    vfi.Products.FirstOrDefault(p => p.ProductId == tDetail.ProductId).ProductCode,
-                                Number = (tDetail.Number1 + tDetail.Number2),
-                                Note = "Máy chạy:" + tDetail.Machine,
-                                IsInvManager = isInvManager,
-                                TransactionId = transactionId,
-                                FormType = formType,
-                            };
-                            model.Weight = model.Number * tDetail.ProductWeight;
-                            if (model.Number > 0) models.Add(model);
-                        }
-                        break;
-                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportCNC:
-                        var transaction2 = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
-                        var import2 =
-                            vfi.ImportFormCncs.FirstOrDefault(i => i.TransactionCode.Equals(transaction2.TransactionCode));
-                        var importDetails2 = vfi.ImportFormCncDetails.Where(id => id.ImportId == import2.ImportId);
-                        foreach (var tDetail in importDetails2) {
-                            var model = new ManageImportExportDetailModel {
-                                DetailId = tDetail.DetailId,
-                                ProductCode =
-                                    vfi.Products.FirstOrDefault(p => p.ProductId == tDetail.ProductId).ProductCode,
-                                Number = (tDetail.Number1 + tDetail.Number2),
-                                Note = "Máy chạy:" + tDetail.Machine.MachineName,
-                                IsInvManager = isInvManager,
-                                TransactionId = transactionId,
-                                FormType = formType,
-                            };
-                            model.Weight = model.Number * tDetail.ProductWeight;
-                            if (model.Number > 0) models.Add(model);
-                        }
-                        break;
-                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU:
-                        var exportPlating = vfi.ExportGCN_NCU.FirstOrDefault(t => t.TransactionId == transactionId);
-                        if (exportPlating == null) break;
-                        foreach (var tDetail in exportPlating.ExportGCN_NCUDetail) {
-                            var entity = models.FirstOrDefault(m => m.ProductId == tDetail.ProductId &&
-                                tDetail.PlatingDetailId == m.PlatingDetailId);
-                            if (entity == null) {
-                                entity = new ManageImportExportDetailModel {
-                                    DetailId = tDetail.DetailId,
-                                    ProductId = tDetail.ProductId,
-                                    ProductCode = tDetail.Product.ProductCode,
-                                    Number = (tDetail.RealNumber),
-                                    Weight = (tDetail.Weight) ?? 0,
-                                    Note = tDetail.Note,
-                                    Package = tDetail.Package,
-                                    IsInvManager = isInvManager,
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportSX1: {
+                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var import =
+                                vfi.ImportFormSX1.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
+                            var importDetails = vfi.ImportFormSX1Detail.Where(id => id.ImportId == import.ImportId);
+                            foreach (var detail in importDetails) {
+                                var model = new ManageImportExportDetailModel {
+                                    DetailId = detail.DetailId,
+                                    ProductId = detail.ProductId,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Number1 + detail.Number2),
+                                    Note = "Máy chạy:" + detail.Machine,
+                                    CanEdit = false,
                                     TransactionId = transactionId,
                                     FormType = formType,
-                                    PlatingDetailId = tDetail.PlatingDetailId
                                 };
-                                if (entity.Number > 0) models.Add(entity);
-                            }
-                            else {
-                                entity.Number += tDetail.RealNumber;
-                                entity.Weight += (tDetail.Weight) ?? 0;
-                                entity.Note += (tDetail.Note + " ");
+                                model.Weight = model.Number * detail.ProductWeight;
+                                if (model.Number > 0) models.Add(model);
                             }
                         }
                         break;
-                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB:
-                        var importPlating = vfi.ImportNCU_QCB.FirstOrDefault(t => t.TransactionId == transactionId);
-                        if (importPlating == null) break;
-                        foreach (var tDetail in importPlating.ImportNCU_QCBDetail) {
-                            var entity = models.FirstOrDefault(m => m.ProductId == tDetail.ProductId &&
-                                tDetail.ExportGCN_NCUDetail.PlatingDetailId == m.PlatingDetailId);
-                            if (entity == null) {
-                                entity = new ManageImportExportDetailModel {
-                                    DetailId = tDetail.DetailId,
-                                    ProductId = tDetail.ProductId,
-                                    ProductCode = tDetail.Product.ProductCode,
-                                    Number = (tDetail.RealNumber),
-                                    Weight = (tDetail.Weight),
-                                    Note = tDetail.Note,
-                                    Package = tDetail.Package,
-                                    IsInvManager = isInvManager,
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportCNC: {
+                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var import =
+                                vfi.ImportFormCncs.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
+                            var importDetails = vfi.ImportFormCncDetails.Where(id => id.ImportId == import.ImportId);
+                            foreach (var detail in importDetails) {
+                                var model = new ManageImportExportDetailModel {
+                                    DetailId = detail.DetailId,
+                                    ProductId = detail.ProductId,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Number1 + detail.Number2),
+                                    Note = "Máy chạy:" + detail.Machine.MachineName,
+                                    CanEdit = false,
                                     TransactionId = transactionId,
                                     FormType = formType,
-                                    PlatingDetailId = tDetail.ExportGCN_NCUDetail.PlatingDetailId
                                 };
-                                if (entity.Number > 0) models.Add(entity);
-                            }
-                            else {
-                                entity.Number += tDetail.RealNumber;
-                                entity.Weight += (tDetail.Weight);
-                                entity.Note += (tDetail.Note + " ");
+                                model.Weight = model.Number * detail.ProductWeight;
+                                if (model.Number > 0) models.Add(model);
                             }
                         }
                         break;
-                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportTP:
-                        var transaction10 = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
-                        var export =
-                            vfi.ExportFormTP_KD.FirstOrDefault(
-                                e => e.TransactionCode.Equals(transaction10.TransactionCode));
-                        foreach (var tDetail in export.ExportFormTP_KDDetail) {
-                            var model = new ManageImportExportDetailModel {
-                                DetailId = tDetail.DetailId,
-                                ProductCode = tDetail.Product.ProductCode,
-                                Number = (tDetail.Quality),
-                                Note = tDetail.Note,
-                                IsInvManager = isInvManager,
-                                TransactionId = transactionId,
-                                FormType = formType,
-                                Weight = tDetail.Weight.Value / 1000
-                            };
-                            if (model.Number > 0) models.Add(model);
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU: {
+                            var exportPlating = vfi.ExportGCN_NCU.FirstOrDefault(t => t.TransactionId == transactionId);
+                            if (exportPlating == null) break;
+                            foreach (var detail in exportPlating.ExportGCN_NCUDetail) {
+                                var entity = models.FirstOrDefault(m => m.ProductId == detail.ProductId &&
+                                    detail.PlatingDetailId == m.PlatingDetailId);
+                                if (entity == null) {
+                                    entity = new ManageImportExportDetailModel {
+                                        DetailId = detail.DetailId,
+                                        ProductId = detail.ProductId,
+                                        ProductCode = detail.Product.ProductCode,
+                                        Number = (detail.RealNumber),
+                                        Weight = (detail.Weight) ?? 0,
+                                        Note = detail.Note,
+                                        Package = detail.Package,
+                                        CanEdit = false,
+                                        TransactionId = transactionId,
+                                        FormType = formType,
+                                        PlatingDetailId = detail.PlatingDetailId
+                                    };
+                                    if (entity.Number > 0) models.Add(entity);
+                                }
+                                else {
+                                    entity.Number += detail.RealNumber;
+                                    entity.Weight += (detail.Weight) ?? 0;
+                                    entity.Note += (detail.Note + " ");
+                                }
+                            }
                         }
                         break;
-                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportChange:
-                        var transaction14 = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
-                        var exportChange =
-                             vfi.ExportFormTP_KD.FirstOrDefault(
-                                 e => e.TransactionCode.Equals(transaction14.TransactionCode));
-                        foreach (var tDetail in exportChange.ExportFormTP_KDDetail) {
-                            var model = new ManageImportExportDetailModel {
-                                DetailId = tDetail.DetailId,
-                                ProductCode = tDetail.Product.ProductCode,
-                                Number = (tDetail.Quality),
-                                Note = tDetail.Note,
-                                IsInvManager = isInvManager,
-                                TransactionId = transactionId,
-                                FormType = formType,
-                                Weight = tDetail.Weight.Value / 1000
-                            };
-                            if (model.Number > 0) models.Add(model);
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB: {
+                            var importPlating = vfi.ImportNCU_QCB.FirstOrDefault(t => t.TransactionId == transactionId);
+                            if (importPlating == null) break;
+                            foreach (var detail in importPlating.ImportNCU_QCBDetail) {
+                                var entity = models.FirstOrDefault(m => m.ProductId == detail.ProductId &&
+                                    detail.ExportGCN_NCUDetail.PlatingDetailId == m.PlatingDetailId);
+                                if (entity == null) {
+                                    entity = new ManageImportExportDetailModel {
+                                        DetailId = detail.DetailId,
+                                        ProductId = detail.ProductId,
+                                        ProductCode = detail.Product.ProductCode,
+                                        Number = (detail.RealNumber),
+                                        Weight = (detail.Weight),
+                                        Note = detail.Note,
+                                        Package = detail.Package,
+                                        CanEdit = false,
+                                        TransactionId = transactionId,
+                                        FormType = formType,
+                                        PlatingDetailId = detail.ExportGCN_NCUDetail.PlatingDetailId
+                                    };
+                                    if (entity.Number > 0) models.Add(entity);
+                                }
+                                else {
+                                    entity.Number += detail.RealNumber;
+                                    entity.Weight += (detail.Weight);
+                                    entity.Note += (detail.Note + " ");
+                                }
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportTP: {
+                            var transaction10 = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var export =
+                                vfi.ExportFormTP_KD.FirstOrDefault(
+                                    e => e.TransactionCode.Equals(transaction10.TransactionCode));
+                            foreach (var detail in export.ExportFormTP_KDDetail) {
+                                var model = new ManageImportExportDetailModel {
+                                    DetailId = detail.DetailId,
+                                    ProductId =  detail.ProductId ?? 0,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Quality),
+                                    Note = detail.Note,
+                                    CanEdit = isInvManager,
+                                    TransactionId = transactionId,
+                                    FormType = formType,
+                                    Weight = detail.Weight.Value / 1000
+                                };
+                                if (model.Number > 0) models.Add(model);
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportChange: {
+                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var exportChange =
+                                 vfi.ExportFormTP_KD.FirstOrDefault(
+                                     e => e.TransactionCode.Equals(transaction.TransactionCode));
+                            foreach (var detail in exportChange.ExportFormTP_KDDetail) {
+                                var model = new ManageImportExportDetailModel {
+                                    DetailId = detail.DetailId,
+                                    ProductId = detail.ProductId ?? 0,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Quality),
+                                    Note = detail.Note,
+                                    CanEdit = false,
+                                    TransactionId = transactionId,
+                                    FormType = formType,
+                                    Weight = detail.Weight.Value / 1000
+                                };
+                                if (model.Number > 0) models.Add(model);
+                            }
                         }
                         break;
                 }
@@ -5779,7 +5908,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
 
                 using (var vfi = new tammaContext()) {
-                    var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
                     var isInvManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement);
 
                     if (!isInvManager)
@@ -5787,108 +5915,105 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     switch (update.FormType) {
                         case (byte)MyUtilities.Transaction.FormTypeEnum.ImportSX1:
                             throw new AggregateException("Chưa hổ trợ phần này");
-                            break;
                         case (byte)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU:
                             throw new AggregateException("Chưa hổ trợ phần này");
-                            break;
                         case (byte)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB:
                             throw new AggregateException("Chưa hổ trợ phần này");
-                            break;
                         case (byte)MyUtilities.Transaction.FormTypeEnum.ExportTP:
-                            var exportDetail =
-                                vfi.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.DetailId == update.DetailId);
-                            if (exportDetail == null)
-                                throw new AggregateException("Lỗi! Không tìm thấy chi tiết");
-                            if (exportDetail.InvoiceDetails.Any(id => id.Active))
-                                throw new AggregateException(
-                                    "Lỗi! Chi tiết xuất đã phân đơn hàng! Hủy phân đơn hàng trước.");
-                            if (exportDetail.InvoiceDetails.Any())
-                                vfi.InvoiceDetails.RemoveRange(exportDetail.InvoiceDetails);
-                            var newProductId = 0;
-                            try {
-                                newProductId = Convert.ToInt32(update.ProductCode);
-                            }
-                            catch (FormatException) {
-                                newProductId =
-                                    vfi.Products.FirstOrDefault(p => p.ProductCode.Equals(update.ProductCode))
-                                       .ProductId;
-                            }
-                            if (newProductId != 0 && newProductId != exportDetail.ProductId) {
-                                var newProduct = vfi.Products.FirstOrDefault(p => p.ProductId == newProductId);
-                                var oldInventoryIssue =
-                                    vfi.ProductInventories.FirstOrDefault(
-                                        pi =>
-                                        pi.WarehouseId == MyUtilities.Warehouse.Finish &&
-                                        pi.ProductId == exportDetail.ProductId);
-                                var oldInventoryReceipt =
-                                    vfi.ProductInventories.FirstOrDefault(
-                                        pi =>
-                                        pi.WarehouseId == MyUtilities.Warehouse.Business &&
-                                        pi.ProductId == exportDetail.ProductId);
-                                var newInventoryIssue =
-                                    vfi.ProductInventories.FirstOrDefault(
-                                        pi =>
-                                        pi.WarehouseId == MyUtilities.Warehouse.Finish && pi.ProductId == newProductId);
-                                var newInventoryReceipt =
-                                    vfi.ProductInventories.FirstOrDefault(
-                                        pi =>
-                                        pi.WarehouseId == MyUtilities.Warehouse.Business &&
-                                        pi.ProductId == newProductId);
-                                if (newInventoryReceipt == null) {
-                                    newInventoryReceipt = new ProductInventory {
-                                        ProductId = newProductId,
-                                        Active = true,
-                                        TotalQty = 0,
-                                        ModifiedDate = DateTime.Now,
-                                        ModifiedUser = HttpContext.User.Identity.Name,
-                                        WarehouseId = MyUtilities.Warehouse.Business,
-                                    };
-                                    vfi.ProductInventories.Add(newInventoryReceipt);
+                            throw new AggregateException("Chưa hổ trợ phần này"); 
+                            {
+                                var exportDetail =
+                                    vfi.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.DetailId == update.DetailId);
+                                if (exportDetail == null)
+                                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết");
+                                if (exportDetail.InvoiceDetails.Any(id => id.Active))
+                                    throw new AggregateException(
+                                        "Lỗi! Chi tiết xuất đã phân đơn hàng! Hủy phân đơn hàng trước.");
+                                var newProductId = 0;
+                                try {
+                                    newProductId = Convert.ToInt32(update.ProductCode);
                                 }
-                                //
-                                var productPeriodIssue =
-                                    vfi.ProductInventoryPeriods.FirstOrDefault(
-                                        pip =>
-                                        pip.ProductId == exportDetail.ProductId &&
-                                        pip.WarehouseId == MyUtilities.Warehouse.Finish &&
-                                        pip.TransactionId == update.TransactionId);
-                                productPeriodIssue.ProductId = newProductId;
-                                productPeriodIssue.EarlyPeriodQuantity = newInventoryIssue.TotalQty;
-                                productPeriodIssue.LastPeriodQuantity = productPeriodIssue.EarlyPeriodQuantity -
-                                                                        productPeriodIssue.Quantity;
-                                oldInventoryIssue.TotalQty += productPeriodIssue.Quantity;
-                                newInventoryIssue.TotalQty -= productPeriodIssue.Quantity;
-                                //
-                                var productPeriodReceipt =
-                                    vfi.ProductInventoryPeriods.FirstOrDefault(
-                                        pip =>
-                                        pip.ProductId == exportDetail.ProductId &&
-                                        pip.WarehouseId == MyUtilities.Warehouse.Business &&
-                                        pip.TransactionId == update.TransactionId);
-                                productPeriodReceipt.ProductId = newProductId;
-                                productPeriodReceipt.EarlyPeriodQuantity = newInventoryReceipt.TotalQty;
-                                productPeriodReceipt.LastPeriodQuantity = productPeriodReceipt.EarlyPeriodQuantity +
-                                                                          productPeriodReceipt.Quantity;
-                                oldInventoryReceipt.TotalQty -= productPeriodIssue.Quantity;
-                                newInventoryReceipt.TotalQty += productPeriodIssue.Quantity;
-                                //
-                                var transactionDetail =
-                                    vfi.TransactionDetails.FirstOrDefault(
-                                        td =>
-                                        td.TransactionId == update.TransactionId &&
-                                        td.TransactionDetailId == exportDetail.TransactionDetailId);
-                                transactionDetail.ReferenceId = newProductId;
-                                transactionDetail.Note += "Đổi mã xuất:" + exportDetail.Product.ProductCode + "->" +
-                                                          newProduct.ProductCode;
-                                exportDetail.ProductId = newProductId;
-                                vfi.SaveChanges();
+                                catch (FormatException) {
+                                    newProductId =
+                                        vfi.Products.FirstOrDefault(p => p.ProductCode.Equals(update.ProductCode))
+                                           .ProductId;
+                                }
+                                if (newProductId != 0 && newProductId != exportDetail.ProductId) {
+                                    var newProduct = vfi.Products.FirstOrDefault(p => p.ProductId == newProductId);
+                                    var oldInventoryIssue =
+                                        vfi.ProductInventories.FirstOrDefault(
+                                            pi =>
+                                            pi.WarehouseId == MyUtilities.Warehouse.Finish &&
+                                            pi.ProductId == exportDetail.ProductId);
+                                    var oldInventoryReceipt =
+                                        vfi.ProductInventories.FirstOrDefault(
+                                            pi =>
+                                            pi.WarehouseId == MyUtilities.Warehouse.Business &&
+                                            pi.ProductId == exportDetail.ProductId);
+                                    var newInventoryIssue =
+                                        vfi.ProductInventories.FirstOrDefault(
+                                            pi =>
+                                            pi.WarehouseId == MyUtilities.Warehouse.Finish && pi.ProductId == newProductId);
+                                    var newInventoryReceipt =
+                                        vfi.ProductInventories.FirstOrDefault(
+                                            pi =>
+                                            pi.WarehouseId == MyUtilities.Warehouse.Business &&
+                                            pi.ProductId == newProductId);
+                                    if (newInventoryReceipt == null) {
+                                        newInventoryReceipt = new ProductInventory {
+                                            ProductId = newProductId,
+                                            Active = true,
+                                            TotalQty = 0,
+                                            ModifiedDate = DateTime.Now,
+                                            ModifiedUser = HttpContext.User.Identity.Name,
+                                            WarehouseId = MyUtilities.Warehouse.Business,
+                                        };
+                                        vfi.ProductInventories.Add(newInventoryReceipt);
+                                    }
+                                    //
+                                    var productPeriodIssue =
+                                        vfi.ProductInventoryPeriods.FirstOrDefault(
+                                            pip =>
+                                            pip.ProductId == exportDetail.ProductId &&
+                                            pip.WarehouseId == MyUtilities.Warehouse.Finish &&
+                                            pip.TransactionId == update.TransactionId);
+                                    productPeriodIssue.ProductId = newProductId;
+                                    productPeriodIssue.EarlyPeriodQuantity = newInventoryIssue.TotalQty;
+                                    productPeriodIssue.LastPeriodQuantity = productPeriodIssue.EarlyPeriodQuantity -
+                                                                            productPeriodIssue.Quantity;
+                                    oldInventoryIssue.TotalQty += productPeriodIssue.Quantity;
+                                    newInventoryIssue.TotalQty -= productPeriodIssue.Quantity;
+                                    //
+                                    var productPeriodReceipt =
+                                        vfi.ProductInventoryPeriods.FirstOrDefault(
+                                            pip =>
+                                            pip.ProductId == exportDetail.ProductId &&
+                                            pip.WarehouseId == MyUtilities.Warehouse.Business &&
+                                            pip.TransactionId == update.TransactionId);
+                                    productPeriodReceipt.ProductId = newProductId;
+                                    productPeriodReceipt.EarlyPeriodQuantity = newInventoryReceipt.TotalQty;
+                                    productPeriodReceipt.LastPeriodQuantity = productPeriodReceipt.EarlyPeriodQuantity +
+                                                                              productPeriodReceipt.Quantity;
+                                    oldInventoryReceipt.TotalQty -= productPeriodIssue.Quantity;
+                                    newInventoryReceipt.TotalQty += productPeriodIssue.Quantity;
+                                    //
+                                    var transactionDetail =
+                                        vfi.TransactionDetails.FirstOrDefault(
+                                            td =>
+                                            td.TransactionId == update.TransactionId &&
+                                            td.TransactionDetailId == exportDetail.TransactionDetailId);
+                                    transactionDetail.ReferenceId = newProductId;
+                                    transactionDetail.Note += "Đổi mã xuất:" + exportDetail.Product.ProductCode + "->" +
+                                                              newProduct.ProductCode;
+                                    exportDetail.ProductId = newProductId;
+                                    if (exportDetail.InvoiceDetails.Any())
+                                        vfi.InvoiceDetails.RemoveRange(exportDetail.InvoiceDetails);
+                                    vfi.SaveChanges();
+                                }
                             }
-
-
                             break;
                         case (byte)MyUtilities.Transaction.FormTypeEnum.ExportChange:
                             throw new AggregateException("Chưa hổ trợ phần này");
-                            break;
                     }
                 }
             }
@@ -5897,6 +6022,107 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return View(new GridModel(GetListFormDetailByTransactionId(update.TransactionId, update.FormType)));
         }
+
+        public int UpdateExportFinishForm(ManageImportExportDetailModel update) {
+            var saved = 0;
+            using (var vfi = new tammaContext()) {
+                var exportDetail = vfi.ExportFormTP_KDDetail.FirstOrDefault(ed => ed.DetailId == update.DetailId);
+                if (exportDetail == null)
+                    throw new AggregateException("Lỗi! Không tìm thấy chi tiết");
+                if (exportDetail.InvoiceDetails.Any(id => id.Active))
+                    throw new AggregateException(
+                        "Lỗi! Chi tiết xuất đã phân đơn hàng! Hủy phân đơn hàng trước.");
+                if (update.Number != exportDetail.Quality) {
+                    var transaction = vfi.Transactions.FirstOrDefault(x => x.TransactionCode.Equals(exportDetail.ExportFormTP_KD.TransactionCode));
+                    if (transaction == null) return 0;
+                    var transactionProducts = transaction.TransactionProducts.Where(x => x.ProductId == exportDetail.ProductId);
+                    var transactionDetails = transaction.TransactionDetails.Where(x => x.ReferenceId == exportDetail.ProductId);
+                }
+
+                //var newProductId = 0;
+                //try {
+                //    newProductId = Convert.ToInt32(update.ProductCode);
+                //}
+                //catch (FormatException) {
+                //    newProductId = vfi.Products.FirstOrDefault(p => p.ProductCode.Equals(update.ProductCode)).ProductId;
+                //}
+
+                //if (newProductId != 0 && newProductId != exportDetail.ProductId) {
+                //    var newProduct = vfi.Products.FirstOrDefault(p => p.ProductId == newProductId);
+                //    var oldInventoryIssue =
+                //        vfi.ProductInventories.FirstOrDefault(
+                //            pi =>
+                //            pi.WarehouseId == MyUtilities.Warehouse.Finish &&
+                //            pi.ProductId == exportDetail.ProductId);
+                //    var oldInventoryReceipt =
+                //        vfi.ProductInventories.FirstOrDefault(
+                //            pi =>
+                //            pi.WarehouseId == MyUtilities.Warehouse.Business &&
+                //            pi.ProductId == exportDetail.ProductId);
+                //    var newInventoryIssue =
+                //        vfi.ProductInventories.FirstOrDefault(
+                //            pi =>
+                //            pi.WarehouseId == MyUtilities.Warehouse.Finish && pi.ProductId == newProductId);
+                //    var newInventoryReceipt =
+                //        vfi.ProductInventories.FirstOrDefault(
+                //            pi =>
+                //            pi.WarehouseId == MyUtilities.Warehouse.Business &&
+                //            pi.ProductId == newProductId);
+                //    if (newInventoryReceipt == null) {
+                //        newInventoryReceipt = new ProductInventory {
+                //            ProductId = newProductId,
+                //            Active = true,
+                //            TotalQty = 0,
+                //            ModifiedDate = DateTime.Now,
+                //            ModifiedUser = HttpContext.User.Identity.Name,
+                //            WarehouseId = MyUtilities.Warehouse.Business,
+                //        };
+                //        vfi.ProductInventories.Add(newInventoryReceipt);
+                //    }
+                //    //
+                //    var productPeriodIssue =
+                //        vfi.ProductInventoryPeriods.FirstOrDefault(
+                //            pip =>
+                //            pip.ProductId == exportDetail.ProductId &&
+                //            pip.WarehouseId == MyUtilities.Warehouse.Finish &&
+                //            pip.TransactionId == update.TransactionId);
+                //    productPeriodIssue.ProductId = newProductId;
+                //    productPeriodIssue.EarlyPeriodQuantity = newInventoryIssue.TotalQty;
+                //    productPeriodIssue.LastPeriodQuantity = productPeriodIssue.EarlyPeriodQuantity -
+                //                                            productPeriodIssue.Quantity;
+                //    oldInventoryIssue.TotalQty += productPeriodIssue.Quantity;
+                //    newInventoryIssue.TotalQty -= productPeriodIssue.Quantity;
+                //    //
+                //    var productPeriodReceipt =
+                //        vfi.ProductInventoryPeriods.FirstOrDefault(
+                //            pip =>
+                //            pip.ProductId == exportDetail.ProductId &&
+                //            pip.WarehouseId == MyUtilities.Warehouse.Business &&
+                //            pip.TransactionId == update.TransactionId);
+                //    productPeriodReceipt.ProductId = newProductId;
+                //    productPeriodReceipt.EarlyPeriodQuantity = newInventoryReceipt.TotalQty;
+                //    productPeriodReceipt.LastPeriodQuantity = productPeriodReceipt.EarlyPeriodQuantity +
+                //                                              productPeriodReceipt.Quantity;
+                //    oldInventoryReceipt.TotalQty -= productPeriodIssue.Quantity;
+                //    newInventoryReceipt.TotalQty += productPeriodIssue.Quantity;
+                //    //
+                //    var transactionDetail =
+                //        vfi.TransactionDetails.FirstOrDefault(
+                //            td =>
+                //            td.TransactionId == update.TransactionId &&
+                //            td.TransactionDetailId == exportDetail.TransactionDetailId);
+                //    transactionDetail.ReferenceId = newProductId;
+                //    transactionDetail.Note += "Đổi mã xuất:" + exportDetail.Product.ProductCode + "->" +
+                //                              newProduct.ProductCode;
+                //    exportDetail.ProductId = newProductId;
+                //    if (exportDetail.InvoiceDetails.Any())
+                //        vfi.InvoiceDetails.RemoveRange(exportDetail.InvoiceDetails);
+                //    vfi.SaveChanges();
+                //}
+            }
+            return saved;
+        }
+
         [GridAction]
         public ActionResult SelectFormDetailByTransactionCode_test() {
             var models = new List<ManageImportExportDetailModel>();
@@ -6652,7 +6878,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             ModifiedUser = transaction.ModifiedUser,
                             ModifiedDate = transaction.ModifiedDate,
                             TotalQuality = transaction.TransactionDetails.Sum(t => t.Quantity),
-                            IsApprove = invManager,
+                            CanApprove = invManager,
                             IsInternal = transaction.IsInternal ?? false
                         };
 
@@ -6735,7 +6961,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             ModifiedDate = transaction.ModifiedDate,
                             TotalQuality = transactionDetails.Sum(t => t.Quantity),
                             TotalQualityKg = transactionDetails.Sum(t => t.QuantityKg ?? 0.0),
-                            IsApprove = invManager,
+                            CanApprove = invManager,
                         };
                         if (entity.EoI == Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export).ToString()) {
                             var exportMaterial = vfi.ExportMaterials.FirstOrDefault(em => em.TransactionId == transaction.TransactionId);
@@ -6769,7 +6995,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
 
             }
-            return model;
+            return model.OrderBy(x => x.Status).ThenBy(x => x.CreatedDate).ToList();
         }
 
         [GridAction]
@@ -7437,10 +7663,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
 
             try {
-                var ci = new CultureInfo("vi-VN");
-                var date = string.IsNullOrWhiteSpace(exportDate)
-                                 ? DateTime.Today
-                                 : Convert.ToDateTime(exportDate, ci);
+
+                var date = MyUtilities.Function.ParseDate(exportDate);
+                if (date > DateTime.Now.AddDays(1)) {
+                    throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                }
                 if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                     throw new AggregateException(
                         @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -7969,13 +8196,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!updateds.Any())
                 throw new AggregateException("Không có cập nhật");
             try {
-                var ci = new CultureInfo("vi-VN");
-                var date = DateTime.Today;
                 using (var vfi = new tammaContext()) {
-                    if (!string.IsNullOrWhiteSpace(importDate))
-                        date = string.IsNullOrWhiteSpace(importDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(importDate, ci);
+                    var date = MyUtilities.Function.ParseDate(importDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     else if (importId != -1) {
                         date = vfi.ImportFormSX1.FirstOrDefault(i => i.ImportId == importId).MaterialUseDate;
                         var identities = updateds.Select(u => u.IdentityCode);
@@ -8084,10 +8309,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (!updateds.Any())
                 throw new AggregateException("Không cập nhật");
             try {
-                var ci = new CultureInfo("vi-VN");
-                var date = string.IsNullOrWhiteSpace(exportDate)
-                                 ? DateTime.Today
-                                 : Convert.ToDateTime(exportDate, ci);
+                var date = MyUtilities.Function.ParseDate(exportDate);
+                if (date > DateTime.Now.AddDays(1)) {
+                    throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                }
                 using (var vfi = new tammaContext()) {
                     var export = new ExportWorkpieceMaterial() {
                         ExportDate = date,
@@ -8608,15 +8833,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 if (insertedDetails != null)
                     updatedDetails = updatedDetails.Union(insertedDetails);
                 using (var vfi = new tammaContext()) {
-                    var ci = new CultureInfo("vi-VN");
-                    var iDate = string.IsNullOrWhiteSpace(importDate)
-                        ? DateTime.Today
-                        : Convert.ToDateTime(importDate, ci);
-                    var useDate = string.IsNullOrWhiteSpace(materialUseDate)
-                        ? DateTime.Today
-                        : Convert.ToDateTime(materialUseDate, ci);
-                    if (useDate >= iDate)
+                    var iDate = MyUtilities.Function.ParseDate(importDate);
+                    var useDate = MyUtilities.Function.ParseDate(materialUseDate);
+                    if (iDate > DateTime.Now.AddDays(1) || useDate > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
+                    if (useDate >= iDate) {
                         throw new AggregateException("Lỗi! Xem lại ngày báo cáo!");
+                    }
                     if (MyUtilities.Transaction.IsLock(useDate, MyUtilities.Transaction.ProductionLockType.CNC)) {
                         throw new AggregateException(
                             @"Ngày nhập SX bị khoá do tính lương! /n Vui lòng liên hệ quản lý tính lương !");
@@ -8625,8 +8849,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
                     }
-                    ca1 = (ca1 + "").ToUpper();
-                    ca2 = (ca2 + "").ToUpper();
+                    var productionDate = vfi.ProductionLocks.FirstOrDefault(x => x.LockDate == useDate);
+                    if (productionDate != null) {
+                        ca1 = productionDate.Shift1Name;
+                        ca2 = productionDate.Shift2Name;
+                    }
+                    else {
+                        ca1 = (ca1 + "").ToUpper();
+                        ca2 = (ca2 + "").ToUpper();
+                    }
                     //kiem tra ton kho
                     var mess = "";
                     var productInvIds = updatedDetails.Select(detail => detail.ProductInvId).Distinct();
@@ -8703,7 +8934,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (entity.WarehouseExportId == 0) {
                             entity.WarehouseExportId = GetProcessInventory(entity.ProductInvId).WarehouseExportId;
                             if (entity.WarehouseExportId == 0)
-                                throw new AggregateException("Thiếu dữ liệu máy " + entity.MachineName);
+                                throw new AggregateException("Thiếu dữ liệu công đoạn kế của máy " + entity.MachineName);
                         }
                         var productInv =
                             vfi.ProductInventories.FirstOrDefault(pi => pi.ProductInventoryId == entity.ProductInvId);
@@ -8711,7 +8942,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         if (entity.Number1 + entity.Number2 + entity.Processing1 +
                             entity.Processing2 + entity.DefectProduct1 + entity.DefectProduct2 > 0) {
                             if (entity.ProductInvId == 0 || entity.MachineId == 0) {
-                                throw new AggregateException("Thiếu dữ liệu máy " + entity.MachineName);
+                                throw new AggregateException("Lỗi! Chọn lại sản phẩm ở máy " + entity.MachineName);
                             }
                             var lastTrack = MyUtilities.Machine.LastTrackUpMachine(entity.MachineId, null, productInv.ProductId, import.MaterialUseDate);
                             var importDetail = new ImportFormCncDetail {
@@ -10583,10 +10814,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 throw new AggregateException("Ngày báo cáo và ngày dùng NL ko được để trống");
             if (updatedDetails.Any()) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(importDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(importDate, ci);
+                    var date = MyUtilities.Function.ParseDate(importDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.Transaction.IsLock(date, MyUtilities.Transaction.ProductionLockType.Production1)) {
                         throw new AggregateException(
                             @"Ngày nhập SX bị khoá do tính lương! /n Vui lòng liên hệ quản lý tính lương !");
@@ -10987,6 +11218,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 vfi.SaveChanges();
                             }
                             transactionDetailCXL.ProductInventory = productInv;
+                        }
+                        if (detail.Product.MaterialId == null && detail.MaterialInvId != null) {
+                            detail.Product.MaterialId = detail.MaterialInventory.MaterialId;
                         }
                     }
                     var warehouseIds = import.ImportFormSX1Detail.Select(i => i.WarehouseExportId ?? 0).Distinct();
@@ -11757,10 +11991,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             if (updatedDetails.Any()) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(importDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(importDate, ci);
+                    var date = MyUtilities.Function.ParseDate(importDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -11845,7 +12079,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 Active = true,
                                 ModifiedUser = HttpContext.User.Identity.Name,
                                 ModifiedDate = DateTime.Now,
-                                Note = detail.Note + detail.MachineName
+                                Note = detail.Note + detail.MachineName,
+                                LotNumber = materialInv.LotNumber,
                             };
                             transactionMaterialDetail.QuantityKg = quantity * (materialInv.Material.Weight);
                             transactionMaterial.TransactionDetails.Add(transactionMaterialDetail);
@@ -11904,10 +12139,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             if (updatedDetails.Any()) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(importDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(importDate, ci);
+                    var date = MyUtilities.Function.ParseDate(importDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {//1
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -11978,10 +12213,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     try {
                         if (!Request.IsAuthenticated)
                             throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
-                        var ci = new CultureInfo("vi-VN");
-                        var date = string.IsNullOrWhiteSpace(importDate)
-                                       ? DateTime.Today
-                                       : Convert.ToDateTime(importDate, ci);
+                        var date = MyUtilities.Function.ParseDate(importDate);
+                        if (date > DateTime.Now.AddDays(1)) {
+                            throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                        }
                         if (MyUtilities.Transaction.IsLock(date, MyUtilities.Transaction.ProductionLockType.Production1)) {
                             throw new AggregateException(
                                 @"Ngày nhập SX bị khoá do tính lương! \n Vui lòng liên hệ quản lý tính lương !");

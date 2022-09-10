@@ -22,6 +22,14 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string LogoImage { get; set; }
         public string ImagePath { get; set; }
         public string PageTitleColor { get; set; }
+        public string CompanyName { get; set; }
+        public string CompanyFullName { get; set; }
+        public string CompanyShortName { get; set; }
+        public string Address { get; set; }
+        public string TelNumber { get; set; }
+        public string FaxNumber { get; set; }
+        public string Email { get; set; }
+        public string Website { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; }
         public virtual ICollection<UserWorkGroup> UserWorkGroups { get; set; }
     }

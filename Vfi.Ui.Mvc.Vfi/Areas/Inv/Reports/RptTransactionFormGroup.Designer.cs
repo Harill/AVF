@@ -58,7 +58,6 @@
             this.textBox1 = new Telerik.Reporting.TextBox();
             this.textBox2 = new Telerik.Reporting.TextBox();
             this.textBox21 = new Telerik.Reporting.TextBox();
-            this.textBox22 = new Telerik.Reporting.TextBox();
             this.textBox6 = new Telerik.Reporting.TextBox();
             this.textBox9 = new Telerik.Reporting.TextBox();
             this.textBox10 = new Telerik.Reporting.TextBox();
@@ -67,6 +66,7 @@
             this.textBox31 = new Telerik.Reporting.TextBox();
             this.textBox32 = new Telerik.Reporting.TextBox();
             this.textBox33 = new Telerik.Reporting.TextBox();
+            this.picLogo = new Telerik.Reporting.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // objectDataSource1
@@ -601,7 +601,6 @@
             this.textBox1,
             this.textBox2,
             this.textBox21,
-            this.textBox22,
             this.textBox6,
             this.textBox9,
             this.textBox10,
@@ -609,7 +608,8 @@
             this.textBox30,
             this.textBox31,
             this.textBox32,
-            this.textBox33});
+            this.textBox33,
+            this.picLogo});
             this.reportHeader.Name = "reportHeader";
             this.reportHeader.Style.Font.Name = "Times New Roman";
             // 
@@ -637,7 +637,7 @@
             this.titleTextBox.Style.Font.Size = Telerik.Reporting.Drawing.Unit.Point(15D);
             this.titleTextBox.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Bottom;
             this.titleTextBox.StyleName = "Title";
-            this.titleTextBox.Value = "PHIẾU GIAO DỊCH";
+            this.titleTextBox.Value = "PHIẾU LUÂN CHUYỂN";
             // 
             // textBox1
             // 
@@ -672,20 +672,6 @@
             this.textBox21.Style.Font.Name = "Times New Roman";
             this.textBox21.StyleName = "Data";
             this.textBox21.Value = "Xuất:";
-            // 
-            // textBox22
-            // 
-            this.textBox22.CanGrow = true;
-            this.textBox22.Format = "{0}";
-            this.textBox22.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(5D), Telerik.Reporting.Drawing.Unit.Pixel(5D));
-            this.textBox22.Name = "textBox22";
-            this.textBox22.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.9999604225158691D), Telerik.Reporting.Drawing.Unit.Inch(0.45102584362030029D));
-            this.textBox22.Style.BackgroundImage.ImageData = global::Vfi.Ui.Mvc.Vfi.Properties.Resources.IMG_17012014_143105;
-            this.textBox22.Style.BackgroundImage.MimeType = "image/png";
-            this.textBox22.Style.BackgroundImage.Repeat = Telerik.Reporting.Drawing.BackgroundRepeat.NoRepeat;
-            this.textBox22.Style.Font.Name = "Times New Roman";
-            this.textBox22.StyleName = "Data";
-            this.textBox22.Value = "";
             // 
             // textBox6
             // 
@@ -779,6 +765,12 @@
             this.textBox33.StyleName = "Data";
             this.textBox33.Value = "Tình trạng:";
             // 
+            // picLogo
+            // 
+            this.picLogo.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(0D), Telerik.Reporting.Drawing.Unit.Pixel(5.57098388671875D));
+            this.picLogo.Name = "picLogo";
+            this.picLogo.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Pixel(90D), Telerik.Reporting.Drawing.Unit.Pixel(70D));
+            // 
             // RptTransactionFormGroup
             // 
             this.DataSource = this.objectDataSource1;
@@ -855,7 +847,6 @@
         private Telerik.Reporting.TextBox textBox15;
         private Telerik.Reporting.TextBox textBox16;
         private Telerik.Reporting.TextBox textBox21;
-        private Telerik.Reporting.TextBox textBox22;
         private Telerik.Reporting.TextBox textBox23;
         private Telerik.Reporting.TextBox textBox5;
         private Telerik.Reporting.TextBox textBox26;
@@ -889,6 +880,7 @@
         private Telerik.Reporting.TextBox textBox12;
         private Telerik.Reporting.TextBox textBox17;
         private Telerik.Reporting.TextBox textBox20;
+        private Telerik.Reporting.PictureBox picLogo;
 
     }
 }

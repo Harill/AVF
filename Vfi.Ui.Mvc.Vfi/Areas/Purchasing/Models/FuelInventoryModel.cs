@@ -29,35 +29,48 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public DateTime CreateDate { get; set; }
 
         public double Early { get; set; }
-
         public double EarlyPrice {
             get { return Early * UnitPrice; }
         }
 
         public double Import { get; set; }
-        public double ImportMore { get; set; }
-
         public double ImportPrice {
             get { return Import * UnitPrice; }
         }
+        public double ImportMore { get; set; }
+        public double ImportInternal { get; set; }
+        public double TotalImport { get { return Import + ImportMore + ImportInternal; } }
+        public double TotalImportPrice {
+            get { return TotalImport * UnitPrice; }
+        }
 
         public double Export { get; set; }
-        public double ExportDestroy { get; set; }
-
         public double ExportPrice {
             get { return Export * UnitPrice; }
         }
-
-        public double Last {
-            get { return Early + Import - Export; }
+        public double ExportDestroy { get; set; }
+        public double ExportDestroyPrice {
+            get { return ExportDestroy * UnitPrice; }
         }
-
+        public double ExportInternal { get; set; }
+        public double ExportInternalPrice {
+            get { return ExportInternal * UnitPrice; }
+        }
+        public double TotalExport { get { return Export + ExportDestroy + ExportInternal; } }
+        public double TotalExportPrice {
+            get { return TotalExport * UnitPrice; }
+        }
+        
+        public double Last {
+            get { return Early + TotalImport - TotalExport; }
+        }
         public double LastPrice {
             get { return Last * UnitPrice; }
         }
+
         public bool IsShow {
             get {
-                return Early + Import + ImportMore + Export + ExportDestroy > 0;
+                return Early + TotalImport + TotalExport != 0;
             }
         }
         public string FromDate { get; set; }
@@ -72,29 +85,61 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public string MaterialTypeName { get; set; }
         public string GroupName { get; set; }
         public double TotalInv { get; set; }
-        public double TotalEarly {
+        public double Early {
             get { return List.Sum(l => l.Early); }
         }
-
-        public double TotalEarlyPrice {
+        public double EarlyPrice {
             get { return List.Sum(l => l.EarlyPrice); }
         }
-        public double TotalImport {
+
+        public double Import {
             get { return List.Sum(l => l.Import); }
         }
-        public double TotalImportPrice {
+        public double ImportPrice {
             get { return List.Sum(l => l.ImportPrice); }
         }
-        public double TotalExport {
+        public double ImportMore {
+            get { return List.Sum(l => l.ImportMore); }
+        }
+        public double ImportInternal {
+            get { return List.Sum(l => l.ImportInternal); }
+        }
+        public double TotalImport {
+            get { return List.Sum(l => l.TotalImport); }
+        }
+        public double TotalImportPrice {
+            get { return List.Sum(l => l.TotalImportPrice); }
+        }
+
+        public double Export {
             get { return List.Sum(l => l.Export); }
         }
-        public double TotalExportPrice {
+        public double ExportPrice {
             get { return List.Sum(l => l.ExportPrice); }
         }
-        public double TotalLast {
+        public double ExportDestroy {
+            get { return List.Sum(l => l.ExportDestroy); }
+        }
+        public double ExportDestroyPrice {
+            get { return List.Sum(l => l.ExportDestroyPrice); }
+        }
+        public double ExportInternal {
+            get { return List.Sum(l => l.ExportInternal); }
+        }
+        public double ExportInternalPrice {
+            get { return List.Sum(l => l.ExportInternalPrice); }
+        }
+        public double TotalExport {
+            get { return List.Sum(l => l.TotalExport); }
+        }
+        public double TotalExportPrice {
+            get { return List.Sum(l => l.TotalExportPrice); }
+        }
+
+        public double Last {
             get { return List.Sum(l => l.Last); }
         }
-        public double TotalLastPrice {
+        public double LastPrice {
             get { return List.Sum(l => l.LastPrice); }
         }
         public List<FuelInventoryModel> List { get; set; }

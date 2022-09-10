@@ -27,44 +27,49 @@
     }
 </style>
 @section Scripts{
-    <!-- grid Monthly -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
     <script type="text/javascript">        
         function workOrder_OnChange() {
-            var workOrder = $("#WorkOrder").data('tComboBox').value();
-            if (workOrder === "") workOrder = 0;
-            $.ajax({
-                type: 'post',
-                data: { routingId: workOrder },
-                dataType: 'json',
-                url: '@Url.Action("CheckWorkOrderRoutingInfo", "WorkOrder", new { area = "Factory" })',
-                timeout: 20000,
-                success: function (res) {
-                    //OnLoadedData();
-                    if (res.Code === 1) {
-                        $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
-                        $("#ProductCode")[0].innerText = res.Data.ProductCode;
+            if (!onLoading) {
+                OnLoadingData();
+                var workOrder = $("#WorkOrder").data('tComboBox').value();
+                if (workOrder === "") workOrder = 0;
+                $.ajax({
+                    type: 'post',
+                    data: { routingId: workOrder },
+                    dataType: 'json',
+                    url: '@Url.Action("CheckWorkOrderRoutingInfo", "WorkOrder", new { area = "Factory" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        //OnLoadedData();
+                        if (res.Code === 1) {
+                            $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
+                            $("#ProductCode")[0].innerText = res.Data.ProductCode;
 
-                        $("#RoutingName")[0].innerText = res.Data.RoutingName;
-                        $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
+                            $("#RoutingName")[0].innerText = res.Data.RoutingName;
+                            $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
 
-                        $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
-                        $("#ProductionQuantity")[0].innerText = res.Data.UsingQuantity.format(0);
-                        $("#ProductWeight").val(res.Data.ProductWeight);
-                        $("#ProductWeight").data("tTextBox").$text[0].innerHTML = res.Data.ProductWeight.format(4);
+                            $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
+                            $("#ProductionQuantity")[0].innerText = res.Data.UsingQuantity.format(0);
+                            $("#ProductWeight").val(res.Data.ProductWeight);
+                            $("#ProductWeight").data("tTextBox").$text[0].innerHTML = res.Data.ProductWeight.format(4);
 
-                        $("#MaterialInvCode")[0].innerText = res.Data.MaterialInvCode;
-                        if (res.Data.PackingInfo) {
-                            $("#FuelFullCodeName")[0].innerText = res.Data.PackingInfo.FuelFullCode;
-                            $("#Quota")[0].innerText = res.Data.PackingInfo.Quota.format(0);
-                            $("#CrossWeight")[0].innerText = res.Data.PackingInfo.CrossWeight.format(0);
-                            $("#Quantity").val(res.Data.PackingInfo.Quota);
-                            $("#Quantity").data("tTextBox").$text[0].innerHTML = res.Data.PackingInfo.Quota.format(0);
+                            $("#MaterialInvCode")[0].innerText = res.Data.MaterialInvCode;
+                            if (res.Data.PackingInfo) {
+                                $("#FuelFullCodeName")[0].innerText = res.Data.PackingInfo.FuelFullCode;
+                                $("#Quota")[0].innerText = res.Data.PackingInfo.Quota.format(0);
+                                $("#CrossWeight")[0].innerText = res.Data.PackingInfo.CrossWeight.format(0);
+                                $("#Quantity").val(res.Data.PackingInfo.Quota);
+                                $("#Quantity").data("tTextBox").$text[0].innerHTML = res.Data.PackingInfo.Quota.format(0);
+                            }
+                            OnLoadedData();
+                        } else {
+                            alert("Lỗi! " + data.Message);
                         }
-                    } else {
-                        alert("Lỗi! " + data.Message);
                     }
-                }
-            });
+                });
+            }
         }
         var quantity = 0;
         function Add() {
@@ -161,31 +166,35 @@
         }
         var destroyQuantity = 0;
         function SaveData() {
-
-            var workOrder = $("#WorkOrder").data('tComboBox').value();
-            if (workOrder === "") workOrder = 0;
-            var employee = $("#Employee").data('tComboBox').value();
-            if (employee === "") employee = 0;
-            var productWeight = $("#ProductWeight").data("tTextBox").value();
-            if (employee == 0 || productWeight == 0) {
-                alert("Lỗi! Chưa nhập đủ thông tin: nhân viên, trọng lượng");
-            }
-            else if (confirm("Đồng ý lưu ?")) {
-                $.post('@Url.Action("ImportWorkOrderPackingProcess", "WorkOrder")',
-                    {
-                        routingId: workOrder,
-                        employeeId: employee,
-                        productWeight: productWeight,
-                        destroyQuantity: destroyQuantity,
-                    },
-                    function (res) {
-                        if (res.Code === 1) {
-                            RefreshGrid("grid");
-                            alert("Hoàn thành lưu " + res.Data);
-                        } else {
-                            alert("Lỗi! " + res.Message);
-                        }
-                    });
+            if (!onProcessing) {
+                OnProcessingData();
+                var workOrder = $("#WorkOrder").data('tComboBox').value();
+                if (workOrder === "") workOrder = 0;
+                var employee = $("#Employee").data('tComboBox').value();
+                if (employee === "") employee = 0;
+                var productWeight = $("#ProductWeight").data("tTextBox").value();
+                if (employee == 0 || productWeight == 0) {
+                    alert("Lỗi! Chưa nhập đủ thông tin: nhân viên, trọng lượng");
+                    OnProcessedData();
+                }
+                else if (confirm("Đồng ý lưu ?")) {
+                    $.post('@Url.Action("ImportWorkOrderPackingProcess", "WorkOrder")',
+                        {
+                            routingId: workOrder,
+                            employeeId: employee,
+                            productWeight: productWeight,
+                            destroyQuantity: destroyQuantity,
+                        },
+                        function (res) {
+                            if (res.Code === 1) {
+                                RefreshGrid("grid");
+                                alert("Hoàn thành lưu " + res.Data);
+                            } else {
+                                alert("Lỗi! " + res.Message);
+                            }
+                            OnProcessedData();
+                        });
+                }
             }
             return false;
         }
@@ -216,13 +225,14 @@
                         .Render();
                 }
             </div>
-        <div class="grid_1">
+        <div class="grid_3_5">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshCombobox('WorkOrder'); ">
                 <span class='t-icon t-refresh'></span>
+                <span class="loadButton"></span>
             </button>
         </div>
             <div class="clear"></div>
-        <div class="grid_11">
+        <div class="grid_12">
             <div class="grid_2">
                 Số Serial
             </div>
@@ -232,7 +242,7 @@
             <div class="grid_2">
                 Sản phẩm
             </div>
-            <div class="grid_3" style="font-size: large;">
+            <div class="grid_4" style="font-size: large;">
                 <span id="ProductCode">~~</span>
             </div>
             <div class="clear"></div>
@@ -496,5 +506,4 @@
             .Render();   
     }
 </div>
-
 <div class="clear"></div><br />

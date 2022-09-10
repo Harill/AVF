@@ -166,7 +166,7 @@
     </Reference>
     <Reference Include="Telerik.Reporting, Version=6.1.12.611, Culture=neutral, PublicKeyToken=a9d7983dfcc261be, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Telerik.Reporting.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files (x86)\Telerik\Reporting Q2 2012\Bin\Telerik.Reporting.dll</HintPath>
     </Reference>
     <Reference Include="Telerik.ReportViewer.WebForms, Version=6.1.12.611, Culture=neutral, PublicKeyToken=a9d7983dfcc261be, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -596,6 +596,24 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptImportProductForm.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptImportProductForm.Designer.cs">
+      <DependentUpon>RptImportProductForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptToolTotal.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptToolTotal.Designer.cs">
+      <DependentUpon>RptToolTotal.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptToolTransactionInternalForm.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptToolTransactionInternalForm.Designer.cs">
+      <DependentUpon>RptToolTransactionInternalForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptWorkOrder.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -895,12 +913,6 @@
     </Compile>
     <Compile Include="Areas\Inv\Reports\RptExportToolForm.Designer.cs">
       <DependentUpon>RptExportToolForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptToolTotal.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Areas\Inv\Reports\RptToolTotal.Designer.cs">
-      <DependentUpon>RptToolTotal.cs</DependentUpon>
     </Compile>
     <Compile Include="Areas\Inv\Reports\RptImportToolForm.cs">
       <SubType>Component</SubType>
@@ -1238,9 +1250,16 @@
     </Compile>
     <Compile Include="Areas\Sales\Models\WaitingOrderBalancingPlanModel.cs" />
     <Compile Include="Areas\Sales\Views\SalesAreaRegistration.cs" />
+    <Compile Include="Utilities\MyPrintService.cs" />
+    <Compile Include="Utilities\MyWeighingService.cs" />
+    <Content Include="Areas\Factory\Views\WorkOrder\PageWOMaterialUse.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrder.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOAssignMaterial.aspx" />
+    <Content Include="Areas\Inv\Views\Inv\PageImportProductForm.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageTransactionFormGroup.aspx" />
+    <Content Include="Areas\Purchasing\Views\Tool\PagePrintToolTransactionInternal.aspx" />
+    <Content Include="Content\Images\Background\2.png" />
+    <Content Include="Content\Images\Logo\d-gear-logoa.jpg" />
     <Content Include="Content\Isotope.css" />
     <Compile Include="Controllers\Authorization\PermissionController.cs" />
     <Compile Include="Controllers\Authorization\UserController.cs" />
@@ -2541,7 +2560,6 @@
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\EditorTemplates\_StatusEditTemplate.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\CancelQualityPuchaseOrder.cshtml" />
     <Content Include="Areas\Inv\Views\Reporting\ImportExportMaterialReport.cshtml" />
-    <Content Include="Areas\Inv\Views\Transaction\ExportToolInventory.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\ImportToolInventory.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\CreateToolPurchaseOrder.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\EditorTemplates\_ToolEditTemplate.cshtml" />
@@ -2930,11 +2948,19 @@
     <Content Include="Areas\Inv\Views\Inv\EditorTemplates\_InventoryDrawerTemplate.cshtml" />
     <Content Include="Areas\Inv\Views\Inv\ProductionMachineDiagram.cshtml" />
     <Content Include="Areas\Inv\Views\Inv\MaterialInventoryShelfDiagram.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCleanApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCleanConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCleanProcess.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderMaterialUsing.cshtml" />
+    <None Include="Utilities\weighingvalue.json" />
+    <Content Include="Scripts\OnLoad.js" />
+    <Content Include="Scripts\OnProcess.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Web-server.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\User\EditorTemplates\_TelerikThemeEditTemplate.cshtml" />
     <Content Include="Areas\Purchasing\Views\PurchaseOrder\ImportPOManagement.cshtml" />
@@ -2971,11 +2997,17 @@
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderFinishConfirmation.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProductionManagement.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\AddWorkOrder.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Fuel\ImportInternalTransactionFuel.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Fuel\ExportInternalTransactionFuel.cshtml" />
+    <Content Include="Views\Shared\_Layout_Vertical.cshtml" />
+    <Content Include="Views\Menu\_MainMenuVertical.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Web-server.Debug.config">
       <DependentUpon>Web-server.config</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\IMG_17012014_143105.png" />
     <Content Include="Resources\approve_icon.jpg" />
@@ -3467,9 +3499,6 @@
     <Content Include="Areas\Inv\Views\Transaction\ApproveTransactionMaterial.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Areas\Inv\Views\Transaction\ImportTransactionMaterial.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Areas\Inv\Views\Transaction\EditorTemplates\_unitMeasureTemplate.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -3694,6 +3723,17 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptImportProductForm.resx">
+      <DependentUpon>RptImportProductForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptToolTotal.resx">
+      <DependentUpon>RptToolTotal.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptToolTransactionInternalForm.resx">
+      <DependentUpon>RptToolTransactionInternalForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptWorkOrder.resx">
       <DependentUpon>RptWorkOrder.cs</DependentUpon>
     </EmbeddedResource>
@@ -3847,9 +3887,6 @@
       <DependentUpon>RptExportToolForm.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptToolTotal.resx">
-      <DependentUpon>RptToolTotal.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptImportToolForm.resx">
       <DependentUpon>RptImportToolForm.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -3984,9 +4021,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Product\EditorTemplates\_CustomerCodeOnlyEditTemplate.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Areas\Inv\Views\Transaction\ImportTransactionMaterialTool.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Inv\Views\Transaction\CancelTransactionProduct.cshtml" />

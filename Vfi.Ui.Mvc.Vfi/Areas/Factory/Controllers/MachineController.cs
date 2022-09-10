@@ -2374,7 +2374,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 }
                             }
                             break;
-                        case (byte)MyUtilities.Machine.State.RepairStatus.Delete:
+                        case (byte)MyUtilities.Machine.State.RepairStatus.Delete: {
+                            }
                             break;
                         case (byte)MyUtilities.Machine.State.RepairStatus.Finish:
                         case (byte)MyUtilities.Machine.State.RepairStatus.Wrong: {

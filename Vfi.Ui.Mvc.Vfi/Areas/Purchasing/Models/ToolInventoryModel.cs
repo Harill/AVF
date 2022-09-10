@@ -90,19 +90,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 
         public double Import { get; set; }
         public double ImportPrice {
-            get { return TotalImport * UnitPrice; }
+            get { return Import * UnitPrice; }
         }
         public double ImportMore { get; set; }
         public double ImportInternal { get; set; }
         public double TotalImport { get { return Import + ImportMore + ImportInternal; } }
+        public double TotalImportPrice {
+            get { return TotalImport * UnitPrice; }
+        }
 
         public double Export { get; set; }
         public double ExportPrice {
-            get { return TotalExport * UnitPrice; }
+            get { return Export * UnitPrice; }
         }
         public double ExportDestroy { get; set; }
+        public double ExportDestroyPrice {
+            get { return ExportDestroy * UnitPrice; }
+        }
         public double ExportInternal { get; set; }
+        public double ExportInternalPrice {
+            get { return ExportInternal * UnitPrice; }
+        }
         public double TotalExport { get { return Export + ExportDestroy + ExportInternal; } }
+        public double TotalExportPrice {
+            get { return TotalExport * UnitPrice; }
+        }
 
         public double Last {
             get { return Early + TotalImport - TotalExport; }
@@ -113,9 +125,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 
         public bool IsShow {
             get {
-                return Early 
-                    + Import + ImportMore + ImportInternal 
-                    + Export + ExportInternal + ExportDestroy > 0;
+                return Early + TotalImport + TotalExport + Export3Month != 0;
             }
         }
 
@@ -134,30 +144,56 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public string MaterialTypeName { get; set; }
         public string GroupName { get; set; }
         public double TotalInv { get; set; }
+
         public double Early {
             get { return List.Sum(l => l.Early); }
         }
-
         public double EarlyPrice {
             get { return List.Sum(l => l.EarlyPrice); }
         }
+
         public double Import {
             get { return List.Sum(l => l.Import); }
         }
-        public double ImportInternal {
-            get { return List.Sum(l => l.ImportInternal); }
+        public double ImportMore {
+            get { return List.Sum(l => l.ImportMore); }
         }
         public double ImportPrice {
             get { return List.Sum(l => l.ImportPrice); }
         }
+        public double ImportInternal {
+            get { return List.Sum(l => l.ImportInternal); }
+        }
+        public double TotalImport {
+            get { return List.Sum(l => l.TotalImport); }
+        }
+        public double TotalImportPrice {
+            get { return List.Sum(l => l.TotalImportPrice); }
+        }
+
         public double Export {
             get { return List.Sum(l => l.Export); }
+        }
+        public double ExportPrice {
+            get { return List.Sum(l => l.ExportPrice); }
+        }
+        public double ExportDestroy {
+            get { return List.Sum(l => l.ExportDestroy); }
+        }
+        public double ExportDestroyPrice {
+            get { return List.Sum(l => l.ExportDestroyPrice); }
         }
         public double ExportInternal {
             get { return List.Sum(l => l.ExportInternal); }
         }
-        public double ExportPrice {
-            get { return List.Sum(l => l.ExportPrice); }
+        public double ExportInternalPrice {
+            get { return List.Sum(l => l.ExportInternalPrice); }
+        }
+        public double TotalExport {
+            get { return List.Sum(l => l.TotalExport); }
+        }
+        public double TotalExportPrice {
+            get { return List.Sum(l => l.TotalExportPrice); }
         }
         public double Last {
             get { return List.Sum(l => l.Last); }
@@ -191,30 +227,58 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public double TotalInv {
             get { return Details.Sum(l => l.TotalQuantity); }
         }
+
         public double Early {
             get { return Details.Sum(l => l.Early); }
         }
         public double EarlyPrice {
             get { return Details.Sum(l => l.EarlyPrice); }
         }
+
         public double Import {
             get { return Details.Sum(l => l.Import); }
         }
-        public double ImportInternal {
-            get { return Details.Sum(l => l.ImportInternal); }
+        public double ImportMore {
+            get { return Details.Sum(l => l.ImportMore); }
         }
         public double ImportPrice {
             get { return Details.Sum(l => l.ImportPrice); }
         }
+        public double ImportInternal {
+            get { return Details.Sum(l => l.ImportInternal); }
+        }
+        public double TotalImport {
+            get { return Details.Sum(l => l.TotalImport); }
+        }
+        public double TotalImportPrice {
+            get { return Details.Sum(l => l.TotalImportPrice); }
+        }
+        
         public double Export {
             get { return Details.Sum(l => l.Export); }
-        }
-        public double ExportInternal {
-            get { return Details.Sum(l => l.ExportInternal); }
         }
         public double ExportPrice {
             get { return Details.Sum(l => l.ExportPrice); }
         }
+        public double ExportDestroy {
+            get { return Details.Sum(l => l.ExportDestroy); }
+        }
+        public double ExportDestroyPrice {
+            get { return Details.Sum(l => l.ExportDestroyPrice); }
+        }
+        public double ExportInternal {
+            get { return Details.Sum(l => l.ExportInternal); }
+        }
+        public double ExportInternalPrice {
+            get { return Details.Sum(l => l.ExportInternalPrice); }
+        }
+        public double TotalExport {
+            get { return Details.Sum(l => l.TotalExport); }
+        }
+        public double TotalExportPrice {
+            get { return Details.Sum(l => l.TotalExportPrice); }
+        }
+
         public double Last {
             get { return Details.Sum(l => l.Last); }
         }

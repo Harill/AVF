@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Globalization;
+using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
 {
@@ -19,27 +21,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             //
             // TODO: Add any constructor code after InitializeComponent call
             //
-            this.Name = "XuatKhoTP";
+            //this.Name = "XuatKhoTP";
         }
         public void BindDataOwner(object models)
         {
             DataSource = models;
-        }
-        
-        public static double? GetItemValue(List<double?> values, int index)
-        {
-            return values[index];
-        }
-
-        public static string KhoSX1(DateTime date)
-        {
-            return "Kho SX1\n" + (date.Day - 1) + "/" + date.Month;
-        }
-
-        public static string FormatQuality(double? value)
-        {
-            return String.Format("{0:n0,0}", value.Value) ?? "0";
-            
+            var list = (List<PrintExportTP_KDModel>)models;
+            var data = list.FirstOrDefault();
+            this.picLogo.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
+            this.picLogo.Value = data.Info.Logo;
+            this.Name = "Export_Product_" + data.DateCreateString;
         }
     }
 }

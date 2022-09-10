@@ -21,12 +21,16 @@
         width: 55%;
         margin-right: 10px;
     }
+
+    .span-highlight {
+        padding:5px;
+    }
 </style>
 @section Scripts{
     <script type="text/javascript">
         var info = {
             Quantity: 0,
-            KnifeCut : 0,
+            KnifeCut: 0,
             WorkPiece: 0,
             ProductivityDesign: 0,
             Productivity: 0,
@@ -36,7 +40,8 @@
             MaterialLength: 0,
             MaterialRequirementDesign: 0,
             MaterialRequirement: 0,
-            MaterialAvailable:0,
+            MaterialAvailable: 0,
+            MaterialAssign: 0,
             Ids: "",
             ProductId: 0,
             MaterialId: 0,
@@ -60,7 +65,7 @@
             $("#KnifeCut").val(info.KnifeCut);
             $("#WorkPiece").val(info.WorkPiece);
             $("#Productivity").val(info.Productivity);
-            $("#ProductivityDesign")[0].innerText = info.ProductLenght.format(2);
+            $("#ProductivityDesign")[0].innerText = info.ProductivityDesign.format(2);
             
             $("#ProductLenght")[0].innerText = info.ProductLenght;
             $("#ProductionRateDesign")[0].innerText = info.ProductionRate;
@@ -75,13 +80,18 @@
                 type: 'post',
                 data: { materialInvId: e.value },
                 dataType: 'json',
-                url: '@Url.Action("GetMaterialInvInfo", "Material", new { area = "" })',
+                url: '@Url.Action("GetMaterialInvWOInfo", "Material", new { area = "" })',
                 timeout: 20000,
                 success: function (res) {
                     if (res.Code === 1) {
                         $("#MaterialLength")[0].innerText = res.Data.Length;
                         $("#MaterialInventory")[0].innerText = res.Data.TotalQty;
                         $("#MaterialAvailable")[0].innerText = res.Data.AvailableQty;
+                        if (res.Data.AvailableQty <= 0) {
+                            $("#MaterialAvailable")[0].style.backgroundColor = "yellow";
+                        } else {
+                            $("#MaterialAvailable")[0].style.backgroundColor = "";
+                        }
                         info.MaterialAvailable = res.Data.AvailableQty;
                         info.MaterialLength = res.Data.Length;
                         info.MaterialId = res.Data.MaterialId;
@@ -107,11 +117,15 @@
                         info.WorkPiece = res.Data.WorkPiece;
                         $("#KnifeCut").val(info.KnifeCut);
                         $("#KnifeCut").data("tTextBox").$text[0].innerHTML = info.KnifeCut.format(1);
+                        $("#KnifeCut").data("tTextBox").value(info.KnifeCut);
                         $("#WorkPiece").val(info.WorkPiece);
                         $("#WorkPiece").data("tTextBox").$text[0].innerHTML = info.WorkPiece;
+                        $("#WorkPiece").data("tTextBox").value(info.WorkPiece);
                         $("#Productivity").val(info.Productivity);
                         $("#Productivity").data("tTextBox").$text[0].innerHTML = info.Productivity.format(1);
+                        $("#Productivity").data("tTextBox").value(info.Productivity);
                         CalculateProductionRate();
+                        AlertValidation();
                     } else {
                         alert(res.Message);
                     }
@@ -122,16 +136,26 @@
         function knifeCut_OnChange(e) {
             info.KnifeCut = e.newValue;
             CalculateProductionRate();
+            AlertValidation();
 
         }
         function workPiece_OnChange(e) {
             info.WorkPiece = e.newValue;
             CalculateProductionRate();
+            AlertValidation();
         }
         function productivity_OnChange(e) {
             info.Productivity = e.newValue;
             AlertValidation();
         }
+        function materialAssign_OnChange(e) {
+            info.MaterialAssign = e.newValue;
+            AlertValidation();
+        }
+        function MaterialRefresh() {
+            RefreshCombobox("MaterialInventoryCbo");
+        }
+
 
         function CalculateProductionRate() {
             info.ProductionRate = ((info.MaterialLength - info.WorkPiece) / (info.ProductLenght + info.KnifeCut));
@@ -142,7 +166,10 @@
             temp = info.MaterialRequirement % Math.pow(10, 0);
             if (temp > 0) info.MaterialRequirement = info.MaterialRequirement - temp + Math.pow(10, 0);
             $("#MaterialRequirement")[0].innerText = info.MaterialRequirement;
-
+            info.MaterialAssign = info.MaterialRequirement > info.MaterialAvailable ? info.MaterialAvailable : info.MaterialRequirement;
+            $("#MaterialAssign").val(info.MaterialAssign);
+            $("#MaterialAssign").data("tTextBox").$text[0].innerHTML = info.MaterialAssign.format(0);
+            $("#MaterialAssign").data("tTextBox").value(info.MaterialAssign);
         }
         function AlertValidation() {
             if (info.Productivity > info.ProductivityDesign) {
@@ -152,12 +179,23 @@
             }
             if (info.ProductionRate < info.ProductionRateDesign) {
                 $("#ProductionRateDesign")[0].style.backgroundColor = "yellow";
+                $("#ProductionRate")[0].style.backgroundColor = "yellow";
             } else {
                 $("#ProductionRateDesign")[0].style.backgroundColor = "";
+                $("#ProductionRate")[0].style.backgroundColor = "";
             }
-            if (info.MaterialRequirement > info.MaterialAvailable) {
-                $("#MaterialRequirement")[0].style.backgroundColor = "yellow";
+            if (info.MaterialAssign > info.MaterialAvailable) {
+                //$("#MaterialRequirement")[0].style.backgroundColor = "red";
+                $("#MaterialAvailable")[0].style.backgroundColor = "red";
             } else {
+                $("#MaterialAvailable")[0].style.backgroundColor = "";
+            }
+            if (info.MaterialRequirement != info.MaterialRequirementDesign) {
+                $("#MaterialRequirementDesign")[0].style.backgroundColor = "yellow";
+                $("#MaterialRequirement")[0].style.backgroundColor = "yellow";
+            }
+            else {
+                $("#MaterialRequirementDesign")[0].style.backgroundColor = "";
                 $("#MaterialRequirement")[0].style.backgroundColor = "";
             }
         }
@@ -172,6 +210,14 @@
                 alert("Để kích hoạt vui lòng nhập đủ thông tin: nguyên liệu, máy");
                 return;
             }
+            var startDate = "";
+            if ($("input[name='chkStartDate']")[0].checked) {
+                startDate = $("#StartDate").data("tDateTimePicker").value();
+                if (startDate === null)
+                    startDate = "";
+                else
+                    startDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', startDate);
+            }
 
             $.ajax({
                 type: 'post',
@@ -179,7 +225,8 @@
                     ids: info.Ids, materialInvId: materialInvId, machineId: machineId,
                     productivity: info.Productivity, productionRate: info.ProductionRate,
                     knifeCut: info.KnifeCut, workPiece: info.WorkPiece,
-                    isActive: (active == 1)
+                    newAssign: info.MaterialAssign,
+                    isActive: (active == 1), startDate: startDate,
                 },
                 dataType: 'json',
                 url: '@Url.Action("SaveEditWorkOrders", "WorkOrder", new { area = "Factory" })',
@@ -199,10 +246,10 @@
 }
 
 <div class="title">Điều chỉnh thông tin và kích hoạt Work Order
-<button class="t-button" id="btnSave" name="btnSave" onclick=" SaveData(0) ">
+@*<button class="t-button" id="btnSave" name="btnSave" onclick=" SaveData(0) ">
                 <span class='t-icon t-insert' disable ="true"></span>
                 Lưu lại
-            </button>
+            </button>*@
 <button class="t-button" id="btnSave_Active" name="btnSave_Active" onclick=" SaveData(1) ">
                 <span class='t-icon t-insert'></span>
                Lưu và kích hoạt
@@ -220,7 +267,21 @@
             <div class="grid_5">Khách hàng: @Model.CustomerCode</div>
             <div class="clear"></div>
             <br />
-            <div class="grid_5">Số lượng chạy: @Model.Quantity</div>
+            <div class="grid_5">Số lượng chạy: @string.Format("{0:n0}", Model.Quantity)</div>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_5">Dự kiến bắt đầu: @Model.StartDate.ToString("dd/MM/yy HH:mm")</div>
+            <div class="clear"></div>
+            <br />
+            <div class="grid_5"><input type='checkbox' name='chkStartDate' /> Điều chỉnh: 
+                @{
+                    Html.Telerik().DateTimePicker()
+                        .Name("StartDate")
+                        .Format("dd/MM/yyyy HH:mm")
+                        .Value(Model.StartDate > DateTime.Now ? Model.StartDate : DateTime.Now)
+                        .Render();
+                }
+            </div>
             <div class="clear"></div>
             <br />
     </fieldset>
@@ -231,7 +292,7 @@
         <span id="WorkOrderIds" hidden>@Model.Ids</span>
             @{
                 foreach (var workOrder in Model.List) {
-                    <div class="grid_6">Serial: @workOrder.SerialNumber - @workOrder.Quantity</div>
+                    <div class="grid_6">Serial: @workOrder.SerialNumber - @string.Format( "{0:n0}",workOrder.Quantity)</div>
                     <div class="clear"></div>
                     <br />
                 }    
@@ -250,7 +311,7 @@
                 @{
                     Html.Telerik().ComboBox()
                         .Name("MaterialInventoryCbo")
-                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialInventory", "Material", new { area = "" }).Delay(350))
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductionMaterial", "Material", new { area = "", productId = Model.ProductId }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
@@ -260,6 +321,11 @@
                         .Render();
                 }
             </div>
+            <div class="grid_1">
+                <button class="t-button" id="btnRefresh" onclick=" MaterialRefresh() ">
+                    <span class='t-icon t-refresh'></span>
+                </button>
+            </div>
             <div class="grid_3"> 
                 Dài: <span id="MaterialLength">~</span> (mm)
             </div>
@@ -267,11 +333,41 @@
                 Tồn kho: <span id="MaterialInventory">~</span> (cây)
             </div>
             <div class="grid_4"> 
-                Có thể: <span id="MaterialAvailable">~</span> (cây)
+                Có thể: <span id="MaterialAvailable" class="span-highlight">~</span> (cây)
             </div>
-            <div class="clear"></div>
-            <br />
 
+            <div class="clear"></div><br />
+            <div class="grid_2_5">
+               Yêu cầu NL TK:
+            </div>
+            <div class="grid_3">
+                 <span id="MaterialRequirementDesign">~</span> (cây)
+            </div>
+            <div class="grid_2_5">
+               Yêu cầu NL TT:
+            </div>
+            <div class="grid_2">
+                 <span id="MaterialRequirement" class="span-highlight">~</span> (cây)
+            </div>
+            <div class="grid_3" style="text-align:right;">
+                Thực tế phát NL:
+            </div>
+            <div class="grid_1_5">
+                @{
+                    Html.Telerik().NumericTextBox()
+                        .Name("MaterialAssign")
+                        .MinValue(0)
+                        .MaxValue(1000)
+                        .DecimalDigits(0)
+                        .Value(0)
+                        .Spinners(false)
+                        .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })
+                        .ClientEvents(events => { events.OnChange("materialAssign_OnChange"); })
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">(cây)</div>
+            <div class="clear"></div><br />
             <div class="grid_2">
                 Máy
             </div>
@@ -292,7 +388,7 @@
                 Năng suất TK:
             </div>
             <div class="grid_2_5">
-                <span id="ProductivityDesign">0</span> (s/pc)
+                <span id="ProductivityDesign" class="span-highlight" >0</span> (s/pc)
             </div>
             <div class="grid_2_5" style="text-align:right;">
                 Năng suất TT:
@@ -356,36 +452,21 @@
                 }
             </div>
             <div class="grid_1">(mm)</div>
-            <div class="clear"></div>
-            <br />
-        
+
+            <div class="clear"></div><br />        
             <div class="grid_2_5">
                 Định mức TK:
             </div>
             <div class="grid_3">
-                 <span id="ProductionRateDesign">0 </span> (pcs/cây)
+                 <span id="ProductionRateDesign" class="span-highlight">0 </span> (pcs/cây)
             </div>
             <div class="grid_2_5">
                 Định mức TT:
             </div>
             <div class="grid_3">
-                 <span id="ProductionRate">~</span> (pcs/cây)
+                 <span id="ProductionRate" class="span-highlight">~</span> (pcs/cây)
             </div>
         
-            <div class="clear"></div>
-            <br />
-            <div class="grid_2_5">
-               Yêu cầu NL TK:
-            </div>
-            <div class="grid_3">
-                 <span id="MaterialRequirementDesign">~</span> (cây)
-            </div>
-            <div class="grid_2_5">
-               Yêu cầu NL TT:
-            </div>
-            <div class="grid_3">
-                 <span id="MaterialRequirement">~</span> (cây)
-            </div>
     </fieldset>
 </div>
 

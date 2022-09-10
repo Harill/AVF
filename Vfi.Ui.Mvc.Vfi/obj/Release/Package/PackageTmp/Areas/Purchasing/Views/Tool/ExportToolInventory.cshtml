@@ -54,16 +54,16 @@
 <script type="text/javascript">
 
     function gridToolInventoryDetail_onSubmitChanges(e) {
-        var monthlyDate = $("#ExportDate").data("tDatePicker").value();
-        if (monthlyDate === null)
-            monthlyDate = "";
+        var exportDate = $("#ExportDate").data("tDatePicker").value();
+        if (exportDate === null)
+            exportDate = "";
         else
-            monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+            exportDate = $.telerik.formatString('{0:dd/MM/yyyy}', exportDate);
         
         e.values = $.extend(e.values,
             {
                 exportOrImport: "@Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export)",
-                monthlyDate: monthlyDate
+                exportDate: exportDate
             }
         );
     }

@@ -596,3 +596,10 @@ div#title {
 .t-grid .t-alt {
     background-color: #efefef;
 }
+
+/* my highlight */
+    .cell-highlight {
+  background-image: linear-gradient(to right, #F27121cc, #E94057cc, #8A2387cc);
+  border-radius: 6px;
+  padding: 3px 6px;
+}

@@ -7,7 +7,8 @@
 }
 @section Scripts{
     <script type="text/javascript" src="@Url.Content("~/Scripts/jquery.isotope.min.js")"   ></script>
-    <script type="text/javascript" src="@Url.Content("~/Scripts/easytimer.min.js")"   ></script>    <script type="text/javascript">
+    <script type="text/javascript" src="@Url.Content("~/Scripts/easytimer.min.js")"   ></script>
+    <script type="text/javascript">
         $(function() {
             var $container = $("#container-1");
             //khoang cach giua cac item
@@ -216,6 +217,8 @@
                 //console.log(machineId);
                 timerTarget2(machineId);
             }
+            document.getElementById("title").childNodes[1].style.color = 'steelblue';
+            document.getElementById("logindisplay").childNodes[1].style.color = 'steelblue';
         });
 
         function timerTarget(target) {

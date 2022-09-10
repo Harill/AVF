@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
@@ -10,6 +11,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string InvoiceNumber { get; set; }
         public DateTime Today { get; set; }
         public int ProductId{get;set;}
+        public string CustomerCode { get; set; }
         public string CustomerName { get; set; }
         public string CustomerInfo { get; set; }
         public string CustomerContact { get; set; }
@@ -36,5 +38,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public double TaxAmount { get; set; }
         public string PaymentTerm { get; set; }
+        public WorkGroupInfo Info { get; set; }
     }
+
 }

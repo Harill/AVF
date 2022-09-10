@@ -659,7 +659,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      select id).ToList();
                     if (!importSx1.Any())
                         throw new AggregateException("Không có báo cáo mới ! ");
-                    var startMonth = importSx1.FirstOrDefault().ImportFormSX1.MaterialUseDate.AddDays(1);
+                    var startMonth = importSx1.FirstOrDefault().ImportFormSX1.MaterialUseDate;
                     var endMonth = importSx1.LastOrDefault().ImportFormSX1.MaterialUseDate;
                     var useInMonth = (from ms in vfi.MaterialUseDetails
                                       where ms.MaterialUseInShift.Status ==
@@ -715,16 +715,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         entity.QuantityKg = entity.Quantity * materialInv.UnitWeight;
                         model.Add(entity);
                     }
-                    var mip = (from period in vfi.MaterialInventoryPeriods
-                               where
-                               period.PeriodDate <= endMonth &&
-                               period.MaterialInventoryId == materialInvId
-                               select period).ToList();
-                    var mimp = (from period in vfi.MaterialInvOnMachinePeriods
-                                where
-                                period.PeriodDate <= endMonth &&
-                                period.MaterialInvId == materialInvId
-                                select period).ToList();
+                    //var mip = (from period in vfi.MaterialInventoryPeriods
+                    //           where
+                    //           period.PeriodDate <= endMonth &&
+                    //           period.MaterialInventoryId == materialInvId
+                    //           select period).ToList();
+                    //var mimp = (from period in vfi.MaterialInvOnMachinePeriods
+                    //            where
+                    //            period.PeriodDate <= endMonth &&
+                    //            period.MaterialInvId == materialInvId
+                    //            select period).ToList();
+                    model = model.OrderBy(x => x.PeriodDate).ToList();
                 }
             }
             catch (Exception ex) {
@@ -765,23 +766,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        tip.ToolId,
                                        IsPurchase = tip.TransactionFpt.PoId != null,
                                        tip.PeriodDate.Month,
-                                       tip.Quantity
+                                       tip.Quantity,
+                                       tip.TransactionFpt.Type,
+                                       IsInternal = tip.TransactionFpt.IsInternal ?? false
+                                   }).ToList();
+                    var exports = (from tip in vfi.ToolInventoryPeriods
+                                   where toolIds.Contains(tip.ToolId)
+                                         && tip.PeriodDate.Year == year &&
+                                         tip.LastQuantity < tip.EarlyQuantity
+                                   select new {
+                                       tip.ToolId,
+                                       IsPurchase = tip.TransactionFpt.PoId != null,
+                                       tip.PeriodDate.Month,
+                                       tip.Quantity,
+                                       tip.TransactionFpt.Type,
+                                       IsInternal = tip.TransactionFpt.IsInternal ?? false
                                    }).ToList();
                     var toolInvs = (from ti in vfi.ToolInventories
                                    where toolIds.Contains(ti.ToolId) &&
                                          ti.TotalQuantity > 0
                                    select ti).ToList();
-                    var exports = (from ed in vfi.ExportToolDetails
-                                  where ed.ExportTool.ExportDate.Value.Year == year &&
-                                        toolIds.Contains(ed.ToolInventory.ToolId) &&
-                                        ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                        (exportType == 0 || ed.ExportTool.TransactionFpt.Type == exportType)
-                                  select new {
-                                      ed.ToolInventory.ToolId,
-                                      ed.ExportTool.ExportDate.Value.Month,
-                                      ed.ExportTool.TransactionFpt.Type,
-                                      ed.Quantity
-                                  }).ToList();
+                    //var exports = (from ed in vfi.ExportToolDetails
+                    //               where ed.ExportTool.ExportDate.Value.Year == year &&
+                    //                     toolIds.Contains(ed.ToolInventory.ToolId) &&
+                    //                     ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                    //                     (exportType == 0 || ed.ExportTool.TransactionFpt.Type == exportType)
+                    //               select new {
+                    //                   ed.ToolInventory.ToolId,
+                    //                   ed.ExportTool.ExportDate.Value.Month,
+                    //                   ed.ExportTool.TransactionFpt.Type,
+                    //                   ed.Quantity,
+                    //                   IsInternal = ed.TransactionFptDetail.IsInternal ?? false
+                    //               }).ToList();
 
                     foreach (var tool in tools) {
                         var entity = new MaterialYearlyReportModel {
@@ -2073,9 +2089,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 foreach (var materialInv in materialInvs) {
                     var entity = new MaterialInvPeriodModel() {
                         FromDate = fdate,
-                        ToDate = tdate,
+                        ToDate = tdate.AddDays(1),
                         FromDateString = fdate.ToString("dd/MM/yyyy"),
-                        ToDateString = tdate.ToString("dd/MM/yyyy"),
+                        ToDateString = tdate.AddDays(1).ToString("dd/MM/yyyy"),
                         MaterialTypeId = materialInv.MaterialTypeId,
                         MaterialTypeCode = materialInv.IdentityCode,
                         MaterialTypeName = materialInv.MaterialTypeName,
@@ -4534,7 +4550,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 ModelState.AddModelError("PrintAllProductsReport2", ex.Message);
             }
             return PartialView("PageProductionMonthlyImportExportReport",
-                               model.OrderBy(m => m.ProductCustomerCode).ThenBy(m => m.ProductCode));
+                               model.OrderBy(m => m.ProductCustomerCode).ThenBy(m => m.ProductCode).ToList());
         }
 
 
@@ -4686,7 +4702,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 ModelState.AddModelError("PrintAllProductsReport3", ex.Message);
             }
             return PartialView("PageSalesYearlyReport",
-                               model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
+                               model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode).ToList());
         }
 
         [GridAction]
@@ -4963,11 +4979,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             bool cames, bool cnc, bool phay, bool vf1, bool vf2, int calculateMode) {
             var model = new List<ProductionDailyReport>();
             if (!cames && !cnc && !phay) return model;
-
-            var ci = new CultureInfo("vi-VN");
-            var reportDate = string.IsNullOrWhiteSpace(monthlyDate)
-                                 ? DateTime.Today
-                                 : Convert.ToDateTime(monthlyDate, ci);
+            var reportDate = MyUtilities.Function.ParseDate(monthlyDate);
             using (var vfi = new tammaContext()) {
                 var shift1Name = "";
                 var shift2Name = "";
@@ -5003,15 +5015,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 var machineIds = machines.Select(m => m.MachineId).ToList();
 
                 #region sx1
+                var toDate = reportDate.AddDays(1).AddSeconds(-1);
                 var importSx1InDays = (from i in vfi.ImportFormSX1
                                        where
-                                           i.MaterialUseDate == reportDate &&
+                                           i.MaterialUseDate >= reportDate &&
+                                           i.MaterialUseDate <= toDate &&
                                            i.ImportWorkpieceMaterials.Any() &&
                                            i.ImportWorkpieceMaterials.FirstOrDefault() != null &&
                                            i.ImportWorkpieceMaterials.FirstOrDefault()
                                             .Transaction.Status ==
                                            (byte)MyUtilities.Transaction.Status.Approved
-                                       select i);
+                                       select i).ToList();
                 if (!importSx1InDays.Any())
                     goto phayPart;
                 var importSx = importSx1InDays.FirstOrDefault(i => !i.Shift1Name.Trim().Equals(""));
@@ -5027,9 +5041,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     shift2Name = shift2Name.Replace("2", "");
                 }
 
-                var startDate = new DateTime(reportDate.Year, reportDate.Month, 26);
-                if (reportDate < startDate)
-                    startDate = startDate.AddMonths(-1);
+                //var startDate = new DateTime(reportDate.Year, reportDate.Month, 26);
+                //if (reportDate < startDate)
+                //    startDate = startDate.AddMonths(-1);
                 var importDate = importSx1InDays.FirstOrDefault().ImportDate;
                 //var point = MyUtilities.Product.BaseProductionPrice;
                 var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
@@ -5037,8 +5051,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 //var inventoryRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseInventoryPriceRate);
                 var importSx1s = from i in vfi.ImportFormSX1Detail
                                  where
-                                     i.ImportFormSX1.ImportDate <= importDate &&
-                                     i.ImportFormSX1.MaterialUseDate >= startDate &&
+                                     //i.ImportFormSX1.ImportDate <= importDate &&
+                                     //i.ImportFormSX1.MaterialUseDate >= startDate &&
+                                     i.ImportFormSX1.ImportDate.Month == importDate.Month &&
+                                     i.ImportFormSX1.ImportDate.Year == importDate.Year &&
                                      i.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
                                      i.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
                                      i.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
@@ -5209,7 +5225,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         productionByShift.Sum(i => (i.MaterialUse2 - i.ProductionMaterial2) * i.MaterialPrice);
                 }
 
-                var reports = importSx1s.Where(i => i.MaterialUseDate == reportDate).ToList();
+                var reports = importSx1s.Where(i => i.MaterialUseDate.Day == reportDate.Day).ToList();
                 var materialUseDetailIds = reports.Where(i => i.MaterialUseDetail != null)
                     .Select(i => i.MaterialUseDetail.DetailId)
                     .Distinct().ToList();
@@ -5878,6 +5894,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.ProductionPrice = productionPricing.ProductionCamesPricing;
                         }
                     }
+                }
+                if (!string.IsNullOrWhiteSpace(productCode)) {
+                    model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
                 }
                 return model;
             }
@@ -6790,7 +6809,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 ModelState.AddModelError("PrintProductionDailyReport", ex.Message);
             }
 
-            return PartialView("PageProductionDailySX1", model.OrderBy(p => p.MachineName));
+            return PartialView("PageProductionDailySX1", model.OrderBy(p => p.MachineName).ToList());
         }
         [GridAction]
         public ActionResult SelectMaterialDailyReport(string materialCode, int materialTypeId, string date) {
@@ -7143,7 +7162,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             //{
             //    ModelState.AddModelError("WorkpieceMaterialReport", ex.Message);
             //}
-            return PartialView("PageMaterialDailyReport", model.OrderBy(g => g.IdentityCode));
+            return PartialView("PageMaterialDailyReport", model.OrderBy(g => g.IdentityCode).ToList());
         }
 
 
@@ -7170,7 +7189,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PrintWorkpieceMaterial", ex.Message);
             }
-            return PartialView("PageWorkpieceMaterial", model.OrderBy(m => m.IdentityCode).ThenBy(m => m.Type));
+            return PartialView("PageWorkpieceMaterial", model.OrderBy(m => m.IdentityCode).ThenBy(m => m.Type).ToList());
         }
 
         public List<WorkpieceMaterialPeriodModel> GetWorkPriceMaterialModel(int materialType, string fromDate, string toDate) {
@@ -8223,7 +8242,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("ProductionMonthlyInShift", ex.Message);
             }
-            return PartialView("PageProductionMonthlyInShift", model.OrderBy(p => p.ProductCode));
+            return PartialView("PageProductionMonthlyInShift", model.OrderBy(p => p.ProductCode).ToList());
         }
 
 
@@ -8344,6 +8363,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         entity.TonKhoCXL = productInvsById.Where(x => x.WarehouseId == MyUtilities.Warehouse.Processing).Sum(x => x.TotalQty);
                         entity.ReProcessing = productInvsById.Where(x => warehousesReProcessing.Contains(x.WarehouseId)).Sum(x => x.TotalQty);
 
+
                         entity.DonHangThangTruoc = orderDetailLastMonth.Where(x => x.ProductId == entity.ProductId).Sum(x => x.RequiedNumber);
                         entity.DonHangTrongThang = orderDetailInMonth.Where(x => x.ProductId == entity.ProductId).Sum(x => x.RequiedNumber);
                         entity.DonHangThangKe = orderDetailNextMonth.Where(x => x.ProductId == entity.ProductId).Sum(x => x.RequiedNumber);
@@ -8380,11 +8400,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     vfi.Configuration.LazyLoadingEnabled = false;
-                    var ci = new CultureInfo("vi-VN");
-                    var monthly = string.IsNullOrWhiteSpace(monthlyDate)
-                                      ? DateTime.Today
-                                      : Convert.ToDateTime(monthlyDate, ci);
-                    monthly = new DateTime(monthly.Year, monthly.Month, monthly.Day);
+                    var reportDate = MyUtilities.Function.ParseDate(monthlyDate);
 
                     var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
                     var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
@@ -8419,7 +8435,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var productIds = products.Select(p => p.ProductId).ToList();
 
                     var allProductInventoryPeriodsByDate = (from pip in vfi.ProductInventoryPeriods
-                                                            where pip.PeriodDate <= monthly &&
+                                                            where pip.PeriodDate <= reportDate &&
                                                             productIds.Contains(pip.ProductId)
                                                             //&& (customerId == 0 || pip.Product.CustomerId == customerId)
                                                             select new {
@@ -8434,17 +8450,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                             }).ToList();
                     var importSx1Details = (from sx in vfi.ImportFormSX1Detail
                                             where
-                                                sx.ImportFormSX1.ImportDate <= monthly &&
+                                                //sx.ImportFormSX1.ImportDate <= reportDate &&
                                                 //sx.ImportFormSX1.MaterialUseDate >= startDate &&
-                                                //sx.ImportFormSX1.ImportDate.Month == monthly.Month &&
-                                                //sx.ImportFormSX1.ImportDate.Year == monthly.Year &&
+                                                sx.ImportFormSX1.ImportDate.Month == reportDate.Month &&
+                                                sx.ImportFormSX1.ImportDate.Year == reportDate.Year &&
                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
                                                   .Transaction.Status ==
                                                 (byte)MyUtilities.Transaction.Status.Approved &&
                                                 productIds.Contains(sx.ProductId)
-                                            orderby sx.ImportFormSX1.MaterialUseDate descending
+                                            orderby sx.ImportFormSX1.MaterialUseDate
                                             select new {
                                                 sx.ProductId,
                                                 sx.ImportFormSX1.ImportDate,
@@ -8488,86 +8504,64 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                                 : 0,
                                             }).ToList();
 
-                    var startDate = monthly;
-                    //var startMonthly = monthly.AddMonths(-1);
+                    var startDate = reportDate;
+                    ////var startMonthly = monthly.AddMonths(-1);
                     if (importSx1Details.Any()) {
                         startDate = importSx1Details.FirstOrDefault().MaterialUseDate;
                     }
-                    if (startDate.Day <= 25)
-                        startDate = new DateTime(monthly.AddMonths(-1).Year, monthly.AddMonths(-1).Month, 26);
-                    else
-                        startDate = new DateTime(startDate.Year, startDate.Month, 26);
-                    importSx1Details = importSx1Details.Where(id => id.MaterialUseDate >= startDate).ToList();
-
-                    //var fromDate = importSx1Details.FirstOrDefault() != null
-                    //                   ? importSx1Details.FirstOrDefault().MaterialUseDate
-                    //                   : monthly;
-                    //var giaodichKho1 = (from p in allProductInventoryPeriodsByDate
-                    //                    where
-                    //                        p.Transaction.WarehouseReceiptId == w1 &&
-                    //                        p.Transaction.WarehouseIssueId == null &&
-                    //                        p.PeriodMonth == monthly.Month &&
-                    //                        p.PeriodYear == monthly.Year
-                    //                    select p).ToList();
-
+                    else {
+                        startDate = new DateTime(reportDate.Year, reportDate.Month, 1).AddDays(-1);
+                    }
+                    //if (startDate.Day <= 25)
+                    //    startDate = new DateTime(reportDate.AddMonths(-1).Year, reportDate.AddMonths(-1).Month, 26);
+                    //else
+                    //    startDate = new DateTime(startDate.Year, startDate.Month, 26);
+                    //importSx1Details = importSx1Details.Where(id => id.MaterialUseDate >= startDate).ToList();
+                    //var startDate = importSx1Details.FirstOrDefault().MaterialUseDate;
                     var sxKho1 = (from sx in importSx1Details
                                   where
-                                      sx.ImportDate == monthly
+                                      sx.ImportDate == reportDate
                                   select sx).ToList();
                     var ppInMonth = (from p in allProductInventoryPeriodsByDate
                                      where
                                          p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect &&
                                          p.Transaction.WarehouseIssueId != null &&
                                          p.WarehouseId == MyUtilities.Warehouse.Defect &&
-                                         p.PeriodDate.Month == monthly.Month &&
-                                         p.PeriodDate.Year == monthly.Year
+                                         p.PeriodDate.Month == reportDate.Month &&
+                                         p.PeriodDate.Year == reportDate.Year
                                      select p).ToList();
                     var giaodichKho1Huy = (from p in allProductInventoryPeriodsByDate
                                            where
                                                p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy &&
                                                p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1 &&
-                                         p.PeriodDate.Month == monthly.Month &&
-                                         p.PeriodDate.Year == monthly.Year &&
+                                             p.PeriodDate.Month == reportDate.Month &&
+                                             p.PeriodDate.Year == reportDate.Year &&
                                                p.WarehouseId == MyUtilities.Warehouse.Production1
                                            select p).ToList();
 
-                    //var sxKho1Huy = (from p in giaodichKho1Huy
-                    //                 where p.PeriodDay == monthly.Day
-                    //                 select p).ToList();
                     //////////////////////
                     var giaodichKD = (from p in allProductInventoryPeriodsByDate
                                       where
                                           p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Finish &&
                                           p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Business &&
                                           p.WarehouseId == MyUtilities.Warehouse.Business &&
-                                         p.PeriodDate.Month == monthly.Month &&
-                                         p.PeriodDate.Year == monthly.Year
+                                         p.PeriodDate.Month == reportDate.Month &&
+                                         p.PeriodDate.Year == reportDate.Year
                                       select p).ToList();
                     var xuatTP = (from p in giaodichKD
-                                  where p.PeriodDate.Day == monthly.Day
+                                  where p.PeriodDate.Day == reportDate.Day
                                   select p).ToList();
                     var listHangTra = (from p in allProductInventoryPeriodsByDate
                                        where
                                            p.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Business &&
                                            p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Finish &&
                                            p.WarehouseId == MyUtilities.Warehouse.Business &&
-                                         p.PeriodDate.Month == monthly.Month &&
-                                         p.PeriodDate.Year == monthly.Year
+                                         p.PeriodDate.Month == reportDate.Month &&
+                                         p.PeriodDate.Year == reportDate.Year
                                        select p).ToList();
-                    //var listHangTra = (from ond in vfi.OrderNoteDetails
-                    //                   where ond.OrderNote.CreatedDate.Value.Month == monthly.Month &&
-                    //                         ond.OrderNote.CreatedDate.Value.Year == monthly.Year &&
-                    //                         ond.OrderNote.Transaction.Status ==
-                    //                         (byte)MyUtilities.Transaction.Status.Approved
-                    //                         && ond.OrderNote.NoteType == 1
-                    //                   select new
-                    //                   {
-                    //                       ond.ProductId,
-                    //                       ond.Quantity
-                    //                   }).ToList();
                     var listHangDoi = (from ond in vfi.OrderNoteDetails
-                                       where ond.OrderNote.CreatedDate.Month == monthly.Month &&
-                                             ond.OrderNote.CreatedDate.Year == monthly.Year &&
+                                       where ond.OrderNote.CreatedDate.Month == reportDate.Month &&
+                                             ond.OrderNote.CreatedDate.Year == reportDate.Year &&
                                              ond.OrderNote.Transaction.Status ==
                                              (byte)MyUtilities.Transaction.Status.Approved
                                              && ond.OrderNote.NoteType == 2 &&
@@ -8578,8 +8572,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                            Quantity = ond.Quantity ?? 0
                                        }).ToList();
                     // don hang
-                    var lastMonth = new DateTime(monthly.Year, monthly.Month, 1).AddSeconds(-1);
-                    var nextMonth = new DateTime(monthly.Year, monthly.Month, 1).AddMonths(1);
+                    var lastMonth = new DateTime(reportDate.Year, reportDate.Month, 1).AddSeconds(-1);
+                    var nextMonth = new DateTime(reportDate.Year, reportDate.Month, 1).AddMonths(1);
                     var orderDetails = (from od in vfi.OrderDetails
                                         where (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
                                                od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess ||
@@ -8595,8 +8589,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                             od.IsAlert
                                         }).ToList();
                     var orderDetailInMonth = (from od in orderDetails
-                                              where od.DueDate.Value.Month == monthly.Month &&
-                                                    od.DueDate.Value.Year == monthly.Year
+                                              where od.DueDate.Value.Month == reportDate.Month &&
+                                                    od.DueDate.Value.Year == reportDate.Year
                                               select od).ToList();
                     var orderDetailNextMonth = (from od in orderDetails
                                                 where
@@ -8607,18 +8601,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var orderDetailRemaining = (from od in orderDetails
                                                 where od.DueDate < lastMonth
                                                 select od).ToList();
-
-                    //var allExportTp = (from id in vfi.InvoiceDetails
-                    //                   where
-                    //                   id.Active && id.Invoice.Active &&
-                    //                       id.Invoice.ShipmentDate < lastMonth &&
-                    //                       id.Invoice.ShipmentDate > MyUtilities.Sales.StartOrderReportDate &&
-                    //                       id.Piece > 0
-                    //                   select new
-                    //                   {
-                    //                       id.ProductId,
-                    //                       id.Piece
-                    //                   }).ToList();
                     var allExportFinish = (from pip in vfi.ProductInventoryPeriods
                                            where pip.PeriodDate > MyUtilities.Sales.StartOrderReportDate &&
                                            pip.PeriodDate < lastMonth &&
@@ -8644,8 +8626,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                        fo.ForecastDate,
                                                    }).ToList();
                     var forecastOrdersInMonth = (from fo in vfi.ForecastOrders
-                                                 where fo.ForecastDate.Month == monthly.Month &&
-                                                       fo.ForecastDate.Year == monthly.Year &&
+                                                 where fo.ForecastDate.Month == reportDate.Month &&
+                                                       fo.ForecastDate.Year == reportDate.Year &&
                                                        fo.Status == (byte)MyUtilities.Transaction.Status.Approved &&
                                                        productIds.Contains(fo.ProductId)
                                                  select new {
@@ -8654,7 +8636,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                      fo.ForecastDate,
                                                  }).ToList();
                     var importSx1Date = (from x in vfi.ImportFormSX1
-                                    where x.ImportDate == monthly
+                                         where x.ImportDate == reportDate
                                     select x.MaterialUseDate).FirstOrDefault();
                     var productionSections = (from ps in vfi.ProductionSections
                                               where ps.Active &&
@@ -8668,10 +8650,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var cnc2InMonth = 0.0;
                     var productionMonthly = 0.0;
                     var cncInMonth2 = 0.0;
-                    //var customers = (from c in vfi.Customers
-                    //                 where customerId == 0 || c.CustomerId == customerId
-                    //                 orderby c.CustomerCode
-                    //                 select new { c.CustomerId, c.CustomerCode, c.UseForecast }).ToList();
                     int index = 1;
                     var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
                     var shiftAFund = new ShiftFund();
@@ -8779,8 +8757,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
                         var lastProductionDate = importSx1Details.Any() ? importSx1Details.Max(id => id.MaterialUseDate) : startDate;
                         var importCncs = (from sxd in vfi.ImportFormCncDetails
-                                          where sxd.ImportFormCnc.MaterialUseDate >= startDate &&
-                                                sxd.ImportFormCnc.MaterialUseDate <= lastProductionDate &&
+                                          where 
+                                                //sxd.ImportFormCnc.MaterialUseDate >= startDate &&
+                                                //sxd.ImportFormCnc.MaterialUseDate <= lastProductionDate &&
+                                                sxd.ImportFormCnc.ImportDate.Month == reportDate.Month &&
+                                                sxd.ImportFormCnc.ImportDate.Year == reportDate.Year &&
                                                 productIds.Contains(sxd.ProductId)
                                           orderby sxd.ImportFormCnc.MaterialUseDate
                                           select new {
@@ -8836,7 +8817,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     cncMonthlyB += (numberB * detail.CncPrice);
                                     cncMonthlyC += (numberC * detail.CncPrice);
 
-                                    if (detail.ImportDate == monthly) {
+                                    if (detail.ImportDate == reportDate) {
                                         cncDailyA += (numberA * detail.CncPrice);
                                         cncDailyB += (numberB * detail.CncPrice);
                                         cncDailyC += (numberC * detail.CncPrice);
@@ -8857,7 +8838,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                               where x.WarehouseReceiptId != null
                                                    && warehousesCalculate.Contains(x.WarehouseReceiptId.Value)
                                                    && x.Status == (byte)MyUtilities.Transaction.Status.Open
-                                                   && x.CreatedDate <= monthly
+                                                   && x.CreatedDate <= reportDate
                                               select x.Warehouse1.WarehouseName).Distinct().ToList();
                         if (warehousesName.Any()) {
                             //var warehouseIds = transactions.Select(x => x.WarehouseReceiptId.Value).Distinct().ToList();
@@ -8890,13 +8871,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             ProductCode = product.ProductCode,
                             ProcessingType = product.TypeName,
                             CustomerCode = product.CustomerCode,
-                            ToDate = monthly,
-                            InMonthString = monthly.ToString("MM/yyyy"),
+                            ToDate = reportDate,
+                            InMonthString = reportDate.ToString("MM/yyyy"),
                             NextMonthString = nextMonth.ToString("MM/yyyy"),
                             DayOfStartSx1 = startDate.ToString("dd/MM"),
                             UseForecast = true,
                             UnitPrice = product.UnitPrice,
-                            Title = "Báo cáo tổng hợp " + monthly.ToString("dd/MM/yyyy"),
+                            Title = "Báo cáo tổng hợp " + reportDate.ToString("dd/MM/yyyy"),
                             ShiftAFunc = shiftAFund,
                             ShiftBFunc = shiftBFund,
                             ShiftCFunc = shiftCFund,
@@ -9561,7 +9542,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductCurrentReport", ex.Message);
             }
-            return PartialView("PageProductReportTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
 
         [HttpPost]
@@ -9583,14 +9564,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 using (var vfi = new tammaContext()) {
                     var workGroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
                     if (workGroup != null && workGroup.WorkGroupCode.Equals("AVF")) {
-                        return PartialView("PageProductReportTotalAVF", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+                        return PartialView("PageProductReportTotalAVF", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode).ToList());
                     }
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductReportByMonthly", ex.Message);
             }
-            return PartialView("PageProductReportTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
 
         [HttpPost]
@@ -9609,7 +9590,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductReportAllTotal", ex.Message);
             }
-            return PartialView("PageProductReportAllTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportAllTotal", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
         [HttpPost]
         public ActionResult PrintProductReportTotal2(
@@ -9626,14 +9607,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 using (var vfi = new tammaContext()) {
                     var workGroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
                     if (workGroup != null && workGroup.WorkGroupCode.Equals("AVF")) {
-                        return PartialView("PageProductReportTotalAVF", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+                        return PartialView("PageProductReportTotalAVF", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode).ToList());
                     }
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductReportTotal2", ex.Message);
             }
-            return PartialView("PageProductReportTotal2", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProductReportTotal2", model.OrderBy(c => c.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
 
         List<ProductState> GetOrderProgress(int customerId, string productCode, int month, int year) {
@@ -12546,7 +12527,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 return Json(ex.Message);
             }
-            return PartialView("PageOrderProgressInMonth", model.OrderBy(m => m.OrderStatus).ThenBy(m => m.CustomerCode).ThenBy(m => m.FirstOrderDate));
+            return PartialView("PageOrderProgressInMonth", model.OrderBy(m => m.OrderStatus).ThenBy(m => m.CustomerCode)
+                .ThenBy(m => m.FirstOrderDate).ToList());
         }
 
         public ActionResult PrintOrderProgressProduction(int month, int year) {
@@ -13312,7 +13294,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProductionDefectDailyReport", ex.Message);
             }
-            return PartialView("PageProductionDefectDaily", model.OrderBy(p => p.ProductCode));
+            return PartialView("PageProductionDefectDaily", model.OrderBy(p => p.ProductCode).ToList());
         }
 
 

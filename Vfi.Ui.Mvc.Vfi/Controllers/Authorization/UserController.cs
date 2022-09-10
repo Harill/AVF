@@ -705,6 +705,80 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         }
 
         [HttpPost]
+        public ActionResult CleanDatabaseHardCode() {
+            return Json(0);
+            var saved = 0;
+            try {
+                using (var vfi = new tammaContext()) {
+                    if (!User.Identity.Name.Equals("admin")) return Json(0);
+                    var customers = vfi.Customers.Where(x => !x.CustomerCode.Contains("D2")); // except specific customer
+                    var customerIds = customers.Select(x => x.CustomerId).ToList();
+
+                    //var productIds = new List<int> { 182, 579, 1881 }; // except specific product
+                    var products = vfi.Products.Where(x => customerIds.Contains(x.CustomerId) 
+                        //&& !productIds.Contains(x.ProductId)
+                        );
+                    var productIds = products.Select(x => x.ProductId).ToList();
+
+                    vfi.ProductionProcesses.RemoveRange(vfi.ProductionProcesses.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionMaterials.RemoveRange(vfi.ProductionMaterials.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionTestingMachines.RemoveRange(vfi.ProductionTestingMachines.Where(x => productIds.Contains(x.ProductionTestingDetail.ProductionTesting.ProductId)));
+                    saved += vfi.SaveChanges(); 
+                    vfi.ProductionTestingDetails.RemoveRange(vfi.ProductionTestingDetails.Where(x => productIds.Contains(x.ProductionTesting.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionTestings.RemoveRange(vfi.ProductionTestings.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionTools.RemoveRange(vfi.ProductionTools.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionSections.RemoveRange(vfi.ProductionSections.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionPlatings.RemoveRange(vfi.ProductionPlatings.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionFuels.RemoveRange(vfi.ProductionFuels.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionPricings.RemoveRange(vfi.ProductionPricings.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionDefects.RemoveRange(vfi.ProductionDefects.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionHeatTreatments.RemoveRange(vfi.ProductionHeatTreatments.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionPolishes.RemoveRange(vfi.ProductionPolishes.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductCombinationRecipeDetails.RemoveRange(vfi.ProductCombinationRecipeDetails.Where(x => productIds.Contains(x.ProductCombinationRecipe.ProductId)));
+                    saved += vfi.SaveChanges(); 
+                    vfi.ProductCombinationRecipes.RemoveRange(vfi.ProductCombinationRecipes.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductionTestingNotes.RemoveRange(vfi.ProductionTestingNotes.Where(x => productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    // purchasing
+                    //vfi.Warehouses.RemoveRange(vfi.Warehouses);
+                    vfi.Machines.RemoveRange(vfi.Machines.Where(x => (!x.MachineName.Contains("VF2")
+                        && (x.ProcessingType.Warehouse.IsProduction
+                            || x.ProcessingType.Warehouse.IsCncMilling
+                            || x.ProcessingType.Warehouse.IsProduction2))
+                        || ( !x.Active && !x.Production2)));
+                    saved += vfi.SaveChanges();
+                    vfi.ProductImgs.RemoveRange(vfi.ProductImgs.Where(x=> productIds.Contains(x.ProductId)));
+                    saved += vfi.SaveChanges();
+                    vfi.Products.RemoveRange(products);
+                    saved += vfi.SaveChanges();
+                    vfi.Customers.RemoveRange(customers.Where(x => !x.Products.Any()));
+                    saved += vfi.SaveChanges();
+                    return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "", saved));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.Exception,
+                        MyUtilities.MySystem.FetchExceptionMessage(ex),
+                        saved));
+            }
+            //return Json(0);
+        }
+
+        [HttpPost]
         public ActionResult ReApproveOrder(string orderNumber) {
             try {
                 using (var vfi = new tammaContext()) {
@@ -1557,7 +1631,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 using (var vfi = new tammaContext()) {
                     var products = vfi.Products;
                     var maxWeight = 20000;
-                    var maxTime = 3 * 24 * 3600;
+                    var maxTime = 1.5 * 24 * 3600;
                     foreach (var product in products) {
                         if (string.IsNullOrWhiteSpace(product.IdentityCode)) {
                             product.IdentityCode = String.Format("{0:0000}", product.ProductId);

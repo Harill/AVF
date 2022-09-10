@@ -566,6 +566,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             entity.TotalQuantity += detail.Quantity;
                             entity.TotalPrice += (detail.Quantity * detail.UnitPrice);
                         }
+                        if (transaction.IsInternal == true) { entity.EoIName += " nội bộ"; }
                         model.Add(entity);
                     }
                 }
@@ -725,10 +726,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 return View(new GridModel(new List<TransactionFptDetailModel>()));
             }
             try {
-                var ci = new CultureInfo("vi-VN");
-                var date = string.IsNullOrWhiteSpace(importDate)
-                               ? DateTime.Today
-                               : Convert.ToDateTime(importDate, ci);
+                var date = MyUtilities.Function.ParseDate(importDate);
+                if (date > DateTime.Now.AddDays(1)) {
+                    throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                }
                 if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                     throw new AggregateException(
                         @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -902,11 +903,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             vfi.ToolInventories.FirstOrDefault(
                                 ti =>
                                 ti.ToolId == detailModel.ToolId && ti.LotNumber.Equals(detailModel.LotNumber.Trim()));
-                        if (toolInv != null)
+                        if (toolInv != null) {
                             detailModel.UnitPrice = toolInv.UnitPrice;
-                        if (detailModel.UnitPrice <= 0 && poId == 0)
-                            throw new AggregateException("Lỗi đơn giá ! Vui lòng kiểm tra lại.\n" +
-                                                         detailModel.ToolFullCodeName);
+                        }
+                        //if (detailModel.UnitPrice <= 0 && poId == 0)
+                        //    throw new AggregateException("Lỗi đơn giá ! Vui lòng kiểm tra lại.\n" +
+                        //                                 detailModel.ToolFullCodeName);
                         var detail = new TransactionFptDetail {
                             FptId = detailModel.ToolId,
                             Quantity = detailModel.Quantity,
@@ -961,10 +963,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 return View(new GridModel(new List<TransactionFptDetailModel>()));
             }
             try {
-                var ci = new CultureInfo("vi-VN");
-                var date = string.IsNullOrWhiteSpace(importDate)
-                               ? DateTime.Today
-                               : Convert.ToDateTime(importDate, ci);
+                var date = MyUtilities.Function.ParseDate(importDate);
+                if (date > DateTime.Now.AddDays(1)) {
+                    throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                }
                 if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                     throw new AggregateException(
                         @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -1392,6 +1394,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 using (var vfi = new tammaContext()) {
                     var transaction = vfi.TransactionFpts.FirstOrDefault(i => i.TransactionId == transactionId);
                     if (transaction == null) throw new AggregateException("Lỗi phiếu nhập ! Không tìm thấy phiếu nhập");
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     if (transaction.EoI == Convert.ToInt16(MyUtilities.PurchaseOrder.EoILot.Import)) {
                         foreach (var detail in transaction.TransactionFptDetails) {
                             var tool = vfi.Tools.FirstOrDefault(f => f.ToolId == detail.FptId);
@@ -1418,12 +1434,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 TotalInv = 0,
                                 ToolId = tool.ToolId,
                                 FptTypeName = tool.MaterialType.MaterialTypeName,
+                                Info = info
                             };
                             if (transaction.PoId != 0 && transaction.PoId != null)
                                 entity.PoNumber = transaction.PurchaseOrder.RevisionNumber;
-                            if (detail.VendorId != 0 || detail.VendorId != null) {
+                            if (detail.VendorId > 0) {
                                 var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
-                                entity.VendorName = vendor.CompanyName;
+                                entity.VendorCode = vendor.VendorCode;
+                                entity.VendorName = vendor.ShortName;
                             }
                             entity.StatusName = MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
                             if (entity.FptType != 0)
@@ -1441,6 +1459,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             if (transaction.Status == (byte)MyUtilities.Transaction.Status.Open)
                                 entity.TotalInv += entity.Quantity;
                             model.Add(entity);
+                        }
+                        if (transaction.IsInternal == true) {
+                            model.First().TransactionTitle = "PHIẾU NHẬP KHO NỘI BỘ";
+                            return PartialView("PagePrintToolTransactionInternal", model);
                         }
                         return PartialView("PagePrintImportTool", model);
                     }
@@ -1479,20 +1501,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ToolMaterial = tool.ToolMaterial,
                                 Department = export != null ? export.Department : "",
                                 Description = export != null ? export.Description : "",
+                                Info = info
                             };
                             if (transaction.PoId > 0) {
                                 entity.PoNumber = transaction.PurchaseOrder.RevisionNumber;
                             }
                             if (detail.VendorId > 0) {
                                 var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
-                                entity.VendorName = vendor.VendorName;
+                                entity.VendorCode = vendor.VendorCode;
+                                entity.VendorName = vendor.ShortName;
                             }
                             var exportDetail = exportDetails.FirstOrDefault(ed => ed.TransactionDetailId == detail.DetailId);
                             if (exportDetail != null) {
-                                entity.MachineName = exportDetail.Machine.MachineName;
-                                entity.ProductCode = exportDetail.Product.ProductCode;
+                                if (exportDetail.MachineId != null) {
+                                    entity.MachineName = exportDetail.Machine.MachineName;
+                                    entity.ProductCode = exportDetail.Product.ProductCode;
+                                }
                             }
                             model.Add(entity);
+                        }
+                        if (transaction.IsInternal == true) {
+                            model.First().TransactionTitle = "PHIẾU XUẤT KHO NỘI BỘ";
+                            return PartialView("PagePrintToolTransactionInternal", model);
                         }
                         return PartialView("PagePrintExportTool", model);
                     }
@@ -2184,10 +2214,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
                     if (machineId == 0 || productId == 0)
                         throw new AggregateException("Lỗi! Vui lòng chọn máy và sản phẩm cần phát !");
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(exportDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(exportDate, ci);
+                    var date = MyUtilities.Function.ParseDate(exportDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -2331,10 +2361,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     if (string.IsNullOrWhiteSpace(modifiedUser))
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
                     ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(exportDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(exportDate, ci);
+                    var date = MyUtilities.Function.ParseDate(exportDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -2452,10 +2482,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     if (string.IsNullOrWhiteSpace(modifiedUser))
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
                     ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(exportDate)
-                        ? DateTime.Today
-                        : Convert.ToDateTime(exportDate, ci);
+                    var date = MyUtilities.Function.ParseDate(exportDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -2548,10 +2578,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     if (string.IsNullOrWhiteSpace(modifiedUser))
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
                     ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(exportDate)
-                        ? DateTime.Today
-                        : Convert.ToDateTime(exportDate, ci);
+                    var date = MyUtilities.Function.ParseDate(exportDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -2721,14 +2751,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             return View(new GridModel(model));
         }
 
-        public ActionResult PrintToolInvTotalInMonth(int vendorId, string fromDate, string toDate, int type, string identity) {
+        public ActionResult PrintToolInvTotalInMonth(int vendorId, string fromDate, string toDate, int type, int toolTypeId, string identity) {
             var model = new List<GroupToolInventory>();
             var ci = new CultureInfo("vi-VN");
             var lastDate = string.IsNullOrWhiteSpace(toDate)
                            ? DateTime.Today
                            : Convert.ToDateTime(toDate, ci);
             try {
-                var list = GetPrintToolInvTotal(vendorId, "", 0, type, fromDate, toDate, identity, false, (int)MyUtilities.Report.Calculate.All, (int)MyUtilities.Report.Calculate.All);
+                var list = GetPrintToolInvTotal(vendorId, "", toolTypeId, type, fromDate, toDate, identity, false, (int)MyUtilities.Report.Calculate.All, (int)MyUtilities.Report.Calculate.All);
                 var materialTypeIds = list.Select(l => l.MaterialTypeId).Distinct().ToList();
 
                 foreach (var materialTypeId in materialTypeIds) {
@@ -2774,7 +2804,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PageToolTotal", ex.Message);
             }
-            return PartialView("PageToolTotal", model.OrderBy(m => m.GroupName));
+            return PartialView("PageToolTotal", model.OrderBy(m => m.GroupName).ToList());
         }
 
         [GridAction]
@@ -3051,7 +3081,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                            tip.EarlyQuantity,
                                            tip.LastQuantity,
                                            tip.Quantity,
-                                           IsInternal = tip.TransactionFpt.IsInternal ?? false
+                                           IsInternal = tip.TransactionFpt.IsInternal ?? false,
+                                           IsPurchase = tip.TransactionFpt.PoId != null,
                                        }).ToList();
                     if (calculateMode == (int)MyUtilities.Report.Calculate.InPeriod) {
                         var inPeriods = toolPeriods.Where(x => x.PeriodDate >= startDate).ToList();
@@ -3061,7 +3092,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         toolIds = inPeriods.Select(x => x.ToolId).Distinct().ToList();
                         tools = tools.Where(x => toolIds.Contains(x.ToolId)).ToList();
                     }
-
+                    //var purchaseTools = (from x in vfi.TransactionFptDetails
+                    //                   where x.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved
+                    //                   && x.TransactionFpt.Fpt == (byte)MyUtilities.PurchaseOrder.FptLot.Tool
+                    //                    && toolIds.Contains(x.FptId)
+                    //                    && x.TransactionFpt.TransactionDate >= startDate
+                    //                    && x.TransactionFpt.TransactionDate <= lastDate
+                    //                   select new {
+                    //                       x.LotNumber,
+                    //                       x.FptId,
+                    //                       x.Quantity
+                    //                   }).ToList();
+                    var exportTools = (from x in vfi.ExportToolDetails
+                                       where x.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                        && toolIds.Contains(x.ToolInventory.ToolId)
+                                        && x.ExportTool.ExportDate >= startDate
+                                        && x.ExportTool.ExportDate <= lastDate
+                                       select new {
+                                           x.ToolInventory.ToolInvId,
+                                           x.Quantity
+                                       }).ToList();
                     var productionTools = new List<ProductionToolModel>();
                     var productIds = new List<int>();
                     var orderDetails = new List<OrderDetailModel>();
@@ -3148,19 +3198,32 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             entity.Early = periods.Sum(tip => tip.LastQuantity - tip.EarlyQuantity);
                             periods = toolPeriodsById.Where(tip => tip.PeriodDate >= startDate && tip.LastQuantity > tip.EarlyQuantity)
                                                     .ToList();
-                            entity.Import = periods.Where(x => !x.IsInternal).Sum(tip => tip.Quantity);
+                            entity.Import = periods.Where(x => x.IsPurchase).Sum(tip => tip.Quantity);
+                            entity.ImportMore = periods.Where(x => !x.IsInternal && !x.IsPurchase).Sum(tip => tip.Quantity);
+                            //var purchaseToolsById = purchaseTools.Where(x => x.FptId == entity.ToolId && x.LotNumber.Equals(entity.LotNumber));
+                            //if (purchaseToolsById.Any()) {
+                            //    entity.Import = purchaseToolsById.Sum(x => x.Quantity);
+                            //    entity.ImportMore -= entity.Import;                            
+                            //}
+
                             entity.ImportInternal = periods.Where(x => x.IsInternal).Sum(tip => tip.Quantity);
 
                             periods = toolPeriodsById.Where(tip => tip.PeriodDate >= startDate && tip.LastQuantity < tip.EarlyQuantity)
                                                 .ToList();
-                            entity.Export = periods.Where(x => !x.IsInternal).Sum(tip => tip.Quantity);
+                            entity.ExportDestroy = periods.Where(x => !x.IsInternal).Sum(tip => tip.Quantity);
                             entity.ExportInternal = periods.Where(x => x.IsInternal).Sum(tip => tip.Quantity);
+                            var exportToolsById = exportTools.Where(x => x.ToolInvId == toolInventory.ToolInvId);
+                            if (exportToolsById.Any()) {
+                                entity.Export = exportToolsById.Sum(x => x.Quantity);
+                                entity.ExportDestroy -= entity.Export;
+                            }
 
                             periods = toolPeriodsById.Where(tip => tip.PeriodDate >= last3Month && tip.LastQuantity < tip.EarlyQuantity)
                                                 .ToList();
                             entity.Export3Month = periods.Sum(tip => tip.Quantity);
-
-                            model.Add(entity);
+                            if (entity.IsShow) {
+                                model.Add(entity);
+                            }
                         }
                     }
                 }
@@ -3268,7 +3331,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     .ThenBy(m => m.ToolName)
                     .ThenBy(m => m.ToolDesign)
                     .ThenBy(m => m.ToolMaterial)
-                    .ThenBy(m => m.ToolProduction));
+                    .ThenBy(m => m.ToolProduction)
+                    .ToList());
         }
 
         public ActionResult PrintProductionTool() {
@@ -3345,7 +3409,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     .ThenBy(m => m.ToolName)
                     .ThenBy(m => m.ToolDesign)
                     .ThenBy(m => m.ToolMaterial)
-                    .ThenBy(m => m.ToolProduction));
+                    .ThenBy(m => m.ToolProduction)
+                    .ToList());
         }
 
         [GridAction]

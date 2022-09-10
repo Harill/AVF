@@ -1,4 +1,5 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Utilities
 @{
     ViewBag.Title = "DS lệnh công đoạn 1";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -23,12 +24,38 @@
                     toDate = "";
                 else
                     toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                var productCode = $("#ProductCodeName").data("tAutoComplete").value();
                 args.data = $.extend(args.data, {
                     status: status,
+                    productCode: productCode,
                     fromDate: fromDate,
                     toDate: toDate
                 });
             }
+        }
+
+        function grid_OnRowDataBound(e) {
+            if(e.dataItem.Status != @Convert.ToInt32(MyUtilities.WorkOrder.Status.InProcess)){            
+                e.row.childNodes[e.row.childNodes.length - 1].innerHTML = "";
+            }
+        }
+
+        function ForceFinish(routingId) {
+            $.ajax({
+                type: 'post',
+                data: { routingId: routingId },
+                dataType: 'json',
+                url: '@Url.Action("ForceFinishWorkOrderRouting", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        alert(res.Message);
+                        RefreshGrid("grid");
+                    } else {
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });
         }
 
         function grid_OnDataBound() {
@@ -71,11 +98,23 @@
     </script>
 }
 <div class="title">Danh sách lệnh công đoạn 1</div>
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span id="twoToneButton"></span></div>
-
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
         <fieldset>
             <legend>Tiêu chí trích lọc</legend>
+        <div class="grid_2">Sản phẩm:</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("ProductCodeName")
+                    .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    .DropDownHtmlAttributes(new { style = "min-width: 250px" })
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }
+        </div>
         <div class="grid_2">
             Tình trạng
         </div>
@@ -127,40 +166,45 @@
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectWorkOrderProductionManagement", "WorkOrder", new { area = "Factory", 
                     fromDate = "01/" + DateTime.Today.Month + DateTime.Today.Year, toDate = DateTime.Today, 
-                    status = 0 })
+                    status = (byte) MyUtilities.WorkOrder.Status.Actived })
             )
             .Columns(columns => {
-                columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
-                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(100).ReadOnly(true);
+                columns.Bound(f => f.SerialNumber).Title("Số<br/>Work Order").Width(80).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(90).ReadOnly(true)
+                        .HtmlAttributes(new { style = "border-right: 1px solid black;" });
                 //columns.Bound(f => f.RoutingName).Title("Công đoạn").Width(200).ReadOnly(true);
-                columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
-                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(170).ReadOnly(true);
-                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
-                columns.Bound(f => f.PlannedCost).Title("Số lượng</br>KH (pcs)").Width(70).ReadOnly(true)
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(130).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Máy<br/>sản xuất").Width(70).ReadOnly(true);
+                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(200).ReadOnly(true);
+                columns.Bound(f => f.PlannedCost).Title("Kế hoạch</br>SX (pcs)").Width(70).ReadOnly(true)
                         .Format("{0:n0}")
-                        .HtmlAttributes(new { style = "text-align:right" });
+                        .HtmlAttributes(new { style = "text-align:right;border-left: 1px solid black;" });
                 columns.Bound(f => f.ActualResources).Title("Nguyên liệu</br>phát (cây)").Width(70).ReadOnly(true)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.UsingQuantity).Title("Nguyên liệu</br>SD (cây)").Width(70).ReadOnly(true)
+                columns.Bound(f => f.UsingQuantity).Title("Nguyên liệu</br>đã dùng (cây)").Width(70).ReadOnly(true)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.GoodQuantity).Title("Số lượng</br>(pcs)").Width(70).ReadOnly(true)
+                columns.Bound(f => f.GoodQuantity).Title("Số lượng</br>OK (pcs)").Width(70).ReadOnly(true)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align:right" });
-                columns.Bound(f => f.NGQuantity).Title("Số lượng</br>NG (pcs)").Width(70).ReadOnly(true)
+                columns.Bound(f => f.NGQuantity).Title("Số lượng</br>CPL (pcs)").Width(70).ReadOnly(true)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.DefectQuantity).Title("Số lượng</br>PP (pcs)").Width(70).ReadOnly(true)
                         .Format("{0:n0}")
-                        .HtmlAttributes(new { style = "text-align:right" });
+                        .HtmlAttributes(new { style = "text-align:right;border-right: 1px solid black;" });
                 columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
+                columns.Bound(f => f.RoutingId).Title("Hoàn thành").Width(55).ReadOnly(true).Filterable(false)
+                    .ClientTemplate("<input type='button' value='HT' class='t-button' onclick=ForceFinish(<#= RoutingId #>) />")
+                    .HtmlAttributes(new { style = "text-align:center" });
             })
             .Selectable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
                 .OnDataBinding("grid_OnDataBinding")
                 .OnDataBound("grid_OnDataBound")
+                .OnRowDataBound("grid_OnRowDataBound")
                 .OnError("grid_OnError"))
             .Render();
     }

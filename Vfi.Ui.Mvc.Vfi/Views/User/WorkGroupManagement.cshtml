@@ -24,10 +24,10 @@
             .DataBinding(dataBinding => dataBinding.Ajax()
                 .Select("SelectWorkGroup", "User")
                 //.Insert("InsertWorkGroup", "User")
-                .Update("UpdateWorkGroup", "User")
+                //.Update("UpdateWorkGroup", "User")
             )
             .Columns(columns => {
-                columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(50);
+                //columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(50);
                 columns.Bound(f => f.WorkGroupCode).Width(100).ReadOnly(true);
                 columns.Bound(f => f.WorkGroupName).Width(100);
                 columns.Bound(f => f.Theme).Title("Theme").Width(100);

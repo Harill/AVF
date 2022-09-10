@@ -129,13 +129,17 @@
 
         function Grid_OnRowDataBound(e) {
             //var dataItem = e.dataItem;
-            if (e.dataItem.StatusName === "Đang giao")
-                e.row.style.backgroundColor = "#F4FA58";
+            if (e.dataItem.StatusName === "Đang giao") {
+                e.row.childNodes[6].bgColor = "#F4FA58";
+                //e.row.style.backgroundColor = "#F4FA58";
+            }
 
             var today = new Date();
             var check = e.dataItem.DueDate < today;
-            if (check)
-                e.row.style.backgroundColor = "#FA5858";
+            if (check) {
+                e.row.childNodes[3].bgColor = "#FA5858";
+                //e.row.style.backgroundColor = "#FA5858";
+            }
         }
 
         function gridDetail_OnRowDataBound(e) {
@@ -317,7 +321,8 @@
                         columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(55);
                         columns.Bound(f => f.StatusName).Title("Tình trạng").Width(85);
                         //columns.Bound(f => f.PoNumber).Width(50);
-                        columns.Bound(f => f.SalesPersonName).Width(90);
+                        columns.Bound(f => f.SalesPersonName).Width(90)
+                            .HtmlAttributes(new { @class = "cell-highlight" });
                         columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(75);
                         columns.Bound(f => f.TotalQuality).Width(80)
                             .Format("{0:n0}")

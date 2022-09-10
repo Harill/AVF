@@ -255,7 +255,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         [HttpPost]
         [GridAction]
-        //public ActionResult UpdateCustomer(int customerId, int? customerTypeId, int? customerAreaId)
         public ActionResult UpdateCustomerAccess(CustomerAccessPermissionModel update, int customerId) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("CreatePlatingDetail",
@@ -424,7 +423,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         [HttpPost]
         [GridAction]
-        //public ActionResult UpdateCustomer(int customerId, int? customerTypeId, int? customerAreaId)
         public ActionResult UpdateCustomer(CustomerModel customerUpdate) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("CreatePlatingDetail",
@@ -531,6 +529,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         customer.IsMonitor = customerUpdate.IsMonitor;
                         customer.State = state;
                         customer.IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder;
+                        customer.IsWorkOrder = customerUpdate.IsWorkOrder;
                         if (string.IsNullOrWhiteSpace(customer.CustomerCode))
                             customer.State = (byte)MyUtilities.Sales.CustomerState.NewCustomer;
                         else if (customer.State == (byte)MyUtilities.Sales.CustomerState.NewCustomer)
@@ -557,7 +556,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         [HttpPost]
         [GridAction]
-        //public ActionResult UpdateCustomer(int customerId, int? customerTypeId, int? customerAreaId)
         public ActionResult UpdateCustomerAddress(CustomerModel customerUpdate, int customerId) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("CreatePlatingDetail",
@@ -587,7 +585,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         [HttpPost]
         [GridAction]
-        //public ActionResult UpdateCustomer(int customerId, int? customerTypeId, int? customerAreaId)
         public ActionResult UpdateCustomerContact(CustomerModel customerUpdate, int customerId) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("CreatePlatingDetail",
@@ -619,7 +616,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         [HttpPost]
         [GridAction]
-        //public ActionResult UpdateCustomer(int customerId, int? customerTypeId, int? customerAreaId)
         public ActionResult UpdateCustomerCredit(CustomerModel customerUpdate, int customerId) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("CreatePlatingDetail",
@@ -650,7 +646,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
         [HttpPost]
         [GridAction]
-        //public ActionResult UpdateCustomer(int customerId, int? customerTypeId, int? customerAreaId)
         public ActionResult UpdateCustomerNote(CustomerModel customerUpdate, int customerId) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("CreatePlatingDetail",
@@ -684,6 +679,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 using (var vfi = new tammaContext()) {
                     var customers =
                         vfi.Customers.Where(c => c.State == (byte)MyUtilities.Sales.CustomerState.Active)
+                           .OrderBy(c => c.CustomerCode);
+                    foreach (var customer in customers) {
+                        var entity = new CustomerModel {
+                            CustomerId = customer.CustomerId,
+                            CustomerCode = customer.CustomerCode,
+                            CustomerName = customer.CustomerName
+                        };
+                        model.Add(entity);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("", ex.Message);
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "CustomerId", "CustomerCodeName")
+            };
+        }
+
+        public ActionResult SelectComboBoxWorkOrderCustomer() {
+            var model = new List<CustomerModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    var customers =
+                        vfi.Customers.Where(c => c.State == (byte)MyUtilities.Sales.CustomerState.Active && c.IsWorkOrder == true)
                            .OrderBy(c => c.CustomerCode);
                     foreach (var customer in customers) {
                         var entity = new CustomerModel {
@@ -846,7 +866,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("CustomerList", "" + ex.Message);
             }
-            return PartialView("PageCustomerList");
+            return PartialView("PageCustomerList", null);
 
         }
         [GridAction]

@@ -2287,7 +2287,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     else {
                         entity.RequiredNumber = 0;
                     }
-                    if (entity.RequiredNumber != 0) {
+                    if (entity.RequiredNumber > 0) {
                         var detailsElse = orderDetailsElse.Where(od => od.ProductId == entity.ProductId).ToList();
                         var total = 0;
                         foreach (var detailElse in detailsElse) {
@@ -2743,21 +2743,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     //    throw new AggregateException("Đơn hàng " + order.OrderNumber +
                     //                                 " đã có giao không thể hủy ! Vui lòng hủy số lượng trong đơn hàng !");
                     //}
-                    if (order.OrderDetails.Any(od => od.RequiedNumber != od.OrderQty))
-                        throw new AggregateException("Đơn hàng " + order.OrderNumber +
-                                                     " đã có giao không thể hủy ! Vui lòng hủy số lượng trong đơn hàng !");
-                    else {
-                        byte status = order.Status;
-                        try {
-                            status = Convert.ToByte(updated.StatusName);
-                            order.Status = status;
-                            order.ModifiedDate = DateTime.Now;
-                            order.ModifiedUser = HttpContext.User.Identity.Name;
-                            vfi.SaveChanges();
+                    byte status = Convert.ToByte(updated.StatusName);
+                    if (status == (byte)MyUtilities.Sales.Status.Cancel) {
+                        if (order.OrderDetails.Any(od => od.RequiedNumber != od.OrderQty)) {
+                            throw new AggregateException("Đơn hàng " + order.OrderNumber +
+                                                         " đã có giao không thể hủy ! Vui lòng hủy số lượng trong đơn hàng !");
                         }
-                        catch (FormatException) {
+                    }
+                    else if (status == (byte)MyUtilities.Sales.Status.Completed) {
+                        if (order.OrderDetails.Any(x => x.RequiedNumber > 0)) {
+                            throw new AggregateException("Đơn hàng " + order.OrderNumber +
+                                                         " chưa giao đủ không thể hoàn thành ! Vui lòng hủy số lượng trong đơn hàng !");
+                        }
+                    }
+                    try {
+                        status = Convert.ToByte(updated.StatusName);
+                        order.Status = status;
+                        order.ModifiedDate = DateTime.Now;
+                        order.ModifiedUser = HttpContext.User.Identity.Name;
+                        vfi.SaveChanges();
+                    }
+                    catch (FormatException) {
 
-                        }
                     }
                 }
             }

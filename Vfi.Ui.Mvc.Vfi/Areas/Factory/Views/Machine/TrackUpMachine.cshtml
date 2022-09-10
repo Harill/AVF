@@ -281,13 +281,13 @@
 
         function Grid_OnRowDataBound(e) {
             var dataItem = e.dataItem; //FA5858 F4FA58
-            if (dataItem.Productivity < dataItem.RealProductivity || dataItem.Productivity === 0)
-                e.row.childNodes[14].style.backgroundColor = "#F4FA58";
-            else if (dataItem.Productivity > (dataItem.RealProductivity * 1.2)) {
-                e.row.childNodes[14].style.backgroundColor = "rgb(181,230,29)";
-            }
+            //if (dataItem.Productivity < dataItem.RealProductivity || dataItem.Productivity === 0)
+            //    e.row.childNodes[14].style.backgroundColor = "#F4FA58";
+            //else if (dataItem.Productivity > (dataItem.RealProductivity * 1.2)) {
+            //    e.row.childNodes[14].style.backgroundColor = "rgb(181,230,29)";
+            //}
             if (dataItem.ProductRate > (dataItem.RealRate) || dataItem.ProductRate === 0)
-                e.row.childNodes[15].style.backgroundColor = "#F4FA58";
+                e.row.childNodes[12].style.backgroundColor = "#F4FA58";
             if ((dataItem.PermisstionType === 1 || dataItem.StatusColor === 2) && dataItem.DeliveryDate != null) {
                 e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
                 e.row.getElementsByClassName("t-button t-grid-delete t-button-icon")[0].parentNode.innerHTML = "";
@@ -470,7 +470,7 @@
                         .ClientTemplate("<#= ForecastDay == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ForecastDay) #>");
                     columns.Bound(f => f.DeliveryDate).Width(90).Title("Ngày giao")
                         .ClientTemplate("<#= DeliveryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DeliveryDate) #>");
-                    columns.Bound(f => f.MachineName).Width(70).Title("Máy")
+                    columns.Bound(f => f.MachineName).Width(100).Title("Máy")
                         .HtmlAttributes(new {style = "font-weight:bold"});
 
                     //columns.Bound(f => f.DrawingImg).Width(50).Title("").ReadOnly(true)
@@ -481,11 +481,11 @@
                     //       .ClientTemplate("<a id='<#=TrackId#>_2' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                     //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=ProductImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
                     //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
-                    columns.Bound(f => f.ProductCode).Width(100).Title("Mã SP")
+                    columns.Bound(f => f.ProductCode).Width(110).Title("Mã SP")
                         .HtmlAttributes(new {style = "font-weight:bold"})
                         //.ClientTemplate("<strong><#= ProductCode #></strong>")
                         ;
-                    columns.Bound(f => f.MaterialCode).Width(125).Title("Nguyên liệu")
+                    columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu")
                         .HtmlAttributes(new {style = "font-weight:bold"});
                     columns.Bound(f => f.Phase).Width(50)
                         .HeaderTemplate("Công</br>đoạn")

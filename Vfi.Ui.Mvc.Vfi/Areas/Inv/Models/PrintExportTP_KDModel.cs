@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
@@ -33,5 +34,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string CustomerCodeName { get; set; }
         public string NoteNumber { get; set; }
         public string InvoiceNumber { get; set; }
+        public WorkGroupInfo Info { get; set; }
     }
 }

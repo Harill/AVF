@@ -40,6 +40,9 @@
         //var menu = $("#MenuBar").data('tMenu');
         //menu.render();
         // post strMenuUrl and receive data from MenuController
+
+        @*document.body.style.backgroundImage = "url('@ViewBag.ImagePath/Background/@ViewBag.BackgroundImage";
+        document.getElementById("logo").src = "@ViewBag.ImagePath/Logo/@ViewBag.LogoImage";*@
         $.post("@strMenuUrl", function (data) {
             $("#menuArea").html(data);
         });
@@ -100,52 +103,6 @@ Html.Telerik().Window()
         @using (Ajax.BeginForm("Index", "Home", new AjaxOptions {HttpMethod = "Post"}))
         {
 
-    @*<table cellpadding="3" cellspacing="0" align="center" border="0" width="auto" style="margin-top: 15px;">
-        <tr>
-            <td rowspan="3">
-                <img src='@Url.Content(@"~/Content/icons/Security.png")' alt="Log On Security" />
-            </td>
-            <td>
-                @Html.LabelFor(model => model.Username)
-            </td>
-            <td>
-                @Html.TextBoxFor(model => model.Username, new {id = "username", @style = "width:138px;"})
-            </td>
-                        
-        </tr>
-
-        <tr>
-            <td>
-                @Html.LabelFor(model => model.Password)
-            </td>
-            <td>
-                @Html.PasswordFor(model => model.Password, new { id = "password",  @style = "width:138px;" })
-            </td>
-        </tr>
-
-        <tr>
-            <td colspan="2" align="right">
-                <table border="0" width="100%" cellpadding="0" cellspacing="3" align="right">
-                    <tr>
-                        <td align="left">
-                        @{
-                            Html.Telerik().DatePicker()
-                                .Name("startingDate")
-                                .Format("dd/MM/yyyy")
-                                .ShowButton(true)
-                                .Value(DateTime.Now)
-                                .Render();
-                        }
-                        </td>
-                        <td align="right">
-                            <input type="submit" class="t-button t-state-default" value="Đăng nhập hệ thống" id="btnLogin" name="btnLogin" />
-                        </td>                                                                                               
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>*@
-    
     <div class="container_24">
         <div class="grid_5">&nbsp;</div>
         <div class="grid_3">

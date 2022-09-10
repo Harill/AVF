@@ -42,4 +42,15 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production {
 
         public string UserLoginFullName { get; set; }
     }
+    public class WorkGroupInfo {
+        public string Logo { get; set; }
+        public string CompanyName { get; set; }
+        public string CompanyFullName { get; set; }
+        public string CompanyShortName { get; set; }
+        public string Address { get; set; }
+        public string TelNumber { get; set; }
+        public string FaxNumber { get; set; }
+        public string Email { get; set; }
+        public string Website { get; set; }
+    }
 }

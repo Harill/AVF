@@ -1,5 +1,6 @@
 ﻿@model List<Vfi.Ui.Mvc.Vfi.Areas.Factory.Models.MachineModel>
-       <script type="text/javascript">
+   
+    <script type="text/javascript">
         $(function() {
             var $container = $("#container");
             $container.isotope({
@@ -66,23 +67,31 @@
     .entity.machine {
         background: #F00;
         background: hsl( 0, 100%, 50%);
-    }
+    }
+
     #revok1 {
         background-size:cover;
         background-position:center;
     }
     .entity * {margin: 0;}
     .entity .name {
-        left: 0.5em;        bottom: 1.6em;        font-size: 1.05em;    }
+        left: 0.5em;
+        bottom: 1.6em;
+        font-size: 1.05em;
+    }
     .clickable .entity:hover {
         cursor: pointer;
         border: 1px aquamarine;
-    }    .clickable .entity:hover h3 {
+    }
+    .clickable .entity:hover h3 {
         text-shadow:0 0 10px white,0 0 10px white;
-    }    /*a:hover{
+    }
+
+    /*a:hover{
         text-shadow:0 0 10px white,0 0 10px white;
         font-size: 14px;
-    }*/    .clickable .entity:hover h1 {
+    }*/
+    .clickable .entity:hover h1 {
         text-shadow:0 0 5px white,0 0 5px white;
         font-weight: bold;
         font-size: 17px;
@@ -93,20 +102,8 @@
         width: 100%;
         min-width: 1022px;
         height: 60px;
-        margin: 5px 0 5px 0;        float: left;
-        overflow: hidden;
-        position: relative;
-        background: #888;
-        color: #222;
-        -webkit-border-radius: 10px;
-        -moz-border-radius: 10px;
-        border-radius: 10px;
-    }
-    .entity {
-        width: 100%;
-        min-width: 1022px;
-        height: 111px;
-        margin: 5px 0 5px 0;        float: left;
+        margin: 5px 0 5px 0;
+        float: left;
         overflow: hidden;
         position: relative;
         background: #888;
@@ -115,7 +112,23 @@
         -moz-border-radius: 10px;
         border-radius: 10px;
     }
-        
+
+    .entity {
+        width: 100%;
+        min-width: 1022px;
+        height: 111px;
+        margin: 5px 0 5px 0;
+        float: left;
+        overflow: hidden;
+        position: relative;
+        background: #888;
+        color: #222;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+    }
+    
+    
     .entity.large{
         width: 100%;
         min-width: 1022px;
@@ -314,7 +327,8 @@
 <div id='container' class="clickable clearfix isotope" style="position: relative; overflow: hidden; 
                                        height: auto; width: 99%;min-width:1222px;
                                        float: left;padding-right: 5px">
-       
+   
+    
     @{
         foreach (var entity in Model)
         {

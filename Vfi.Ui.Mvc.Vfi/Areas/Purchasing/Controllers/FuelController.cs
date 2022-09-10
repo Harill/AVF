@@ -9,6 +9,7 @@ using Telerik.Web.Mvc;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
@@ -66,6 +67,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         }
 
         public ActionResult ImportTransactionFuel() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+
+        public ActionResult ImportInternalTransactionFuel() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+        public ActionResult ExportInternalTransactionFuel() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
             }
@@ -182,7 +198,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         AccountantSignature = transaction.AccountantSignature,
                         QcSignature = transaction.QcSignature,
                         PurchasingSignature = transaction.PurchasingSignature,
-                        InvManager = invManager ? 2 : 0
+                        InvManager = invManager ? 2 : 0,
+                        IsInternal = transaction.IsInternal ??  false
                     };
                     if (entity.PoId != 0)
                         entity.PoCode = transaction.PurchaseOrder.RevisionNumber;
@@ -200,6 +217,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     foreach (var detail in transaction.TransactionFptDetails) {
                         entity.TotalQuantity += detail.Quantity;
                         entity.TotalPrice += (detail.Quantity * detail.UnitPrice);
+                    }
+                    if (entity.IsInternal) {
+                        entity.EoIName += " (nội bộ)";
                     }
                     model.Add(entity);
                 }
@@ -307,6 +327,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             Type = transaction.Type,
                             PurchasingSignature = transaction.PurchasingSignature,
                             PurchasingSignatureType = transaction.PurchasingSignature,
+                            IsInternal = transaction.IsInternal ?? false
                         };
                         if (entity.PoId != 0)
                             entity.PoCode = transaction.PurchaseOrder.RevisionNumber;
@@ -337,6 +358,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         else if (entity.TransactionDate > DateTime.Now.AddDays(1) ||
                                  entity.TransactionDate < DateTime.Now.AddDays(-1))
                             entity.AlertColor = 0;
+                        if (entity.IsInternal) {
+                            entity.EoIName += " (nội bộ)";
+                        }
                         model.Add(entity);
                     }
                 }
@@ -584,6 +608,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 using (var vfi = new tammaContext()) {
                     var transaction = vfi.TransactionFpts.FirstOrDefault(i => i.TransactionId == importId);
                     if (transaction == null) throw new AggregateException("Lỗi phiếu nhập ! Không tìm thấy phiếu nhập");
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var detail in transaction.TransactionFptDetails) {
                         var fuel = vfi.Fuels.FirstOrDefault(f => f.FuelId == detail.FptId);
                         var entity = new TransactionFptDetailModel {
@@ -605,10 +643,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             PurchasingSignature = transaction.PurchasingSignature,
                             InventorySignature = transaction.InventorySignature,
                             FuelId = fuel.FuelId,
+                            Info = info,
                         };
                         if (transaction.PoId != 0 && transaction.PoId != null)
                             entity.PoNumber = transaction.PurchaseOrder.RevisionNumber;
-                        if (detail.VendorId != 0 || detail.VendorId != null) {
+                        if (detail.VendorId > 0) {
                             var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
                             entity.VendorName = vendor.CompanyName;
                         }
@@ -661,10 +700,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             }
             if (updatedDetails.Any()) {
                 try {
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(importDate)
-                                   ? DateTime.Today
-                                   : Convert.ToDateTime(importDate, ci);
+                    var date = MyUtilities.Function.ParseDate(importDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -773,7 +812,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             [Bind(Prefix = "inserted")] IEnumerable<TransactionFptDetailModel> insertedDetails,
             [Bind(Prefix = "updated")] IEnumerable<TransactionFptDetailModel> updatedDetails,
             [Bind(Prefix = "deleted")] IEnumerable<TransactionFptDetailModel> deletedDetails,
-            int fuelVendor, string importDate, int poId, int exchangeRate) {
+            int fuelVendor, string importDate, int poId, int exchangeRate, bool isInternal) {
             if (!Request.IsAuthenticated) {
                 ModelState.AddModelError("ImportWorkpiece",
                                          @"Bạn đã bị mất quyền đăng nhập. \r\n " +
@@ -790,10 +829,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     if (!updatedDetails.Any() || updatedDetails == null)
                         return View(new GridModel(new List<TransactionFptDetailModel>()));
                 }
-                var ci = new CultureInfo("vi-VN");
-                var date = string.IsNullOrWhiteSpace(importDate)
-                               ? DateTime.Today
-                               : Convert.ToDateTime(importDate, ci);
+                var date = MyUtilities.Function.ParseDate(importDate);
+                if (date > DateTime.Now.AddDays(1)) {
+                    throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                }
                 if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                     throw new AggregateException(
                         @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -814,7 +853,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         InventorySignature = 0,
                         PurchasingSignature = 0,
                         QcSignature = 0,
-                        ExchangeRate = exchangeRate
+                        ExchangeRate = exchangeRate,
+                        IsInternal = isInternal
                     };
                     var purchaseOrder = vfi.PurchaseOrders.FirstOrDefault(po => po.PurchaseOrderId == poId);
                     if (purchaseOrder != null) {
@@ -847,7 +887,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             TransactionFpt = transaction,
                             TransactionId = transaction.TransactionId,
                             VendorId = fuelVendor,
-                            PoDetailId = detailModel.PoDetailId
+                            PoDetailId = detailModel.PoDetailId,
+                            IsInternal = transaction.IsInternal
                         };
                         transaction.TransactionFptDetails.Add(detail);
                     }
@@ -1018,21 +1059,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             [Bind(Prefix = "inserted")]IEnumerable<TransactionFptDetailModel> insertedDetails,
             [Bind(Prefix = "updated")]IEnumerable<TransactionFptDetailModel> updatedDetails,
             [Bind(Prefix = "deleted")]IEnumerable<TransactionFptDetailModel> deletedDetails,
-            string exportDate
+            string exportDate, bool isInternal
             ) {
             if (updatedDetails != null) {
                 try {
                     if (!Request.IsAuthenticated)
                         throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (IsAuthenticated). ");
 
-                    var modifiedUser = HttpContext.User.Identity.Name;
-                    if (string.IsNullOrWhiteSpace(modifiedUser))
-                        throw new AggregateException(@"Vui lòng đăng nhập hệ thống. (user null). ");
-                    ModelState.Clear();
-                    var ci = new CultureInfo("vi-VN");
-                    var date = string.IsNullOrWhiteSpace(exportDate)
-                                          ? DateTime.Today
-                                          : Convert.ToDateTime(exportDate, ci);
+                    var date = MyUtilities.Function.ParseDate(exportDate);
+                    if (date > DateTime.Now.AddDays(1)) {
+                        throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
+                    }
                     if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, date)) {
                         throw new AggregateException(
                             @"Không có quyền tạo phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
@@ -1053,7 +1090,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             InventorySignature = 0,
                             PurchasingSignature = 0,
                             QcSignature = 0,
-                            ExchangeRate = 1
+                            ExchangeRate = 1,
+                            IsInternal = isInternal
                         };
                         //
                         foreach (var detail in updatedDetails) {
@@ -1079,6 +1117,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 TransactionId = transaction.TransactionId,
                                 VendorId = fuelInv.VendorId,
                                 MachineId = detail.MachineId,
+                                IsInternal = transaction.IsInternal
                             };
                             transaction.TransactionFptDetails.Add(transactionDetail);
                         }
@@ -1099,7 +1138,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         }
 
         [HttpPost]
-        public ActionResult PrintFuelInvTotalInMonth(int month, int year) {
+        public ActionResult PrintFuelInvTotalInMonth(int vendorId, int month, int year) {
             var model = new List<GroupFuelInventory>();
             var date = new DateTime(year, month, 1).AddMonths(1).AddSeconds(-1);
             var startDate = new DateTime(year, month, 1).AddSeconds(-1);
@@ -1107,13 +1146,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     vfi.Configuration.LazyLoadingEnabled = false;
-                    var fuels = from t in vfi.Fuels
-                                where t.Active
-                                orderby t.FuelFullCode
-                                select t;
+                    var fuels = (from t in vfi.Fuels
+                                 where t.Active
+                                 orderby t.FuelFullCode
+                                 select new {
+                                     t.FuelId,
+                                     t.FuelCode,
+                                     t.FuelDesignNo,
+                                     t.FuelName,
+                                     t.FuelFullCode,
+                                 }).ToList();
                     var fuelIds = fuels.Select(t => t.FuelId).ToList();
                     var fuelInvs = (from ti in vfi.FuelInventories
                                     where fuelIds.Contains(ti.FuelId)
+                                    && (ti.EndDate == null || ti.EndDate >= startDate)
+                                    && (vendorId == 0 || ti.VendorId == vendorId)
                                     select new {
                                         ti.FuelId,
                                         ti.FuelInvId,
@@ -1127,14 +1174,41 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                        where fuelIds.Contains(tip.FuelId)
                                              && tip.PeriodDate < date
                                        orderby tip.PeriodDate
-                                       select tip).ToList();
-                    if (fuelPeriods.Any())
+                                       select new {
+                                           tip.PeriodDate,
+                                           tip.FuelInvId,
+                                           tip.LastQuantity,
+                                           tip.EarlyQuantity,
+                                           tip.Quantity,
+                                           IsInternal = tip.TransactionFpt.IsInternal == true,
+                                           IsPurchase = tip.TransactionFpt.PoId != null
+                                       }).ToList();
+                    if (fuelPeriods.Any()) {
                         lastDate = fuelPeriods.LastOrDefault().PeriodDate;
+                    }
                     var vendorIds = fuelInvs.Select(fi => fi.VendorId).Distinct().ToList();
                     var vendors = (from v in vfi.Vendors
                                    where vendorIds.Contains(v.VendorId) && v.Active
                                    orderby v.ShortName
-                                   select v).ToList();
+                                   select new { 
+                                       v.VendorId,
+                                       v.ShortName
+                                   }).ToList();
+
+                    var exportFuels = (from x in vfi.TransactionFptDetails
+                                       where x.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                        && x.TransactionFpt.Fpt == (byte)MyUtilities.PurchaseOrder.FptLot.Fuel
+                                        && x.TransactionFpt.EoI == (byte)MyUtilities.PurchaseOrder.EoILot.Export
+                                        && fuelIds.Contains(x.FptId)
+                                        && x.TransactionFpt.TransactionDate >= startDate
+                                        && x.TransactionFpt.TransactionDate <= lastDate
+                                        && x.IsInternal != true
+                                        && x.MachineId > 0
+                                       select new {
+                                           x.FptId,
+                                           x.LotNumber,
+                                           x.Quantity
+                                       }).ToList();
                     foreach (var vendor in vendors) {
                         var group = new GroupFuelInventory {
                             List = new List<FuelInventoryModel>(),
@@ -1150,6 +1224,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         foreach (var fuelInv in fuelInvByIds) {
                             var fuel = fuels.FirstOrDefault(f => f.FuelId == fuelInv.FuelId);
                             var entity = new FuelInventoryModel {
+                                FuelInvId =  fuelInv.FuelInvId,
+                                FuelId = fuelInv.FuelId,
                                 LotNumber = fuelInv.LotNumber,
                                 FuelCode = fuel.FuelCode,
                                 VendorCode = fuelInv.VendorCode,
@@ -1159,28 +1235,29 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 FuelName = fuel.FuelName,
                                 FuelFullCode = fuel.FuelFullCode,
                             };
-                            var earlyPeriods =
-                                fuelPeriods.Where(
-                                    tip => tip.FuelInvId == fuelInv.FuelInvId && tip.PeriodDate < startDate).ToList();
-                            if (earlyPeriods.Any())
-                                entity.Early = earlyPeriods.Sum(tip => tip.LastQuantity - tip.EarlyQuantity);
-                            var import =
-                                fuelPeriods.Where(
-                                    tip =>
-                                    tip.FuelInvId == fuelInv.FuelInvId && tip.PeriodDate > startDate &&
-                                    tip.LastQuantity > tip.EarlyQuantity).ToList();
-                            if (import.Any())
-                                entity.Import = import.Sum(tip => tip.Quantity);
-                            var export =
-                                fuelPeriods.Where(
-                                    tip =>
-                                    tip.FuelInvId == fuelInv.FuelInvId && tip.PeriodDate > startDate &&
-                                    tip.LastQuantity < tip.EarlyQuantity).ToList();
-                            if (export.Any())
-                                entity.Export = export.Sum(tip => tip.Quantity);
-                            if (entity.IsShow)
+                            var periodsById = fuelPeriods.Where(tip => tip.FuelInvId == entity.FuelInvId).ToList();
+                            var periods = periodsById.Where(tip => tip.PeriodDate < startDate).ToList();
+
+                            entity.Early = periods.Sum(tip => tip.LastQuantity - tip.EarlyQuantity);
+                            periods = periodsById.Where(tip => tip.PeriodDate >= startDate && tip.LastQuantity > tip.EarlyQuantity)
+                                                    .ToList();
+                            entity.Import = periods.Where(x => x.IsPurchase).Sum(tip => tip.Quantity);
+                            entity.ImportMore = periods.Where(x => !x.IsInternal && !x.IsPurchase).Sum(tip => tip.Quantity);
+
+                            entity.ImportInternal = periods.Where(x => x.IsInternal).Sum(tip => tip.Quantity);
+
+                            periods = periodsById.Where(tip => tip.PeriodDate >= startDate && tip.LastQuantity < tip.EarlyQuantity)
+                                                .ToList();
+                            entity.ExportDestroy = periods.Where(x => !x.IsInternal).Sum(tip => tip.Quantity);
+                            entity.ExportInternal = periods.Where(x => x.IsInternal).Sum(tip => tip.Quantity);
+                            var exportsById = exportFuels.Where(x => x.FptId == entity.FuelId && x.LotNumber.Equals(entity.LotNumber));
+                            if (exportsById.Any()) {
+                                entity.Export = exportsById.Sum(x => x.Quantity);
+                                entity.ExportDestroy -= entity.Export;
+                            }
+                            if (entity.IsShow) {
                                 group.List.Add(entity);
-                            //}
+                            }
                         }
                         if (group.List.Any()) {
                             group.List = group.List.OrderBy(l => l.FuelCode)
@@ -1193,7 +1270,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 }
             }
             catch (Exception ex) {
-
+                return PartialView("PageFuelTotal", ex.Message);
             }
             return PartialView("PageFuelTotal", model);
         }

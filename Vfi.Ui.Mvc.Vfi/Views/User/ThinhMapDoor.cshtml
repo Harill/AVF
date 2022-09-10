@@ -913,6 +913,24 @@
                     }
                 });
                 break;
+            case 34:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("CleanDatabaseHardCode", "User")',
+                    timeout: 200000,
+                    success: function (res) {
+                        if (res.Code != 1)
+                            alert("Lỗi! " + res.Message + " Thành công! " + res.Data);
+                        else {
+                            alert("Thành công! " + res.Data);
+                            Clear();
+                        }
+
+                    }
+                });
+                break;
         default:
            @* $.ajax({
                 type: 'post',
@@ -1310,6 +1328,14 @@
             <button class="t-button twoToneButton" onclick=" return TamMaCode(33); ">
                 <span class='t-icon t-insert'></span>Chỉnh thông số work order sản phẩm
             </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button twoToneButton" onclick=" return TamMaCode(34); ">
+                <span class='t-icon t-insert'></span>Xóa database sạch sẽ
+            </button>
+            (Không thể phục hồi)
         </div>
         <div class="grid_5">(Không thể phục hồi)</div>
         <div class="clear"></div>

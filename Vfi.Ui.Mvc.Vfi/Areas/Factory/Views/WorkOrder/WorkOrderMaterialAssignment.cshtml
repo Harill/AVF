@@ -4,50 +4,58 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
-        function EditWorkOrders() {
-            var $checkedRecords = $("input[name='chkIds']:checked")
+        function CreateWorkOrderMaterialAssignment() {
+            if (!onProcessing) {
+                OnProcessingData();
+                var $checkedRecords = $("input[name='chkIds']:checked")
 
-            if ($checkedRecords.length < 1) {
-                alert("Vui lọn chọn ít nhất 1 kệ");
-                return;
-            }
+                if ($checkedRecords.length < 1) {
+                    alert("Vui lọn chọn ít nhất 1 kệ");
+                    OnProcessedData();
+                    return;
+                }
 
-            var a = {};
-            checkedRecords = "";
-            for (var i = 0; i < $checkedRecords.length; i++) {
-                if ($checkedRecords[i] === "0") continue;
-                a[i] = $checkedRecords[i].value;
+                var a = {};
+                checkedRecords = "";
+                for (var i = 0; i < $checkedRecords.length; i++) {
+                    if ($checkedRecords[i] === "0") continue;
+                    a[i] = $checkedRecords[i].value;
 
-                checkedRecords += $checkedRecords[i].value;
-                if (i < ($checkedRecords.length - 1))
-                    checkedRecords += ":";
-            }
-            var employee = $('#Employee').data('tComboBox').value();
-            if (employee === "") {
-                employee = 0;
-            }
-            if (checkedRecords.length > 0 && employee > 0) {
-                $.ajax({
-                    type: 'post',
-                    data: {
-                        ids: checkedRecords,
-                        employeeId: employee,
-                    },
-                    dataType: 'json',
-                    url: '@Url.Action("AssignMaterialWorkOrders", "WorkOrder", new { area = "Factory" })',
-                    timeout: 20000,
-                    success: function (res) {
-                        if (res.Code === 1) {
-                            alert("Hoàn thành lưu " + res.Data);
-                            RefreshGrid("grid");
-                        } else {
-                            alert(res.Message);
+                    checkedRecords += $checkedRecords[i].value;
+                    if (i < ($checkedRecords.length - 1))
+                        checkedRecords += ":";
+                }
+                var employee = $('#Employee').data('tComboBox').value();
+                if (employee === "") {
+                    employee = 0;
+                }
+                if (checkedRecords.length > 0 && employee > 0) {
+                    $.ajax({
+                        type: 'post',
+                        data: {
+                            ids: checkedRecords,
+                            employeeId: employee,
+                        },
+                        dataType: 'json',
+                        url: '@Url.Action("AssignMaterialWorkOrders", "WorkOrder", new { area = "Factory" })',
+                        timeout: 20000,
+                        success: function (res) {
+                            if (res.Code === 1) {
+                                alert("Hoàn thành lưu " + res.Data);
+                                RefreshGrid("grid");
+                            } else {
+                                alert(res.Message);
+                            }
+                            OnProcessedData();
                         }
-                    }
-                });
-            } else {
-                alert("Lỗi! Vui lòng chọn nguyên liệu cần phát và nhân viên!");
+                    });
+                } else {
+                    alert("Lỗi! Vui lòng chọn nguyên liệu cần phát và nhân viên!");
+                    OnProcessedData();
+                }
             }
             return false;
         }
@@ -77,39 +85,57 @@
             }
             return false;
         }
-    </script>
-    <script type="text/javascript">
-        var onLoading = false;
-        function OnLoadingData() {
+        function printWOMaterialUse() {
             if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
+                OnLoadingData();
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = new Date();
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy}', printDate);
+                $('#result').load('@Url.Action("PrintWOMaterialUse", "WorkOrder", new { area = "Factory" })',
+                    {
+                        date: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
             }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
+            return false;
         }
     </script>
 }
 
 <div class="title">Phát nguyên liệu cho Work Order</div>
 
-<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
+<div class="t-info-sha" style="padding-left: 15px;padding-right: 15px;">
+    
+        <button id="btnPrintAssign" class="t-button" onclick="printWOAssignMaterial();">
+            <span class='t-icon t-insert'></span>
+            In Phát nguyên liệu
+            <span class="loadButton"></span>
+        </button>
+        <label>
+            <input type="checkbox" id="chkAll" name="chkAll" />
+            Tất cả máy
+        </label>
+        <label>
+            <input type="checkbox" id="chkInventory" name="chkInventory" checked />
+            Còn tồn kho
+        </label>
+        <label>
+            <input type="checkbox" id="chkWorkOrder" name="chkWorkOrder" checked />
+            Có Work Order
+        </label>
+        <div class="clear"></div><br />
+
+        <button id="btnPrintUsing" class="t-button" onclick="printWOMaterialUse();">
+            <span class='t-icon t-insert'></span>
+            In sử dụng nguyên liệu
+            <span class="loadButton"></span>
+        </button>
+        <div class="clear"></div><br />
 
     <fieldset>
         <legend>Thông tin phiếu</legend> 
@@ -138,29 +164,6 @@
                     .Render();
             }
         </div>
-        <div class="grid_4">
-            <button id="btnPrintAssign" class="t-button" onclick="printWOAssignMaterial();">
-                <span class='t-icon t-insert'></span>
-               In Phát nguyên liệu
-                <span class="twoToneButton"></span>
-            </button>
-        </div>
-        <div class="grid_4">
-            <label>
-                <input type="checkbox" id="chkAll" name="chkAll" />
-                Tất cả máy
-            </label>
-            <br />
-            <label>
-                <input type="checkbox" id="chkInventory" name="chkInventory" checked />
-                Còn tồn kho
-            </label>
-            <br />
-            <label>
-                <input type="checkbox" id="chkWorkOrder" name="chkWorkOrder" checked />
-                Có Work Order
-            </label>
-        </div>
     </fieldset>
 </div>
 <div class="clear"></div>
@@ -180,7 +183,8 @@
                 //       .HtmlAttributes(new { style = "text-align:center" });
 
                 columns.Bound(f => f.RoutingId).Title("Chọn").Width(75)
-                    .HeaderTemplate("<button class='t-button' onclick='EditWorkOrders()'>Tạo phiếu</button>")
+                    .HeaderTemplate("<button class='t-button' onclick='CreateWorkOrderMaterialAssignment()'>Tạo phiếu</button>"
+                                    + "<span class='processButton'></span>")
                     .ClientTemplate("<input type='checkbox' name='chkIds' class='chkId' value='<#= RoutingId #>' />")
                     .HtmlAttributes(new { style = "text-align:center" });
 
@@ -190,8 +194,8 @@
                 //       .HtmlAttributes(new { style = "font-weight: center;" });
                 columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
                 columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(150).ReadOnly(true);
                 columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(270).ReadOnly(true);
-                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
                 columns.Bound(f => f.PlannedCost).Title("Số lượng</br>(cây)").Width(70).ReadOnly(true);
                 columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
 

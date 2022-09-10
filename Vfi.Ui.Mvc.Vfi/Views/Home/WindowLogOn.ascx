@@ -86,7 +86,7 @@
 <% 
     var windowLogOn = Html.Telerik().Window();
     windowLogOn.Name("Window");
-    windowLogOn.Title("Hệ thống quản lý bảo hiểm Bảo Việt - chi nhánh Hồ Chí Minh");
+    windowLogOn.Title("Hệ thống quản lý");
     windowLogOn.Draggable(true);
     //windowLogOn.Resizable(resizing => resizing.Enabled(false)
     //                                    .MinHeight(200)

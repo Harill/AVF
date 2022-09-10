@@ -53,8 +53,13 @@
 
         function Grid_OnRowDataBound(e) {
             var check = e.dataItem.IsNormal;
-            if (!check)
-                e.row.style.backgroundColor = "#F4FA58";
+            if (!check) {
+                e.row.childNodes[2].bgColor = "#F4FA58";
+                //e.row.style.backgroundColor = "#F4FA58";
+            }
+            if (e.dataItem.IsInternal) {
+                e.row.childNodes[4].className = "cell-highlight";
+            }
             var dataItem = e.dataItem;
             // neu chua dc ky duyet
             if (dataItem.PurchasingSignature === 0) {

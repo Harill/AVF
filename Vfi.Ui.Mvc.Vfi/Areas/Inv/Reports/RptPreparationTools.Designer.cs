@@ -61,7 +61,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.groupHeaderSection1 = new Telerik.Reporting.GroupHeaderSection();
             this.reportHeaderSection1 = new Telerik.Reporting.ReportHeaderSection();
             this.textBox1 = new Telerik.Reporting.TextBox();
-            this.textBox4 = new Telerik.Reporting.TextBox();
             this.textBox6 = new Telerik.Reporting.TextBox();
             this.textBox5 = new Telerik.Reporting.TextBox();
             this.panel12 = new Telerik.Reporting.Panel();
@@ -678,7 +677,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.reportHeaderSection1.Height = Telerik.Reporting.Drawing.Unit.Inch(4.1520047187805176D);
             this.reportHeaderSection1.Items.AddRange(new Telerik.Reporting.ReportItemBase[] {
             this.textBox1,
-            this.textBox4,
             this.textBox6,
             this.textBox5,
             this.panel12,
@@ -701,20 +699,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox1.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
             this.textBox1.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Bottom;
             this.textBox1.Value = "BẢNG LIỆT KÊ\r\nCÔNG CỤ & NGUYÊN LIỆU\r\nCHUẨN BỊ LÊN MÁY";
-            // 
-            // textBox4
-            // 
-            this.textBox4.CanGrow = true;
-            this.textBox4.Format = "{0}";
-            this.textBox4.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(10D), Telerik.Reporting.Drawing.Unit.Pixel(9.5999984741210938D));
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.9999604225158691D), Telerik.Reporting.Drawing.Unit.Inch(0.45102584362030029D));
-            this.textBox4.Style.BackgroundImage.ImageData = global::Vfi.Ui.Mvc.Vfi.Properties.Resources.IMG_17012014_143105;
-            this.textBox4.Style.BackgroundImage.MimeType = "image/png";
-            this.textBox4.Style.BackgroundImage.Repeat = Telerik.Reporting.Drawing.BackgroundRepeat.NoRepeat;
-            this.textBox4.Style.Font.Name = "Times New Roman";
-            this.textBox4.StyleName = "Data";
-            this.textBox4.Value = "";
             // 
             // textBox6
             // 
@@ -1856,7 +1840,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
         private TextBox textBox21;
         private TextBox textBox23;
         private TextBox textBox24;
-        private TextBox textBox4;
         private TextBox textBox6;
         private TextBox textBox45;
         private TextBox textBox36;

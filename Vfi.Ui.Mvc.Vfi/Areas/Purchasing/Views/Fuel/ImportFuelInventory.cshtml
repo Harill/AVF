@@ -140,7 +140,7 @@
                 })
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectImportFuel", "Fuel")
-                                                     .Update("UpdateImportFuel", "Fuel")
+                                                     .Update("UpdateImportFuel", "Fuel", new { isInternal = false })
             )
             .Columns(columns =>
                 {

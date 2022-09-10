@@ -1,11 +1,8 @@
-﻿@using Vfi.Server.Core.DataModel.Models.Inv
-@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
-@using Vfi.Ui.Mvc.Vfi.Utilities
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
     ViewBag.Title = "QL phiếu sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 @section Scripts{
     <script type="text/javascript">
         function transactionStatus_onChange() {
@@ -59,7 +56,7 @@
             //var check = e.dataItem.DueDate < today;
             //if (check)
             //    e.row.style.backgroundColor = "#FA5858";
-            if (!e.dataItem.IsApprove) {
+            if (!e.dataItem.CanApprove) {
                 e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
                 e.row.getElementsByClassName("t-button rollback_" + e.dataItem.TransactionId)[0].parentNode.innerHTML = "";
             }
@@ -182,7 +179,7 @@
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectTransactionReviewByStatus", "Transaction", new {
                                                          productCode = "",
-                                                         status = (byte)MyUtilities.Transaction.Status.Open,
+                                                         status = 0,
                                                          mop = false,
                                                          fromDate = "",
                                                          toDate = ""

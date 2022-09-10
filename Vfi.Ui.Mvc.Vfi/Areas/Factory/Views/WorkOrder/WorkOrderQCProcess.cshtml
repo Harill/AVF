@@ -28,38 +28,48 @@
 </style>
 @section Scripts{
     <!-- grid Monthly -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
     <script type="text/javascript">        
         function workOrder_OnChange() {
-            var workOrder = $("#WorkOrder").data('tComboBox').value();
-            if (workOrder === "") workOrder = 0;
-            $.ajax({
-                type: 'post',
-                data: { routingId: workOrder },
-                dataType: 'json',
-                url: '@Url.Action("CheckWorkOrderRoutingInfo", "WorkOrder", new { area = "Factory" })',
-                timeout: 20000,
-                success: function (res) {
-                    //OnLoadedData();
-                    if (res.Code === 1) {
-                        $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
-                        $("#ProductCode")[0].innerText = res.Data.ProductCode;
+            if (!onLoading) {
+                OnLoadingData();
+                var workOrder = $("#WorkOrder").data('tComboBox').value();
+                if (workOrder === "") workOrder = 0;
+                $.ajax({
+                    type: 'post',
+                    data: { routingId: workOrder },
+                    dataType: 'json',
+                    url: '@Url.Action("CheckWorkOrderRoutingInfo", "WorkOrder", new { area = "Factory" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        //OnLoadedData();
+                        if (res.Code === 1) {
+                            $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
+                            $("#ProductCode")[0].innerText = res.Data.ProductCode;
 
-                        $("#RoutingName")[0].innerText = res.Data.RoutingName;
-                        $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
+                            $("#RoutingName")[0].innerText = res.Data.RoutingName;
+                            $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
 
-                        $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
-                        $("#ProductionQuantity")[0].innerText = res.Data.UsingQuantity.format(0);
+                            $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
+                            $("#ProductionQuantity")[0].innerText = res.Data.UsingQuantity.format(0);
 
-                        $("#ProductWeight").val(res.Data.ProductWeight);
-                        $("#ProductWeight").data("tTextBox").$text[0].innerHTML = res.Data.ProductWeight.format(4);
+                            $("#ProductWeight").val(res.Data.ProductWeight);
+                            $("#ProductWeight").data("tTextBox").$text[0].innerHTML = res.Data.ProductWeight.format(4);
 
-                        $("#MaterialInvCode")[0].innerText = res.Data.MaterialInvCode;
-                        RefreshGrid("grid");
-                    } else {
-                        alert("Lỗi! " + res.Message);
+                            $("#MaterialInvCode")[0].innerText = res.Data.MaterialInvCode;
+                            quantity = 0;
+                            weight = 0;
+                            $("#WeighValue")[0].innerText = "0.00";
+                            $("#QuantityValue")[0].innerText = "0";
+                            RefreshGrid("grid");
+                            OnLoadedData();
+                        } else {
+                            alert("Lỗi! " + res.Message);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         function grid_OnDataBinding(e) {
@@ -69,7 +79,8 @@
             var productWeight = $("#ProductWeight").data("tTextBox").value();
             e.data = $.extend(e.data, {
                 routingId: workOrder,
-                productWeight: productWeight
+                productWeight: productWeight,
+                weight: weight,
             });
         }
 
@@ -141,6 +152,8 @@
         }
 
         function grid_OnSubmitChanges(e) {
+            if (!onProcessing) {
+                OnProcessingData();
             var workOrder = $("#WorkOrder").data('tComboBox').value();
             if (workOrder === "") workOrder = 0;
             var employee = $("#Employee").data('tComboBox').value();
@@ -148,6 +161,7 @@
             var productWeight = $("#ProductWeight").data("tTextBox").value();
             if (employee === 0 || productWeight ==0) {
                 alert("Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
+                OnProcessedData();
                 e.preventDefault();
             }
             else {
@@ -159,6 +173,94 @@
                         productWeight: productWeight,
                     });
             }
+            } else {
+                e.preventDefault();
+            }
+        }
+        function grid_OnDataBound() {
+            OnProcessedData();
+        }
+
+    </script>
+
+    <script>
+        function Connect() {
+            //var second = $("#AutoDataSecond").data("tTextBox").value();
+            //if (second > 0) {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("ConnectWeighingDevice", "Transaction", new { area = "Inv" })',
+                    timeout: 20000,
+                    success: function (data) {
+                        if (data === 1) {
+                            alert("Kết nối thành công");
+                            //connect_OnChange(true);
+                            stopInterval = false;
+                            var interval = setInterval(function () {
+                                GetWeighingValue();
+                                if (stopInterval) clearInterval(interval);
+                            }, 3000);
+                        } else if (data === 8) {
+                            alert("Kết nối bị lỗi! Vui lòng rút đầu USB và cắm lại");
+                        } else if (data === 9) {
+                            alert("Không tìm thấy thiết bị");
+                        } else { alert("Kết nối không thành công"); }
+                    }
+                });
+            //} else {
+            //    alert("Lỗi! Vui lòng chỉnh tự động nạp > 0");
+            //}
+            }
+
+            function DisConnect() {
+                stopInterval = true;
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("DisConnectWeighingDevice", "Transaction", new { area = "Inv" })',
+                timeout: 20000,
+                success: function (data) {
+                    if (data === 1) {
+                        //$("#btnConnect")[0].removeAttribute("style");
+                        //connect_OnChange(false);
+                        alert("Đã ngắt kết nối");
+                    } else { alert("Ngắt kết nối không thành công"); }
+                }
+            });
+        }
+
+        var quantity = 0;
+        var weight = 0;
+        function GetWeighingValue() {
+            var unitWeight = $("#ProductWeight").data("tTextBox").value();
+            var packageWeight = $("#PackageWeight").data("tTextBox").value();
+            //var tolerance = $("#Tolerance").data("tTextBox").value();
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetWeighingValue", "Transaction", new { area = "Inv" })',
+                timeout: 4000,
+                success: function (data) {
+                    if (data > 0) {
+                        weight = data * 1000 - packageWeight;
+                        $("#WeighValue")[0].innerText = data.format(2);
+                        if (unitWeight > 0) {
+                            if (quantity != weight / unitWeight) {
+                                quantity = weight / unitWeight;
+                                if (quantity < 0) quantity = 0;
+                                $("#QuantityValue")[0].innerText = (quantity).format(0);
+                                RefreshGrid("grid");
+                            }
+                        } else {
+                            $("#QuantityValue")[0].innerText = "0";
+                        }
+                    }
+                }
+            });
         }
 
     </script>
@@ -188,13 +290,14 @@
                     .Render();
             }
         </div>
-        <div class="grid_1">
+        <div class="grid_3_5">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshCombobox('WorkOrder'); ">
                 <span class='t-icon t-refresh'></span>
+                <span class="loadButton"></span>
             </button>
         </div>
         <div class="clear"></div>
-        <div class="grid_11">
+        <div class="grid_12">
             <div class="grid_2">
                 Số Serial
             </div>
@@ -204,7 +307,7 @@
             <div class="grid_2">
                 Sản phẩm
             </div>
-            <div class="grid_3" style="font-size: large;">
+            <div class="grid_4" style="font-size: large;">
                 <span id="ProductCode">~~</span>
             </div>
             <div class="clear"></div>
@@ -285,7 +388,7 @@
 
 <div class="t-info-sha fieldheader fieldheader2">
     <fieldset>
-        <legend>Cân hàng</legend>
+        <legend>Cân hàng OK</legend>
         
         <div class="grid_3">
             <button class="t-button" id="btnConnect" name="btnConnect" onclick=" Connect() ">
@@ -352,7 +455,7 @@
             .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
             .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
-                .Select("SelectWorkOrderProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0 })
+                .Select("SelectWorkOrderProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0, weight = 0 })
                 .Update("ImportWorkOrderProcess", "WorkOrder", new { area = "Factory", productWeight = 0 })
                 )
             .Columns(columns => {
@@ -366,35 +469,39 @@
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.PreviousRouteQuantity).Width(90).HeaderTemplate("Số lượng</br>cần</br>xử lý").ReadOnly(true)
                     .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    //.Format("{0:n0}")
+                    .Format("{0:n0}")
                     .ClientTemplate("<span class='ProductionQuantity'><#=  $.telerik.formatString('{0:n0}', PreviousRouteQuantity) #></span>")
                     .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
                 columns.Bound(f => f.GoodQuantity).Width(90).HeaderTemplate("Hàng</br>OK</br>(pcs)")
                     .HeaderHtmlAttributes(new { @class = "good-column" })
                     .ClientTemplate("<span class='GoodQuantity'><#=  $.telerik.formatString('{0:n0}', GoodQuantity) #></span>")
-                    //.Format("{0:n0}")
+                    .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.GoodWeight).Width(90).HeaderTemplate("Hàng</br>OK</br>(g)")
                     .HeaderHtmlAttributes(new { @class = "good-column" })
-                    //.Format("{0:n0}")
+                    .Format("{0:n0}")
                     .ClientTemplate("<span class='GoodWeight'><#=  $.telerik.formatString('{0:n0}', GoodWeight) #></span>")
                     .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
                 
                 columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("Hàng</br>CPL</br>(pcs)")
                     .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    .Format("{0:n0}")
                     .ClientTemplate("<span class='NGQuantity'><#=  $.telerik.formatString('{0:n0}', NGQuantity) #></span>")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("Hàng</br>CPL</br>(g)")
                     .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    .Format("{0:n0}")
                     .ClientTemplate("<span class='NGWeight'><#=  $.telerik.formatString('{0:n0}', NGWeight) #></span>")
                     .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
 
                 columns.Bound(f => f.DefectQuantity).Width(90).HeaderTemplate("Phế phẩm</br>(pcs)")
                     .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .Format("{0:n0}")
                     .ClientTemplate("<span class='DefectQuantity'><#=  $.telerik.formatString('{0:n0}', DefectQuantity) #></span>")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.DefectWeight).Width(90).HeaderTemplate("Phế phẩm</br>(g)")
                     .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .Format("{0:n0}")
                     .ClientTemplate("<span class='DefectWeight'><#=  $.telerik.formatString('{0:n0}', DefectWeight) #></span>")
                     .HtmlAttributes(new { style = "text-align: right;" });
             })
@@ -402,6 +509,7 @@
             .ClientEvents(events => events
                 .OnDataBinding("grid_OnDataBinding")
                 .OnSave("grid_OnSave")
+                .OnDataBound("grid_OnDataBound")
                 .OnSubmitChanges("grid_OnSubmitChanges")
                 .OnError("grid_OnError")
             )

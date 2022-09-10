@@ -631,7 +631,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // textBox16
             // 
             this.textBox16.Name = "textBox16";
-            this.textBox16.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.3645833432674408D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox16.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.2916666567325592D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox16.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox16.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox16.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -649,7 +649,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // textBox17
             // 
             this.textBox17.Name = "textBox17";
-            this.textBox17.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.3125D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox17.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.24999994039535523D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox17.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox17.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox17.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -668,7 +668,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox15.Format = "{0:N0}";
             this.textBox15.Name = "textBox15";
-            this.textBox15.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.67708331346511841D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox15.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.54166638851165771D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox15.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox15.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox15.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -689,7 +689,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // textBox26
             // 
             this.textBox26.Name = "textBox26";
-            this.textBox26.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox26.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.79999971389770508D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox26.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox26.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox26.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -710,7 +710,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // textBox12
             // 
             this.textBox12.Name = "textBox12";
-            this.textBox12.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.0416666269302368D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox12.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.83333325386047363D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox12.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox12.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox12.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -731,7 +731,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox13.Format = "{0:N1}";
             this.textBox13.Name = "textBox13";
-            this.textBox13.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.49999997019767761D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox13.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.3999999463558197D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox13.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox13.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox13.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -753,7 +753,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox14.Format = "{0:N0}";
             this.textBox14.Name = "textBox14";
-            this.textBox14.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.67708331346511841D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox14.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.54166668653488159D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox14.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox14.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox14.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -775,7 +775,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox36.Format = "{0:N0}";
             this.textBox36.Name = "textBox36";
-            this.textBox36.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.67708337306976318D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox36.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.54166638851165771D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox36.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox36.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox36.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -796,7 +796,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // textBox46
             // 
             this.textBox46.Name = "textBox46";
-            this.textBox46.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.019999999552965164D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox46.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.015999997034668922D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox46.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox46.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox46.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -816,7 +816,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox49.Format = "{0:N0}";
             this.textBox49.Name = "textBox49";
-            this.textBox49.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.72916668653488159D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox49.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.58333331346511841D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox49.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox49.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox49.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -838,7 +838,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox40.Format = "{0:N0}";
             this.textBox40.Name = "textBox40";
-            this.textBox40.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.67708337306976318D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox40.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.54166638851165771D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox40.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox40.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox40.Style.BorderColor.Left = System.Drawing.Color.Black;
@@ -860,7 +860,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // 
             this.textBox50.Format = "{0:N1}";
             this.textBox50.Name = "textBox50";
-            this.textBox50.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.49999997019767761D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
+            this.textBox50.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.39999985694885254D), Telerik.Reporting.Drawing.Unit.Cm(0.7168891429901123D));
             this.textBox50.Style.BorderColor.Bottom = System.Drawing.Color.Black;
             this.textBox50.Style.BorderColor.Default = System.Drawing.Color.White;
             this.textBox50.Style.BorderColor.Left = System.Drawing.Color.Black;

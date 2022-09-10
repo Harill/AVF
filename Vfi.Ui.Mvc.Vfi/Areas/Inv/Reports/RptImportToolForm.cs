@@ -1,13 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing.Printing;
+using System.Linq;
 using System.Globalization;
-using System.IO;
-using System.Reflection;
-using Telerik.ReportViewer.WebForms;
-using Telerik.Reporting;
-using Telerik.Reporting.Processing;
+using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
 {
@@ -34,20 +29,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
         public void BindDataOwner(object models)
         {
             DataSource = models;
-        }
-        public static double? GetItemValue(List<double?> values, int index)
-        {
-            return values[index];
-        }
-
-        public static string KhoSX1(DateTime date)
-        {
-            return "Kho SX1\n" + (date.Day - 1) + "/" + date.Month;
-        }
-
-        public static string FormatQuality(double? value)
-        {
-            return String.Format("{0:n0,0}", value.Value) ?? "0";
+            var list = (List<TransactionFptDetailModel>)models;
+            var data = list.FirstOrDefault();
+            if (data != null) {
+                this.picLogo.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
+                this.picLogo.Value = data.Info.Logo;
+                this.Name = "Rotate_Product_" + data.TransactionDate.ToString("yy_MM_dd");
+            }
         }
     }
 }

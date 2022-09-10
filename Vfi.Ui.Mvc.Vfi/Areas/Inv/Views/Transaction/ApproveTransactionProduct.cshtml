@@ -4,8 +4,8 @@
     ViewBag.Title = "Duyệt luân chuyển kho SP";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <style>
+
     .highslide-container div {
         font-family: Verdana, Helvetica;
         font-size: 10pt;
@@ -20,13 +20,13 @@
         text-decoration: none;
     }
 
-        .highslide img {
-            border: 2px solid silver;
-        }
+    .highslide img {
+        border: 2px solid silver;
+    }
 
-        .highslide:hover img {
-            border-color: gray;
-        }
+    .highslide:hover img {
+        border-color: gray;
+    }
 
     .highslide-active-anchor img {
         visibility: hidden;
@@ -189,15 +189,20 @@
 
         function grid_OnRowDataBound(e) {
             var color = e.dataItem.AlertColor;
-            if (color === 1)
-                e.row.style.backgroundColor = "#F4FA58";
-            else if (color === 2)
-                e.row.style.backgroundColor = "#FA5858";
-            if (!e.dataItem.IsApprove) {
+            if (color === 1) {
+                e.row.childNodes[3].bgColor = "#F4FA58";
+            }
+            else if (color === 2) {
+                e.row.childNodes[3].bgColor = "#FA5858";
+            }
+            if (e.dataItem.Highlight) {
+                e.row.childNodes[5].className = "cell-highlight";
+            }
+            if (!e.dataItem.CanApprove) {
                 e.row.childNodes[1].innerHTML = "";
             }
             if (!e.dataItem.SpecialFormType > 0) {
-                e.row.childNodes[13].innerHTML = "";
+                e.row.childNodes[e.row.childNodes.length - 1].innerHTML = "";
             }
         }
 
@@ -296,7 +301,12 @@
 
 <div class="title">Duyệt phiếu xuất nhập kho</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">
+    <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridTransaction'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+    </button>
+    Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<TransactionModel>()
@@ -329,7 +339,7 @@
                        .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintFormGroup(<#= TransactionId #>) />")
                        .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.TransactionId).Title("In ĐB").Width(45).ReadOnly(true)
-                    .ClientTemplate("<input type='button' id='db_id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintSpecialForm(<#= TransactionId #>,<#= SpecialFormType #>) />")
+                    .ClientTemplate("<input type='button' id='spec_<#= TransactionId #>' value='In' class='t-button' onclick=PrintSpecialForm(<#= TransactionId #>,<#= SpecialFormType #>) />")
                     .HtmlAttributes(new { style = "text-align:center" });
 
             })

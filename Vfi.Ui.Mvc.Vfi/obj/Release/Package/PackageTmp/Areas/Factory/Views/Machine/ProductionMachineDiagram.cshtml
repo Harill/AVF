@@ -69,6 +69,8 @@
                 var machineId = element.getAttribute('machineid');
                 timerTarget2(machineId);
             }
+            document.getElementById("title").childNodes[1].style.color = 'steelblue';
+            document.getElementById("logindisplay").childNodes[1].style.color = 'steelblue';
         });
 
         function timerTarget(target) {
@@ -104,11 +106,10 @@
     .container_24 {
         width: 100%;
     }
-
+    
     .title {
         padding: 0 15px;
     }
-
     /* filter area */
     #filters {
         margin: 0;
@@ -374,7 +375,7 @@
                         <div class="line4">
                             <div style="width: 100%; height: 10px; float: left; text-align: center;">
                                 <span class="itemRight">@{ @Html.ActionLink("Chi tiết hơn", "MachineLog", "Machine", new { id = entity.MachineId }, null)}</span>| 
-                            <span class="itemRight">@{ @Html.ActionLink("Đo kiểm", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
+                                <span class="itemRight">@{ @Html.ActionLink("Đo kiểm", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
                             </div>
                         </div>
                     </div>

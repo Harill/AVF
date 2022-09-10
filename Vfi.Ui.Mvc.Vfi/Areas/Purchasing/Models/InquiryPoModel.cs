@@ -5,6 +5,7 @@ using System.Web;
 using System;
 using Vfi.Ui.Mvc.Vfi.Models;
 using System.ComponentModel.DataAnnotations;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 {
@@ -77,5 +78,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 
         public string ModifiedUser { get; set; }
         public DateTime ModifiedDate { get; set; }
+
+        public WorkGroupInfo Info { get; set; }
     }
 }

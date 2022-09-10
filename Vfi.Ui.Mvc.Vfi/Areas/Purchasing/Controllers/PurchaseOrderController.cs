@@ -6,7 +6,6 @@ using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
-using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
@@ -458,6 +457,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 using (var vfi = new tammaContext()) {
                     var purchaseOrder = vfi.PurchaseOrders.FirstOrDefault(po => po.PurchaseOrderId == purchaseOrderId);
                     if (purchaseOrder != null) {
+                        var info = new WorkGroupInfo();
+                        var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                        if (workgroup != null) {
+                            info = new WorkGroupInfo {
+                                Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                                //CompanyFullName = workgroup.CompanyFullName,
+                                //CompanyShortName = workgroup.CompanyShortName,
+                                //Address = workgroup.Address,
+                                //TelNumber = "Tel : " + workgroup.TelNumber,
+                                //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                                //Email = "Email: " + workgroup.Email,
+                                //Website = "Website: " + workgroup.Website
+                            };
+                        }
                         foreach (var poDetail in purchaseOrder.PurchaseOrderDetails) {
                             var entity = new PurchaseOrderDetailModel {
                                 PurchaseOrderDetailId = poDetail.PurchaseOrderDetailId,
@@ -478,7 +491,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 StatusName = MyUtilities.Transaction.CastText.GetTextStatus(purchaseOrder.Status),
                                 PurchaseDateTime = purchaseOrder.ShipDate ?? purchaseOrder.OrderDate,
                                 IsPurchaseManager = manager,
-
+                                Info = info
                             };
                             entity.RequireQty = entity.OrderQty - (entity.ReceivedQty + entity.RejectedQty);
                             if (entity.RequireQty < 0)
@@ -1053,9 +1066,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         [HttpPost]
         public ActionResult PrintPurchaseOrder(int purchaseOrderId) {
             var model = GetPurchaseOrderDetailModel(purchaseOrderId);
-            using (var vfi = new tammaContext()) {
+            //using (var vfi = new tammaContext()) {
 
-            }
+            //}
             return PartialView("PagePrintPurchaseOrderDetail", model);
             //return PartialView(null);
         }
@@ -1607,6 +1620,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             }
                             if (string.IsNullOrWhiteSpace(detail.TaxInvoiceNumber)) { detail.TaxInvoiceDate = null; }
                         }
+                        model2.AddRange(importDetails);
                     }
 
                     if (classifiedId == 0 || classifiedId == 3) {// tool
@@ -3415,6 +3429,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     var inquiries = vfi.InquiryPoes.Where(ip => checkedRecords.Contains(ip.InquiryId));
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            CompanyFullName = workgroup.CompanyFullName,
+                            CompanyShortName = workgroup.CompanyShortName,
+                            Address = workgroup.Address,
+                            TelNumber = "Tel : " + workgroup.TelNumber,
+                            FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            Email = "Email: " + workgroup.Email,
+                            Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var ip in inquiries) {
                         var entity = new InquiryPoModel {
                             ModifiedDate = ip.ModifiedDate,
@@ -3430,6 +3458,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             Status = ip.Status,
                             DueDate = ip.DueDate,
                             ReferenceId = ip.ReferenceId,
+                            Info = info
                         };
                         if (ip.VendorId != null) {
                             entity.VendorId = ip.VendorId.Value;
@@ -3766,7 +3795,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ExchangeRate = platingForm.ExchangeRate,
                             Note = platingForm.Note,
                             PlatingFormNumber = platingForm.PlatingFormNumber,
-                            StatusName = CastPlatingFormStatusEnumDomain.GetText(platingForm.Status),
+                            StatusName = MyUtilities.PurchaseOrder.GetPlatingStatusText(platingForm.Status),
                             VendorCode = platingForm.Vendor.VendorCode,
                             VendorName = platingForm.Vendor.VendorName,
                             Status = platingForm.Status,
@@ -4063,7 +4092,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ExchangeRate = platingForm.ExchangeRate,
                             Note = platingForm.Note,
                             PlatingFormNumber = platingForm.PlatingFormNumber,
-                            StatusName = CastPlatingFormStatusEnumDomain.GetText(platingForm.Status),
+                            StatusName = MyUtilities.PurchaseOrder.GetPlatingStatusText(platingForm.Status),
                             VendorCode = platingForm.Vendor.VendorCode,
                             VendorName = platingForm.Vendor.VendorName,
                             Status = platingForm.Status,
@@ -4145,7 +4174,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                       select new {
                           Value = (int)Enum.Parse(typeof(MyUtilities.Sales.Status), stt.ToString()),
                           Text =
-                      CastPlatingFormStatusEnumDomain.GetText(
+                      MyUtilities.PurchaseOrder.GetPlatingStatusText(
                           (int)Enum.Parse(typeof(MyUtilities.Sales.Status), stt.ToString()))
                       };
 
@@ -4212,7 +4241,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         ExchangeRate = platingForm.ExchangeRate,
                         Note = platingForm.Note,
                         PlatingFormNumber = platingForm.PlatingFormNumber,
-                        StatusName = CastPlatingFormStatusEnumDomain.GetText(platingForm.Status),
+                        StatusName = MyUtilities.PurchaseOrder.GetPlatingStatusText(platingForm.Status),
                         VendorCode = platingForm.Vendor.VendorCode,
                         VendorName = platingForm.Vendor.VendorName,
                         Status = platingForm.Status,
@@ -4490,6 +4519,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             e.PlatingForm.VendorId == export.PlatingForm.VendorId &&
                             e.ExportDate.Value.Month == export.ExportDate.Value.Month &&
                             e.ExportDate.Value.Year == export.ExportDate.Value.Year);
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            CompanyFullName = workgroup.CompanyFullName,
+                            CompanyShortName = workgroup.CompanyShortName,
+                            Address = workgroup.Address,
+                            TelNumber = "Tel : " + workgroup.TelNumber,
+                            FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            Email = "Email: " + workgroup.Email,
+                            Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var detail in export.ExportGCN_NCUDetail) {
                         var entity = model.FirstOrDefault(m => m.PlatingDetailId == detail.PlatingDetailId);
                         if (entity == null) {
@@ -4517,6 +4560,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ExportDate = export.ExportDate ?? DateTime.Now,
                                 FormNumber = export.PlatingForm.PlatingFormNumber,
                                 TransactionCode = export.TransactionCode,
+                                Info = info
                             };
                             if (entity.Unit.Contains("Kg")) {
                                 entity.Export = detail.Weight.Value / 1000;
@@ -4599,7 +4643,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == vendorId);
                     if (vendor == null)
                         throw new AggregateException("Lỗi! Không tìm thấy nhà cung cấp!");
-                    var importPlatings = from id in vfi.ImportNCU_QCBDetail
+                    var importPlatings = (from id in vfi.ImportNCU_QCBDetail
                                          where
                                              id.ImportNCU_QCB.Transaction.Status ==
                                              (byte)MyUtilities.Transaction.Status.Approved
@@ -4626,8 +4670,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                              ImportDate = id.ImportNCU_QCB.ImportDate,
                                              Weight = id.Weight,
                                              id.RealNumber,
-                                         };
+                                         }).ToList();
                     var index = 1;
+
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var detail in importPlatings) {
                         var entity = model.FirstOrDefault(m => m.ProductId == detail.ProductId &&
                             m.TransactionCode == detail.TransactionCode &&
@@ -4651,7 +4710,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ImportDate = detail.ImportDate,
                                 TransactionCode = detail.TransactionCode,
                                 UnitPrice = detail.UnitPrice,
-                                PlatingDetailId = detail.PlatingDetailId ?? 0
+                                PlatingDetailId = detail.PlatingDetailId ?? 0,
+                                Info = info,
                             };
                             if (entity.Unit.Contains("Kg")) {
                                 entity.Import = detail.Weight / 1000;
@@ -4702,7 +4762,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     }
 
                     return PartialView("PagePrinPlatingPriceForm",
-                                       model.OrderBy(m => m.ImportDate).ThenBy(m => m.ProductCode));
+                                       model.OrderBy(m => m.ImportDate).ThenBy(m => m.ProductCode).ToList());
                 }
             }
             catch (Exception ex) {

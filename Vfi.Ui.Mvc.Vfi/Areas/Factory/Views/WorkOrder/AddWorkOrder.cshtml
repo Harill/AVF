@@ -61,7 +61,7 @@
             $("#KnifeCut").val(info.KnifeCut);
             $("#WorkPiece").val(info.WorkPiece);
             $("#Productivity").val(info.Productivity);
-            $("#ProductivityDesign")[0].innerText = info.ProductLenght.format(2);
+            $("#ProductivityDesign")[0].innerText = info.ProductivityDesign.format(2);
             
             $("#ProductLenght")[0].innerText = info.ProductLenght;
             $("#ProductionRateDesign")[0].innerText = info.ProductionRate;
@@ -148,6 +148,9 @@
         function productivity_OnChange(e) {
             info.Productivity = e.newValue;
             AlertValidation();
+        }
+        function MaterialRefresh() {
+            RefreshCombobox("MaterialInventoryCbo");
         }
 
         function CalculateProductionRate() {
@@ -287,7 +290,7 @@
                 @{
                     Html.Telerik().ComboBox()
                         .Name("MaterialInventoryCbo")
-                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialInventory", "Material", new { area = "" }).Delay(350))
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductionMaterial", "Material", new { area = "", productId = Model.ProductId }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
@@ -296,6 +299,11 @@
                         .ClientEvents(events => events.OnChange("materialInv_OnChange"))
                         .Render();
                 }
+            </div>
+            <div class="grid_1">
+                <button class="t-button" id="btnRefresh" onclick=" MaterialRefresh() ">
+                    <span class='t-icon t-refresh'></span>
+                </button>
             </div>
             <div class="grid_3"> 
                 Dài: <span id="MaterialLength">~</span> (mm)

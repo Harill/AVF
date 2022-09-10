@@ -742,6 +742,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 using (var vfi = new tammaContext()) {
                     // save approve order
                     var order = vfi.Orders.FirstOrDefault(o => o.OrderId == orderId);
+                    var productIds = order.OrderDetails.Select(od => od.ProductId).Distinct().ToList();
+                    if (order.Customer.IsWorkOrder) {
+                        isWorkOrder = order.Customer.IsWorkOrder;
+                        var products = vfi.Products.Where(x => productIds.Contains(x.ProductId)).ToList();
+                        var errorMessage = "";
+                        foreach (var product in products) {
+                            if (product.Length <= 0 || product.KnifeCut <= 0 ||
+                                product.Productivity == null || product.Productivity <= 0 ||
+                                product.ProductionRate == null || product.ProductionRate <= 0 ||
+                                product.MaxQuantityInTray <= 0) {
+                                errorMessage += product.ProductCode + " thiếu thông tin để tạo Work Order\n";
+                            }
+                            if (product.ProductionWeight == 0 || product.ProductionWeight <= 0) {
+                                errorMessage += product.ProductCode + " thiếu trọng lượng SP để tạo Work Order\n";
+                            }
+                            if (product.ProductionProcesses.Any(x => x.IsNecessary && x.IsAlert && x.Warehouse.IsProduction2) 
+                                && !product.ProductionSections.Any()) {
+                                errorMessage += product.ProductCode + " thiếu thông tin SX2 để tạo Work Order\n";
+                            }
+                        }
+                        if (!string.IsNullOrWhiteSpace(errorMessage)) { 
+                            throw new AggregateException(errorMessage);
+                        }
+                    }
                     var orderDetail = order.OrderDetails.OrderByDescending(od => od.VFIDueDate).FirstOrDefault();
                     if (Convert.ToDateTime(dueDate) < orderDetail.VFIDueDate)
                         throw new AggregateException("Lỗi! Không thể duyệt ngày nhỏ hơn chi tiết");
@@ -753,7 +777,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     vfi.SaveChanges();
 
                     // update forecast order
-                    var productIds = order.OrderDetails.Select(od => od.ProductId).Distinct().ToList();
                     var allOrderDetails = vfi.OrderDetails.Where(od => productIds.Contains(od.ProductId) &&
                         od.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
                         od.Order.DueDate != null &&
@@ -790,7 +813,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
                     // save order progress auto
                     orderDetailIds = order.OrderDetails.Select(x => x.OrderDetailId).ToList();
-                    isWorkOrder = order.Customer.IsWorkOrder;
                 }
                 // save order progress auto
                 foreach (var detailId in orderDetailIds) {
@@ -828,11 +850,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         public ActionResult SelectOrderInProcess() {
             using (var vfi = new tammaContext()) {
                 var orderModels =
-                    vfi.Orders.Where(
-                        o =>
-                        o.DueDate != null && o.Active &&
-                        (o.Status == (byte)MyUtilities.Sales.Status.InProcess || o.Status == (byte)MyUtilities.Sales.Status.Waiting))
-                       .ToList();
+                   (from o in vfi.Orders
+                    where
+                         o.DueDate != null && o.Active &&
+                         (o.Status == (byte)MyUtilities.Sales.Status.InProcess || o.Status == (byte)MyUtilities.Sales.Status.Waiting)
+                    select new OrderModel {
+                        OrderId = o.OrderId,
+                        OrderNumber = o.OrderNumber + " - " + o.Customer.CustomerCode
+                    }).ToList();
                 return new JsonResult {
                     Data = new SelectList(orderModels, "OrderId", "OrderNumber")
                 };
@@ -842,11 +867,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         public ActionResult SelectOrderApprovedDueDate() {
             using (var vfi = new tammaContext()) {
                 var orderModels =
-                    vfi.Orders.Where(
-                        o =>
-                        o.DueDate != null && o.Active &&
-                        (o.Status == (byte)MyUtilities.Sales.Status.Waiting || o.Status == (byte)MyUtilities.Sales.Status.InProcess))
-                       .ToList();
+                   (from o in vfi.Orders
+                    where
+                         o.DueDate != null && o.Active &&
+                         (o.Status == (byte)MyUtilities.Sales.Status.InProcess || o.Status == (byte)MyUtilities.Sales.Status.Waiting)
+                    select new OrderModel {
+                        OrderId = o.OrderId,
+                        OrderNumber = o.OrderNumber + " - " + o.Customer.CustomerCode
+                    }).ToList();
                 return new JsonResult {
                     Data = new SelectList(orderModels, "OrderId", "OrderNumber")
                 };
@@ -855,11 +883,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         public ActionResult SelectOrderNotApprovedDueDate() {
             using (var vfi = new tammaContext()) {
                 var orderModels =
-                    vfi.Orders.Where(
-                        o =>
+                   (from o in vfi.Orders
+                    where
                         o.DueDate == null && o.Active &&
-                        o.Status != (byte)MyUtilities.Sales.Status.Cancel)
-                       .ToList();
+                        o.Status != (byte)MyUtilities.Sales.Status.Cancel
+                    select new OrderModel {
+                        OrderId = o.OrderId,
+                        OrderNumber = o.OrderNumber + " - " + o.Customer.CustomerCode
+                    }).ToList();
                 return new JsonResult {
                     Data = new SelectList(orderModels, "OrderId", "OrderNumber")
                 };
@@ -1011,7 +1042,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             using (var vfi = new tammaContext()) {
                 var startTaxInvoiceDate = new DateTime(2014, 12, 31, 10, 0, 0);
                 //vfi.Configuration.LazyLoadingEnabled = false;
-                var invoices = from i in vfi.Invoices
+                var invoices = (from i in vfi.Invoices
                                where
                                    (i.Status == (byte)MyUtilities.Sales.Status.Waiting ||
                                     i.Status == (byte)MyUtilities.Sales.Status.InProcess)
@@ -1030,11 +1061,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                    i.TaxPercent,
                                    i.ModifiedDate,
                                    i.ModifiedUser,
-                               };
+                                   i.Customer.CustomerCode,
+                                   i.CustomerId,
+                               }).ToList();
                 foreach (var invoice in invoices) {
                     var export = vfi.ExportFormTP_KD.FirstOrDefault(e => e.ExportId == invoice.ExportId);
                     if (export == null) continue;
-                    var customer = vfi.Customers.FirstOrDefault(c => c.CustomerId == export.CustomerId);
                     var entity = new InvoiceTempModel {
                         InvoiceId = invoice.InvoiceId,
                         InvoiceNumber = invoice.InvoiceNumber,
@@ -1046,8 +1078,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         //BillToAddress = order.BillToAddress ?? "",
                         //CurrencyCode = order.CurrencyCode ?? "",
                         //ShipToAddress = order.ShipToAddress ?? "",
-                        CustomerId = customer.CustomerId,
-                        CustomerCode = customer.CustomerCode,
+                        CustomerId = invoice.CustomerId,
+                        CustomerCode = invoice.CustomerCode,
                         ModifiedDate = invoice.ModifiedDate ?? DateTime.Now,
                         ModifiedUser = invoice.ModifiedUser ?? "",
                         TaxPercent = invoice.TaxPercent,
@@ -1976,9 +2008,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         }
                     }
                     if (!string.IsNullOrWhiteSpace(productCode)) {
-                        var productId = vfi.Products.Where(p => p.ProductCode.Equals(productCode)).Select(x =>  x.ProductId).FirstOrDefault();
-                        if (productId != null) {
-                            orders = orders.Where(o => o.OrderDetails.Any(od => od.ProductId == productId && od.RequiedNumber > 0))
+                        var product = vfi.Products.FirstOrDefault(p => p.ProductCode.Equals(productCode));
+                        if (product != null) {
+                            orders = orders.Where(o => o.OrderDetails.Any(od => od.ProductId == product.ProductId))
                                             .ToList();
                         }
                     }

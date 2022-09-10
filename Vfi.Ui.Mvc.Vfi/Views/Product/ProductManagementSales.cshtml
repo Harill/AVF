@@ -377,6 +377,25 @@
             return false;
         }
 
+        function Duplicate(productId) {
+
+            $.ajax({
+                type: 'post',
+                data: { productId: productId },
+                dataType: 'json',
+                url: '@Url.Action("DuplicateProduct", "Product", new { area = "" })',
+            timeout: 20000,
+            success: function (res) {
+                if (res.Code != 1)
+                    alert("Lỗi !" + res.Message);
+                else {
+                    alert("Nhân bản thành công !" + res.Data);
+                    RefreshGrid("gridProduct");
+                }
+            }
+        });
+        }
+
         function status_onChange() {
             RefreshGrid("gridProduct");
         }
@@ -580,6 +599,10 @@
                     columns.Bound(f => f.ModifiedDate).Width(95).Title("Ngày update").ReadOnly(true)
                            .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
                     columns.Bound(f => f.ModifiedUser).Title("Người update").ReadOnly(true);
+                    //columns.Bound(f => f.ProductId).Width(55).ReadOnly(true)
+                    //       .HeaderTemplate("Nhân</br>bản")
+                    //       .ClientTemplate("<button class='t-button' onclick=Duplicate(<#= ProductId #>) ><span class='t-icon t-insert'></span></button>")
+                    //       .HtmlAttributes(new { style = "text-align:center" });
 
                 }).DetailView(details => details.ClientTemplate(
                     Html.Telerik().TabStrip()

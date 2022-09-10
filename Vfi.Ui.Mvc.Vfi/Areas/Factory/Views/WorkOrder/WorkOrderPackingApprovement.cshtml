@@ -6,36 +6,40 @@
 
 @section Scripts{
     <!-- approve stockorder -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
     <script type="text/javascript">
         function ApproveTransaction() {
-            var $checkedRecords = $("input[name='chkIds']:checked")
-            //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
+            if (!onProcessing) {
+                OnProcessingData();
+                var $checkedRecords = $("input[name='chkIds']:checked")
+                //var $checkedRecords = $("input[name='chkMaterialIds']:checked");
 
-            if ($checkedRecords.length < 1) {
-                alert("Vui lọn chọn ít nhất 1 sản phẩm");
-                return;
-            }
+                if ($checkedRecords.length < 1) {
+                    alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                    OnProcessedData();
+                    return;
+                }
 
-            //$.ajaxSettings.traditional = false;
-            var a = {};
-            ids = "";
-            //var $b = (a);
+                //$.ajaxSettings.traditional = false;
+                var a = {};
+                ids = "";
+                //var $b = (a);
 
-            for (var i = 0; i < $checkedRecords.length; i++) {
-                if ($checkedRecords[i] === "0") continue;
-                a[i] = $checkedRecords[i].value;
+                for (var i = 0; i < $checkedRecords.length; i++) {
+                    if ($checkedRecords[i] === "0") continue;
+                    a[i] = $checkedRecords[i].value;
 
-                ids += $checkedRecords[i].value;
-                if (i < ($checkedRecords.length - 1))
-                    ids += ":";
-            }
-            $.ajax({
-                type: 'post',
-                data: {
-                    ids: ids
-                },
-                dataType: 'json',
-                url: '@Url.Action("ApproveWorkOrderPackingProcess", "WorkOrder", new { area = "Factory" })',
+                    ids += $checkedRecords[i].value;
+                    if (i < ($checkedRecords.length - 1))
+                        ids += ":";
+                }
+                $.ajax({
+                    type: 'post',
+                    data: {
+                        ids: ids
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("ApproveWorkOrderPackingProcess", "WorkOrder", new { area = "Factory" })',
                     timeout: 20000,
                     success: function (res) {
                         if (res.Code === 1) {
@@ -44,8 +48,10 @@
                         } else {
                             alert(res.Message);
                         }
+                        OnProcessedData();
                     }
                 });
+            }
         }
 
     </script>
@@ -66,7 +72,7 @@
             <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
                 <span class='t-icon t-insert'></span>
                 Duyệt các sổ lệnh
-                            <span class="twoToneButton"></span>
+                <span class="processButton"></span>
             </button>
         </div>
         <div class="clear"></div>
@@ -79,8 +85,12 @@
                 columns.Bound(f => f.ProcessId).Title("Chọn").Width(75)
                     .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= ProcessId #>' />")
                     .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.WorkOrderSerial).Title("Số WO").Width(80).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Date).Title("Ngày").Width(100).ReadOnly(true)
-                    .Format("{0:dd/MM/yyyy hh:mm}");
+                    .Format("{0:dd/MM/yyyy HH:mm}");
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(120).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.UsingQuantity).Title("SL đóng gói</br>(pcs)").ReadOnly(true).Width(90)
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right" });
@@ -98,10 +108,12 @@
                     .HtmlAttributes(new { style = "text-align: right" });
 
                 //columns.Bound(f => f.EoIName).ReadOnly(true);
-                columns.Bound(f => f.EmployeeName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.MachineName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.MaterialInvCode).Width(100).ReadOnly(true);
-                columns.Bound(f => f.ModifiedUser).Width(100).ReadOnly(true);
+                columns.Bound(f => f.EmployeeName).Width(100).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.MaterialInvCode).Width(100).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.ModifiedUser).Width(100).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
             })
             //.DetailView(details => details.ClientTemplate(
             //    Html.Telerik().Grid<TransactionDetailModel>()

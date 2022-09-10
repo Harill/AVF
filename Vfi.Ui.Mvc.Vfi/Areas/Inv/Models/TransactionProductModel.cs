@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using Vfi.Ui.Mvc.Vfi.Utilities;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
@@ -37,5 +38,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string ModifiedUser { get; set; }
 
         public List<TransactionDetailModel> Details { get; set; }
+        public WorkGroupInfo Info { get; set; }
     }
 }

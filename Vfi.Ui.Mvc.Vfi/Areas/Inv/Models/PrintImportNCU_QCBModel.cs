@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
@@ -31,5 +32,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string Package { get; set; }
 
         public int PurchasingSignature { get; set; }
+
+        public WorkGroupInfo Info { get; set; }
     }
 }

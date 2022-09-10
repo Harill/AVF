@@ -117,13 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="textBox57.Value" xml:space="preserve">
-    <value>Lot 11, Zone A1, Tan Thoi Hiep I.Z., Hiep Thanh Ward, Dist. 12, HCM City, VietNam.
-Tel : 84 8 3717 5001 - 84 8 3717 5933
-Fax : 84 83717 5278
-Email info@vfdecolletage.com
-Website: www.vfdecolletage.com</value>
-  </data>
   <metadata name="$this.SnapGridSize" type="Telerik.Reporting.Drawing.Unit, Telerik.Reporting, Version=6.1.12.611, Culture=neutral, PublicKeyToken=a9d7983dfcc261be">
     <value>0.1in</value>
   </metadata>

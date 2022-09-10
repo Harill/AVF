@@ -421,6 +421,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { CanWeighing = true }), "WarehouseId", "WarehouseName")
             };
         }
+        public ActionResult SelectComboBoxStockWarehouse() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { CanStock = true }), "WarehouseId", "WarehouseName")
+            };
+        }
         public ActionResult SelectAllComboBoxWarehouse() {
             return new JsonResult {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { AddFirstAll = true }), "WarehouseId", "WarehouseName")
@@ -428,15 +433,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         public ActionResult SelectComboBoxImportWarehouse() {
-            var model = new List<WarehouseCboModel>();
+            var warehouseIds = new List<int>();
             using (var vfi = new tammaContext()) {
                 var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
                 if (user == null)
                     throw new AggregateException("Vui lòng đăng nhập lại");
-                var warehouseIds =
+                warehouseIds =
                     vfi.WarehousePermissions.Where(wp => wp.UserId == user.UserId && wp.Import == true)
                        .Select(wp => wp.WarehouseId.Value)
                        .ToList();
+            }
+            var model = new List<WarehouseCboModel>();
+            if (warehouseIds.Any()) {
                 model = GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds });
             }
             return new JsonResult {
@@ -469,8 +477,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                             .Select(x => x.WarehouseId.Value).ToList();
                 }
             }
-
-            var model = GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds });
+            var model = new List<WarehouseCboModel>();
+            if (warehouseIds.Any()) {
+                model = GetActiveWarehouseModels(new WarehouseConfiguration { Ids = warehouseIds });
+            }
             return new JsonResult {
                 Data = new SelectList(model, "WarehouseId", "WarehouseName")
             };
@@ -1031,7 +1041,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 }
                             }
                             return PartialView("PageMaterialInvOnShelfCard", model);
-                            break;
                         default:
                             break;
                     }

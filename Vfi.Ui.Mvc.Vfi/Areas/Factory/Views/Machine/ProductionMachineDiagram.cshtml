@@ -69,6 +69,8 @@
                 var machineId = element.getAttribute('machineid');
                 timerTarget2(machineId);
             }
+            document.getElementById("title").childNodes[1].style.color = 'steelblue';
+            document.getElementById("logindisplay").childNodes[1].style.color = 'steelblue';
         });
 
         function timerTarget(target) {
@@ -104,11 +106,10 @@
     .container_24 {
         width: 100%;
     }
-
+    
     .title {
         padding: 0 15px;
     }
-
     /* filter area */
     #filters {
         margin: 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 {
@@ -82,5 +83,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
             }
         }
         public  bool PurchaseManager { get; set; }
+
+        public WorkGroupInfo Info { get; set; }
     }
 }

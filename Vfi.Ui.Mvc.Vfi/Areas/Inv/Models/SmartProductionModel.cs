@@ -193,5 +193,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public double KnifeCut { get; set; }
         public double WorkPiece { get; set; }
+
+        public int RunTime { get; set; }
     }
 }

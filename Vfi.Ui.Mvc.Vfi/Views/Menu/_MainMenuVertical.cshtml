@@ -1,0 +1,51 @@
+﻿@using System.Collections
+@using Vfi.Ui.Mvc.Vfi.Models
+<style>
+    .t-menu-vertical .t-item {
+        margin:5px;
+    }
+</style>
+
+<div class="cover-div">
+@{
+
+    Html.Telerik().Menu()
+        .Name("MenuBar")
+        .BindTo((IEnumerable) Model, mappings => mappings.For<MenuModel>
+        (binding => binding
+            .ItemDataBound((item, menus) =>
+                {
+                    item.Text =  menus.Menu.MenuName;
+                    //item.ControllerName = menus.Menu.ControllerName == null ? "" : menus.Menu.ControllerName;
+                    //item.ActionName = menus.Menu.ActionName ?? "";
+                    //item.Url("http://www.google.com.vn");
+
+                    if (string.IsNullOrWhiteSpace(menus.Menu.ControllerName))
+                    {
+                        return;
+                    }
+                    //if (menus.HasPermissionExecute)
+                    //{
+                    //item.Text = menus.Menu.MenuName;
+                    //item.ControllerName = menus.Menu.ControllerName;
+                    //item.ActionName = menus.Menu.ActionName;
+                    if (string.IsNullOrWhiteSpace(menus.Menu.Area))
+                    {
+                        item.ControllerName = menus.Menu.ControllerName;
+                        item.ActionName = menus.Menu.ActionName;
+                    }
+                    else
+                    {
+                        item.Action(menus.Menu.ActionName, menus.Menu.ControllerName, new { area = menus.Menu.Area });
+                    }
+                    //}
+                })
+            .Children(menus => menus.Children)
+        ))
+        .Orientation(Telerik.Web.Mvc.UI.MenuOrientation.Vertical)
+
+        .Effects(fx => fx.Toggle().Opacity().OpenDuration(300).CloseDuration(300))
+        .Render();
+}
+</div>
+<!-- end - run okie with MenuModel -->

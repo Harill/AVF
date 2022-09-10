@@ -43,7 +43,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string ModifiedUser { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }
         public Nullable<int> StateId { get; set; }
-        public Nullable<int> ProductActive { get; set; }
         public Nullable<double> Number { get; set; }
         public Nullable<int> DayRate { get; set; }
         public Nullable<System.DateTime> StartProductionDate { get; set; }
@@ -65,7 +64,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ImportFormSX1Detail> ImportFormSX1Detail { get; set; }
         public virtual MachineState MachineState { get; set; }
         public virtual ProcessingType ProcessingType { get; set; }
-        public virtual Product Product { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
         public virtual ICollection<MachineLog> MachineLogs { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }

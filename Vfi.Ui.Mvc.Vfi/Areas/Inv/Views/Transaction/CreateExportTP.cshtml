@@ -213,7 +213,7 @@
                                                    .Update("ProductExportTP_NewType3", "Transaction"))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.ProductCode).Width(175).Title("Mã SP")
+                    columns.Bound(f => f.ProductCode).Width(250).Title("Mã SP")
                                .HeaderHtmlAttributes(new { @class = "edit-column" });
                     columns.Bound(f => f.ProductWeight).Width(75).ReadOnly(true)
                            .HeaderTemplate("Trọng lượng(g/pcs)")

@@ -146,11 +146,15 @@
 
         function printFuelInvInMonth() {
 
+            var vendorId = $("#FuelVendor").data('tComboBox').value();
+            if (vendorId === "")
+                vendorId = 0;
             var month = $('#Month').data('tComboBox').value();
             var year = $('#Year').data('tAutoComplete').text();
 
             $('#result').load('@Url.Action("PrintFuelInvTotalInMonth", "Fuel")',
                 {
+                    vendorId:vendorId,
                     month: month,
                     year: year
                 }, function () {
@@ -166,7 +170,19 @@
 <div class="title">Quản lý thông tin nhập hàng nhiên liệu & bao bì & hóa chất</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
-        <div class="prefix_10">
+             <div class="grid_3">Nhà cung ứng:</div>
+        <div class="grid_7">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("FuelVendor")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxFuelVendor", "Vendor", new { area = "Purchasing"}))
+                    .HtmlAttributes(new { style = "width: 250px" })
+                    .DropDownHtmlAttributes(new { style = "width: 325px" })
+                    .AutoFill(true)
+                    .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Render();
+            }
+        </div>
                 <div class="grid_1">
                     @Html.Label("Tháng")
                 </div>
@@ -203,7 +219,6 @@
                     </button>
                 </div>
                 
-            </div>
        
         <div class="clear"></div>
         <br />

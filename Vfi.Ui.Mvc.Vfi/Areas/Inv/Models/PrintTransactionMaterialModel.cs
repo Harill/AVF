@@ -1,4 +1,5 @@
 ﻿using System;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
     public class PrintTransactionMaterialModel
@@ -46,5 +47,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public byte PurchasingSignature { get; set; }
         public double ExchangeRate { get; set; }
         public double TotalInv{get;set;}
+        public WorkGroupInfo Info { get; set; }
     }
 }

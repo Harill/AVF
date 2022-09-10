@@ -566,6 +566,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return Json("0");
         }
 
+        public ActionResult SelectComboBoxActiveSection() {
+            var model = new List<SectionModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from pp in vfi.Sections
+                         where pp.Active
+                         orderby pp.SectionName
+                         select new SectionModel {
+                             SectionId = pp.SectionId,
+                             SectionName = pp.SectionName,
+                         }).ToList();
+            }
+            return new JsonResult {
+                Data =
+                    new SelectList(model, "SectionId", "SectionName"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
         public ActionResult SelectComboBoxSection(int productId) {
             var model = new List<ProductionSectionModel>();
             if (productId != 0)

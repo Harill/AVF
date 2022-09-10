@@ -62,6 +62,37 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers {
             return PartialView("_MainMenu", listMenuModels);
         }
 
+        public ActionResult MainMenuVertical() {
+            var model = new List<MenuModel>();
+            var currentUser = HttpContext.User.Identity.Name;
+            try {
+                using (var vfi = new tammaContext()) {
+                    var menus = vfi.Menus.Where(x => x.Active == true).OrderBy(x => x.IDX).ToList();
+                    var user = (from u in vfi.Users
+                                where u.Username.Equals(currentUser) && u.Active == true
+                                select new UserModel {
+                                    UserId = u.UserId,
+                                    Username = u.Username,
+                                    FunctionCodes = u.Permissions.Where(x => x.Execution == true).Select(x => x.Function.FunctionCode).ToList()
+                                }).FirstOrDefault();
+                    var listMenuModels = GetMenuTree(menus, user, null);
+
+                    var entity = new MenuModel {
+                        Menu = new Menu { ControllerName = "", ActionName = "", MenuName = "Menu" },
+                        HasPermissionExecute = false,
+                        IsOkie = false,
+                        Children = listMenuModels,
+                    };
+                    model.Add(entity);
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("MainMenuVertical", ex.Message);
+            }
+
+            return PartialView("_MainMenuVertical", model);
+        }
+
         private List<MenuModel> GetMenuTree(IEnumerable<Menu> menus, UserModel user, int? parentId) {
             var menuModels = new List<MenuModel>();
             var childs = menus.Where(x => x.ParentId == parentId);

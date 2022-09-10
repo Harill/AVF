@@ -28,6 +28,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public string Shift1Name { get; set; }
         public string Shift2Name { get; set; }
-
+        public int Box { get; set; }
     }
 }

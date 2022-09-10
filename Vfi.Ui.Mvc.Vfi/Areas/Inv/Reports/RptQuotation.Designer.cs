@@ -10,7 +10,6 @@
         private void InitializeComponent()
         {
             Telerik.Reporting.Drawing.FormattingRule formattingRule1 = new Telerik.Reporting.Drawing.FormattingRule();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RptQuotation));
             Telerik.Reporting.Drawing.StyleRule styleRule1 = new Telerik.Reporting.Drawing.StyleRule();
             Telerik.Reporting.Drawing.StyleRule styleRule2 = new Telerik.Reporting.Drawing.StyleRule();
             Telerik.Reporting.Drawing.StyleRule styleRule3 = new Telerik.Reporting.Drawing.StyleRule();
@@ -55,9 +54,6 @@
             this.textBox20 = new Telerik.Reporting.TextBox();
             this.textBox21 = new Telerik.Reporting.TextBox();
             this.textBox23 = new Telerik.Reporting.TextBox();
-            this.textBox56 = new Telerik.Reporting.TextBox();
-            this.textBox57 = new Telerik.Reporting.TextBox();
-            this.pictureBox1 = new Telerik.Reporting.PictureBox();
             this.textBox1 = new Telerik.Reporting.TextBox();
             this.textBox25 = new Telerik.Reporting.TextBox();
             this.textBox2 = new Telerik.Reporting.TextBox();
@@ -573,9 +569,6 @@
             this.textBox20,
             this.textBox21,
             this.textBox23,
-            this.textBox56,
-            this.textBox57,
-            this.pictureBox1,
             this.textBox1,
             this.textBox25,
             this.textBox2,
@@ -688,50 +681,6 @@
             this.textBox23.StyleName = "Data";
             this.textBox23.Value = "=\"Rev: \" + Fields.QuoteRev";
             // 
-            // textBox56
-            // 
-            this.textBox56.CanGrow = true;
-            this.textBox56.Format = "{0}";
-            this.textBox56.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(106.007568359375D), Telerik.Reporting.Drawing.Unit.Pixel(9.600006103515625D));
-            this.textBox56.Name = "textBox56";
-            this.textBox56.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(2.5564067363739014D), Telerik.Reporting.Drawing.Unit.Inch(0.82163387537002563D));
-            this.textBox56.Style.BackgroundImage.MimeType = "image/png";
-            this.textBox56.Style.BackgroundImage.Repeat = Telerik.Reporting.Drawing.BackgroundRepeat.NoRepeat;
-            this.textBox56.Style.Color = System.Drawing.Color.DarkBlue;
-            this.textBox56.Style.Font.Bold = true;
-            this.textBox56.Style.Font.Name = "Times New Roman";
-            this.textBox56.Style.Font.Size = Telerik.Reporting.Drawing.Unit.Point(13D);
-            this.textBox56.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
-            this.textBox56.StyleName = "Data";
-            this.textBox56.Value = "Manufacturing Precision Parts\r\nWith Swiss Automatic Lathes";
-            // 
-            // textBox57
-            // 
-            this.textBox57.CanGrow = true;
-            this.textBox57.Format = "{0}";
-            this.textBox57.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(4.9999923706054688D), Telerik.Reporting.Drawing.Unit.Pixel(88.48443603515625D));
-            this.textBox57.Name = "textBox57";
-            this.textBox57.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(3.4479167461395264D), Telerik.Reporting.Drawing.Unit.Inch(1.231908917427063D));
-            this.textBox57.Style.BackgroundImage.MimeType = "image/png";
-            this.textBox57.Style.BackgroundImage.Repeat = Telerik.Reporting.Drawing.BackgroundRepeat.NoRepeat;
-            this.textBox57.Style.Font.Bold = true;
-            this.textBox57.Style.Font.Name = "Calibri";
-            this.textBox57.Style.Font.Size = Telerik.Reporting.Drawing.Unit.Point(10D);
-            this.textBox57.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
-            this.textBox57.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Top;
-            this.textBox57.StyleName = "Data";
-            this.textBox57.Value = resources.GetString("textBox57.Value");
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(4.9999923706054688D), Telerik.Reporting.Drawing.Unit.Pixel(9.60000228881836D));
-            this.pictureBox1.MimeType = "image/png";
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Pixel(101D), Telerik.Reporting.Drawing.Unit.Pixel(78.876861572265625D));
-            this.pictureBox1.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
-            this.pictureBox1.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
-            this.pictureBox1.Value = ((object)(resources.GetObject("pictureBox1.Value")));
-            // 
             // textBox1
             // 
             this.textBox1.CanGrow = true;
@@ -807,7 +756,7 @@
             this.textBox39,
             this.textBox42,
             this.textBox43});
-            this.panel4.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(0D), Telerik.Reporting.Drawing.Unit.Inch(3.2998819351196289D));
+            this.panel4.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Cm(0D), Telerik.Reporting.Drawing.Unit.Cm(8.5849599838256836D));
             this.panel4.Name = "panel4";
             this.panel4.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(7.6676383018493652D), Telerik.Reporting.Drawing.Unit.Pixel(38.411346435546875D));
             this.panel4.Style.Font.Name = "Calibri";
@@ -1011,8 +960,6 @@
         private Telerik.Reporting.TextBox textBox37;
         private Telerik.Reporting.TextBox textBox38;
         private Telerik.Reporting.TextBox textBox6;
-        private Telerik.Reporting.TextBox textBox56;
-        private Telerik.Reporting.TextBox textBox57;
         private Telerik.Reporting.TextBox textBox33;
         private Telerik.Reporting.TextBox textBox14;
         private Telerik.Reporting.TextBox textBox5;
@@ -1023,7 +970,6 @@
         private Telerik.Reporting.TextBox textBox15;
         private Telerik.Reporting.TextBox textBox16;
         private Telerik.Reporting.TextBox textBox23;
-        private Telerik.Reporting.PictureBox pictureBox1;
         private Telerik.Reporting.TextBox textBox1;
         private Telerik.Reporting.TextBox textBox25;
         private Telerik.Reporting.TextBox textBox2;

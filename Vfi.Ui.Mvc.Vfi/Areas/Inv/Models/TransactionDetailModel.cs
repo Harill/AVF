@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
@@ -94,7 +95,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public int Shift { get; set; }
 
         public long PoDetailId { get; set; }
-
+        public string PoNumber { get; set; }
         public bool IsInternal { get; set; }
+        public WorkGroupInfo Info { get; set; }
     }
 }

@@ -184,8 +184,8 @@
                                                      .Update("CancelQuantityProduct", "Orders"))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.ProductCode)
-                           .HeaderTemplate("Mã Sản Phẩm").Width(100).ReadOnly(true).Sortable(true);
+                    columns.Bound(f => f.ProductCode).Width(150).ReadOnly(true)
+                           .HeaderTemplate("Mã Sản Phẩm").Sortable(true);
                     columns.Bound(f => f.TotalQuantity)
                            .HeaderTemplate("Tồn kho thành phẩm").Width(150)
                            .ClientTemplate("<span name='cot1'><#= TotalQuantity == null ? 0 : $.telerik.formatString('{0:n0}', TotalQuantity) #></span>")

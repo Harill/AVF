@@ -1404,7 +1404,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 return View(new GridModel(model));
             try {
                 var fromDate = new DateTime(2000, 1, 1);
-                var toDate = DateTime.Today.AddYears(20);
+                var toDate = DateTime.Today.AddYears(1);
                 model = GetInventoryCardPeriod(
                     (int)MyUtilities.Transaction.PeriodType.Year, productId,
                     fromDate, toDate,
@@ -3205,9 +3205,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                            pi.TotalQty > 0
                                        select new {
                                            pi.ProductId,
+                                           pi.ProductInventoryId,
                                            pi.TotalQty
                                        }).ToList();
-
+                var productInvIds = fromProductInvs.Select(x => x.ProductInventoryId).Distinct().ToList();
+                var waitingApproves = vfi.TransactionDetails.Where(x => x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open &&
+                                                                        x.ProductInvId != null &&
+                                                                        productInvIds.Contains(x.ProductInvId.Value))
+                                                            .ToList();
                 foreach (var recipe in recipes) {
                     var entity = new ProductCombinationRecipeModel {
                         RecipeId = recipe.RecipeId,
@@ -3216,16 +3221,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         ProductCode = recipe.ProductCode,
                         ProductImg = recipe.DrawingFinish,
                         UploadDate = recipe.UploadDate.ToString("yyyyMMddhhmmss"),
-                        DetailDescription = ProductCombinationRecipeNote.GetDetailDescription(recipe.Details)
+                        DetailDescription = ProductCombinationRecipeNote.GetDetailDescription(recipe.Details),
+                        ProductWeight = MyUtilities.Product.GetProductInvWeight(recipe.ProductId, warehouseId)
                         //InvQuantity = recipe.Invs.Any() ? recipe.Invs.Sum() : 0,
                         //AvailableQuantity = recipe.Details.Min(x => MyUtilities.Function.RoundDown(x.InvQuantity / x.RequireNumber))
                     };
                     entity.InvQuantity = productInvs.Where(x => x.ProductId == entity.ProductId).Sum(x => x.TotalQty);
                     foreach (var detail in recipe.Details) {
                         detail.InvQuantity = fromProductInvs.Where(x => x.ProductId == detail.FromProductId).Sum(x => x.TotalQty);
+                        detail.InvQuantity -= waitingApproves.Where(x => x.ReferenceId == detail.FromProductId).Sum(x => x.Quantity);
                         detail.CombineQuantity = MyUtilities.Function.RoundDown(detail.InvQuantity / detail.RequireNumber);
                     }
                     entity.AvailableQuantity = recipe.Details.Min(x => x.CombineQuantity);
+
                     model.Add(entity);
                 }
             }
@@ -3234,8 +3242,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
         [GridAction]
         public ActionResult SelectProductRecipePicked(string ids, int warehouseId) {
-            var model = (List<ProductCombinationRecipeModel>)Session["SessionRecipeTransactionProduct"];
-            if (model == null || !model.Any()) model = new List<ProductCombinationRecipeModel>();
+            var model = new List<ProductCombinationRecipeModel>();
+            //var model = (List<ProductCombinationRecipeModel>)Session["SessionRecipeTransactionProduct"];
+            //if (model == null || !model.Any()) model = new List<ProductCombinationRecipeModel>();
             if (string.IsNullOrWhiteSpace(ids))
                 return View(new GridModel(model));
 
@@ -3255,18 +3264,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             if (checkedRecords[0] == 0) {
                 return View(new GridModel(model));
             }
+            model = GetProductCombinationRecipeModel(0, "", warehouseId, checkedRecords.ToList());
+            //model = model.Where(x => !checkedRecords.Contains(x.RecipeId)).ToList();
+            //model.AddRange(GetProductCombinationRecipeModel(0, "", warehouseId, checkedRecords.ToList()));
 
-            model = model.Where(x => !checkedRecords.Contains(x.RecipeId)).ToList();
-            model.AddRange(GetProductCombinationRecipeModel(0, "", warehouseId, checkedRecords.ToList()));
-
-            model = model.OrderBy(x => x.CustomerCode).ThenBy(m => m.ProductCode).ToList();
-            var groupIndex = 1;
-            var pIds = model.Select(x => x.ProductId).Distinct().ToList();
-            foreach (var productId in pIds) {
-                model.Where(x => x.ProductId == productId).ToList().ForEach(x => x.GroupIndex = groupIndex);
-                groupIndex++;
-            }
-            Session["SessionRecipeTransactionProduct"] = model;
+            //model = model.OrderBy(x => x.CustomerCode).ThenBy(m => m.ProductCode).ToList();
+            //var groupIndex = 1;
+            //var pIds = model.Select(x => x.ProductId).Distinct().ToList();
+            //foreach (var productId in pIds) {
+            //    model.Where(x => x.ProductId == productId).ToList().ForEach(x => x.GroupIndex = groupIndex);
+            //    groupIndex++;
+            //}
+            //Session["SessionRecipeTransactionProduct"] = model;
             return View(new GridModel(model));
         }
 
@@ -5151,7 +5160,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 return PartialView(ex.Message);
             }
-            return PartialView("PagePrintProduction2", model.OrderBy(m => m.MachineName));
+            return PartialView("PagePrintProduction2", model.OrderBy(m => m.MachineName).ToList());
         }
 
         public ActionResult PrintMaterialUseFormByDate(string fromDate, string toDate, string factory) {
@@ -5179,7 +5188,22 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //if (transaction.WarehouseIssueId != null && transaction.Warehouse.CanWeighing) {
                     //    return PrintTransactionFormGroup(transactionId);
                     //}
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     var list = GetTransactionProductDetailByTransactionId(transactionId);
+                    var isPurchase = false;
                     foreach (var entity in list) {
                         entity.WarehouseIssueName = transaction.WarehouseIssueId != null
                                                   ? transaction.Warehouse.WarehouseName
@@ -5194,14 +5218,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         entity.ModifiedUser = transaction.ModifiedUser;
                         entity.TransactionCode = transaction.TransactionCode;
                         entity.QuantityKg /= 1000;
+                        entity.Info = info;
+                        isPurchase = entity.PoDetailId > 0;
                     }
                     model = list;
+                    if (isPurchase) {
+                        return PartialView("PageImportProductForm", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode).ToList());
+                    }
+                    return PartialView("PageTransactionForm", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode).ToList());
                 }
             }
             catch (Exception exception) {
                 return PartialView("PageTransactionForm", exception.Message);
             }
-            return PartialView("PageTransactionForm", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
+            //return PartialView("PageTransactionForm", model.ToList());
         }
 
         [HttpPost]
@@ -5212,6 +5242,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 var productIds = list.Select(x => x.ReferenceId.Value).Distinct().ToList();
                 using (var vfi = new tammaContext()) {
                     var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            CompanyFullName = workgroup.CompanyFullName,
+                            CompanyShortName = workgroup.CompanyShortName,
+                            Address = workgroup.Address,
+                            TelNumber = "Tel : " + workgroup.TelNumber,
+                            FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            Email = "Email: " + workgroup.Email,
+                            Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var productId in productIds) {
                         var details = list.Where(x => x.ReferenceId == productId).ToList();
                         if (!details.Any()) continue;
@@ -5236,8 +5280,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             ProductWeight = detail.UnitWeight,
                             Quantity = details.Sum(x => x.Quantity.Value),
                             QuantityKg = details.Sum(x => x.QuantityKg.Value),
-                            Note = String.Join(", ", lots)
+                            Note = String.Join(", ", lots),
                             //Details = details
+                            Info = info
                         };
                         model.Add(entity);
                     }
@@ -5247,7 +5292,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception exception) {
                 return PartialView("PageTransactionFormGroup", exception.Message);
             }
-            return PartialView("PageTransactionFormGroup", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
+            return PartialView("PageTransactionFormGroup", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode).ToList());
         }
 
 
@@ -5257,25 +5302,45 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 MyUtilities.UserRole.InvManagementLv2);
             using (var vfi = new tammaContext()) {
                 var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
-                var transactionDetails = vfi.TransactionDetails.Where(td => td.TransactionId == transactionId);
+                PurchaseOrder po = null;
+                if (transaction.PoId > 0) {
+                    po = vfi.PurchaseOrders.FirstOrDefault(x => x.PurchaseOrderId == transaction.PoId);
+                }
+                var transactionDetails = (from x in vfi.TransactionDetails
+                                          where x.TransactionId == transactionId
+                                          select new {
+                                              x.ReferenceId,
+                                              x.TransactionDetailId,
+                                              x.LotNumber,
+                                              x.Product.DesignNo,
+                                              x.Product.ProductCode,
+                                              x.Product.Customer.CustomerCode,
+                                              x.Product.DrawingFinish,
+                                              x.Quantity,
+                                              x.PoDetailId,
+                                              x.Note,
+                                              x.ProductInvId,
+                                              ProductionMaterial = x.Product.ProductionMaterials.FirstOrDefault(y => y.Active)
+
+                                          });
                 var productIds = transactionDetails.Select(td => td.ReferenceId).Distinct().ToList();
-                var productWeights = from pw in vfi.Products
-                                     where productIds.Contains(pw.ProductId)
-                                     select new {
-                                         pw.ProductId,
-                                         pw.ProductionWeight,
-                                         pw.CncWeight,
-                                         pw.Production2Weight,
-                                         pw.HeatTreatmentWeight,
-                                         pw.SurfaceTreatmentWeight,
-                                         pw.WaitingPlatingWeight,
-                                         pw.PlatingWeight,
-                                         pw.QcWeight,
-                                         //pw.DrawingFinish,
-                                     };
-                var exportTpDetails = from ed in vfi.ExportFormTP_KDDetail
+                //var productWeights = from pw in vfi.Products
+                //                     where productIds.Contains(pw.ProductId)
+                //                     select new {
+                //                         pw.ProductId,
+                //                         pw.ProductionWeight,
+                //                         pw.CncWeight,
+                //                         pw.Production2Weight,
+                //                         pw.HeatTreatmentWeight,
+                //                         pw.SurfaceTreatmentWeight,
+                //                         pw.WaitingPlatingWeight,
+                //                         pw.PlatingWeight,
+                //                         pw.QcWeight,
+                //                         //pw.DrawingFinish,
+                //                     };
+                var exportTpDetails = (from ed in vfi.ExportFormTP_KDDetail
                                       where ed.ExportFormTP_KD.TransactionCode.Equals(transaction.TransactionCode)
-                                      select ed;
+                                      select ed).ToList();
                 var importSx1 =
                     vfi.ImportFormSX1.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
 
@@ -5287,13 +5352,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         UnitWeight =
                             MyUtilities.Product.GetProductInvWeight(transactionDetail.ReferenceId.Value,
                                 transaction.WarehouseIssueId ?? transaction.WarehouseReceiptId.Value),
-                        ProductImg = transactionDetail.Product.DrawingFinish,
-                        ProductCode = transactionDetail.Product.ProductCode,
-                        CustomerCode = transactionDetail.Product.Customer.CustomerCode,
+                        ProductImg = transactionDetail.DrawingFinish,
+                        ProductCode = transactionDetail.ProductCode,
+                        CustomerCode = transactionDetail.CustomerCode,
                         Quantity = transactionDetail.Quantity,
                         Note = transactionDetail.Note,
-                        IsManagerLv2 = invManagerLv2
+                        IsManagerLv2 = invManagerLv2,
+                        PoDetailId = transactionDetail.PoDetailId ?? 0,
+                        DesignCode = transactionDetail.DesignNo,
+                        //VendorName = transactionDetail.VendorId
                     };
+                    if (po != null) {
+                        entity.VendorName = po.Vendor.VendorName;
+                        entity.PoNumber = po.RevisionNumber;
+                        var detail = po.PurchaseOrderDetails.FirstOrDefault(x => transactionDetail.PoDetailId == x.PurchaseOrderDetailId);
+                        if (detail != null) {
+                            entity.UnitMeasure = detail.Unit;
+                            entity.UnitPrice = detail.UnitPrice;
+                            entity.Price = entity.UnitPrice * entity.Quantity;
+                        }
+                    }
                     if (string.IsNullOrWhiteSpace(entity.ProductImg))
                         entity.ProductImg = "askquestion.jpg";
                     if (transaction.WarehouseIssueId == (byte)MyUtilities.Warehouse.Business) {
@@ -5328,29 +5406,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.Note = export.PlatingForm.PlatingFormNumber;
                         }
                     }
-                    if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
-                        if (transactionDetail.ErrorId != null)
-                            entity.Note += transactionDetail.ProcessError.Description;
-                    }
-                    var productWeight = MyUtilities.Product.GetProductInvWeight(entity.ReferenceId ?? 0,
-                        transaction.WarehouseIssueId != null
-                            ? transaction.WarehouseIssueId.Value
-                            : transaction.WarehouseReceiptId.Value);
+                    //if (transaction.WarehouseReceiptId != null && transaction.Warehouse1.IsReprocessing) {
+                    //    if (transactionDetail.ErrorId != null)
+                    //        entity.Note += transactionDetail.ProcessError.Description;
+                    //}
                     entity.QuantityKg = entity.UnitWeight * entity.Quantity;
                     if (exportTpDetails.Any()) {
                         var exportDetail =
                             exportTpDetails.FirstOrDefault(
-                                ed => ed.TransactionDetailId == transactionDetail.TransactionId);
+                                ed => ed.TransactionDetailId == transactionId);
                         if (exportDetail != null)
                             entity.QuantityKg = exportDetail.Weight;
                     }
                     if (importSx1 == null) {
-                        var material =
-                            transactionDetail.Product.ProductionMaterials.FirstOrDefault(pm => pm.Active);
-                        if (material != null) {
-                            entity.MaterialCode = material.Material.MaterialCode;
-                            entity.MaterialTypeName = material.Material.MaterialType.MaterialTypeName;
-                            entity.Identity = material.Material.MaterialType.IdentityCode.Trim();
+                        if (transactionDetail.ProductionMaterial != null) {
+                            entity.MaterialCode = transactionDetail.ProductionMaterial.Material.MaterialCode;
+                            entity.MaterialTypeName = transactionDetail.ProductionMaterial.Material.MaterialType.MaterialTypeName;
+                            entity.Identity = transactionDetail.ProductionMaterial.Material.MaterialType.IdentityCode.Trim();
                         }
                     }
                     else {
@@ -5522,6 +5594,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 if (transaction != null) {
                     var exportGCN_NCU =
                         vfi.ExportGCN_NCU.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var tDetail in exportGCN_NCU.ExportGCN_NCUDetail) {
                         var entity = model.FirstOrDefault(m => m.PlatingDetailId == tDetail.PlatingDetailId);
                         var platingForm =
@@ -5550,6 +5636,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 ProviderName = exportGCN_NCU.ProviderName,
                                 CustomerCode = tDetail.Product.Customer.CustomerCode,
                                 Package = "",
+                                Info = info,
                             };
                             if (platingForm != null) {
                                 entity.ProviderName = platingForm.Vendor.VendorName;
@@ -5633,7 +5720,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
 
 
-            return PartialView("PageExportGCN_NCUForm", model.OrderBy(m => m.CustomerCode));
+            return PartialView("PageExportGCN_NCUForm", model.OrderBy(m => m.CustomerCode).ToList());
         }
         private PartialViewResult ImportNCU_QCBFormView(int transactionId) {
             var model = new List<PrintImportNCU_QCBModel>();
@@ -5642,6 +5729,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 if (transaction != null) {
                     var importNCU_QCB =
                         vfi.ImportNCU_QCB.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var tDetail in importNCU_QCB.ImportNCU_QCBDetail) {
                         var entity = new PrintImportNCU_QCBModel() {
                             TransactionCode = transaction.TransactionCode,
@@ -5664,6 +5765,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             Weight = tDetail.Weight,
                             ProviderName = importNCU_QCB.ProviderName,
                             CustomerCode = vfi.Customers.FirstOrDefault(c => c.CustomerId == tDetail.Product.CustomerId).CustomerCode ?? "",
+                            Info = info
                         };
                         var platingForm = vfi.PlatingForms.FirstOrDefault(pf => pf.FormId == importNCU_QCB.PlatingFormId);
                         if (platingForm != null) {
@@ -5705,7 +5807,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
 
-            return PartialView("PageImportNCU_QCBForm", model.OrderBy(m => m.CustomerCode));
+            return PartialView("PageImportNCU_QCBForm", model.OrderBy(m => m.CustomerCode).ToList());
         }
 
         private PartialViewResult ExportTPFormView(int transactionId) {
@@ -5716,6 +5818,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var export =
                         vfi.ExportFormTP_KD.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
                     //var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var tDetail in export.ExportFormTP_KDDetail) {
                         var entity = new PrintExportTP_KDModel() {
                             TransactionCode = transaction.TransactionCode,
@@ -5740,6 +5856,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             CarNumber = export.CarNumber ?? "",
                             //OrderNumber = order.OrderNumber ?? "",
                             //EmployeeName = vfi.Employees.FirstOrDefault(e => e.EmployeeId == order.SalesPersonId).EmployeeName ?? "",
+                            Info = info
                         };
                         var customer = vfi.Customers.FirstOrDefault(c => c.CustomerId == export.CustomerId);
                         entity.CustomerCodeName = customer.CustomerCode + " - " + customer.CustomerName;
@@ -5749,7 +5866,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
 
-            return PartialView("PageExportTP_KDForm", model.OrderBy(o => o.ProductCode));
+            return PartialView("PageExportTP_KDForm", model.OrderBy(o => o.ProductCode).ToList());
         }
 
         private PartialViewResult ExportChangeFormView(int transactionId) {
@@ -5793,7 +5910,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
 
-            return PartialView("PageExportChangeProductForm", model.OrderBy(o => o.ProductCode));
+            return PartialView("PageExportChangeProductForm", model.OrderBy(o => o.ProductCode).ToList());
         }
 
 
@@ -6235,15 +6352,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 int i = 0;
                 var lastMonth = new DateTime(year, month, 1).AddSeconds(-1);
                 var monthlyDate = lastMonth.AddMonths(1);
-                var orderDetails =
-                    vfi.OrderDetails.Where(
-                        od =>
-                        od.Order.DueDate != null &&
-                        od.Order.DueDate.Value.Month == month &&
-                        od.Order.DueDate.Value.Year == year &&
-                        od.RequiedNumber > 0 &&
-                        (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
-                         od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess));
+                var orderDetails = (from od in vfi.OrderDetails
+                                    where
+                                         od.Order.DueDate != null &&
+                                         od.Order.DueDate.Value.Month == month &&
+                                         od.Order.DueDate.Value.Year == year &&
+                                         od.RequiedNumber > 0 &&
+                                         (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
+                                          od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess)
+                                    select new {
+                                        od.ProductId,
+                                        od.Product.ProductCode,
+                                        od.Product.DesignNo,
+                                        od.Order.Customer.CustomerCode,
+                                        od.Order.OrderNumber,
+                                        DueDate = od.Order.DueDate.Value,
+                                        od.RequiedNumber,
+                                    }).ToList();
                 var warehouseIds = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity();
                 var qcInvs = MyUtilities.Warehouse.GetWarehouseIdQc();
 
@@ -6256,12 +6381,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (entity == null) {
                         entity = new PrintProductionPlanModel();
                         entity.ProductId = orderDetail.ProductId;
-                        entity.ProductCode = orderDetail.Product.ProductCode;
-                        entity.AreaName = orderDetail.Product.DesignNo;
-                        entity.CustomerCode = orderDetail.Order.Customer.CustomerCode;
-                        entity.OrderNumberList = orderDetail.Order.OrderNumber;
+                        entity.ProductCode = orderDetail.ProductCode;
+                        entity.AreaName = orderDetail.DesignNo;
+                        entity.CustomerCode = orderDetail.CustomerCode;
+                        entity.OrderNumberList = orderDetail.OrderNumber;
                         entity.Month = month;
-                        entity.RequiedNumber[orderDetail.Order.DueDate.Value.Day - 1] += (orderDetail.RequiedNumber);
+                        entity.RequiedNumber[orderDetail.DueDate.Day - 1] += (orderDetail.RequiedNumber);
                         entity.RequiedNumber[33] += (orderDetail.RequiedNumber);
                         //var area = vfi.Areas.FirstOrDefault(a => a.AreaId == orderDetail.Order.Customer.AreaId);
                         //if (area == null)
@@ -6274,33 +6399,43 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             vfi.ProductInventories.Where(
                                 pi => pi.ProductId == entity.ProductId &&
                                     warehouseIds.Contains(pi.WarehouseId) &&
-                                    pi.TotalQty > 0);
-                        if (productInvs.Any()) {
-                            entity.TotalInventory = productInvs.Sum(pi => pi.TotalQty);
-                            var productInvsByIds = productInvs.Where(pi => pi.WarehouseId == MyUtilities.Warehouse.Finish).ToList();
-                            entity.FinishInventory = productInvsByIds.Sum(pi => pi.TotalQty);
-                            productInvsByIds = productInvs.Where(pi => pi.WarehouseId == MyUtilities.Warehouse.Packing).ToList();
-                            entity.PackingInv = productInvsByIds.Sum(pi => pi.TotalQty);
-                            productInvsByIds = productInvs.Where(pi => qcInvs.Contains(pi.WarehouseId)).ToList();
-                            entity.QcInventory = productInvsByIds.Sum(pi => pi.TotalQty);
-                        }
+                                    pi.TotalQty > 0).Select(x => new {
+                                        x.ProductId,
+                                        x.TotalQty,
+                                        x.Warehouse.IsPacking,
+                                        x.Warehouse.IsFinish,
+                                        x.Warehouse.IsQC
+                                    }).ToList();
+
+                        entity.TotalInventory = productInvs.Sum(pi => pi.TotalQty);
+                        entity.FinishInventory = productInvs.Where(pi => pi.IsFinish).Sum(pi => pi.TotalQty);
+                        entity.PackingInv = productInvs.Where(pi => pi.IsFinish).Sum(pi => pi.TotalQty);
+                        entity.QcInventory = productInvs.Where(pi => pi.IsFinish).Sum(pi => pi.TotalQty);
                         model.Add(entity);
                     }
                     else {
-                        entity.OrderNumberList += ("," + orderDetail.Order.OrderNumber);
-                        entity.RequiedNumber[orderDetail.Order.DueDate.Value.Day - 1] += (orderDetail.RequiedNumber);
+                        entity.OrderNumberList += ("," + orderDetail.OrderNumber);
+                        entity.RequiedNumber[orderDetail.DueDate.Day - 1] += (orderDetail.RequiedNumber);
                         entity.RequiedNumber[33] += (orderDetail.RequiedNumber);
                     }
                     //}
                 }
-                var ordersInLastMonth =
-                    vfi.OrderDetails.Where(
-                        od =>
-                        od.Order.DueDate != null &&
-                        od.Order.DueDate < lastMonth &&
-                        od.RequiedNumber > 0 &&
-                        (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
-                         od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess));
+                var ordersInLastMonth = (from od in vfi.OrderDetails
+                                         where
+                                              od.Order.DueDate != null &&
+                                              od.Order.DueDate < lastMonth &&
+                                              od.RequiedNumber > 0 &&
+                                              (od.Order.Status == (byte)MyUtilities.Sales.Status.Waiting ||
+                                               od.Order.Status == (byte)MyUtilities.Sales.Status.InProcess)
+                                         select new {
+                                             od.ProductId,
+                                             od.Product.ProductCode,
+                                             od.Product.DesignNo,
+                                             od.Order.Customer.CustomerCode,
+                                             od.Order.OrderNumber,
+                                             DueDate = od.Order.DueDate.Value,
+                                             od.RequiedNumber,
+                                         }).ToList();
                 //foreach (var order in ordersInLastMonth)
                 //{
                 //    var details = order.OrderDetails;
@@ -6313,10 +6448,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (entity == null) {
                         entity = new PrintProductionPlanModel();
                         entity.ProductId = orderDetail.ProductId;
-                        entity.ProductCode = orderDetail.Product.ProductCode;
-                        entity.AreaName = orderDetail.Product.DesignNo;
-                        entity.CustomerCode = orderDetail.Order.Customer.CustomerCode;
-                        entity.OrderNumberList = orderDetail.Order.OrderNumber;
+                        entity.ProductCode = orderDetail.ProductCode;
+                        entity.AreaName = orderDetail.DesignNo;
+                        entity.CustomerCode = orderDetail.CustomerCode;
+                        entity.OrderNumberList = orderDetail.OrderNumber;
                         entity.Month = month;
                         entity.RequiedNumber[31] += (orderDetail.RequiedNumber);
                         entity.RequiedNumber[33] += (orderDetail.RequiedNumber);
@@ -6331,21 +6466,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             vfi.ProductInventories.Where(
                                 pi => pi.ProductId == entity.ProductId &&
                                     warehouseIds.Contains(pi.WarehouseId) &&
-                                    pi.TotalQty > 0);
-                        if (productInvs.Any()) {
-                            entity.TotalInventory = productInvs.Sum(pi => pi.TotalQty);
-                            var productInvsByIds = productInvs.Where(pi => pi.WarehouseId == MyUtilities.Warehouse.Finish).ToList();
-                            entity.FinishInventory = productInvsByIds.Sum(pi => pi.TotalQty);
-                            productInvsByIds = productInvs.Where(pi => pi.WarehouseId == MyUtilities.Warehouse.Packing).ToList();
-                            entity.PackingInv = productInvsByIds.Sum(pi => pi.TotalQty);
-                            productInvsByIds = productInvs.Where(pi => qcInvs.Contains(pi.WarehouseId)).ToList();
-                            entity.QcInventory = productInvsByIds.Sum(pi => pi.TotalQty);
-                        }
+                                    pi.TotalQty > 0).Select(x => new {
+                                        x.ProductId,
+                                        x.TotalQty,
+                                        x.Warehouse.IsPacking,
+                                        x.Warehouse.IsFinish,
+                                        x.Warehouse.IsQC
+                                    }).ToList();
+
+                        entity.TotalInventory = productInvs.Sum(pi => pi.TotalQty);
+                        entity.FinishInventory = productInvs.Where(pi => pi.IsFinish).Sum(pi => pi.TotalQty);
+                        entity.PackingInv = productInvs.Where(pi => pi.IsFinish).Sum(pi => pi.TotalQty);
+                        entity.QcInventory = productInvs.Where(pi => pi.IsFinish).Sum(pi => pi.TotalQty);
 
                         model.Add(entity);
                     }
                     else {
-                        entity.OrderNumberList += ("," + orderDetail.Order.OrderNumber);
+                        entity.OrderNumberList += ("," + orderDetail.OrderNumber);
                         entity.RequiedNumber[31] += (orderDetail.RequiedNumber);
                         entity.RequiedNumber[33] += (orderDetail.RequiedNumber);
                     }
@@ -6354,7 +6491,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return PartialView("PageOrderPlan", model
                 //.OrderBy(c => c.AreaName)
                 .OrderBy(p => p.CustomerCode)
-                .ThenBy(p => p.ProductCode));
+                .ThenBy(p => p.ProductCode)
+                .ToList());
         }
 
 
@@ -6427,7 +6565,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PrintInvoice", ex.Message);
             }
-            return PartialView("PageTaxInvoiceProductDetail", model.OrderBy(m => m.SetupDate));
+            return PartialView("PageTaxInvoiceProductDetail", model.OrderBy(m => m.SetupDate).ToList());
         }
 
         public ActionResult PrintInvoice_Cu(int invoiceId) {
@@ -6503,6 +6641,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         var isInvoiceDetail = export.ExportFormTP_KDDetail.FirstOrDefault(ed => !ed.InvoiceDetails.Any(id => id.Active));
                         if (isInvoiceDetail != null)
                             throw new AggregateException("Lỗi! Trong phiếu có chi tiết chưa phân đơn hàng!");
+                        var info = new WorkGroupInfo();
+                        var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                        if (workgroup != null) {
+                            info = new WorkGroupInfo {
+                                Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                                CompanyFullName = workgroup.CompanyFullName,
+                                CompanyShortName = workgroup.CompanyShortName,
+                                Address = workgroup.Address,
+                                TelNumber = "Tel : " + workgroup.TelNumber,
+                                FaxNumber = "Fax : " + workgroup.FaxNumber,
+                                Email = "Email: " + workgroup.Email,
+                                Website = "Website: " + workgroup.Website
+                            };
+                        }
                         foreach (var exportDetail in export.ExportFormTP_KDDetail) {
                             var entity = model.FirstOrDefault(m => m.ProductId == exportDetail.ProductId);
                             if (entity == null) {
@@ -6510,6 +6662,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     ProductId = exportDetail.ProductId ?? 0,
                                     InvoiceNumber = invoice.InvoiceNumber,
                                     Today = DateTime.Today,
+                                    CustomerCode = customer.CustomerCode,
                                     CustomerName = customer.CompanyName,
                                     CustomerInfo = customer.Address,
                                     CustomerContact = customer.Address + "\nContact: " + customer.ContactName,
@@ -6529,6 +6682,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     TaxPercent = invoice.TaxPercent,
                                     TaxAmount = 0,
                                     TaxInvoice = "",
+                                    Info = info
                                 };
                                 if (entity.Quantity > 0)
                                     model.Add(entity);
@@ -6585,6 +6739,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
                     var customer = vfi.Customers.FirstOrDefault(c => c.CustomerId == export.CustomerId);
                     var paymentTerm = vfi.PaymentTerms.FirstOrDefault(pt => pt.Id == 1);
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            CompanyFullName = workgroup.CompanyFullName,
+                            CompanyShortName = workgroup.CompanyShortName,
+                            Address = workgroup.Address,
+                            TelNumber = "Tel : " + workgroup.TelNumber,
+                            FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            Email = "Email: " + workgroup.Email,
+                            Website = "Website: " + workgroup.Website
+                        };
+                    }
                     foreach (var exportDetail in export.ExportFormTP_KDDetail) {
                         var entity = model.FirstOrDefault(m => m.ProductId == exportDetail.ProductId);
                         if (entity == null) {
@@ -6611,6 +6779,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 TaxPercent = 0,
                                 TaxAmount = 0,
                                 TaxInvoice = "",
+                                Info = info
                             };
                             if (entity.Quantity > 0)
                                 model.Add(entity);
@@ -7248,6 +7417,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             using (var vfi = new tammaContext()) {
                 var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
                 if (transaction != null) {
+                    var info = new WorkGroupInfo();
+                    var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
+                    if (workgroup != null) {
+                        info = new WorkGroupInfo {
+                            Logo = workgroup.ImagePath + "/Logo/" + workgroup.LogoImage,
+                            //CompanyFullName = workgroup.CompanyFullName,
+                            //CompanyShortName = workgroup.CompanyShortName,
+                            //Address = workgroup.Address,
+                            //TelNumber = "Tel : " + workgroup.TelNumber,
+                            //FaxNumber = "Fax : " + workgroup.FaxNumber,
+                            //Email = "Email: " + workgroup.Email,
+                            //Website = "Website: " + workgroup.Website
+                        };
+                    }
                     var transactionDetails =
                                 vfi.TransactionDetails.Where(td => td.TransactionId == transactionId);
                     if (transaction.EoI.Equals("0")) {
@@ -7299,6 +7482,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 ModifiedUser = transaction.ModifiedUser,
                                 ModifiedDate = transaction.ModifiedDate,
                                 PurchasingSignature = importPo.PurchasingSignature,
+                                Info = info,
                             };
                             if (purchaseDetail != null) {
                                 if (purchaseDetail.Unit.Contains("Kg")) {
@@ -7326,7 +7510,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             model.Add(entity);
                         }
                         //return PartialView("PageMaterialLotCard", model);
-                        return PartialView("PageImportMaterial", model);
+                        return PartialView("PageImportMaterial", model.OrderBy(x => x.MachineName)
+                                                                    .ThenBy(x => x.MaterialDesignNo)
+                                                                    .ThenBy(x => x.LotNumber
+                                            ).ToList());
                     }
                     //xuat
                     else if (transaction.EoI.Equals("1")) {
@@ -7342,6 +7529,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             //        td.TransactionId == transaction.TransactionId &&
                             //        td.ReferenceId == materialInv.MaterialId);
                             var entity = new PrintTransactionMaterialModel();
+                            entity.Info = info;
                             entity.MaterialCode = materialInv.Material.MaterialCode;
                             entity.MaterialName = materialInv.Material.MaterialName;
                             entity.MaterialDesignNo = MyUtilities.Material.GetMaterialDesignNo(materialInv.Material, materialInv.Length);
@@ -7372,7 +7560,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             //    entity.Note = "Máy: " + exportDetail.Machine.MachineName;
                             model.Add(entity);
                         }
-                        return PartialView("PageExportMaterial", model);
+                        return PartialView("PageExportMaterial", model.OrderBy(x => x.MachineName)
+                                                                    .ThenBy(x => x.MaterialDesignNo)
+                                                                    .ThenBy(x => x.LotNumber
+                                                                    ).ToList());
                     }
                 }
             }
@@ -7641,13 +7832,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             using (var vfi = new tammaContext()) {
                 vfi.Configuration.LazyLoadingEnabled = false;
                 var importSx1 = vfi.ImportFormSX1.FirstOrDefault(i => i.MaterialUseDate == reportDate);
-                if (importSx1 == null)
-                    throw new AggregateException("Không có gì để báo cáo!");
-                var startMonth = new DateTime(importSx1.ImportDate.Year, importSx1.ImportDate.Month, 1).AddSeconds(-1);
+                if (importSx1 == null)  throw new AggregateException("Không có gì để báo cáo!");
+                //var startMonth = new DateTime(importSx1.ImportDate.Year, importSx1.ImportDate.Month, 1);
                 var importSx1Details = (from id in vfi.ImportFormSX1Detail
                                         where
-                                            id.ImportFormSX1.ImportDate <= importSx1.ImportDate &&
-                                            id.ImportFormSX1.ImportDate > startMonth &&
+                                            //id.ImportFormSX1.ImportDate <= importSx1.ImportDate &&
+                                            //id.ImportFormSX1.ImportDate >= startMonth &&
+                                            id.ImportFormSX1.ImportDate.Month == importSx1.ImportDate.Month &&
+                                            id.ImportFormSX1.ImportDate.Year == importSx1.ImportDate.Year &&
                                             id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
                                             id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
                                               .Transaction.Status ==
@@ -7676,7 +7868,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          id.Number2 + id.Processing2 + id.DefectProduct2) -
                                         ((id.MaterialUse1 + id.MaterialUse2) * id.ProductionRate),
                                         }).ToList();
-                startMonth = importSx1Details.FirstOrDefault().MaterialUseDate;
+                var startMonth = importSx1Details.FirstOrDefault().MaterialUseDate;
 
                 var endMonth = importSx1Details.LastOrDefault().MaterialUseDate;
                 var groupMaterials = (from mt in vfi.MaterialTypes
@@ -7865,14 +8057,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                              i.ImportFormSX1.MaterialUseDate,
                                          }).ToList();
                 var workPieces = GetWorkpieceMaterialModel(startMonth, endMonth);
-                var check = false;
+                //var check = false;
                 var _list = new List<PrintMaterialDailyPeriod>();
                 var planDate = reportDate.AddDays(-5);
                 foreach (var group in groupMaterials) {
                     var printGroup = new PrintGroupMaterial {
                         GroupName = group.MaterialTypeName,
                         MaterialTyleId = group.MaterialTypeId,
-                        ReportDate = endMonth,
+                        ReportDate = reportDate,
                         List = new List<PrintMaterialDailyPeriod>(),
                         StartDate = startMonth.ToString("dd/MM"),
                         EndDate = endMonth.ToString("dd/MM"),
@@ -9233,7 +9425,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("ProductionWeeklyReport", ex.Message);
             }
-            return PartialView("PageProductionWeeklySX1", model.OrderBy(p => p.ProductCode));
+            return PartialView("PageProductionWeeklySX1", model.OrderBy(p => p.ProductCode).ToList());
         }
         #endregion
 
@@ -9929,7 +10121,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("PrintProduction2Period", ex.Message);
             }
-            return PartialView("PageProduction2Period", model.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProduction2Period", model.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
         [HttpPost]
         public ActionResult PrintProduction2List(string from, string to, bool isSales, bool isForecast) {
@@ -10176,7 +10368,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("Production2List", ex.Message);
             }
-            return PartialView("PageProduction2List", model.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProduction2List", model.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
 
         [HttpPost]
@@ -10636,7 +10828,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 ModelState.AddModelError("Production2Plan", ex.Message);
             }
 
-            return PartialView("PageProduction2Plan", model.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode));
+            return PartialView("PageProduction2Plan", model.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode).ToList());
         }
 
 
@@ -10969,7 +11161,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         model.Add(product);
                     }
                 }
-                return PartialView("PageProductPriceList", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode));
+                return PartialView("PageProductPriceList", model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode).ToList());
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PageProductPriceList", "" + ex.Message);

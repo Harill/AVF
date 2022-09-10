@@ -25,7 +25,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedUser).HasColumnName("ModifiedUser");
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.StateId).HasColumnName("StateId");
-            this.Property(t => t.ProductActive).HasColumnName("ProductActive");
             this.Property(t => t.Number).HasColumnName("Number");
             this.Property(t => t.DayRate).HasColumnName("DayRate");
             this.Property(t => t.StartProductionDate).HasColumnName("StartProductionDate");
@@ -48,9 +47,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasOptional(t => t.ProcessingType)
                 .WithMany(t => t.Machines)
                 .HasForeignKey(d => d.ProcessingTypeId);
-            this.HasOptional(t => t.Product)
-                .WithMany(t => t.Machines)
-                .HasForeignKey(d => d.ProductActive);
 
         }
     }

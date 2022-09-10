@@ -9,7 +9,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         {
             this.ProductionPlans = new List<ProductionPlan>();
             this.DefectTransactionDetails = new List<DefectTransactionDetail>();
-            this.Machines = new List<Machine>();
             this.MachineAppraisals = new List<MachineAppraisal>();
             this.MachineRepairForms = new List<MachineRepairForm>();
             this.MaterialLimitPlans = new List<MaterialLimitPlan>();
@@ -131,7 +130,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string IdentityCode { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
-        public virtual ICollection<Machine> Machines { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }
         public virtual ICollection<MaterialLimitPlan> MaterialLimitPlans { get; set; }

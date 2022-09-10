@@ -2,7 +2,7 @@
 @if (Request.IsAuthenticated) {
     
     <text>
-        Xin chào: <b> @ViewBag.UserLoginFullName</b>!
+        Xin chào: <span id="displayname" style="font-weight:bold"> @ViewBag.UserLoginFullName</span>!
         @*<span id ="HelloString"></span>*@
         [ @Html.ActionLink("Log Off", "WindowLogOff", "Home", new { area = ""  }, new { @style = "color:"+ViewBag.PageTitleColor+";"  }) ]
     </text>

@@ -83,5 +83,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 
 
         //public string SpecificNote { get; set; }
+
+        public WorkGroupInfo Info { get; set; }
     }
 }

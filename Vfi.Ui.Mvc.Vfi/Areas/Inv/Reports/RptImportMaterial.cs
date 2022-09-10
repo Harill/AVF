@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
 {
@@ -20,13 +22,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             // TODO: Add any constructor code after InitializeComponent call
             //
 
-            this.Name = "NhapKhoNguyenLieu";
-            this.pictureBox1.Value = Properties.Resources.ql_muahang;
+            //this.Name = "NhapKhoNguyenLieu";
+            //this.pictureBox1.Value = Properties.Resources.ql_muahang;
         }
         
         public void BindDataOwner(object models)
         {
             DataSource = models;
+            var list = (List<PrintTransactionMaterialModel>)models;
+            var data = list.FirstOrDefault();
+            this.picLogo.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
+            this.picLogo.Value = data.Info.Logo;
+            this.Name = "Import_Material_" + data.CreatedDate.ToString("yy_MM_dd");
         }
         public static double? GetItemValue(List<double?> values, int index)
         {

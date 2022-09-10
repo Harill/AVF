@@ -1,0 +1,5 @@
+{
+     "PortName": "COM5",
+     "BaudRate": 4800,
+	 "SignalType": 2,
+}

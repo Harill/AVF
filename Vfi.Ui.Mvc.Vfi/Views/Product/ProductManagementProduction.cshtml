@@ -1461,8 +1461,8 @@
                                 .Columns(columns => {
                                     columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
                                         .HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.RecipeCode).Width(150).Title("Mã");
-                                    columns.Bound(f => f.RecipeName).Width(150).Title("Tên");
+                                    columns.Bound(f => f.RecipeCode).Width(150).Title("Mã công thức");
+                                    columns.Bound(f => f.RecipeName).Width(150).Title("Tên công thức");
                                     columns.Bound(f => f.Active).Width(75).Title("Kích hoạt")
                                         .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                         .HtmlAttributes(new { style = "text-align:center" });
@@ -1474,7 +1474,7 @@
                                     Html.Telerik().TabStrip()
                                         .Name("TabStripRecipe_<#= ProductId #>")
                                         .SelectedIndex(0)
-                                        .Items(items3 => items3.Add().Text("Chi tiết")
+                                        .Items(items3 => items3.Add().Text("Danh sách chi tiết công thức")
                                             .Content(
                                                 Html.Telerik().Grid<ProductCombinationRecipeDetailModel>()
                                                     .Name("gridProductRecipeDetail_<#= RecipeId #>")
@@ -1492,7 +1492,7 @@
 
                                                         columns.Bound(f => f.FromProductCode).Width(200).Title("Sản phẩm")
                                                             .ClientTemplate("<strong><#= FromProductCode #></strong>");
-                                                        columns.Bound(f => f.RequireNumber).Width(100).Title("Số lượng ghép")
+                                                        columns.Bound(f => f.RequireNumber).Width(100).Title("Tỉ lệ ghép")
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: right;" });
                                                     })

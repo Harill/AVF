@@ -44,7 +44,6 @@
             this.textBox28 = new Telerik.Reporting.TextBox();
             this.reportHeader = new Telerik.Reporting.ReportHeaderSection();
             this.titleTextBox = new Telerik.Reporting.TextBox();
-            this.textBox22 = new Telerik.Reporting.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // objectDataSource1
@@ -146,7 +145,7 @@
             this.textBox9.Style.Font.Bold = true;
             this.textBox9.Style.Font.Name = "Times New Roman";
             this.textBox9.StyleName = "Data";
-            this.textBox9.Value = "";
+            this.textBox9.Value = "DVT";
             // 
             // textBox10
             // 
@@ -398,8 +397,7 @@
             // 
             this.reportHeader.Height = Telerik.Reporting.Drawing.Unit.Inch(0.60000008344650269D);
             this.reportHeader.Items.AddRange(new Telerik.Reporting.ReportItemBase[] {
-            this.titleTextBox,
-            this.textBox22});
+            this.titleTextBox});
             this.reportHeader.Name = "reportHeader";
             this.reportHeader.Style.Font.Name = "Times New Roman";
             // 
@@ -416,20 +414,6 @@
             this.titleTextBox.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.titleTextBox.StyleName = "Title";
             this.titleTextBox.Value = "=Title(Fields.SetupDate)";
-            // 
-            // textBox22
-            // 
-            this.textBox22.CanGrow = true;
-            this.textBox22.Format = "{0}";
-            this.textBox22.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(5D), Telerik.Reporting.Drawing.Unit.Pixel(5D));
-            this.textBox22.Name = "textBox22";
-            this.textBox22.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.9999604225158691D), Telerik.Reporting.Drawing.Unit.Inch(0.45102584362030029D));
-            this.textBox22.Style.BackgroundImage.ImageData = global::Vfi.Ui.Mvc.Vfi.Properties.Resources.IMG_17012014_143105;
-            this.textBox22.Style.BackgroundImage.MimeType = "image/png";
-            this.textBox22.Style.BackgroundImage.Repeat = Telerik.Reporting.Drawing.BackgroundRepeat.NoRepeat;
-            this.textBox22.Style.Font.Name = "Times New Roman";
-            this.textBox22.StyleName = "Data";
-            this.textBox22.Value = "";
             // 
             // RptTaxInvoiceProductDetail
             // 
@@ -503,7 +487,6 @@
         private Telerik.Reporting.TextBox textBox8;
         private Telerik.Reporting.TextBox textBox15;
         private Telerik.Reporting.TextBox textBox16;
-        private Telerik.Reporting.TextBox textBox22;
         private Telerik.Reporting.TextBox textBox5;
         private Telerik.Reporting.TextBox textBox1;
         private Telerik.Reporting.TextBox textBox6;

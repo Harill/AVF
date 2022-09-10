@@ -45,6 +45,14 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.LogoImage).HasColumnName("LogoImage");
             this.Property(t => t.ImagePath).HasColumnName("ImagePath");
             this.Property(t => t.PageTitleColor).HasColumnName("PageTitleColor");
+            this.Property(t => t.CompanyName).HasColumnName("CompanyName");
+            this.Property(t => t.CompanyFullName).HasColumnName("CompanyFullName");
+            this.Property(t => t.CompanyShortName).HasColumnName("CompanyShortName");
+            this.Property(t => t.Address).HasColumnName("Address");
+            this.Property(t => t.TelNumber).HasColumnName("TelNumber");
+            this.Property(t => t.FaxNumber).HasColumnName("FaxNumber");
+            this.Property(t => t.Email).HasColumnName("Email");
+            this.Property(t => t.Website).HasColumnName("Website");
         }
     }
 }

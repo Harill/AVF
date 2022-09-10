@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
 {
@@ -26,21 +28,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
         public void BindDataOwner(object models)
         {
             DataSource = models;
-        }
-        public static double? GetItemValue(List<double?> values, int index)
-        {
-            return values[index];
-        }
-
-        public static string KhoSX1(DateTime date)
-        {
-            return "Kho SX1\n" + (date.Day - 1) + "/" + date.Month;
-        }
-
-        public static string FormatQuality(double? value)
-        {
-            return String.Format("{0:n0,0}", value.Value) ?? "0";
-            
+            var list = (List<PlatingDetailModel>)models;
+            var data = list.FirstOrDefault();
+            this.picLogo.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
+            this.picLogo.Value = data.Info.Logo;
+            this.Name = "Plating_Export_" + data.ExportDate.ToString("yy_MM_dd");
         }
     }
 }

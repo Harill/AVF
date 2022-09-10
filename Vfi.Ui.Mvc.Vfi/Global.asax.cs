@@ -58,7 +58,6 @@ namespace Vfi.Ui.Mvc.Vfi
 
             RegisterGlobalFilters(GlobalFilters.Filters);
             RegisterRoutes(RouteTable.Routes);
-
             IUnityContainer unityContainer = new UnityContainer();
             var container = IoCComponents.ConfigureUnity(unityContainer);
             //var factory = new UnityControllerFactory(container);

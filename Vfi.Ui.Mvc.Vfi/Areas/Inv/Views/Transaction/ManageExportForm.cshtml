@@ -1,8 +1,6 @@
-﻿
-@using Vfi.Server.Core.DataModel.Models.Inv
-@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
-@using Vfi.Ui.Mvc.Vfi.Models
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Utilities
+@using Telerik.Web.Mvc.UI
 @{
     ViewBag.Title = "Manage Product Form";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -37,6 +35,9 @@
 
         function grid_onDataBinding(args) {
             if (startGrid) {
+
+                var warehouse = $("#Warehouse").data('tComboBox').value();
+                if (warehouse === "") warehouse = 0;
                 var fromDate = $("#fromDate").data("tDatePicker").value();
                 if (fromDate === null)
                     fromDate = "";
@@ -49,29 +50,43 @@
                 else {
                     toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
                 }
+                var status = $("#Status").data("tComboBox").value();
+                if (status === "")
+                    status = 0;
+                //status = Number(@((byte)MyUtilities.Transaction.Status.Approved));
                 args.data = $.extend(args.data, {
-                    status: Number("@((byte)MyUtilities.Transaction.Status.Open)"),
+                    status: status,
                     transactionId: "",
                     fromDate: fromDate,
-                    toDate: toDate
+                    toDate: toDate,
+                    warehouseId: warehouse
                 });
             }
         }
 
-        var index = 0;
-        var count = 0;
-        function gridTransactionDetail_OnDataBinding(e) {
-            index = 0;
-            count = 0;
+        function gridTransaction_OnRowDataBound(e) {
+            var dataItem = e.dataItem; //FA5858 F4FA58
+            switch (dataItem.StatusInt) {
+                case Number(@((byte)MyUtilities.Transaction.Status.Open)):
+                    e.row.childNodes[6].bgColor = "yellow";
+                    break;
+                case Number(@((byte)MyUtilities.Transaction.Status.Cancel)):
+                    e.row.childNodes[6].bgColor = "red";
+                    break;
+                case Number(@((byte)MyUtilities.Transaction.Status.Processing)):
+                    e.row.childNodes[6].bgColor = "orange";
+                    break;
+                default:
+                    break;
+            }
         }
+
         function gridTransactionDetail_OnRowDataBound(e) {
             var dataItem = e.dataItem; //FA5858 F4FA58
             
-            if (!dataItem.IsInvManager) {
-                document.getElementsByClassName("t-button t-grid-edit t-button-icon")[index - count].parentNode.innerHTML = "";
-                count++;
+            if (!dataItem.CanEdit) {
+                e.row.childNodes[0].innerHTML = "";
             }
-            index++;
         }
 
     </script>
@@ -83,8 +98,40 @@
 <div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Sổ lệnh</div>
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-
+            <legend>Tiêu chí trích lọc</legend>            
+            <div class="grid_2">
+                Công đoạn
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Warehouse")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWarehouseMainProcess", "Warehouse", new { area = "Inv" }).Delay(350))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        //.ClientEvents(events => events.OnChange("warehouse_OnChange"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                Tình trạng
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Status")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTransactionStatus", "Transaction"))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .Render();
+                }
+            </div>
             <div class="grid_3">
                 @{
                     Html.Telerik().DatePicker()
@@ -121,32 +168,31 @@
             .DataKeys(keys => keys.Add(f => f.TransactionId).RouteKey("TransactionId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectFormByStatus", "Transaction",
-                                                             new
-                                                             {
+                                                             new {
                                                                  status = 0,
                                                                  transactionId = "",
+                                                                 warehouseId = 0,
                                                                  fromDate = "",
                                                                  toDate = ""
                                                              })
             )
-            .Columns(columns =>
-                {
+            .Columns(columns => {
                     columns.Bound(f => f.FormType).Hidden();
-                    columns.Bound(f => f.TransactionCode).Width(100)
+                    columns.Bound(f => f.TransactionCode).Width(120)
                            .Title("Mã Giao Dịch");
-                    columns.Bound(f => f.WarehouseName).Width(100)
+                    columns.Bound(f => f.WarehouseName).Width(150)
                            .Title("Công đoạn");
                     columns.Bound(f => f.CreatedDate).Width(85)
                            .Format("{0:dd/MM/yyyy}")
                            .Title("Ngày báo cáo");
                     columns.Bound(f => f.TotalQuality).Title("Tổng SL").Width(80)
                             .Format("{0:n0}")
-                            .HtmlAttributes(new {style="text-align:right;"});
+                            .HtmlAttributes(new { style = "text-align:right;" });
                     columns.Bound(f => f.Status).Width(100)
-                            .Title("Tình trạnh");
+                            .Title("Tình trạng");
                     columns.Bound(f => f.Note)
                            .Title("Ghi Chú");
-                    columns.Bound(f => f.TransactionId).Title("In").Width(45)
+                    columns.Bound(f => f.TransactionId).Title("In").Width(50)
                            .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' ftype='<#= FormType #>' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(85);
@@ -166,12 +212,11 @@
                                .DataBinding(dataDindings => dataDindings.Ajax()
                                                                         .Select("SelectFormDetailByTransactionId", "Transaction",
                                new { transactionId = "<#= TransactionId #>", formType = "<#= FormType #>" })
-                                                                        .Update("UpdateFormDetailByTransactionId", "Transaction")
+                                                                        //.Update("UpdateFormDetailByTransactionId", "Transaction")
                                )
-                                   .Columns(columns =>
-                                       {
-                                           columns.Command(c => c.Edit().Text("").ButtonType(GridButtonType.Image)).Width(50);
-                                           columns.Bound(f => f.ProductCode).Width(100).Title("Sản phẩm");
+                                   .Columns(columns => {
+                                           //columns.Command(c => c.Edit().Text("").ButtonType(GridButtonType.Image)).Width(50);
+                                           columns.Bound(f => f.ProductCode).Width(100).Title("Sản phẩm").ReadOnly(true);
                                            columns.Bound(f => f.Number).Width(98).Title("Số lượng (PCS)")
                                                .HtmlAttributes(new { style = "text-align: right;" })
                                                .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>")
@@ -194,8 +239,7 @@
                                        })
 
             .ClientEvents(events => events.OnError("grid_OnError")
-                .OnRowDataBound("gridTransactionDetail_OnRowDataBound")
-                .OnDataBinding("gridTransactionDetail_OnDataBinding")
+                //.OnRowDataBound("gridTransactionDetail_OnRowDataBound")
             )
                                    .ToHtmlString()
                                )
@@ -206,6 +250,7 @@
             .ClientEvents(events => events
                                         .OnRowSelect("grid_OnRowSelect")
                                         .OnDataBinding("grid_onDataBinding")
+                                        .OnRowDataBound("gridTransaction_OnRowDataBound")
                                         .OnError("grid_OnError")
             )
             //.Pageable(f => f.PageSize(10))

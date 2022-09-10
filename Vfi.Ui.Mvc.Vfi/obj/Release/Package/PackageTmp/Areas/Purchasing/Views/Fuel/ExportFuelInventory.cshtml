@@ -4,7 +4,7 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model MaterialInventoryModel
 @{
-    ViewBag.Title = "Xuất tồn kho nhiên liệu";
+    ViewBag.Title = "Xuất kho nhiên liệu";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -173,7 +173,7 @@
         .DataKeys(keys => keys.Add(f => f.FuelInvId).RouteKey("fuelInvId"))
         .DataBinding(dataBindings => dataBindings.Ajax()
             .Select("SelectExportInputFuelInventory", "Fuel", new { invIds = "" })
-            .Update("ExportTransactionFuelInventory", "Fuel"))
+            .Update("ExportTransactionFuelInventory", "Fuel", new { isInternal = false }))
         .Columns(columns =>
         {
             columns.Bound(f => f.VendorCodeName).Width(250).Title("NCC").ReadOnly(true);
@@ -187,7 +187,7 @@
             columns.Bound(f => f.TransactionDate).Width(90).ReadOnly(true).Title("Ngày nhập")
                 .Format("{0:dd/MM/yyyy}");
             columns.Bound(f => f.Quantity).Width(70)
-                .HeaderTemplate("SL Hủy")
+                .HeaderTemplate("Số lượng")
                 .HtmlAttributes(new { style = "text-align:right" })
                    .ClientTemplate("<span name='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n1}', Quantity) #></span>")
                    .FooterTemplate("<span id='TotalQuantity'></span>");

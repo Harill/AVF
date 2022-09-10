@@ -18,18 +18,18 @@
             .Columns(columns => {
                 columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("Duyệt")
                     .HtmlAttributes(new { style = "text-align:center" });
-                
+
                 columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
                 columns.Bound(f => f.RoutingName).Title("Công đoạn").Width(200).ReadOnly(true);
                 columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
-                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(170).ReadOnly(true);
-                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(100).ReadOnly(true);
                 columns.Bound(f => f.PlannedCost).Title("Số lượng</br>(pcs)").Width(70).ReadOnly(true)
                     .HeaderHtmlAttributes(new { @class = "good-column" })
                     .Format("{0:n0}");
                 columns.Bound(f => f.PlannedWeight).Title("Trọng lượng</br>(g)").Width(70).ReadOnly(true)
                     .HeaderHtmlAttributes(new { @class = "good-column" })
                     .Format("{0:n0}");
+                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(170).ReadOnly(true);
                 columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
             })
             .Selectable()

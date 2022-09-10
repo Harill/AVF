@@ -310,7 +310,7 @@
         .DataKeys(keys => keys.Add(f => f.FuelId).RouteKey("fuelId"))
         .DataBinding(dataBindings => dataBindings.Ajax()
             .Select("SelectFuelInPo", "Fuel", new { ids = "", poId = 0 })
-            .Update("UpdateImportFuel", "Fuel"))
+            .Update("UpdateImportFuel", "Fuel", new { isInternal = false }))
         .Columns(columns =>
             {
                 columns.Bound(f => f.FuelFullCodeName).Width(280).ReadOnly(true)

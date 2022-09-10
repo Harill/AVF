@@ -8,6 +8,8 @@ using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
 using System.Web;
+using System.Data.Entity.Validation;
+using System.Data.Entity.Infrastructure;
 
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
@@ -79,6 +81,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         }
                     }
                 }
+
                 return new PageConfigModel {
                     PageName = model.WorkGroupName,
                     PageTheme = model.ThemeCss,
@@ -95,10 +98,34 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     return System.Web.HttpContext.Current.Server.MapPath("~/Content");
                 return HttpRuntime.AppDomainAppPath + "Content";
             }
+            public static string GetUtilityPath() {
+                if (System.Web.HttpContext.Current != null)
+                    return System.Web.HttpContext.Current.Server.MapPath("~/Utilities");
+                return HttpRuntime.AppDomainAppPath + "Utilities";
+            }
             public static string GetLogPath() {
                 if (System.Web.HttpContext.Current != null)
                     return System.Web.HttpContext.Current.Server.MapPath("~/Logs");
                 return HttpRuntime.AppDomainAppPath + "Logs";
+            }
+
+            public static string FetchExceptionMessage(Exception ex) {
+                if (ex.GetType() == typeof(DbEntityValidationException)) {
+                    var exType = (DbEntityValidationException)ex;
+                    return exType.EntityValidationErrors.First().Entry.Entity.ToString() + ": "
+                        + exType.EntityValidationErrors.First().ValidationErrors.First().ErrorMessage ?? ex.Message;
+                }
+                else if (ex.GetType() == typeof(DbUpdateException)) {
+                    var exType = (DbUpdateException)ex;
+                    return exType.InnerException.InnerException.Message ?? ex.Message;
+                    //return exType.EntityValidationErrors.First().Entry.Entity.ToString() + ": "
+                    //    + exType.EntityValidationErrors.First().ValidationErrors.First().ErrorMessage;
+                }
+                return ex.Message;
+            }
+            public class MyStatusModel {
+                public int Value { get; set; }
+                public string Text { get; set; }
             }
         }
 
@@ -315,6 +342,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 catch (Exception ex) { throw ex; }
                 return list;
             }
+
             public static void SaveLog(string actionName, string msg) {
 
                 //string actionName = this.ControllerContext.RouteData.Values["action"].ToString();
@@ -328,13 +356,16 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 //sw.Close();
             }
 
-            public static double Round(double value) {
+            public static int Round(double value) {
+                return Convert.ToInt32(Math.Round(value));
+            }
+            public static int Round10(double value) {
                 var temp = value % 10;
                 if (temp > 5)
                     value = value - temp + 10;
                 else
                     value = value - temp;
-                return value;
+                return Convert.ToInt32(value);
             }
 
             public static double Round5(double value) {
@@ -1243,6 +1274,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         IncreateParam(paramCode);
                         return GetParam(type, increatNum);
                     }
+                    else {
+                        IncreateParam(paramCode);
+                    }
                     return code;
                 }
                 catch (Exception ex) {
@@ -1407,9 +1441,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     var rs = "";
 
                     switch (status) {
-                        //case (int)Status.Open:
-                        //    rs = "Đợi duyệt";
-                        //    break;
+                        case (int)Status.Open:
+                            rs = "Đợi duyệt";
+                            break;
                         case (int)Status.Approved:
                             rs = "Đã duyệt";
                             break;
@@ -1417,10 +1451,10 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                             rs = "Huỷ bỏ";
                             break;
                         case (int)Status.Processing:
-                            rs = "Đang duyệt";
+                            rs = "Đang xử lý";
                             break;
                         default:
-                            rs = "Đợi duyệt";
+                            rs = "";
                             break;
                     }
 
@@ -1430,9 +1464,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     var rs = "";
 
                     switch (status) {
-                        //case (int)Status.Open:
-                        //    rs = "Đợi duyệt";
-                        //    break;
+                        case (int)Status.Open:
+                            rs = "Đợi phân lỗi";
+                            break;
                         case (int)Status.Approved:
                             rs = "Đã phân lỗi";
                             break;
@@ -1443,7 +1477,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                             rs = "Đang phân lỗi";
                             break;
                         default:
-                            rs = "Đợi phân lỗi";
+                            rs = "";
                             break;
                     }
 
@@ -1744,7 +1778,32 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 }
                 return param;
             }
+            public static string GetPlatingStatusText(int status) {
+                var rs = "";
+
+                switch (status) {
+                    case 1:
+                        rs = "Chưa duyệt";
+                        break;
+                    case 2:
+                        rs = "Hoàn thành";
+                        break;
+                    case 3:
+                        rs = "Huỷ bỏ";
+                        break;
+                    case 4:
+                        rs = "Đang tiến hành";
+                        break;
+                    default:
+                        rs = "Chưa duyệt";
+                        break;
+                }
+
+                return rs;
+            }
+
         }
+
         #endregion
 
         #region product
@@ -2539,6 +2598,22 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
         #region work order
         public static class WorkOrder {
+            public static List<int> ActivatedStatus {
+                get {
+                    return new List<int> { 
+                        (int)MyUtilities.WorkOrder.Status.Pending, 
+                        (int)MyUtilities.WorkOrder.Status.Actived, 
+                        (int)MyUtilities.WorkOrder.Status.InProcess };
+                }
+            }
+            public static List<MySystem.MyStatusModel> ActivatedStatusModel {
+                get {
+                    return ActivatedStatus.Select(x => new MySystem.MyStatusModel { 
+                        Value = x,
+                        Text = MyUtilities.WorkOrder.GetText(x) 
+                    }).ToList();
+                }
+            }
             public enum Status {
                 Pending = 1,
                 Actived = 2,

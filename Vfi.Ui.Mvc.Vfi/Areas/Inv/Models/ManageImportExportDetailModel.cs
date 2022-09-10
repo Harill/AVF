@@ -16,6 +16,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public long TransactionId { get; set; }
         public int FormId { get; set; }
         public int FormType { get; set; }
-        public bool IsInvManager { get; set; }
+        public bool CanEdit { get; set; }
     }
 }

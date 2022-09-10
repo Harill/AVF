@@ -24,6 +24,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string StatusName { get; set; }
 
         public int WorkOrderCount { get; set; }
+        public double TotalInv { get; set; }
 
     }
 

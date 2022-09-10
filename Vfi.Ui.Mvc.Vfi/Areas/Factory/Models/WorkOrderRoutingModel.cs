@@ -11,7 +11,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
     public class WorkOrderRoutingModel {
         public int RoutingId { get; set; }
         public string RoutingName { get; set; }
-        public string RoutingFullName { get { return RoutingName + "-" + SerialNumber; } }
+        public string RoutingFullName { get { return RoutingName + "-" + SerialNumber + "-" + ProductCode; } }
         public int WorkOrderId { get; set; }
         public string SerialNumber { get; set; }
         public int ProductId { get; set; }
@@ -63,9 +63,34 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double NGWeight { get; set; }
         [DataType("Number0Digit")]
         public double DefectWeight { get; set; }
-
+        public double DiffQuantity { get; set; }
         public ProductionFuelModel PackingInfo { get; set; }
 
+        public string PrintGoodQuantity {
+            get {
+                return Status != (byte)MyUtilities.WorkOrder.Status.Pending
+                    && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
+                    && GoodQuantity > 0
+                ? string.Format("{0:n0}", GoodQuantity)
+                : "";
+            }
+        }
+        public string PrintNGQuantity {
+            get {  
+                return Status != (byte)MyUtilities.WorkOrder.Status.Pending
+                    && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
+                    && GoodQuantity > 0
+                ? string.Format("{0:n0}", NGQuantity)
+                : "";; }
+        }
+        public string PrintDefectQuantity {
+            get {  
+                return Status != (byte)MyUtilities.WorkOrder.Status.Pending
+                    && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
+                    && GoodQuantity > 0
+                ? string.Format("{0:n0}", DefectQuantity)
+                : "";; }
+        }
     }
     // damm
     public class WorkOrderRoutingInfo {

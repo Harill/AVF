@@ -104,7 +104,8 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers {
         }
 
         public ActionResult LogOnUserControl() {
-            return PartialView("_LogOnUserControl");
+            var configData = GetPageConfigData();
+            return PartialView("_LogOnUserControl", configData);
         }
 
         [GridAction]

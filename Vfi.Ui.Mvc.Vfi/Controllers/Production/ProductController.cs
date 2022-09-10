@@ -17,6 +17,8 @@ using Vfi.Ui.Mvc.Vfi.Models.Production;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using System.Globalization;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers;
+using System.Data.Entity.Validation;
+using Telerik.Web.Mvc.Extensions;
 
 namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
     public class ProductController : Controller {
@@ -891,7 +893,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             TaxCode = newProduct.ProductName + " " + newProduct.DesignNo,
                             ProductShape = "",
                             Note = newProduct.Note,
-                            IdentityCode = newProduct.IdentityCode,
+                            //IdentityCode = newProduct.IdentityCode,
                             MaxQuantityInTray = 0,
                             MaxQuantityInTrayRunTime = 0
                         };
@@ -914,6 +916,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         product.DrawingFinish = product.Drawing2D;
                         vfi.Products.Add(product);
                         vfi.SaveChanges();
+                        product.IdentityCode = String.Format("{0:0000}", product.ProductId);
                         var processProduction1 = new ProductionProcess {
                             WarehouseId = MyUtilities.Warehouse.Production1,
                             ProcessIndex = 1,
@@ -977,6 +980,247 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             return View(new GridModel(SelectAllProducts(false, (byte)MyUtilities.Product.ProductStatusEnum.Calculating, 0, "", 0, "","")));
         }
 
+
+        public ActionResult DuplicateProduct(int productId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var product = vfi.Products.FirstOrDefault(x => x.ProductId == productId);
+                    if (product == null) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotFound, "Không tìm thấy", null));
+                    }
+                    var newProduct = new Product() {
+                        //import new product
+                        ProductName = (product.ProductName + "").Trim(),
+                        CustomerId = product.CustomerId,
+                        //MaterialId = 1,
+                        DesignNo = product.DesignNo,
+                        UnitPrice = product.UnitPrice ?? 0,
+                        //default weight
+                        CncWeight = product.CncWeight,
+                        Production2Weight = product.Production2Weight,
+                        HeatTreatmentWeight = product.HeatTreatmentWeight,
+                        SurfaceTreatmentWeight = product.SurfaceTreatmentWeight,
+                        WaitingPlatingWeight = product.WaitingPlatingWeight,
+                        PlatingWeight = product.PlatingWeight,
+                        QcWeight = product.QcWeight,
+                        FinishWeight = product.FinishWeight,
+                        OutsideProcessWeight = product.OutsideProcessWeight,
+                        //default design
+                        ProcessingDesign = product.ProcessingDesign,
+                        ProductionFactor = 1,
+                        OutDiameterDesign = product.OutDiameterDesign,
+                        InDiameterDesign = product.InDiameterDesign,
+                        ProductionWeight = product.ProductionWeight,
+                        Productivity = product.Productivity,
+                        ProductionRate = product.ProductionRate,
+                        Diameter = product.Diameter ?? 0,
+                        Length = product.Length ?? 0,
+                        Weight = product.Weight ?? 0,
+                        ShapeDesign = product.ShapeDesign,
+                        MaterialNameDesign = product.MaterialNameDesign,
+                        ForecastsQuality = 0,
+                        // default
+                        Active = true,
+                        IsSelling = false,
+                        SaleFactor = 1,
+                        Status = (byte)MyUtilities.Product.ProductStatusEnum.Calculating,
+                        Diff = 0,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        ModifiedDate = DateTime.Now,
+                        DiameterTypeDesign = product.DiameterTypeDesign,
+                        OutDiameterTolerance = product.OutDiameterTolerance,
+                        InDiameterTolerance = product.InDiameterTolerance,
+                        ProcessingCost = product.ProcessingCost,
+                        NewUpdateDate = DateTime.Now,
+                        FinishProcessingDate = DateTime.Now,
+                        LastMonthSaleFactor = 1,
+                        LastSaleFactor = 1,
+                        LastMonthUpdateDate = DateTime.Now,
+                        LastUpdateDate = DateTime.Now,
+                        KnifeCut = product.KnifeCut,
+                        MaterialCost = product.MaterialCost,
+                        MillProductivity = product.MillProductivity,
+                        DiffRequestInv = product.DiffRequestInv,
+                        QcProductivity = product.QcProductivity,
+                        CncProductivity = product.CncProductivity,
+                        FinishDesign = false,
+                        TaxCode = product.ProductName + " " + product.DesignNo,
+                        ProductShape = product.ProductShape,
+                        Note = product.Note,
+                        MaxQuantityInTray = product.MaxQuantityInTray,
+                        MaxQuantityInTrayRunTime = product.MaxQuantityInTrayRunTime,
+                        MaterialId = product.MaterialId,
+                        Currency = product.Currency,
+                        Drawing2D = product.Drawing2D,
+                        DrawingFinish = product.DrawingFinish,
+                        IdentityCode = "",
+                        ProductCode = MyUtilities.Product.GetAutoProductCode(),
+                        MachineFunction = product.MachineFunction,
+                    };
+                    // clone process
+                    foreach (var process in product.ProductionProcesses.Where(x => x.IsAlert && x.IsNecessary).OrderBy(x => x.ProcessIndex)) {
+                        newProduct.ProductionProcesses.Add(new ProductionProcess {
+                            IsNecessary = process.IsNecessary,
+                            IsAlert = process.IsAlert,
+                            ModifiedDate = newProduct.ModifiedDate,
+                            ModifiedUser = newProduct.ModifiedUser,
+                            ProcessIndex = process.ProcessIndex,
+                            WarehouseId = process.WarehouseId,
+                        });
+                        if (process.Warehouse.IsProduction2) {
+                            foreach (var production in product.ProductionSections.Where(x => x.IsMainProcess && x.Active).OrderBy(x => x.SectionIndex)) {
+                                newProduct.ProductionSections.Add(new ProductionSection {
+                                    SectionId = production.SectionId,
+                                    IsMainProcess = production.IsMainProcess,
+                                    Active = production.Active,
+                                    InsertDate = newProduct.ModifiedDate,
+                                    InsertUser = newProduct.ModifiedUser,
+                                    SectionIndex = production.SectionIndex,
+                                    MachineId = production.MachineId,
+                                    Productivity = production.Productivity,
+                                    SectionCost = production.SectionCost
+                                });
+                            }
+                        }
+                        else if (process.Warehouse.IsHeatTreatment) {
+                            foreach (var production in product.ProductionHeatTreatments.Where(x => x.Active)) {
+                                newProduct.ProductionHeatTreatments.Add(new ProductionHeatTreatment {
+                                    ModifiedDate = newProduct.ModifiedDate,
+                                    ModifiedUser = newProduct.ModifiedUser,
+                                    Active = production.Active,
+                                    MachineId = production.MachineId,
+                                    Name = production.Name,
+                                    Rate = production.Rate,
+                                    Section = production.Section,
+                                    Stiffness = production.Stiffness,
+                                    Temperature = production.Temperature,
+                                    Timing = production.Timing,
+                                });
+                            }
+                        }
+                        else if (process.Warehouse.IsPolish) {
+                            foreach (var production in product.ProductionPolishes.Where(x => x.Active)) {
+                                newProduct.ProductionPolishes.Add(new ProductionPolish {
+                                    ModifiedDate = newProduct.ModifiedDate,
+                                    ModifiedUser = newProduct.ModifiedUser,
+                                    Active = production.Active,
+                                    MachineId = production.MachineId,
+                                    Name = production.Name,
+                                    Rate = production.Rate,
+                                    Section = production.Section,
+                                    Timing = production.Timing,
+                                    Rock = production.Rock,
+                                    Using = production.Using,
+                                });
+                            }
+                        }
+                        else if (process.Warehouse.IsPlating) {
+                            foreach (var production in product.ProductionPlatings.Where(x => x.Active && x.IsMainProcess)) {
+                                newProduct.ProductionPlatings.Add(new ProductionPlating {
+                                    ModifiedDate = newProduct.ModifiedDate,
+                                    ModifiedUser = newProduct.ModifiedUser,
+                                    Active = production.Active,
+                                    IsMainProcess = production.IsMainProcess,
+                                    InsertDate = newProduct.ModifiedDate,
+                                    InserUser = newProduct.ModifiedUser,
+                                    PlatingIndex = production.PlatingIndex,
+                                    PlatingCost = production.PlatingCost,
+                                    PlatingDay = production.PlatingDay,
+                                    PlatingName = production.PlatingName,
+                                    SaltSprayTime = production.SaltSprayTime,
+                                    Thickness = production.Thickness,
+                                });
+                            }
+                        }
+                        else if (process.Warehouse.IsPacking) {
+                            foreach (var production in product.ProductionFuels.Where(x => x.Active)) {
+                                newProduct.ProductionFuels.Add(new ProductionFuel {
+                                    ModifiedDate = newProduct.ModifiedDate,
+                                    ModifiedUser = newProduct.ModifiedUser,
+                                    Active = production.Active,
+                                    CrossWeight = production.CrossWeight,
+                                    CrossWeight2 = production.CrossWeight2,
+                                    Fuel2Id = production.Fuel2Id,
+                                    FuelId = production.FuelId,
+                                    Priority = production.Priority,
+                                    Quota = production.Quota,
+                                    Quota2 = production.Quota2,
+                                });
+                            }
+                        }
+                    }
+                    // clone production
+                    {
+                        foreach (var production in product.ProductionTools.Where(x => x.Active)) {
+                            newProduct.ProductionTools.Add(new ProductionTool {
+                                ModifiedDate = newProduct.ModifiedDate,
+                                ModifiedUser = newProduct.ModifiedUser,
+                                Active = production.Active,
+                                ProcessWarehouseId = production.ProcessWarehouseId,
+                                Quota = production.Quota,
+                                ToolId = production.ToolId,
+                                ToolIndex = production.ToolIndex,
+                                ToolLocation = production.ToolLocation,
+                                UseNumber = production.UseNumber,
+                                NamingToolId = production.NamingToolId,
+                            });
+                        }
+                    }
+                    {
+                        foreach (var production in product.ProductionMaterials.Where(x => x.Active)) {
+                            newProduct.ProductionMaterials.Add(new ProductionMaterial {
+                                ModifiedDate = newProduct.ModifiedDate,
+                                ModifiedUser = newProduct.ModifiedUser,
+                                Active = production.Active,
+                                MaterialId = production.MaterialId,
+                                Priority = production.Priority,
+                                UnitWeightByMaterial = production.UnitWeightByMaterial,
+                                Note = production.Note
+                            });
+                        }
+                    }
+                    {
+                        foreach (var testing in product.ProductionTestings) {
+                            var newTesting = new ProductionTesting {
+                                ModifiedDate = newProduct.ModifiedDate,
+                                ModifiedUser = newProduct.ModifiedUser,
+                                Note = testing.Note,
+                                WarehouseId = testing.WarehouseId,
+                            };
+                            foreach (var production in testing.ProductionTestingDetails.Where(x => x.Active)) {
+                                newTesting.ProductionTestingDetails.Add(new ProductionTestingDetail {
+                                    ModifiedDate = newProduct.ModifiedDate,
+                                    ModifiedUser = newProduct.ModifiedUser,
+                                    Active = production.Active,
+                                    MaxNumber = production.MaxNumber,
+                                    MinNumber = production.MinNumber,
+                                    TestingCode = production.TestingCode,
+                                    TestingName = production.TestingName,
+                                    TestRate = production.TestRate,
+                                });
+
+                            }
+                            product.ProductionTestings.Add(newTesting);
+                        }
+                    }
+                    vfi.Products.Add(newProduct);
+                    var saved = vfi.SaveChanges();
+
+                    product.IdentityCode = String.Format("{0:0000}", product.ProductId);
+                    saved += vfi.SaveChanges();
+
+                    return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "", saved));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.Exception,
+                    MyUtilities.MySystem.FetchExceptionMessage(ex),
+                    null));
+            }
+            //return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoThing, "", null));
+        }
+
         [HttpPost]
         [GridAction]
         public ActionResult UpdateProduct(ProductModel updateProduct) {
@@ -1010,9 +1254,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     product.PlatingWeight = updateProduct.PlatingWeight;
                     product.QcWeight = updateProduct.QcWeight;
                     //product.FinishWeight = updateProduct.FinishWeight; 
-                    if (product.MaxQuantityInTray <= 0) {
+                    if (product.MaxQuantityInTray <= 0 && product.Productivity > 0 && product.ProductionWeight > 0) {
                         var maxWeight = 20000;
-                        var maxTime = 3 * 24 * 3600;
+                        var maxTime = 1.5 * 24 * 3600;
                         var quantityWeight = 0;
                         if (product.ProductionWeight > 0) {
                             quantityWeight = MyUtilities.Function.RoundDown(maxWeight / product.ProductionWeight.Value);
@@ -1026,14 +1270,14 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         product.MaxQuantityInTrayRunTime = _productionController.CalculateProductionWorkOrderRunTime(product, packingProductivity);
                     }
                     vfi.SaveChanges();
-
-                    product.IdentityCode = String.Format("{0:0000}", product.ProductId);
-                    vfi.SaveChanges();
-
+                    if (string.IsNullOrWhiteSpace(product.IdentityCode)) {
+                        product.IdentityCode = String.Format("{0:0000}", product.ProductId);
+                        vfi.SaveChanges();
+                    }
                     return View(new GridModel(SelectAllProducts(false, 0, customerId, productCode, 0, "", "")));
                 }
                 catch (Exception ex) {
-                    ModelState.AddModelError("UpdateProductManagementInv", ex.Message);
+                    ModelState.AddModelError("UpdateProductManagementInv", MyUtilities.MySystem.FetchExceptionMessage(ex));
                 }
                 return View(new GridModel(new List<ProductModel>()));
             }
@@ -1771,6 +2015,29 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             }
             return new JsonResult {
                 Data = new SelectList(model, "ProductId", "ProductCodeName"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+        public ActionResult SelectComboBoxWorkOrderProduct(string text) {
+            var model = new List<string>();
+            if (text.HasValue()) {
+                try {
+                    using (var vfi = new tammaContext()) {
+                        model =
+                           (from p in vfi.Products
+                            where p.Customer.IsWorkOrder == true
+                            orderby p.ProductCode
+                            where p.Active
+                            select p.ProductCode).ToList();
+                        model = model.Where(p => p.StartsWith(text, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+                }
+                catch (Exception ex) {
+                    throw ex;
+                }
+            }
+            return new JsonResult {
+                Data = model,
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet
             };
         }
@@ -2696,9 +2963,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     }
 
                     // auto update work order config
-                    if (product.MaxQuantityInTray <= 0) {
+                    if (product.MaxQuantityInTray <= 0 && product.Productivity > 0 && product.ProductionWeight > 0) {
                         var maxWeight = 20000;
-                        var maxTime = 3 * 24 * 3600;
+                        var maxTime = 1.5 * 24 * 3600;
                         var quantityWeight = 0;
                         if (product.ProductionWeight > 0) {
                             quantityWeight = MyUtilities.Function.RoundDown(maxWeight / product.ProductionWeight.Value);
@@ -3835,7 +4102,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     var entity =
                         vfi.ProductionMaterials.FirstOrDefault(
                             pm => pm.MaterialId == materialId && pm.ProductId == productId);
-                    if (entity != null) {
+                    if (entity == null) {
                         entity = new ProductionMaterial {
                             ProductId = productId,
                             Priority = insert.Priority,
@@ -3869,11 +4136,14 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         entity.ModifiedDate = DateTime.Now;
                         entity.ModifiedUser = HttpContext.User.Identity.Name;
                     }
+                    if (product.MaterialId == null) {
+                        product.MaterialId = materialId;
+                    }
                     vfi.SaveChanges();
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("InsertProductionMaterial", ex.Message);
+                ModelState.AddModelError("InsertProductionMaterial", MyUtilities.MySystem.FetchExceptionMessage(ex));
             }
             return View(new GridModel(GetMaterialListByProductId(productId)));
         }
@@ -4067,12 +4337,24 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 if (fromProductId == 0) {
                     throw new AggregateException("Lỗi sản phẩm ! Chọn lại sản phẩm.");
                 }
-                var entity = new ProductCombinationRecipeDetail { 
-                    RecipeId = recipeId,
-                    FromProductId = fromProductId,
-                    RequireNumber = insert.RequireNumber
-                };
                 using (var vfi = new tammaContext()) {
+                    var recipe = vfi.ProductCombinationRecipes.FirstOrDefault(x => x.RecipeId == recipeId);
+                    if (recipe == null) {
+                        throw new AggregateException("Lỗi ! Không tìm thấy công thức ghép");
+                    }
+                    if (recipe.ProductId == fromProductId) {
+                        throw new AggregateException("Lỗi ! Sản phẩm trong công thức không được trùng với sản phẩm ghép");
+                    }
+                    var existedDetail = vfi.ProductCombinationRecipeDetails.FirstOrDefault(x => x.RecipeId == recipeId
+                        && x.FromProductId == fromProductId);
+                    if (existedDetail != null) {
+                        throw new AggregateException("Lỗi ! Sản phẩm trong công thức đã có");
+                    }
+                    var entity = new ProductCombinationRecipeDetail {
+                        RecipeId = recipeId,
+                        FromProductId = fromProductId,
+                        RequireNumber = insert.RequireNumber
+                    };
                     vfi.ProductCombinationRecipeDetails.Add(entity);
                     vfi.SaveChanges();
                 }
@@ -4106,7 +4388,19 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             fromProductId = Convert.ToInt32(update.FromProductCode);
                         }
                         catch (Exception) { }
-                        if (update.FromProductId > 0) {
+                        if (fromProductId > 0) {
+                            var recipe = vfi.ProductCombinationRecipes.FirstOrDefault(x => x.RecipeId == recipeId);
+                            if (recipe == null) {
+                                throw new AggregateException("Lỗi ! Không tìm thấy công thức ghép");
+                            }
+                            if (recipe.ProductId == fromProductId) {
+                                throw new AggregateException("Lỗi ! Sản phẩm trong công thức không được trùng với sản phẩm ghép");
+                            }
+                            var existedDetail = vfi.ProductCombinationRecipeDetails.FirstOrDefault(x => x.RecipeId == recipeId
+                                && x.FromProductId == fromProductId);
+                            if (existedDetail != null) {
+                                throw new AggregateException("Lỗi ! Sản phẩm trong công thức đã có");
+                            }
                             recipeDetail.FromProductId = fromProductId;
                         }
                         recipeDetail.RequireNumber = update.RequireNumber;

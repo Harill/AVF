@@ -14,6 +14,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             ProductionRate = 0;
             ProductWeight = 0;
         }
+        public long Id { get; set; }
         public DateTime Date { get; set; }
         public string DateString { get; set; }
         public int MachineId { get; set; }

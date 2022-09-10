@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Vfi.Ui.Mvc.Vfi.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
@@ -31,5 +32,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string Package { get; set; }
         public int PackageNumber { get; set; }
         public int PlatingDetailId { get; set; }
+
+        public WorkGroupInfo Info { get; set; }
     }
 }
