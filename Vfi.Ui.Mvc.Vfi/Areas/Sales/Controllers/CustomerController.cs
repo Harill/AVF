@@ -102,6 +102,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         IsWorkOrder = customer.IsWorkOrder,
                     };
                     entity.PayType = payType.FirstOrDefault(pt => pt.Id == customer.CustomerPayTypeId).TypeName;
+                    if (customer.ShippingMethodId != null) {
+                        entity.ShippingMethodId = customer.ShippingMethodId ?? 0;
+                        entity.ShippingMethodName = customer.ShipMethod.Name;
+                        entity.ShippingMethodFee = customer.ShipMethod.ShipBase ?? 0;
+                    }
                     models.Add(entity);
                 }
             }
@@ -397,7 +402,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         State = (byte)MyUtilities.Sales.CustomerState.Active,
                         IsMonitor = true,
                         StartDate = customerUpdate.StartDate,
-                        IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder
+                        IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder,
+                        IsWorkOrder = customerUpdate.IsWorkOrder
                     };
                     if (string.IsNullOrWhiteSpace(customer.CustomerCode))
                         customer.State = (byte)MyUtilities.Sales.CustomerState.NewCustomer;
@@ -568,7 +574,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     var customer = vfi.Customers.FirstOrDefault(c => c.CustomerId == customerId);
-
+                    int methodId = 0;
+                    try {
+                        methodId = Convert.ToInt32(customerUpdate.ShippingMethodName);
+                    }
+                    catch (Exception) {
+                    }
+                    if (methodId != 0) {
+                        customer.ShippingMethodId = methodId;
+                    }
                     customer.Address = customerUpdate.Address ?? "";
                     customer.Eaddress = customerUpdate.Eaddress ?? "";
                     vfi.SaveChanges();
@@ -765,12 +779,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 using (var vfi = new tammaContext()) {
                     var customer = vfi.Customers.FirstOrDefault(c => c.CustomerId == customerId);
                     if (customer == null)
-                        return Json("9");
+                        return Json(
+                            new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "Lỗi! Không tìm thấy khách hàng",
+                            null));
                     var lastOrder = (from o in vfi.Orders
                                      orderby o.DueDate descending
                                      where o.DueDate != null &&
-                                           (o.Status == (byte)MyUtilities.Sales.Status.InProcess
-                                            || o.Status == (byte)MyUtilities.Sales.Status.Completed)
+                                           o.Status != (byte)MyUtilities.Sales.Status.Cancel
                                            && o.CustomerId == customerId
                                      select o).FirstOrDefault();
                     var info = new OrderModel {
@@ -795,22 +811,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             info.SalesPersonName = lastOrder.Employee.EmployeeName;
                         }
                     }
-                    return
-                        Json(new object[]
-                            {
-                               info.BillToAddress,
-                               info.CurrencyCode,
-                               info.ShipMethodId,
-                               info.ShipMethodName,
-                               info.PaymentMethodId,
-                               info.PaymentMethodName,
-                               info.SalesPersonId,
-                               info.SalesPersonName
-                            });
+                    return Json(
+                        new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        info));
                 }
             }
-            catch (Exception) {
-                return Json("0");
+            catch (Exception ex) {
+                return Json(
+                    new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.Exception,
+                    ex.Message,
+                    null));
             }
         }
 

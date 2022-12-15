@@ -11,9 +11,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.HasKey(t => t.DetailId);
 
             // Properties
-            this.Property(t => t.DefectExpand)
-                .HasMaxLength(50);
-
             // Table & Column Mappings
             this.ToTable("DefectTransactionDetail", "Factory");
             this.Property(t => t.DetailId).HasColumnName("DetailId");

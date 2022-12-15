@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Vfi.Ui.Mvc.Vfi.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 {
-    public class TrackUpMachineModel
-    {
+    public class TrackUpMachineModel {
         public string Title { get; set; }
         public DateTime ReportDate { get; set; }
         public int TrackId { get; set; }
@@ -69,6 +69,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string DrawingImg { get; set; }
         public string UploadDate { get; set; }
         public double ProductionWeight { get; set; }
+
+        public List<TrackUpMaterial> TrackUpMaterials { get; set; }
     }
 
     public class Process

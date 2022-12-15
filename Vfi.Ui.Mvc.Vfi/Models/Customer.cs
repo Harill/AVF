@@ -45,8 +45,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public int State { get; set; }
         public bool IsNotRequireApproveOrder { get; set; }
         public bool IsWorkOrder { get; set; }
+        public Nullable<int> ShippingMethodId { get; set; }
         public virtual ICollection<ExportFormTP_KD> ExportFormTP_KD { get; set; }
         public virtual ICollection<Product> Products { get; set; }
+        public virtual ShipMethod ShipMethod { get; set; }
         public virtual Area Area { get; set; }
         public virtual CustomerClassified CustomerClassified { get; set; }
         public virtual CustomerType CustomerType { get; set; }

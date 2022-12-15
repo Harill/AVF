@@ -22,7 +22,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string GetMachineIndex()
         {
             string a = "";
-            a = MachineName + ": " + MyUtilities.Machine.Diagram.GetText(MachineDiagram) + "-" + ColumnIndex + "-" + RowIndex;
+            a = MachineName + ": " + MyUtilities.Machine.GetDiagramText(MachineDiagram) + "-" + ColumnIndex + "-" + RowIndex;
             return a;
         }
     }
@@ -32,7 +32,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public static string GetFullMachineIndex(Machine machine)
         {
             string a = "";
-            a = machine.MachineName + ": " + MyUtilities.Machine.Diagram.GetText(machine.DiagramType ?? 0) + "-"
+            a = machine.MachineName + ": " + MyUtilities.Machine.GetDiagramText(machine.DiagramType ?? 0) + "-"
                 + (machine.ColumnIndex ?? 0) + "-" + (machine.RowIndex ?? 0);
             return a;
         }
@@ -41,7 +41,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public static string GetMachineIndex(Machine machine)
         {
             string a = "";
-            a = MyUtilities.Machine.Diagram.GetText(machine.DiagramType ?? 0) + "-"
+            a = MyUtilities.Machine.GetDiagramText(machine.DiagramType ?? 0) + "-"
                 + (machine.ColumnIndex ?? 0) + "-" + (machine.RowIndex ?? 0);
             return a;
         }

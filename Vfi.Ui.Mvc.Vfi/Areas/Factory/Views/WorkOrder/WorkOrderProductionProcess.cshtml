@@ -1,4 +1,5 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@*@Model roundNumberConfig*@
 @{
     ViewBag.Title = "Công đoạn 1 WO";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -31,7 +32,80 @@
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
     <script>
-        
+        roundNumberConfig = 0;
+        $(document).ready(function () {
+            roundNumberConfig = @Model
+            loadEmployeeLogin();
+        });
+
+        function loadEmployeeLogin() {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetComboBoxEmployeeLogin", "Employee", new { area = "Sales" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var cbo = $('#Employee').data('tComboBox');
+                    cbo.dataBind(data);
+                    if (cbo.selectedIndex > -1) {
+
+                        var selected = cbo.data[cbo.selectedIndex];
+
+                        if (selected != undefined) {
+                            cbo.value(selected.Value);
+                            cbo.text(selected.Text);
+                            cbo.selectedIndex = cbo.selectedIndex;
+                            cbo.previousValue = selected.Value;
+                        } else {
+                            cbo.value(-1);
+                            cbo.text("");
+                        }
+                    } else {
+                        cbo.value(-1);
+                        cbo.text("");
+                    }
+                }
+            });
+        }
+
+        function ClearData() {
+
+            $("#SerialNumber")[0].innerText = '~~';
+            $("#WorkOrderQuantity")[0].innerText = '0';
+            $("#RoutingName")[0].innerText = '~~';
+            $("#NextRouteName")[0].innerText = '~~';
+
+            $("#ProductCode")[0].innerText = '~~';
+            $("#ProductionQuantity")[0].innerText = '';
+            $("#ProductWeight").val(0);
+            $("#ProductWeight").data("tTextBox").$text[0].innerHTML = 0;
+
+            $("#MachineName")[0].innerText = '~~';
+            $("#Productivity")[0].innerText = '0';
+            $("#ProductionRate")[0].innerText = '0';
+            productionRate = 0;
+            $("#KnifeCut")[0].innerText = '0';
+            $("#WorkPiece")[0].innerText = '0';
+
+            $("#MaterialInvCode")[0].innerText = '~~';
+            $("#MaterialAssign")[0].innerText = '0';
+            $("#MaterialUse")[0].innerText = '0';
+            $("#MaterialWaiting")[0].innerText = '0';
+            $("#MaterialRes")[0].innerText = '0';
+            quantity = 0;
+            weight = 0;
+            $("#WeighValue")[0].innerText = "0.00";
+            $("#QuantityValue")[0].innerText = "0";
+            dataInput = {
+                UsingQuantity: 0,
+                GoodQuantity: 0,
+                NGQuantity: 0,
+                DefectQuantity: 0,
+            };
+        }
+
         function workOrder_OnChange() {
             if (!onLoading) {
                 OnLoadingData();
@@ -64,11 +138,14 @@
 
                             $("#MaterialInvCode")[0].innerText = res.Data.MaterialInvCode;
                             $("#MaterialAssign")[0].innerText = res.Data.ActualResources;
-                            $("#MaterialUse")[0].innerText = res.Data.UsingQuantity;
+                            $("#MaterialUse")[0].innerText = res.Data.UsingQuantity.format(roundNumberConfig);
+                            $("#MaterialWaiting")[0].innerText = res.Data.WaitingApproveQuantity.format(roundNumberConfig);
+                            $("#MaterialRes")[0].innerText = (res.Data.ActualResources - res.Data.UsingQuantity - res.Data.WaitingApproveQuantity).format(roundNumberConfig);
                             quantity = 0;
                             weight = 0;
                             $("#WeighValue")[0].innerText = "0.00";
                             $("#QuantityValue")[0].innerText = "0";
+
                             RefreshGrid("grid");
                             OnLoadedData();
                         } else {
@@ -88,6 +165,7 @@
                 if (productWeight === 0) {
                     alert("Lỗi Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
                     e.preventDefault();
+                    return;
                 }
                 e.data = $.extend(e.data, {
                     routingId: workOrder,
@@ -97,102 +175,163 @@
             }
         }
 
-        function grid_OnSubmitChanges(e) {
+        //function grid_OnSubmitChanges(e) {
             
+        //    if (!onProcessing) {
+        //        OnProcessingData();
+        //        var workOrder = $("#WorkOrder").data('tComboBox').value();
+        //        if (workOrder === "") workOrder = 0;
+        //        var employee = $("#Employee").data('tComboBox').value();
+        //        if (employee === "" || employee === "-1") employee = 0;
+        //        var productWeight = $("#ProductWeight").data("tTextBox").value();
+        //        if (workOrder === 0 || employee === 0 || productWeight === 0) {
+        //            alert("Lỗi Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
+        //            OnProcessedData();
+        //            e.preventDefault();
+        //            return;
+        //        }
+        //        var processDate = $("#ProcessDate").data("tDateTimePicker").value();
+        //        if (processDate === null)
+        //            processDate = "";
+        //        else
+        //            processDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', processDate);
+        //        //e.values[0] 
+        //        e.values = $.extend(e.values,
+        //            {
+        //                routingId: workOrder,
+        //                employeeId: employee,
+        //                productWeight: productWeight,
+        //                machineId: 0,
+        //                processDate: processDate
+        //            });
+        //        ClearData();
+        //    } else {
+        //        e.preventDefault();
+        //    }
+        //}
+
+
+        function SaveProcess() {
             if (!onProcessing) {
                 OnProcessingData();
                 var workOrder = $("#WorkOrder").data('tComboBox').value();
                 if (workOrder === "") workOrder = 0;
                 var employee = $("#Employee").data('tComboBox').value();
-                if (employee === "") employee = 0;
+                if (employee === "" || employee === "-1") employee = 0;
                 var productWeight = $("#ProductWeight").data("tTextBox").value();
                 if (workOrder === 0 || employee === 0 || productWeight === 0) {
                     alert("Lỗi Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
                     OnProcessedData();
-                    e.preventDefault();
+                    return;
                 }
                 var processDate = $("#ProcessDate").data("tDateTimePicker").value();
                 if (processDate === null)
                     processDate = "";
                 else
                     processDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', processDate);
-                e.values = $.extend(e.values,
-                    {
+                $.ajax({
+                    type: 'post',
+                    data: {
                         routingId: workOrder,
                         employeeId: employee,
                         productWeight: productWeight,
                         machineId: 0,
-                        processDate: processDate
-                    });
-            } else {
-                e.preventDefault();
+                        processDate: processDate,
+                        usingQuantity: dataInput.UsingQuantity,
+                        goodQuantity: dataInput.GoodQuantity,
+                        ngQuantity: dataInput.NGQuantity,
+                        defectQuantity: dataInput.DefectQuantity,
+                    },
+                    dataType: 'json',
+                    url: '@Url.Action("SaveWorkOrderProcess", "WorkOrder", new { area = "Factory" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            alert("Đã lưu " + res.Data);
+                            if (res.Message && res.Message != "") {
+                                alert(res.Message);
+                            }
+                            ClearData();
+                            RefreshCombobox("WorkOrder");
+                            RefreshGrid("grid");
+                        } else {
+                            alert("Lỗi! " + res.Message);
+                        }
+                        OnProcessedData();
+                    }
+                });
+
             }
         }
+        
 
         function grid_OnDataBound() {
             OnProcessedData();
         }
 
         productionRate = 0;
+        var dataInput = {
+            UsingQuantity: 0,
+            GoodQuantity: 0,
+            NGQuantity: 0,
+            DefectQuantity: 0,
+        };
         function grid_OnSave(e) {
-            var goodQuantity = $(e.cell).find('#GoodQuantity').val();
-            var goodWeight = $(e.cell).find('#GoodWeight').val();
-            var ngQuantity = $(e.cell).find('#NGQuantity').val();
-            var ngWeight = $(e.cell).find('#NGWeight').val();
-            var defectQuantity = $(e.cell).find('#DefectQuantity').val();
-            var defectWeight = $(e.cell).find('#DefectWeight').val();
-            var usingQuantity = $(e.cell).find('#UsingQuantity').val();
+            var goodQuantityCell = $(e.cell).find('#GoodQuantity').val();
+            var goodWeightCell = $(e.cell).find('#GoodWeight').val();
+            var ngQuantityCell = $(e.cell).find('#NGQuantity').val();
+            var ngWeightCell = $(e.cell).find('#NGWeight').val();
+            var defectQuantityCell = $(e.cell).find('#DefectQuantity').val();
+            var defectWeightCell = $(e.cell).find('#DefectWeight').val();
+            var usingQuantityCell = $(e.cell).find('#UsingQuantity').val();
             var spanProduction = e.cell.parentElement.getElementsByClassName("ProductionQuantity")[0];
             var productWeight = e.dataItem.ProductWeight;
-            if (!isNaN(parseInt(goodQuantity))) {
-                e.dataItem.GoodQuantity = parseInt(goodQuantity);
-                goodWeight = parseInt(e.dataItem.GoodQuantity * e.dataItem.ProductWeight);
-                e.dataItem.GoodWeight = goodWeight;
+            if (!isNaN(parseInt(goodQuantityCell))) {
+                dataInput.GoodQuantity = parseInt(goodQuantityCell);
                 var span = e.cell.parentElement.getElementsByClassName("GoodWeight")[0];
-                span.textContent = goodWeight.format(0);
+                span.textContent = parseInt(dataInput.GoodQuantity * productWeight).format(0);
             }
-            else if (!isNaN(parseInt(goodWeight))) {
-                e.dataItem.GoodWeight = parseInt(goodWeight);
-                goodQuantity = parseInt(e.dataItem.GoodWeight / productWeight);
-                e.dataItem.GoodQuantity = goodQuantity;
+            else if (!isNaN(parseInt(goodWeightCell))) {
+                dataInput.GoodQuantity = parseInt(parseInt(goodWeightCell) / productWeight);
+                e.dataItem.GoodQuantity = dataInput.GoodQuantity;
                 var span = e.cell.parentElement.getElementsByClassName("GoodQuantity")[0];
-                span.textContent = goodQuantity.format(0);
+                span.textContent = dataInput.GoodQuantity.format(0);
             }
-            else if (!isNaN(parseInt(ngQuantity))) {
-                e.dataItem.NGQuantity = parseInt(ngQuantity);
-                ngWeight = parseInt(e.dataItem.NGQuantity * e.dataItem.ProductWeight);
-                e.dataItem.NGWeight = ngWeight;
+            else if (!isNaN(parseInt(ngQuantityCell))) {
+                dataInput.NGQuantity = parseInt(ngQuantityCell);
                 var span = e.cell.parentElement.getElementsByClassName("NGWeight")[0];
-                span.textContent = ngWeight.format(0);
+                span.textContent = parseInt(dataInput.NGQuantity * productWeight).format(0);
             }
-            else if (!isNaN(parseInt(ngWeight))) {
-                e.dataItem.NGWeight = parseInt(ngWeight);
-                ngQuantity = parseInt(e.dataItem.NGWeight / productWeight);
-                e.dataItem.NGQuantity = ngQuantity;
+            else if (!isNaN(parseInt(ngWeightCell))) {
+                dataInput.NGQuantity = parseInt(parseInt(ngWeightCell) / productWeight);
+                e.dataItem.NGQuantity = dataInput.NGQuantity;
                 var span = e.cell.parentElement.getElementsByClassName("NGQuantity")[0];
-                span.textContent = ngQuantity.format(0);
+                span.textContent = dataInput.NGQuantity.format(0);
             }
-            else if (!isNaN(parseInt(defectQuantity))) {
-                e.dataItem.DefectQuantity = parseInt(defectQuantity);
-                defectWeight = parseInt(e.dataItem.DefectQuantity * e.dataItem.ProductWeight);
-                e.dataItem.DefectWeight = defectWeight;
+            else if (!isNaN(parseInt(defectQuantityCell))) {
+                dataInput.DefectQuantity = parseInt(defectQuantityCell);
                 var span = e.cell.parentElement.getElementsByClassName("DefectWeight")[0];
-                span.textContent = defectWeight.format(0);
+                span.textContent = parseInt(dataInput.NGQuantity * productWeight).format(0);
             }
-            else if (!isNaN(parseInt(defectWeight))) {
-                e.dataItem.DefectWeight = parseInt(defectWeight);
-                defectQuantity = parseInt(e.dataItem.DefectWeight / productWeight);
-                e.dataItem.DefectQuantity = defectQuantity;
+            else if (!isNaN(parseInt(defectWeightCell))) {
+                dataInput.DefectQuantity = parseInt(parseInt(defectWeightCell) / productWeight);
+                e.dataItem.DefectQuantity = dataInput.DefectQuantity;
                 var span = e.cell.parentElement.getElementsByClassName("DefectQuantity")[0];
-                span.textContent = defectQuantity.format(0);
+                span.textContent = dataInput.DefectQuantity.format(0);
             }
-            else if (!isNaN(parseInt(usingQuantity))) {
-                var production = parseInt(parseInt(usingQuantity) * productionRate);
+            else if (!isNaN(parseInt(usingQuantityCell))) {
+                dataInput.UsingQuantity = parseFloat(parseFloat(usingQuantityCell).toFixed(roundNumberConfig));
+                //var span = e.cell.parentElement.getElementsByClassName("UsingQuantity")[0];
+                //span.textContent = dataInput.UsingQuantity.format(roundNumberConfig);
+
+                e.values["UsingQuantity"] = dataInput.UsingQuantity.format(roundNumberConfig);
+                e.dataItem.UsingQuantity = dataInput.UsingQuantity;
+                var production = parseInt(dataInput.UsingQuantity * productionRate);
                 e.dataItem.PreviousRouteQuantity = production;
                 spanProduction.textContent = production.format(0);
             }
-            e.dataItem.DiffQuantity = (e.dataItem.GoodQuantity + e.dataItem.NGQuantity + e.dataItem.DefectQuantity)
-                                        - e.dataItem.PreviousRouteQuantity;
+            e.dataItem.DiffQuantity = (dataInput.GoodQuantity + dataInput.NGQuantity + dataInput.DefectQuantity)
+                                        - dataInput.UsingQuantity * productionRate;
 
             var spanDiff = e.cell.parentElement.getElementsByClassName("DiffQuantity")[0];
             spanDiff.textContent = e.dataItem.DiffQuantity.format(0);
@@ -217,7 +356,7 @@
             e.dataItem.DiffQuantity = e.dataItem.DiffQuantity * -1;
             if (e.dataItem.DiffQuantity > 0) {
                 e.row.lastChild.bgColor = 'orange';
-                e.row.lastChild.innerText = e.dataItem.DiffQuantity;
+                e.row.lastChild.childNodes[0].innerText = e.dataItem.DiffQuantity;
             }
         }
     </script>
@@ -291,6 +430,7 @@
                                 quantity = weight / unitWeight;
                                 if (quantity < 0) quantity = 0;
                                 $("#QuantityValue")[0].innerText = (quantity).format(0);
+                                dataInput.GoodQuantity = quantity.format(0);
                                 RefreshGrid("grid");
                             }
                         } else {
@@ -301,6 +441,16 @@
             });
         }
 
+    </script>
+    <script>
+        function setDecimalDigits() {
+            var numberTextBox = $("#UsingQuantity").data("tTextBox");
+            numberTextBox.digits = roundNumberConfig;
+        }
+
+        function number_OnLoad(e) {
+            setDecimalDigits();
+        }
     </script>
 }
 
@@ -463,7 +613,7 @@
             @{
                     Html.Telerik().ComboBox()
                         .Name("Employee")
-                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
+                        //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployeeLogin", "Employee", new { area = "Sales" }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         //.DropDownHtmlAttributes(new { style = "width: 150px" })
                         .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
@@ -533,20 +683,36 @@
         </div>
             <div class="clear"></div>
         <div>
-            <div class="grid_6">
-                <div class="grid_2">
+            <div class="grid_2_5">
+                <div class="grid_1_5">
                     Phát
                 </div>
-                <div class="grid_3">
+                <div class="grid_0_5">
                     <span id="MaterialAssign">0</span>
                 </div>
             </div>
-            <div class="grid_6">
-                <div class="grid_2">
+            <div class="grid_2_5">
+                <div class="grid_1_5">
                     Sử dụng
                 </div>
-                <div class="grid_3">
+                <div class="grid_0_5">
                     <span id="MaterialUse">0</span>
+                </div>
+            </div>
+            <div class="grid_3">
+                <div class="grid_2">
+                    Chờ duyệt
+                </div>
+                <div class="grid_0_5">
+                    <span id="MaterialWaiting">0</span>
+                </div>
+            </div>
+            <div class="grid_2_5">
+                <div class="grid_1_5">
+                    Còn lại
+                </div>
+                <div class="grid_0_5">
+                    <span id="MaterialRes">0</span>
                 </div>
             </div>
         </div>
@@ -559,7 +725,24 @@
     @{
         Html.Telerik().Grid<WorkOrderRoutingModel>()
             .Name("grid")
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            //.ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_9">
+            <button class="t-button" id="btnSaveProcess" name="btnSaveProcess" onclick=" SaveProcess() ">
+                <span class='t-icon t-insert'></span>
+                Lưu nhập liệu
+                <span class="processButton"></span>
+            </button>
+            <button class="t-button" id="btnRefreshProcess" name="btnRefreshProcess" onclick=" RefreshGrid('grid') ">
+                <span class='t-icon t-delete'></span>
+                Hủy nhập liệu
+                <span class="processButton"></span>
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
             .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectWorkOrderProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0, weight = 0 })
@@ -572,7 +755,8 @@
                     .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.UsingQuantity).Width(90).HeaderTemplate("Sử dụng</br>nguyên liệu</br>(cây)")
                     .HeaderHtmlAttributes(new { @class = "edit-column", style = "text-align: center;" })
-                    .Format("{0:n0}")
+                    //.ClientTemplate("<span class='UsingQuantity'>0</span>")
+                    //.Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.PreviousRouteQuantity).Width(90).HeaderTemplate("Định mức</br>Sản phẩm</br>(pcs)").ReadOnly(true)
                     .HeaderHtmlAttributes(new { style = "text-align: center;" })
@@ -619,7 +803,7 @@
             .Editable(editing => editing.Mode(GridEditMode.InCell))
             .ClientEvents(events => events
                 .OnDataBinding("grid_OnDataBinding")
-                .OnSubmitChanges("grid_OnSubmitChanges")
+                //.OnSubmitChanges("grid_OnSubmitChanges")
                 .OnDataBound("grid_OnDataBound")
                 .OnRowDataBound("grid_OnRowDataBound")
                 .OnSave("grid_OnSave")

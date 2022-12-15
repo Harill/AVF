@@ -32,8 +32,8 @@
                 .ClientTemplate("<strong><#= WarehouseName #></strong>");
             columns.Bound(f => f.Description).Title("Mô tả")
                 .ClientTemplate("<strong><#= Description #></strong>");
-            columns.Bound(f => f.ProcessingFactor).Width(75)
-                   .HeaderTemplate("Hệ số</br>gia công");
+            //columns.Bound(f => f.ProcessingFactor).Width(75)
+            //       .HeaderTemplate("Hệ số</br>gia công");
             columns.Bound(f => f.ProcessingSaleFactor).Width(75)
                    .HeaderTemplate("Hệ số gia công</br>(báo giá)");
             columns.Bound(f => f.Active).Width(75)
@@ -42,8 +42,6 @@
             columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100).ReadOnly(true)
                    .Format("{0:dd/MM/yyyy hh:mm}");
             columns.Bound(f => f.ModifiedUser).Title("Người tạo").Width(100).ReadOnly(true);
-            
-            
         })
         .Editable(editing => editing.Mode(GridEditMode.InLine))
         .Scrollable(f => f.Height(510))

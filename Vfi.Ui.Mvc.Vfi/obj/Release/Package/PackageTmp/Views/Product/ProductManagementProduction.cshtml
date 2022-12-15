@@ -5,6 +5,7 @@
 @{
     ViewBag.Title = "Products Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var link =  @Url.Content("~/Resources/lock.png");
 }
 
 <style>
@@ -155,7 +156,36 @@
     .highslide-controls {
         display: none;
     }
+    .lock-img {
+        max-height: 50px;
+    }
 </style>
+
+    <script type="text/javascript">
+        hs.graphicsDir = '';
+        hs.align = 'center';
+        hs.transitions = ['expand', 'crossfade'];
+        hs.outlineType = '';
+        hs.fadeInOut = true;
+        hs.numberPosition = 'caption';
+        hs.dimmingOpacity = 0.75;
+
+        // Add the controlbar
+        if (hs.addSlideshow)
+            hs.addSlideshow({
+                //slideshowGroup: 'group1',
+                interval: 5000,
+                repeat: false,
+                useControls: true,
+                fixedControls: 'fit',
+                overlayOptions: {
+                    opacity: .75,
+                    position: 'bottom center',
+                    hideOnMouseOut: true
+                }
+            });
+    </script>
+
 @section Scripts{
     <script type="text/javascript">
         function gridProduct_OnDataBinding(args) {
@@ -340,31 +370,6 @@
     </script>
 
     <script type="text/javascript">
-        hs.graphicsDir = '';
-        hs.align = 'center';
-        hs.transitions = ['expand', 'crossfade'];
-        hs.outlineType = '';
-        hs.fadeInOut = true;
-        hs.numberPosition = 'caption';
-        hs.dimmingOpacity = 0.75;
-
-        // Add the controlbar
-        if (hs.addSlideshow)
-            hs.addSlideshow({
-                //slideshowGroup: 'group1',
-                interval: 5000,
-                repeat: false,
-                useControls: true,
-                fixedControls: 'fit',
-                overlayOptions: {
-                    opacity: .75,
-                    position: 'bottom center',
-                    hideOnMouseOut: true
-                }
-            });
-    </script>
-
-    <script type="text/javascript">
 
         function gridProductionTool_onSave(e) {
 
@@ -447,7 +452,6 @@
             }
             return true;
         }
-
         function gridProductImg_OnRowDataBound(e) {
             if (!e.dataItem.CanModify) {
                 e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
@@ -455,6 +459,95 @@
             }
         }
 
+        var lockImg = "<img src='@link' class='lock-img'>";
+
+        function grid_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+        function gridInfoDesign_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+        function gridMaterialDesign_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionProductivity_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionProductivity_OnLoad(e) {
+            if (e.currentTarget.attributes.lockinsert.value == 'true') {
+                $("#" + e.currentTarget.id + "_Insert")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProduction2_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProduction2_OnLoad(e) {
+            if (e.currentTarget.attributes.lockinsert.value == 'true') {
+                $("#" + e.currentTarget.id + "_Insert")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProduction2_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProduction2_OnLoad(e) {
+            if (e.currentTarget.attributes.lockinsert.value == 'true') {
+                $("#" + e.currentTarget.id + "_Insert")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionHeatTreatment_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionHeatTreatment_OnLoad(e) {
+            if (e.currentTarget.attributes.lockinsert.value == 'true') {
+                $("#" + e.currentTarget.id + "_Insert")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionPolish_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionPolish_OnLoad(e) {
+            if (e.currentTarget.attributes.lockinsert.value == 'true') {
+                $("#" + e.currentTarget.id + "_Insert")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionPlating_OnRowDataBound(e) {
+            if (e.dataItem.IsCalculateLock) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = lockImg;
+            }
+        }
+
+        function gridProductionPlating_OnLoad(e) {
+            if (e.currentTarget.attributes.lockinsert.value == 'true') {
+                $("#" + e.currentTarget.id + "_Insert")[0].parentNode.innerHTML = lockImg;
+            }
+        }
         function PrintProductionForm(val) {
             alert(val);
             @*$('#result').load('@Url.Action("PrintProductionForm", "Inv")',
@@ -607,9 +700,9 @@
                     .Name("TabStrip_<#= ProductId #>")
                     .SelectedIndex(0)
                     .Items(items => {
-                        items.Add().Text("Thông tin sản xuất").Content(
+                        items.Add().Text("Thông tin thiết kế").Content(
                             Html.Telerik().Grid<ProductModel>()
-                                .Name("gridProductionMachine_<#= ProductId #>")
+                                .Name("gridInfoDesign_<#= ProductId #>")
                                 .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
                                 .DataBinding(
                                     dataBinding => dataBinding.Ajax()
@@ -617,46 +710,57 @@
                                                               .Update("UpdateProductionDesign", "Product", new { area = "", productId = "<#= ProductId #>" })
                                 )
                                 .Columns(columns => {
-                                    columns.Command(command =>
-                                                    command.Edit().ButtonType(GridButtonType.Image)
-                                        ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.Diameter).Width(50)
+                                    columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
+                                        .HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.Diameter).Width(70)
                                            .HeaderTemplate("OD</br>(mm)")
                                            .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.OutDiameterTolerance).Width(50)
-                                           .HeaderTemplate("TOL</br>(O)")
-                                           .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.Length).Width(50)
+                                    //columns.Bound(f => f.OutDiameterTolerance).Width(50)
+                                    //       .HeaderTemplate("TOL</br>(O)")
+                                    //       .HtmlAttributes(new { style = "text-align:right;" });
+                                    columns.Bound(f => f.Length).Width(70)
                                            .HeaderTemplate("L</br>(mm)")
                                            .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.Weight).Width(50).ReadOnly(true)
-                                           .HeaderTemplate("W</br>(g)")
-                                           .Format("{0:n3}")
-                                           .HtmlAttributes(new { style = "text-align:right;" });
+                                    //columns.Bound(f => f.Weight).Width(50).ReadOnly(true)
+                                    //       .HeaderTemplate("W</br>(g)")
+                                    //       .Format("{0:n3}")
+                                    //       .HtmlAttributes(new { style = "text-align:right;" });
                                     columns.Bound(f => f.KnifeCut).Width(70)
                                            .HeaderTemplate("Dao cắt</br>(mm)")
                                            .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.ProcessingTypeName).Width(70)
+                                    columns.Bound(f => f.ProductionWeight).Width(70)
+                                           .HeaderTemplate("TL SX 1</br>(g/pc)")
+                                           .HtmlAttributes(new { style = "text-align:right;" });
+                                    columns.Bound(f => f.QcWeight).Width(70)
+                                           .HeaderTemplate("TL T-Phẩm</br>(g/pc)")
+                                           .HtmlAttributes(new { style = "text-align:right;" });
+                                    columns.Bound(f => f.ProcessClassifiedName).Width(200)
+                                           .HeaderTemplate("Chức năng</br>máy");
+                                    columns.Bound(f => f.ProcessingTypeName).Width(100)
                                            .HeaderTemplate("Loại máy</br>thiết kế");
-                                    columns.Bound(f => f.MillProductivity).Width(70)
-                                           .HeaderTemplate("NS Mil</br>(s/pc)")
-                                           .Format("{0:n0}")
-                                           .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.CncProductivity).Width(70)
-                                           .HeaderTemplate("NS Cnc</br>(s/pc)")
-                                           .Format("{0:n0}")
-                                           .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.Productivity).Width(70)
+                                    columns.Bound(f => f.ProductionLevelName).Width(100)
+                                           .HeaderTemplate("Độ khó</br>sản phẩm");
+                                    //columns.Bound(f => f.MillProductivity).Width(70)
+                                    //       .HeaderTemplate("NS Mil</br>(s/pc)")
+                                    //       .Format("{0:n0}")
+                                    //       .HtmlAttributes(new { style = "text-align:right;" });
+                                    //columns.Bound(f => f.CncProductivity).Width(70)
+                                    //       .HeaderTemplate("NS Cnc</br>(s/pc)")
+                                    //       .Format("{0:n0}")
+                                    //       .HtmlAttributes(new { style = "text-align:right;" });
+                                    columns.Bound(f => f.Productivity).Width(100)
                                            .HeaderTemplate("NS TK</br>(s/pc)")
                                            .Format("{0:n0}")
                                            .HtmlAttributes(new { style = "text-align:right;" });
-                                    columns.Bound(f => f.ProductionRate).Width(70)
+                                    columns.Bound(f => f.ProductionRate).Width(100)
                                            .HeaderTemplate("ĐM TK</br>(pcs/cây)")
                                            .Format("{0:n0}")
                                            .HtmlAttributes(new { style = "text-align:right;" });
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ClientEvents(events => events.OnError("grid_OnError")
+                            .OnRowDataBound("gridInfoDesign_OnRowDataBound")
+                                )
                                 .ToHtmlString()
                             );
                         items.Add().Text("Bản vẽ kỹ thuật").Content(
@@ -690,7 +794,10 @@
                                     columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("Xoá");
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                .ClientEvents(e => e.OnError("grid_OnError").OnSave("gridProductImg_OnSave").OnRowDataBound("gridProductImg_OnRowDataBound"))
+                                .ClientEvents(e => e.OnError("grid_OnError")
+                                    .OnSave("gridProductImg_OnSave")
+                                    .OnRowDataBound("gridProductImg_OnRowDataBound")
+                                    )
                                 .ToHtmlString());
                         items.Add().Text("Nguyên liệu sử dụng").Content(
                             Html.Telerik().Grid<ProductionMaterialModel>()
@@ -710,7 +817,7 @@
                                     //       .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>");
                                     columns.Bound(f => f.Priority).Width(50).Title("Độ ưu tiên");
                                     columns.Bound(f => f.Note).Width(100).Title("Ghi chú");
-                                    columns.Bound(f => f.Active).Width(55)
+                                    columns.Bound(f => f.Active).Width(70)
                                            .HeaderTemplate("Kích</br>hoạt")
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
@@ -728,7 +835,7 @@
                                 .ToHtmlString());
                         items.Add().Text("Nguyên liệu thiết kế").Content(
                             Html.Telerik().Grid<ProductModel>()
-                                .Name("gridProductionMaterialDesign_<#= ProductId #>")
+                                .Name("gridMaterialDesign_<#= ProductId #>")
                                 .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
                                 .DataBinding(
                                     dataBinding => dataBinding.Ajax()
@@ -758,9 +865,15 @@
                                     columns.Bound(f => f.DiameterTypeDesign).Width(50).ReadOnly(true)
                                            .HeaderTemplate("TOL</br>thiết kế")
                                            .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.Weight).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("TL phôi</br>(g/pc)")
+                                           .Format("{0:n3}")
+                                           .HtmlAttributes(new { style = "text-align:right;" });
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ClientEvents(events => events.OnError("grid_OnError")
+                                    .OnRowDataBound("gridMaterialDesign_OnRowDataBound")
+                                    )
                                 .ToHtmlString()
                             );
                         items.Add().Text("Công cụ thiết kế").Content(
@@ -797,10 +910,10 @@
                                            .HeaderTemplate("Tuổi thọ");
                                     //columns.Bound(f => f.UseNumber).Width(70)
                                     //       .HeaderTemplate("SL sử dụng");
-                                    columns.Bound(f => f.Active).Width(40)
+                                    columns.Bound(f => f.Active).Width(100)
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.ToolActive).Width(40).ReadOnly(true)
+                                    columns.Bound(f => f.ToolActive).Width(100).ReadOnly(true)
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='ToolActive' <#=ToolActive? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
@@ -813,13 +926,63 @@
                                                               .OnSave("gridProductionTool_onSave"))
                                 .ToHtmlString()
                             );
+                        items.Add().Text("Công đoạn 1").Content(
+                                Html.Telerik().Grid<ProductionProductivityQuoteBaseModel>()
+                                    .Name("gridProductionProductivity_<#= ProductId #>")
+                                    .HtmlAttributes(new { lockInsert = "<#= IsCalculateLock #>" })
+                                    .DataKeys(key => key.Add(f => f.BaseId).RouteKey("baseId"))
+                                    .ToolBar(tool => tool.Insert().Text("Thêm mới")
+                                            .ButtonType(GridButtonType.ImageAndText)
+                                            .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                            .HtmlAttributes(new { id = "gridProductionProductivity_<#= ProductId #>_Insert" })
+                                            )
+                                    .DataBinding(
+                                        dataBinding => dataBinding.Ajax()
+                                                                  .Select("SelectProductionProductivityQuote", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                  .Insert("InsertProductionProductivityQuote", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                  .Update("UpdateProductionProductivityQuote", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                    )
+                                    .Columns(columns => {
+                                        columns.Command(command =>
+                                                        command.Edit().ButtonType(GridButtonType.Image)
+                                            ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.Idx).Width(120)
+                                               .Title("Bước")
+                                               .Format("{0:n0}");
+                                        columns.Bound(f => f.Name).Width(120)
+                                               .Title("Tên");
+                                        columns.Bound(f => f.Round).Width(50).Title("Số vòng quay")
+                                               .HtmlAttributes(new { style = "text-align:center;" })
+                                               .Format("{0:n0}");
+                                        columns.Bound(f => f.L).Width(50).Title("L")
+                                            .Format("{0:n2}");
+                                        columns.Bound(f => f.F).Width(50).Title("F")
+                                            .Format("{0:n2}");
+                                        columns.Bound(f => f.Time).Width(100).Title("Thời gian(s)").ReadOnly(true)
+                                            .Format("{0:n2}");
+                                        columns.Bound(f => f.Active).Width(100)
+                                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                               .HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                                               .Format("{0:dd/MM/yyyy}");
+                                        columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                                    })
+                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    .OnLoad("gridProductionProductivity_OnLoad")
+                                    .OnRowDataBound("gridProductionProductivity_OnRowDataBound"))
+                                    .ToHtmlString()
+                                );
                         items.Add().Text("Công đoạn 2").Content(
                                 Html.Telerik().Grid<ProductionSectionModel>()
                                     .Name("gridProduction2_<#= ProductId #>")
+                                    .HtmlAttributes(new { lockInsert = "<#= IsCalculateLock #>" })
                                     .DataKeys(key => key.Add(f => f.ProductionSectionId).RouteKey("productionSectionId"))
-                                    .ToolBar(
-                                        toolbar =>
-                                        toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                    .ToolBar(tool => tool.Insert().Text("Thêm mới")
+                                            .ButtonType(GridButtonType.ImageAndText)
+                                            .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                            .HtmlAttributes(new { id = "gridProduction2_<#= ProductId #>_Insert" })
+                                            )
                                     .DataBinding(
                                         dataBinding => dataBinding.Ajax()
                                                                   .Select("SelectProductionSection", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
@@ -838,11 +1001,11 @@
                                         columns.Bound(f => f.Weight).Width(50).Title("TL đầu ra")
                                                .Format("{0:n3}").HtmlAttributes(new { style = "text-align:right;" });
                                         columns.Bound(f => f.MachineName).Width(100).Title("Máy");
-                                        columns.Bound(f => f.Description).Width(100).Title("Mô tả");
-                                        columns.Bound(f => f.Active).Width(40).Title("Kích hoạt")
+                                        columns.Bound(f => f.Description).Title("Mô tả");
+                                        columns.Bound(f => f.Active).Width(100).Title("Kích hoạt")
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                .HtmlAttributes(new { style = "text-align:center" });
-                                        columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")
+                                        columns.Bound(f => f.IsMainProcess).Width(100).Title("Công đoạn chính")
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
                                                .HtmlAttributes(new { style = "text-align:center" });
                                         columns.Bound(f => f.UpdateDate).Width(100).Title("Ngày thêm").ReadOnly(true)
@@ -850,16 +1013,22 @@
                                         columns.Bound(f => f.UpdateUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                     })
                                     .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    .OnLoad("gridProduction2_OnLoad")
+                                    .OnRowDataBound("gridProduction2_OnRowDataBound")
+                                    )
                                     .ToHtmlString()
                                 );
                         items.Add().Text("Nhiệt luyện").Content(
                             Html.Telerik().Grid<ProductionHeatTreatmentModel>()
                                 .Name("gridProductionHeatTreatment_<#= ProductId #>")
+                                .HtmlAttributes(new { lockInsert = "<#= IsCalculateLock #>" })
                                 .DataKeys(key => key.Add(f => f.Id).RouteKey("id"))
-                                .ToolBar(
-                                    toolbar =>
-                                    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .ToolBar(tool => tool.Insert().Text("Thêm mới")
+                                        .ButtonType(GridButtonType.ImageAndText)
+                                        .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                        .HtmlAttributes(new { id = "gridProductionHeatTreatment_<#= ProductId #>_Insert" })
+                                        )
                                 .DataBinding(
                                     dataBinding => dataBinding.Ajax()
                                                               .Select("SelectProductionHeatTreatment", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
@@ -890,7 +1059,7 @@
                                            .HeaderTemplate("Độ cứng sau GG");
                                     columns.Bound(f => f.Note)
                                            .HeaderTemplate("Ghi chú");
-                                    columns.Bound(f => f.Active).Width(40)
+                                    columns.Bound(f => f.Active).Width(100)
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
@@ -898,16 +1067,21 @@
                                     columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ClientEvents(events => events.OnError("grid_OnError")
+                                    .OnLoad("gridProductionHeatTreatment_OnLoad")
+                                    .OnRowDataBound("gridProductionHeatTreatment_OnRowDataBound"))
                                 .ToHtmlString()
                             );
                         items.Add().Text("Rung bóng").Content(
                             Html.Telerik().Grid<ProductionPolishModel>()
                                 .Name("gridProductionPolish_<#= ProductId #>")
+                                .HtmlAttributes(new { lockInsert = "<#= IsCalculateLock #>" })
                                 .DataKeys(key => key.Add(f => f.Id).RouteKey("id"))
-                                .ToolBar(
-                                    toolbar =>
-                                    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .ToolBar(tool => tool.Insert().Text("Thêm mới")
+                                        .ButtonType(GridButtonType.ImageAndText)
+                                        .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                        .HtmlAttributes(new { id = "gridProductionPolish_<#= ProductId #>_Insert" })
+                                        )
                                 .DataBinding(
                                     dataBinding => dataBinding.Ajax()
                                                               .Select("SelectProductionPolish", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
@@ -938,7 +1112,7 @@
                                            .HeaderTemplate("Công dụng");
                                     columns.Bound(f => f.Note)
                                            .HeaderTemplate("Ghi chú");
-                                    columns.Bound(f => f.Active).Width(40)
+                                    columns.Bound(f => f.Active).Width(100).Title("Kích hoạt")
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
@@ -946,16 +1120,21 @@
                                     columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ClientEvents(events => events.OnError("grid_OnError")
+                                    .OnLoad("gridProductionPolish_OnLoad")
+                                    .OnRowDataBound("gridProductionPolish_OnRowDataBound"))
                                 .ToHtmlString()
                             );
                         items.Add().Text("Gia công ngoài").Content(
                                 Html.Telerik().Grid<ProductionPlatingModel>()
-                                    .Name("gridProductionPlating_<#= ProductId #>")
-                                    .DataKeys(key => key.Add(f => f.PlatingId).RouteKey("platingId"))
-                                    .ToolBar(
-                                        toolbar =>
-                                        toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .Name("gridProductionPlating_<#= ProductId #>")
+                                .HtmlAttributes(new { lockInsert = "<#= IsCalculateLock #>" })
+                                .DataKeys(key => key.Add(f => f.PlatingId).RouteKey("platingId"))
+                                .ToolBar(tool => tool.Insert().Text("Thêm mới")
+                                        .ButtonType(GridButtonType.ImageAndText)
+                                        .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                        .HtmlAttributes(new { id = "gridProductionPlating_<#= ProductId #>_Insert" })
+                                        )
                                     .DataBinding(
                                         dataBinding => dataBinding.Ajax()
                                                                   .Select("SelectProductionPlating", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
@@ -975,16 +1154,16 @@
                                                .HeaderTemplate("Phun muối");
                                         columns.Bound(f => f.Thickness).Width(75)
                                                .HeaderTemplate("Độ dày");
-                                        columns.Bound(f => f.PlatingDay).Width(75)
-                                               .HeaderTemplate("Thời gian(d)");
-                                        columns.Bound(f => f.PlatingCost).Width(75)
-                                               .HeaderTemplate("Chi phí");
+                                        columns.Bound(f => f.PlatingDay).Width(100)
+                                               .HeaderTemplate("Thời gian (d)");
+                                        //columns.Bound(f => f.PlatingCost).Width(75)
+                                        //       .HeaderTemplate("Chi phí");
                                         columns.Bound(f => f.Description)
                                                .HeaderTemplate("Ghi chú");
-                                        columns.Bound(f => f.Active).Width(40).Title("Kích hoạt")
+                                        columns.Bound(f => f.Active).Width(100).Title("Kích hoạt")
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                .HtmlAttributes(new { style = "text-align:center" });
-                                        columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")
+                                        columns.Bound(f => f.IsMainProcess).Width(100).Title("Công đoạn chính")
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
                                                .HtmlAttributes(new { style = "text-align:center" });
                                         columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
@@ -992,13 +1171,15 @@
                                         columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                     })
                                     .Editable(editing => editing.Mode(GridEditMode.InLine))
-                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                        .OnLoad("gridProductionPlating_OnLoad")
+                                        .OnRowDataBound("gridProductionPlating_OnRowDataBound"))
                                     .ToHtmlString()
                                 );
                         items.Add().Text("Đóng gói").Content(
                             Html.Telerik().Grid<ProductionFuelModel>()
                                 .Name("gridProductionFuel_<#= ProductId #>")
-                                .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                .DataKeys(key => key.Add(f => f.RealId).RouteKey("realId"))
                                 .ToolBar(
                                     toolbar =>
                                     toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
@@ -1014,7 +1195,7 @@
                                         ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.Priority).Width(50)
                                            .HeaderTemplate("STT");
-                                    
+
                                     columns.Bound(f => f.FuelFullCodeName).Width(150)
                                            .HeaderTemplate("Thùng");
                                     columns.Bound(f => f.Quota).Width(75)
@@ -1032,11 +1213,11 @@
                                     columns.Bound(f => f.CrossWeight2).Width(75)
                                            .Format("{0:n0}")
                                            .HeaderTemplate("Trọng lượng");
-                                    
-                                    columns.Bound(f => f.Active).Width(40)
+
+                                    columns.Bound(f => f.Note).Title("Ghi chú");
+                                    columns.Bound(f => f.Active).Width(100)
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.Note).Title("Ghi chú");
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
                                            .Format("{0:dd/MM/yyyy}");
                                     columns.Bound(f => f.ModifiedUser).Width(75).Title("Người cập nhật").ReadOnly(true);
@@ -1080,9 +1261,10 @@
                                                  Html.Telerik().Grid<ProductionTestingDetailModel>()
                                                      .Name("gridProductionTestingDetail_<#= ProductId #>_<#= WarehouseId #>")
                                                      .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
-                                                     .ToolBar(
-                                                         toolbar =>
-                                                         toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                                     .ToolBar(t => t.Insert().Text("Thêm mới")
+                                                            .ButtonType(GridButtonType.ImageAndText)
+                                                            .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                                            )
                                                       .DataBinding(
                                                           dataBinding => dataBinding.Ajax()
                                                                                       .Select("SelectProductionTestingDetail", "Production", new { area = "", customerId = 0, productCode = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
@@ -1157,7 +1339,7 @@
                                                          toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
                                                       .DataBinding(
                                                           dataBinding => dataBinding.Ajax()
-                                                                                      .Select("SelectProductionTestingNote", "Production", new { area = "", productId = "<#= ProductId #>" , warehouseId = "<#= WarehouseId #>" })
+                                                                                      .Select("SelectProductionTestingNote", "Production", new { area = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
                                                                                       .Insert("InsertProductionTestingNote", "Production", new { area = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
                                                                                       .Update("UpdateProductionTestingNote", "Production", new { area = "", productId = "<#= ProductId #>", warehouseId = "<#= WarehouseId #>" })
                                                       )
@@ -1269,10 +1451,10 @@
                                     columns.Bound(f => f.ProcessIndex).Width(50).Title("Tiến trình")
                                            .Format("{0:n0}");
                                     columns.Bound(f => f.Note).Title("Ghi chú");
-                                    columns.Bound(f => f.IsAlert).Width(75).Title("Chính thức")
+                                    columns.Bound(f => f.IsAlert).Width(100).Title("Kích hoạt")
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Alert' <#=IsAlert? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.IsNecessary).Width(75).Title("Hoạt động")
+                                    columns.Bound(f => f.IsNecessary).Width(100).Title("Chính thức")
                                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Necessary' <#=IsNecessary? checked='checked' : '' #> />")
                                            .HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
@@ -1352,16 +1534,7 @@
                                 )
                                 .Columns(columns => {
                                     columns.Bound(f => f.MachineName).Width(150).Title("Máy");
-                                    //columns.Bound(f => f.ProcessIndex).Width(50).Title("Tiến trình")
-                                    //       .Format("{0:n0}");
-                                    //columns.Bound(f => f.Note).Title("Ghi chú");
-                                    //columns.Bound(f => f.IsAlert).Width(75).Title("Cảnh báo ?")
-                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Alert' <#=IsAlert? checked='checked' : '' #> />")
-                                    //       .HtmlAttributes(new { style = "text-align:center" });
-                                    //columns.Bound(f => f.IsNecessary).Width(75).Title("Bắt buộc ?")
-                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Necessary' <#=IsNecessary? checked='checked' : '' #> />")
-                                    //       .HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm phiếu ").ReadOnly(true)
+                                    columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm phiếu").ReadOnly(true)
                                            .Format("{0:dd/MM/yyyy HH:mm}");
                                     columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
                                     //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("");
@@ -1515,6 +1688,7 @@
                                           .OnEdit("gridProduct_onEdit")
                                           .OnError("grid_OnError")
                                           .OnRowSelect("grid_OnRowSelect")
+                .OnRowDataBound("grid_OnRowDataBound")
                                           .OnSave("grid_OnSave"))
             //.Pageable(page => page.PageSize(7))
             .Editable(editing => editing.Mode(GridEditMode.InLine))

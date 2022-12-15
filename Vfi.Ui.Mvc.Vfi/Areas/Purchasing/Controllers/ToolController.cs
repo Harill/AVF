@@ -505,14 +505,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
             var model = new List<TransactionFptModel>();
             try {
-
-                var ci = new CultureInfo("vi-VN");
-                var fdate = string.IsNullOrWhiteSpace(fromDate)
-                                ? DateTime.Today
-                                : Convert.ToDateTime(fromDate, ci);
-                var tdate = string.IsNullOrWhiteSpace(toDate)
-                                ? DateTime.Today
-                                : Convert.ToDateTime(toDate, ci);
+                var fdate = MyUtilities.Function.ParseDate(fromDate);
+                var tdate = MyUtilities.Function.ParseDate(toDate);
                 using (var vfi = new tammaContext()) {
 
                     var purchasing = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
@@ -545,6 +539,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             AccountantSignature = transaction.AccountantSignature,
                             QcSignature = transaction.QcSignature,
                             PurchasingSignature = transaction.PurchasingSignature,
+                            CanUpdate = false
                         };
                         if (entity.PoId != 0)
                             entity.PoCode = transaction.PurchaseOrder.RevisionNumber;
@@ -560,6 +555,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         if (entity.Status == (byte)MyUtilities.Transaction.Status.Approved) {
                             if (purchasing) {
                                 entity.PurchasingSignatureType = 1;
+                                entity.CanUpdate = purchasing;
                             }
                         }
                         foreach (var detail in transaction.TransactionFptDetails) {
@@ -1533,6 +1529,124 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 ModelState.AddModelError("PagePrintImportExportTool", ex.Message);
             }
             return PartialView(null);
+        }
+
+        public ActionResult CreateRollbackTransaction(long transactionId) {
+            var saved = 0;
+            try {
+                using (var vfi = new tammaContext()) {
+                    var transaction = vfi.TransactionFpts.FirstOrDefault(x => x.TransactionId == transactionId);
+                    if (transaction == null) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "Không tìm thấy phiếu",
+                            0));
+                    }
+                    if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.StatusChanged,
+                            "Phiếu chưa duyệt không thể trả phiếu",
+                            0));
+                    }
+                    if (transaction.EoI == (byte)MyUtilities.PurchaseOrder.EoILot.Import) {
+                        if (transaction.PoId > 0) {
+                            //var taxInvoice = vfi.PoTaxInvoiceReferenceDetails.Where(x=> x.ImportId
+                            var isTaxInvoice = transaction.TransactionFptDetails.Any(x => x.PoReferenceDetailId != null);
+                            if (isTaxInvoice) {
+                                return Json(new MyUtilities.Monitor.MyJsonResult(
+                                    (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                                    "Phiếu có xuất hóa đơn ! Không thể trả phiếu",
+                                    0));
+                            }
+                        }
+                    }
+                    else if (transaction.EoI == (byte)MyUtilities.PurchaseOrder.EoILot.Export) { }
+                    else { return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement); }
+
+                    var result = RollbackProductInventory(transactionId);
+                    if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                        return Json(result);
+                    }
+                    saved += (int)result.Data;
+
+                    if (transaction.PoId > 0) {
+                        result = RollbackPurchasing(transactionId);
+                        if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                            return Json(result);
+                        }
+                    }
+                    saved += (int)result.Data;
+
+                    transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+                    saved += vfi.SaveChanges();
+                    return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        saved));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.Exception,
+                    ex.Message,
+                    0));
+            }
+        }
+
+        MyUtilities.Monitor.MyJsonResult RollbackProductInventory(long transactionId) {
+            using (var vfi = new tammaContext()) {
+                var periods = vfi.ToolInventoryPeriods.Where(x => x.TransactionId == transactionId);
+                if (!periods.Any()) {
+                    return new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "", 0);
+                }
+                var invIds = periods.Select(x => x.ToolInvId).Distinct().ToList();
+                var invs = vfi.ToolInventories.Where(x => invIds.Contains(x.ToolInvId));
+                foreach (var period in periods) {
+                    var inv = invs.FirstOrDefault(x => x.ToolInvId == period.ToolInvId);
+                    if (period.LastQuantity > period.EarlyQuantity) { // import case
+                        if (inv.TotalQuantity < period.Quantity) {
+                            return new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.ReferenceError,
+                                "Tồn kho không đủ xử lý",
+                                0);
+                        }
+                        inv.TotalQuantity -= period.Quantity;
+                    }
+                    else { // export case
+                        inv.TotalQuantity += period.Quantity;
+                    }
+                }
+                vfi.ToolInventoryPeriods.RemoveRange(periods);
+                var saved = vfi.SaveChanges();
+                return new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.NoError,
+                    "",
+                    saved);
+            }
+        }
+
+        MyUtilities.Monitor.MyJsonResult RollbackPurchasing(long transactionId) {
+            using (var vfi = new tammaContext()) {
+                var transactionDetails = vfi.TransactionFptDetails.Where(x => x.TransactionId == transactionId);
+                foreach (var detail in transactionDetails) {
+                    var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(x => x.PurchaseOrderDetailId == detail.PoDetailId);
+                    if (poDetail == null) {
+                        new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "Không tìm thấy phiếu mua",
+                            0);                      
+                    }
+                    poDetail.ReceivedQty -= detail.Quantity;
+                    if (poDetail.ReceivedQty < 0) { poDetail.ReceivedQty = 0; }
+                    poDetail.IsComplete = false;
+                    poDetail.PurchaseOrder.Status = (byte)MyUtilities.Sales.Status.InProcess;
+                }
+                var saved = vfi.SaveChanges();
+                return new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.NoError,
+                    "",
+                    saved);
+            }
         }
 
         [GridAction]

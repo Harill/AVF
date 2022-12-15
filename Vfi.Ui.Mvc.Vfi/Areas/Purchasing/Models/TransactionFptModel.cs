@@ -40,7 +40,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
             }
         }
         public int AlertColor { get; set; }
-
+        public bool CanUpdate { get; set; }
         public byte InventorySignature { get; set; }
         public byte QcSignature { get; set; }
         public byte PurchasingSignature { get; set; }

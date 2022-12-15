@@ -32,6 +32,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool Repair { get; set; }
         public bool QcLine { get; set; }
         public string GroupName { get; set; }
+        public Nullable<int> UserId { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms1 { get; set; }
         public virtual ICollection<Production2TransactionDetail> Production2TransactionDetail { get; set; }
@@ -42,6 +43,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<TrackingRepairEmployee> TrackingRepairEmployees1 { get; set; }
         public virtual ICollection<WorkOrderProcess> WorkOrderProcesses { get; set; }
         public virtual ICollection<Customer> Customers { get; set; }
+        public virtual User User { get; set; }
         public virtual ICollection<QuoteForm> QuoteForms { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }

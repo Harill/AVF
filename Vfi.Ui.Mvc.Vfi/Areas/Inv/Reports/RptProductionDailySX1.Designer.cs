@@ -2690,7 +2690,7 @@
             this.textBox161.Style.Padding.Right = Telerik.Reporting.Drawing.Unit.Pixel(2D);
             this.textBox161.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Right;
             this.textBox161.StyleName = "Data";
-            this.textBox161.Value = "=sum(TotalShift.ProductCost/1000000)";
+            this.textBox161.Value = "=sum(TotalShift.ProductCost)";
             // 
             // panel37
             // 

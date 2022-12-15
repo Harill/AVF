@@ -30,12 +30,48 @@
     <!-- grid Monthly -->
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
-    <script type="text/javascript">        
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            loadEmployeeLogin();
+        });
+
+        function loadEmployeeLogin() {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetComboBoxEmployeeLogin", "Employee", new { area = "Sales" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var cbo = $('#Employee').data('tComboBox');
+                    cbo.dataBind(data);
+                    if (cbo.selectedIndex > -1) {
+
+                        var selected = cbo.data[cbo.selectedIndex];
+
+                        if (selected != undefined) {
+                            cbo.value(selected.Value);
+                            cbo.text(selected.Text);
+                            cbo.selectedIndex = cbo.selectedIndex;
+                            cbo.previousValue = selected.Value;
+                        } else {
+                            cbo.value(-1);
+                            cbo.text("");
+                        }
+                    } else {
+                        cbo.value(-1);
+                        cbo.text("");
+                    }
+                }
+            });
+        }
         function workOrder_OnChange() {
             if (!onLoading) {
                 OnLoadingData();
                 var workOrder = $("#WorkOrder").data('tComboBox').value();
-                if (workOrder === "") workOrder = 0;
+                if (workOrder === "" || isNaN(parseInt(workOrder))) workOrder = 0;
                 $.ajax({
                     type: 'post',
                     data: { routingId: workOrder },
@@ -445,7 +481,7 @@
             @{
                     Html.Telerik().ComboBox()
                         .Name("Employee")
-                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
+                        //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         //.DropDownHtmlAttributes(new { style = "width: 150px" })
                         .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))

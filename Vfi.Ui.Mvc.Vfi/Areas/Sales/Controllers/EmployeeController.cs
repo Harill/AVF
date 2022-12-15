@@ -67,6 +67,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     Repair = employee.Repair,
                     QcLine = employee.QcLine,
                     GroupName = employee.GroupName,
+                    UserId = employee.UserId ?? 0,
+                    UserName = employee.UserId > 0 ? employee.User.Username : ""
                 })
                                 .OrderByDescending(e => e.Active)
                                 .ThenByDescending(e => e.Production2)
@@ -119,6 +121,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                               e.Active == insert.Active &&
                               e.Production2 == insert.Production2 &&
                               e.Production2B == insert.Production2B);
+                    var userId = 0;
+                    try {
+                        userId = Convert.ToInt32(insert.UserName);
+                    }
+                    catch (FormatException) { }
                     if (entity == null) {
                         entity = new Employee {
                             Active = insert.Active,
@@ -132,7 +139,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             QcLine = insert.QcLine,
                             GroupName = (insert.GroupName + "").Trim(),
                         };
-
+                        if (userId > 0) { entity.UserId = userId; }
                         vfi.Employees.Add(entity);
                         vfi.SaveChanges();
                     }
@@ -167,6 +174,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                e.Production2 == update.Production2 &&
                                e.Production2B == update.Production2B &&
                                e.EmployeeId != update.EmployeeId);
+                    int? userId = null;
+                    if (!string.IsNullOrWhiteSpace(update.UserName)) {
+                        try {
+                            userId = Convert.ToInt32(update.UserName);
+                        }
+                        catch (FormatException) {
+                            userId = 0;
+                        }
+                    }
                     if (entity == null) {
                         entity = vfi.Employees.FirstOrDefault(e => e.EmployeeId == update.EmployeeId);
                         if (entity != null) {
@@ -180,6 +196,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             entity.Repair = update.Repair;
                             entity.QcLine = update.QcLine;
                             entity.GroupName = (update.GroupName + "").Trim();
+                            if (userId != 0) {
+                                entity.UserId = userId;
+                            }
                             vfi.SaveChanges();
                         }
                         else {
@@ -217,7 +236,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             var model = new List<EmployeeModel>();
             using (var vfi = new tammaContext()) {
                 model = (from x in vfi.Employees
-                         where (config.IsSales == null || x.Active == config.IsSales) &&
+                         where
+                         (config.Active == null || (config.Active  == true && (x.Active || x.QcLine || x.Repair || x.Production2 || x.Production2B))) &&
+                         (config.IsSales == null || x.Active == config.IsSales) &&
                          (config.IsQCLine == null || x.QcLine == config.IsQCLine) &&
                          (config.IsRepair == null || x.Repair == config.IsRepair) &&
                          (config.IsProduction2 == null || x.Production2 == config.IsProduction2 || x.Production2B == config.IsProduction2)
@@ -244,6 +265,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             }
             return new JsonResult {
                 Data = new SelectList(GetActiveEmployeeByConfig(config), "EmployeeId", "EmployeeCodeName")
+            };
+        }
+
+        [HttpPost]
+        public ActionResult GetComboBoxEmployeeLogin() {
+            var employeeId = 0;
+            using (var vfi = new tammaContext()) {
+                var userLink = vfi.Users.FirstOrDefault(x => x.Username.Equals(HttpContext.User.Identity.Name));
+                if (userLink != null) {
+                    var employee = userLink.Employees.FirstOrDefault();
+                    if (employee != null) {
+                        employeeId = employee.EmployeeId;
+                    }
+                }
+            }
+            //var employees = GetActiveEmployeeByConfig(new EmployeeConfiguration { });
+            //var employee = employees.FirstOrDefault(x=> x.EmployeeId == 
+            return new JsonResult {
+                Data = new SelectList(
+                    GetActiveEmployeeByConfig(new EmployeeConfiguration { Active = true }),
+                    "EmployeeId", "EmployeeCodeName",
+                    employeeId > 0 ? employeeId : -1)
             };
         }
 

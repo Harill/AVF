@@ -223,7 +223,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
 
         [GridAction]
         public ActionResult SelectUser() {
-            return View(new GridModel(GetAllUsers().Where(f => !string.Equals("thangle", f.Username))));
+            return View(new GridModel(GetAllUsers().Where(f => !string.Equals("thangle", f.Username)).OrderBy(x=> x.Active)));
         }
 
         [GridAction]
@@ -776,6 +776,96 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                         saved));
             }
             //return Json(0);
+        }
+
+        [HttpPost]
+        public ActionResult GenerateQuoteMaterial() {
+            var saved = 0;
+
+            try {
+
+                using (var vfi = new tammaContext()) {
+                    var materials = vfi.Materials.Select(x => new { x.MaterialTypeId, x.MaterialName, x.Shape, x.DiameterType })
+                        .Distinct().ToList();
+                    var quoteMaterials = vfi.MaterialQuoteBases;
+                    var defaultSizes = new List<double> { 2.5, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 50.8, 110 };
+                    foreach (var material in materials) {
+                        var entity = quoteMaterials.FirstOrDefault(x => x.MaterialTypeId == material.MaterialTypeId
+                            && x.MaterialName == material.MaterialName.Trim()
+                            && x.MaterialShape == material.Shape.Trim()
+                            && x.MaterialDiameterType == material.DiameterType.Trim());
+                        if (entity == null) {
+                            entity = new MaterialQuoteBase {
+                                MaterialTypeId = material.MaterialTypeId,
+                                MaterialName = material.MaterialName.Trim(),
+                                MaterialShape = material.Shape.Trim(),
+                                MaterialDiameterType = material.DiameterType.Trim(),
+                                BasePrice = 0,
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = "Auto",
+                            };
+                            var fromSize = 0.0;
+                            foreach (var size in defaultSizes) {
+                                entity.MaterialQuoteBaseDetails.Add(new MaterialQuoteBaseDetail {
+                                    FromOutDiameter = fromSize,
+                                    ToOutDiameter = size,
+                                    Value = 0,
+                                });
+                                fromSize = size;
+                            }
+                            vfi.MaterialQuoteBases.Add(entity);
+                        }
+                    }
+                    saved += vfi.SaveChanges();
+                }
+
+
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        saved));
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.Exception,
+                        MyUtilities.MySystem.FetchExceptionMessage(ex),
+                        saved));
+            }
+        }
+
+        [HttpPost]
+        public ActionResult GenerateQuoteOutsideProcess() {
+            var saved = 0;
+
+            try {
+
+                using (var vfi = new tammaContext()) {
+                    var processNames = vfi.ProductionPlatings.Select(x => x.PlatingName).Distinct().ToList();
+                    foreach (var name in processNames) {
+                        var entity = new OutsideProcess { 
+                            Name = name,
+                            Active = true,
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = "Auto",
+                            Price = 0,
+                        };
+                        vfi.OutsideProcesses.Add(entity);
+                    }
+                    saved += vfi.SaveChanges();
+                }
+
+
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        saved));
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.Exception,
+                        MyUtilities.MySystem.FetchExceptionMessage(ex),
+                        saved));
+            }
         }
 
         [HttpPost]

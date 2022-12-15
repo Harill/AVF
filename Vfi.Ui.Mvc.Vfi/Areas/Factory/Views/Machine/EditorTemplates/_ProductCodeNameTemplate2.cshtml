@@ -15,10 +15,10 @@
                         var selected = material.data[material.selectedIndex];
 
                         if (selected != undefined) {
-                            material.value(selected.value);
+                            material.value(selected.Value);
                             material.text(selected.Text);
                             material.selectedIndex = material.selectedIndex;
-                            material.previousValue = selected.value;
+                            material.previousValue = selected.Value;
                         } else {
                             material.value(-1);
                             material.text("");
@@ -35,21 +35,21 @@
                 dataType: 'json',
                 url: '@Url.Action("GetTrackUpDesign", "Machine", new { area = "Factory" })',
                 timeout: 20000,
-                success: function (data) {
+                success: function (res) {
                     //a
                     //var track = data;
                     //alert(track.toArray().toString());
-                    if (data != "9") {
-                        $("#RealProductivity").val(data.RealProductivity);
-                        $("#RealProductivity").data("tTextBox").$text[0].innerHTML = data.RealProductivity;
-                        $("#RealRate").val(data.RealRate);
-                        $("#RealRate").data("tTextBox").$text[0].innerHTML = data.RealRate;
-                        $("#RoundPerMinute").val(data.RoundPerMinute);
-                        $("#RoundPerMinute").data("tTextBox").$text[0].innerHTML = data.RoundPerMinute;
-                        $("#WorkPiece").val(data.WorkPiece);
-                        $("#WorkPiece").data("tTextBox").$text[0].innerHTML = data.WorkPiece;
-                        $("#KnifeCut").val(data.KnifeCut);
-                        $("#KnifeCut").data("tTextBox").$text[0].innerHTML = data.KnifeCut;
+                    if (res.Code != "9") {
+                        $("#RealProductivity").val(res.Data.RealProductivity);
+                        $("#RealProductivity").data("tTextBox").$text[0].innerHTML = res.Data.RealProductivity;
+                        //$("#RealRate").val(res.Data.RealRate);
+                        //$("#RealRate").data("tTextBox").$text[0].innerHTML = res.Data.RealRate;
+                        $("#RoundPerMinute").val(res.Data.RoundPerMinute);
+                        $("#RoundPerMinute").data("tTextBox").$text[0].innerHTML = res.Data.RoundPerMinute;
+                        $("#WorkPiece").val(res.Data.WorkPiece);
+                        $("#WorkPiece").data("tTextBox").$text[0].innerHTML = res.Data.WorkPiece;
+                        $("#KnifeCut").val(res.Data.KnifeCut);
+                        $("#KnifeCut").data("tTextBox").$text[0].innerHTML = res.Data.KnifeCut;
                     }
                 }
             });

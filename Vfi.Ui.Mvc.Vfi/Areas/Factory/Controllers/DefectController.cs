@@ -1380,7 +1380,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var model = new List<DefectGroupReportModel>();
             try {
                 model = GetDefectReportGroup(fromDate, toDate, customerId, productCode, productId);
-                return PartialView("PageDefectTransactionListing", model);
+                //return PartialView("PageDefectTransactionListing", model);
             }
             catch (Exception ex) {
                 return PartialView(Json(ex.Message));
@@ -1455,7 +1455,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                              NextWarehouseName = x.NextWarehouseProcessId != null ? x.Warehouse.WarehouseName : "",
                                              x.DefectTransaction.ImportTransactionId,
                                              x.ProductionDefect.DefectTypeId,
-                                             x.Shift
+                                             x.Shift,
+                                             x.ReferenceDetailId,
                                          }).ToList();
                     if (customerId > 0 || !string.IsNullOrWhiteSpace(productCode) || productId > 0) {
                         var productIds = (from x in vfi.Products
@@ -1518,10 +1519,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 var importDetails = import.ImportFormSX1Detail.Where(x => x.Processing1 + x.Processing2 > 0).ToList();
                                 foreach (var detail in importDetails) {
                                     var shift = detail.Processing1 > 0 ? 1 : 2;
-                                    var defectDetailsById = defectDetails.Where(x => x.TransactionId == transaction.TransactionId
-                                                                                    && x.MachineId == detail.MachineId
-                                                                                    && x.ProductId == detail.ProductId
-                                                                                    && x.Shift == shift);
+                                    //var defectDetailsById = defectDetails.Where(x => x.TransactionId == transaction.TransactionId
+                                    //                                                && x.MachineId == detail.MachineId
+                                    //                                                && x.ProductId == detail.ProductId
+                                    //                                                && x.Shift == shift);
+                                    var defectDetailsById = defectDetails.Where(x => x.ReferenceDetailId == detail.DetailId);
                                     foreach (var defectDetail in defectDetailsById) {
                                         var entity = new DefectReportModel {
                                             ProductId = defectDetail.ProductId,

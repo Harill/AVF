@@ -173,6 +173,7 @@
             if (startGrid) {
                 //var materialForPeriodId = $("#MaterialNameForPeriod").data('tComboBox').value();
                 var productCodeNameForPeriod = $("#ProductCodeNameForPeriod").data("tAutoComplete").value();
+                var lot = $("#LotNumber").data("tAutoComplete").value();
 
                 var customerId = $("#CustomerForPeriod").data('tComboBox').value();
 
@@ -200,6 +201,7 @@
                     customerId: customerId,
                     warehouseId: warehouseReceiptForPeriod,
                     productCode: productCodeNameForPeriod,
+                    lotnumber: lot,
                     fromDate: fromDate, //$.telerik.formatString('{0:dd/MM/yyyy}', fromDate),
                     toDate: toDate//$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
                 });
@@ -542,7 +544,7 @@
                 Html.Telerik().ComboBox()
                     .Name("CustomerForPeriod")
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
-                    .HtmlAttributes(new {style = "width: 200px"})
+                    .HtmlAttributes(new {style = "width: 100%"})
                     .DropDownHtmlAttributes(new {style = "width: 275px"})
                     .AutoFill(true)
                     .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
@@ -566,14 +568,29 @@
                         .Render();
                 }
             </div>
-
+            
+            <div class="grid_1">Lô
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("LotNumber")
+                        //.DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv"))
+                        //.HtmlAttributes(new { style = "width: 185px; " })
+                        //.DropDownHtmlAttributes(new {style = "width: 250px; "})
+                        //.Encode(false)
+                        //.AutoFill(true)
+                        //.HighlightFirstMatch(true)
+                        .Render();
+                }
+            </div>
             <div class="grid_1">@Html.Label("Kho")</div>
             <div class="grid_4">
                 @{
                     Html.Telerik().DropDownList()
                         .Name("WarehouseReceiptNameForPeriod")
                         .DataBinding(binding => binding.Ajax().Select("SelectAllComboBoxWarehouse", "Warehouse"))
-                        .HtmlAttributes(new {style = "width: 150px"})
+                        .HtmlAttributes(new {style = "width: 100%"})
                         .DropDownHtmlAttributes(new {style = "width: 250px; height: 250px;"})
                         .ClientEvents(events => events.OnChange("warehouseReceiptNameForPeriod_onChange"))
                         .Render();

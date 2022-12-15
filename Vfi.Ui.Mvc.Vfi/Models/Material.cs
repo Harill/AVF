@@ -34,6 +34,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string Shape { get; set; }
         public double OutDiameter { get; set; }
         public double InDiameter { get; set; }
+        public bool IsExpensive { get; set; }
         public virtual ICollection<MaterialLimitPlan> MaterialLimitPlans { get; set; }
         public virtual ICollection<ProductionMaterial> ProductionMaterials { get; set; }
         public virtual ICollection<TrackUpMachine> TrackUpMachines { get; set; }

@@ -176,8 +176,9 @@
                                                         command.Edit().ButtonType(GridButtonType.Image)
                                             ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
 
-                                        columns.Bound(f => f.Address).Width(250);
-                                        columns.Bound(f => f.Eaddress).Width(250);
+                                        columns.Bound(f => f.ShippingMethodName).Width(150).Title("Phương thức vận chuyển");
+                                        columns.Bound(f => f.Address);
+                                        columns.Bound(f => f.Eaddress);
                                     })
                                     .Resizable(f => f.Columns(true))
                                     .ClientEvents(events => events.OnError("grid_OnError")

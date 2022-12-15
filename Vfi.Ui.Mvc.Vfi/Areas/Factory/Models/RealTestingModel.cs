@@ -35,7 +35,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double MinNumber { get; set; }
         public double MaxNumber { get; set; }
         public double TestRate { get; set; }
-        [DataType("Number4")]
+        [DataType("Number4Digit")]
         public double TestNumber { get; set; }
         
         public bool Active { get; set; }

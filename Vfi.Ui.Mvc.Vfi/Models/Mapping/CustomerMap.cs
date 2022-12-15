@@ -87,8 +87,12 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.State).HasColumnName("State");
             this.Property(t => t.IsNotRequireApproveOrder).HasColumnName("IsNotRequireApproveOrder");
             this.Property(t => t.IsWorkOrder).HasColumnName("IsWorkOrder");
+            this.Property(t => t.ShippingMethodId).HasColumnName("ShippingMethodId");
 
             // Relationships
+            this.HasOptional(t => t.ShipMethod)
+                .WithMany(t => t.Customers)
+                .HasForeignKey(d => d.ShippingMethodId);
             this.HasRequired(t => t.Area)
                 .WithMany(t => t.Customers)
                 .HasForeignKey(d => d.AreaId);

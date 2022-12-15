@@ -10,6 +10,7 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
     public class WorkOrderRoutingModel {
         public int RoutingId { get; set; }
+        [DataType("_WorkOrderRouteEditTemplate")]
         public string RoutingName { get; set; }
         public string RoutingFullName { get { return RoutingName + "-" + SerialNumber + "-" + ProductCode; } }
         public int WorkOrderId { get; set; }
@@ -36,6 +37,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public byte Status { get; set; }
         public string StatusName { get { return MyUtilities.WorkOrder.GetText(Status); } }
         public string MoreInfo { get; set; }
+        [DataType("Number0Digit")]
         public double RoutingIndex { get; set; }
         public string RoutingLot { get; set; }
         public int NextRouteId { get; set; }
@@ -43,12 +45,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
 
         public double PreviousRouteQuantity { get; set; }
         public double RequireQuantity { get; set; }
+        public double WaitingApproveQuantity { get; set; }
 
         public double PlannedWeight { get; set; }
 
-        public object MoreInfoObject { get; set; }
+        public WorkOrderProductionInfo MoreInfoObject { get; set; }
 
-        [DataType("Number2Digit")]
+        [DataType("_MaterialUseProductionNumberTemplate")]
         public double UsingQuantity { get; set; }
         [DataType("Number0Digit")]
         public double GoodQuantity { get; set; }
@@ -64,8 +67,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double NGWeight { get; set; }
         [DataType("Number0Digit")]
         public double DefectWeight { get; set; }
-        public double DiffQuantity { get; set; }
+
         public ProductionFuelModel PackingInfo { get; set; }
+        public double TotalQuantity { get { return GoodQuantity + NGQuantity + DefectQuantity; } }
+        public double TotalWeight { get { return GoodWeight + NGWeight + DefectWeight; } }
+        public double DiffQuantity { get; set; }
+        public double MaxQuantity { get; set; }
+        public double DiffPercent { get { return MaxQuantity > 0 ? (TotalQuantity / MaxQuantity - 1) * 100 : 0; } }
 
         public string PrintGoodQuantity {
             get {
@@ -80,7 +88,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
             get {  
                 return Status != (byte)MyUtilities.WorkOrder.Status.Pending
                     && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
-                    && GoodQuantity > 0
+                    && NGQuantity > 0
                 ? string.Format("{0:n0}", NGQuantity)
                 : "";; }
         }
@@ -88,10 +96,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
             get {  
                 return Status != (byte)MyUtilities.WorkOrder.Status.Pending
                     && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
-                    && GoodQuantity > 0
+                    && DefectQuantity > 0
                 ? string.Format("{0:n0}", DefectQuantity)
                 : "";; }
         }
+
+        public bool CanCancel { get; set; }
     }
     // damm
     public class WorkOrderRoutingInfo {

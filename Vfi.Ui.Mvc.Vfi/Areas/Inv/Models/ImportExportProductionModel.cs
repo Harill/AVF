@@ -34,7 +34,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double ImportPrice {
             get { return (ImportQuantity + ImportPurchase) * ProductPrice; }
         }
-        public double TotalImport { get { return ImportQuantity + ImportReturn + ImportMore + ImportPurchase + ImportInternal + DiffImport; } }
+        //public double TotalImport { get { return ImportQuantity + ImportReturn + ImportMore + ImportPurchase + ImportInternal + DiffImport; } }
+        public double TotalImport { get; set; }
         public double TotalImportPrice {
             get { return TotalImport * ProductPrice; }
         }
@@ -49,7 +50,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double ExportDestroy { get; set; }
         public double ExportDefect { get; set; }
 
-        public double TotalExport { get { return ExportQuantity + ExportDestroy + ExportDefect + ExportInternal + DiffExport; } }
+        //public double TotalExport { get { return ExportQuantity + ExportDestroy + ExportDefect + ExportInternal + DiffExport; } }
+        public double TotalExport { get; set; }
         public double TotalExportPrice {
             get { return TotalExport * ProductPrice; }
         }
@@ -88,11 +90,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         /// <summary>
         /// re check import
         /// </summary>
-        public double DiffImport { get; set; }
+        public double DiffImport {
+            get {
+                return TotalImport
+                    - ImportQuantity - ImportPurchase
+                    - ImportInternal
+                    - ImportReturn
+                    - ImportMore - ImportTransfer;
+            }
+        }
         /// <summary>
         /// re check export
         /// </summary>
-        public double DiffExport { get; set; }
+        public double DiffExport {
+            get {
+                return TotalExport
+                    - ExportQuantity
+                    - ExportInternal
+                    - ExportDefect
+                    - ExportDestroy - ExportTransfer;
+            }
+        }
 
         public bool Show {
             get {

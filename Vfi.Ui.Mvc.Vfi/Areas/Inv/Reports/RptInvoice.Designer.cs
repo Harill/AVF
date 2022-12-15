@@ -212,7 +212,7 @@
             this.textBox38.Style.Font.Name = "Times New Roman";
             this.textBox38.Style.Font.Size = Telerik.Reporting.Drawing.Unit.Point(10D);
             this.textBox38.StyleName = "Data";
-            this.textBox38.Value = "Cross Weight\r\n(kg)";
+            this.textBox38.Value = "Gross Weight\r\n(kg)";
             // 
             // labelsGroupFooter
             // 

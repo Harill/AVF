@@ -745,25 +745,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     var productIds = order.OrderDetails.Select(od => od.ProductId).Distinct().ToList();
                     if (order.Customer.IsWorkOrder) {
                         isWorkOrder = order.Customer.IsWorkOrder;
-                        var products = vfi.Products.Where(x => productIds.Contains(x.ProductId)).ToList();
-                        var errorMessage = "";
-                        foreach (var product in products) {
-                            if (product.Length <= 0 || product.KnifeCut <= 0 ||
-                                product.Productivity == null || product.Productivity <= 0 ||
-                                product.ProductionRate == null || product.ProductionRate <= 0 ||
-                                product.MaxQuantityInTray <= 0) {
-                                errorMessage += product.ProductCode + " thiếu thông tin để tạo Work Order\n";
-                            }
-                            if (product.ProductionWeight == 0 || product.ProductionWeight <= 0) {
-                                errorMessage += product.ProductCode + " thiếu trọng lượng SP để tạo Work Order\n";
-                            }
-                            if (product.ProductionProcesses.Any(x => x.IsNecessary && x.IsAlert && x.Warehouse.IsProduction2) 
-                                && !product.ProductionSections.Any()) {
-                                errorMessage += product.ProductCode + " thiếu thông tin SX2 để tạo Work Order\n";
-                            }
-                        }
-                        if (!string.IsNullOrWhiteSpace(errorMessage)) { 
-                            throw new AggregateException(errorMessage);
+                        var checkProduct = _workOrderController.CheckValidProductValue(productIds);
+                        if (checkProduct.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                            throw new AggregateException(checkProduct.Message);
                         }
                     }
                     var orderDetail = order.OrderDetails.OrderByDescending(od => od.VFIDueDate).FirstOrDefault();
@@ -847,6 +831,47 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             return View(new GridModel(GetOrderNeedApprove().OrderByDescending(o => o.ModifiedDate)));
         }
 
+        public ActionResult CreateWorkOrder(int orderId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var orderDetails = vfi.OrderDetails.Where(x => x.OrderId == orderId).ToList();
+                    var orderDetailIds = orderDetails.Select(x => x.OrderDetailId).ToList();
+                    var isWorkOrder = vfi.WorkOrders.Any(x => orderDetailIds.Contains(x.OrderDetailId)
+                        && x.Status != (byte)MyUtilities.WorkOrder.Status.Cancel);
+                    if (isWorkOrder) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.StatusChanged,
+                            "Đã có workorder, không thể dùng chức năng này",
+                            0));
+
+                    }
+                    var productIds = orderDetails.Select(x => x.ProductId).Distinct().ToList();
+                    var checkProduct = _workOrderController.CheckValidProductValue(productIds);
+                    if (checkProduct.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.StatusChanged,
+                            checkProduct.Message,
+                            0));
+                    }
+
+                    _workOrderController.SaveWorkOrders(orderId, 0);
+                    return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "Hoàn thành",
+                        0));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.Exception,
+                    ex.Message,
+                    0));
+            }
+            //return Json(new MyUtilities.Monitor.MyJsonResult(
+            //    (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+            //    "",
+            //    0));
+        }
         public ActionResult SelectOrderInProcess() {
             using (var vfi = new tammaContext()) {
                 var orderModels =
@@ -1941,7 +1966,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                       x.Status,
                                       x.ModifiedDate,
                                       x.ModifiedUser,
-                                      OrderDetails = x.OrderDetails.Select(y => new { y.RequiedNumber, y.OrderQty, y.UnitPrice, y.ProductId }),
+                                      OrderDetails = x.OrderDetails.Select(y => new { 
+                                          y.OrderDetailId,
+                                          y.RequiedNumber, y.OrderQty, y.UnitPrice, y.ProductId }),
                                       x.Note,
                                       //ProductCodes = x.OrderDetails.Select(y => y.Product.ProductCode).Distinct().ToList()
                                   }).ToList();
@@ -2014,6 +2041,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                             .ToList();
                         }
                     }
+                    var isProductionManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
+                        MyUtilities.UserRole.ProductionManagement);
                     foreach (var order in orders) {
                         var entity = new ManageOrderModel {
                             OrderId = order.OrderId,
@@ -2021,17 +2050,29 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             DueDate = order.DueDate,
                             OrderNumber = order.OrderNumber,
                             ModifiedDate = order.ModifiedDate,
+                            Status = order.Status,
                             StatusName = MyUtilities.Sales.GetText(order.Status),
                             Note = order.Note,
                             CurrencyCode = order.CurrencyCode,
                             CustomerCode = order.CustomerCode,
                             Area = order.AreaName,
                             OrderDate = order.OrderDate,
+                            CanCreateWorkOrder = false
                         };
                         entity.TotalQuality = order.OrderDetails.Sum(od => od.OrderQty) ?? 0;
                         entity.TotalPrice = order.OrderDetails.Sum(od => od.OrderQty * od.UnitPrice) ?? 0.0;
                         entity.TotalRequired = order.OrderDetails.Sum(od => od.RequiedNumber);
                         entity.TotalRequiredPrice = order.OrderDetails.Sum(od => od.RequiedNumber * od.UnitPrice);
+                        if (entity.Status != (byte)MyUtilities.Sales.Status.Cancel
+                            && entity.Status != (byte)MyUtilities.Sales.Status.Completed
+                            && entity.DueDate != null) {
+                            var orderDetailIds = order.OrderDetails.Select(x => x.OrderDetailId).ToList();
+                            if (vfi.WorkOrders.Any(x => orderDetailIds.Contains(x.OrderDetailId)&&
+                                x.Status!= (byte) MyUtilities.WorkOrder.Status.Cancel)) { }
+                            else {
+                                entity.CanCreateWorkOrder = isProductionManager;
+                            }
+                        }
                         models.Add(entity);
                     }
                 }

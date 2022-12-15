@@ -1551,6 +1551,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         TotalQuantity = Math.Round(transactionDetail.Quantity, 2),
                                     };
                                     vfi.MaterialInvOnMachines.Add(materialOnMachine);
+                                    vfi.SaveChanges();
                                 }
                                 else {
                                     materialOnMachinePeriod.EarlyQuantity =
@@ -2818,6 +2819,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         vfi.SaveChanges();
                     }
                     #endregion
+
                     #region 2. calculate inv
                     var transactionDefect = vfi.DefectTransactions.FirstOrDefault(x => x.ImportTransactionId == transaction.TransactionId);
                     var periods = new List<ProductInventoryPeriod>();
@@ -2951,9 +2953,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
                         foreach (var detail in transactionDefect.DefectTransactionDetails) {
                             var lotNumber = detail.ProductionDefect.DefectName;
-                            if (!string.IsNullOrWhiteSpace(detail.DefectExpand)) {
-                                lotNumber += "-" + detail.DefectExpand;
-                            }
+                            //if (!string.IsNullOrWhiteSpace(detail.DefectExpand)) {
+                            //    lotNumber += "-" + detail.DefectExpand;
+                            //}
                             var productInvImport =
                                 vfi.ProductInventories.FirstOrDefault(
                                     pi => pi.WarehouseId == transaction.WarehouseReceiptId &&
@@ -3302,9 +3304,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 };
                                 foreach (var defectDetail in defectDetails) {
                                     var lotNumber = defectDetail.ProductionDefect.DefectName;
-                                    if (!string.IsNullOrWhiteSpace(defectDetail.DefectExpand)) {
-                                        lotNumber += "-" + defectDetail.DefectExpand;
-                                    }
+                                    //if (!string.IsNullOrWhiteSpace(defectDetail.DefectExpand)) {
+                                    //    lotNumber += "-" + defectDetail.DefectExpand;
+                                    //}
                                     var detail = new TransactionDetail {
                                         ReferenceId = defectDetail.ProductId,
                                         MoP = MyUtilities.Transaction.MoP.Product,
@@ -5020,39 +5022,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                                         && productIds.Contains(pi.ProductId) 
                                                                         && pi.WarehouseId == warehouseId)
                                                                     .ToList();
-                            foreach (var productId in productIds) {
-                                foreach (var recipeDetail in recipeDetails) {
-                                    var requireQuantity = detail.Quantity * recipeDetail.RequireNumber;
-                                    while (requireQuantity > 0) {
-                                        var productInvsById = productInvs.Where(x => x.ProductId == productId);
-                                        var recipeQuantity = 0.0;
-                                        foreach (var productInv in productInvsById) {
-                                            if (productInv.TotalQty > requireQuantity) {
-                                                recipeQuantity = requireQuantity;
-                                                requireQuantity = 0;
-                                            }
-                                            else {
-                                                recipeQuantity = productInv.TotalQty;
-                                                requireQuantity -= productInv.TotalQty;
-                                            }
-                                            var productBase = new Vfi.Models.TransactionDetail {
-                                                ReferenceId = productId,
-                                                MoP = MyUtilities.Transaction.MoP.Product,
-                                                Quantity = recipeQuantity,
-                                                UnitMeasure = productInv.UnitMeasure,
-                                                Active = true,
-                                                ModifiedUser = HttpContext.User.Identity.Name,
-                                                ModifiedDate = DateTime.Now,
-                                                Note = "chuyển đổi " + recipe.Product.ProductCode,
-                                                LotNumber = (productInv.LotNumber + "").Trim(),
-                                                ProductInvId = productInv.ProductInventoryId
-                                            };
-                                            transactionExport.TransactionDetails.Add(productBase);
-                                            if (requireQuantity <= 0) break;
+                            foreach (var recipeDetail in recipeDetails) {
+                                var requireQuantity = detail.Quantity * recipeDetail.RequireNumber;
+                                while (requireQuantity > 0) {
+                                    var productInvsById = productInvs.Where(x => x.ProductId == recipeDetail.FromProductId);
+                                    var recipeQuantity = 0.0;
+                                    foreach (var productInv in productInvsById) {
+                                        if (productInv.TotalQty > requireQuantity) {
+                                            recipeQuantity = requireQuantity;
+                                            requireQuantity = 0;
                                         }
+                                        else {
+                                            recipeQuantity = productInv.TotalQty;
+                                            requireQuantity -= productInv.TotalQty;
+                                        }
+                                        var productBase = new Vfi.Models.TransactionDetail {
+                                            ReferenceId = recipeDetail.FromProductId,
+                                            MoP = MyUtilities.Transaction.MoP.Product,
+                                            Quantity = recipeQuantity,
+                                            UnitMeasure = productInv.UnitMeasure,
+                                            Active = true,
+                                            ModifiedUser = HttpContext.User.Identity.Name,
+                                            ModifiedDate = DateTime.Now,
+                                            Note = "chuyển đổi " + recipe.Product.ProductCode,
+                                            LotNumber = (productInv.LotNumber + "").Trim(),
+                                            ProductInvId = productInv.ProductInventoryId
+                                        };
+                                        transactionExport.TransactionDetails.Add(productBase);
+                                        if (requireQuantity <= 0) break;
                                     }
                                 }
                             }
+                            
 
                             var productRecipe = new Vfi.Models.TransactionDetail {
                                 ReferenceId = recipe.ProductId,
@@ -6788,7 +6789,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(new List<ImportSX1DetailModel>()));
         }
 
-        List<TransactionModel> GetTransactions(string productCode, byte? status, bool mop, string fromDate, string toDate) {
+        List<TransactionModel> GetTransactions(string productCode, int warehouseId, byte status, bool mop, string fromDate, string toDate) {
             var model = new List<TransactionModel>();
             var ci = new CultureInfo("vi-VN");
             DateTime toDay = DateTime.Today;
@@ -6818,6 +6819,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                     var canApproveInternal = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ApproveInternalProduct);
                     var warehouseIds = userWarehousePermissionImport.Distinct().ToList();
+                    if (warehouseId > 0) {
+                        warehouseIds = new List<int> { warehouseId };
+                    }
                     var transactions = (from t in vfi.Transactions
                                         where t.Status == status &&
                                               t.MoP == mop &&
@@ -6999,13 +7003,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectTransactionReviewByStatus(string productCode, byte? status, bool mop, string fromDate, string toDate) {
+        public ActionResult SelectTransactionReviewByStatus(string productCode, int warehouseId, byte status, bool mop, string fromDate, string toDate) {
             if (status == null || status == 0) {
                 return View(new GridModel(new List<TransactionModel>()));
             }
             var model = new List<TransactionModel>();
             try {
-                model = GetTransactions(productCode, status, mop, fromDate, toDate);
+                model = GetTransactions(productCode, warehouseId, status, mop, fromDate, toDate);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectTransactionReviewByStatus", ex.Message);
@@ -7013,83 +7017,114 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(model.OrderByDescending(f => f.CreatedDate)));
         }
 
-        [GridAction]
         public ActionResult CreateRollbackTransaction(long transactionId) {
-            var a = 0;
             try {
                 using (var vfi = new tammaContext()) {
                     var transaction = vfi.Transactions.FirstOrDefault(x => x.TransactionId == transactionId);
                     if (transaction == null) {
-                        return Json((int)MyUtilities.Monitor.ErrorCode.NotFound);
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "",
+                            0));
                     }
-                    if (transaction.Status == (byte)MyUtilities.Transaction.Status.Approved) {
-                        if (transaction.IsInternal == true) {
+                    if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.StatusChanged,
+                            "Phiếu chưa duyệt không thể trả phiếu",
+                            0));
+                    }
+                    if (transaction.IsInternal == true) {
+                    }
+                    else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production1) {
+                        var form = vfi.ImportFormSX1.FirstOrDefault(x => x.TransactionCode.Equals(transaction.TransactionCode));
+                        if (form != null) {
+                            return Json(new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+                                "",
+                                0));
                         }
-                        else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production1 ||
-                            transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1) {
-                            var form = vfi.ImportFormSX1.FirstOrDefault(x => x.TransactionCode.Equals(transaction.TransactionCode));
-                            if (form != null) {
-                                return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
-                            }
+                    }
+                    else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Cnc) {
+                        var form = vfi.ImportFormCncs.FirstOrDefault(x => x.TransactionCode.Equals(transaction.TransactionCode));
+                        if (form != null) {
+                            return Json(new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+                                "",
+                                0));
                         }
-                        else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Cnc) {
-                            var form = vfi.ImportFormCncs.FirstOrDefault(x => x.TransactionCode.Equals(transaction.TransactionCode));
-                            if (form != null) {
-                                return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
-                            }
+                    }
+                    else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production2) {
+                        //return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
+                    }
+                    else if (transaction.WarehouseIssueId == MyUtilities.Warehouse.WaitingPlating) {
+                        var form = vfi.ExportGCN_NCU.FirstOrDefault(x => x.TransactionId == transactionId);
+                        if (form != null) {
+                            return Json(new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+                                "",
+                                0));
                         }
-                        else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production2) {
-                            //return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
+                    }
+                    else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcB) {
+                        var form = vfi.ImportNCU_QCB.FirstOrDefault(x => x.TransactionId == transactionId);
+                        if (form != null) {
+                            return Json(new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+                                "",
+                                0));
                         }
-                        else if (transaction.WarehouseIssueId == MyUtilities.Warehouse.WaitingPlating) {
-                            var form = vfi.ExportGCN_NCU.FirstOrDefault(x => x.TransactionId == transactionId);
-                            if (form != null) {
-                                return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
-                            }
+                    }
+                    else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
+                        var form = vfi.DefectTransactions.FirstOrDefault(x => x.ImportTransactionId == transactionId);
+                        if (form != null) {
                         }
-                        else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcB) {
-                            var form = vfi.ImportNCU_QCB.FirstOrDefault(x => x.TransactionId == transactionId);
-                            if (form != null) {
-                                return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
-                            }
+                    }
+                    else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Business) {
+                        var form = vfi.ExportFormTP_KD.FirstOrDefault(x => x.TransactionCode.Equals(transaction.TransactionCode));
+                        if (form != null) {
+                            return Json(new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+                                "",
+                                0));
                         }
-                        else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing) {
-                            var form = vfi.DefectTransactions.FirstOrDefault(x => x.ImportTransactionId == transactionId);
-                            if (form != null) {
-                            }
-                        }
-                        else if (transaction.WarehouseReceiptId == MyUtilities.Warehouse.Business) {
-                            var form = vfi.ExportFormTP_KD.FirstOrDefault(x => x.TransactionCode.Equals(transaction.TransactionCode));
-                            if (form != null) {
-                                return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
-                            }
-                        }
-                        transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
                     }
                     var result = RollbackProductInventory(transactionId);
-                    if (result != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                    if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
                         return Json(result);
                     }
-                    vfi.SaveChanges();
+                    
+                    transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+                    var saved = vfi.SaveChanges();
+
+                    return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        saved));
                 }
             }
             catch (Exception ex) {
-                return Json(ex.Message);
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.Exception,
+                    ex.Message,
+                    0));
             }
-            return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement);
         }
 
-        int RollbackProductInventory(long transactionId) {
+        MyUtilities.Monitor.MyJsonResult RollbackProductInventory(long transactionId) {
             using (var vfi = new tammaContext()) {
                 var productPeriods = vfi.ProductInventoryPeriods.Where(x => x.TransactionId == transactionId);
-                if (!productPeriods.Any()) { return 0; }
+                if (!productPeriods.Any()) {
+                    return new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError, "", 0);
+                }
                 var productInvIds = productPeriods.Select(x => x.ProductInvId).Distinct().ToList();
                 var productInvs = vfi.ProductInventories.Where(x => productInvIds.Contains(x.ProductInventoryId));
                 foreach (var period in productPeriods) {
                     var productInv = productInvs.FirstOrDefault(x => x.ProductInventoryId == period.ProductInvId);
                     if (period.LastPeriodQuantity > period.EarlyPeriodQuantity) {
                         if (productInv.TotalQty < period.Quantity) {
-                            return (int)MyUtilities.Monitor.ErrorCode.ReferenceError;
+                            return new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.ReferenceError, "Lỗi! Tồn kho không đủ để trả phiếu", 0);
                         }
                         productInv.TotalQty -= period.Quantity;
                     }
@@ -7098,8 +7133,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                 }
                 vfi.ProductInventoryPeriods.RemoveRange(productPeriods);
-                vfi.SaveChanges();
-                return (int)MyUtilities.Monitor.ErrorCode.NoError;
+                var saved = vfi.SaveChanges();
+                return new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.NoError,
+                    "",
+                    saved);
             }
         }
 
@@ -8201,7 +8239,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (date > DateTime.Now.AddDays(1)) {
                         throw new AggregateException("Lỗi! Xem lại ngày ( lớn hơn hiện tại) !");
                     }
-                    else if (importId != -1) {
+                    else if (importId > 0) {
                         date = vfi.ImportFormSX1.FirstOrDefault(i => i.ImportId == importId).MaterialUseDate;
                         var identities = updateds.Select(u => u.IdentityCode);
                         foreach (var identity in identities) {
@@ -9291,14 +9329,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           ed.Quantity
                                       }).ToList();
                 var materialOnMachines = vfi.MaterialInvOnMachines.Where(mim => Math.Round(mim.TotalQuantity, 2) > 0);
-                if (!string.IsNullOrWhiteSpace(factory)) {
-                    if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
-                        materialOnMachines = materialOnMachines.Where(x => x.Machine.MachineName.Contains(MyUtilities.Machine.FactoryVF2));
-                    }
-                    else {
-                        materialOnMachines = materialOnMachines.Where(x => !x.Machine.MachineName.Contains(MyUtilities.Machine.FactoryVF2));
-                    }
-                }
+                //if (!string.IsNullOrWhiteSpace(factory)) {
+                //    if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                //        materialOnMachines = materialOnMachines.Where(x => x.Machine.MachineName.Contains(MyUtilities.Machine.FactoryVF2));
+                //    }
+                //    else {
+                //        materialOnMachines = materialOnMachines.Where(x => !x.Machine.MachineName.Contains(MyUtilities.Machine.FactoryVF2));
+                //    }
+                //}
                 var waitingUses = (from mud in vfi.MaterialUseDetails
                                    where mud.MaterialUseInShift.Status == (byte)MyUtilities.Transaction.Status.Open
                                    select new {
@@ -12095,8 +12133,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 TransactionDetail = transactionMaterialDetail,
                             };
                             exportMaterial.ExportMaterialDetails.Add(exportDetail);
-                            var trackDetail = trackDetails.FirstOrDefault(tm => tm.DetailId == detail.SmartId);
-                            trackDetail.ModifiedDate = DateTime.Now;
                         }
                         if (transactionMaterial.TransactionDetails.Any()) {
                             vfi.Transactions.Add(transactionMaterial);

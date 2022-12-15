@@ -14,6 +14,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double UnitWeight { get; set; }
 
         public double UsingQuantity { get; set; }
+        public string UsingQuantityStr { get; set; }
         [DataType("Number0Digit")]
         public double GoodQuantity { get; set; }
         public double GoodWeight { get; set; }
@@ -40,6 +41,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string WorkOrderSerial { get; set; }
 
         public string Info { get; set; }
+        public double TotalQuantity { get { return GoodQuantity + NGQuantity + DefectQuantity; } }
+        public double TotalWeight { get { return GoodWeight + NGWeight + DefectWeight; } }
         public double DiffQuantity { get; set; }
+        public double MaxQuantity { get; set; }
+        public double DiffPercent { get { return MaxQuantity > 0 ? (TotalQuantity / MaxQuantity - 1) * 100 : 0; } }
     }
 }

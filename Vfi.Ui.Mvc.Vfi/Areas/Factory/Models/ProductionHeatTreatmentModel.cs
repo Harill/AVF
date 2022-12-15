@@ -36,5 +36,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public int MachineId { get; set; }
         [DataType("_MachineHeatTreamentTemplate")]
         public string MachineName { get; set; }
+        public bool IsCalculateLock { get; set; }
     }
 }

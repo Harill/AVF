@@ -1,0 +1,40 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
+@{
+    ViewBag.Title = "MOQ Template Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">MOQ mẫu</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MOQTemplateModel>()
+        .Name("grid")
+        .DataKeys(keys => keys.Add(f => f.TemplateId).RouteKey("templateId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+            .Select("SelectMOQTemplate", "SalesOrder", new { area = "Sales" })
+            .Insert("InsertMOQTemplate", "SalesOrder", new { area = "Sales" })
+            .Update("UpdateMOQTemplate", "SalesOrder", new { area = "Sales" })
+        )
+        .Columns(columns => {
+            columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(100);
+            columns.Bound(f => f.FromQuantity).Title("SL Từ(>=)")
+                .Format("{0:n0}");
+            columns.Bound(f => f.ToQuantity).Title("SL Đến(<)")
+                .Format("{0:n0}");
+            columns.Bound(f => f.FactorDefault).Width(100).Title("Hệ số")
+                .Format("{0:n2}");
+            columns.Bound(f => f.Active).Width(100).Title("Kích hoạt");
+            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+        })
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        .Render();
+}
+</div>
+

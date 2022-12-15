@@ -7,141 +7,50 @@
 
 
 @section Scripts{
-
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
 
     <!-- grid Monthly -->
     <script type="text/javascript">
 
-        function printErrorMachineList() {
-
-            var machine = $('#Machine').data('tComboBox').text();
-            var isState = $("input[name='chkState']").attr('checked');
-            $('#result').load('@Url.Action("PrintErrorMachineList", "Machine")',
-                {
-                    machineName: machine,
-                    isState: isState,
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
-        function printJobAssignment() {
-
-            var fromDate = $("#FromDate2").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', fromDate);
-
-            var toDate = $("#ToDate2").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', toDate);
-            $('#result').load('@Url.Action("PrintJobAssignment", "Machine")',
-                {
-                    fromDate: fromDate,
-                    toDate: toDate,
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
-        function printMachineStateHandover() {
-
-            var shift = $("#Shift").val();
-            if (shift === null || shift == "")
-                shift = 1;
-            var printDate = $("#PrintDate").data("tDatePicker").value();
-            if (printDate === null)
-                printDate = "";
-            else
-                printDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', printDate);
-            $('#result').load('@Url.Action("PrintMachineStateHandover", "Machine")',
-                {
-                    shift: shift,
-                    printDate: printDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
-        function print() {
-
-            var fromDate = $("#FromDate").data("tDateTimePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', fromDate);
-
-            var toDate = $("#ToDate").data("tDateTimePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', toDate);
-
-            $('#result').load('@Url.Action("PrintMachineRepair2", "Machine")',
-                {
-                    fromDate: fromDate,
-                    toDate: toDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
         function grid_OnDataBinding(args) {
 
             //var getAll = $("input[name='chkGetAll']").attr('checked');
             //var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+            
+            if (startGrid && !onLoading) {
+                OnLoadingData();
+                var machineId = $("#cboMachine").data('tComboBox').value();
+                if (machineId === "")
+                    machineId = 0;
+                var status = $("#cboStatus").data('tComboBox').value();
+                if (status === "")
+                    status = 0;
+                var fromDate = $("#FromDate").data("tDateTimePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', fromDate);
 
-            var machineId = $("#cboMachine").data('tComboBox').value();
-            if (machineId === "")
-                machineId = 0;
-            var status = $("#cboStatus").data('tComboBox').value();
-            if (status === "")
-                status = 0;
-            var fromDate = $("#FromDate").data("tDateTimePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', fromDate);
-
-            var toDate = $("#ToDate").data("tDateTimePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', toDate);
+                var toDate = $("#ToDate").data("tDateTimePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', toDate);
 
 
-            args.data = $.extend(args.data, {
-                status:status,
-                machineId: machineId,
-                fromDate: fromDate,
-                toDate: toDate
-            });
-
+                args.data = $.extend(args.data, {
+                    status: status,
+                    machineId: machineId,
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+            }
         }
 
-        var index = 0;
 
-        function printTechnicalHandover() {
-
-            var machineType = $("#MachineType").data("tComboBox").value();
-            if (machineType === null || machineType === "")
-                machineType = 0;
-            $('#result').load('@Url.Action("PrintTechnicalHandover", "Machine")',
-                {
-                    machineType: machineType,
-                    printDate: ""
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
+        function grid_OnDataBound() {
+            OnLoadedData();
         }
         function machineType_onload() {
             var combobox = $('#MachineType').data('tComboBox');
@@ -154,7 +63,133 @@
             ];
             combobox.dataBind(dataSource);
         }
+        var startGrid = false;
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+    </script>
 
+    <script>
+
+        function printErrorMachineList() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var machine = $('#Machine').data('tComboBox').text();
+                var isState = $("input[name='chkState']").attr('checked');
+                $('#result').load('@Url.Action("PrintErrorMachineList", "Machine")',
+                    {
+                        machineName: machine,
+                        isState: isState,
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+        function printJobAssignment() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var fromDate = $("#FromDate2").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', fromDate);
+
+                var toDate = $("#ToDate2").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', toDate);
+                $('#result').load('@Url.Action("PrintJobAssignment", "Machine")',
+                    {
+                        fromDate: fromDate,
+                        toDate: toDate,
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+        function printMachineStateHandover() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var shift = $("#Shift").val();
+                if (shift === null || shift == "")
+                    shift = 1;
+                var printDate = $("#PrintDate").data("tDatePicker").value();
+                if (printDate === null)
+                    printDate = "";
+                else
+                    printDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', printDate);
+                $('#result').load('@Url.Action("PrintMachineStateHandover", "Machine")',
+                    {
+                        shift: shift,
+                        printDate: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+        function print() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var fromDate = $("#FromDate").data("tDateTimePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', fromDate);
+
+                var toDate = $("#ToDate").data("tDateTimePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', toDate);
+
+                $('#result').load('@Url.Action("PrintMachineRepair2", "Machine")',
+                    {
+                        fromDate: fromDate,
+                        toDate: toDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+        function printTechnicalHandover() {
+
+            if (!onLoading) {
+                OnLoadingData();
+                var machineType = $("#MachineType").data("tComboBox").value();
+                if (machineType === null || machineType === "")
+                    machineType = 0;
+                $('#result').load('@Url.Action("PrintTechnicalHandover", "Machine")',
+                    {
+                        machineType: machineType,
+                        printDate: ""
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
     </script>
 }
 
@@ -182,6 +217,7 @@
               <button id="btnTechnicalHandover" class="t-button" onclick=" return printTechnicalHandover(); ">
                 <span class='t-icon t-insert'></span>
                In báo cáo bàn giao kỹ thuật
+                <span class="loadButton"></span>
             </button>
             </div>
     <div class="clear"></div>
@@ -189,6 +225,7 @@
               <button id="btnPrintErrorMachineList" class="t-button" onclick=" return printErrorMachineList(); ">
                 <span class='t-icon t-insert'></span>
                 Tình trạng máy
+                <span class="loadButton"></span>
             </button>
              
             </div>
@@ -218,6 +255,7 @@
               <button id="btnPrintJobAssignment" class="t-button" onclick=" return printJobAssignment(); ">
                 <span class='t-icon t-insert'></span>
                 Phân công sửa máy
+                <span class="loadButton"></span>
             </button>
             </div>
     
@@ -245,6 +283,7 @@
               <button id="btnPrintMachineStateHandover" class="t-button" onclick=" return printMachineStateHandover(); ">
                 <span class='t-icon t-insert'></span>
                 Tình trạng bàn giao ca
+                <span class="loadButton"></span>
             </button>
             </div>
     
@@ -333,12 +372,14 @@
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMachine'); ">
                 <span class='t-icon t-insert'></span>
                 Làm mới
+                <span class="loadButton"></span>
             </button>
         </div>
          <div class="grid_4">
               <button id="btnProduction2Period" class="t-button" onclick=" return print(); ">
                 <span class='t-icon t-insert'></span>
                In báo cáo
+                <span class="loadButton"></span>
             </button>
             </div>
     </fieldset>
@@ -440,7 +481,10 @@
             .Groupable()
             .Editable(editing => editing.Mode(GridEditMode.InLine))
             .Scrollable(f => f.Height(510))
-            .ClientEvents(e => e.OnError("grid_OnError").OnDataBinding("grid_OnDataBinding").OnRowSelect("grid_OnRowSelect"))
+            .ClientEvents(e => e.OnError("grid_OnError")
+                .OnDataBinding("grid_OnDataBinding")
+                .OnRowSelect("grid_OnRowSelect")
+                .OnDataBound("grid_OnDataBound"))
             .Sortable()
             .Filterable()
             .Reorderable(grid => grid.Columns(true))

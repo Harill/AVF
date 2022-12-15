@@ -151,5 +151,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         [DisplayName("Trạng thái")]
         [UIHint("_StatusEditTemplate")]
         public string StatusName { get; set; }
+
+        public bool CanCreateWorkOrder { get; set; }
     }
 }

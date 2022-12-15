@@ -603,3 +603,6 @@ div#title {
   border-radius: 6px;
   padding: 3px 6px;
 }
+.wraptext {
+    word-break:break-all;
+}

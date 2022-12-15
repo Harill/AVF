@@ -67,8 +67,14 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             ViewData = GetPageConfigData();
             return View();
         }
+        public ActionResult MaterialQuoteBaseManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
         #endregion
-
 
         #region Material Classified
 
@@ -193,8 +199,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             ModifiedUser = entity.ModifiedUser,
                             ModifiedDate = entity.ModifiedDate,
                             IdentityCode = entity.IdentityCode,
-                            DiagramColor = (entity.DiagramColor + "")
-
+                            DiagramColor = (entity.DiagramColor + ""),
+                            Factor = entity.Factor ?? 0,
+                            ProductionFactor = entity.ProductionFactor ?? 0,
+                            TaxFactor = entity.TaxFactor ?? 0
                         })
                         .OrderBy(x => x.MaterialClassifiedName).ThenByDescending(x => x.Active).ThenBy(x => x.IdentityCode)
                         .ToList();
@@ -240,7 +248,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         ModifiedDate = DateTime.Now,
                         IdentityCode = insert.IdentityCode.Trim().ToUpper(),
                         MaterialClassifiedId = classtifiedId,
-                        DiagramColor = insert.DiagramColor
+                        DiagramColor = insert.DiagramColor,
+                        Factor = insert.Factor,
+                        ProductionFactor = insert.ProductionFactor,
+                        TaxFactor = insert.TaxFactor,
                     };
                     vfi.MaterialTypes.Add(entity);
                     vfi.SaveChanges();
@@ -275,7 +286,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     entity.MaterialTypeName = update.MaterialTypeName.Trim();
                     entity.IdentityCode = update.IdentityCode.Trim().ToUpper();
                     entity.DiagramColor = update.DiagramColor;
-
+                    entity.Factor = update.Factor;
+                    entity.ProductionFactor = update.ProductionFactor;
+                    entity.TaxFactor = update.TaxFactor;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
                     entity.ModifiedDate = DateTime.Now;
                     vfi.SaveChanges();
@@ -383,6 +396,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         Active = entity.Active,
                         ModifiedUser = entity.ModifiedUser,
                         ModifiedDate = entity.ModifiedDate,
+                        IsExpensive = entity.IsExpensive,
                     }).ToList();
                 }
             }
@@ -446,6 +460,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             Active = true,
                             ModifiedUser = HttpContext.User.Identity.Name,
                             ModifiedDate = DateTime.Now,
+                            IsExpensive = inserted.IsExpensive,
                         };
                         material.MaterialCode = inserted.MaterialName +
                                                 MyUtilities.Material.GetMaterialDesignNo(material);
@@ -499,6 +514,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         material.DiameterType = updateMaterial.DiameterType.Trim();
                         material.Weight = updateMaterial.Weight;
                         material.UnitPrice = updateMaterial.UnitPrice;
+                        material.IsExpensive = updateMaterial.IsExpensive;
                         if (!updateMaterial.Active && updateMaterial.Active != material.Active) {
                             var materialInvs = vfi.MaterialInventories.Where(mi => mi.MaterialId == material.MaterialId && mi.TotalQty > 0);
                             if (materialInvs.Any())
@@ -506,6 +522,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             material.Active = updateMaterial.Active;
                         }
                         material.ModifiedUser = HttpContext.User.Identity.Name;
+                        material.Active = updateMaterial.Active;
                         material.ModifiedDate = DateTime.Now;
                         material.MaterialCode = updateMaterial.MaterialName +
                             MyUtilities.Material.GetMaterialDesignNo(material);
@@ -995,6 +1012,205 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
         }
         #endregion
 
+        #region material product quote
+
+        public List<MaterialQuoteBaseModel> GetMaterialQuoteBaseModels() {
+            var model = new List<MaterialQuoteBaseModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    model = vfi.MaterialQuoteBases.Select(
+                        x => new MaterialQuoteBaseModel {
+                            BaseId = x.BaseId,
+                            BasePrice = x.BasePrice,
+                            MaterialName = x.MaterialName,
+                            MaterialShape = x.MaterialShape,
+                            MaterialDiameterType = x.MaterialDiameterType,
+                            MaterialTypeId = x.MaterialTypeId,
+                            MaterialTypeName = x.MaterialType.MaterialTypeName,
+                            ModifiedDate = x.ModifiedDate,
+                           ModifiedUser = x.ModifiedUser,
+                        })
+                        .OrderBy(x => x.MaterialTypeName).ThenByDescending(x => x.MaterialName).ThenBy(x => x.MaterialShape).ThenBy(x => x.MaterialDiameterType)
+                        .ToList();
+
+                }
+            }
+            catch (Exception ex) {
+                throw new AggregateException(ex);
+            }
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult SelectMaterialQuoteBase() {
+            var model = new List<MaterialQuoteBaseModel>();
+            try {
+                model = GetMaterialQuoteBaseModels();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectMaterialQuoteBase", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertMaterialQuoteBase(MaterialQuoteBaseModel insert) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    int typeId = 1;
+                    try {
+                        typeId = Convert.ToInt32(insert.MaterialTypeName);
+                    }
+                    catch (Exception) { throw new AggregateException("Lỗi! Chọn lại loại nguyên liệu"); }
+                    var quote = vfi.MaterialQuoteBases.FirstOrDefault(x => x.MaterialTypeId == typeId
+                        && x.MaterialName.Equals(insert.MaterialName)
+                        && x.MaterialDiameterType.Equals(insert.MaterialDiameterType)
+                        && x.MaterialShape.Equals(insert.MaterialShape));
+                    if (quote == null) {
+                        quote = new MaterialQuoteBase {
+                            BasePrice = insert.BasePrice,
+                            MaterialDiameterType = insert.MaterialDiameterType,
+                            MaterialName = insert.MaterialName,
+                            MaterialShape = insert.MaterialShape,
+                            MaterialTypeId = typeId,
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                        };
+                        vfi.MaterialQuoteBases.Add(quote);
+                        vfi.SaveChanges();
+                    }
+                    else {
+                        throw new AggregateException("Lỗi! Nguyên liệu này đã tồn tại");
+                    }
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("InsertMaterialQuoteBase", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+
+            return View(new GridModel(GetMaterialQuoteBaseModels()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateMaterialQuoteBase(MaterialQuoteBaseModel update) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var typeId = update.MaterialTypeId;
+                    try {
+                        typeId = Convert.ToInt32(update.MaterialTypeName);
+                    }
+                    catch (Exception) { }
+                    var quote = vfi.MaterialQuoteBases.FirstOrDefault(x => x.BaseId != update.BaseId
+                        && x.MaterialTypeId != typeId
+                        && x.MaterialName.Equals(update.MaterialName)
+                        && x.MaterialDiameterType.Equals(update.MaterialDiameterType)
+                        && x.MaterialShape.Equals(update.MaterialShape));
+                    if (quote != null) { throw new AggregateException("Lỗi! Nguyên liệu này đã tồn tại"); }
+                    quote = vfi.MaterialQuoteBases.FirstOrDefault(x => x.BaseId == update.BaseId);
+                    quote.MaterialTypeId = typeId;
+                    quote.MaterialName = update.MaterialName;
+                    quote.MaterialDiameterType = update.MaterialDiameterType;
+                    quote.MaterialShape = update.MaterialShape;
+                    quote.BasePrice = update.BasePrice;
+                    quote.ModifiedUser = HttpContext.User.Identity.Name;
+                    quote.ModifiedDate = DateTime.Now;
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("UpdateMaterialQuoteBase", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+            return View(new GridModel(GetMaterialQuoteBaseModels()));
+        }
+
+
+
+
+        public List<MaterialQuoteBaseDetailModel> GetMaterialQuoteBaseDetailModels(int baseId) {
+            var model = new List<MaterialQuoteBaseDetailModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+                    model = vfi.MaterialQuoteBaseDetails.Where(x => x.MaterialQuoteBaseId == baseId).Select(
+                        x => new MaterialQuoteBaseDetailModel {
+                            DetailId = x.DetailId,
+                            MaterialQuoteBaseId = x.MaterialQuoteBaseId,
+                            FromOutDiameter = x.FromOutDiameter,
+                            ToOutDiameter = x.ToOutDiameter,
+                            InDiameter = x.InDiameter,
+                            Value = x.Value,
+                            Price = x.MaterialQuoteBase.BasePrice + x.Value,
+                        })
+                        .OrderBy(x => x.FromOutDiameter).ThenByDescending(x => x.ToOutDiameter).ThenBy(x => x.InDiameter)
+                        .ToList();
+                }
+            }
+            catch (Exception ex) {
+                throw new AggregateException(ex);
+            }
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult SelectMaterialQuoteBaseDetail(int baseId) {
+            var model = new List<MaterialQuoteBaseDetailModel>();
+            try {
+                model = GetMaterialQuoteBaseDetailModels(baseId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectMaterialQuoteBaseDetail", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertMaterialQuoteBaseDetail(MaterialQuoteBaseDetailModel insert, int baseId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var detail = new MaterialQuoteBaseDetail { 
+                        MaterialQuoteBaseId = baseId,
+                        FromOutDiameter = insert.FromOutDiameter,
+                        ToOutDiameter = insert.ToOutDiameter,
+                        InDiameter = insert.InDiameter,
+                        Value = insert.Value,
+                    };
+                    vfi.MaterialQuoteBaseDetails.Add(detail);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("InsertMaterialQuoteBaseDetail", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+
+            return View(new GridModel(GetMaterialQuoteBaseDetailModels(baseId)));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult updateMaterialQuoteBaseDetail(MaterialQuoteBaseDetailModel update) {
+            var baseId = 0;
+            try {
+                using (var vfi = new tammaContext()) {
+                    var detail = vfi.MaterialQuoteBaseDetails.FirstOrDefault(x => x.DetailId == update.DetailId);
+                    if (detail == null) { }
+                    detail.FromOutDiameter = update.FromOutDiameter;
+                    detail.ToOutDiameter = update.ToOutDiameter;
+                    detail.Value = update.Value;
+                    detail.InDiameter = update.InDiameter;
+                    vfi.SaveChanges();
+                    baseId = detail.MaterialQuoteBaseId;
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("updateMaterialQuoteBaseDetail", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
+            }
+            return View(new GridModel(GetMaterialQuoteBaseDetailModels(baseId)));
+        }
+        #endregion
+
         #region Tool
 
         [HttpPost]
@@ -1474,8 +1690,8 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             var fuelInvs = vfi.FuelInventories.Where(fi => fi.FuelId == fuel.FuelId && fi.TotalQuantity > 0);
                             if (fuelInvs.Any())
                                 throw new AggregateException("Lỗi! Vui lòng huỷ tồn kho trước khi tắt active");
-                            fuel.Active = updateFuel.Active;
                         }
+                        fuel.Active = updateFuel.Active;
                         fuel.FuelDesctiption = updateFuel.FuelDesctiption;
                         fuel.FuelDesignNo = updateFuel.FuelDesignNo;
                         fuel.FuelFullCode = updateFuel.GetFuelFullCode();

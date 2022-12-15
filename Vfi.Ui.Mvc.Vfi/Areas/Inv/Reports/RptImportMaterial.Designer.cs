@@ -10,7 +10,6 @@
         private void InitializeComponent()
         {
             Telerik.Reporting.Drawing.FormattingRule formattingRule1 = new Telerik.Reporting.Drawing.FormattingRule();
-            Telerik.Reporting.Drawing.FormattingRule formattingRule2 = new Telerik.Reporting.Drawing.FormattingRule();
             Telerik.Reporting.Drawing.StyleRule styleRule1 = new Telerik.Reporting.Drawing.StyleRule();
             Telerik.Reporting.Drawing.StyleRule styleRule2 = new Telerik.Reporting.Drawing.StyleRule();
             Telerik.Reporting.Drawing.StyleRule styleRule3 = new Telerik.Reporting.Drawing.StyleRule();
@@ -43,7 +42,6 @@
             this.textBox44 = new Telerik.Reporting.TextBox();
             this.textBox43 = new Telerik.Reporting.TextBox();
             this.textBox42 = new Telerik.Reporting.TextBox();
-            this.pictureBox1 = new Telerik.Reporting.PictureBox();
             this.textBox37 = new Telerik.Reporting.TextBox();
             this.labelsGroup = new Telerik.Reporting.Group();
             this.pageFooter = new Telerik.Reporting.PageFooterSection();
@@ -270,7 +268,6 @@
             this.textBox44,
             this.textBox43,
             this.textBox42,
-            this.pictureBox1,
             this.textBox37});
             this.labelsGroupFooter.Name = "labelsGroupFooter";
             this.labelsGroupFooter.Style.BorderStyle.Top = Telerik.Reporting.Drawing.BorderType.Dotted;
@@ -451,19 +448,6 @@
             this.textBox42.StyleName = "Data";
             this.textBox42.Value = "";
             // 
-            // pictureBox1
-            // 
-            formattingRule1.Filters.AddRange(new Telerik.Reporting.Filter[] {
-            new Telerik.Reporting.Filter("=Fields.PurchasingSignature", Telerik.Reporting.FilterOperator.Equal, "0")});
-            formattingRule1.Style.Visible = false;
-            this.pictureBox1.ConditionalFormatting.AddRange(new Telerik.Reporting.Drawing.FormattingRule[] {
-            formattingRule1});
-            this.pictureBox1.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(202.02267456054688D), Telerik.Reporting.Drawing.Unit.Pixel(60.22149658203125D));
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Pixel(114.7962646484375D), Telerik.Reporting.Drawing.Unit.Pixel(96.199981689453125D));
-            this.pictureBox1.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
-            this.pictureBox1.Style.Visible = false;
-            // 
             // textBox37
             // 
             this.textBox37.CanGrow = true;
@@ -514,12 +498,12 @@
             // 
             // detail
             // 
-            formattingRule2.Filters.AddRange(new Telerik.Reporting.Filter[] {
+            formattingRule1.Filters.AddRange(new Telerik.Reporting.Filter[] {
             new Telerik.Reporting.Filter("=RowNumber() % 2", Telerik.Reporting.FilterOperator.Equal, "0")});
-            formattingRule2.StopIfTrue = true;
-            formattingRule2.Style.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(214)))), ((int)(((byte)(214)))), ((int)(((byte)(214)))));
+            formattingRule1.StopIfTrue = true;
+            formattingRule1.Style.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(214)))), ((int)(((byte)(214)))), ((int)(((byte)(214)))));
             this.detail.ConditionalFormatting.AddRange(new Telerik.Reporting.Drawing.FormattingRule[] {
-            formattingRule2});
+            formattingRule1});
             this.detail.Height = Telerik.Reporting.Drawing.Unit.Inch(0.20000000298023224D);
             this.detail.Items.AddRange(new Telerik.Reporting.ReportItemBase[] {
             this.textBox4,
@@ -1022,7 +1006,6 @@
         private Telerik.Reporting.TextBox textBox51;
         private Telerik.Reporting.TextBox textBox41;
         private Telerik.Reporting.TextBox textBox37;
-        private Telerik.Reporting.PictureBox pictureBox1;
         private Telerik.Reporting.TextBox textBox35;
         private Telerik.Reporting.TextBox textBox36;
         private Telerik.Reporting.TextBox textBox39;

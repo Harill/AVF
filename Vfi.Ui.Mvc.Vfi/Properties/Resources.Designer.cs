@@ -63,6 +63,16 @@ namespace Vfi.Ui.Mvc.Vfi.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap _lock {
+            get {
+                object obj = ResourceManager.GetObject("_lock", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap cnc {
             get {
                 object obj = ResourceManager.GetObject("cnc", resourceCulture);
@@ -106,6 +116,16 @@ namespace Vfi.Ui.Mvc.Vfi.Properties {
         internal static System.Drawing.Bitmap ql_muahang {
             get {
                 object obj = ResourceManager.GetObject("ql_muahang", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap unlock {
+            get {
+                object obj = ResourceManager.GetObject("unlock", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

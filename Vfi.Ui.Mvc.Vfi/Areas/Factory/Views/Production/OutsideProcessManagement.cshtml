@@ -1,0 +1,37 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Outside Process Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Quản lý gia công ngoài</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<OutsideProcessModel>()
+        .Name("grid")
+        .DataKeys(keys => keys.Add(f => f.ProcessId).RouteKey("processId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+            .Select("SelectOutsideProcess", "Production", new { area = "Factory" })
+            .Insert("InsertOutsideProcess", "Production", new { area = "Factory" })
+            .Update("UpdateOutsideProcess", "Production", new { area = "Factory" })
+        )
+        .Columns(columns => {
+            columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(100);
+            columns.Bound(f => f.Name).Title("Tên");
+            columns.Bound(f => f.Price).Width(100).Title("Giá (USD/kg)");
+            columns.Bound(f => f.Active).Width(100).Title("Kích hoạt");
+            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+        })
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        .Render();
+}
+</div>
+

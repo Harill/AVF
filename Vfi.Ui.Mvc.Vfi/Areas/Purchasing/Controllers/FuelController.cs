@@ -199,7 +199,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         QcSignature = transaction.QcSignature,
                         PurchasingSignature = transaction.PurchasingSignature,
                         InvManager = invManager ? 2 : 0,
-                        IsInternal = transaction.IsInternal ??  false
+                        IsInternal = transaction.IsInternal ??  false,
+                        CanUpdate = false
                     };
                     if (entity.PoId != 0)
                         entity.PoCode = transaction.PurchaseOrder.RevisionNumber;
@@ -213,6 +214,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         if (purchasing) {
                             entity.PurchasingSignatureType = 1;
                         }
+                    }
+                    if (entity.Status == (byte)MyUtilities.Transaction.Status.Approved) {
+                        entity.CanUpdate = invManager;
                     }
                     foreach (var detail in transaction.TransactionFptDetails) {
                         entity.TotalQuantity += detail.Quantity;
@@ -246,7 +250,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
             try {
                 var invManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagementLv2);
-                if (invManager == null)
+                if (!invManager)
                     throw new AggregateException("Lỗi! Không có quyền làm điều này."); // You can't do this.
 
                 using (var vfi = new tammaContext()) {
@@ -285,6 +289,124 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             }
 
             return View(new GridModel(GetTrasactionFuel(fuelCode,status, fromDate, toDate)));
+        }
+
+        public ActionResult CreateRollbackTransaction(long transactionId) {
+            var saved = 0;
+            try {
+                using (var vfi = new tammaContext()) {
+                    var transaction = vfi.TransactionFpts.FirstOrDefault(x => x.TransactionId == transactionId);
+                    if (transaction == null) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "Không tìm thấy phiếu",
+                            0));
+                    }
+                    if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.StatusChanged,
+                            "Phiếu chưa duyệt không thể trả phiếu",
+                            0));
+                    }
+                    if (transaction.EoI == (byte)MyUtilities.PurchaseOrder.EoILot.Import) {
+                        if (transaction.PoId > 0) {
+                            //var taxInvoice = vfi.PoTaxInvoiceReferenceDetails.Where(x=> x.ImportId
+                            var isTaxInvoice = transaction.TransactionFptDetails.Any(x => x.PoReferenceDetailId != null);
+                            if (isTaxInvoice) {
+                                return Json(new MyUtilities.Monitor.MyJsonResult(
+                                    (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                                    "Phiếu có xuất hóa đơn ! Không thể trả phiếu",
+                                    0));
+                            }
+                        }
+                    }
+                    else if (transaction.EoI == (byte)MyUtilities.PurchaseOrder.EoILot.Export) { }
+                    else { return Json((int)MyUtilities.Monitor.ErrorCode.NotImplement); }
+
+                    var result = RollbackFuelInventory(transactionId);
+                    if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                        return Json(result);
+                    }
+                    saved += (int)result.Data;
+
+                    if (transaction.PoId > 0) {
+                        result = RollbackPurchasing(transactionId);
+                        if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                            return Json(result);
+                        }
+                    }
+                    saved += (int)result.Data;
+
+                    transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+                    saved += vfi.SaveChanges();
+                    return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        saved));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.Exception,
+                    ex.Message,
+                    0));
+            }
+        }
+
+        MyUtilities.Monitor.MyJsonResult RollbackFuelInventory(long transactionId) {
+            using (var vfi = new tammaContext()) {
+                var periods = vfi.FuelInventoryPeriods.Where(x => x.TransactionId == transactionId);
+                if (!periods.Any()) {
+                    return new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "", 0);
+                }
+                var invIds = periods.Select(x => x.FuelInvId).Distinct().ToList();
+                var invs = vfi.FuelInventories.Where(x => invIds.Contains(x.FuelInvId));
+                foreach (var period in periods) {
+                    var inv = invs.FirstOrDefault(x => x.FuelInvId == period.FuelInvId);
+                    if (period.LastQuantity > period.EarlyQuantity) { // import case
+                        if (inv.TotalQuantity < period.Quantity) {
+                            return new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.ReferenceError,
+                                "Tồn kho không đủ xử lý",
+                                0);
+                        }
+                        inv.TotalQuantity -= period.Quantity;
+                    }
+                    else { // export case
+                        inv.TotalQuantity += period.Quantity;
+                    }
+                }
+                vfi.FuelInventoryPeriods.RemoveRange(periods);
+                var saved = vfi.SaveChanges();
+                return new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.NoError,
+                    "",
+                    saved);
+            }
+        }
+
+        MyUtilities.Monitor.MyJsonResult RollbackPurchasing(long transactionId) {
+            using (var vfi = new tammaContext()) {
+                var transactionDetails = vfi.TransactionFptDetails.Where(x => x.TransactionId == transactionId);
+                foreach (var detail in transactionDetails) {
+                    var poDetail = vfi.PurchaseOrderDetails.FirstOrDefault(x => x.PurchaseOrderDetailId == detail.PoDetailId);
+                    if (poDetail == null) {
+                        new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "Không tìm thấy phiếu mua",
+                            0);
+                    }
+                    poDetail.ReceivedQty -= detail.Quantity;
+                    if (poDetail.ReceivedQty < 0) { poDetail.ReceivedQty = 0; }
+                    poDetail.IsComplete = false;
+                    poDetail.PurchaseOrder.Status = (byte)MyUtilities.Sales.Status.InProcess;
+                }
+                var saved = vfi.SaveChanges();
+                return new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.NoError,
+                    "",
+                    saved);
+            }
         }
 
         [GridAction]
@@ -651,13 +773,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == detail.VendorId);
                             entity.VendorName = vendor.CompanyName;
                         }
-                        entity.StatusName =
-                            MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
-                        if (entity.FptType != 0)
-                            entity.FptTypeName = MyUtilities.PurchaseOrder.GetFptName(entity.FptType);
-                        if (entity.EoI != 0)
-                            entity.FptTypeName = MyUtilities.PurchaseOrder.GetEoIName(entity.EoI, entity.Type);
-                        entity.Price = entity.UnitPrice * entity.Quantity;
                         var invs =
                             vfi.FuelInventoryPeriods.Where(
                                 ti => ti.FuelId == entity.FuelId &&
@@ -665,8 +780,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         if (invs.Any()) {
                             entity.TotalInv = invs.Sum(ti => ti.LastQuantity - ti.EarlyQuantity);
                         }
-                        if (transaction.Status == (byte)MyUtilities.Transaction.Status.Open)
-                            entity.TotalInv += entity.Quantity;
+                        entity.StatusName =
+                            MyUtilities.Transaction.CastText.GetTextStatus(transaction.Status);
+                        if (entity.FptType != 0)
+                            entity.FptTypeName = MyUtilities.PurchaseOrder.GetFptName(entity.FptType);
+                        if (entity.EoI != 0)
+                            entity.EoIName = MyUtilities.PurchaseOrder.GetEoIName(entity.EoI, entity.Type);
+                        if (entity.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import) {
+                            entity.TransactionTitle = "PHIẾU NHẬP KHO";
+                            if (transaction.Status == (byte)MyUtilities.Transaction.Status.Open) {
+                                entity.TotalInv += entity.Quantity;
+                            }
+                        }
+                        else if (entity.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Export) {
+                            entity.TransactionTitle = "PHIẾU XUẤT KHO";
+                            if (transaction.Status == (byte)MyUtilities.Transaction.Status.Open) {
+                                entity.TotalInv -= entity.Quantity;
+                            }
+                        }
+                        entity.Price = entity.UnitPrice * entity.Quantity;
                         model.Add(entity);
                     }
                     return PartialView("PagePrintImportFuel", model);
@@ -674,7 +806,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             }
             catch (Exception ex) {
                 ModelState.AddModelError("PagePrintImportFuel", "\n" + ex.Message);
-
             }
             return PartialView(null);
         }

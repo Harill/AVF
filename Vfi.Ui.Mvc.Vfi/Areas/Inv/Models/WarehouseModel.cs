@@ -24,6 +24,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool CanWeighing { get; set; }
         public bool IsPacking { get; set; }
         public bool IsFinish { get; set; }
+        public bool AutoGenerateProcess { get; set; }
     }
 
     public class WarehouseCboModel {

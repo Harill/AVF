@@ -46,22 +46,20 @@
                 dataType: 'json',
                 url: '@Url.Action("GetCustomerById", "Customer")',
                 timeout: 20000,
-                success: function(data) {
-                    if (data == '9') {
-                        alert("Lỗi! Không tìm thấy khách hàng ! Liên hệ admin");
-                    } else if (data == '0') {
-                        alert("Lỗi!");
+                success: function(res) {
+                    if (res.Code != 1) {
+                        alert("Lỗi! " + res.Message);
                     } else {
-                        $("#BillToAddress").val(data[0]);
-                        $("#ShipToAddress").val(data[0]);
-                        $("#CurrencyCode").val(data[1]);
-                        $("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = data[1];
-                        $("#ShipMethodName").val(data[2]);
-                        $("#ShipMethodName").data("tDropDownList").$text[0].innerHTML = data[3];
-                        $("#PaymentTerm").val(data[4]);
-                        $("#PaymentTerm").data("tDropDownList").$text[0].innerHTML = data[5];
-                        $("#EmployeeName").val(data[6]);
-                        $("#EmployeeName").data("tDropDownList").$text[0].innerHTML = data[7];
+                        $("#BillToAddress").val(res.Data.BillToAddress);
+                        $("#ShipToAddress").val(res.Data.ShipToAddress);
+                        $("#CurrencyCode").val(res.Data.CurrencyCode);
+                        $("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = res.Data.CurrencyCode;
+                        $("#ShipMethodName").val(res.Data.ShipMethodId);
+                        $("#ShipMethodName").data("tDropDownList").$text[0].innerHTML = res.Data.ShipMethodName;
+                        $("#PaymentTerm").val(res.Data.PaymentMethodId);
+                        $("#PaymentTerm").data("tDropDownList").$text[0].innerHTML = res.Data.PaymentMethodName;
+                        $("#EmployeeName").val(res.Data.SalesPersonId);
+                        $("#EmployeeName").data("tDropDownList").$text[0].innerHTML = res.Data.SalesPersonName;
                     }
                 }
             });
@@ -427,8 +425,8 @@
             @{
                 Html.Telerik().ComboBox()
                     .Name("cboCustomer")
-                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new {area = "Sales"}))
-                    .HtmlAttributes(new {style = "width: 250px"})
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                    .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new {style = "width: 325px;"})
                     .ClientEvents(events => events.OnChange("customer_onChange"))
                     .AutoFill(true)
@@ -474,8 +472,8 @@
         
         <div class="grid_7">Phương thức thanh toán</div> 
         <div class="grid_4">@Html.LabelFor(f => f.ShipMethodName)</div>
-        <div class="grid_3">@Html.LabelFor(f => f.SalesPersonName)</div>
-        <div class="grid_3">@Html.LabelFor(f => f.CurrencyCode)</div>
+        <div class="grid_6">@Html.LabelFor(f => f.SalesPersonName)</div>
+        <div class="grid_4">@Html.LabelFor(f => f.CurrencyCode)</div>
        
         <div class="clear" style ="margin-bottom: 10px"></div>
          <div class="grid_7">
@@ -493,18 +491,18 @@
                 Html.Telerik().DropDownList()
                     .Name("ShipMethodName")
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxShipMethod", "ShipMethod", new {area = "Purchasing"}))
-                    .HtmlAttributes(new {style = "width: 150px"})
+                    .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new {style = "width: 250px;"})
                     .Render();
             }
         </div>
         
-        <div class="grid_3">
+        <div class="grid_6">
             @{
                 Html.Telerik().DropDownList()
                     .Name("EmployeeName")
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxSalesEmployee", "Employee", new { area = "" }))
-                    .HtmlAttributes(new {style = "width: 110px"})
+                    .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new {style = "width: 250px"})
                     .Render();
             }
@@ -513,7 +511,8 @@
             @{
                 Html.Telerik().DropDownList()
                     .Name("CurrencyCode")
-                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new {area = ""}))
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCurrency", "Currency", new { area = "" }))
+                    .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new { style = "width: 200px" })
                     .Render();
             }

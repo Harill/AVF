@@ -144,6 +144,10 @@
                        .HeaderTemplate("Đơn giá")
                        .HtmlAttributes(new {style = "text-align:right;"})
                        .ClientTemplate("<#= UnitPrice == null ? 0 :$.telerik.formatString('{0:n0}', UnitPrice) #>");
+                columns.Bound(f => f.IsExpensive).Width(55)
+                       .HeaderTemplate("Mắc</br>tiền")
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsExpensive' <#=IsExpensive? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.Active).Width(55)
                        .HeaderTemplate("Kích</br>hoạt")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")

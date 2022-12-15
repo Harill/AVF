@@ -61,6 +61,7 @@
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Repair' <#=QcLine? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
             columns.Bound(f => f.GroupName).Title("Nhóm");
+            columns.Bound(f => f.UserName).Title("LK ACC");
             columns.Bound(f => f.ModifiedDate).Width(125).Title("Ngày làm").Format("{0:dd/MM/yyyy HH:mm}").ReadOnly(true);
             columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
         })

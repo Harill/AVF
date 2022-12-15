@@ -19,8 +19,7 @@
                 .Select("SelectMaterialClassified", "Material")
                 .Insert("InsertMaterialClassified", "Material")
                 .Update("UpdateMaterialClassified", "Material"))
-        .Columns(columns =>
-        {
+        .Columns(columns => {
             columns.Bound(f => f.MaterialClassifiedName);
             columns.Bound(f => f.Active).Width(45)
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")

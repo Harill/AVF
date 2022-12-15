@@ -4,14 +4,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script>
-    function grid_OnDataBound(e) {
-
-    }
-
-    function grid_OnDataBinding(e) {
-        args.data = $.extend(args.data, {
-        });
-    }
 </script>
 <div class="title">Nhận công đoạn 2</div>
 
@@ -45,8 +37,6 @@
             .Selectable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
-                .OnDataBound("grid_OnDataBound")
-                .OnDataBinding("grid_OnDataBinding")
                 .OnError("grid_OnError"))
             .Render();
     }

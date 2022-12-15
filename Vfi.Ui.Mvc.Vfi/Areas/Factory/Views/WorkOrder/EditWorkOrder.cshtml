@@ -30,6 +30,7 @@
     <script type="text/javascript">
         var info = {
             Quantity: 0,
+            TotalQuantity: 0,
             KnifeCut: 0,
             WorkPiece: 0,
             ProductivityDesign: 0,
@@ -45,6 +46,7 @@
             Ids: "",
             ProductId: 0,
             MaterialId: 0,
+            StartDate: new Date()
         };
         $(document).ready(function () {
             // map info
@@ -57,11 +59,13 @@
             info.ProductionRateDesign = @Model.Info.DM
             info.ProductionRate = @Model.Info.DM
             info.Quantity = @Model.Quantity
+            info.TotalQuantity = @Model.TotalQuantity
             info.MaterialRequirementDesign = @Model.MaterialRequirement
             info.MaterialRequirement = @Model.MaterialRequirement
             //info.MaterialLength = 3000
             info.Ids = $("#WorkOrderIds")[0].innerText;
             //
+            @*var requireStartDate = @Model.RequireStartDate.ToString()*@
             $("#KnifeCut").val(info.KnifeCut);
             $("#WorkPiece").val(info.WorkPiece);
             $("#Productivity").val(info.Productivity);
@@ -72,7 +76,6 @@
             //$("#MaterialLength")[0].innerText = info.MaterialLength;
 
             $("#MaterialRequirementDesign")[0].innerText = info.MaterialRequirement;
-
         });
 
         function materialInv_OnChange(e) {
@@ -273,7 +276,7 @@
             <div class="grid_5">Dự kiến bắt đầu: @Model.StartDate.ToString("dd/MM/yy HH:mm")</div>
             <div class="clear"></div>
             <br />
-            <div class="grid_5"><input type='checkbox' name='chkStartDate' /> Điều chỉnh: 
+            <div class="grid_5"><input type='checkbox' name='chkStartDate' checked="@Model.RequireStartDate" /> Điều chỉnh: 
                 @{
                     Html.Telerik().DateTimePicker()
                         .Name("StartDate")
@@ -340,14 +343,14 @@
             <div class="grid_2_5">
                Yêu cầu NL TK:
             </div>
-            <div class="grid_3">
-                 <span id="MaterialRequirementDesign">~</span> (cây)
+            <div class="grid_3_5">
+                 <span id="MaterialRequirementDesign">~</span> (cây/wo)
             </div>
             <div class="grid_2_5">
                Yêu cầu NL TT:
             </div>
-            <div class="grid_2">
-                 <span id="MaterialRequirement" class="span-highlight">~</span> (cây)
+            <div class="grid_2_5">
+                 <span id="MaterialRequirement" class="span-highlight">~</span> (cây/wo)
             </div>
             <div class="grid_3" style="text-align:right;">
                 Thực tế phát NL:
@@ -366,7 +369,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_1">(cây)</div>
+            <div class="grid_1">(cây/wo)</div>
             <div class="clear"></div><br />
             <div class="grid_2">
                 Máy

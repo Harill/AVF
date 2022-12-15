@@ -914,11 +914,48 @@
                 });
                 break;
             case 34:
-                $.ajax({
+                alert("Đã khóa! lêu lêu");
+                @*$.ajax({
                     type: 'post',
                     data: {},
                     dataType: 'json',
                     url: '@Url.Action("CleanDatabaseHardCode", "User")',
+                    timeout: 200000,
+                    success: function (res) {
+                        if (res.Code != 1)
+                            alert("Lỗi! " + res.Message + " Thành công! " + res.Data);
+                        else {
+                            alert("Thành công! " + res.Data);
+                            Clear();
+                        }
+
+                    }
+                });*@
+                break;
+            case 35:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("GenerateQuoteMaterial", "User")',
+                    timeout: 200000,
+                    success: function (res) {
+                        if (res.Code != 1)
+                            alert("Lỗi! " + res.Message + " Thành công! " + res.Data);
+                        else {
+                            alert("Thành công! " + res.Data);
+                            Clear();
+                        }
+
+                    }
+                });
+                break;
+            case 36:
+                $.ajax({
+                    type: 'post',
+                    data: {},
+                    dataType: 'json',
+                    url: '@Url.Action("GenerateQuoteOutsideProcess", "User")',
                     timeout: 200000,
                     success: function (res) {
                         if (res.Code != 1)
@@ -1331,6 +1368,26 @@
         </div>
         <div class="grid_5">(Không thể phục hồi)</div>
         <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button twoToneButton" onclick=" return TamMaCode(35); ">
+                <span class='t-icon t-insert'></span>Tạo danh sách báo giá nguyên liệu mẫu
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        <div class="grid_10">
+            <button class="t-button twoToneButton" onclick=" return TamMaCode(36); ">
+                <span class='t-icon t-insert'></span>Tạo danh sách gia công ngoài
+            </button>
+        </div>
+        <div class="grid_5">(Không thể phục hồi)</div>
+        <div class="clear"></div>
+        
+    </fieldset>
+
+
+    <fieldset>
+        <legend>Nguy hiểm</legend>
         <div class="grid_10">
             <button class="t-button twoToneButton" onclick=" return TamMaCode(34); ">
                 <span class='t-icon t-insert'></span>Xóa database sạch sẽ

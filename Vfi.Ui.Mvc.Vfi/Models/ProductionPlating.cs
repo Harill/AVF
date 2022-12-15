@@ -20,6 +20,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string Thickness { get; set; }
         public string SaltSprayTime { get; set; }
         public bool IsMainProcess { get; set; }
+        public Nullable<int> ProcessId { get; set; }
+        public virtual OutsideProcess OutsideProcess { get; set; }
         public virtual Product Product { get; set; }
     }
 }

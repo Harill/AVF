@@ -30,7 +30,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string FuelDesign { get; set; }
         [DataType("Int")]
         public int Quota { get; set; }
-        [DataType("Number0")]
+        [DataType("Number0Digit")]
         public double CrossWeight { get; set; }
 
         public Nullable<int> Fuel2Id { get; set; }
@@ -44,7 +44,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string FuelName2 { get; set; }
         [DataType("Int")]
         public int Quota2 { get; set; }
-        [DataType("Number0")]
+        [DataType("Number0Digit")]
         public double CrossWeight2 { get; set; }
 
         public string Note { get; set; }

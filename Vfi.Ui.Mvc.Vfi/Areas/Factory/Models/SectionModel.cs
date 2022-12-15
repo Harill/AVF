@@ -11,7 +11,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
     {
         public int SectionId { get; set; }
         public string SectionName { get; set; }
-        [DataType("Number")]
+        [DataType("Number4Digit")]
         public double SaleFactor { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }

@@ -18,5 +18,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 
         public bool IsNotRequireApproveOrder { get; set; }
         public bool IsWorkOrder { get; set; }
+
+        public int ShippingMethodId { get; set; }
+        [UIHint("_ShippingMethodEditTemplate")]
+        public string ShippingMethodName { get; set; }
+        public double ShippingMethodFee { get; set; }
     }
 }

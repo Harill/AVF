@@ -140,6 +140,9 @@
                 e.row.childNodes[3].bgColor = "#FA5858";
                 //e.row.style.backgroundColor = "#FA5858";
             }
+            if (!e.dataItem.CanCreateWorkOrder) {
+                e.row.getElementsByClassName("t-button workorder_" + e.dataItem.OrderId)[0].parentNode.innerHTML = "";
+            }
         }
 
         function gridDetail_OnRowDataBound(e) {
@@ -149,6 +152,31 @@
         }
 
         var index = 0;
+
+        function CreateWorkOrder(id) {
+            var message = "Tạo lệnh work order";
+            message += "\nĐồng ý ??";
+            if (confirm(message)) {
+                $.ajax({
+                    type: 'post',
+                    data: { orderId: id },
+                    dataType: 'json',
+                    url: '@Url.Action("CreateWorkOrder", "Orders", new { area = "Sales" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            if (res.Message && res.Message != "") {
+                                alert(res.Message);
+                            }
+                            RefreshGrid("gridOrder");
+                        } else {
+                            alert("Lỗi! " + res.Message);
+                        }
+                    }
+                });
+            } else {
+            }
+        }
     </script>
 }
 
@@ -356,6 +384,9 @@
                         columns.Bound(f => f.Note).Width(100);
                         columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(90)
                             .Format("{0:dd/MM/yyyy HH:mm}");
+                        columns.Bound(f => f.OrderId).Title("").Width(50).ReadOnly(true)
+                               .ClientTemplate("<input type='button' id='workorder_<#= OrderId #>' value='Tạo WO' class='t-button workorder_<#= OrderId #>' onclick='CreateWorkOrder(<#= OrderId #>)' />")
+                               .HtmlAttributes(new { style = "text-align:center" });
                     })
                 .DetailView(details => details.ClientTemplate(
                     Html.Telerik().TabStrip()

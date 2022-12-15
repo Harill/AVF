@@ -27,25 +27,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public DateTime RunDate { get; set; }
         public int Seconds { get; set; }
         [DataType("Number")]
-        public virtual new double Production { get; set; }
-        public virtual new string ProductionStr { get { return string.Format("{0:n0}", Production); } }
+        public double Production { get; set; }
+        public string ProductionStr { get { return string.Format("{0:n0}", Production); } }
         [DataType("Number")]
-        public virtual new double MaterialUse { get; set; }
-        public virtual new string MaterialUseStr { get { return string.Format("{0:n0}", MaterialUse); } }
+        public double MaterialUse { get; set; }
+        public string MaterialUseStr { get { return string.Format("{0:n0}", MaterialUse); } }
         public double Productivity { get; set; }
         public int MachineFunction { get; set; }
         [DataType("Number")]
-        public virtual new double ProductionPerDay {
+        public double ProductionPerDay {
             get {
                 return MyUtilities.Product.GetProductionRateInFactoryDayTime(Productivity);
                 //return MyUtilities.Product.GetProductionRateInTime(MyUtilities.Product.Second20h, Productivity);
             }
         }
-        public virtual new string ProductionPerDayStr { get { return string.Format("{0:n0}", ProductionPerDay); } }
+        public string ProductionPerDayStr { get { return string.Format("{0:n0}", ProductionPerDay); } }
         [UIHint("_DateTemplateNullable")]
-        public virtual new DateTime? StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
         [UIHint("_DateTemplateNullable")]
-        public virtual new DateTime? EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public string StartDateString {
             get { return StartDate != null ? StartDate.Value.ToString("dd/MM/yyyy") : "__/__/____"; }
@@ -70,19 +70,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
                 a += ", ghi chú:" + Note;
             return "";
         }
+
         public string GetDiagramName(Machine machine) {
             string a = "";
             if (machine != null)
-                a = MyUtilities.Machine.Diagram.GetText(machine.DiagramType ?? 0) + "-" +
+                a = MyUtilities.Machine.GetDiagramText(machine.DiagramType ?? 0) + "-" +
                     machine.ColumnIndex + "-" + machine.RowIndex;
             return a;
         }
+
         public int DiagramType { get; set; }
         public string DiagramName { get; set; }
 
         public List<string> Notes { get; set; }
         public List<ProductImgModel> ProductImgs { get; set; }
-
 
         public double ProcessingQuantity { get; set; }
         public string ProcessingQuantityStr { get { return string.Format("{0:n0}", ProcessingQuantity); } }

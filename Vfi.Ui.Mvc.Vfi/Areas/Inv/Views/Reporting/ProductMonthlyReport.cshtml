@@ -127,11 +127,13 @@
                 var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
                 var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
 
+                var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
                 var customerId = $("#CustomerForMonthly").data('tComboBox').value();
                 if (customerId === "")
                     customerId = 0;
                 $('#result').load('@Url.Action("PrintProductReportTotal", "Reporting")',
                     {
+                        productName: productCodeNameForMonthly,
                         customerId: customerId,
                         chkLuyKeSX: LKSX,
                         chkLuyKeXuat: LKX,

@@ -110,6 +110,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View();
         }
 
+        public ActionResult ProcessClassifiedManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
         public ActionResult ProcessingTypeManagement() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
@@ -173,7 +180,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 var allMachineDiagram = new List<MachineDiagram>();
                 using (var vfi = new vfiContext()) {
 
-                    var cames = vfi.SelectCamesDiagrams;
+                    var cames = vfi.SelectDiagram1;
                     var staticStateList = MyUtilities.Machine.State.GetStaticStateList();
                     var productIds = cames.Select(c => c.ProductId).Distinct().ToList();
                     var materialIds = cames.Select(c => c.MaterialId).Distinct().ToList();
@@ -200,7 +207,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                            id.Processing1 + id.Processing2,
                                                 MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
                                             }).ToList();
-                    for (int i = 1; i <= 4; i++) {
+                    var maxColumn = machines.Max(x => x.ColumnIndex).Value;
+                    for (int i = 1; i <= maxColumn; i++) {
                         var machineColumns = machines.Where(c => c.ColumnIndex == i).OrderByDescending(c => c.RowIndex);
                         var listMachines = new List<MachineDiagram>();
                         foreach (var machine in machineColumns) {
@@ -332,7 +340,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var allMachineDiagram = new List<MachineDiagram>();
             using (var vfi = new vfiContext()) {
 
-                var cames = vfi.SelectVf2CncDiagram;
+                var cames = vfi.SelectDiagram3;
                 var staticStateList = MyUtilities.Machine.State.GetStaticStateList();
                 var productIds = cames.Select(c => c.ProductId).Distinct().ToList();
                 var materialIds = cames.Select(c => c.MaterialId).Distinct().ToList();
@@ -484,7 +492,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var allMachineDiagram = new List<MachineDiagram>();
             using (var vfi = new vfiContext()) {
 
-                var cncs = vfi.SelectCncDiagrams;
+                var cncs = vfi.SelectDiagram2;
                 var staticStateList = MyUtilities.Machine.State.GetStaticStateList();
                 var productIds = cncs.Select(c => c.ProductId).Distinct().ToList();
                 var materialIds = cncs.Select(c => c.MaterialId).Distinct().ToList();
@@ -991,7 +999,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                         MachineFunction = x.MachineFunction,
                                         //DiagramTypeName = MyUtilities.Machine.Diagram.GetText(x.DiagramType ?? 1)
                                     }).ToList();
-                    model.ForEach(x => x.DiagramTypeName = MyUtilities.Machine.Diagram.GetText(x.DiagramType));
+                    model.ForEach(x => x.DiagramTypeName = MyUtilities.Machine.GetDiagramText(x.DiagramType));
                     if (production1 && production2) { }
                     else if (production1) {
                         model = model.Where(m => m.Active).ToList();
@@ -1251,15 +1259,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         public ActionResult SelectComboBoxMachineDiagramType() {
             using (var vfi = new vfiContext()) {
-                //var model = vfi.Machines.Where(m => m.Active).ToList();
-                var cames = new MachineDiagram { DiagramType = 1, DiagramName = "Cames" };
-                var cnc = new MachineDiagram { DiagramType = 2, DiagramName = "CNC" };
-                var model = new List<MachineDiagram> { cames, cnc };
+                var model = MyUtilities.Machine.DiagramTemplate;
                 return new JsonResult {
                     Data = new SelectList(model, "DiagramType", "DiagramName")
                 };
             }
         }
+
         public ActionResult SelectComboBoxMachineIndex(int machineId) {
             using (var vfi = new vfiContext()) {
                 var machine = vfi.Machines.FirstOrDefault(m => m.MachineId == machineId);
@@ -1572,9 +1578,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     throw new AggregateException("Mã lỗi không được để trống");
                 //if (string.IsNullOrWhiteSpace(colorPick))
                 //    throw new AggregateException("Màu báo hiệu lỗi");
+                updateModel.NameEN = (updateModel.NameEN + "").Trim();
                 updateModel.StateCode = updateModel.StateCode.Trim().ToUpper();
-                updateModel.Description = updateModel.Description.Trim();
-                updateModel.NameEN = updateModel.NameEN.Trim();
+                updateModel.Description = (updateModel.Description + "").Trim();
                 using (var vfi = new vfiContext()) {
                     var entity = vfi.MachineStates.FirstOrDefault(ms => (ms.Description.ToUpper().Equals(updateModel.Description.ToUpper())
                                                                             || ms.StateCode.Equals(updateModel.StateCode))
@@ -3899,26 +3905,39 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     //return Json("");
                     //Session["InserNewTrack"] = productId;
                     //return Json("1"); 
-                    var materialIds =
-                        vfi.ProductionMaterials.Where(pm => pm.ProductId == productId && pm.Active)
-                           .Select(pm => pm.MaterialId)
+                    var materials =
+                        vfi.ProductionMaterials.Where(pm => pm.ProductId == productId && pm.Active && pm.Material.Active)
+                            .OrderBy(m => m.Material.MaterialName)
+                            .ThenBy(m => m.Material.Shape)
+                            .ThenBy(m => m.Material.DiameterType)
+                            .ThenBy(m => m.Material.InDiameter)
+                            .ThenBy(m => m.Material.OutDiameter)
+                           .Select(pm => new { pm.MaterialId, pm.Material.MaterialCode })
                            .ToList();
 
-                    var materials = vfi.Materials.Where(f => f.Active).ToList();
-                    var material = materials.Where(f => materialIds.Contains(f.MaterialId))
-                                            .ToList().FirstOrDefault();
+                    //var materials = vfi.Materials.Where(f => f.Active)
+                    //        .OrderBy(m => m.MaterialName)
+                    //        .ThenBy(m => m.Shape)
+                    //        .ThenBy(m => m.DiameterType)
+                    //        .ThenBy(m => m.InDiameter)
+                    //        .ThenBy(m => m.OutDiameter)
+                    //        .Select(x => new { x.MaterialId, x.MaterialCode })
+                    //        .ToList();
+                    //var material = materials.Where(f => materialIds.Contains(f.MaterialId))
+                    //                        .ToList().FirstOrDefault();
                     return new JsonResult {
-                        Data =
-                            new SelectList(materials, "MaterialId", "MaterialCode",
-                                           material == null ? -1 : material.MaterialId)
+                        Data = new SelectList(
+                                materials,
+                                "MaterialId", "MaterialCode",
+                                materials.Any() ? materials.FirstOrDefault().MaterialId : -1)
                     };
                     //return Json(product.ProductionMaterials.ToList().LastOrDefault().Material);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("0");
             }
-            return Json("0");
+            //return Json("0");
         }
 
         [HttpPost]
@@ -3937,13 +3956,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     //return Json(product.ProductionMaterials.ToList().LastOrDefault().Material);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("0");
             }
             return new JsonResult {
                 Data = new SelectList(model.OrderBy(m => m.StateCode), "DetailId", "StateCode")
             };
-            return Json("0");
+            //return Json("0");
         }
 
         [HttpPost]
@@ -3962,13 +3981,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     //return Json(product.ProductionMaterials.ToList().LastOrDefault().Material);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("0");
             }
             return new JsonResult {
                 Data = new SelectList(model.OrderBy(m => m.StateCode), "DetailId", "StateCode")
             };
-            return Json("0");
+            //return Json("0");
         }
 
         [HttpPost]
@@ -3978,32 +3997,42 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var product = vfi.Products.FirstOrDefault(p => p.ProductId == productId);
                     if (product == null)
                         return Json("");
-                    var lastTracks =
-                        vfi.TrackUpMachines.Where(
-                            t => t.ProductId == productId && t.Status == (byte)MyUtilities.Transaction.Status.Approved)
-                           .ToList();
-                    if (!lastTracks.Any())
-                        return Json("9");
-                    var entity = new TrackUpMachineModel {
-                        ProductId = productId,
-                        RoundPerMinute = lastTracks.LastOrDefault().RoundPerMinute,
-                        WorkPiece = lastTracks.LastOrDefault().WorkPiece,
-                        RealProductivity = product.Productivity ?? 1,
-                        RealRate = product.ProductionRate ?? 1,
-                        KnifeCut = product.KnifeCut ?? 0,
-                    };
-                    if (entity.RealProductivity == 1)
-                        entity.RealProductivity = lastTracks.LastOrDefault().RealProductivity;
-                    if (entity.RealRate == 1)
-                        entity.RealRate = lastTracks.LastOrDefault().RealRate;
-                    return Json(entity);
+                    var entity = MyUtilities.Machine.LastTrackUpProduct(0, "", 0, productId, DateTime.Now);
+                    if (entity == null) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "Error",
+                            null));
+                    }
+                    //var lastTracks =
+                    //    vfi.TrackUpMachines.Where(
+                    //        t => t.ProductId == productId && t.Status == (byte)MyUtilities.Transaction.Status.Approved)
+                    //       .ToList();
+                    //if (!lastTracks.Any())
+                    //    return Json("9");
+                    //var entity = new TrackUpMachineModel {
+                    //    ProductId = productId,
+                    //    RoundPerMinute = lastTracks.LastOrDefault().RoundPerMinute,
+                    //    WorkPiece = lastTracks.LastOrDefault().WorkPiece,
+                    //    RealProductivity = product.Productivity ?? 1,
+                    //    RealRate = product.ProductionRate ?? 1,
+                    //    KnifeCut = product.KnifeCut ?? 0,
+                    //};
+                    //if (entity.RealProductivity == 1)
+                    //    entity.RealProductivity = lastTracks.LastOrDefault().RealProductivity;
+                    //if (entity.RealRate == 1)
+                    //    entity.RealRate = lastTracks.LastOrDefault().RealRate;
+                    return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int) MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        entity));
                     //return Json(product.ProductionMaterials.ToList().LastOrDefault().Material);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("0");
             }
-            return Json("0");
+            //return Json("0");
         }
 
         [GridAction]
@@ -4011,21 +4040,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var model = new List<TrackUpMachineModel>();
             try {
                 using (var vfi = new vfiContext()) {
-                    var machines = from m in vfi.Machines
-                                   where m.Active && m.MachineName.Contains("C")
+                    var machines = (from m in vfi.Machines
+                                   where m.Active 
+                                        && m.ProcessingType.ForWarehouseId != null 
+                                        && m.ProcessingType.Warehouse.IsProduction
                                    select new {
                                        m.MachineId,
                                        m.MachineName
-                                   };
+                                   }).ToList();
                     var checkDate = DateTime.Now.AddMonths(-1);
                     foreach (var machine in machines) {
-                        var lastTrack =
-                            vfi.TrackUpMachines.Where(
-                                t =>
-                                t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                t.MachineId == machine.MachineId)
-                               .OrderByDescending(t => t.DeliveryDate)
-                               .FirstOrDefault();
+                        var lastTrack = MyUtilities.Machine.LastTrackUpMachine(machine.MachineId, null, null, DateTime.Now);
+                        //var lastTrack =
+                        //    vfi.TrackUpMachines.Where(
+                        //        t =>
+                        //        t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                        //        t.MachineId == machine.MachineId)
+                        //       .OrderByDescending(t => t.DeliveryDate)
+                        //       .FirstOrDefault();
                         if (lastTrack != null) {
                             if (lastTrack.DeliveryDate < checkDate) {
                                 if (!lastTrack.TrackUpMaterials.Any()) continue;
@@ -4037,11 +4069,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 MachineId = machine.MachineId,
                                 ProductId = lastTrack.ProductId,
                                 MaterialId = lastTrack.MaterialId,
-                                MaterialCode = lastTrack.Material.MaterialCode,
-                                ProductCode = lastTrack.Product.ProductCode,
+                                MaterialCode = lastTrack.MaterialCode,
+                                ProductCode = lastTrack.ProductCode,
                                 RealRate = lastTrack.RealRate,
                                 RealProductivity = lastTrack.RealProductivity,
-                                ProductLength = lastTrack.Product.Length ?? 0,
+                                ProductLength = lastTrack.ProductLength,
                                 WorkPiece = lastTrack.WorkPiece,
                                 KnifeCut = lastTrack.KnifeCut,
                                 Quantity = lastTrack.Quantity,
@@ -4078,14 +4110,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                        m.MachineId,
                                        m.MachineName
                                    }).ToList();
-                    if (!string.IsNullOrWhiteSpace(factory)) {
-                        if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
-                            machines = machines.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
-                        }
-                        else {
-                            machines = machines.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
-                        }
-                    }
+                    //if (!string.IsNullOrWhiteSpace(factory)) {
+                    //    if (factory.Equals(MyUtilities.Machine.FactoryVF2)) {
+                    //        machines = machines.Where(x => x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                    //    }
+                    //    else {
+                    //        machines = machines.Where(x => !x.MachineName.Contains(MyUtilities.Machine.FactoryVF2)).ToList();
+                    //    }
+                    //}
                     var now = DateTime.Now.AddDays(1);
                     var checkDate = now.AddMonths(-1);
                     var machineIds = machines.Select(x => x.MachineId).ToList();
@@ -5813,7 +5845,109 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
         #endregion
 
-        #region processing
+        #region processing classified
+
+        [GridAction]
+        public ActionResult SelectProcessClassified() {
+            var model = new List<ProcessClassifiedModel>();
+            try {
+                model = GetProcessClassified();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProcessClassified", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProcessClassifiedModel> GetProcessClassified() {
+            var model = new List<ProcessClassifiedModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.ProcessClassifieds
+                    .Select(x => new ProcessClassifiedModel {
+                        ClassifiedId = x.ClassifiedId,
+                        Name = x.Name,
+                        Description = x.Description,
+                        SalesFactor = x.SalesFactor,
+                        Active = x.Active,
+                        ModifiedDate = x.ModifiedDate,
+                        ModifiedUser = x.ModifiedUser,
+                    })
+                    .ToList();
+            }
+            return model.OrderBy(x => x.Name).ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProcessClassified(ProcessClassifiedModel insert) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = new ProcessClassified {
+                        Name = insert.Name,
+                        Description = insert.Description,
+                        SalesFactor = insert.SalesFactor,
+                        Active = true,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                    };
+                    vfi.ProcessClassifieds.Add(entity);
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProcessClassified", ex.Message);
+            }
+            return View(new GridModel(GetProcessClassified()));
+        }
+
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProcessClassified(ProcessClassifiedModel update) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = vfi.ProcessClassifieds.FirstOrDefault(x => x.ClassifiedId == update.ClassifiedId);
+                    if (entity == null) { throw new AggregateException("Lỗi! Không tìm thấy gia công ngoài"); }
+                    entity.Name = update.Name;
+                    entity.Description = update.Description;
+                    entity.SalesFactor = update.SalesFactor;
+                    entity.Active = update.Active;
+                    entity.ModifiedDate = DateTime.Now;
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProcessClassified", ex.Message);
+            }
+            return View(new GridModel(GetProcessClassified()));
+        }
+
+        public ActionResult SelectComboboxProcessClassified() {
+            var model = new List<ProcessClassifiedModel>();
+            using (var vfi = new tammaContext()) {
+                model = GetProcessClassified().Where(x => x.Active).ToList();
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "ClassifiedId", "FullDescription")
+            };
+        }
+        #endregion
+
+        #region processing type
 
         [GridAction]
         public ActionResult SelectProcessingType() {

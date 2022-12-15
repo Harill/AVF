@@ -43,6 +43,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.Shape).HasColumnName("Shape");
             this.Property(t => t.OutDiameter).HasColumnName("OutDiameter");
             this.Property(t => t.InDiameter).HasColumnName("InDiameter");
+            this.Property(t => t.IsExpensive).HasColumnName("IsExpensive");
 
             // Relationships
             this.HasRequired(t => t.MaterialType)

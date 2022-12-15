@@ -566,6 +566,10 @@
                     columns.Bound(f => f.Currency).Width(70)
                            .HeaderTemplate("Ghi chú</br>đơn giá")
                            .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.PackingFee).Width(70)
+                           .HeaderTemplate("Hệ số</br>đóng gói")
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.Active).Width(50)
                         .HeaderTemplate("Kích</br>hoạt")
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")

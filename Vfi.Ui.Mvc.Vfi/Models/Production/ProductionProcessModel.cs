@@ -7,7 +7,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
     {
         public int ProcessId { get; set; }
         public int WarehouseId { get; set; }
-        [UIHint("_WarehouseEditTemplate")]
+        [UIHint("_WarehouseMainProcessTemplate")]
         public string WarehouseName { get; set; }
         public int ProductId { get; set; }
         public bool IsAlert { get; set; }

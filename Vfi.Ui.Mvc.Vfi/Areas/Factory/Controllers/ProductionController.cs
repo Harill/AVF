@@ -22,6 +22,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return ViewData;
         }
 
+        public ActionResult OutsideProcessManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+        public ActionResult ProductionLevelManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
         public ActionResult ProductionOnTesting(int machineId, int productId) {
             var entity = new MachineDiagram { MachineId = machineId, ProductId = productId };
             try {
@@ -121,7 +135,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                              CustomerId = x.Product.CustomerId,
                              CustomerCode = x.Product.Customer.CustomerCode,
                              MachineId = x.MachineId ?? 0,
-                             MachineName = x.MachineId != null ? x.Machine.MachineName : ""
+                             MachineName = x.MachineId != null ? x.Machine.MachineName : "",
+                             IsCalculateLock = x.Product.IsCalculateLock ?? false
                          }).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) {
                     model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
@@ -356,17 +371,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         #region plating management
 
         [GridAction]
-        public ActionResult SelectProductionPlating(int customerId, int productId, string productCode) {
+        public ActionResult SelectProductionPlating(int customerId, int productId, string productCode, bool isQuote =  false) {
             var model = new List<ProductionPlatingModel>();
             try {
-                model = GetProductionPlatingByProductId(customerId, productId, productCode);
+                model = GetProductionPlatingByProductId(customerId, productId, productCode, isQuote);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductionPlating", ex.Message);
             }
             return View(new GridModel(model));
         }
-        List<ProductionPlatingModel> GetProductionPlatingByProductId(int customerId, int productId, string productCode) {
+        List<ProductionPlatingModel> GetProductionPlatingByProductId(int customerId, int productId, string productCode, bool isQuote) {
             var model = new List<ProductionPlatingModel>();
             using (var vfi = new tammaContext()) {
                 model = (from x in vfi.ProductionPlatings
@@ -378,7 +393,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                              Active = x.Active,
                              ProductId = x.ProductId,
                              PlatingId = x.PlatingId,
-                             PlatingName = x.PlatingName,
                              Description = x.Description + "",
                              PlatingCost = x.PlatingCost,
                              PlatingIndex = x.PlatingIndex,
@@ -387,11 +401,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                              Thickness = x.Thickness,
                              ProductCode = x.Product.ProductCode,
                              CustomerCode = x.Product.Customer.CustomerCode,
-                             IsMainProcess = x.IsMainProcess
+                             IsMainProcess = x.IsMainProcess,
+                             OutsideProcessId = x.ProcessId ?? 0,
+                             PlatingName = x.PlatingName,
+                             UnitWeight = x.Product.QcWeight ?? 0,
+                             ProcessPrice = x.ProcessId != null ? x.OutsideProcess.Price : 0,
                          }).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) {
                     model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
                 }
+                if (isQuote) {
+                    model = model.Where(x => x.Active && x.IsMainProcess).ToList();
+                }
+                model.ForEach(x => {
+                    if (x.UnitWeight > 0) { x.PlatingCost = Math.Round(x.ProcessPrice / x.UnitWeight, 4); }
+                });
             }
             return model.OrderBy(x => x.CustomerCode).ThenBy(x => x.ProductCode).ThenBy(m => m.PlatingIndex).ToList();
         }
@@ -409,21 +433,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
                     if (user == null)
                         throw new AggregateException("Vui lòng đăng nhập lại");
-
+                    var processId = 0;
+                    try {
+                        processId = Convert.ToInt32(insert.PlatingName);
+                    }
+                    catch (Exception) { }
+                    if (processId == 0) { throw new AggregateException("Lỗi! Vui lòng chọn lại gia công ngoài!"); }
+                    var outsideProcess = vfi.OutsideProcesses.FirstOrDefault(x => x.ProcessId == processId);
+                    if (outsideProcess == null) { throw new AggregateException("Lỗi! Vui lòng chọn lại gia công ngoài!"); }
                     var entity = new ProductionPlating {
                         ProductId = productId,
                         Active = true,
-                        PlatingName = insert.PlatingName,
+                        //PlatingName = insert.PlatingName,
+                        PlatingName = outsideProcess.Name,
+                        ProcessId = outsideProcess.ProcessId,
                         Description = insert.Description + "",
                         InsertDate = DateTime.Now,
                         InserUser = HttpContext.User.Identity.Name,
-                        PlatingCost = insert.PlatingCost,
+                        PlatingCost = 0,
                         ModifiedDate = DateTime.Now,
                         ModifiedUser = HttpContext.User.Identity.Name,
                         PlatingIndex = insert.PlatingIndex,
                         PlatingDay = insert.PlatingDay,
                         SaltSprayTime = insert.SaltSprayTime,
                         Thickness = insert.Thickness,
+                        IsMainProcess = insert.IsMainProcess,
                     };
                     vfi.ProductionPlatings.Add(entity);
                     vfi.SaveChanges();
@@ -434,7 +468,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("InsertProductionPlating", ex.Message);
             }
 
-            return View(new GridModel(GetProductionPlatingByProductId(0, productId, "")));
+            return View(new GridModel(GetProductionPlatingByProductId(0, productId, "", false)));
         }
 
         [HttpPost]
@@ -453,17 +487,31 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var entity = vfi.ProductionPlatings.FirstOrDefault(pt => pt.PlatingId == update.PlatingId);
                     if (entity == null)
                         throw new AggregateException("Lỗi! Không tìm thấy công cụ trong sản phấm! Liên hệ admin");
+
+                    var processId = 0;
+                    try {
+                        processId = Convert.ToInt32(update.PlatingName);
+                    }
+                    catch (Exception) { }
+                    if (processId != 0) {
+                        var outsideProcess = vfi.OutsideProcesses.FirstOrDefault(x => x.ProcessId == processId);
+                        if (outsideProcess == null) { throw new AggregateException("Lỗi! Vui lòng chọn lại gia công ngoài!"); }
+                        entity.PlatingName = outsideProcess.Name;
+                        entity.ProcessId = processId;
+                    }
+
                     entity.Active = update.Active;
+                    entity.IsMainProcess = update.IsMainProcess;
                     entity.ModifiedDate = DateTime.Now;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
 
-                    entity.PlatingName = update.PlatingName;
+                    //entity.PlatingName = update.PlatingName;
                     entity.PlatingIndex = update.PlatingIndex;
                     entity.Description = update.Description + "";
                     entity.PlatingDay = update.PlatingDay;
                     entity.SaltSprayTime = update.SaltSprayTime;
                     entity.Thickness = update.Thickness;
-                    entity.PlatingCost = update.PlatingCost;
+                    entity.PlatingCost = 0;
                    
                     vfi.SaveChanges();
                 }
@@ -473,7 +521,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("UpdateProductionPlating", ex.Message);
             }
 
-            return View(new GridModel(GetProductionPlatingByProductId(0, productId, "")));
+            return View(new GridModel(GetProductionPlatingByProductId(0, productId, "", false)));
         }
 
         #endregion
@@ -481,10 +529,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         #region production section management
 
         [GridAction]
-        public ActionResult SelectProductionSection(int productId) {
+        public ActionResult SelectProductionSection(int productId, bool isQuote = false) {
             var model = new List<ProductionSectionModel>();
             try {
-                model = GetProductionSectionByProductId(productId);
+                model = GetProductionSectionByProductId(productId, isQuote);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductionSection", ex.Message);
@@ -492,26 +540,33 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(model));
         }
 
-        List<ProductionSectionModel> GetProductionSectionByProductId(int productId) {
+        List<ProductionSectionModel> GetProductionSectionByProductId(int productId,bool isQuote) {
             var model = new List<ProductionSectionModel>();
             using (var vfi = new tammaContext()) {
-                model = vfi.ProductionSections.Where(x => productId == 0 || x.ProductId == productId).Select(entity => new ProductionSectionModel {
-                    ProductionSectionId = entity.ProductionSectionId,
-                    SectionName = entity.Section.SectionName,
-                    SectionCost = entity.Section.SaleFactor * entity.Productivity,
-                    UpdateDate = entity.UpdateDate ?? DateTime.Now,
-                    UpdateUser = entity.UpdateUser,
-                    Description = entity.Description,
-                    Active = entity.Active,
-                    IsProductionManagement = 1,
-                    IsSaleManagement = 1,
-                    SectionIndex = entity.SectionIndex,
-                    Productivity = entity.Productivity,
-                    Weight = entity.Weight,
-                    IsMainProcess = entity.IsMainProcess,
-                    MachineId = entity.MachineId ?? 0,
-                    MachineName = entity.MachineId != null ? entity.Machine.MachineName : ""
-                }).ToList();
+                model = vfi.ProductionSections.Where(x => productId == 0 || x.ProductId == productId)
+                    .Select(entity => new ProductionSectionModel {
+                        ProductionSectionId = entity.ProductionSectionId,
+                        SectionName = entity.Section.SectionName,
+                        SectionCost = entity.Section.SaleFactor * entity.Productivity,
+                        UpdateDate = entity.UpdateDate ?? DateTime.Now,
+                        UpdateUser = entity.UpdateUser,
+                        Description = entity.Description,
+                        Active = entity.Active,
+                        IsProductionManagement = 1,
+                        IsSaleManagement = 1,
+                        SectionIndex = entity.SectionIndex,
+                        Productivity = entity.Productivity,
+                        Weight = entity.Weight,
+                        IsMainProcess = entity.IsMainProcess,
+                        MachineId = entity.MachineId ?? 0,
+                        MachineName = entity.MachineId != null ? entity.Machine.MachineName : "",
+                        SalesFactor = entity.Section.SaleFactor,
+                        SectionPrice = Math.Round(entity.Section.SaleFactor * entity.Productivity, 4),
+                        IsCalculateLock = entity.Product.IsCalculateLock ?? false
+                    }).ToList();
+                if (isQuote) {
+                    model = model.Where(x => x.Active && x.IsMainProcess).ToList();
+                }
             }
             return model.OrderBy(m => m.SectionIndex).ToList();
         }
@@ -589,7 +644,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("InsertProductionSection", ex.Message);
             }
 
-            return View(new GridModel(GetProductionSectionByProductId(productId)));
+            return View(new GridModel(GetProductionSectionByProductId(productId, false)));
         }
 
         [HttpPost]
@@ -675,17 +730,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("UpdateProductionSection", ex.Message);
             }
 
-            return View(new GridModel(GetProductionSectionByProductId(productId)));
+            return View(new GridModel(GetProductionSectionByProductId(productId,false)));
         }
 
         #endregion
 
         #region production packing
         [GridAction]
-        public ActionResult SelectProductionFuel(int customerId, int productId, string productCode) {
+        public ActionResult SelectProductionFuel(int customerId, int productId, string productCode, bool isQuote = false) {
             var model = new List<ProductionFuelModel>();
             try {
-                model = GetProductionFuelByProductId(customerId, productId, productCode);
+                model = GetProductionFuelByProductId(customerId, productId, productCode, isQuote);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductionFuel", ex.Message);
@@ -693,11 +748,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View(new GridModel(model));
         }
 
-        List<ProductionFuelModel> GetProductionFuelByProductId(int customerId, int productId, string productCode) {
+        List<ProductionFuelModel> GetProductionFuelByProductId(int customerId, int productId, string productCode, bool isQuote) {
             var model = new List<ProductionFuelModel>();
             using (var vfi = new tammaContext()) {
                 var packings = vfi.ProductionFuels.Where(pt => 
-                    pt.Active && 
+                   (isQuote == false || pt.Active) && 
                     (productId == 0 || pt.ProductId == productId) &&
                     (customerId ==0 || pt.Product.CustomerId == customerId)
                     ).ToList();
@@ -804,7 +859,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("InsertProductionFuel", ex.Message);
             }
 
-            return View(new GridModel(GetProductionFuelByProductId(0, productId, "")));
+            return View(new GridModel(GetProductionFuelByProductId(0, productId, "", false)));
         }
 
         [HttpPost]
@@ -820,25 +875,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
                     if (user == null)
                         throw new AggregateException("Vui lòng đăng nhập lại");
-                    var entity = vfi.ProductionFuels.FirstOrDefault(pt => pt.RealId == update.RealId);
-                    int fuelId = 1;
+                    int fuelId = 0;
                     try {
                         fuelId = Convert.ToInt32(update.FuelName);
                     }
-                    catch (Exception) {
-                        fuelId = entity.FuelId;
-                    }
+                    catch (Exception) { }
                     Nullable<int> fuelId2 = null;
                     try {
                         if (!string.IsNullOrWhiteSpace(update.FuelName2))
                             fuelId2 = Convert.ToInt32(update.FuelName2);
                     }
-                    catch (Exception) {
-                        fuelId2 = entity.Fuel2Id;
-                    }
+                    catch (Exception) { }
+                    var entity = vfi.ProductionFuels.FirstOrDefault(pt => pt.RealId == update.RealId);
                     if (entity == null)
-                        throw new AggregateException("Lỗi! Không tìm thấy công cụ trong sản phấm! Liên hệ admin");
-                    entity.FuelId = fuelId;
+                        throw new AggregateException("Lỗi! Không tìm thấy thùng/túi/vĩ trong sản phấm! Liên hệ admin");
+                    if (fuelId > 0) {
+                        entity.FuelId = fuelId;
+                    }
                     //entity.ProductId = productId;
                     entity.ModifiedDate = DateTime.Now;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
@@ -846,7 +899,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     entity.Priority = update.Priority;
                     entity.Note = update.Note;
                     entity.Quota = update.Quota;
-                    entity.Fuel2Id = fuelId2;
+                    if (fuelId2 == null) {
+                        entity.Fuel2Id = null;
+                    }
+                    else if (fuelId2 > 0) {
+                        entity.Fuel2Id = fuelId2;
+                    }
                     entity.CrossWeight = update.CrossWeight;
                     entity.CrossWeight2 = update.CrossWeight2;
                     entity.Quota2 = update.Quota2;
@@ -858,7 +916,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 ModelState.AddModelError("UpdateProductionFuel", ex.Message);
             }
 
-            return View(new GridModel(GetProductionFuelByProductId(0, productId, "")));
+            return View(new GridModel(GetProductionFuelByProductId(0, productId, "", false)));
         }
 
         public ActionResult SelectComboboxProductionFuel(int productId) {
@@ -1508,6 +1566,311 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return result;
         }
 
+        #endregion
+
+        #region production ProductivityQuote
+
+        [GridAction]
+        public ActionResult SelectProductionProductivityQuote(int productId, bool isQuote = false) {
+            var model = new List<ProductionProductivityQuoteBaseModel>();
+            try {
+                model = GetProductionProductivityQuote(productId, isQuote);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionProductivityQuote", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionProductivityQuoteBaseModel> GetProductionProductivityQuote(int productId, bool isQuote) {
+            var model = new List<ProductionProductivityQuoteBaseModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.ProductionProductivityQuoteBases.Where(x => x.ProductId == productId && (isQuote == false || x.Active))
+                    .Select(x => new ProductionProductivityQuoteBaseModel {
+                        BaseId = x.BaseId,
+                        ProductId = productId,
+                        F = x.F,
+                        L = x.L,
+                        Name = x.Name,
+                        Round = x.Round,
+                        Time = x.Time,
+                        ModifiedDate = x.ModifiedDate,
+                        ModifiedUser = x.ModifiedUser,
+                        Idx = x.Idx,
+                        Active = x.Active,
+                        IsCalculateLock = x.Product.IsCalculateLock ?? false
+                    })
+                    .ToList();
+            }
+            return model.OrderBy(x => x.Idx).ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductionProductivityQuote(ProductionProductivityQuoteBaseModel insert, int productId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var quote = new ProductionProductivityQuoteBase {
+                        ProductId = productId,
+                        F = insert.F,
+                        L = insert.L,
+                        Name = insert.Name,
+                        Round = insert.Round,
+                        Time = (insert.Round * insert.F) > 0 ? (insert.L * 60) / (insert.Round * insert.F) : 0,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        Idx = insert.Idx,
+                        Active = true,
+                    };
+                    vfi.ProductionProductivityQuoteBases.Add(quote);
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductionProductivityQuote", ex.Message);
+            }
+            return View(new GridModel(GetProductionProductivityQuote(productId,false)));
+        }
+
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionProductivityQuote(ProductionProductivityQuoteBaseModel update) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var quote = vfi.ProductionProductivityQuoteBases.FirstOrDefault(x => x.BaseId == update.BaseId);
+                    if (quote == null) { throw new AggregateException("Lỗi! Không tìm thấy"); }
+                    quote.F = update.F;
+                    quote.L = update.L;
+                    quote.Round = update.Round;
+                    quote.Time = (update.Round * update.F) > 0 ? (update.L * 60) / (update.Round * update.F) : 0;
+                    quote. ModifiedDate = DateTime.Now;
+                    quote.ModifiedUser = HttpContext.User.Identity.Name;
+                    quote.Idx = update.Idx;
+                    quote.Active = update.Active;
+                    vfi.SaveChanges();
+                    update.ProductId = quote.ProductId;
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionProductivityQuote", ex.Message);
+            }
+            return View(new GridModel(GetProductionProductivityQuote(update.ProductId,false)));
+        }
+
+        #endregion
+
+        #region production product level
+
+        [GridAction]
+        public ActionResult SelectProductionProductLevel() {
+            var model = new List<ProductionProductLevelModel>();
+            try {
+                model = GetProductionProductLevel();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionProductLevel", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductionProductLevelModel> GetProductionProductLevel() {
+            var model = new List<ProductionProductLevelModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.ProductionProductLevels
+                    .Select(x => new ProductionProductLevelModel {
+                       LevelId = x.LevelId,
+                       LevelName = x.LevelName,
+                       Active = x.Active,
+                       Factor = x.Factor,
+                       ModifiedDate= x.ModifiedDate,
+                       ModifiedUser = x.ModifiedUser,
+                    })
+                    .ToList();
+            }
+            return model.OrderBy(x => x.LevelName).ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductionProductLevel(ProductionProductLevelModel insert) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var level = new ProductionProductLevel {
+                        LevelName = insert.LevelName,
+                        Active = true,
+                        Factor = insert.Factor,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                    };
+                    vfi.ProductionProductLevels.Add(level);
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductionProductLevel", ex.Message);
+            }
+            return View(new GridModel(GetProductionProductLevel()));
+        }
+
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductionProductLevel(ProductionProductLevelModel update) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var level = vfi.ProductionProductLevels.FirstOrDefault(x => x.LevelId == update.LevelId);
+                    if (level == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy");
+                    }
+                    level.LevelName = update.LevelName;
+                    level.Factor = update.Factor;
+                    level.Active = update.Active;
+                    level.ModifiedDate = DateTime.Now;
+                    level.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductionProductLevel", ex.Message);
+            }
+            return View(new GridModel(GetProductionProductLevel()));
+        }
+
+        public ActionResult SelectComboboxProductionLevel() {
+            var model = new List<ProductionProductLevelModel>();
+            using (var vfi = new tammaContext()) {
+                model = GetProductionProductLevel().Where(x => x.Active).ToList();
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "LevelId", "LevelName")
+            };
+        }
+        #endregion
+
+        #region outside process
+
+        [GridAction]
+        public ActionResult SelectOutsideProcess() {
+            var model = new List<OutsideProcessModel>();
+            try {
+                model = GetOutsideProcess();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductionProductLevel", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<OutsideProcessModel> GetOutsideProcess() {
+            var model = new List<OutsideProcessModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.OutsideProcesses
+                    .Select(x => new OutsideProcessModel {
+                        ProcessId = x.ProcessId,
+                        Name = x.Name,
+                        Price = x.Price,
+                        Active = x.Active,
+                        ModifiedDate = x.ModifiedDate,
+                        ModifiedUser = x.ModifiedUser,
+                    })
+                    .ToList();
+            }
+            return model.OrderBy(x => x.Name).ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertOutsideProcess(OutsideProcessModel insert) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = new OutsideProcess {
+                        Name = insert.Name,
+                        Price = insert.Price,
+                        Active = true,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                    };
+                    vfi.OutsideProcesses.Add(entity);
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertOutsideProcess", ex.Message);
+            }
+            return View(new GridModel(GetOutsideProcess()));
+        }
+
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateOutsideProcess(OutsideProcessModel update) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var entity = vfi.OutsideProcesses.FirstOrDefault(x => x.ProcessId == update.ProcessId);
+                    if (entity == null) { throw new AggregateException("Lỗi! Không tìm thấy gia công ngoài"); }
+                    entity.Name = update.Name;
+                    entity.Price = update.Price;
+                    entity.Active = update.Active;
+                    entity.ModifiedDate = DateTime.Now;
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateOutsideProcess", ex.Message);
+            }
+            return View(new GridModel(GetOutsideProcess()));
+        }
+
+        public ActionResult SelectComboboxOutsideProcess() {
+            var model = new List<OutsideProcessModel>();
+            using (var vfi = new tammaContext()) {
+                model = GetOutsideProcess().Where(x => x.Active).ToList();
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "ProcessId", "Name")
+            };
+        }
         #endregion
 
         [HttpPost]

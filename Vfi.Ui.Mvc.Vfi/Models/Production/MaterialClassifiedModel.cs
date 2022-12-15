@@ -1,9 +1,9 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
 using Vfi.Server.Core.DataModel.Models.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Models.Production
 {
-    public class MaterialClassifiedModel: MaterialClassifiedDomainModel
-    {
+    public class MaterialClassifiedModel: MaterialClassifiedDomainModel {
     }
 }

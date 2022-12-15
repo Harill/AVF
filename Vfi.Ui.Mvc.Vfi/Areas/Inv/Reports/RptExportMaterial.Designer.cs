@@ -701,7 +701,7 @@
             this.textBox29.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.70833271741867065D), Telerik.Reporting.Drawing.Unit.Inch(0.20000000298023224D));
             this.textBox29.Style.Font.Name = "Times New Roman";
             this.textBox29.StyleName = "Data";
-            this.textBox29.Value = "Ngày nhập: ";
+            this.textBox29.Value = "Ngày :";
             // 
             // textBox30
             // 

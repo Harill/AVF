@@ -9,10 +9,4 @@
   <parameter name="ApplicationServices-Web.config Connection String" description="ApplicationServices Connection String used in web.config by the application to access the database." defaultValue="Data Source=.;Initial Catalog=vfi;Integrated Security=True;User ID=sa;Password=sa123;MultipleActiveResultSets=True" tags="SqlConnectionString">
     <parameterEntry kind="XmlFile" scope="C:\\Workspace\\vfi-sync\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='ApplicationServices']/@connectionString" />
   </parameter>
-  <parameter name="factoryContext-Web.config Connection String" description="factoryContext Connection String used in web.config by the application to access the database." defaultValue="Data Source=.;Initial Catalog=factory;Persist Security Info=True;User ID=sa;Password=sa123;MultipleActiveResultSets=True" tags="SqlConnectionString">
-    <parameterEntry kind="XmlFile" scope="C:\\Workspace\\vfi-sync\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='factoryContext']/@connectionString" />
-  </parameter>
-  <parameter name="vfi3Context-Web.config Connection String" description="vfi3Context Connection String used in web.config by the application to access the database." defaultValue="Data Source=.;Initial Catalog=vfi3;Persist Security Info=True;User ID=sa;Password=sa123;MultipleActiveResultSets=True" tags="SqlConnectionString">
-    <parameterEntry kind="XmlFile" scope="C:\\Workspace\\vfi-sync\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='vfi3Context']/@connectionString" />
-  </parameter>
 </parameters>

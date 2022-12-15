@@ -86,21 +86,27 @@
             });
             return false;
         }
+
         function RollbackTransaction(id) {
             var message = "Phục hồi lệnh trở về chưa duyệt";
             message += "\nĐồng ý ??";
             if (confirm(message)) {
-                $('#result').load('@Url.Action("CreateRollbackTransaction", "Transaction")',
-                {
-                    transactionId: id
-                }, function (data) {
-                    if (data == 9)
-                        alert("Lỗi không tìm thấy phiếu !");
-                    else if (data == 8)
-                        alert("Lỗi tồn kho không đủ để phục hồi");
-                    else {
-                        alert(data);
-                        RefreshGrid("gridTransaction");
+                $.ajax({
+                    type: 'post',
+                    data: { transactionId: id },
+                    dataType: 'json',
+                    url: '@Url.Action("CreateRollbackTransaction", "Transaction", new { area = "Inv" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            alert("Đã lưu " + res.Data);
+                            if (res.Message && res.Message != "") {
+                                alert(res.Message);
+                            }
+                            RefreshGrid("gridTransaction");
+                        } else {
+                            alert("Lỗi! " + res.Message);
+                        }
                     }
                 });
             } else {

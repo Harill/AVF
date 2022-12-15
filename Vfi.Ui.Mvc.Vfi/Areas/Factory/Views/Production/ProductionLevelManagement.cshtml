@@ -1,0 +1,37 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Production Level Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Độ khó gia công sản phẩm</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProductionProductLevelModel>()
+        .Name("grid")
+        .DataKeys(keys => keys.Add(f => f.LevelId).RouteKey("levelId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+            .Select("SelectProductionProductLevel", "Production", new {area = "Factory" })
+            .Insert("InsertProductionProductLevel", "Production", new { area = "Factory" })
+            .Update("UpdateProductionProductLevel", "Production", new { area = "Factory" })
+        )
+        .Columns(columns => {
+            columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(100);
+            columns.Bound(f => f.LevelName).Title("Tên");
+            columns.Bound(f => f.Factor).Width(100).Title("Hệ số");
+            columns.Bound(f => f.Active).Width(100).Title("Kích hoạt");
+            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+        })
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        .Render();
+}
+</div>
+

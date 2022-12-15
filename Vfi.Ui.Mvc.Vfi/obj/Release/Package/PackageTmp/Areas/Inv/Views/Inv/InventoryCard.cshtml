@@ -298,41 +298,50 @@
                                                   .Select("SelectProduct", "Product", new { area = "", active = false, customerId = 0, status = 0, productCode = "", productId = 0, productName= "" }))
                     .Columns(columns =>
                         {
-                            columns.Bound(f => f.CustomerShortCodeName).Width(120).Title("Khách hàng")
+                            columns.Bound(f => f.CustomerShortCodeName).Width(100).Title("Khách hàng")
                                    .ClientTemplate("<strong><#= CustomerShortCodeName #></strong>");
                             columns.Bound(f => f.DesignNo).Width(120);
-                            columns.Bound(f => f.ProductName).Width(160);
+                            columns.Bound(f => f.ProductName).Width(140);
                             columns.Bound(f => f.ProductCode).Width(120)
                                    .HeaderTemplate("<strong>Mã</br>SP</strong>")
                                    .HeaderHtmlAttributes(new { style = "text-align:center" })
                                    .ClientTemplate("<strong><#= ProductCode #></strong>");
                             columns.Bound(f => f.Diameter).Width(50)
                                    .HeaderTemplate("Dia.</br>(mm)")
+                                   .Format("{0:n2}")
                                    .HtmlAttributes(new { style = "text-align:right;" });
                             columns.Bound(f => f.Length).Width(50)
                                    .HeaderTemplate("L</br>(mm)")
+                                   .Format("{0:n2}")
                                    .HtmlAttributes(new { style = "text-align:right;" });
                             columns.Bound(f => f.KnifeCut).Width(60)
                                    .HeaderTemplate("Dao cắt</br>(mm)")
+                                   .Format("{0:n2}")
                                    .HtmlAttributes(new { style = "text-align:right;" });
+                            columns.Bound(f => f.ProductionWeight).Width(50).ReadOnly(true)
+                                   .HeaderTemplate("W (SX1)</br>(g/pc)")
+                                   .Format("{0:n3}")
+                                   .HtmlAttributes(new { style = "text-align:right;" });
+                            columns.Bound(f => f.MaterialCode).Width(120).ReadOnly(true)
+                                   .HeaderTemplate("Nguyên liệu</br>Thiết kế");
                             columns.Bound(f => f.Weight).Width(50).ReadOnly(true)
-                                   .HeaderTemplate("W</br>(g)")
-                                   .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n3}', Weight) #>")
+                                   .HeaderTemplate("W (phoi)</br>(g/pc)")
+                                   .Format("{0:n3}")
                                    .HtmlAttributes(new { style = "text-align:right;" });
-                            columns.Bound(f => f.ProcessingTypeName).Width(60)
+                            columns.Bound(f => f.ProcessingTypeName).Width(100)
                                    .HeaderTemplate("Loại máy</br>thiết kế");
                             columns.Bound(f => f.ProductionRate).Width(50)
-                                   .HeaderTemplate("ĐM TK</br>(pc/cây)")
-                                   .ClientTemplate("<#= ProductionRate == null ? 0 : $.telerik.formatString('{0:n0}', ProductionRate) #>")
+                                   .HeaderTemplate("ĐM TK</br>(pcs/cây)")
+                                   .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align:right;" });
                             columns.Bound(f => f.Productivity).Width(50)
                                    .HeaderTemplate("NS TK</br>(s/pc)")
-                                   .ClientTemplate("<#= Productivity == null ? 0 : $.telerik.formatString('{0:n0}', Productivity) #>")
+                                   .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align:right;" });
-                            columns.Bound(f => f.MillProductivity).Width(50)
-                                   .HeaderTemplate("NS Mil</br>(s/pc)")
-                                   .ClientTemplate("<#= MillProductivity == null ? 0 : $.telerik.formatString('{0:n0}', MillProductivity) #>")
-                                   .HtmlAttributes(new { style = "text-align:right;" });
+                            //columns.Bound(f => f.MillProductivity).Width(50)
+                            //       .HeaderTemplate("NS Mil</br>(s/pc)")
+                            //       .ClientTemplate("<#= MillProductivity == null ? 0 : $.telerik.formatString('{0:n0}', MillProductivity) #>")
+                            //       .HtmlAttributes(new { style = "text-align:right;" });
                             //columns.Bound(f => f.MaterialCodeDesign).Width(120).ReadOnly(true)
                             //       .HeaderTemplate("NL</br>thiết kế");
                         })

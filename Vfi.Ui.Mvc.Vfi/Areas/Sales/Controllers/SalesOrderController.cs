@@ -185,6 +185,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             ViewData = GetPageConfigData();
             return View();
         }
+        public ActionResult MOQTemplateManagement() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
         #endregion
 
         #region order progress
@@ -735,7 +742,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                      pi.WarehouseId,
                                      pi.TotalQty,
                                  }).ToList();
-                var cames = (from x in vfi.SelectCamesDiagrams
+                var cames = (from x in vfi.SelectDiagram1
                              where x.ProductId == orderDetail.ProductId
                              orderby x.MachineName
                              select new TrackUpMachineModel {
@@ -743,7 +750,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                  MachineName = x.MachineName,
                                  RealProductivity = x.RealProductivity
                              }).ToList();
-                var cncs = (from x in vfi.SelectCncDiagrams
+                var cncs = (from x in vfi.SelectDiagram2
                             where x.ProductId == orderDetail.ProductId
                             orderby x.MachineName
                             select new TrackUpMachineModel {
@@ -6030,6 +6037,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                              sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
                                                  .Transaction.Status ==
                                              (byte)MyUtilities.Transaction.Status.Approved
+                                             && sx.ImportFormSX1.Status == (byte) MyUtilities.Transaction.Status.Approved
                                         select new {
                                             sx.MachineId,
                                             sx.ProductId,
@@ -6187,6 +6195,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                                    .Transaction.Status ==
                                                  (byte)MyUtilities.Transaction.Status.Approved &&
                                                  lastProduction.MaterialUseDate == sx.ImportFormSX1.MaterialUseDate
+                                             && sx.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved
                                            select new {
                                                sx.ProductId,
                                                sx.ImportFormSX1.MaterialUseDate,
@@ -6291,7 +6300,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
                                                   .Transaction.Status ==
                                                 (byte)MyUtilities.Transaction.Status.Approved &&
-                                                sx.ImportFormSX1.MaterialUseDate > date);
+                                                sx.ImportFormSX1.MaterialUseDate > date
+                                             && sx.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved);
                             if (smart != null)
                                 entity.MachineCount = 1;
                         }
@@ -7670,6 +7680,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                                 .Transaction.Status ==
                                               (byte)MyUtilities.Transaction.Status.Approved &&
                                               lastProduction1.MaterialUseDate == sx.ImportFormSX1.MaterialUseDate
+                                             && sx.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved
                                         select new {
                                             sx.ProductId,
                                             sx.ImportFormSX1.MaterialUseDate,
@@ -7987,6 +7998,79 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         #endregion
 
         #region quotation
+
+
+        [GridAction]
+        public ActionResult SelectMOQTemplate(bool isQuote = false) {
+            var model = new List<MOQTemplateModel>();
+            try{
+                model = GetMOQTemplate(isQuote);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectMOQTemplate", "" + ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<MOQTemplateModel> GetMOQTemplate(bool isQuote) {
+            var model = new List<MOQTemplateModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.MOQTemplates.Where(x => isQuote == false || x.Active)
+                    .Select(x => new MOQTemplateModel {
+                        FromQuantity = x.FromQuantity,
+                        ToQuantity = x.ToQuantity,
+                        Active = x.Active,
+                        ModifiedDate = x.ModifiedDate,
+                        ModifiedUser = x.ModifiedUser,
+                        TemplateId = x.TemplateId,
+                        FactorDefault = x.FactorDefault
+                    }).ToList();
+            }
+            return model;
+        }
+
+        [GridAction]
+        public ActionResult InsertMOQTemplate(MOQTemplateModel insert) {
+            try {
+                var template = new MOQTemplate {
+                    FromQuantity = insert.FromQuantity,
+                    ToQuantity = insert.ToQuantity,
+                    FactorDefault = insert.FactorDefault,
+                    Active = true,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedUser = HttpContext.User.Identity.Name,
+                };
+                using (var vfi = new tammaContext()) {
+                    vfi.MOQTemplates.Add(template);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertMOQTemplate", "" + ex.Message);
+            }
+            return View(new GridModel(GetMOQTemplate(false)));
+        }
+
+
+        [GridAction]
+        public ActionResult UpdateMOQTemplate(MOQTemplateModel update) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var template = vfi.MOQTemplates.FirstOrDefault(x => x.TemplateId == update.TemplateId);
+                    template.FromQuantity = update.FromQuantity;
+                    template.ToQuantity = update.ToQuantity;
+                    template.FactorDefault = update.FactorDefault;
+                    template.Active = update.Active;
+                    template.ModifiedDate = DateTime.Now;
+                    template.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertMOQTemplate", "" + ex.Message);
+            }
+            return View(new GridModel(GetMOQTemplate(false)));
+        }
 
         [GridAction]
         public ActionResult SelectQuotationProducts(int customerId, int quoteId, int exchangeRate) {

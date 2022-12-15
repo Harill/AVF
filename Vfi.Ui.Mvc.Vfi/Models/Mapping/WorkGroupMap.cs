@@ -32,6 +32,27 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.PageTitleColor)
                 .HasMaxLength(50);
 
+            this.Property(t => t.CompanyName)
+                .HasMaxLength(50);
+
+            this.Property(t => t.CompanyFullName)
+                .HasMaxLength(50);
+
+            this.Property(t => t.CompanyShortName)
+                .HasMaxLength(50);
+
+            this.Property(t => t.TelNumber)
+                .HasMaxLength(50);
+
+            this.Property(t => t.FaxNumber)
+                .HasMaxLength(50);
+
+            this.Property(t => t.Email)
+                .HasMaxLength(50);
+
+            this.Property(t => t.Website)
+                .HasMaxLength(50);
+
             // Table & Column Mappings
             this.ToTable("WorkGroup", "System");
             this.Property(t => t.WorkGroupId).HasColumnName("WorkGroupId");

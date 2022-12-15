@@ -36,6 +36,13 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.Repair).HasColumnName("Repair");
             this.Property(t => t.QcLine).HasColumnName("QcLine");
             this.Property(t => t.GroupName).HasColumnName("GroupName");
+            this.Property(t => t.UserId).HasColumnName("UserId");
+
+            // Relationships
+            this.HasOptional(t => t.User)
+                .WithMany(t => t.Employees)
+                .HasForeignKey(d => d.UserId);
+
         }
     }
 }

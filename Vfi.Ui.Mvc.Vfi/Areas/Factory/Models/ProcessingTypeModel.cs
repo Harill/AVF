@@ -11,9 +11,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public bool Active { get; set; }
         public DateTime ModifiedDate { get; set; }
         public string ModifiedUser { get; set; }
-        [DataType("Number")]
+        [DataType("Number4Digit")]
         public double ProcessingFactor { get; set; }
-        [DataType("Number")]
+        [DataType("Number4Digit")]
         public double ProcessingSaleFactor { get; set; }
 
         public int IsProductionManagement { get; set; }

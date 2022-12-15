@@ -8,6 +8,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public User()
         {
             this.CustomerAccessPermissions = new List<CustomerAccessPermission>();
+            this.Employees = new List<Employee>();
             this.Permissions = new List<Permission>();
             this.UserWorkGroups = new List<UserWorkGroup>();
             this.WarehousePermissions = new List<WarehousePermission>();
@@ -21,6 +22,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<bool> Active { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }
         public virtual ICollection<CustomerAccessPermission> CustomerAccessPermissions { get; set; }
+        public virtual ICollection<Employee> Employees { get; set; }
         public virtual ICollection<Permission> Permissions { get; set; }
         public virtual ICollection<UserWorkGroup> UserWorkGroups { get; set; }
         public virtual ICollection<WarehousePermission> WarehousePermissions { get; set; }

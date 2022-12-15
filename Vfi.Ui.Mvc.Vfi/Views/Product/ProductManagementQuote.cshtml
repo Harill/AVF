@@ -1,0 +1,722 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@using Vfi.Ui.Mvc.Vfi.Models.Production
+@model ProductModel
+@{
+    ViewBag.Title = "Products Quote Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+        function gridProduct_OnDataBinding(args) {
+            var statusValue = $("#Status").data("tComboBox").value();
+            if (statusValue === "")
+                statusValue = 0;
+            var customer = $("#Customer").data("tComboBox").value();
+            if (customer === "")
+                customer = 0;
+            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+            args.data = $.extend(args.data, {
+                customerId: customer,
+                status: statusValue,
+                productCode: productCodeName
+            });
+        }
+        
+        function status_onChange() {
+            RefreshGrid("gridProduct");
+        }
+        function customer_onChange() {
+            RefreshGrid("gridProduct");
+        }
+        function grid_OnRowDataBound(e) {
+            //if (!e.dataItem.CanLock) {
+            //    $("#lock_" + e.dataItem.ProductId)[0].parentNode.innerHTML = "";
+            //}
+        }
+
+        function LockProductCalculate(productId) {
+            var message = "Xác nhận thực hiện ";
+            message += "\nĐồng ý ?";
+            if (confirm(message)) {
+                // Save it!
+                $.ajax({
+                    type: 'post',
+                    data: { productId: productId },
+                    dataType: 'json',
+                    url: '@Url.Action("LockProductCalculate", "Product", new { area = "" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code != 1)
+                        alert("Lỗi !" + res.Message);
+                    else {
+                        alert("Thành công !" + res.Data);
+                        RefreshGrid("gridProduct");
+                    }
+                }
+            });
+            } else {
+                return false;
+            }
+        }
+    </script>
+}
+<span id='islock'>@Model.IsCalculateLock </span>
+<div class="title">Quản lý thông tin sản phẩm báo giá</div>
+<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+
+            <div class="grid_1">
+                Mã KH
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Customer")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxCustomer", "Customer", new { area = "Sales" }))
+                        .HtmlAttributes(new { style = "width: 150px" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .ClientEvents(events => events.OnChange("customer_onChange"))
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                Tình trạng sản phẩm
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Status")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductStatus", "Product"))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        .DropDownHtmlAttributes(new { style = "width: 250px" })
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .HighlightFirstMatch(true)
+                        .AutoFill(true)
+                        .ClientEvents(events => events.OnChange("status_onChange"))
+                        .Render();
+                }
+            </div>
+            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
+                        .HtmlAttributes(new { style = "width: 150px; " })
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Value("")
+                        //.ClientEvents(events => events.OnClose("ProductCodeName_OnClose"))
+                        .Render();
+                }
+            </div>
+            <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
+            </button>
+        </fieldset>
+    </div>
+</div>
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<ProductQuoteCalculateModel>()
+            .Name("gridProduct")
+            .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+            .DataBinding(
+                dataBinding => dataBinding.Ajax()
+                                          .Select("SelectProductQuoteCalculate", "Product", new { area = "", customerId = 0, productCode = "" })
+            //.Update("UpdateProductManagementProduction", "Product", new { area = "" })
+            )
+            .Columns(columns =>
+                {
+                    //columns.Command(command =>
+                    //                command.Edit().ButtonType(GridButtonType.Image).CancelText("Hủy").UpdateText("Cập nhật").Text("Sửa")
+                    //    ).Width(30).Title("").HtmlAttributes(new { style = "text-align:center" });
+                    //columns.Bound(f => f.Upload2D).Width(40).Title("Bản vẽ").ReadOnly(true)
+                    //       .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                    //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                    //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+                    //columns.Bound(f => f.UploadReal).Width(40).Title("Hình SP").ReadOnly(true)
+                    //       .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                    //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                    //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
+
+                    columns.Bound(f => f.ProductId).Title("Khóa").Width(70)
+                           .ClientTemplate("<span id='islock_<#= ProductId #>'><img src= <#=IsCalculateLock ? '"
+                            + @Url.Content("~/Resources/lock.png") + "' : '"
+                            + @Url.Content("~/Resources/unlock.png")
+                            + "'#> height='100%' width='100%'></span>")
+                           .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.ProductCode).Width(150).ReadOnly(true)
+                           .HeaderTemplate("<strong>Mã</br>SP</strong>")
+                           .HeaderHtmlAttributes(new {style = "text-align:center"})
+                           .ClientTemplate("<strong><#= ProductCode #></strong>")
+                           .Aggregate(agg => agg.Count())
+                           .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                           .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
+                        ;
+                    columns.Bound(f => f.MaterialPrice).Width(100).Title("Giá</br>NL").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.ProductionPrice).Width(100).Title("Giá</br>GC1").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.Production2Price).Width(100).Title("Giá</br>GC2").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.OutsideProductionPrice).Width(100).Title("Giá</br>GCN").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.PackingPrice).Width(100).Title("HS</br>ĐG").ReadOnly(true)
+                            .Format("{0:n2}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.MaterialTypeFactor).Width(100).Title("HS NL</br>GC").ReadOnly(true)
+                            .Format("{0:n2}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.ShippingPrice).Width(100).Title("Giá</br>VC").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                    columns.Bound(f => f.MaterialTaxFactor).Width(100).Title("HS Thuế</br>loại NL").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                    columns.Bound(f => f.BasePrice).Width(100).Title("Giá</br>base").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                    columns.Bound(f => f.MaterialExpensivePrice).Width(100).Title("NL Mắc tiền</br>(USD/pc)").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "text-align:center;" });
+                    columns.Bound(f => f.QuotePrice).Width(100).Title("Báo giá SP</br>(USD/pc)").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;font-weight:bold;" });
+                    columns.Bound(f => f.ProductId).Title("Khóa</br>/Mở").Width(70)//.Hidden(Model.IsCalculateLock) @Url.Content("~/Content/FileUpload/Drawing/" + Model.Upload2D + "?" + Model.UploadDate)'
+                            .HeaderHtmlAttributes(new { style = (Model.IsCalculateLock ? "" : "display:none;") })
+                            .ClientTemplate("<button class='t-button' id='lock_<#= ProductId #>' onclick=LockProductCalculate(<#= ProductId #>)><span><img src= <#=IsCalculateLock ? '" 
+                            + @Url.Content("~/Resources/unlock.png") + "' : '" 
+                            + @Url.Content("~/Resources/lock.png") 
+                            + "'#> height='100%' width='100%'></span></button>")
+                            .HtmlAttributes(new { style = "text-align:center;" + (Model.IsCalculateLock ? "" : "display:none;") });
+                })
+
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().TabStrip()
+                    .Name("TabStrip_<#= ProductId #>")
+                    .SelectedIndex(0)
+                    .Items(items => {
+
+                        items.Add().Text("MOQ").Content(
+                            Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.MOQTemplateModel>()
+                                .Name("gridMOQ_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.TemplateId).RouteKey("templateId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectMOQQuoteCalculate", "Product", new { area = "", productId = "<#= ProductId #>"})
+                            //.Update("UpdateProductMaterialDesign", "Product", new { area = "", customerId = 0, productId = "<#= ProductId #>", productCode = "", isQuote = true })
+                                )
+                                .Columns(columns => {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                    columns.Bound(f => f.FromQuantity).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("SL từ</br>(>=)")
+                                           .Format("{0:n0}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.ToQuantity).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("SL đến</br>(<)")
+                                           .Format("{0:n0}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.FactorDefault).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("Hệ số")
+                                           .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.MOQQuotePrice).Width(50).ReadOnly(true)
+                                           .HeaderTemplate("Báo giá MOQ</br>(USD/pc)")
+                                           .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "text-align:center;font-weight:bold;" });
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Báo giá nguyên liệu").Content(
+                            Html.Telerik().Grid<ProductMaterialDesignModel>()
+                                .Name("gridProductionMaterialDesign_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductMaterialDesignById", "Product", 
+                                                              new { area = "", customerId = 0, productId = "<#= ProductId #>", productCode = "", isQuote = true })
+                                                              //.Update("UpdateProductMaterialDesign", "Product", new { area = "", customerId = 0, productId = "<#= ProductId #>", productCode = "", isQuote = true })
+                                )
+                                .Columns(columns => {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                    columns.Bound(f => f.MaterialCode)
+                                           .HeaderTemplate("Mã</br>NL");
+                                    columns.Bound(f => f.MaterialName).Width(150).ReadOnly(true)
+                                           .HeaderTemplate("Tên</br>NL");
+                                    columns.Bound(f => f.OutDiameter).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("OD</br>(mm)")
+                                           .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "text-align:right;" });
+                                    columns.Bound(f => f.InDiameter).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("ID</br>(mm)")
+                                           .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "text-align:right;" });
+                                    columns.Bound(f => f.Shape).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("Hình</br>dạng")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.DiameterType).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("TOL</br>thiết kế")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.MaterialBasePrice).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("Giá base NL</br>(USD/kg)")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                                    columns.Bound(f => f.ProductMaterialWeight).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("TL phôi</br>(g/pc)")
+                                           .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.MaterialPrice).Width(100).ReadOnly(true)
+                                           .HeaderTemplate("Báo giá NL</br>(USD/pc)")
+                                           .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;font-weight:bold;" });
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Báo giá công đoạn 1").Content(
+                            Html.Telerik().Grid<ProductQuoteCalculateModel>()
+                                .Name("gridProduction1_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProduction1QuoteCalculate", "Product", new { area = "", customerId = 0, productId = "<#= ProductId #>", productCode = ""})
+                                                              //.Update("UpdateProductionDesign", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    columns.Bound(f => f.MachineTypeName)
+                                           .HeaderTemplate("Loại máy</br>gia công")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.MachineClassifiedFactor).Width(100)
+                                           .HeaderTemplate("Hệ số</br>gia công")
+                                           .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.Productivity).Width(100)
+                                           .HeaderTemplate("Năng suất</br>tính (s)")
+                                           .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.ProductLevel).Width(100)
+                                           .HeaderTemplate("Độ khó</br>gia công")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                                    columns.Bound(f => f.ProductLevelFactor).Width(100)
+                                           .HeaderTemplate("Hệ số</br>khó")
+                                           .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.MaterialTypeName).Width(100)
+                                           .HeaderTemplate("Loại</br>nguyên liệu")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                                    columns.Bound(f => f.MaterialProductionFactor).Width(100)
+                                           .HeaderTemplate("Hệ số</br>GC NL")
+                                           .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                    columns.Bound(f => f.ProductionPrice).Width(100)
+                                           .HeaderTemplate("Báo giá CĐ 1</br>(USD/pc)")
+                                           .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black; text-align:center;font-weight:bold;" });
+                                })
+                            .DetailView(details2 => details2.ClientTemplate(
+                                Html.Telerik().TabStrip()
+                                    .Name("gridProduction1Detail_<#= ProductId #>")
+                                    .SelectedIndex(0)
+                                    .Items(items2 => items2.Add().Text("Bảng tính năng suất").Content(
+                                                        Html.Telerik().Grid<ProductionProductivityQuoteBaseModel>()
+                                                            .Name("gridProductionProductivity_<#= ProductId #>")
+                                                            .DataKeys(key => key.Add(f => f.BaseId).RouteKey("baseId"))
+                                                            //.ToolBar(
+                                                            //    toolbar =>
+                                                            //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                                            .DataBinding(
+                                                                dataBinding => dataBinding.Ajax()
+                                                                                            .Select("SelectProductionProductivityQuote", "Production", new { area = "Factory", productId = "<#= ProductId #>", isQuote = true })
+                                                                                            //.Insert("InsertProductionProductivityQuote", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                                            //.Update("UpdateProductionProductivityQuote", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                            )
+                                                    .Columns(columns => {
+                                                        //columns.Command(command =>
+                                                        //                command.Edit().ButtonType(GridButtonType.Image)
+                                                        //    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                                        columns.Bound(f => f.Idx).Width(120)
+                                                               .Title("Bước")
+                                                               .Format("{0:n0}");
+                                                        columns.Bound(f => f.Name).Width(120)
+                                                               .Title("Tên");
+                                                        columns.Bound(f => f.Round).Width(50).Title("Số vòng quay")
+                                                               .HtmlAttributes(new { style = "text-align:center;" })
+                                                               .Format("{0:n0}");
+                                                        columns.Bound(f => f.L).Width(50).Title("L")
+                                                            .Format("{0:n2}");
+                                                        columns.Bound(f => f.F).Width(50).Title("F")
+                                                            .Format("{0:n3}");
+                                                        columns.Bound(f => f.Time).Width(50).Title("Thời gian(s)").ReadOnly(true)
+                                                            .Format("{0:n2}");
+                                                        //columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                                                        //       .Format("{0:dd/MM/yyyy}");
+                                                        //columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                                                    })
+                                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                                                                  .OnRowSelect("grid_OnRowSelect"))
+                                                    .ToHtmlString())
+                                    )
+                                    .ToHtmlString()
+                                                        ))
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        
+                        items.Add().Text("Báo giá công đoạn 2").Content(
+                                Html.Telerik().Grid<ProductionSectionModel>()
+                                    .Name("gridProduction2_<#= ProductId #>")
+                                    .DataKeys(key => key.Add(f => f.ProductionSectionId).RouteKey("productionSectionId"))
+                                    //.ToolBar(
+                                    //    toolbar =>
+                                    //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                    .DataBinding(
+                                        dataBinding => dataBinding.Ajax()
+                                                                  .Select("SelectProductionSection", "Production", new { area = "Factory", productId = "<#= ProductId #>", isQuote = true })
+                                                                  //.Insert("InsertProductionSection", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                  //.Update("UpdateProductionSection", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                    )
+                                    .Columns(columns => {
+                                        //columns.Command(command =>
+                                        //                command.Edit().ButtonType(GridButtonType.Image)
+                                        //    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                        columns.Bound(f => f.SectionIndex).Width(50).Title("Tiến trình")
+                                               .HtmlAttributes(new { style = "text-align:center;" });
+                                        columns.Bound(f => f.SectionName)
+                                               .Title("Tên công đoạn");
+                                        columns.Bound(f => f.MachineName).Title("Máy")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                        columns.Bound(f => f.Weight).Width(100).Title("TL đầu ra")
+                                               .Format("{0:n3}")
+                                               .HtmlAttributes(new { style = "text-align:center;" });
+
+                                        columns.Bound(f => f.Productivity).Width(100).Title("Năng suất")
+                                               .Format("{0:n2}")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                                        columns.Bound(f => f.SalesFactor).Width(100).Title("Hệ số<br/>báo giá")
+                                               .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "text-align:center;" });
+                                        columns.Bound(f => f.SectionPrice).Width(100).Title("Giá CĐ2<br/>(USD/pc)")
+                                               .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "text-align:center;font-weight:bold;" });
+                                        columns.Bound(f => f.Description).Title("Mô tả");
+                                        //columns.Bound(f => f.UpdateDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                        //       .Format("{0:dd/MM/yyyy HH:mm}");
+                                        //columns.Bound(f => f.UpdateUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                    })
+                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ToHtmlString()
+                                );
+                        items.Add().Text("Nhiệt luyện").Content(
+                            Html.Telerik().Grid<ProductionHeatTreatmentModel>()
+                                .Name("gridProductionHeatTreatment_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.Id).RouteKey("id"))
+                                //.ToolBar(
+                                //    toolbar =>
+                                //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductionHeatTreatment", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
+                                                              //.Insert("InsertProductionHeatTreatment", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                              //.Update("UpdateProductionHeatTreatment", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                    columns.Bound(f => f.Section).Width(50)
+                                           .HeaderTemplate("CĐ");
+                                    columns.Bound(f => f.Name).Width(100)
+                                           .HeaderTemplate("Tên");
+                                    columns.Bound(f => f.MachineName).Width(100).Title("Máy");
+                                    columns.Bound(f => f.Rate).Width(100)
+                                           .HeaderTemplate("SL/Lần</br>(pcs/lần)")
+                                           .Format("{0:n0}")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                    columns.Bound(f => f.Temperature).Width(100)
+                                           .HeaderTemplate("Nhiệt độ");
+                                    columns.Bound(f => f.Timing).Width(120)
+                                           .HeaderTemplate("Thời gian</br>(s)")
+                                           .Format("{0:n0}")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                    columns.Bound(f => f.Stiffness).Width(120)
+                                           .HeaderTemplate("Độ cứng sau GG");
+                                    columns.Bound(f => f.Note)
+                                           .HeaderTemplate("Ghi chú");
+                                    //columns.Bound(f => f.Active).Width(40)
+                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                    //       .HtmlAttributes(new { style = "text-align:center" });
+                                    //columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                    //       .Format("{0:dd/MM/yyyy}");
+                                    //columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Rung bóng").Content(
+                            Html.Telerik().Grid<ProductionPolishModel>()
+                                .Name("gridProductionPolish_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.Id).RouteKey("id"))
+                                //.ToolBar(
+                                //    toolbar =>
+                                //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductionPolish", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "" })
+                                                              //.Insert("InsertProductionPolish", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                              //.Update("UpdateProductionPolish", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                    columns.Bound(f => f.Section).Width(50)
+                                           .HeaderTemplate("CĐ");
+                                    columns.Bound(f => f.Name).Width(100)
+                                           .HeaderTemplate("Tên");
+                                    columns.Bound(f => f.MachineName).Width(100).Title("Máy");
+                                    columns.Bound(f => f.Rate).Width(100)
+                                           .HeaderTemplate("SL/Lần</br>(pcs/lần)")
+                                           .Format("{0:n0}")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                    columns.Bound(f => f.Timing).Width(120)
+                                           .HeaderTemplate("Thời gian</br>(s)")
+                                           .Format("{0:n0}")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                    columns.Bound(f => f.Rock).Width(100)
+                                           .HeaderTemplate("Loại đá");
+                                    columns.Bound(f => f.Using).Width(100)
+                                           .HeaderTemplate("Công dụng");
+                                    columns.Bound(f => f.Note)
+                                           .HeaderTemplate("Ghi chú");
+                                    //columns.Bound(f => f.Active).Width(40)
+                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                    //       .HtmlAttributes(new { style = "text-align:center" });
+                                    //columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                    //       .Format("{0:dd/MM/yyyy}");
+                                    //columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(events => events.OnError("grid_OnError"))
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Báo giá gia công ngoài").Content(
+                                Html.Telerik().Grid<ProductionPlatingModel>()
+                                    .Name("gridProductionPlating_<#= ProductId #>")
+                                    .DataKeys(key => key.Add(f => f.PlatingId).RouteKey("platingId"))
+                                    //.ToolBar(
+                                    //    toolbar =>
+                                    //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                    .DataBinding(
+                                        dataBinding => dataBinding.Ajax()
+                                                                  .Select("SelectProductionPlating", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "", isQuote = true })
+                                                                  //.Insert("InsertProductionPlating", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                  //.Update("UpdateProductionPlating", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                    )
+                                    .Columns(columns => {
+                                        //columns.Command(command =>
+                                        //                command.Edit().ButtonType(GridButtonType.Image)
+                                        //    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+
+                                        columns.Bound(f => f.PlatingIndex).Width(50)
+                                               .HeaderTemplate("STT");
+                                        columns.Bound(f => f.PlatingName).Width(100)
+                                               .HeaderTemplate("Gia công")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                        columns.Bound(f => f.SaltSprayTime).Width(100)
+                                               .HeaderTemplate("Phun muối")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                        columns.Bound(f => f.Thickness).Width(100)
+                                               .HeaderTemplate("Độ dày")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                        columns.Bound(f => f.PlatingDay).Width(100)
+                                               .HeaderTemplate("Thời gian</br>(d)")
+                                           .HtmlAttributes(new { style = "text-align: center;" });
+                                        columns.Bound(f => f.ProcessPrice).Width(100)
+                                            .HeaderTemplate("Chi phí</br>(USD/kg)")
+                                            .Format("{0:n4}")
+                                           .HtmlAttributes(new { style = "border-left:1px solid black;text-align: center;" });
+                                        columns.Bound(f => f.PlatingCost).Width(100)
+                                            .HeaderTemplate("TL SP</br>(g/pc)")
+                                            .Format("{0:n4}")
+                                            .HtmlAttributes(new { style = "text-align: center;" });
+                                        columns.Bound(f => f.PlatingCost).Width(100)
+                                            .HeaderTemplate("Giá GCN</br>(USD/pc)")
+                                            .Format("{0:n4}")
+                                            .HtmlAttributes(new { style = "border-right:1px solid black;text-align: center;font-weight:bold;" });
+                                        columns.Bound(f => f.Description)
+                                               .HeaderTemplate("Ghi chú");
+                                        //columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                        //       .Format("{0:dd/MM/yyyy}");
+                                        //columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                    })
+                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ToHtmlString()
+                                );
+
+                        items.Add().Text("Báo giá VC").Content(
+                                Html.Telerik().Grid<Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models.ShipMethodModel>()
+                                    .Name("gridCustomerAddress_<#= ProductId #>")
+                                    .DataKeys(key => key.Add(f => f.ShipMethodId).RouteKey("shipMethodId"))
+                                    .DataBinding(
+                                        dataBinding => dataBinding.Ajax()
+                                                                  .Select("SelectShipMethodPrice", "ShipMethod", new { area = "Purchasing", productId = "<#= ProductId #>" })
+                                    )
+                                    .Columns(columns => {
+                                        columns.Bound(f => f.Name)
+                                               .HeaderTemplate("Phương thức vận chuyển");
+                                        columns.Bound(f => f.ShipBase).Width(100)
+                                               .HeaderTemplate("Phí VC</br>(USD/kg)")
+                                            .Format("{0:n4}")
+                                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align: center;" });
+                                        columns.Bound(f => f.UnitWeight).Width(100)
+                                               .HeaderTemplate("TL SP</br>(g/pc)")
+                                            .Format("{0:n4}")
+                                            .HtmlAttributes(new { style = "text-align: center;" });
+                                        columns.Bound(f => f.ShipPrice).Width(100)
+                                               .HeaderTemplate("Giá VC</br>(USD/pc)")
+                                            .Format("{0:n4}")
+                                            .HtmlAttributes(new { style = "text-align: center;font-weight:bold;" });
+                                    })
+                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .ClientEvents(events => events.OnError("grid_OnError"))
+                                    .ToHtmlString()
+                                );
+                        
+                        items.Add().Text("Đóng gói").Content(
+                            Html.Telerik().Grid<ProductionFuelModel>()
+                                .Name("gridProductionFuel_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
+                                //.ToolBar(
+                                //    toolbar =>
+                                //    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductionFuel", "Production", new { area = "Factory", customerId = 0, productId = "<#= ProductId #>", productCode = "", isQuote = true })
+                                                              //.Insert("InsertProductionFuel", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                              //.Update("UpdateProductionFuel", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.Priority).Width(50)
+                                           .HeaderTemplate("STT");
+
+                                    columns.Bound(f => f.FuelFullCodeName).Width(150)
+                                           .HeaderTemplate("Thùng");
+                                    columns.Bound(f => f.Quota).Width(100)
+                                           .Format("{0:n0}")
+                                           .HeaderTemplate("SL đựng</br>(pcs/thùng)");
+                                    columns.Bound(f => f.CrossWeight).Width(100)
+                                           .Format("{0:n0}")
+                                           .HeaderTemplate("TL thùng</br>(g/thùng)");
+
+                                    columns.Bound(f => f.FuelFullCodeName2).Width(150)
+                                           .HeaderTemplate("Túi");
+                                    columns.Bound(f => f.Quota2).Width(100)
+                                           .Format("{0:n0}")
+                                           .HeaderTemplate("SL đựng</br>(pcs/túi)");
+                                    columns.Bound(f => f.CrossWeight2).Width(100)
+                                           .Format("{0:n0}")
+                                           .HeaderTemplate("TL túi</br>(g/túi)");
+
+                                    //columns.Bound(f => f.Active).Width(40)
+                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                    //       .HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.Note).Title("Ghi chú");
+                                    //columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                    //       .Format("{0:dd/MM/yyyy}");
+                                    //columns.Bound(f => f.ModifiedUser).Width(75).Title("Người cập nhật").ReadOnly(true);
+
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(events => events.OnError("grid_OnError")
+                            //.OnSave("gridProductionFuel_onSave")
+                                                              )
+                                .ToHtmlString()
+                            );
+                        items.Add().Text("Quy trình công đoạn").Content(
+                            Html.Telerik().Grid<ProductionProcessModel>()
+                                .Name("gridProductionProcess_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.ProcessId).RouteKey("processId"))
+                                //.ToolBar(
+                                //    toolbar =>
+                                //    toolbar.Insert().Text("Thêm quy trình").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductionProcessById", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                                              //.Insert("InsertProductionProcess", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                                              //.Update("UpdateProductionProcess", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    //columns.Command(command =>
+                                    //                command.Edit().ButtonType(GridButtonType.Image)
+                                    //    ).Width(45).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.ProcessIndex).Width(100).Title("Tiến trình")
+                                           .Format("{0:n0}");
+                                    columns.Bound(f => f.WarehouseName).Width(250).Title("Công đoạn")
+                                                .ClientTemplate("<strong><#= WarehouseName #></strong>");
+                                    columns.Bound(f => f.Note).Title("Ghi chú");
+                                    //columns.Bound(f => f.IsAlert).Width(75).Title("Chính thức")
+                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Alert' <#=IsAlert? checked='checked' : '' #> />")
+                                    //       .HtmlAttributes(new { style = "text-align:center" });
+                                    //columns.Bound(f => f.IsNecessary).Width(75).Title("Hoạt động")
+                                    //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Necessary' <#=IsNecessary? checked='checked' : '' #> />")
+                                    //       .HtmlAttributes(new { style = "text-align:center" });
+                                    //columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                                    //       .Format("{0:dd/MM/yyyy HH:mm}");
+                                    //columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnError("grid_OnError")
+                                                    //.OnEdit("gridProductionProcess_OnEdit")
+                                                    //.OnSave("gridProductionProcess_OnSave")
+                                                    )
+                                .ToHtmlString()
+                            );
+                    }
+                    )
+                    .ToHtmlString()
+                                       ))
+            .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
+                                          .OnError("grid_OnError")
+                                          .OnRowDataBound("grid_OnRowDataBound")
+                                          .OnRowSelect("grid_OnRowSelect"))
+            .Selectable()
+            .Scrollable(f => f.Height(510))
+            .Resizable(f => f.Columns(true))
+            .Reorderable(f => f.Columns(true))
+            .Filterable()
+            .Sortable()
+            .Render();
+    }
+</div>

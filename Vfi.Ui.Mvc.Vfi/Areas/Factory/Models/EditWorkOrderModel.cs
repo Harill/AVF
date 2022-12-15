@@ -27,6 +27,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string Ids { get; set; }
         public string SerialNumber { get; set; }
         public double Quantity { get; set; }
+        public double TotalQuantity { get; set; }
 
         public byte Status { get; set; }
         public string StatusName { get { return MyUtilities.WorkOrder.GetText(Status); } }
@@ -50,7 +51,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
 
         public List<EditWorkOrderDetail> List { get; set; }
         public WorkOrderProductionInfo Info { get; set; }
-
+        public bool RequireStartDate { get { return StartDate < DateTime.Now; } }
     }
 
     public class EditWorkOrderDetail {

@@ -95,6 +95,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     CanWeighing = x.CanWeighing,
                     IsOutOfProcess = x.IsOutOfProcess,
                     IsCncMilling = x.IsCncMilling,
+                    AutoGenerateProcess = x.AutoGenerateProcess ?? false
                 }).ToList();
             }
             return model.OrderByDescending(m => m.Active).ThenBy(m => m.Idx).ThenBy(m => m.WarehouseName).ToList();
@@ -133,6 +134,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         ShortName = inserted.ShortName.Trim(),
                         Idx = inserted.Idx,
                         Active = true,
+
                         CanInternal = inserted.CanInternal,
                         CanPurchase = inserted.CanPurchase,
                         CanStock = inserted.CanStock,
@@ -150,6 +152,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         IsFinish = inserted.IsFinish,
                         IsOutOfProcess = inserted.IsOutOfProcess,
                         CanWeighing = inserted.CanWeighing,
+                        AutoGenerateProcess = inserted.AutoGenerateProcess,
+                        
                         ModifiedUser = HttpContext.User.Identity.Name,
                         ModifiedDate = DateTime.Now,
                     };
@@ -189,23 +193,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.ShortName = updated.ShortName.Trim();
                     entity.Idx = updated.Idx;
                     entity.Active = updated.Active;
-                    entity.CanInternal = updated.CanInternal;
-                    entity.CanPurchase = updated.CanPurchase;
-                    entity.CanStock = updated.CanStock;
-                    entity.IsHeatTreatment = updated.IsHeatTreatment;
-                    entity.IsPolish = updated.IsPolish;
-                    entity.IsProduction = updated.IsProduction;
-                    entity.IsCncMilling = updated.IsCncMilling;
-                    entity.IsProduction2 = updated.IsProduction2;
-                    entity.IsProduction2Process = updated.IsProduction2Process;
-                    entity.IsReprocessing = updated.IsReprocessing;
                     entity.IsMainProcess = updated.IsMainProcess;
-                    entity.IsQC = updated.IsQC;
-                    entity.IsPlating = updated.IsPlating;
-                    entity.IsPacking = updated.IsPacking;
-                    entity.IsFinish = updated.IsFinish;
                     entity.IsOutOfProcess = updated.IsOutOfProcess;
-                    entity.CanWeighing = updated.CanWeighing;
+                    entity.AutoGenerateProcess = updated.AutoGenerateProcess;
+                    //entity.CanInternal = updated.CanInternal;
+                    //entity.CanPurchase = updated.CanPurchase;
+                    //entity.CanStock = updated.CanStock;
+                    //entity.IsHeatTreatment = updated.IsHeatTreatment;
+                    //entity.IsPolish = updated.IsPolish;
+                    //entity.IsProduction = updated.IsProduction;
+                    //entity.IsCncMilling = updated.IsCncMilling;
+                    //entity.IsProduction2 = updated.IsProduction2;
+                    //entity.IsProduction2Process = updated.IsProduction2Process;
+                    //entity.IsReprocessing = updated.IsReprocessing;
+                    //entity.IsQC = updated.IsQC;
+                    //entity.IsPlating = updated.IsPlating;
+                    //entity.IsPacking = updated.IsPacking;
+                    //entity.IsFinish = updated.IsFinish;
+                    //entity.CanWeighing = updated.CanWeighing;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
                     entity.ModifiedDate = DateTime.Now;
                     if (string.IsNullOrWhiteSpace(entity.ShortName))
@@ -246,6 +251,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                     //entity.IsMainProcess = updated.IsMainProcess;
                     //entity.IsOutOfProcess = updated.IsOutOfProcess;
+                    //entity.AutoGenerateProcess = updated.AutoGenerateProcess;
                     entity.CanInternal = updated.CanInternal;
                     entity.CanPurchase = updated.CanPurchase;
                     entity.CanStock = updated.CanStock;
@@ -261,6 +267,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsPlating = updated.IsPlating;
                     entity.IsFinish = updated.IsFinish;
                     entity.CanWeighing = updated.CanWeighing;
+
                     vfi.SaveChanges();
                 }
             }

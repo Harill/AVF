@@ -7,6 +7,44 @@
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
+
+        $(document).ready(function () {
+            roundNumberConfig = @Model
+            loadEmployeeLogin();
+        });
+
+        function loadEmployeeLogin() {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetComboBoxEmployeeLogin", "Employee", new { area = "Sales" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var cbo = $('#Employee').data('tComboBox');
+                    cbo.dataBind(data);
+                    if (cbo.selectedIndex > -1) {
+
+                        var selected = cbo.data[cbo.selectedIndex];
+
+                        if (selected != undefined) {
+                            cbo.value(selected.Value);
+                            cbo.text(selected.Text);
+                            cbo.selectedIndex = cbo.selectedIndex;
+                            cbo.previousValue = selected.Value;
+                        } else {
+                            cbo.value(-1);
+                            cbo.text("");
+                        }
+                    } else {
+                        cbo.value(-1);
+                        cbo.text("");
+                    }
+                }
+            });
+        }
+
         function CreateWorkOrderMaterialAssignment() {
             if (!onProcessing) {
                 OnProcessingData();
@@ -111,6 +149,16 @@
 
 <div class="t-info-sha" style="padding-left: 15px;padding-right: 15px;">
     
+        <div class="grid_2">Ngày</div>
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("PrintDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
         <button id="btnPrintAssign" class="t-button" onclick="printWOAssignMaterial();">
             <span class='t-icon t-insert'></span>
             In Phát nguyên liệu
@@ -129,7 +177,8 @@
             Có Work Order
         </label>
         <div class="clear"></div><br />
-
+    
+        
         <button id="btnPrintUsing" class="t-button" onclick="printWOMaterialUse();">
             <span class='t-icon t-insert'></span>
             In sử dụng nguyên liệu
@@ -144,7 +193,7 @@
             @{
                     Html.Telerik().ComboBox()
                         .Name("Employee")
-                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
+                        //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         //.DropDownHtmlAttributes(new { style = "width: 150px" })
                         .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
@@ -152,17 +201,6 @@
                         .AutoFill(true)
                         .Render();
                 }
-        </div>
-        
-        <div class="grid_2">Ngày</div>
-        <div class="grid_3">
-            @{
-                Html.Telerik().DatePicker()
-                    .Name("PrintDate")
-                    .Format("dd/MM/yyyy")
-                    .Value(DateTime.Today)
-                    .Render();
-            }
         </div>
     </fieldset>
 </div>
@@ -176,6 +214,7 @@
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
                                           .Select("SelectWorkOrderMaterialAssignment", "WorkOrder", new { area = "Factory" })
+                                          .Delete("CancelWorkOrderMaterialAssignment", "WorkOrder", new { area = "Factory" })
            )
             .Columns(columns => {
                 //columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
@@ -199,6 +238,7 @@
                 columns.Bound(f => f.PlannedCost).Title("Số lượng</br>(cây)").Width(70).ReadOnly(true);
                 columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
 
+                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy").Width(50);
             })
             .Selectable()
             .Editable(editing => editing.Mode(GridEditMode.InLine))

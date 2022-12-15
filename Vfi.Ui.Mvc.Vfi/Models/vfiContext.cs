@@ -32,6 +32,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<MachineState> MachineStates { get; set; }
         public DbSet<MachineStateDetail> MachineStateDetails { get; set; }
         public DbSet<MaterialLimitPlan> MaterialLimitPlans { get; set; }
+        public DbSet<OutsideProcess> OutsideProcesses { get; set; }
+        public DbSet<ProcessClassified> ProcessClassifieds { get; set; }
         public DbSet<ProcessingType> ProcessingTypes { get; set; }
         public DbSet<ProductImg> ProductImgs { get; set; }
         public DbSet<Production2Inventory> Production2Inventory { get; set; }
@@ -50,6 +52,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<ProductionPricing> ProductionPricings { get; set; }
         public DbSet<ProductionProcess> ProductionProcesses { get; set; }
         public DbSet<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }
+        public DbSet<ProductionProductivityQuoteBase> ProductionProductivityQuoteBases { get; set; }
+        public DbSet<ProductionProductLevel> ProductionProductLevels { get; set; }
         public DbSet<ProductionSection> ProductionSections { get; set; }
         public DbSet<ProductionSectionProcess> ProductionSectionProcesses { get; set; }
         public DbSet<ProductionTesting> ProductionTestings { get; set; }
@@ -137,6 +141,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<Currency> Currencies { get; set; }
         public DbSet<Material> Materials { get; set; }
         public DbSet<MaterialClassified> MaterialClassifieds { get; set; }
+        public DbSet<MaterialQuoteBase> MaterialQuoteBases { get; set; }
+        public DbSet<MaterialQuoteBaseDetail> MaterialQuoteBaseDetails { get; set; }
         public DbSet<MaterialType> MaterialTypes { get; set; }
         public DbSet<OrderProgress> OrderProgresses { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -177,6 +183,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<ForecastOrderDetail> ForecastOrderDetails { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<InvoiceDetail> InvoiceDetails { get; set; }
+        public DbSet<MOQTemplate> MOQTemplates { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<OrderNote> OrderNotes { get; set; }
         public DbSet<OrderNoteDetail> OrderNoteDetails { get; set; }
@@ -202,16 +209,16 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<WarehouseRotate> WarehouseRotates { get; set; }
         public DbSet<WorkGroup> WorkGroups { get; set; }
         public DbSet<SelectApprovedProduction> SelectApprovedProductions { get; set; }
-        public DbSet<SelectCamesDiagram> SelectCamesDiagrams { get; set; }
-        public DbSet<SelectCncDiagram> SelectCncDiagrams { get; set; }
         public DbSet<SelectCurrentProductionTool> SelectCurrentProductionTools { get; set; }
         public DbSet<SelectCurrentTrackUpMachine> SelectCurrentTrackUpMachines { get; set; }
+        public DbSet<SelectDiagram1> SelectDiagram1 { get; set; }
+        public DbSet<SelectDiagram2> SelectDiagram2 { get; set; }
+        public DbSet<SelectDiagram3> SelectDiagram3 { get; set; }
         public DbSet<SelectFuelInvAndPeriod> SelectFuelInvAndPeriods { get; set; }
         public DbSet<SelectMaterialInvAndPeriod> SelectMaterialInvAndPeriods { get; set; }
         public DbSet<SelectMaterialInvOnMachineAndPeriod> SelectMaterialInvOnMachineAndPeriods { get; set; }
         public DbSet<SelectProductInventoryAndPeriod> SelectProductInventoryAndPeriods { get; set; }
         public DbSet<SelectToolInvAndPeriod> SelectToolInvAndPeriods { get; set; }
-        public DbSet<SelectVf2CncDiagram> SelectVf2CncDiagram { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -231,6 +238,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new MachineStateMap());
             modelBuilder.Configurations.Add(new MachineStateDetailMap());
             modelBuilder.Configurations.Add(new MaterialLimitPlanMap());
+            modelBuilder.Configurations.Add(new OutsideProcessMap());
+            modelBuilder.Configurations.Add(new ProcessClassifiedMap());
             modelBuilder.Configurations.Add(new ProcessingTypeMap());
             modelBuilder.Configurations.Add(new ProductImgMap());
             modelBuilder.Configurations.Add(new Production2InventoryMap());
@@ -249,6 +258,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new ProductionPricingMap());
             modelBuilder.Configurations.Add(new ProductionProcessMap());
             modelBuilder.Configurations.Add(new ProductionProcessByMachineMap());
+            modelBuilder.Configurations.Add(new ProductionProductivityQuoteBaseMap());
+            modelBuilder.Configurations.Add(new ProductionProductLevelMap());
             modelBuilder.Configurations.Add(new ProductionSectionMap());
             modelBuilder.Configurations.Add(new ProductionSectionProcessMap());
             modelBuilder.Configurations.Add(new ProductionTestingMap());
@@ -336,6 +347,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new CurrencyMap());
             modelBuilder.Configurations.Add(new MaterialMap());
             modelBuilder.Configurations.Add(new MaterialClassifiedMap());
+            modelBuilder.Configurations.Add(new MaterialQuoteBaseMap());
+            modelBuilder.Configurations.Add(new MaterialQuoteBaseDetailMap());
             modelBuilder.Configurations.Add(new MaterialTypeMap());
             modelBuilder.Configurations.Add(new OrderProgressMap());
             modelBuilder.Configurations.Add(new ProductMap());
@@ -376,6 +389,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new ForecastOrderDetailMap());
             modelBuilder.Configurations.Add(new InvoiceMap());
             modelBuilder.Configurations.Add(new InvoiceDetailMap());
+            modelBuilder.Configurations.Add(new MOQTemplateMap());
             modelBuilder.Configurations.Add(new OrderDetailMap());
             modelBuilder.Configurations.Add(new OrderNoteMap());
             modelBuilder.Configurations.Add(new OrderNoteDetailMap());
@@ -401,16 +415,16 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new WarehouseRotateMap());
             modelBuilder.Configurations.Add(new WorkGroupMap());
             modelBuilder.Configurations.Add(new SelectApprovedProductionMap());
-            modelBuilder.Configurations.Add(new SelectCamesDiagramMap());
-            modelBuilder.Configurations.Add(new SelectCncDiagramMap());
             modelBuilder.Configurations.Add(new SelectCurrentProductionToolMap());
             modelBuilder.Configurations.Add(new SelectCurrentTrackUpMachineMap());
+            modelBuilder.Configurations.Add(new SelectDiagram1Map());
+            modelBuilder.Configurations.Add(new SelectDiagram2Map());
+            modelBuilder.Configurations.Add(new SelectDiagram3Map());
             modelBuilder.Configurations.Add(new SelectFuelInvAndPeriodMap());
             modelBuilder.Configurations.Add(new SelectMaterialInvAndPeriodMap());
             modelBuilder.Configurations.Add(new SelectMaterialInvOnMachineAndPeriodMap());
             modelBuilder.Configurations.Add(new SelectProductInventoryAndPeriodMap());
             modelBuilder.Configurations.Add(new SelectToolInvAndPeriodMap());
-            modelBuilder.Configurations.Add(new SelectVf2CncDiagramMap());
         }
     }
 }

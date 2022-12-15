@@ -33,5 +33,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public int MachineId { get; set; }
         [UIHint("_MachineProduction2Template")]
         public string MachineName { get; set; }
+
+        public double SalesFactor { get; set; }
+        public double SectionPrice { get; set; }
+        public bool IsCalculateLock { get; set; }
     }
 }

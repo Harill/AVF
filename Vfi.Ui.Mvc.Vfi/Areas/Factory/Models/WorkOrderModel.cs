@@ -32,8 +32,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public bool CanCancel { get; set; }
         public string RoutingName { get; set; }
         public double GoodQuantity { get; set; }
+        public double GoodWeight { get; set; }
         public double NGQuantity { get; set; }
+        public double NGWeight { get; set; }
         public double DefectQuantity { get; set; }
+        public double DefectWeight { get; set; }
 
         public string CustomerCode { get; set; }
         public string MaterialName { get; set; }

@@ -264,11 +264,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             get
             {
                 return TonKhoSX2CNC +
-                       TonKhoSX2SX2 + TonKhoSX2SX2B + TonKhoSX2SX2C + TonKhoSX2SX2D +
+                       //TonKhoSX2SX2 + TonKhoSX2SX2B + TonKhoSX2SX2C + TonKhoSX2SX2D +
+                       Production2Inv +
                        TonKhoNhietLuyen + TonKhoRungBong +
                        TonKhoGCN + TonKhoNCU + TonKhoNCUKiemTra +
                        TonKhoQCA + TonKhoQCB + TonKhoQCC +
-                       TonKhoCXL + TonKhoCXL2 + ReProcessing +
+                       //TonKhoCXL + TonKhoCXL2 + ReProcessing +
+                       ProcessingInv +
                        Packing + TonKhoTPA;
             }
         }
@@ -312,6 +314,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double TonKhoSX1 { get; set; }
         [DisplayName("Kho SX 2/CNC")]
         public double TonKhoSX2CNC { get; set; }
+        public double Production2Inv { get { return TonKhoSX2SX2 + TonKhoSX2SX2B + TonKhoSX2SX2C + TonKhoSX2SX2D; } }
+        public double AfterProduction2Inv { get { return TonTong - ProcessingInv - TonKhoSX2CNC; } }
         [DisplayName("Kho SX 2/SX 2")]
         public double TonKhoSX2SX2 { get; set; }
         [DisplayName("Kho SX 2/Văn")]
@@ -352,7 +356,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double LuyKeSX { get; set; }
         public double Tranfer { get; set; }
         public double ReProcessing { get; set; }
-
+        public double ProcessingInv { get { return TonKhoCXL + TonKhoCXL2 + ReProcessing; } }
         public double ImportInternal { get; set; }
         public double ExportInternal { get; set; }
 
@@ -372,16 +376,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string NextMonthString { get; set; }
         public string ProcessingType { get; set; }
         public bool OrderAlert { get; set; }
-
+        public DateTime? MinOrderDate { get; set; }
+        public DateTime ReportDate { get; set; }
         public int IsFinish {
             get {
-                if (TonTong < DonHangConLai)
-                    return 1; // red
-                if (TonKhoTPA + Packing < DonHangConLai)
-                    return 2; // yellow
-                if (TonKhoTPA + Packing > DonHangConLai)
-                    return 3; // 
+
+                if (MinOrderDate!=null && MinOrderDate < ReportDate) {
+                    if((ReportDate- MinOrderDate.Value).TotalDays>=7){
+                        return 1;
+                    }
+                    return 2;
+                }
                 return 0;
+
+                //if (TonTong < DonHangConLai)
+                //    return 1; // red
+                //if (TonKhoTPA + Packing < DonHangConLai)
+                //    return 2; // yellow
+                //if (TonKhoTPA + Packing < DonHangConLai + DonHangThangKe)
+                //    return 3; // 
+                //return 0;
             }
         }
 

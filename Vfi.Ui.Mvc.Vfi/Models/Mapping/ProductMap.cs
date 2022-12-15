@@ -120,11 +120,21 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.MaxQuantityInTray).HasColumnName("MaxQuantityInTray");
             this.Property(t => t.MaxQuantityInTrayRunTime).HasColumnName("MaxQuantityInTrayRunTime");
             this.Property(t => t.IdentityCode).HasColumnName("IdentityCode");
+            this.Property(t => t.ProductionLevel).HasColumnName("ProductionLevel");
+            this.Property(t => t.ProcessClassifiedId).HasColumnName("ProcessClassifiedId");
+            this.Property(t => t.PackingFee).HasColumnName("PackingFee");
+            this.Property(t => t.IsCalculateLock).HasColumnName("IsCalculateLock");
 
             // Relationships
+            this.HasOptional(t => t.ProcessClassified)
+                .WithMany(t => t.Products)
+                .HasForeignKey(d => d.ProcessClassifiedId);
             this.HasOptional(t => t.ProcessingType)
                 .WithMany(t => t.Products)
                 .HasForeignKey(d => d.ProcessingDesign);
+            this.HasOptional(t => t.ProductionProductLevel)
+                .WithMany(t => t.Products)
+                .HasForeignKey(d => d.ProductionLevel);
             this.HasOptional(t => t.Material)
                 .WithMany(t => t.Products)
                 .HasForeignKey(d => d.MaterialId);

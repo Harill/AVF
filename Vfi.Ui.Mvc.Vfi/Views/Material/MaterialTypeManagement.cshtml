@@ -62,6 +62,9 @@ Chọn màu: @Html.TextBox("ColorPick", null, new { @class = "ColorTool" })
             columns.Bound(f => f.IdentityCode).Title("Mã loại").Width(45);
             //columns.Bound(f => f.DiagramColor).Title("Màu sơ đồ").Width(100);
             columns.Bound(f => f.MaterialTypeName).Title("Tên loại");
+            columns.Bound(f => f.Factor).Title("Hệ số nguyên liệu").Format("{0:n2}");
+            columns.Bound(f => f.ProductionFactor).Title("Hệ số gia công").Format("{0:n2}");
+            columns.Bound(f => f.TaxFactor).Title("Hệ số thuế").Format("{0:n4}");
             columns.Bound(f => f.Active).Width(45)
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });

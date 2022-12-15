@@ -49,8 +49,12 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.Thickness).HasColumnName("Thickness");
             this.Property(t => t.SaltSprayTime).HasColumnName("SaltSprayTime");
             this.Property(t => t.IsMainProcess).HasColumnName("IsMainProcess");
+            this.Property(t => t.ProcessId).HasColumnName("ProcessId");
 
             // Relationships
+            this.HasOptional(t => t.OutsideProcess)
+                .WithMany(t => t.ProductionPlatings)
+                .HasForeignKey(d => d.ProcessId);
             this.HasRequired(t => t.Product)
                 .WithMany(t => t.ProductionPlatings)
                 .HasForeignKey(d => d.ProductId);

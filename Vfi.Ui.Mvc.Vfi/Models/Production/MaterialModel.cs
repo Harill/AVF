@@ -68,5 +68,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         [Required(ErrorMessage = "*")]
         [DisplayName("Hình dạng")]
         public string Shape { get; set; }
+        public bool IsExpensive { get; set; }
     }
 }

@@ -392,20 +392,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     ? toDay
                                     : Convert.ToDateTime(toDate, ci);
                     if (active == true) {
-                        if (status == 1)
+                        if (status == (byte)MyUtilities.Sales.Status.Waiting)
                             list = (from po in vfi.PurchaseOrders
                                     where
-                                        po.Status == status && po.Active == active
+                                        (po.Status == (byte)MyUtilities.Sales.Status.Waiting
+                                        || po.Status == (byte)MyUtilities.Sales.Status.InProcess)
+                                        && po.Active == active
                                     select po).ToList();
-                        else if (status != 3)
+                        else if (status == (byte)MyUtilities.Sales.Status.Cancel)
                             list = (from po in vfi.PurchaseOrders
                                     where
-                                        (po.Status == status && po.ShipDate.Value >= fDate && po.ShipDate.Value <= tDate) && po.Active == active
+                                        po.Status == (byte)MyUtilities.Sales.Status.Cancel
+                                        && po.Active == active
+                                        && ((po.ShipDate != null && po.ShipDate.Value >= fDate && po.ShipDate.Value <= tDate)
+                                        || (po.OrderDate >= fDate && po.OrderDate <= tDate))
                                     select po).ToList();
                         else
                             list = (from po in vfi.PurchaseOrders
                                     where
-                                        (po.Status == 3 && po.OrderDate >= fDate && po.OrderDate <= tDate) && po.Active == active
+                                        (po.Status == status && po.ShipDate.Value >= fDate && po.ShipDate.Value <= tDate)
+                                        && po.Active == active
                                     select po).ToList();
                     }
                     else
@@ -654,38 +660,36 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             case 2:
                                 var importDetails2 =
                                     vfi.TransactionFptDetails
-                                        .Where(td => td.TransactionFpt.PoId == po.PurchaseOrderId &&
-                                                     td.TransactionFpt.Status ==
-                                                     (byte)MyUtilities.Transaction.Status.Approved &&
-                                                     td.FptId == poDetail.ReferenceId);
+                                        .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
                                 foreach (var importDetail in importDetails2) {
                                     if (importDetail.PoReferenceDetailId != null)
                                         throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
-                                    var fuelInv = vfi.FuelInventories
-                                        .FirstOrDefault(ti => ti.FuelId == importDetail.FptId &&
-                                                              ti.LotNumber.Equals(importDetail.LotNumber) &&
-                                                              ti.VendorId == importDetail.VendorId);
-                                    if (fuelInv != null)
-                                        fuelInv.UnitPrice = update.UnitPrice;
+                                    if (importDetail.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved) {
+                                        var fuelInv = vfi.FuelInventories
+                                            .FirstOrDefault(ti => ti.FuelId == importDetail.FptId &&
+                                                                  ti.LotNumber.Equals(importDetail.LotNumber) &&
+                                                                  ti.VendorId == importDetail.VendorId);
+                                        if (fuelInv != null)
+                                            fuelInv.UnitPrice = update.UnitPrice;
+                                    }
                                     importDetail.UnitPrice = update.UnitPrice;
                                 }
                                 break;
                             case 3:
                                 var importDetails3 =
                                     vfi.TransactionFptDetails
-                                        .Where(td => td.TransactionFpt.PoId == po.PurchaseOrderId &&
-                                                     td.TransactionFpt.Status ==
-                                                     (byte)MyUtilities.Transaction.Status.Approved &&
-                                                     td.FptId == poDetail.ReferenceId);
+                                        .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
                                 foreach (var importDetail in importDetails3) {
                                     if (importDetail.PoReferenceDetailId != null)
                                         throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
-                                    var toolInv = vfi.ToolInventories
-                                        .FirstOrDefault(ti => ti.ToolId == importDetail.FptId &&
-                                                              ti.LotNumber.Equals(importDetail.LotNumber) &&
-                                                              ti.VendorId == importDetail.VendorId);
-                                    if (toolInv != null)
-                                        toolInv.UnitPrice = update.UnitPrice;
+                                    if (importDetail.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved) {
+                                        var toolInv = vfi.ToolInventories
+                                            .FirstOrDefault(ti => ti.ToolId == importDetail.FptId &&
+                                                                  ti.LotNumber.Equals(importDetail.LotNumber) &&
+                                                                  ti.VendorId == importDetail.VendorId);
+                                        if (toolInv != null)
+                                            toolInv.UnitPrice = update.UnitPrice;
+                                    }
                                     importDetail.UnitPrice = update.UnitPrice;
                                 }
                                 break;
@@ -2500,7 +2504,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 return View(new GridModel(GetApprovedPO().OrderByDescending(po => po.ShipDate)));
             }
             catch (Exception ex) {
-                ModelState.AddModelError("ChangePOStatus", ex.Message);
+                ModelState.AddModelError("SelectApprovedPurchaseOrder", ex.Message);
             }
             return View(new GridModel(new List<PurchaseOrderModel>()));
         }
@@ -2513,19 +2517,94 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         vfi.PurchaseOrders.FirstOrDefault(po => po.PurchaseOrderId == updated.PurchaseOrderId);
                     if (purchaseOrder == null)
                         throw new AggregateException("Lỗi! Không tìm thấy đơn đặt hàng");
-                    byte status = 0;
+                    byte newStatus = 0;
                     try {
-                        status = Convert.ToByte(updated.StatusName);
+                        newStatus = Convert.ToByte(updated.StatusName);
                     }
                     catch (FormatException) {
 
                     }
-                    purchaseOrder.Status = status;
+                    if (newStatus == (byte)MyUtilities.Sales.Status.Completed) {
+                        switch (purchaseOrder.MaterialClassifiedId) {
+                            case 1: {
+                                    var isImport = vfi.ImportPurchaseOrders.Any(x =>
+                                            x.PurchaseOrderId == updated.PurchaseOrderId &&
+                                            x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open);
+                                    if (isImport) {
+                                        throw new AggregateException("Lỗi! Còn phiếu nhập mua chưa xử lý");
+                                    }
+                                }
+                                break;
+                            case 2:
+                            case 3: {
+                                    var isImport = vfi.TransactionFpts.Any(x =>
+                                        x.PoId == updated.PurchaseOrderId &&
+                                        x.Status == (byte)MyUtilities.Transaction.Status.Open);
+                                    if (isImport) {
+                                        throw new AggregateException("Lỗi! Còn phiếu nhập mua chưa xử lý");
+                                    }
+                                }
+                                break;
+                            //case 5:
+                            case 6: {
+                                    var isImport = vfi.Transactions.Any(x =>
+                                        x.PoId == updated.PurchaseOrderId &&
+                                        x.Status == (byte)MyUtilities.Transaction.Status.Open);
+                                    if (isImport) {
+                                        throw new AggregateException("Lỗi! Còn phiếu nhập mua chưa xử lý");
+                                    }
+                                }
+                                break;
+                            default:
+                                throw new AggregateException("Lỗi! Chưa xử lý trường hợp này");
+                        }
+                    }
+                    else if (newStatus == (byte)MyUtilities.Sales.Status.Cancel) {
+                        switch (purchaseOrder.MaterialClassifiedId) {
+                            case 1: {
+                                    var isImport = vfi.ImportPurchaseOrders.Any(x =>
+                                        x.PurchaseOrderId == updated.PurchaseOrderId && (
+                                        x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Open
+                                        || x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved));
+                                    if (isImport) {
+                                        throw new AggregateException("Lỗi! Còn phiếu nhập mua chưa xử lý");
+                                    }
+                                }
+                                break;
+                            case 2:
+                            case 3: {
+                                    var isImport = vfi.TransactionFpts.Any(x =>
+                                        x.PoId == updated.PurchaseOrderId && (
+                                        x.Status == (byte)MyUtilities.Transaction.Status.Open
+                                        || x.Status == (byte)MyUtilities.Transaction.Status.Approved));
+                                    if (isImport) {
+                                        throw new AggregateException("Lỗi! Còn phiếu nhập mua chưa xử lý");
+                                    }
+                                }
+                                break;
+                            //case 5:
+                            case 6: {
+                                    var isImport = vfi.Transactions.Any(x =>
+                                        x.PoId == updated.PurchaseOrderId && (
+                                        x.Status == (byte)MyUtilities.Transaction.Status.Open
+                                        || x.Status == (byte)MyUtilities.Transaction.Status.Approved));
+                                    if (isImport) {
+                                        throw new AggregateException("Lỗi! Còn phiếu nhập mua chưa xử lý");
+                                    }
+                                }
+                                break;
+                            default:
+                                throw new AggregateException("Lỗi! Chưa xử lý trường hợp này");
+                        }
+                    }
+                    if (newStatus > 0) {
+                        purchaseOrder.Status = newStatus;
+                    }
                     vfi.SaveChanges();
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("ChangePOStatus", ex.Message);
+                ModelState.AddModelError("UpdateStatusPurchaseOrder", ex.Message);
             }
             return View(new GridModel(GetApprovedPO().OrderByDescending(po => po.ShipDate)));
         }
@@ -2550,7 +2629,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         ShipDate = po.ShipDate,
                         Note = po.Note,
                         VendorCode = po.Vendor.VendorCode,
-                        VendorCodeName = po.Vendor.VendorCode + po.Vendor.VendorName,
+                        VendorCodeName = po.Vendor.VendorCode + "-" + po.Vendor.VendorName,
                         RevisionNumber = po.RevisionNumber,
                         CurrencyCode = po.CurrencyCode,
                         Tolerance = po.Tolerance,

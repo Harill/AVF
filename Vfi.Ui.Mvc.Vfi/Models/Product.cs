@@ -23,6 +23,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.ProductionPricings = new List<ProductionPricing>();
             this.ProductionProcesses = new List<ProductionProcess>();
             this.ProductionProcessByMachines = new List<ProductionProcessByMachine>();
+            this.ProductionProductivityQuoteBases = new List<ProductionProductivityQuoteBase>();
             this.ProductionSections = new List<ProductionSection>();
             this.ProductionTestings = new List<ProductionTesting>();
             this.ProductionTestingNotes = new List<ProductionTestingNote>();
@@ -128,11 +129,16 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public int MaxQuantityInTray { get; set; }
         public int MaxQuantityInTrayRunTime { get; set; }
         public string IdentityCode { get; set; }
+        public Nullable<int> ProductionLevel { get; set; }
+        public Nullable<int> ProcessClassifiedId { get; set; }
+        public Nullable<double> PackingFee { get; set; }
+        public Nullable<bool> IsCalculateLock { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
         public virtual ICollection<MachineRepairForm> MachineRepairForms { get; set; }
         public virtual ICollection<MaterialLimitPlan> MaterialLimitPlans { get; set; }
+        public virtual ProcessClassified ProcessClassified { get; set; }
         public virtual ProcessingType ProcessingType { get; set; }
         public virtual ICollection<ProductImg> ProductImgs { get; set; }
         public virtual ICollection<Production2TransactionDetail> Production2TransactionDetail { get; set; }
@@ -145,6 +151,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ProductionPricing> ProductionPricings { get; set; }
         public virtual ICollection<ProductionProcess> ProductionProcesses { get; set; }
         public virtual ICollection<ProductionProcessByMachine> ProductionProcessByMachines { get; set; }
+        public virtual ICollection<ProductionProductivityQuoteBase> ProductionProductivityQuoteBases { get; set; }
+        public virtual ProductionProductLevel ProductionProductLevel { get; set; }
         public virtual ICollection<ProductionSection> ProductionSections { get; set; }
         public virtual ICollection<ProductionTesting> ProductionTestings { get; set; }
         public virtual ICollection<ProductionTestingNote> ProductionTestingNotes { get; set; }

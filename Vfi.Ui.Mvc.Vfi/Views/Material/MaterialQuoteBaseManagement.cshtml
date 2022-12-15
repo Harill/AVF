@@ -1,0 +1,154 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
+@{
+    ViewBag.Title = "Material Quote Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript">
+
+        function gridMaterial_onEdit(e) {
+            var mode = e.mode;
+            var form = e.form;
+
+            var materialTypeName = $(form).find('#MaterialTypeName');
+            var materialTypeNameData = $(form).find('#MaterialTypeName').data('tDropDownList');
+            if (mode == 'insert') {
+
+            }
+            else if (mode == 'edit') {
+                materialTypeNameData.reload();
+                materialTypeName.bind('dataBound', function () { // your code 
+                    materialTypeNameData.select(function (item) {
+                        return item.Text == e.dataItem['MaterialTypeName'];
+                    });
+                });
+            }
+        }
+
+    </script>
+}
+
+<div class="title">Quản lý báo giá nguyên liệu</div>
+@*<div id="pnlInvPeriod">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+    
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+                <div class="grid_1">Sản phẩm</div>
+            <div class="grid_5">
+                @{
+                    Html.Telerik().AutoComplete()
+                        .Name("ProductCodeName")
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new {area = "Inv"}))
+                        .HtmlAttributes(new {style = "width: 150px; "})
+                        .DropDownHtmlAttributes(new {style = "width: 250px; "})
+                        .Encode(false)
+                        .AutoFill(true)
+                        .HighlightFirstMatch(true)
+                        .Value("")
+                        //.ClientEvents(events => events.OnClose("ProductCodeName_OnClose"))
+                        .Render();
+                }
+            </div>
+              <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridMaterial'); ">
+                    <span class='t-icon t-insert'></span>
+                   Làm mới
+                </button>
+        </fieldset>
+    </div>
+</div>*@
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<MaterialQuoteBaseModel>()
+        .Name("gridMaterial")
+        .DataKeys(key => key.Add(f => f.BaseId).RouteKey("baseId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Nhập mới").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+        .DataBinding(
+            dataBinding => dataBinding.Ajax()
+                                      .Select("SelectMaterialQuoteBase", "Material", new { area = "" })
+                                      .Insert("InsertMaterialQuoteBase", "Material")
+                                      .Update("UpdateMaterialQuoteBase", "Material"))
+        .Columns(columns =>
+            {
+                columns.Command(command =>
+                                command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Cập nhập").InsertText("Thêm").CancelText("Hủy").Text("Sửa")
+                    ).Width(90).Title("Lệnh").HtmlAttributes(new {style = "text-align:center"});
+                //columns.Bound(f => f.VendorCodeName).Width(150)
+                //       .ClientTemplate("<strong><#= VendorCodeName #></strong>");
+                columns.Bound(f => f.MaterialTypeName).Width(100)
+                       .HeaderTemplate("Loại</br>nguyên liệu")
+                       .ClientTemplate("<strong><#= MaterialTypeName #></strong>");
+                columns.Bound(f => f.MaterialName).Width(100)
+                       .HeaderTemplate("Tên</br>nguyên liệu");
+              
+                columns.Bound(f => f.MaterialShape).Width(50)
+                       .HtmlAttributes(new {style = "text-align:center;"})
+                       .HeaderTemplate("Hình</br>dạng");
+                columns.Bound(f => f.MaterialDiameterType).Width(50)
+                       .HtmlAttributes(new { style = "text-align:center;" })
+                       .HeaderTemplate("Dung</br>sai");
+                columns.Bound(f => f.BasePrice).Width(50)
+                       .HtmlAttributes(new { style = "text-align:center;" })
+                       .HeaderTemplate("Giá trị");
+                columns.Bound(f => f.ModifiedUser).Title("Người tạo").ReadOnly(true).Width(70);
+                columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").ReadOnly(true).Width(80)
+                       .Format("{0:dd/MM/yyyy HH:mm}");
+            })
+
+        .DetailView(details => details.ClientTemplate(
+
+            Html.Telerik().TabStrip()
+                .Name("TabStrip_<#= BaseId #>")
+                .SelectedIndex(0)
+                .Items(items =>
+
+                       items.Add().Text("Chi tiết").Content(
+
+                           Html.Telerik().Grid<MaterialQuoteBaseDetailModel>()
+                               .Name("gridDetail_<#= BaseId #>")
+                               .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
+                               .ToolBar(
+                                   toolbar =>
+                                   toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                               .DataBinding(
+                                   dataBinding => dataBinding.Ajax()
+                                                             .Select("SelectMaterialQuoteBaseDetail", "Material", new { area = "", baseId = "<#= BaseId #>" })
+                                                             .Insert("InsertMaterialQuoteBaseDetail", "Material", new { area = "", baseId = "<#= BaseId #>" })
+                                                             .Update("UpdateMaterialQuoteBaseDetail", "Material", new { area = "" })
+                               )
+                               .Columns(columns => {
+                                       columns.Command(command =>
+                                                       command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                           ).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                       columns.Bound(f => f.FromOutDiameter).Width(50).Title(">= Đường kính");
+                                       columns.Bound(f => f.ToOutDiameter).Width(50).Title("< Đường kính");
+                                       columns.Bound(f => f.InDiameter).Width(50).Title("Đường kính trong</br>(nếu có)");
+                                       columns.Bound(f => f.Value).Width(50).Title("Giá trị thêm");
+                                       columns.Bound(f => f.Price).Width(50).Title("Giá trị").ReadOnly(true);
+                                   })
+                               .Editable(editing => editing.Mode(GridEditMode.InLine))
+                               .ClientEvents(e => e.OnError("grid_OnError"))
+                               .ToHtmlString()
+                           ))
+
+                .ToHtmlString()
+                                   ))
+        .Selectable()
+        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .ClientEvents(events => events.OnEdit("gridMaterial_onEdit")
+                                      .OnRowSelect("grid_OnRowSelect")
+                                      //.OnDataBinding("gridMaterial_OnDataBinding")
+                                      .OnError("grid_OnError"))
+        //.Pageable(page => page.PageSize(10).Style(GridPagerStyles.NextPreviousAndNumeric))
+        .Scrollable(f => f.Height(500))
+        .Sortable()
+        .Filterable()
+        .Resizable(f => f.Columns(true))
+        .Reorderable(f => f.Columns(true))
+        .Render();
+}
+</div>
+

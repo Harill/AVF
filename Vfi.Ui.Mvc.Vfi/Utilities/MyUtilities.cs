@@ -61,6 +61,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
                     if (workgroup != null) {
                         model.WorkGroupName = "- " + workgroup.WorkGroupName;
+                        model.WorkGroupCode = workgroup.WorkGroupCode;
                         if (!string.IsNullOrWhiteSpace(workgroup.Theme)) {
                             model.Theme = workgroup.Theme;
                         }
@@ -118,9 +119,11 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 else if (ex.GetType() == typeof(DbUpdateException)) {
                     var exType = (DbUpdateException)ex;
                     return exType.InnerException.InnerException.Message ?? ex.Message;
-                    //return exType.EntityValidationErrors.First().Entry.Entity.ToString() + ": "
-                    //    + exType.EntityValidationErrors.First().ValidationErrors.First().ErrorMessage;
                 }
+                //else if (ex.GetType() == typeof(DbUpdateException)) {
+                //    var exType = (DbUpdateException)ex;
+                //    return exType.InnerException.InnerException.Message ?? ex.Message;
+                //}
                 return ex.Message;
             }
             public class MyStatusModel {
@@ -499,6 +502,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static DateTime ParseDate(string date) {
                 return string.IsNullOrWhiteSpace(date) ? DateTime.Today : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
             }
+            public static DateTime ParseDateTime(string date) {
+                return string.IsNullOrWhiteSpace(date) ? DateTime.Now : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
+            }
 
             public static string GetDayOfWeek(DateTime date) {
                 if (date.DayOfWeek == DayOfWeek.Sunday) return "Chủ nhật";
@@ -683,6 +689,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                 ExchangeToVndRate = "ExchangeToVndRate",
                                 WorkOrderTolerance = "WorkOrderTolerance",
                                 MaterialWorkPieceDesign = "MaterialWorkPieceDesign",
+                                RoundMaterialMaterialDesign = "RoundMaterialMaterialDesign",
                                 PackingProductivity = "PackingProductivity";
 
             public static double GetParameterValue(string param) {
@@ -696,7 +703,6 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                 Name = param,
                                 Value = "0",
                                 ModifiedDate = DateTime.Now
-
                             };
                             vfi.Parameters.Add(paramValue);
                             vfi.SaveChanges();
@@ -712,29 +718,57 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
         #region machine
         public static class Machine {
-            public static string FactoryVF2 = "VF2";
-            public static class Diagram {
-                public enum Type {
-                    Cnc = 2,
-                    Cames = 1,
-                }
-                public static string GetText(int status) {
-                    var rs = "";
+            //public static string FactoryVF2 = "VF2";
 
-                    switch (status) {
-                        case 1:
-                            rs = "Cames";
-                            break;
-                        case 2:
-                            rs = "CNC";
-                            break;
-                        default:
-                            rs = "";
-                            break;
-                    }
-                    return rs;
+            //public static class Diagram {
+            //    public enum Type {
+            //        Cnc = 2,
+            //        Cames = 1,
+            //    }
+            //    public static string GetText(int status) {
+            //        var rs = "";
+
+            //        switch (status) {
+            //            case 1:
+            //                rs = "Cames";
+            //                break;
+            //            case 2:
+            //                rs = "CNC";
+            //                break;
+            //            default:
+            //                rs = "";
+            //                break;
+            //        }
+            //        return rs;
+            //    }
+            //}
+
+            public static List<MachineDiagram> DiagramTemplate {
+                get {
+                    return new List<MachineDiagram> { 
+                        new MachineDiagram { 
+                            DiagramType = 1, 
+                            DiagramName = "Mẫu 1",
+                            Information = "2 cột - khoảng cách - 2 cột"
+                        },
+                        new MachineDiagram { 
+                            DiagramType = 2, 
+                            DiagramName = "Mẫu 2",
+                            Information = "1 cột - khoảng cách - 2 cột - khoảng cách - 1 cột"
+                        },
+                        new MachineDiagram { 
+                            DiagramType = 3, 
+                            DiagramName = "Mẫu 3",
+                            Information = "3 cột to"
+                        },
+                    };
                 }
             }
+            public static string GetDiagramText(int type) {
+                var rs = DiagramTemplate.FirstOrDefault(x => x.DiagramType == type);
+                return rs != null ? rs.DiagramName : "NULL";
+            }
+
             public static class State {
 
                 public enum RepairStatus {
@@ -873,6 +907,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                             : t.StartDate <= date)
                                         || (t.StartDate <= date))
                                     select new TrackUpMachineModel() {
+                                        TrackId = t.TrackId,
                                         MachineId = t.MachineId,
                                         MachineName = t.Machine.MachineName,
                                         ProductId = t.ProductId,
@@ -893,7 +928,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                         WorkPiece = t.WorkPiece,
                                         KnifeCut = t.KnifeCut,
 
-                                        //t.TrackUpMaterials,
+                                        TrackUpMaterials = t.TrackUpMaterials.ToList(),
                                     })
                                    .OrderByDescending(t => t.ReportDate)
                                    .FirstOrDefault();

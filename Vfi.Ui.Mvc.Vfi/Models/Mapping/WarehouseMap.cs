@@ -42,13 +42,14 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.IsMainProcess).HasColumnName("IsMainProcess");
             this.Property(t => t.IsQC).HasColumnName("IsQC");
             this.Property(t => t.IsPlating).HasColumnName("IsPlating");
-            this.Property(t => t.CanStock).HasColumnName("CanStock");
             this.Property(t => t.IsOutOfProcess).HasColumnName("IsOutOfProcess");
+            this.Property(t => t.CanStock).HasColumnName("CanStock");
             this.Property(t => t.IsProduction).HasColumnName("IsProduction");
             this.Property(t => t.IsCncMilling).HasColumnName("IsCncMilling");
             this.Property(t => t.CanWeighing).HasColumnName("CanWeighing");
             this.Property(t => t.IsPacking).HasColumnName("IsPacking");
             this.Property(t => t.IsFinish).HasColumnName("IsFinish");
+            this.Property(t => t.AutoGenerateProcess).HasColumnName("AutoGenerateProcess");
 
             // Relationships
             this.HasOptional(t => t.WarehouseType)

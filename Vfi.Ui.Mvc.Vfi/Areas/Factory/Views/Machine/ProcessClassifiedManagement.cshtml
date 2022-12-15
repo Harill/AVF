@@ -1,0 +1,38 @@
+﻿
+@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@{
+    ViewBag.Title = "Process Classified Management";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title">Quản lý phân loại gia công 1</div>
+
+<div class="cover-div">
+@{
+    Html.Telerik().Grid<ProcessClassifiedModel>()
+        .Name("grid")
+        .DataKeys(keys => keys.Add(f => f.ClassifiedId).RouteKey("classifiedId"))
+        .ToolBar(
+            toolbar =>
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+        .DataBinding(dataBinding => dataBinding.Ajax()
+            .Select("SelectProcessClassified", "Machine", new { area = "Factory" })
+            .Insert("InsertProcessClassified", "Machine", new { area = "Factory" })
+            .Update("UpdateProcessClassified", "Machine", new { area = "Factory" })
+        )
+        .Columns(columns => {
+            columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(100);
+            columns.Bound(f => f.Name).Title("Tên").Width(100);
+            columns.Bound(f => f.Description).Title("Mô tả");
+            columns.Bound(f => f.SalesFactor).Width(100).Title("Hệ số gia công");
+            columns.Bound(f => f.Active).Width(100).Title("Kích hoạt");
+            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true)
+                   .Format("{0:dd/MM/yyyy HH:mm}");
+        })
+        .ClientEvents(events => events.OnError("grid_OnError"))
+        .Render();
+}
+</div>
+

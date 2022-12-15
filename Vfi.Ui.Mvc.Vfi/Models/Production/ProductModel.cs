@@ -20,7 +20,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public string CustomerShortCodeName { get { return CustomerCode + " -- " + CustomerShortName; } set { CustomerCode = value; } }
 
         public int MachineFunction { get; set; }
-
         public string ProductTaxCode
         {
             get { return DesignNo + " - "+ ProductName + " - " + TaxCode; }
@@ -57,6 +56,18 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
 
         public int MaxQuantityInTray { get; set; }
         public int MaxQuantityInTrayRunTime { get; set; }
+
+
+        public int ProductionLevel { get; set; }
+        [UIHint("_ProductionLevelEditTemplate")]
+        public string ProductionLevelName { get; set; }
+        [DataType("Number2Digit")]
+        public double PackingFee { get; set; }
+
+        public int ProcessClassifiedId { get; set; }
+        [DataType("_ProcessClassifiedTemplate")]
+        public string ProcessClassifiedName { get; set; }
+
         //public double GetProductWeight()
         //{
         //    var w = 0.0;
@@ -231,5 +242,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
 
         [UIHint("_ProductEditTemplate")]
         public string BaseProductCode { get; set; }
+
+        public bool IsCalculateLock { get; set; }
     }
 }

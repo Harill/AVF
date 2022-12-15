@@ -443,7 +443,9 @@
     </Compile>
     <Compile Include="Areas\Factory\Models\MaterialLimitPlan.cs" />
     <Compile Include="Areas\Factory\Models\MaterialLimitPlanModel.cs" />
+    <Compile Include="Areas\Factory\Models\OutsideProcessModel.cs" />
     <Compile Include="Areas\Factory\Models\PrepatationTools.cs" />
+    <Compile Include="Areas\Factory\Models\ProcessClassifiedModel.cs" />
     <Compile Include="Areas\Factory\Models\ProcessingTypeModel.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -460,6 +462,8 @@
     <Compile Include="Areas\Factory\Models\ProductionDefectTypeModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionHeatTreatmentModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionPolishModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionProductivityQuoteBaseModel.cs" />
+    <Compile Include="Areas\Factory\Models\ProductionProductLevelModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionSectionProcessModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionTestDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\ProductionTestingMachineModel.cs" />
@@ -1221,6 +1225,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Areas\Sales\Models\MethodEnumType.cs" />
+    <Compile Include="Areas\Sales\Models\MOQTemplateModel.cs" />
     <Compile Include="Areas\Sales\Models\OrderDetailModel.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -1249,7 +1254,36 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Areas\Sales\Models\WaitingOrderBalancingPlanModel.cs" />
-    <Compile Include="Areas\Sales\Views\SalesAreaRegistration.cs" />
+    <Compile Include="Areas\Sales\SalesAreaRegistration.cs" />
+    <Compile Include="Models\Mapping\MaterialQuoteBaseDetailMap.cs" />
+    <Compile Include="Models\Mapping\MaterialQuoteBaseMap.cs" />
+    <Compile Include="Models\Mapping\MOQTemplateMap.cs" />
+    <Compile Include="Models\Mapping\OutsideProcessMap.cs" />
+    <Compile Include="Models\Mapping\ProcessClassifiedMap.cs" />
+    <Compile Include="Models\Mapping\ProductionProductivityQuoteBaseMap.cs" />
+    <Compile Include="Models\Mapping\ProductionProductLevelMap.cs" />
+    <Compile Include="Models\Mapping\SelectDiagram1Map.cs" />
+    <Compile Include="Models\Mapping\SelectDiagram2Map.cs" />
+    <Compile Include="Models\Mapping\SelectDiagram3Map.cs" />
+    <Compile Include="Models\Mapping\WorkOrder1Map.cs" />
+    <Compile Include="Models\Mapping\WorkOrderRouting1Map.cs" />
+    <Compile Include="Models\MaterialQuoteBase.cs" />
+    <Compile Include="Models\MaterialQuoteBaseDetail.cs" />
+    <Compile Include="Models\MOQTemplate.cs" />
+    <Compile Include="Models\OutsideProcess.cs" />
+    <Compile Include="Models\ProcessClassified.cs" />
+    <Compile Include="Models\ProductionProductivityQuoteBase.cs" />
+    <Compile Include="Models\ProductionProductLevel.cs" />
+    <Compile Include="Models\Production\DateType.cs" />
+    <Compile Include="Models\Production\MaterialProductQuote.cs" />
+    <Compile Include="Models\Production\MaterialQuoteBaseDetailModel.cs" />
+    <Compile Include="Models\Production\ProductMaterialDesignModel.cs" />
+    <Compile Include="Models\Production\ProductQuoteCalculateModel.cs" />
+    <Compile Include="Models\SelectDiagram1.cs" />
+    <Compile Include="Models\SelectDiagram2.cs" />
+    <Compile Include="Models\SelectDiagram3.cs" />
+    <Compile Include="Models\WorkOrder1.cs" />
+    <Compile Include="Models\WorkOrderRouting1.cs" />
     <Compile Include="Utilities\MyPrintService.cs" />
     <Compile Include="Utilities\MyWeighingService.cs" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOMaterialUse.aspx" />
@@ -1258,6 +1292,7 @@
     <Content Include="Areas\Inv\Views\Inv\PageImportProductForm.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageTransactionFormGroup.aspx" />
     <Content Include="Areas\Purchasing\Views\Tool\PagePrintToolTransactionInternal.aspx" />
+    <Content Include="Content\FileUpload\ProductImg\askquestion.jpg" />
     <Content Include="Content\Images\Background\2.png" />
     <Content Include="Content\Images\Logo\d-gear-logoa.jpg" />
     <Content Include="Content\Isotope.css" />
@@ -1307,7 +1342,6 @@
     <Compile Include="Models\ExportToolDetail.cs" />
     <Compile Include="Models\ExportWorkpieceMaterial.cs" />
     <Compile Include="Models\ExportWorkpieceMaterialDetail.cs" />
-    <Compile Include="Models\factoryContext.cs" />
     <Compile Include="Models\Forecast.cs" />
     <Compile Include="Models\ForecastOrder.cs" />
     <Compile Include="Models\ForecastOrderDetail.cs" />
@@ -1484,8 +1518,6 @@
     <Compile Include="Models\Mapping\SectionProcessTransactionDetailMap.cs" />
     <Compile Include="Models\Mapping\SectionProcessTransactionMap.cs" />
     <Compile Include="Models\Mapping\SelectApprovedProductionMap.cs" />
-    <Compile Include="Models\Mapping\SelectCamesDiagramMap.cs" />
-    <Compile Include="Models\Mapping\SelectCncDiagramMap.cs" />
     <Compile Include="Models\Mapping\SelectCurrentProductionToolMap.cs" />
     <Compile Include="Models\Mapping\SelectCurrentTrackUpMachineMap.cs" />
     <Compile Include="Models\Mapping\SelectFuelInvAndPeriodMap.cs" />
@@ -1494,7 +1526,6 @@
     <Compile Include="Models\Mapping\SelectMaterialInvOnMachineAndPeriodMap.cs" />
     <Compile Include="Models\Mapping\SelectProductInventoryAndPeriodMap.cs" />
     <Compile Include="Models\Mapping\SelectToolInvAndPeriodMap.cs" />
-    <Compile Include="Models\Mapping\SelectVf2CncDiagramMap.cs" />
     <Compile Include="Models\Mapping\ShipMethodMap.cs" />
     <Compile Include="Models\Mapping\SmartProduction2Map.cs" />
     <Compile Include="Models\Mapping\SmartProductionMap.cs" />
@@ -1538,10 +1569,8 @@
     <Compile Include="Models\Mapping\WarehouseTypeMap.cs" />
     <Compile Include="Models\Mapping\WeighingMachineMap.cs" />
     <Compile Include="Models\Mapping\WorkGroupMap.cs" />
-    <Compile Include="Models\Mapping\WorkOrder1Map.cs" />
     <Compile Include="Models\Mapping\WorkOrderMap.cs" />
     <Compile Include="Models\Mapping\WorkOrderProcessMap.cs" />
-    <Compile Include="Models\Mapping\WorkOrderRouting1Map.cs" />
     <Compile Include="Models\Mapping\WorkOrderRoutingMap.cs" />
     <Compile Include="Models\Mapping\WorkpieceMaterialPeriodMap.cs" />
     <Compile Include="Models\Material.cs" />
@@ -1658,8 +1687,6 @@
     <Compile Include="Models\SectionProcessTransaction.cs" />
     <Compile Include="Models\SectionProcessTransactionDetail.cs" />
     <Compile Include="Models\SelectApprovedProduction.cs" />
-    <Compile Include="Models\SelectCamesDiagram.cs" />
-    <Compile Include="Models\SelectCncDiagram.cs" />
     <Compile Include="Models\SelectCurrentProductionTool.cs" />
     <Compile Include="Models\SelectCurrentTrackUpMachine.cs" />
     <Compile Include="Models\SelectFuelInvAndPeriod.cs" />
@@ -1668,7 +1695,6 @@
     <Compile Include="Models\SelectMaterialInvOnMachineAndPeriod.cs" />
     <Compile Include="Models\SelectProductInventoryAndPeriod.cs" />
     <Compile Include="Models\SelectToolInvAndPeriod.cs" />
-    <Compile Include="Models\SelectVf2CncDiagram.cs" />
     <Compile Include="Models\ShipMethod.cs" />
     <Compile Include="Models\SmartProduction.cs" />
     <Compile Include="Models\SmartProduction2.cs" />
@@ -1710,7 +1736,6 @@
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Models\UserWorkGroup.cs" />
     <Compile Include="Models\Vendor.cs" />
-    <Compile Include="Models\vfi3Context.cs" />
     <Compile Include="Models\vfiContext.cs" />
     <Compile Include="Models\Warehouse.cs" />
     <Compile Include="Models\WarehousePermission.cs" />
@@ -1719,10 +1744,8 @@
     <Compile Include="Models\WeighingMachine.cs" />
     <Compile Include="Models\WorkGroup.cs" />
     <Compile Include="Models\WorkOrder.cs" />
-    <Compile Include="Models\WorkOrder1.cs" />
     <Compile Include="Models\WorkOrderProcess.cs" />
     <Compile Include="Models\WorkOrderRouting.cs" />
-    <Compile Include="Models\WorkOrderRouting1.cs" />
     <Compile Include="Models\WorkpieceMaterialPeriod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -2925,10 +2948,6 @@
     <Content Include="Areas\Sales\Views\Orders\ConfirmOrderProgress.cshtml" />
     <Content Include="Areas\Sales\Views\SalesOrder\TrackingOrderProgress.cshtml" />
     <Content Include="Areas\Factory\Views\Production\ProductionOnTesting.cshtml" />
-    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Int.cshtml" />
-    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number2.cshtml" />
-    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number0.cshtml" />
-    <Content Include="Areas\Factory\Views\Production\EditorTemplates\Number4.cshtml" />
     <Content Include="Areas\Inv\Views\Reporting\ProductionTestingDailyReport.cshtml" />
     <Content Include="Areas\Factory\Views\Production\EditorTemplates\_MachineQCTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\Production\EditorTemplates\_MachineQCByTypeTemplate.cshtml" />
@@ -2952,7 +2971,34 @@
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCleanConfirmation.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCleanProcess.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderMaterialUsing.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProduction2Management.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCleanManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPackingManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderQCManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\EditorTemplates\_WorkOrderRouteEditTemplate.cshtml" />
+    <Content Include="Areas\Sales\Views\Customer\EditorTemplates\_ShippingMethodEditTemplate.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Shared\EditorTemplates\Number0Digit.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Shared\EditorTemplates\Number1Digit.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Shared\EditorTemplates\Number2Digit.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Shared\EditorTemplates\Number3Digit.cshtml" />
+    <Content Include="Areas\Purchasing\Views\Shared\EditorTemplates\Number4Digit.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\ProductionLevelManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\Shared\EditorTemplates\Number4Digit.cshtml" />
+    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Number0Digit.cshtml" />
+    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Number1Digit.cshtml" />
+    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Number2Digit.cshtml" />
+    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Number3Digit.cshtml" />
+    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Number4Digit.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\OutsideProcessManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\ProcessClassifiedManagement.cshtml" />
+    <Content Include="Areas\Sales\Views\SalesOrder\MOQTemplateManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProductionProcessManagement.cshtml" />
+    <Content Include="Areas\Sales\Views\Employee\EditorTemplates\_UserEditTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\EditorTemplates\_MaterialUseProductionNumberTemplate.cshtml" />
     <None Include="Utilities\weighingvalue.json" />
+    <Content Include="Logs\read.txt" />
+    <Content Include="Resources\lock.png" />
+    <Content Include="Resources\unlock.png" />
     <Content Include="Scripts\OnLoad.js" />
     <Content Include="Scripts\OnProcess.js" />
     <Content Include="Web.config">
@@ -3001,6 +3047,19 @@
     <Content Include="Areas\Purchasing\Views\Fuel\ExportInternalTransactionFuel.cshtml" />
     <Content Include="Views\Shared\_Layout_Vertical.cshtml" />
     <Content Include="Views\Menu\_MainMenuVertical.cshtml" />
+    <Content Include="Views\Product\ProductManagementQuote.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Number3Digit.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Number0Digit.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Number1Digit.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Number2Digit.cshtml" />
+    <Content Include="Views\Material\MaterialQuoteBaseManagement.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\NumberAsInt.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Int.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_ProductionLevelEditTemplate.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Number4Digit.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_OutsideProcessEditTemplate.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_ProcessClassifiedTemplate.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_WarehouseMainProcessTemplate.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -3215,24 +3274,19 @@
     <Content Include="Views\Shared\_Layout2.cshtml" />
     <Content Include="Views\Product\ProductManagementProduction.cshtml" />
     <Content Include="Views\Product\ProductManagementSales.cshtml" />
-    <Content Include="Views\Product\EditorTemplates\NumberAsInt.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_UploadTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_ProductStatusTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_ProcessingTypeTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_Upload2Template.cshtml" />
     <Content Include="Views\Product\ProductManagementMaterial.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_WarehouseEditTemplate.cshtml" />
-    <Content Include="Views\Product\EditorTemplates\Int.cshtml" />
     <Content Include="Views\Material\EditorTemplates\_ProductEditTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_SectionTemplate.cshtml" />
     <Content Include="Views\Product\ProductManagementInv.cshtml" />
     <Content Include="Views\User\AssignSignature.cshtml" />
-    <Content Include="Views\Product\EditorTemplates\Number1Digit.cshtml" />
     <Content Include="Views\Material\EditorTemplates\_ToolTypeEditTemplate.cshtml" />
-    <Content Include="Views\Product\EditorTemplates\Number3Digit.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_ToolEditTemplate.cshtml" />
     <Content Include="Views\User\WarehouseRotate.cshtml" />
-    <Content Include="Views\Product\EditorTemplates\Number2Digit.cshtml" />
     <Content Include="Views\Menu\MenuManagement.cshtml" />
     <Content Include="Views\Menu\EditorTemplates\_MenuParentTemplate.cshtml" />
     <Content Include="Views\Product\ProductManagementQc.cshtml" />
@@ -3273,7 +3327,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Inv\Reports\tmp\" />
-    <Folder Include="Content\FileUpload\ProductImg\" />
+    <Folder Include="Content\Images\NewFolder1\" />
     <Folder Include="Content\Logs\" />
   </ItemGroup>
   <ItemGroup>
@@ -3368,9 +3422,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Product\EditorTemplates\Number.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Areas\Purchasing\Views\ShipMethod\EditorTemplates\Number.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Sales\Views\Web.config" />

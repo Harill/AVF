@@ -34,6 +34,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.IdentityCode).HasColumnName("IdentityCode");
             this.Property(t => t.DiagramColor).HasColumnName("DiagramColor");
+            this.Property(t => t.Factor).HasColumnName("Factor");
+            this.Property(t => t.ProductionFactor).HasColumnName("ProductionFactor");
+            this.Property(t => t.TaxFactor).HasColumnName("TaxFactor");
 
             // Relationships
             this.HasRequired(t => t.MaterialClassified)
