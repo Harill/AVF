@@ -189,6 +189,7 @@
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectTransactionReviewByStatus", "Transaction", new {
                                                          status = (byte)MyUtilities.Transaction.Status.Open,
+                                                         warehouseId = 0,
                                                          mop = true,
                                                          fromDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("dd/MM/yyyy"),
                                                          toDate = DateTime.Now.ToString("dd/MM/yyyy")

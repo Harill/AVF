@@ -311,7 +311,7 @@
             else if (!isNaN(parseInt(defectQuantityCell))) {
                 dataInput.DefectQuantity = parseInt(defectQuantityCell);
                 var span = e.cell.parentElement.getElementsByClassName("DefectWeight")[0];
-                span.textContent = parseInt(dataInput.NGQuantity * productWeight).format(0);
+                span.textContent = parseInt(dataInput.DefectQuantity * productWeight).format(0);
             }
             else if (!isNaN(parseInt(defectWeightCell))) {
                 dataInput.DefectQuantity = parseInt(parseInt(defectWeightCell) / productWeight);

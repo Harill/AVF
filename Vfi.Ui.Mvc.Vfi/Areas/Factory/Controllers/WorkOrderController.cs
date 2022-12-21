@@ -967,17 +967,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var previousRouting = workOrder.WorkOrderRoutings.Where(x => x.RoutingIndex <= newRouting.RoutingIndex)
                         .OrderByDescending(x => x.RoutingIndex)
                         .FirstOrDefault();
-                    if(previousRouting==null){throw new AggregateException("Lỗi! Không tìm thấy công đoạn trước đó!");}
+                    if (previousRouting == null) { throw new AggregateException("Lỗi! Không tìm thấy công đoạn trước đó!"); }
                     var nextRouting = previousRouting.WorkOrderRouting2;
                     if (nextRouting.Status == (byte)MyUtilities.WorkOrder.Status.InProcess
                         || nextRouting.Status == (byte)MyUtilities.WorkOrder.Status.Finish) {
-                            throw new AggregateException("Lỗi! Không thể chèn giữ công đoạn đang xử lý!");
+                            throw new AggregateException("Lỗi! Không thể chèn giữa công đoạn đang xử lý!");
                     }
                     var splits = newRouting.RoutingName.Split('|');
                     var warehouseId = Convert.ToInt32(splits[0]);
                     var sectionId = 0;
                     if (splits.Length > 1) {
-                        sectionId = Convert.ToInt32(splits[1]);
+                        try {
+                            sectionId = Convert.ToInt32(splits[1]);
+                        }
+                        catch (FormatException) { }
                     }
                     //var process = vfi.ProductionProcesses.FirstOrDefault(x => x.WarehouseId == warehouseId
                     //    && x.ProductId == workOrder.ProductId);
@@ -986,81 +989,45 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     if (warehouse.IsProduction || warehouse.IsFinish) {
                         throw new AggregateException("Lỗi! Không thể thêm công đoạn sản xuất 1 và thành phẩm!");
                     }
-                    var routing = new WorkOrderRouting();
-                    if (warehouse.IsProduction2) {
+                    var routing = new WorkOrderRouting() {
+                        WorkOrderId = workOrderId,
+                        ProductId = workOrder.ProductId,
+                        WarehouseId = warehouse.WarehouseId,
+                        MaterialInvId = previousRouting.MaterialInvId,
+                        RoutingName = warehouse.WarehouseName,
+                        Status = (byte)MyUtilities.WorkOrder.Status.Pending,
+
+                        ActualCost = 0,
+                        ActualResourceHrs = 0,
+                        PlannedCost = nextRouting.PlannedCost,
+
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        ScheduledStartDate = DateTime.Now,
+                        ScheduledEndDate = DateTime.Now,
+                        RoutingIndex = newRouting.RoutingIndex,
+                        RoutingLot = previousRouting.RoutingLot,
+                    };
+                    if (warehouse.IsProduction2 && sectionId > 0) {
                         var productionSection = vfi.ProductionSections.FirstOrDefault(x => x.ProductionSectionId == sectionId);
-                        routing = new WorkOrderRouting {
-                            WorkOrderId = workOrderId,
-                            ProductId = workOrder.ProductId,
-                            WarehouseId = warehouse.WarehouseId,
-                            MaterialInvId = previousRouting.MaterialInvId,
-                            RoutingName = warehouse.ShortName + ": " + productionSection.Section.SectionName,
-                            Status = (byte)MyUtilities.WorkOrder.Status.Pending,
-
-                            ActualCost = 0,
-                            ActualResourceHrs = productionSection.Productivity > 0
+                        routing.RoutingName = warehouse.ShortName + ": " + productionSection.Section.SectionName;
+                        routing.ActualResourceHrs = productionSection.Productivity > 0
                                                     ? workOrder.OrderQty * productionSection.Productivity / 3600
-                                                    : 0,
-                            PlannedCost = workOrder.OrderQty,
-
-                            ModifiedDate = DateTime.Now,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ScheduledStartDate = DateTime.Now,
-                            ScheduledEndDate = DateTime.Now,
-                            RoutingIndex = newRouting.RoutingIndex,
-                            RoutingLot = previousRouting.RoutingLot,
-                        };
-                        var info = new WorkOrderRoutingInfo {
-                            NS = productionSection.Productivity
-                        };
-                        routing.MoreInfo = JsonConvert.SerializeObject(info);
+                                                    : 0;
+                        routing.MoreInfo = JsonConvert.SerializeObject(new WorkOrderRoutingInfo { 
+                            NS = productionSection.Productivity 
+                        });
                     }
                     else if (warehouse.IsQC) {
-                        routing = new WorkOrderRouting {
-                            WorkOrderId = workOrderId,
-                            ProductId = workOrder.ProductId,
-                            WarehouseId = warehouse.WarehouseId,
-                            RoutingName = warehouse.ShortName,
-                            Status = (byte)MyUtilities.WorkOrder.Status.Pending,
-
-                            ActualCost = 0,
-                            ActualResourceHrs = product.QcProductivity > 0
+                        routing.RoutingName = warehouse.ShortName;
+                        routing.ActualResourceHrs = product.QcProductivity > 0
                                                         ? workOrder.OrderQty * product.QcProductivity / 3600
-                                                        : 0,
-                            PlannedCost = workOrder.OrderQty,
-
-                            ModifiedDate = DateTime.Now,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ScheduledStartDate = DateTime.Now,
-                            ScheduledEndDate = DateTime.Now,
-                            RoutingIndex = newRouting.RoutingIndex,
-                        };
-                        var info = new WorkOrderRoutingInfo {
+                                                        : 0;
+                        routing.MoreInfo = JsonConvert.SerializeObject(new WorkOrderRoutingInfo {
                             NS = MyUtilities.Function.RoundUp(product.QcProductivity),
-                        };
-                        routing.MoreInfo = JsonConvert.SerializeObject(info);
+                        });
                     }
-                    else {
-                        routing = new WorkOrderRouting {
-                            WorkOrderId = workOrderId,
-                            ProductId = workOrder.ProductId,
-                            WarehouseId = warehouse.WarehouseId,
-                            RoutingName = warehouse.WarehouseName,
-                            Status = (byte)MyUtilities.WorkOrder.Status.Pending,
-
-                            ActualCost = 0,
-                            ActualResourceHrs = 0,
-                            PlannedCost = workOrder.OrderQty,
-
-                            ModifiedDate = DateTime.Now,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ScheduledStartDate = DateTime.Now,
-                            ScheduledEndDate = DateTime.Now,
-                            MoreInfo = "",
-
-                            RoutingIndex = newRouting.RoutingIndex,
-                        };
-                    }
+                    else { }
                     routing.ScheduledEndDate = routing.ScheduledStartDate.AddHours(routing.ActualResourceHrs);
                     if (previousRouting.RoutingIndex == routing.RoutingIndex) {
                         routing.RoutingIndex += 0.05;
@@ -4587,98 +4554,104 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var routing = vfi.WorkOrderRoutings.FirstOrDefault(x => x.RoutingId == routingId);
                     var previousRoute = routing.WorkOrderRouting1.FirstOrDefault();
                     if (previousRoute == null || previousRoute.ActualCost == 0) return saved;
-
-                    var importQuantity = previousRoute.WorkOrderProcesses.Where(x => x.Status == (byte)MyUtilities.WorkOrder.Status.Finish
-                        && x.NGQuantity > 0)
-                        .Sum(x => x.NGQuantity);
-                    if (importQuantity > 0) {
-                        var transaction = new Transaction {
-                            TransactionCode = MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Product, 1),
-                            CreatedUser = HttpContext.User.Identity.Name,
-                            CreatedDate = DateTime.Now,
-                            WarehouseIssueId = null,
-                            WarehouseReceiptId = previousRoute.WarehouseId,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
-                            Status = (byte)MyUtilities.Transaction.Status.Open,
-                            Active = true,
-                            EoI = "0",
-                            MoP = false,
-                            ReferenceId = routing.RoutingId,
-                            Description = routing.WorkOrder.SerialNumber + "-" + routing.RoutingName,
-                        };
-                        var detail = new TransactionDetail {
-                            ReferenceId = routing.ProductId,
-                            MoP = false,
-                            Quantity = importQuantity,
-                            UnitMeasure = null,
-                            Active = true,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
-                            QuantityKg = 0,
-                            Note = transaction.Description,
-                            LotNumber = routing.RoutingLot,
-                            MachineId = previousRoute.MachineId
-                        };
-                        transaction.TransactionDetails.Add(detail);
-                        transactions.Add(transaction);
-                    }
+                    // case VFDN không có kho đóng gói
+                    // 1. nhập thêm
                     var productInv = vfi.ProductInventories.FirstOrDefault(
                                     pi =>
                                         pi.WarehouseId == (previousRoute.WarehouseId ?? 0) &&
                                         pi.ProductId == routing.ProductId &&
                                         pi.LotNumber.Equals(routing.RoutingLot));
-                    if (productInv == null) {
-                        productInv = new ProductInventory {
-                            WarehouseId = previousRoute.WarehouseId.Value,
-                            ProductId = routing.ProductId,
-                            ImportDate = DateTime.Now,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
-                            TotalQty = 0,
-                            LotNumber = routing.RoutingLot,
-                            MachineId = routing.MachineId,
-                            MaterialInvId = routing.MaterialInvId,
-                        };
-                        vfi.ProductInventories.Add(productInv);
+                    if (previousRoute.Warehouse.IsPacking) {
+                        var importQuantity = previousRoute.WorkOrderProcesses
+                            .Where(x => x.Status == (byte)MyUtilities.WorkOrder.Status.Finish && x.NGQuantity > 0)
+                            .Sum(x => x.NGQuantity);
+                        if (importQuantity > 0) {
+                            var transaction = new Transaction {
+                                TransactionCode = MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Product, 1),
+                                CreatedUser = HttpContext.User.Identity.Name,
+                                CreatedDate = DateTime.Now,
+                                WarehouseIssueId = null,
+                                WarehouseReceiptId = previousRoute.WarehouseId,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                Status = (byte)MyUtilities.Transaction.Status.Open,
+                                Active = true,
+                                EoI = "0",
+                                MoP = false,
+                                ReferenceId = routing.RoutingId,
+                                Description = routing.WorkOrder.SerialNumber + "-" + routing.RoutingName,
+                            };
+                            var detail = new TransactionDetail {
+                                ReferenceId = routing.ProductId,
+                                MoP = false,
+                                Quantity = importQuantity,
+                                UnitMeasure = null,
+                                Active = true,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                QuantityKg = 0,
+                                Note = transaction.Description,
+                                LotNumber = routing.RoutingLot,
+                                MachineId = previousRoute.MachineId
+                            };
+                            transaction.TransactionDetails.Add(detail);
+                            transactions.Add(transaction);
+                        }
+                        if (productInv == null) {
+                            productInv = new ProductInventory {
+                                WarehouseId = previousRoute.WarehouseId.Value,
+                                ProductId = routing.ProductId,
+                                ImportDate = DateTime.Now,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                TotalQty = 0,
+                                LotNumber = routing.RoutingLot,
+                                MachineId = routing.MachineId,
+                                MaterialInvId = routing.MaterialInvId,
+                            };
+                            vfi.ProductInventories.Add(productInv);
+                        }
+
+                        // 2. xuất hủy
+                        var destroyQuantity = previousRoute.WorkOrderProcesses.Where(x => x.Status == (byte)MyUtilities.WorkOrder.Status.Finish
+                             && x.DefectQuantity != 0)
+                             .Sum(x => x.DefectQuantity);
+                        if (destroyQuantity != 0) {
+                            destroyQuantity = Math.Abs(destroyQuantity);
+                            var transaction = new Transaction {
+                                TransactionCode = MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Product, 1),
+                                CreatedUser = HttpContext.User.Identity.Name,
+                                CreatedDate = DateTime.Now,
+                                WarehouseIssueId = previousRoute.WarehouseId,
+                                WarehouseReceiptId = MyUtilities.Warehouse.Destroy,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                Status = (byte)MyUtilities.Transaction.Status.Open,
+                                Active = true,
+                                EoI = "0",
+                                MoP = false,
+                                ReferenceId = routing.RoutingId,
+                                Description = routing.WorkOrder.SerialNumber + "-" + routing.RoutingName,
+                            };
+                            var detail = new TransactionDetail {
+                                ReferenceId = routing.ProductId,
+                                MoP = false,
+                                Quantity = destroyQuantity,
+                                UnitMeasure = null,
+                                Active = true,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                QuantityKg = 0,
+                                Note = transaction.Description,
+                                LotNumber = routing.RoutingLot,
+                                MachineId = previousRoute.MachineId,
+                                ProductInventory = productInv
+                            };
+                            transaction.TransactionDetails.Add(detail);
+                            transactions.Add(transaction);
+                        }
                     }
-                    var destroyQuantity = previousRoute.WorkOrderProcesses.Where(x => x.Status == (byte)MyUtilities.WorkOrder.Status.Finish
-                         && x.DefectQuantity != 0)
-                         .Sum(x => x.DefectQuantity);
-                    if (destroyQuantity != 0) {
-                        destroyQuantity = Math.Abs(destroyQuantity);
-                        var transaction = new Transaction {
-                            TransactionCode = MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Product, 1),
-                            CreatedUser = HttpContext.User.Identity.Name,
-                            CreatedDate = DateTime.Now,
-                            WarehouseIssueId = previousRoute.WarehouseId,
-                            WarehouseReceiptId = MyUtilities.Warehouse.Destroy,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
-                            Status = (byte)MyUtilities.Transaction.Status.Open,
-                            Active = true,
-                            EoI = "0",
-                            MoP = false,
-                            ReferenceId = routing.RoutingId,
-                            Description = routing.WorkOrder.SerialNumber + "-" + routing.RoutingName,
-                        };
-                        var detail = new TransactionDetail {
-                            ReferenceId = routing.ProductId,
-                            MoP = false,
-                            Quantity = destroyQuantity,
-                            UnitMeasure = null,
-                            Active = true,
-                            ModifiedUser = HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
-                            QuantityKg = 0,
-                            Note = transaction.Description,
-                            LotNumber = routing.RoutingLot,
-                            MachineId = previousRoute.MachineId,
-                            ProductInventory = productInv
-                        };
-                        transaction.TransactionDetails.Add(detail);
-                        transactions.Add(transaction);
-                    }
+                    // 3. chuyển tồn kho
                     {
                         var transaction = new Transaction {
                             TransactionCode = MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Product, 1),

@@ -12,6 +12,10 @@
         function gridTransaction_onDataBinding(args) {
             var productCode = $("#ProductCodeName").data("tAutoComplete").value();
 
+            var warehouse = $("#Warehouse").data('tComboBox').value();
+            if (warehouse === "") {
+                warehouse = 0;
+            }
             var statusValue = $("#transactionStatus").data("tComboBox").value();
             if (statusValue === "")
                 statusValue = 0;
@@ -29,6 +33,7 @@
 
             args.data = $.extend({}, args.data, {
                 productCode: productCode,
+                warehouseId: warehouse,
                 status: statusValue,
                 transactionCode: "",
                 mop: false,
@@ -116,10 +121,21 @@
 
 }
 <div class="title">Quản lý hồ sơ thông tin lệnh về sản phẩm</div>
-<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
         <legend>Tiêu chí trích lọc</legend>
-
+        
+        <div class="grid_2">Kho:</div>
+        <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Warehouse")
+                        .DataBinding(binding => binding.Ajax().Select("SelectAllComboBoxWarehouse", "Warehouse"))
+                        .HtmlAttributes(new {style = "width: 100%"})
+                        .DropDownHtmlAttributes(new {style = "width: 250px; height: 250px;"})
+                        .Render();
+                }
+        </div>
         <div class="grid_2">Sản phẩm:</div>
         <div class="grid_4">
             @{
@@ -185,6 +201,7 @@
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectTransactionReviewByStatus", "Transaction", new {
                                                          productCode = "",
+                                                         warehouseId= 0,
                                                          status = 0,
                                                          mop = false,
                                                          fromDate = "",

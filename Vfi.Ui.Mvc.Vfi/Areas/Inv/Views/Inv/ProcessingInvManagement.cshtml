@@ -191,17 +191,16 @@
                                .HeaderTemplate("<strong>Tồn kho</strong>")
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.StoreCode).Width(100)
-                               .HeaderTemplate("<strong>Vị trí</strong>")
-                               .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.Weight).Width(60)
+                               .HeaderTemplate("Trọng</br>lượng")
+                               .Format("{0:n3}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        //columns.Bound(f => f.StoreCode).Width(100)
+                        //       .HeaderTemplate("<strong>Vị trí</strong>")
+                        //       .HtmlAttributes(new { style = "text-align: center;" });
                         //columns.Bound(f => f.ImportDate).Width(50)
                         //       .HeaderTemplate("<strong>Ngày nhập</strong>")
                         //       .HtmlAttributes(new { style = "text-align: center;" });
-                        //columns.Bound(f => f.Weight).Width(60)
-                        //       .HeaderTemplate("Trọng</br>lượng")
-                        //    //.HtmlAttributes(new { style = "border-left:black 3px double;"})
-                        //       .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n3}', Weight) #>")
-                        //       .HtmlAttributes(new { style = "text-align: right;" });
                         // so lieu
                     //    columns.Bound(f => f.EarlyQuantity).Width(65)
                     //           .HeaderTemplate("Tồn đầu</br>(pcs)")
