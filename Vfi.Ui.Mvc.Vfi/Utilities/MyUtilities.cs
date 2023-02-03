@@ -502,6 +502,9 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static DateTime ParseDate(string date) {
                 return string.IsNullOrWhiteSpace(date) ? DateTime.Today : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
             }
+            public static DateTime ParseLastDateTime(string date) {
+                return ParseDate(date).AddDays(1).AddSeconds(-1);
+            }
             public static DateTime ParseDateTime(string date) {
                 return string.IsNullOrWhiteSpace(date) ? DateTime.Now : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
             }
@@ -690,6 +693,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                 WorkOrderTolerance = "WorkOrderTolerance",
                                 MaterialWorkPieceDesign = "MaterialWorkPieceDesign",
                                 RoundMaterialMaterialDesign = "RoundMaterialMaterialDesign",
+                                ProductionLossRateDesign = "ProductionLossRateDesign",
                                 PackingProductivity = "PackingProductivity";
 
             public static double GetParameterValue(string param) {
@@ -2682,6 +2686,45 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
                 return rs;
             }
+        }
+        #endregion
+
+        #region accounting
+
+        public static class Accounting {
+
+
+            public enum Status {
+                NotApprove = 1,
+                Approved = 2,
+                Cancel = 3,
+                InProcess = 4,
+            }
+
+            public static string GetStatusText(int status) {
+                var rs = "";
+
+                switch (status) {
+                    case (int)Status.NotApprove:
+                        rs = "Chưa duyệt";
+                        break;
+                    case (int)Status.Approved:
+                        rs = "Đã duyệt";
+                        break;
+                    case (int)Status.Cancel:
+                        rs = "Huỷ bỏ";
+                        break;
+                    case (int)Status.InProcess:
+                        rs = "Đang tiến hành";
+                        break;
+                    default:
+                        rs = "Chưa duyệt";
+                        break;
+                }
+
+                return rs;
+            }
+
         }
         #endregion
     }

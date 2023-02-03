@@ -121,7 +121,7 @@
                         if (res.Code === 1) {
                             $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
                             $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
-                            $("#RoutingName")[0].innerText = res.Data.RoutingName;
+                            $("#RoutingName")[0].innerText = res.Data.RoutingName + " (" + res.Data.ProductionLossRate + "%)";
                             $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
 
                             $("#ProductCode")[0].innerText = res.Data.ProductCode;
@@ -335,6 +335,8 @@
 
             var spanDiff = e.cell.parentElement.getElementsByClassName("DiffQuantity")[0];
             spanDiff.textContent = e.dataItem.DiffQuantity.format(0);
+            spanDiff = e.cell.parentElement.getElementsByClassName("DiffQuantityKg")[0];
+            spanDiff.textContent = productionRate > 0 ? (e.dataItem.DiffQuantity / productionRate).format(1) : "0";
 
             if (e.dataItem.DiffQuantity > 0) {
                 // wrong: orange;
@@ -784,20 +786,25 @@
                     .ClientTemplate("<span class='NGWeight'><#= NGWeight #></span>")
                     .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
 
-                columns.Bound(f => f.DefectQuantity).Width(90).HeaderTemplate("Phế phẩm</br>(pcs)")
+                columns.Bound(f => f.DefectQuantity).Width(90).HeaderTemplate("Hàng</br>Phế phẩm</br>(pcs)")
                     .HeaderHtmlAttributes(new { @class = "defect-column" })
                     .ClientTemplate("<span class='DefectQuantity'><#= DefectQuantity #></span>")
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.DefectWeight).Width(90).HeaderTemplate("Phế phẩm</br>(g)")
+                columns.Bound(f => f.DefectWeight).Width(90).HeaderTemplate("Hàng</br>Phế phẩm</br>(g)")
                     .HeaderHtmlAttributes(new { @class = "defect-column" })
                     .Format("{0:n0}")
                     .ClientTemplate("<span class='DefectWeight'><#= DefectWeight #></span>")
                     .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.DiffQuantity).Width(90).HeaderTemplate("Chênh lệch</br>TT - ĐM (pcs)").ReadOnly(true)
+                columns.Bound(f => f.DiffQuantity).Width(90).HeaderTemplate("Chênh lệch</br>TT - ĐM</br>(pcs)").ReadOnly(true)
                     .HeaderHtmlAttributes(new { @class = "good-column" })
                     .Format("{0:n0}")
                     .ClientTemplate("<span class='DiffQuantity'><#= DiffQuantity #></span>")
+                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DiffQuantityKg).Width(90).HeaderTemplate("Chênh lệch</br>TT - ĐM</br>(cây)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}")
+                    .ClientTemplate("<span class='DiffQuantityKg'><#= DiffQuantityKg #></span>")
                     .HtmlAttributes(new { style = "text-align: right;" });
             })
             .Editable(editing => editing.Mode(GridEditMode.InCell))

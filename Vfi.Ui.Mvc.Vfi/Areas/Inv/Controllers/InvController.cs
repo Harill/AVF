@@ -451,7 +451,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
                 model.Groups = groups;
             }
-            catch (Exception ex) {
+            catch (Exception) {
 
             }
             ViewData = GetPageConfigData();
@@ -3543,9 +3543,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var inv = 0.0;
             using (var vfi = new tammaContext()) {
 
-                var ci = new CultureInfo("vi-VN");
-                DateTime from;
-                DateTime to;
+                //var ci = new CultureInfo("vi-VN");
+                //DateTime from;
+                //DateTime to;
                 var warehouseInv =
                     vfi.ProductInventories.FirstOrDefault(
                         pi => pi.ProductInventoryId == productInvId);
@@ -5692,9 +5692,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             try {
                                 entity.PackageNumber = Convert.ToInt32(entity.Package);
                             }
-                            catch (Exception ex) {
-
-                            }
+                            catch (Exception) { }
                             model.Add(entity);
                         }
                         else {
@@ -6386,7 +6384,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var model = new List<PrintProductionPlanModel>();
 
             using (var vfi = new tammaContext()) {
-                int i = 0;
+                //int i = 0;
                 var lastMonth = new DateTime(year, month, 1).AddSeconds(-1);
                 var monthlyDate = lastMonth.AddMonths(1);
                 var orderDetails = (from od in vfi.OrderDetails
@@ -7235,7 +7233,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             catch (Exception) {
                 return View(new GridModel(model));
             }
-            return View(new GridModel(model));
+            //return View(new GridModel(model));
         }
 
         [GridAction]
@@ -9483,19 +9481,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             string fromDate,
             string toDate) {
             var model = new List<CncInvModel>();
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(toDate, ci);
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
             try {
-                var warehouseId = MyUtilities.Warehouse.Cnc;
+                //var warehouseId = MyUtilities.Warehouse.Cnc;
                 using (var vfi = new tammaContext()) {
                     //lay DS san pham da tung luu tru trong kho
                     var products = (from pi in vfi.ProductInventories
-                                    where pi.WarehouseId == MyUtilities.Warehouse.Cnc && pi.Product.Active
+                                    where pi.Warehouse.IsCncMilling && pi.Product.Active
                                     orderby pi.Product.Customer.CustomerCode, pi.Product.ProductCode
                                     select new {
                                         pi.ProductId,
@@ -9510,31 +9503,29 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                     var productIds = products.Select(p => p.ProductId).Distinct();
                     // lay thong tin luan chuyen toi ngay bao cao
-                    var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
-                                             where productIds.Contains(pip.ProductId)
-                                                   && pip.PeriodDate <= tDate &&
-                                          pip.WarehouseId == MyUtilities.Warehouse.Cnc
-                                             select new {
-                                                 pip.ProductId,
-                                                 PeriodQuantity =
-                                             pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
-                                                 pip.PeriodDate,
-                                                 pip.Transaction,
-                                                 pip.WarehouseId,
-                                                 pip.Quantity
-                                             }).ToList();
+                    var periods = (from pip in vfi.ProductInventoryPeriods
+                                   where productIds.Contains(pip.ProductId)
+                                         && pip.PeriodDate <= tDate &&
+                                pip.Warehouse.IsCncMilling
+                                   select new {
+                                       pip.ProductId,
+                                       PeriodQuantity = pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                       IoE = pip.LastPeriodQuantity > pip.EarlyPeriodQuantity,
+                                       pip.PeriodDate,
+                                       WarehouseIssue = pip.Transaction.Warehouse,
+                                       WarehouseReceipt = pip.Transaction.Warehouse1,
+                                       pip.Transaction.WarehouseIssueId,
+                                       pip.Transaction.WarehouseReceiptId,
+                                       pip.Quantity
+                                   }).ToList();
 
-                    var importPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseReceiptId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var imports = periods.Where(pip => pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
-                    var exportPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseIssueId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var exports = periods.Where(pip => !pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
 
-                    var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
-                    var processingInvIds = MyUtilities.Warehouse.GetWarehouseId_ReProcessing();
+                    //var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
+                    //var processingInvIds = MyUtilities.Warehouse.GetWarehouseId_ReProcessing();
                     var i = 0;
                     foreach (var productId in productIds) {
                         var product = products.FirstOrDefault(p => p.ProductId == productId);
@@ -9546,61 +9537,29 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             Weight = product.CncWeight ?? 0,
                         };
 
-                        entity.EarlyInventory = productInvPeriods
-                            .Where(
-                                pip =>
-                                    pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
+                        entity.EarlyInventory = periods.Where(pip => pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
-                        entity.LastInventory = productInvPeriods
-                            .Where(
-                                pip => pip.ProductId == entity.ProductId)
+                        entity.LastInventory = periods.Where(pip => pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
                         //
-                        entity.ImportSx1 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1)
+                        var importsById = imports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.ImportSx1 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportSx2 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId != null &&
-                                        production2Ids.Contains(pip.Transaction.WarehouseIssueId.Value))
+                        entity.ImportSx2 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction2)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportElse = importPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseIssueId == null ||
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Tranfer))
-                            .Sum(pip => pip.Quantity);
-                        entity.DiffImport = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffImport -= entity.TotalImport;
+                        entity.TotalImport = importsById.Sum(x => x.Quantity);
                         //
-                        entity.ExportSx2 = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production2)
+                        var exportsById = exports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.ExportSx2 = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsProduction2)
                              .Sum(pip => pip.Quantity);
-                        entity.ExportQcA = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcA))
+                        entity.ExportQcA = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsQC)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportCxl1 = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                pip.Transaction.WarehouseReceiptId != null &&
-                                        processingInvIds.Contains(pip.Transaction.WarehouseReceiptId.Value))
+                        entity.ExportCxl1 = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsReprocessing)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportPp = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect)
+                        entity.ExportPp = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsDefect == true)
                              .Sum(pip => pip.Quantity);
-                        entity.ExportElse = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
-                            .Sum(pip => pip.Quantity);
-                        entity.DiffExport = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffExport -= entity.TotalExport;
+                        entity.TotalExport = exportsById.Sum(pip => pip.Quantity);
+
                         if (entity.Show)
                             model.Add(entity);
                     }
@@ -9626,13 +9585,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var model = new List<Production2WaitingInvModel>();
 
             try {
-                var ci = new CultureInfo("vi-VN");
-                var fDate = string.IsNullOrWhiteSpace(fromDate)
-                                  ? DateTime.Today
-                                  : Convert.ToDateTime(fromDate, ci);
-                var tDate = string.IsNullOrWhiteSpace(toDate)
-                                  ? DateTime.Today
-                                  : Convert.ToDateTime(toDate, ci);
+                var fDate = MyUtilities.Function.ParseDate(fromDate);
+                var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
                 using (var vfi = new tammaContext()) {
                     var products = (from pi in vfi.ProductInventories
                                     where
@@ -9725,7 +9679,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("SelectProduction2InvManagement", ex.Message);
+                ModelState.AddModelError("SelectProduction2WaitingInvManagement", ex.Message);
             }
             return View(new GridModel(model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode)));
         }
@@ -9743,7 +9697,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var model = new List<Production2InvModel>();
             try {
                 model =
-                    GetProduction2Period(customerId, productCode, warehouseId, fromDate, toDate).Where(m => m.Show).ToList();
+                    GetProduction2Period(customerId, productCode, warehouseId, fromDate, toDate)
+                    .Where(m => m.Show)
+                    .ToList();
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProduction2InvManagement", ex.Message);
@@ -9754,25 +9710,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         List<Production2InvModel> GetProduction2Period(int customerId, string productCode,
             int warehouseId, string fromDate, string toDate) {
             var model = new List<Production2InvModel>();
-            if (warehouseId == -1)
-                return model;
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(toDate, ci);
+            if (warehouseId == -1) return model;
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
             //var startMonth = new DateTime(reportDate.Year, reportDate.Month, 1);
             using (var vfi = new tammaContext()) {
-                var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
+                //var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
                 string name = "";
-                if (warehouseId != 0) {
-                    production2Ids = new List<int> { warehouseId };
+                if (warehouseId > 0) {
+                    //production2Ids = new List<int> { warehouseId };
                     name = vfi.Warehouses.FirstOrDefault(w => w.WarehouseId == warehouseId).WarehouseName;
                 }
                 else {
-                    name = vfi.Warehouses.FirstOrDefault(w => w.WarehouseId == MyUtilities.Warehouse.Production2).WarehouseName;
+                    name = vfi.Warehouses.Where(w => w.IsProduction2).OrderBy(x => x.Idx).FirstOrDefault().WarehouseName;
                 }
                 //if (warehouseId != MyUtilities.Warehouse.Production2) {
                 //    production2Ids = new List<int> { warehouseId };
@@ -9784,8 +9734,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 //lay DS san pham da tung luu tru trong kho
                 var products = (from pi in vfi.ProductInventories
                                 where
-                                    //production2Ids.Contains(pi.WarehouseId) ||
-                                    pi.WarehouseId == MyUtilities.Warehouse.Production2
+                                    pi.Warehouse.IsProduction2
+                                    && (customerId == 0 || pi.Product.CustomerId == customerId)
                                 select new {
                                     pi.ProductId,
                                     pi.Product.ProductCode,
@@ -9793,56 +9743,43 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     pi.Product.CustomerId,
                                     pi.Product.Customer.CustomerCode,
                                 }).Distinct().ToList();
-                if (customerId > 0)
-                    products = products.Where(p => p.CustomerId == customerId).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode))
                     products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                 var productIds = products.Select(p => p.ProductId).Distinct();
                 // lay thong tin luan chuyen toi ngay bao cao
-                var allWarehouseProduction2 = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
-                var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
-                                         where productIds.Contains(pip.ProductId)
-                                               && pip.PeriodDate <= tDate
-                                               && allWarehouseProduction2.Contains(pip.WarehouseId)
-                                         select new {
-                                             pip.ProductId,
-                                             PeriodQuantity =
-                                         pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
-                                             pip.PeriodDate,
-                                             pip.Transaction,
-                                             pip.TransactionId,
-                                             pip.WarehouseId,
-                                             pip.Quantity
-                                         }).ToList();
-                var importPeriodInMonths =
-                    productInvPeriods.Where(pip => pip.WarehouseId == MyUtilities.Warehouse.Production2
-                                                   && pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production2
-                                                   && pip.PeriodDate >= fDate && pip.PeriodDate <= tDate)
+                //var allWarehouseProduction2 = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
+                var periods = (from pip in vfi.ProductInventoryPeriods
+                               where productIds.Contains(pip.ProductId)
+                                     && pip.PeriodDate <= tDate
+                                     && (warehouseId == 0 || pip.Warehouse.IsProduction2)
+                               select new {
+                                   pip.ProductId,
+                                   PeriodQuantity = pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                   IoE = pip.LastPeriodQuantity > pip.EarlyPeriodQuantity,
+                                   pip.PeriodDate,
+                                   WarehouseIssue = pip.Transaction.Warehouse,
+                                   WarehouseReceipt = pip.Transaction.Warehouse1,
+                                   pip.Transaction.WarehouseIssueId,
+                                   pip.Transaction.WarehouseReceiptId,
+                                   pip.Quantity
+                               }).ToList();
+                var imports = periods.Where(pip => pip.IoE && pip.PeriodDate >= fDate)
                                      .ToList();
-                var exportPeriodInMonths =
-                    productInvPeriods.Where(pip => production2Ids.Contains(pip.WarehouseId)
-                                                   && pip.PeriodDate >= fDate && pip.PeriodDate <= tDate)
+                var exports = periods.Where(pip => !pip.IoE && pip.PeriodDate >= fDate)
                                      .ToList();
-                var exportPeriodInDays =
-                    exportPeriodInMonths.Where(pip => pip.PeriodDate == tDate).ToList();
-                var transactionIds = exportPeriodInDays.Select(t => t.TransactionId).Distinct().ToList();
-                var transactionDetails = from td in vfi.TransactionDetails
-                                         where transactionIds.Contains(td.TransactionId.Value)
-                                         select td;
-                productIds =
-                    productInvPeriods.Where(pip =>
-                                            production2Ids.Contains(pip.WarehouseId) &&
-                                            pip.PeriodDate.Month == tDate.Month &&
-                                            pip.PeriodDate.Year == tDate.Year)
-                                     .Select(pip => pip.ProductId)
-                                     .Distinct()
-                                     .ToList();
+                //productIds =
+                //    periods.Where(pip =>
+                //                            production2Ids.Contains(pip.WarehouseId) &&
+                //                            pip.PeriodDate.Month == tDate.Month &&
+                //                            pip.PeriodDate.Year == tDate.Year)
+                //                     .Select(pip => pip.ProductId)
+                //                     .Distinct()
+                //                     .ToList();
 
-                var i = 1;
                 products = products.OrderBy(p => p.CustomerCode).ThenBy(p => p.ProductCode).ToList();
                 foreach (var product in products) {
                     var entity = new Production2InvModel {
-                        GlobalIndex = i,
+                        //GlobalIndex = i,
                         ProductId = product.ProductId,
                         ProductCode = product.ProductCode,
                         CustomerCode = product.CustomerCode,
@@ -9853,111 +9790,52 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     };
                     //if (entity.ProductCode.Equals("HA6"))
                     //    i = 1;
-                    entity.EarlyInventory = productInvPeriods.Where(
-                        pip => pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
-                                                             .Sum(pip => pip.PeriodQuantity);
-                    //entity.ImportSx1 = importPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1)
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ImportSx1 = importPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1)
-                        .Sum(pip => pip.Quantity);
-                    //entity.ImportCnc = importPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Cnc)
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ImportCnc = importPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Cnc)
-                        .Sum(pip => pip.Quantity);
-                    //entity.ImportCxl1 = importPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  (pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Processing ||
-                    //                   pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Processing2))
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ImportCxl1 = importPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Processing ||
-                                       pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Processing2))
-                        .Sum(pip => pip.Quantity);
+                    entity.EarlyInventory = periods.Where(pip => pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
+                                                    .Sum(pip => pip.PeriodQuantity);
+                    entity.LastInventory = periods.Where(pip => pip.ProductId == entity.ProductId)
+                                                    .Sum(pip => pip.PeriodQuantity);
+
+                    var importsById = imports.Where(x => x.ProductId == entity.ProductId).ToList();
+                    entity.TotalImport = importsById.Sum(x => x.Quantity);
+                    entity.ImportSx1 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ImportSx2 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction2)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ImportCnc = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsCncMilling)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ImportCxl1 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsReprocessing)
+                                                .Sum(pip => pip.Quantity);
                     //entity.TotalImport = entity.ImportSx1 + entity.ImportCnc + entity.ImportCxl1 + entity.ImportCxl2;
                     //
-                    //entity.ExportQcA = exportPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcA))
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ExportQcA = exportPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcA ||
-                                      pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcB))
-                        .Sum(pip => pip.Quantity);
-                    //entity.ExportCxl1 = exportPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing ||
-                    //                   pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing2))
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ExportCxl1 = exportPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing ||
-                                       pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Processing2))
-                        .Sum(pip => pip.Quantity);
-                    //entity.ExportGcn = exportPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.WaitingPlating))
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ExportGcn = exportPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.WaitingPlating))
-                        .Sum(pip => pip.Quantity);
-                    //entity.ExportRb = exportPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.SurfaceTreatment))
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ExportRb = exportPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.SurfaceTreatment))
-                        .Sum(pip => pip.Quantity);
-                    //entity.ExportDefect = exportPeriodInDays
-                    //    .Where(pip => pip.ProductId == entity.ProductId &&
-                    //                  (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect))
-                    //    .Sum(pip => pip.Quantity.Value);
-                    entity.ExportDefect = exportPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect))
-                        .Sum(pip => pip.Quantity);
-                    //entity.TotalExport = entity.ExportRb + entity.ExportGcn + entity.ExportQcA + entity.ExportCxl1 +
-                    //entity.ExportCxl2;
-                    entity.LastInventory = productInvPeriods.Where(
-                        pip => pip.ProductId == entity.ProductId)
-                                                            .Sum(pip => pip.PeriodQuantity);
-                    //entity.LastInventoryKg = entity.LastInventory*entity.Weight;
-                    //entity.EarlyInventoryKg = entity.EarlyInventory*entity.Weight;
-                    if (warehouseId != MyUtilities.Warehouse.Production2)
-                        if (entity.TotalExport == 0 && entity.TotalImport == 0 &&
-                            entity.EarlyInventory == 0 && entity.LastInventory == 0) {
-                        }
-                        else {
-                            entity.Show = true;
-                            i++;
-                        }
+                    var exportsById = exports.Where(x => x.ProductId == entity.ProductId).ToList();
+                    entity.TotalExport = exportsById.Sum(pip => pip.Quantity);
+                    entity.ExportSx2 = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsProduction2)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ExportQcA = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsQC)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ExportCxl1 = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsReprocessing)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ExportGcn = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPlating)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ExportRb = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPolish)
+                                                .Sum(pip => pip.Quantity);
+                    entity.ExportDefect = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsDefect == true)
+                                                .Sum(pip => pip.Quantity);
+
+                    if (entity.TotalExport == 0 && entity.TotalImport == 0 &&
+                        entity.EarlyInventory == 0 && entity.LastInventory == 0 &&
+                        entity.DiffQuantity == 0) {
+                    }
                     else {
                         entity.Show = true;
-                        i++;
                     }
-                    if (entity.Show) {
-                        var transactionDetailsById = transactionDetails.Where(td => td.ReferenceId == entity.ProductId);
-                        foreach (var transactionDetail in transactionDetailsById) {
-                            if (!string.IsNullOrWhiteSpace(transactionDetail.Note))
-                                entity.Note += transactionDetail.Note + "(" + string.Format("{0:n0}", transactionDetail.Quantity) + ")! ";
-                        }
-                    }
-                    // cho nay ko hiu la lam gi @@
-                    if (warehouseId == MyUtilities.Warehouse.Production2D) {
-                        if (productIds.Contains(entity.ProductId))
-                            entity.Show = true;
-                    }
+                    //if (entity.Show) {
+                    //    var transactionDetailsById = transactionDetails.Where(td => td.ReferenceId == entity.ProductId);
+                    //    foreach (var transactionDetail in transactionDetailsById) {
+                    //        if (!string.IsNullOrWhiteSpace(transactionDetail.Note))
+                    //            entity.Note += transactionDetail.Note + "(" + string.Format("{0:n0}", transactionDetail.Quantity) + ")! ";
+                    //    }
+                    //}
                     model.Add(entity);
                 }
             }
@@ -10091,10 +9969,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     allWarehouseProduction2.Contains(pip.Transaction.WarehouseIssueId.Value))
                         .Sum(pip => pip.Quantity);
                     // nhap thêm
-                    entity.ImportElse = importPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                    pip.Transaction.WarehouseIssueId == null)
-                        .Sum(pip => pip.Quantity);
+                    entity.TotalImport = importPeriodInMonths
+                        .Where(pip => pip.ProductId == entity.ProductId).Sum(pip => pip.Quantity);
+                    //entity.ImportElse = importPeriodInMonths
+                    //    .Where(pip => pip.ProductId == entity.ProductId &&
+                    //                pip.Transaction.WarehouseIssueId == null)
+                    //    .Sum(pip => pip.Quantity);
                     // kiem tra nguoc - tổng nhập ghi nhận
                     entity.DiffImport = importPeriodInMonths
                         .Where(pip => pip.ProductId == entity.ProductId)
@@ -10136,11 +10016,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         .Where(pip => pip.ProductId == entity.ProductId &&
                                       (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Defect))
                         .Sum(pip => pip.Quantity);
-                    entity.ExportElse = exportPeriodInMonths
-                        .Where(pip => pip.ProductId == entity.ProductId &&
-                                      (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
-                                      pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
+                    entity.TotalExport = exportPeriodInMonths
+                        .Where(pip => pip.ProductId == entity.ProductId)
                         .Sum(pip => pip.Quantity);
+                    //entity.ExportElse = exportPeriodInMonths
+                    //    .Where(pip => pip.ProductId == entity.ProductId &&
+                    //                  (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
+                    //                  pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
+                    //    .Sum(pip => pip.Quantity);
                     // kiem tra nguoc - tổng xuất ghi nhận
                     entity.DiffExport = exportPeriodInMonths
                         .Where(pip => pip.ProductId == entity.ProductId)
@@ -10541,11 +10424,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                     && ps.IsNecessary
                                                     && ps.WarehouseId != MyUtilities.Warehouse.Production1
                                               select ps;
-                    var a = 0;
+                    //var a = 0;
                     foreach (var productId in productIds) {
                         var product = products.FirstOrDefault(p => p.ProductId == productId);
-                        if (product.ProductCode.Equals("N3"))
-                            a = 1;
+                        //if (product.ProductCode.Equals("N3"))
+                            //a = 1;
                         var entity = new Production2PlanModel {
                             ProductId = product.ProductId,
                             CustomerCode = product.Customer.CustomerCode,
@@ -11222,20 +11105,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             string productCode,
             string fromDate, string toDate) {
             var model = new List<HeatTreatmentInvModel>();
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(toDate, ci);
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
             //reportDate = reportDate.AddDays(1).AddSeconds(-1); 
             try {
-                var warehouseId = MyUtilities.Warehouse.HeatTreatment;
+                //var warehouseId = MyUtilities.Warehouse.HeatTreatment;
                 using (var vfi = new tammaContext()) {
                     //lay DS san pham da tung luu tru trong kho
                     var products = (from pi in vfi.ProductInventories
-                                    where pi.WarehouseId == MyUtilities.Warehouse.HeatTreatment
+                                    where pi.Warehouse.IsHeatTreatment
                                     orderby pi.Product.Customer.CustomerCode, pi.Product.ProductCode
                                     select new {
                                         pi.ProductId,
@@ -11250,31 +11128,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                     var productIds = products.Select(p => p.ProductId).Distinct();
                     // lay thong tin luan chuyen toi ngay bao cao
-                    var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
+                    var periods = (from pip in vfi.ProductInventoryPeriods
                                              where productIds.Contains(pip.ProductId)
                                                    && pip.PeriodDate <= tDate &&
-                                          pip.WarehouseId == MyUtilities.Warehouse.HeatTreatment
+                                          pip.Warehouse.IsHeatTreatment
                                              select new {
                                                  pip.ProductId,
-                                                 PeriodQuantity =
-                                             pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                                 PeriodQuantity = pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                                 IoE = pip.LastPeriodQuantity > pip.EarlyPeriodQuantity,
                                                  pip.PeriodDate,
-                                                 pip.Transaction,
-                                                 pip.WarehouseId,
+                                                 WarehouseIssue = pip.Transaction.Warehouse,
+                                                 WarehouseReceipt = pip.Transaction.Warehouse1,
+                                                 pip.Transaction.WarehouseIssueId,
+                                                 pip.Transaction.WarehouseReceiptId,
                                                  pip.Quantity
                                              }).ToList();
-
-                    var importPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseReceiptId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var imports = periods.Where(pip => pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
-                    var exportPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseIssueId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var exports = periods.Where(pip => !pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
 
-                    var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
-                    var platingInvIds = MyUtilities.Warehouse.GetWarehouseIds_Plating();
+                    //var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
+                    //var platingInvIds = MyUtilities.Warehouse.GetWarehouseIds_Plating();
                     var i = 1;
                     foreach (var productId in productIds) {
                         var product = products.FirstOrDefault(p => p.ProductId == productId);
@@ -11286,60 +11161,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             CustomerCode = product.CustomerCode,
                             Weight = product.HeatTreatmentWeight ?? 0
                         };
-                        entity.EarlyInventory = productInvPeriods
-                            .Where(
-                                pip =>
-                                    pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
+                        entity.EarlyInventory = periods.Where(pip => pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
-                        entity.LastInventory = productInvPeriods
-                            .Where(
-                                pip => pip.ProductId == entity.ProductId)
+                        entity.LastInventory = periods.Where(pip => pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
                         //
-                        entity.ImportSx1 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1)
+                        var importsById = imports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.TotalImport = importsById.Sum(x => x.Quantity);
+                        entity.ImportSx1 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportSx2 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId != null &&
-                                        production2Ids.Contains(pip.Transaction.WarehouseIssueId.Value))
+                        entity.ImportSx2 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction2)
                              .Sum(pip => pip.Quantity);
-
-                        entity.ImportElse = importPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseIssueId == null ||
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Tranfer))
-                            .Sum(pip => pip.Quantity);
-                        entity.DiffImport = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffImport -= entity.TotalImport;
                         //
-                        entity.ExportQc = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId != null &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcA)
+                        var exportsById = exports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.TotalExport = exportsById.Sum(pip => pip.Quantity);
+                        entity.ExportQc = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsQC)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportGcn = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId != null &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.WaitingPlating)
+                        entity.ExportGcn = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPlating)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportRb = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.SurfaceTreatment)
+                        entity.ExportRb = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPolish)
                              .Sum(pip => pip.Quantity);
-
-                        entity.ExportElse = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
-                            .Sum(pip => pip.Quantity);
-                        entity.DiffExport = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffExport -= entity.TotalExport;
                         model.Add(entity);
                     }
                 }
@@ -11359,20 +11200,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             string productCode,
             string fromDate, string toDate) {
             var model = new List<SurfaceTreatmentInvModel>();
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(toDate, ci);
-            //reportDate = reportDate.AddDays(1).AddSeconds(-1); 
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
             try {
-                var warehouseId = MyUtilities.Warehouse.SurfaceTreatment;
                 using (var vfi = new tammaContext()) {
                     //lay DS san pham da tung luu tru trong kho
                     var products = (from pi in vfi.ProductInventories
-                                    where pi.WarehouseId == MyUtilities.Warehouse.SurfaceTreatment
+                                    where pi.Warehouse.IsPolish
                                     orderby pi.Product.Customer.CustomerCode, pi.Product.ProductCode
                                     select new {
                                         pi.ProductId,
@@ -11387,30 +11221,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                     var productIds = products.Select(p => p.ProductId).Distinct();
                     // lay thong tin luan chuyen toi ngay bao cao
-                    var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
+                    var periods = (from pip in vfi.ProductInventoryPeriods
                                              where productIds.Contains(pip.ProductId)
                                                    && pip.PeriodDate <= tDate &&
-                                          pip.WarehouseId == MyUtilities.Warehouse.SurfaceTreatment
+                                          pip.Warehouse.IsPolish
                                              select new {
                                                  pip.ProductId,
-                                                 PeriodQuantity =
-                                             pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                                 PeriodQuantity = pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                                 IoE = pip.LastPeriodQuantity > pip.EarlyPeriodQuantity,
                                                  pip.PeriodDate,
-                                                 pip.Transaction,
-                                                 pip.WarehouseId,
+                                                 WarehouseIssue = pip.Transaction.Warehouse,
+                                                 WarehouseReceipt = pip.Transaction.Warehouse1,
+                                                 pip.Transaction.WarehouseIssueId,
+                                                 pip.Transaction.WarehouseReceiptId,
                                                  pip.Quantity
                                              }).ToList();
-                    var importPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseReceiptId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var imports = periods.Where(pip => pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
-                    var exportPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseIssueId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var exports = periods.Where(pip => !pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
                     var i = 0;
-                    var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
-                    var processingInvIds = MyUtilities.Warehouse.GetWarehouseId_ReProcessing();
                     foreach (var productId in productIds) {
                         var product = products.FirstOrDefault(p => p.ProductId == productId);
                         if (product == null) continue;
@@ -11421,66 +11251,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             CustomerCode = product.CustomerCode,
                             Weight = product.SurfaceTreatmentWeight ?? 0
                         };
-                        entity.EarlyInventory = productInvPeriods
-                            .Where(
-                                pip =>
-                                    pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
+                        entity.EarlyInventory = periods.Where(pip => pip.PeriodDate < fDate && pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
-                        entity.LastInventory = productInvPeriods
-                            .Where(
-                                pip => pip.ProductId == entity.ProductId)
+                        entity.LastInventory = periods.Where(pip => pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
                         //
-                        entity.ImportSx1 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1)
+                        var importsById = imports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.TotalImport = importsById.Sum(x => x.Quantity);
+                        entity.ImportSx1 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportSx2 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId != null &&
-                                        production2Ids.Contains(pip.Transaction.WarehouseIssueId.Value))
+                        entity.ImportSx2 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction2)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportNl = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.HeatTreatment)
+                        entity.ImportNl = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsHeatTreatment)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportCxl1 = importPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                pip.Transaction.WarehouseIssueId != null &&
-                                         processingInvIds.Contains(pip.Transaction.WarehouseIssueId.Value))
+                        entity.ImportCxl1 = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsReprocessing)
                             .Sum(pip => pip.Quantity);
-
-                        entity.ImportElse = importPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseIssueId == null ||
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Tranfer))
-                            .Sum(pip => pip.Quantity);
-
-                        entity.DiffImport = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffImport -= entity.TotalImport;
                         //
-                        entity.ExportQcA = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId != null &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.QcA)
+                        var exportsById = exports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.TotalExport = exportsById.Sum(pip => pip.Quantity);
+                        entity.ExportQcA = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsQC)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportGcn = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId != null &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.WaitingPlating)
+                        entity.ExportGcn = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPlating)
                             .Sum(pip => pip.Quantity);
-
-                        entity.ExportElse = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
-                            .Sum(pip => pip.Quantity);
-                        entity.DiffExport = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffExport -= entity.TotalExport;
 
                         model.Add(entity);
                     }
@@ -11502,31 +11294,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             string fromDate,
             string toDate) {
             var model = new List<PackingInvModel>();
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                              ? DateTime.Today
-                              : Convert.ToDateTime(toDate, ci);
-            //reportDate = reportDate.AddDays(1).AddSeconds(-1); 
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
             var warehouseId = MyUtilities.Warehouse.Packing;
             try {
 
                 using (var vfi = new tammaContext()) {
-                    //lay DS san pham da tung luu tru trong kho
-                    //var products = (from p in vfi.Products
-                    //                where (customerId == 0 || p.CustomerId == customerId) && p.Active
-                    //                orderby p.Customer.CustomerCode, p.ProductCode
-                    //                select new {
-                    //                    p.ProductId,
-                    //                    p.ProductCode,
-                    //                    p.QcWeight,
-                    //                    p.CustomerId,
-                    //                    p.Customer.CustomerCode,
-                    //                }).ToList();
                     var products = (from pi in vfi.ProductInventories
-                                    where pi.WarehouseId == MyUtilities.Warehouse.Packing &&
+                                    where pi.Warehouse.IsPacking &&
                                     (customerId == 0 || pi.Product.CustomerId == customerId)
                                     orderby pi.Product.Customer.CustomerCode, pi.Product.ProductCode
                                     select new {
@@ -11542,30 +11317,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         products = products.Where(p => p.ProductCode.Contains(productCode)).ToList();
                     var productIds = products.Select(p => p.ProductId).Distinct().ToList();
                     // lay thong tin luan chuyen toi ngay bao cao
-                    var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
+                    var periods = (from pip in vfi.ProductInventoryPeriods
                                              where productIds.Contains(pip.ProductId) &&
                                              pip.PeriodDate <= tDate &&
-                                          pip.WarehouseId == MyUtilities.Warehouse.Packing
+                                          pip.Warehouse.IsPacking
                                              select new {
                                                  pip.ProductId,
-                                                 PeriodQuantity =
-                                             pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
-                                                 pip.ProductInvId,
+                                                 PeriodQuantity = pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                                 IoE = pip.LastPeriodQuantity > pip.EarlyPeriodQuantity,
                                                  pip.PeriodDate,
-                                                 pip.Transaction,
-                                                 pip.WarehouseId,
+                                                 WarehouseIssue = pip.Transaction.Warehouse,
+                                                 WarehouseReceipt = pip.Transaction.Warehouse1,
+                                                 pip.Transaction.WarehouseIssueId,
+                                                 pip.Transaction.WarehouseReceiptId,
                                                  pip.Quantity
                                              }).ToList();
-                    var importPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseReceiptId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var imports = periods.Where(pip => pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
-                    var exportPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseIssueId == warehouseId &&
-                                                        pip.PeriodDate >= fDate)
+                    var exports = periods.Where(pip => !pip.IoE && pip.PeriodDate >= fDate)
                                          .ToList();
                     var i = 1;
-                    var processingInvIds = MyUtilities.Warehouse.GetWarehouseId_ReProcessing();
+                    //var processingInvIds = MyUtilities.Warehouse.GetWarehouseId_ReProcessing();
                     foreach (var productId in productIds) {
                         var product = products.FirstOrDefault(p => p.ProductId == productId);
                         if (product == null) continue;
@@ -11576,50 +11348,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             CustomerCode = product.CustomerCode,
                             Weight = product.QcWeight ?? 0
                         };
-                        entity.EarlyInventory = productInvPeriods
-                            .Where(pip => pip.ProductId == entity.ProductId && pip.PeriodDate < fDate)
+                        entity.EarlyInventory = periods.Where(pip => pip.ProductId == entity.ProductId && pip.PeriodDate < fDate)
                             .Sum(pip => pip.PeriodQuantity);
-
-                        entity.LastInventory = productInvPeriods
-                            .Where(pip => pip.ProductId == entity.ProductId)
+                        entity.LastInventory = periods.Where(pip => pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
                         //
-                        entity.ImportQc = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.QcC)
+                        var importsById = imports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.TotalImport = importsById.Sum(x => x.Quantity);
+                        entity.ImportQc = importsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsQC)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportElse = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 (pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Tranfer ||
-                                 pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Destroy))
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffImport = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffImport -= entity.TotalImport;
                         //
-                        entity.ExportQc = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.QcC)
+                        var exportsById = exports.Where(x => x.ProductId == entity.ProductId).ToList();
+                        entity.TotalExport = exportsById.Sum(pip => pip.Quantity);
+                        entity.ExportQc = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsQC)
                              .Sum(pip => pip.Quantity);
-                        entity.ExportFinish = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Finish)
+                        entity.ExportFinish = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsFinish)
                              .Sum(pip => pip.Quantity);
-                        entity.ExportCxl1 = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                pip.Transaction.WarehouseReceiptId != null &&
-                                        processingInvIds.Contains(pip.Transaction.WarehouseReceiptId.Value))
+                        entity.ExportCxl1 = exportsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsReprocessing)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportElse = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
-                                 pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffExport = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffExport -= entity.TotalExport;
                         //
                         if (entity.Show) {
                             model.Add(entity);
@@ -11913,8 +11659,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //                   p.QcWeight
                     //               }).ToList();
                     var products = (from pi in vfi.ProductInventories
-                                    where qcIds.Contains(pi.WarehouseId) &&
-                                          (customerId == 0 || pi.Product.CustomerId == customerId)
+                                    where (customerId == 0 || pi.Product.CustomerId == customerId) &&
+                                        //qcIds.Contains(pi.WarehouseId)
+                                          (warehouseId == 0
+                                            ? pi.Warehouse.IsQC
+                                            : pi.WarehouseId == warehouseId)
                                     select new {
                                         pi.ProductId,
                                         pi.Product.ProductCode,
@@ -11929,25 +11678,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     var productInvPeriods = (from pip in vfi.ProductInventoryPeriods
                                              where productIds.Contains(pip.ProductId)
                                                    && pip.PeriodDate <= tDate &&
-                                                   qcIds.Contains(pip.WarehouseId)
+                                                 //qcIds.Contains(pip.WarehouseId)
+                                                  (warehouseId == 0
+                                                    ? pip.Warehouse.IsQC
+                                                    : pip.WarehouseId == warehouseId)
                                              select new {
                                                  pip.ProductId,
                                                  PeriodQuantity =
                                                  pip.LastPeriodQuantity - pip.EarlyPeriodQuantity,
+                                                 EoI = pip.LastPeriodQuantity > pip.EarlyPeriodQuantity,
                                                  pip.PeriodDate,
-                                                 pip.Transaction,
+                                                 //pip.Transaction,
                                                  pip.WarehouseId,
-                                                 pip.Quantity
+                                                 pip.Quantity,
+                                                 pip.Transaction.WarehouseIssueId,
+                                                 pip.Transaction.WarehouseReceiptId,
+                                                 WarehouseIssue = pip.Transaction.Warehouse,
+                                                 WarehouseReceipt = pip.Transaction.Warehouse1,
                                              }).ToList();
-                    var importPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseReceiptId != null &&
-                            qcIds.Contains(pip.Transaction.WarehouseReceiptId.Value) &&
-                                                        pip.PeriodDate >= fDate)
+                    var importInMonths = productInvPeriods.Where(pip => pip.EoI && pip.PeriodDate >= fDate)
                                          .ToList();
-                    var exportPeriodInMonths =
-                        productInvPeriods.Where(pip => pip.Transaction.WarehouseIssueId != null &&
-                          qcIds.Contains(pip.Transaction.WarehouseIssueId.Value) &&
-                                                        pip.PeriodDate >= fDate)
+                    var exportInMonths = productInvPeriods.Where(pip => !pip.EoI && pip.PeriodDate >= fDate)
                                          .ToList();
                     var i = 1;
                     var production2Ids = MyUtilities.Warehouse.GetWarehouseIdProduction2_ALL();
@@ -11974,102 +11725,42 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 pip => pip.ProductId == entity.ProductId)
                             .Sum(pip => pip.PeriodQuantity);
 
-                        //entity.EarlyInventoryB = productInvPeriods
-                        //    .Where(
-                        //        pip =>
-                        //            pip.PeriodDate < fDate && pip.ProductId == productId &&
-                        //            pip.WarehouseId == MyUtilities.Warehouse.QcB)
-                        //    .Sum(pip => pip.PeriodQuantity);
-                        //entity.EarlyInventoryC = productInvPeriods
-                        //    .Where(
-                        //        pip =>
-                        //            pip.PeriodDate < fDate && pip.ProductId == productId &&
-                        //            pip.WarehouseId == MyUtilities.Warehouse.QcC)
-                        //    .Sum(pip => pip.PeriodQuantity);
+                        var importInMonthsById = importInMonths.Where(pip => pip.ProductId == entity.ProductId).ToList();
+                        entity.ImportSx1 = importInMonthsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction)
+                             .Sum(pip => pip.Quantity);
+                        entity.ImportCnc = importInMonthsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsCncMilling)
+                             .Sum(pip => pip.Quantity);
+                        entity.ImportSx2 = importInMonthsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsProduction2)
+                             .Sum(pip => pip.Quantity);
+                        entity.ImportRb = importInMonthsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsPolish)
+                             .Sum(pip => pip.Quantity);
+                        entity.ImportNcu = importInMonthsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsPlating)
+                             .Sum(pip => pip.Quantity);
+                        entity.ImportCxl1 = importInMonthsById.Where(pip => pip.WarehouseIssueId != null && pip.WarehouseIssue.IsReprocessing)
+                             .Sum(pip => pip.Quantity);
+                        entity.ImportQc = importInMonthsById.Where(pip => pip.WarehouseIssue.IsQC)
+                             .Sum(pip => pip.Quantity);
+                        entity.TotalImport = importInMonthsById.Sum(x => x.Quantity);
                         //
-                        entity.ImportSx1 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Production1)
+                        var exportInMonthsById = exportInMonths.Where(pip => pip.ProductId == entity.ProductId).ToList();
+                        entity.ExportPacking = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPacking)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportCnc = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Cnc)
+                        entity.ExportFinish = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsFinish)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportSx2 = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId != null &&
-                                        production2Ids.Contains(pip.Transaction.WarehouseIssueId.Value))
+                        entity.ExportSx2 = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsProduction2)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportRb = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.SurfaceTreatment)
+                        entity.ExportGcn = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsPlating)
                              .Sum(pip => pip.Quantity);
-                        entity.ImportNcu = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId != null &&
-                                          platingInvIds.Contains(pip.Transaction.WarehouseIssueId.Value))
-                             .Sum(pip => pip.Quantity);
-                        //entity.ImportCxl1 = importPeriodInMonths
-                        //    .Where(pip => pip.ProductId == entity.ProductId &&
-                        //        pip.Transaction.WarehouseIssueId != null &&
-                        //                 processingInvIds.Contains(pip.Transaction.WarehouseIssueId.Value))
-                        //    .Sum(pip => pip.Quantity);
-                        entity.ImportQc = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseIssueId != null &&
-                                          qcInvIds.Contains(pip.Transaction.WarehouseIssueId.Value))
-                             .Sum(pip => pip.Quantity);
-                        entity.ImportElse = importPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseIssueId == null ||
-                                           pip.Transaction.WarehouseIssueId == MyUtilities.Warehouse.Tranfer))
+                        entity.ExportCxl1 = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsReprocessing)
                             .Sum(pip => pip.Quantity);
-
-                        entity.DiffImport = importPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffImport -= entity.TotalImport;
-                        //
-                        entity.ExportPacking = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Packing)
-                             .Sum(pip => pip.Quantity);
-                        entity.ExportSx2 = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Production2)
-                             .Sum(pip => pip.Quantity);
-                        entity.ExportGcn = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId &&
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.WaitingPlating)
-                             .Sum(pip => pip.Quantity);
-                        entity.ExportCxl1 = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                pip.Transaction.WarehouseReceiptId != null &&
-                                        processingInvIds.Contains(pip.Transaction.WarehouseReceiptId.Value))
+                        entity.ExportQc = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsQC)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportElse = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                          (pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Tranfer ||
-                                           pip.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy))
+                        entity.ExportDefect = exportInMonthsById.Where(pip => pip.WarehouseReceiptId != null && pip.WarehouseReceipt.IsDefect == true)
                             .Sum(pip => pip.Quantity);
-                        entity.ExportQc = exportPeriodInMonths
-                            .Where(pip => pip.ProductId == entity.ProductId &&
-                                 pip.Transaction.WarehouseReceiptId != null &&
-                                         qcInvIds.Contains(pip.Transaction.WarehouseReceiptId.Value))
-                            .Sum(pip => pip.Quantity);
-
-                        entity.DiffExport = exportPeriodInMonths
-                             .Where(pip => pip.ProductId == entity.ProductId)
-                             .Sum(pip => pip.Quantity);
-                        entity.DiffExport -= entity.TotalExport;
-                        //i++;
-                        //if (warehouseId != 0) {
-                        if (entity.Show)
+                        entity.TotalExport = exportInMonthsById.Sum(x => x.Quantity);
+                        if (entity.Show) {
                             model.Add(entity);
-                        //}
-                        //else {
-                        //    model.Add(entity);
-                        //}
+                        }
                     }
                 }
                 return View(new GridModel(model.OrderBy(m => m.CustomerCode).ThenBy(m => m.ProductCode)));
@@ -13024,11 +12715,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult UpdateInventoryOnShelf(OnShelfModel update, int classifiedId, string fromDate, string toDate) {
             try {
                 throw new AggregateException("Lỗi! Chưa hổ trợ cập nhật");
-                if (!Request.IsAuthenticated) {
-                    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
-                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
-                                             "Xin vui lòng đăng nhập lại hệ thống.");
-                }
+                //if (!Request.IsAuthenticated) {
+                //    throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                //                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                //                             "Xin vui lòng đăng nhập lại hệ thống.");
+                //}
             }
             catch (Exception ex) {
                 ModelState.AddModelError("UpdateInventoryOnShelf", ex.Message);

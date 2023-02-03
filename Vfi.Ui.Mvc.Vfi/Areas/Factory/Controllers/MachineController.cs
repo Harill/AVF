@@ -327,7 +327,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex) { throw ex; }
             return group;
         }
 
@@ -2175,7 +2175,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         entity.HowToFix = repairFormDetail.MachineStateDetail.StateCode + "." + repairFormDetail.MachineStateDetail.Description;
                         entity.Timing = repairFormDetail.MachineStateDetail.Timing;
                     }
-                    if (repairFormDetail.EmployeeId != null) {
+                    if (repairFormDetail.EmployeeId > 0) {
                         entity.EmployeeId = repairFormDetail.EmployeeId;
                         entity.EmployeeName = repairFormDetail.Employee.EmployeeName;
                     }

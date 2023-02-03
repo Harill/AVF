@@ -7,13 +7,13 @@ using System.Web.Mvc;
 using Microsoft.Practices.Unity;
 using Telerik.Web.Mvc;
 using Vfi.Server.Core.CrossCutting.UnitOfWork;
-using Vfi.Server.Core.DataModel.Models.Inv;
+//using Vfi.Server.Core.DataModel.Models.Inv;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
 using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
-using Order = Vfi.Server.Core.DataModel.BaseEntities.Order;
-using OrderDetail = Vfi.Server.Core.DataModel.BaseEntities.OrderDetail;
+//using Order = Vfi.Server.Core.DataModel.BaseEntities.Order;
+//using OrderDetail = Vfi.Server.Core.DataModel.BaseEntities.OrderDetail;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 
@@ -2750,7 +2750,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     //    throw new AggregateException("Đơn hàng " + order.OrderNumber +
                     //                                 " đã có giao không thể hủy ! Vui lòng hủy số lượng trong đơn hàng !");
                     //}
-                    byte status = Convert.ToByte(updated.StatusName);
+                    byte status = 0;
+                    try {
+                        status = Convert.ToByte(updated.StatusName);
+                    }
+                    catch (FormatException) { }
                     if (status == (byte)MyUtilities.Sales.Status.Cancel) {
                         if (order.OrderDetails.Any(od => od.RequiedNumber != od.OrderQty)) {
                             throw new AggregateException("Đơn hàng " + order.OrderNumber +
@@ -2763,16 +2767,63 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                                          " chưa giao đủ không thể hoàn thành ! Vui lòng hủy số lượng trong đơn hàng !");
                         }
                     }
-                    try {
-                        status = Convert.ToByte(updated.StatusName);
+                    if (status > 0) {
                         order.Status = status;
-                        order.ModifiedDate = DateTime.Now;
-                        order.ModifiedUser = HttpContext.User.Identity.Name;
-                        vfi.SaveChanges();
                     }
-                    catch (FormatException) {
+                    if (updated.DueDate != order.DueDate) {
+                        if (updated.DueDate <= DateTime.Now) {
+                            throw new AggregateException("Lỗi! Không thể dời ngày giao hàng về trước hiện tại");
+                        }
+                        else {
+                            if (order.OrderDetails.Any(x => x.RequiedNumber != x.OrderQty)) {
+                                var newOrder = new Order { 
+                                    ParentOrderId = order.OrderId,
+                                    CustomerId = order.CustomerId,
+                                    CurrencyCode = order.CurrencyCode,
+                                    SalesPersonId = order.SalesPersonId,
+                                    BillToAddress = order.BillToAddress,
+                                    ShipToAddress = order.ShipToAddress,
+                                    ShipMethodId = order.ShipMethodId,
+                                    ShipmentDay = order.ShipmentDay,
+                                    Status = (byte) MyUtilities.Sales.Status.Waiting,
+                                    Active = true,
+                                    CreatedDate = DateTime.Now,
+                                    ModifiedDate = DateTime.Now,
+                                    ModifiedUser = HttpContext.User.Identity.Name,
+                                    LotNumber = order.LotNumber,
+                                    ModelNumber = order.ModelNumber,
+                                    Note = order.Note,
+                                    PoNumber = order.PoNumber,
+                                    ShippedDate = order.ShippedDate,
 
+                                    DueDate = updated.DueDate,
+                                };
+                                foreach (var detail in order.OrderDetails) {
+                                    if (detail.RequiedNumber == detail.OrderQty || detail.RequiedNumber == 0) continue;
+                                    detail.OrderQty -= detail.RequiedNumber;
+                                    var newDetail = new OrderDetail { 
+                                    Active = true,
+                                    CarrierTrackingNumber = detail.CarrierTrackingNumber,
+                                    CustomerDueDate = detail.CustomerDueDate,
+                                    LineTotal = detail.LineTotal,
+                                    ModifiedDate = DateTime.Now,
+                                    ModifiedUser = HttpContext.User.Identity.Name,
+                                    ProductId = detail.ProductId,
+                                    UnitPrice = detail.UnitPrice,
+                                    UnitPriceDiscount = detail.UnitPriceDiscount,
+                                    VFIDueDate= detail.VFIDueDate,
+                                    
+                                    };
+                                }
+                            } else {
+
+                            }
+                            order.DueDate = updated.DueDate;
+                        }
                     }
+                    order.ModifiedDate = DateTime.Now;
+                    order.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
                 }
             }
             catch (Exception ex) {
@@ -2900,7 +2951,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                             ModifiedDate = detail.ModifiedDate.Value,
                             ModifiedUser = detail.ModifiedUser,
                             Times = detail.Times,
-                            StatusName = CastTaxInvoiceStatusEnumDomain.GetText(detail.Status ?? 1),
+                            StatusName = MyUtilities.Accounting.GetStatusText(detail.Status ?? 1),
                             Note = detail.Note,
                             ImportDate = detail.ImportDate.Value,
                             CurrencyCode = detail.TaxInvoice.Currency

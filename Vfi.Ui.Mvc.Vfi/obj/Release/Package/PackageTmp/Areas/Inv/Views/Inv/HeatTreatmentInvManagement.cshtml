@@ -37,7 +37,7 @@
                 fromDate: fromDate,
                 toDate: toDate
             });
-
+            index = 0;
         }
         var index = 0;
 
@@ -125,11 +125,15 @@
                 .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
                 .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectHeatTreatmentInvManagement", "Inv",
-                                                                 new { customerId = 0, productCode = "", fromDate = DateTime.Now.ToString("dd/MM/yyyy"), toDate = DateTime.Now.ToString("dd/MM/yyyy") }))
+                                                                 new { customerId = 0, 
+                                                                     productCode = "", 
+                                                                     fromDate = DateTime.Now.ToString("dd/MM/yyyy"), 
+                                                                     toDate = DateTime.Now.ToString("dd/MM/yyyy") 
+                                                                 }))
                 .Columns(columns =>
                     {
                         columns.Bound(f => f.GlobalIndex)
-                               .ClientTemplate("<#= GlobalIndex #>")
+                               .ClientTemplate("<#= ++index #>")
                                .HeaderTemplate("<strong>STT</strong>").Width(50);
                         columns.Bound(f => f.CustomerCode).Width(50)
                                .HeaderTemplate("<strong>Mã KH</strong>")
@@ -264,22 +268,6 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
-                        columns.Bound(f => f.DiffImport).Width(65)
-                               .HeaderTemplate("Lệch</br>nhập")
-                               .Format("{0:n0}")
-                               .Aggregate(agg => agg.Sum())
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.DiffExport).Width(65)
-                               .HeaderTemplate("Lệch</br>xuất")
-                               .Format("{0:n0}")
-                               .Aggregate(agg => agg.Sum())
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
                     })
                 //.Scrollable(f => f.Height(510))
                 //.HtmlAttributes(new { style = "width: 950px;" })

@@ -68,4 +68,5 @@ function grid_OnError(args) {
         args.preventDefault();
         alert(message);
     }
+    OnLoadedData();
 }

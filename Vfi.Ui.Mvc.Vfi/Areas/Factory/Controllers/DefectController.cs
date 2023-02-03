@@ -277,7 +277,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         try {
                             newM.DefaultRemedyId = Convert.ToInt32(insertModel.RemedyName);
                         }
-                        catch (FormatException ex) { }
+                        catch (FormatException) { }
                     }
                     vfi.ProductionDefects.Add(newM);
                     vfi.SaveChanges();
@@ -327,7 +327,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         try {
                             update.DefaultRemedyId = Convert.ToInt32(updateModel.RemedyName);
                         }
-                        catch (FormatException ex) { }
+                        catch (FormatException) { }
                     }
                     vfi.SaveChanges();
                 }
@@ -433,7 +433,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         try {
                             newM.ProcessWarehouseId = Convert.ToInt32(insertModel.ProcessWarehouseName);
                         }
-                        catch (FormatException ex) { }
+                        catch (FormatException) { }
                     }
                     vfi.ProductionDefectRemedies.Add(newM);
                     vfi.SaveChanges();
@@ -463,7 +463,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         try {
                             update.ProcessWarehouseId = Convert.ToInt32(updateModel.ProcessWarehouseName);
                         }
-                        catch (FormatException ex) { }
+                        catch (FormatException) { }
                     }
                     vfi.SaveChanges();
                 }
@@ -1072,7 +1072,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         defaultRemedy.WarehouseProcessName,
                     });
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("e");
             }
         }
@@ -1097,7 +1097,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         processWarehouse.WarehouseName,
                     });
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("e");
             }
         }
@@ -1736,7 +1736,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             catch (Exception ex) {
                 throw ex;
             }
-            return model.OrderBy(x => x.ReportDate).ToList();
+            //return model.OrderBy(x => x.ReportDate).ToList();
         }
 
 

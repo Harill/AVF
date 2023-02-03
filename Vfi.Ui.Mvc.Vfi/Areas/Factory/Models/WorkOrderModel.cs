@@ -44,6 +44,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string StartDateStr { get { return StartDate.ToString("dd/MM/yy HH:mm"); } }
         public string EndDateStr { get { return EndDate != null ? EndDate.Value.ToString("dd/MM/yy HH:mm") : ""; } }
         public List<WorkOrderRoutingModel> Routings { get; set; }
+
+        public bool CanAdd { get; set; }
+        public string CanAddDisplay {
+            get {
+                return CanAdd ? "" : "display:none";
+            }
+        }
     }
 
 }

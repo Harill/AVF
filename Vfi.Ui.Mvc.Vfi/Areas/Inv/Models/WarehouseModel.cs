@@ -25,6 +25,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool IsPacking { get; set; }
         public bool IsFinish { get; set; }
         public bool AutoGenerateProcess { get; set; }
+        public bool IsDefect { get; set; }
+        public bool IsDestroy { get; set; }
+        public bool IsTransfer { get; set; }
     }
 
     public class WarehouseCboModel {
@@ -51,6 +54,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool? IsPlating { get; set; }
         public bool? IsPacking { get; set; }
         public bool? IsFinish { get; set; }
+        public bool? IsDefect { get; set; }
+        public bool? IsDestroy { get; set; }
+        public bool? IsTransfer { get; set; }
         public bool? CanStock { get; set; }
         public bool? IsOutOfProcess { get; set; }
         public bool? IsCncMilling { get; set; }

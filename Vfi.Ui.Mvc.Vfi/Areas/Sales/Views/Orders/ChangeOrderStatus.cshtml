@@ -27,7 +27,8 @@
                     command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Duyệt").CancelText("Trở lại")
                     ).Width(98).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.DueDate).Title("Ngày giao").Width(100).Format("{0:dd/MM/yyyy}").ReadOnly(true);
+                columns.Bound(f => f.DueDate).Title("Ngày giao").Width(100)
+                        .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
                 columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(50).ReadOnly(true);
                 columns.Bound(f => f.StatusName).Title("Tình trạng").Width(50);
                 columns.Bound(f => f.SalesPersonName).Width(150).ReadOnly(true);
@@ -77,8 +78,7 @@
             )
             .Selectable()
             .Editable(editing => editing.Mode(GridEditMode.InLine))
-            .ClientEvents(events => events .OnRowSelect("grid_OnRowSelect")
-                .OnError("grid_OnError"))
+            .ClientEvents(events => events.OnError("grid_OnError"))
             .Sortable()
             .Filterable()
             .Resizable(resizing => resizing.Columns(true))

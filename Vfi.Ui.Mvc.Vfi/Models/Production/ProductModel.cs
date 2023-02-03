@@ -244,5 +244,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public string BaseProductCode { get; set; }
 
         public bool IsCalculateLock { get; set; }
+        public int ProductionLossRate { get; set; }
     }
 }

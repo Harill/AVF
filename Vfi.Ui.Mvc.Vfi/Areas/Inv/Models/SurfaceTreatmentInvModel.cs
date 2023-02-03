@@ -21,13 +21,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ImportSx2 { get; set; }
         public double ImportNl { get; set; }
         public double ImportCxl1 { get; set; }
-        public double ImportElse { get; set; }
-        public double TotalImport { get { return ImportSx1 + ImportSx2 + ImportNl + ImportCxl1 + ImportElse; } }
+        public double ImportElse { get { return TotalImport - ImportSx1 - ImportSx2 - ImportNl - ImportCxl1; } }
+        public double TotalImport { get; set; }
 
         public double ExportQcA { get; set; }
         public double ExportGcn { get; set; }
-        public double ExportElse { get; set; }
-        public double TotalExport { get { return ExportQcA + ExportGcn + ExportElse; } }
+        public double ExportElse { get { return TotalExport - ExportQcA - ExportGcn; } }
+        public double TotalExport { get; set; }
     
         public double LastInventory { get; set; }
         public double LastInventoryKg { get { return LastInventory * Weight; } }

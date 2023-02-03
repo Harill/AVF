@@ -1397,9 +1397,15 @@
                                      //       .Format("{0:n1}")
                                      //       .HtmlAttributes(new { style = "text-align:center;" });
 
+                                     columns.Bound(f => f.ProductionLossRate).Width(70).Title("Hao hụt</br>công đoạn 1</br>(%)")
+                                            .Format("{0:n0}")
+                                            .HtmlAttributes(new { style = "text-align:center; border-left: 1px solid black;" });
+                                     columns.Bound(f => f.ProductionTime).Width(70).Title("Thời gian SX</br>công đoạn 1</br>(h/WO)").ReadOnly(true)
+                                            .Format("{0:n1}")
+                                            .HtmlAttributes(new { style = "text-align:center;" });
                                      columns.Bound(f => f.Productivity).Width(70).Title("NS TK</br>công đoạn 1</br>(s/pc)").ReadOnly(true)
                                             .Format("{0:n2}")
-                                            .HtmlAttributes(new { style = "text-align:center; border-left: 1px solid black;" });
+                                            .HtmlAttributes(new { style = "text-align:center; " });
                                      columns.Bound(f => f.ProductionTime).Width(70).Title("Thời gian SX</br>công đoạn 1</br>(h/WO)").ReadOnly(true)
                                             .Format("{0:n1}")
                                             .HtmlAttributes(new { style = "text-align:center;" });

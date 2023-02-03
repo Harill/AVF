@@ -2,12 +2,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
-{
-    public class ProductInventoryModel
-    {
-        public string ProductCodeInv
-        {
+namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
+    public class ProductInventoryModel {
+        public string ProductCodeInv {
             get { return CustomerCode + " - " + ProductCode + " - " + LotNumber; }
         }
 
@@ -17,15 +14,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         //public double ProductWeight { get; set; }
 
         public string Print2 { get; set; }
-        public string PreviousProcess { get;set; }
+        public string PreviousProcess { get; set; }
         public string NextProcess { get; set; }
         public int NextWarehouseId { get; set; }
         public string NextWarehouseIds { get; set; }
 
-        public virtual new int ProductInventoryId { get; set; }
+        public int ProductInventoryId { get; set; }
 
         // product
-        public virtual new int ProductId { get; set; }
+        public int ProductId { get; set; }
         [DisplayName("Mã sản phẩm")]
         //[StringLength(50, ErrorMessage = "* <= 50 ký tự.")]
         public string ProductCode { get; set; }
@@ -36,29 +33,29 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
 
         [DisplayName("Sản phẩm")]
-        public virtual string ProductCodeName { get { return ProductCode + " -- " + ProductName; } set { ProductCode = value; } }
+        public string ProductCodeName { get { return ProductCode + " -- " + ProductName; } set { ProductCode = value; } }
         // product
 
         // customer
         public string CustomerCode { get; set; }
 
         // warehouse
-        public virtual new int WarehouseId { get; set; }
+        public int WarehouseId { get; set; }
         [DisplayName("Kho nguyên liệu")]
-        public virtual string WarehouseName { get; set; }
+        public string WarehouseName { get; set; }
         // warehosue
 
         [DisplayName("Tồn cuối (PCS)")]
         [DataType("Number")]
-        public virtual new double TotalQty { get; set; }
+        public double TotalQty { get; set; }
         [DisplayName("Tồn cuối (g)")]
         [DataType("Number")]
-        public virtual new double TotalQtyKg { get { return TotalQty * ProductWeight; } }
+        public double TotalQtyKg { get { return TotalQty * ProductWeight; } }
 
         [DisplayName("Slg được dùng")]
         [DataType("Number")]
-        public virtual new double AvailableQty { get; set; }
-        public virtual new double AvailableQtyKg { get { return AvailableQty * ProductWeight; } }
+        public double AvailableQty { get; set; }
+        public double AvailableQtyKg { get { return AvailableQty * ProductWeight; } }
         public double ProductWeight { get; set; }
 
         [DisplayName("Slg đang dùng")]
@@ -66,10 +63,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public virtual new double UnavailableQty { get; set; }
 
         [DisplayName("Đơn vị tính")]
-        public virtual new string UnitMeasure { get; set; }
+        public string UnitMeasure { get; set; }
 
         [DisplayName("Trạng thái")]
-        public virtual new byte Status { get; set; }
+        public byte Status { get; set; }
 
 
         [DisplayName("Kích hoạt")]
@@ -85,24 +82,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string StoreCode { get; set; }
     }
 
-    public class ProductInventoryImportModel : ProductInventoryModel
-    {
-        
+    public class ProductInventoryImportModel : ProductInventoryModel {
+
 
         public bool EoI { get; set; }
 
         [DataType("Number0")]
         public new virtual double Quantity { get; set; }
     }
-    public class ProductExpotTP : ProductInventoryRotateModel
-    {
+    public class ProductExpotTP : ProductInventoryRotateModel {
         [Required(ErrorMessage = @"Vui lòng nhập số lượng.")]
         public new virtual double Quantity { get; set; }
-        
+
     }
 
-    public class ProductInventoryRotateModel
-    {
+    public class ProductInventoryRotateModel {
         public virtual long ProductInventoryIssueId { get; set; }
         public virtual long ProductInventoryReceiptId { get; set; }
         public virtual bool IsRotateAll { get; set; }
@@ -117,7 +111,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         [DisplayName(@"Tồn nhập (PCS)")]
         public virtual double TotalQtyImport { get; set; }
         [DisplayName(@"Tồn nhập (Kg)")]
-        public virtual double TotalQtyImportKg { get { return TotalQtyImport*ProductWeight; } }
+        public virtual double TotalQtyImportKg { get { return TotalQtyImport * ProductWeight; } }
 
         [DataType("Number0")]
         public new virtual double Quantity { get; set; }
@@ -133,8 +127,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public long TransactionId { get; set; }
         public long TransactionProductId { get; set; }
 
-        public string ProductCodeInv
-        {
+        public string ProductCodeInv {
             get { return CustomerCode + " - " + ProductCode + " - " + LotNumber; }
         }
 
@@ -150,53 +143,53 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public virtual new int ProductInventoryId { get; set; }
 
         // product
-        public virtual new int ProductId { get; set; }
+        public int ProductId { get; set; }
 
         [DisplayName("Tên sản phẩm")]
         [StringLength(255, ErrorMessage = "* <= 255 ký tự.")]
         public string ProductName { get; set; }
 
         [DisplayName("Sản phẩm")]
-        public virtual string ProductCodeName { get { return ProductCode + " -- " + ProductName; } set { ProductCode = value; } }
+        public string ProductCodeName { get { return ProductCode + " -- " + ProductName; } set { ProductCode = value; } }
         // product
 
         // customer
         public string CustomerCode { get; set; }
 
         // warehouse
-        public virtual new int? WarehouseId { get; set; }
+        public int? WarehouseId { get; set; }
         [DisplayName("Kho nguyên liệu")]
-        public virtual string WarehouseName { get; set; }
+        public string WarehouseName { get; set; }
         // warehosue
 
         [DisplayName("Tồn cuối (PCS)")]
         [DataType("Number")]
-        public virtual new double TotalQty { get; set; }
-        public virtual new double TotalQtyKg { get { return TotalQty * ProductWeight; } }
+        public double TotalQty { get; set; }
+        public double TotalQtyKg { get { return TotalQty * ProductWeight; } }
 
         [DisplayName("Slg được dùng")]
         [DataType("Number")]
-        public virtual new double AvailableQty { get; set; }
-        public virtual new double AvailableQtyKg { get { return AvailableQty * ProductWeight; } }
+        public double AvailableQty { get; set; }
+        public double AvailableQtyKg { get { return AvailableQty * ProductWeight; } }
         public double ProductWeight { get; set; }
 
         [DisplayName("Slg đang dùng")]
         [DataType("Number")]
-        public virtual new double UnavailableQty { get; set; }
+        public double UnavailableQty { get; set; }
 
         [DisplayName("Đơn vị tính")]
-        public virtual new string UnitMeasure { get; set; }
+        public string UnitMeasure { get; set; }
 
         [DisplayName("Trạng thái")]
-        public virtual new byte Status { get; set; }
+        public byte Status { get; set; }
 
 
         [DisplayName("Kích hoạt")]
-        public new bool Active { get; set; }
+        public bool Active { get; set; }
         [DisplayName("Người thay đổi")]
-        public new string ModifiedUser { get; set; }
+        public string ModifiedUser { get; set; }
         [DisplayName("Ngày thay đổi")]
-        public new DateTime ModifiedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
         public string Note { get; set; }
 
         public int GroupIndex { get; set; }

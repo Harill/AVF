@@ -27,22 +27,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ImportSx1 { get; set; }
         public double ImportSx2 { get; set; }
         public double ImportCxl1 { get; set; }
-        public double ImportElse { get; set; }
-        public double TotalImport
-        {
-            get { return ImportSx1 + ImportSx2 + ImportElse; }
-        }
+        public double ImportElse { get { return TotalImport - ImportSx1 - ImportSx2 - ImportCxl1; } }
+        public double TotalImport { get; set; }
 
         public double ExportSx2 { get; set; }
         public double ExportQcA { get; set; }
         public double ExportCxl1 { get; set; }
         public double ExportPp { get; set; }
-        public double ExportElse { get; set; }
+        public double ExportElse { get { return TotalExport - ExportSx2 - ExportQcA - ExportCxl1 - ExportPp; } }
 
-        public double TotalExport
-        {
-            get { return ExportSx2 + ExportQcA + ExportCxl1 + ExportPp + ExportElse; }
-        }
+        public double TotalExport { get; set; }
 
         public bool Show {
             get {

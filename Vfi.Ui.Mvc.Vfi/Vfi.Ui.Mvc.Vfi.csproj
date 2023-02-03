@@ -3481,7 +3481,7 @@
     <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Time.cshtml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\Date.cshtml" />
+    <Content Include="Areas\Sales\Views\Shared\EditorTemplates\DateNullable.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Areas\Sales\Views\Shared\EditorTemplates\DateTime.cshtml" />

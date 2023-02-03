@@ -34,8 +34,10 @@
                 fromDate: fromDate,
                 toDate: toDate,
             });
+            index = 0;
         }
-        
+
+        var index = 0;
         function grid_OnRowDataBound(e) {
             var dataItem = e.dataItem;
             if (dataItem.Weight == 0)
@@ -138,7 +140,7 @@
                    .Columns(columns =>
                     {
                         columns.Bound(f => f.GlobalIndex).Width(30).Filterable(false)
-                               .ClientTemplate("<#= GlobalIndex #>")
+                               .ClientTemplate("<#= ++index #>")
                                .HeaderTemplate("<strong>S</br>T</br>T</strong>");
                         columns.Bound(f => f.CustomerCode).Width(70)
                                .HeaderTemplate("<strong>Khách</br>hàng</strong>")
@@ -280,22 +282,22 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
-                        columns.Bound(f => f.DiffImport).Width(65)
-                               .HeaderTemplate("Lệch</br>nhập")
-                               .Format("{0:n0}")
-                               .Aggregate(agg => agg.Sum())
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.DiffExport).Width(65)
-                               .HeaderTemplate("Lệch</br>xuất")
-                               .Format("{0:n0}")
-                               .Aggregate(agg => agg.Sum())
-                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                               .HtmlAttributes(new { style = "text-align: right;" })
-                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        //columns.Bound(f => f.DiffImport).Width(65)
+                        //       .HeaderTemplate("Lệch</br>nhập")
+                        //       .Format("{0:n0}")
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .HtmlAttributes(new { style = "text-align: right;" })
+                        //       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        //columns.Bound(f => f.DiffExport).Width(65)
+                        //       .HeaderTemplate("Lệch</br>xuất")
+                        //       .Format("{0:n0}")
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .HtmlAttributes(new { style = "text-align: right;" })
+                        //       .FooterHtmlAttributes(new { style = "text-align: right;" });
                     })
                 .Scrollable(f => f.Height("auto"))
                 //.HtmlAttributes(new { style = "width: 950px;" })

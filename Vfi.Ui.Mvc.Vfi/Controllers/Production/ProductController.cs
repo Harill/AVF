@@ -286,7 +286,8 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                         p.Note,
                                         p.Currency,
                                         p.PackingFee,
-                                        IsCalculateLock = p.IsCalculateLock ?? false
+                                        IsCalculateLock = p.IsCalculateLock ?? false,
+                                        ProductionLossRate = p.ProductionLossRate ?? 0
                                     }).ToList();
 
                     //if (!string.IsNullOrWhiteSpace(productCode))
@@ -407,7 +408,8 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                             Currency = entity.Currency,
                             MaterialCost = 0,
                             PackingFee = entity.PackingFee ?? 0,
-                            IsCalculateLock = entity.IsCalculateLock
+                            IsCalculateLock = entity.IsCalculateLock,
+                            ProductionLossRate = entity.ProductionLossRate,
                         };
                         if (entity.MaterialId != null) {
                             product.MaterialId = entity.MaterialId.Value;

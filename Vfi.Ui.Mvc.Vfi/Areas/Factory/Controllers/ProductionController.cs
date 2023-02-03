@@ -1353,7 +1353,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 using (var vfi = new tammaContext()) {
                     var machineTypeId = 0;
                     try { machineTypeId = Convert.ToInt32(insert.MachineTypeName); }
-                    catch (FormatException ex) { }
+                    catch (FormatException) { }
                     if (machineTypeId == 0) {
                         throw new AggregateException("Lỗi! Không tìm thấy dụng cụ");
                     }
@@ -1394,7 +1394,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     entity.ModifiedUser = HttpContext.User.Identity.Name;
                     var machineTypeId = 0;
                     try { machineTypeId = Convert.ToInt32(update.MachineTypeName); }
-                    catch (FormatException ex) { }
+                    catch (FormatException) { }
                     if (machineTypeId != 0) {
                         entity.MachineTypeId = machineTypeId;
                     }
@@ -1472,7 +1472,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 vfi.SaveChanges();
                 return true;
             }
-            return false;
+            //return false;
         }
         #endregion
 
@@ -1504,7 +1504,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     Productivity = product.Productivity ?? 1,
                     Productivity2 = product.ProductionSections.Where(x => x.Active && x.IsMainProcess).Sum(x => x.Productivity),
                     ProductivityQC = product.QcProductivity,
-                    ProductivityPacking = packingProductivity
+                    ProductivityPacking = packingProductivity,
+                    ProductionLossRate = product.ProductionLossRate ?? 0,
                 };
 
                 model.Add(entity);
@@ -1533,6 +1534,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     //product.MaxQuantityInTrayRunTime = update.MaxQuantityInTrayRunTime;
                     var packingProductivity = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.PackingProductivity);
                     product.MaxQuantityInTrayRunTime = CalculateProductionWorkOrderRunTime(product, packingProductivity);
+                    product.ProductionLossRate = update.ProductionLossRate;
                     vfi.SaveChanges();
                 }
                 

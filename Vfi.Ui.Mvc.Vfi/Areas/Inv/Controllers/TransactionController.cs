@@ -2719,7 +2719,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 var invoiceDetailBack = new InvoiceDetail {
                                     Piece = Convert.ToInt32(transactionDetail.Quantity * -1),
                                     NoteDetailId = orderNodeDetail.NoteDetailId,
-                                    Price = exportDetail.InvoiceDetails.FirstOrDefault(id => id.Active).Price,
+                                    //Price = exportDetail.InvoiceDetails.FirstOrDefault(id => id.Active).Price,
                                     ProductId = exportDetail.ProductId,
                                     Active = true,
                                     ExportDetailId = exportDetail.DetailId,
@@ -2728,6 +2728,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     ModifiedUser = HttpContext.User.Identity.Name,
                                     Note = "Trả hàng " + orderNote.NoteNumber + " " + orderNodeDetail.Note,
                                 };
+                                invoiceDetailBack.Price = exportDetail.InvoiceDetails.Any(id => id.Active)
+                                    ? exportDetail.InvoiceDetails.FirstOrDefault(id => id.Active).Price
+                                    : 0;
+                                //throw new AggregateException("break");
+
                                 var transactionExportDetail =
                                     vfi.TransactionDetails.FirstOrDefault(
                                         td =>
@@ -3065,8 +3070,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 exportDetail.IsInvoiced = true;
                             }
                         }
-                        if (isComplete)
+                        if (isComplete) {
                             invoice.Status = (byte)MyUtilities.Sales.Status.Completed;
+                        }
                         vfi.SaveChanges();
                     }
                     else if (isChangeQuantityTo) {
@@ -6794,12 +6800,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var ci = new CultureInfo("vi-VN");
             DateTime toDay = DateTime.Today;
 
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                            ? new DateTime(toDay.Year, toDay.Month, 1)
-                            : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                            ? toDay
-                            : Convert.ToDateTime(toDate, ci);
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
 
             var invManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement);
             using (var vfi = new tammaContext()) {

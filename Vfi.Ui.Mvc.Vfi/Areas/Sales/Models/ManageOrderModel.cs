@@ -103,7 +103,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         public DateTime OrderDate { get; set; }
 
         [DisplayName("Ngày yêu cầu")]
-        [DataType(DataType.Date)]
+        [UIHint("_DateTemplate")]
         public DateTime? DueDate { get; set; }
 
         [DisplayName("Ngày chuyển")]

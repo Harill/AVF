@@ -2293,7 +2293,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 return Json(ex.Message);
             }
             // Redirect to a view showing the result of the form submissSaveion.    
-            return Json("False");
+            //return Json("False");
         }
         private Bitmap ResizeBitmap(Bitmap b, int nWidth, int nHeight) {
             Bitmap result = new Bitmap(nWidth, nHeight);
@@ -3035,7 +3035,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 return Json(ex.Message);
             }
             // Redirect to a view showing the result of the form submission.    
-            return Json("False");
+            //return Json("False");
 
         }
 
@@ -4544,7 +4544,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                            ond.ProductId,
                                            ond.Quantity
                                        }).ToList();
-                    var i = 0;
+                    //var i = 0;
                     var lastMonthReport = new DateTime(year, month, 1).AddMonths(1).AddDays(-1);
                     foreach (var productId in productIds) {
                         var product = vfi.Products.FirstOrDefault(p => p.ProductId == productId);
@@ -4673,7 +4673,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     productIds1.AddRange(productIds3);
                     productIds1.AddRange(productIds4);
                     productIds1.Distinct().ToList();
-                    var i = 0;
+                    //var i = 0;
                     var products = (from p in vfi.Products
                                     where productIds1.Contains(p.ProductId)
                                     orderby p.Customer.CustomerCode, p.ProductCode
@@ -5282,7 +5282,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         productionByShift.Sum(i => (i.MaterialUse2 - i.ProductionMaterial2) * i.MaterialPrice);
                 }
 
-                var reports = importSx1s.Where(i => i.MaterialUseDate.Day == reportDate.Day).ToList();
+                var reports = importSx1s.Where(i => i.MaterialUseDate.Day == reportDate.Day
+                    && i.MaterialUseDate.Month == reportDate.Month
+                    && i.MaterialUseDate.Year == reportDate.Year).ToList();
                 var materialUseDetailIds = reports.Where(i => i.MaterialUseDetail != null)
                     .Select(i => i.MaterialUseDetail.DetailId)
                     .Distinct().ToList();
@@ -8448,7 +8450,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             return model;
         }
-
+        
         private List<SoLieuTongHopSanPham> GetProductReportTotal(
             bool chkLuyKeSX,  bool chkLuyKeXuat, bool chkDonHangThangKe, bool chkDonHangConLai,
             int customerId , string productName, string monthlyDate,
@@ -8457,9 +8459,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     vfi.Configuration.LazyLoadingEnabled = false;
-                    var reportDate = MyUtilities.Function.ParseDate(monthlyDate);
+                    var reportDate = MyUtilities.Function.ParseLastDateTime(monthlyDate);
 
                     var productionPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseProductionPriceRate);
+                    var inventoryPriceRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.BaseInventoryPriceRate);
                     var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     var products = (from p in vfi.Products
                                     where p.Active && (customerId == 0 || p.CustomerId == customerId)
@@ -8478,12 +8481,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         //    UnitPriceVnd = (p.UnitPrice ?? 0) * point,
                                         //    UnitPriceUsd = (p.UnitPrice ?? 0) * MyUtilities.Product.ExchangeRateDesign * point,
 
-                                        //UnitPrice = p.UnitPrice,
-                                        UnitPrice = p.UnitPrice <= MyUtilities.Product.MinVndPrice
-                                                    ? (p.UnitPrice ?? 0) * exchangeRate * productionPriceRate
-                                                    : Math.Round(p.UnitPrice ?? 0, 4) - Math.Round(p.UnitPrice ?? 0, 0) == 0
-                                                        ? (p.UnitPrice ?? 0) * productionPriceRate
-                                                        : (p.UnitPrice ?? 0) * exchangeRate * productionPriceRate,
+                                        UnitPrice = p.UnitPrice,
+                                        //UnitPrice = p.UnitPrice <= MyUtilities.Product.MinVndPrice
+                                        //            ? (p.UnitPrice ?? 0) * exchangeRate * productionPriceRate
+                                        //            : Math.Round(p.UnitPrice ?? 0, 4) - Math.Round(p.UnitPrice ?? 0, 0) == 0
+                                        //                ? (p.UnitPrice ?? 0) * productionPriceRate
+                                        //                : (p.UnitPrice ?? 0) * exchangeRate * productionPriceRate,
                                         p.ProcessingType.TypeName,
                                         IsProduction2 = p.ProductionProcesses.Any(x => x.Warehouse.IsProduction2)
                                     }).ToList();
@@ -8579,7 +8582,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //var startDate = importSx1Details.FirstOrDefault().MaterialUseDate;
                     var sxKho1 = (from sx in importSx1Details
                                   where
-                                      sx.ImportDate == reportDate
+                                      sx.ImportDate.Day == reportDate.Day &&
+                                      sx.ImportDate.Month == reportDate.Month &&
+                                      sx.ImportDate.Year == reportDate.Year
                                   select sx).ToList();
                     var ppInMonth = (from p in allProductInventoryPeriodsByDate
                                      where
@@ -8696,8 +8701,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                      fo.ForecastDate,
                                                  }).ToList();
                     var importSx1Date = (from x in vfi.ImportFormSX1
-                                         where x.ImportDate == reportDate
-                                    select x.MaterialUseDate).FirstOrDefault();
+                                         where x.ImportDate.Day == reportDate.Day &&
+                                               x.ImportDate.Month == reportDate.Month &&
+                                               x.ImportDate.Year == reportDate.Year
+                                         select x.MaterialUseDate).FirstOrDefault();
                     //var productionSections = (from ps in vfi.ProductionSections
                     //                          where ps.Active &&
                     //                         productIds.Contains(ps.ProductId)
@@ -8877,7 +8884,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     cncMonthlyB += (numberB * detail.CncPrice);
                                     cncMonthlyC += (numberC * detail.CncPrice);
 
-                                    if (detail.ImportDate == reportDate) {
+                                    if (detail.ImportDate.Day == reportDate.Day &&
+                                        detail.ImportDate.Month == reportDate.Month &&
+                                        detail.ImportDate.Year == reportDate.Year) {
                                         cncDailyA += (numberA * detail.CncPrice);
                                         cncDailyB += (numberB * detail.CncPrice);
                                         cncDailyC += (numberC * detail.CncPrice);
@@ -8938,13 +8947,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             NextMonthString = nextMonth.ToString("MM/yyyy"),
                             DayOfStartSx1 = startDate.ToString("dd/MM"),
                             UseForecast = true,
-                            UnitPrice = product.UnitPrice,
+                            //UnitPrice = product.UnitPrice,
+                            UnitPrice = MyUtilities.Product.ProductVndPrice(product.UnitPrice),
+                            InventoryPointRate = inventoryPriceRate,
                             Title = "Báo cáo tổng hợp " + reportDate.ToString("dd/MM/yyyy"),
                             ShiftAFunc = shiftAFund,
                             ShiftBFunc = shiftBFund,
                             ShiftCFunc = shiftCFund,
                             DeductionMachine = deductionCncMachine,
-                            ReportMessage = reportMessage
+                            ReportMessage = reportMessage,
                         };
                         //var traHangById = sendBackInMonth.Where(ep => ep.ProductId == product.ProductId).ToList();
                         sp.DonHangTrongThang =
@@ -16375,7 +16386,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
                         var orderDates = orderDetailsById.Select(od => od.DueDate).Distinct().ToList();
 
-                        var requireQuantity = 0.0;
+                        //var requireQuantity = 0.0;
                         //var afterCnc = -1.0;
                         //var afterProduction2 = -1.0;
                         var processingType = "NULL";
@@ -16935,7 +16946,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                              @"Vui lòng đang nhập lại hệ thống. (IsAuthenticated) ");
                 ModelState.Clear();
                 using (var vfi = new tammaContext()) {
-                    var productId = 0;
 
                     var product = vfi.Products.FirstOrDefault(p => p.ProductId == inserted.ProductId);
                     if (product == null)

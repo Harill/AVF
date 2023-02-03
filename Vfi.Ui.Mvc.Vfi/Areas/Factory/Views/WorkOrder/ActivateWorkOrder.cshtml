@@ -90,6 +90,7 @@
     function gridRouting_OnRowDataBound(e) {
         if (!e.dataItem.CanCancel) {
             e.row.getElementsByClassName("t-button t-grid-delete t-button-icon")[0].parentNode.innerHTML = "";
+            e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
         }
     }
     var workOrderId = 0;
@@ -256,6 +257,7 @@
                                 .HtmlAttributes(new { style = "text-align:center" });
                             columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy</br>WO").Width(35);
                         })
+                        
                         .DetailView(details2 => details2.ClientTemplate(
                             Html.Telerik().TabStrip()
                                 .Name("TabStrip_<#= WorkOrderId #>")
@@ -266,6 +268,7 @@
                                             .Name("gridRoutings_<#= WorkOrderId #>")
                                             .DataKeys(key => key.Add(f => f.RoutingId).RouteKey("routingId"))
                                             .ToolBar(toolbar => toolbar.Insert().ButtonType(GridButtonType.ImageAndText)
+                                                                        .HtmlAttributes(new { style = "<#= CanAddDisplay #>" })
                                                                        .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
                                             .DataBinding(
                                                 dataBinding => dataBinding.Ajax()

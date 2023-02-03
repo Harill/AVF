@@ -33,5 +33,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double MaterialRate { get { return ProductionRate > 0 ? MaxQuantityInTray / ProductionRate : 0; } }
 
         public int MaxQuantityInTrayRunTime { get { return MyUtilities.Function.RoundUp(ProductionTime + Production2Time + QCTime + PackingTime / 3600); } }
+
+        [DataType("Int")]
+        public int ProductionLossRate { get; set; }
     }
 }

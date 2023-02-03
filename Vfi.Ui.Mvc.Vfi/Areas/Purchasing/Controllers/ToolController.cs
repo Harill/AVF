@@ -539,13 +539,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             AccountantSignature = transaction.AccountantSignature,
                             QcSignature = transaction.QcSignature,
                             PurchasingSignature = transaction.PurchasingSignature,
-                            CanUpdate = false
+                            CanUpdate = false,
                         };
                         if (entity.PoId != 0)
                             entity.PoCode = transaction.PurchaseOrder.RevisionNumber;
                         entity.StatusName = MyUtilities.Transaction.CastText.GetTextStatus(entity.Status);
-                        if (entity.EoI != 0)
+                        if (entity.EoI != 0) {
                             entity.EoIName = MyUtilities.PurchaseOrder.GetEoIName(entity.EoI, entity.Type);
+                            if (entity.EoI == (byte)MyUtilities.PurchaseOrder.EoILot.Export) {
+                                var exportTool = transaction.ExportTools.FirstOrDefault();
+                                if (exportTool != null) {
+                                    entity.Department = exportTool.Department;
+                                    entity.Note = exportTool.Description;
+                                }
+                            }
+                        }
                         //if (transaction.TransactionFptDetails.Any(td => td.MachineId == null))
                         //{
                         //    entity.EoIName += " huỷ";

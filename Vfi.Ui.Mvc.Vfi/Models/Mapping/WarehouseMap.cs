@@ -50,6 +50,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.IsPacking).HasColumnName("IsPacking");
             this.Property(t => t.IsFinish).HasColumnName("IsFinish");
             this.Property(t => t.AutoGenerateProcess).HasColumnName("AutoGenerateProcess");
+            this.Property(t => t.IsDefect).HasColumnName("IsDefect");
+            this.Property(t => t.IsDestroy).HasColumnName("IsDestroy");
+            this.Property(t => t.IsTransfer).HasColumnName("IsTransfer");
 
             // Relationships
             this.HasOptional(t => t.WarehouseType)

@@ -10,9 +10,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
             LastInventory = 0;
             Weight = 0;
             ImportQc = 0;
-            ImportElse = 0;
             ExportFinish = 0;
-            ExportElse = 0;
         }
         public int GlobalIndex { get; set; }
         public int ProductId { get; set; }
@@ -31,22 +29,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         }
 
         public double ImportQc { get; set; }
-        public double ImportElse { get; set; }
-        public double TotalImport {
-            get {
-                return ImportQc + ImportElse;
-            }
-        }
+        public double ImportElse { get { return TotalImport - ImportQc; } }
+        public double TotalImport { get; set; }
 
         public double ExportFinish { get; set; }
         public double ExportQc { get; set; }
         public double ExportCxl1 { get; set; }
-        public double ExportElse { get; set; }
-        public double TotalExport {
-            get {
-                return ExportCxl1+  ExportQc + ExportFinish + ExportElse;
-            }
-        }
+        public double ExportElse { get { return TotalExport - ExportQc - ExportCxl1 - ExportFinish; } }
+        public double TotalExport { get; set; }
 
 
         public double LastInventory { get; set; }

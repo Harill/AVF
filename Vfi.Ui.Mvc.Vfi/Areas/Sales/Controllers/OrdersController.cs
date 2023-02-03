@@ -1236,7 +1236,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                 //var order = vfi.Orders.FirstOrDefault(o => o.OrderId == export.OrderId);
                 //if (order == null)
                 //    throw new AggregateException("Lỗi không tìm hóa đơn");
-                var orderNotes = vfi.OrderNotes.Where(on => on.ExportId == export.ExportId && on.NoteType == 1);
+                var orderNoteDetails = vfi.OrderNoteDetails.Where(x => x.OrderNote.ExportId == export.ExportId 
+                    && x.OrderNote.NoteType == 1
+                    && x.OrderNote.Transaction.Status ==(byte) MyUtilities.Transaction.Status.Approved).ToList();
                 var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceId == invoiceId);
                 foreach (var detail in export.ExportFormTP_KDDetail) {
                     //var orderDetail = order.OrderDetails.FirstOrDefault(od => od.ProductId == detail.ProductId);
@@ -1250,48 +1252,40 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         TaxPercent = invoice.TaxPercent,
                         ExchangeRate = invoice.ExchangeRate,
                         ExportDetailId = detail.DetailId,
+                        ProductId = detail.ProductId ?? 0
                     };
                     var invoiceDetails = vfi.InvoiceDetails.Where(id => id.ExportDetailId == entity.ExportDetailId && id.Active);
                     if (invoiceDetails.Any()) {
-                        entity.UnitPrice = invoiceDetails.FirstOrDefault().Price.Value;
-                        entity.CurrencyCode = invoiceDetails.FirstOrDefault().OrderDetail.Order.CurrencyCode;
                         entity.Quantity = invoiceDetails.Sum(id => id.Piece);
+                        entity.UnitPrice = invoiceDetails.FirstOrDefault().Price.Value;
+                        if (invoiceDetails.FirstOrDefault().OrderDetailId != null) {
+                            entity.CurrencyCode = invoiceDetails.FirstOrDefault().OrderDetail.Order.CurrencyCode;
+                        }
                     }
                     else {
                         entity.Note += "Chưa phân đơn hàng";
-
                     }
 
-                    var orderNotesByProductId =
-                        orderNotes.Where(
-                            on =>
-                            on.OrderNoteDetails.FirstOrDefault(ond => ond.ProductId == detail.ProductId) != null &&
-                            on.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved);
+                    var orderNotesByProductId = orderNoteDetails.Where(on => on.ProductId == entity.ProductId);
 
-                    if (orderNotes.Any()) {
-                        foreach (var orderNote in orderNotesByProductId) {
-                            var orderNoteDetail =
-                                orderNote.OrderNoteDetails.FirstOrDefault(
-                                    ond => ond.ProductId == detail.ProductId);
-                            //entity.Quantity -= orderNoteDetail.Quantity.Value;
-                            entity.Note += "! Trả hàng:" + orderNoteDetail.Quantity.Value;
+                    if (orderNotesByProductId.Any()) {
+                        entity.Note += "! Trả hàng:" + orderNotesByProductId.Sum(x => x.Quantity ?? 0);
+                    }
+                    // re check quantity to complete invoice
+                    {
+                        if (entity.Quantity == 0) {
+                            if (detail.IsInvoiced == null || !detail.IsInvoiced.Value) {
+                                detail.IsInvoiced = true;
+                                vfi.SaveChanges();
+                            }
                         }
-                    }
-                    if (entity.Quantity == 0) {
-                        if (detail.IsInvoiced == null || !detail.IsInvoiced.Value) {
-                            detail.IsInvoiced = true;
+                        if (export.ExportFormTP_KDDetail.Count(ed => ed.IsInvoiced == true) ==
+                                    export.ExportFormTP_KDDetail.Count()) {
+                            invoice.Status = (byte)MyUtilities.Sales.Status.Completed;
                             vfi.SaveChanges();
                         }
                     }
-                    if (export.ExportFormTP_KDDetail.Count(ed => ed.IsInvoiced == true) ==
-                                export.ExportFormTP_KDDetail.Count()) {
-                        invoice.Status = (byte)MyUtilities.Sales.Status.Completed;
-                        vfi.SaveChanges();
-                    }
-                    //if (order.CurrencyCode.Equals("USD"))
-                    //    entity.UnitPriceCurrency = string.Format("{0:N4}", entity.UnitPrice);
-                    //if (order.CurrencyCode.Equals("VND"))
-                    //    entity.UnitPriceCurrency = string.Format("{0:N0}", entity.UnitPrice);
+
                     var taxInvoiceProduct =
                         vfi.TaxInvoiceProductDetails.FirstOrDefault(tip => tip.ExportDetailId == entity.DetailId && tip.Active == true);
                     if (taxInvoiceProduct != null) {

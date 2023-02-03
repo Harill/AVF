@@ -594,6 +594,13 @@
                                .Aggregate(agg => agg.Sum())
                                .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>");
+                        columns.Bound(f => f.InventoryPoint).Width(75)
+                               .HeaderTemplate("<strong>Điểm</br>tồn kho</strong>")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; '><#= $.telerik.formatString('{0:n0}', Sum) #></div>");
                     })
                 .Scrollable(f => f.Height(510))
                 //.HtmlAttributes(new { style = "width: 950px;" })

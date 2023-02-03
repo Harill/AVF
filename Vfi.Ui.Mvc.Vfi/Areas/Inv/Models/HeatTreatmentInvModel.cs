@@ -17,22 +17,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double EarlyInventoryKg { get { return EarlyInventory * Weight; } }
         public double ImportSx1 { get; set; }
         public double ImportSx2 { get; set; }
-        public double ImportElse { get; set; }
-        public double TotalImport {
-            get {
-                return ImportSx1 + ImportSx2 + ImportElse;
-            }
-        }
+        public double ImportElse { get { return TotalImport - ImportSx1 - ImportSx2; } }
+        public double TotalImport { get; set; }
 
         public double ExportGcn { get; set; }
         public double ExportRb { get; set; }
         public double ExportQc { get; set; }
-        public double ExportElse { get; set; }
-        public double TotalExport {
-            get {
-                return ExportGcn + ExportRb + ExportElse;
-            }
-        }
+        public double ExportElse { get { return TotalExport - ExportGcn - ExportRb - ExportQc; } }
+        public double TotalExport { get; set; }
 
         public double LastInventory { get; set; }
         public double LastInventoryKg { get { return LastInventory * Weight; } }

@@ -14,9 +14,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string TypeName { get; set; }
 
         [UIHint("_DateTemplate")]
-        public new DateTime ModifiedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
         [UIHint("_DateTemplate")]
-        public new DateTime DateLog { get; set; }
+        public DateTime DateLog { get; set; }
 
         public int DiaryId { get; set; }
         public Nullable<int> MachineId { get; set; }

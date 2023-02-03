@@ -22,6 +22,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string WarehouseName { get; set; }
         public DateTime ScheduledStartDate { get; set; }
         public DateTime ScheduledEndDate { get; set; }
+        public DateTime? LastRouteFinishDate { get; set; }
         public DateTime? ActualStartDate { get; set; }
         public DateTime? ActualEndDate { get; set; }
         public double ActualResourceHrs { get; set; }
@@ -72,6 +73,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double TotalQuantity { get { return GoodQuantity + NGQuantity + DefectQuantity; } }
         public double TotalWeight { get { return GoodWeight + NGWeight + DefectWeight; } }
         public double DiffQuantity { get; set; }
+        public double DiffQuantityKg { get; set; }
         public double MaxQuantity { get; set; }
         public double DiffPercent { get { return MaxQuantity > 0 ? (TotalQuantity / MaxQuantity - 1) * 100 : 0; } }
 
@@ -102,6 +104,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         }
 
         public bool CanCancel { get; set; }
+        public bool CanAdd { get; set; }
+        public string CanAddDisplay { get { return CanAdd ? "" : "display:none"; } }
+        public int ProductionLossRate { get; set; }
     }
     // damm
     public class WorkOrderRoutingInfo {

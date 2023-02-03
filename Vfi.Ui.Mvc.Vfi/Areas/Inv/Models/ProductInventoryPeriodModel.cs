@@ -309,7 +309,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public string DayOfSX1 { get; set; }
         public string DayOfStartSx1 { get; set; }
-
+        public double InventoryPointRate { get; set; }
+        public double InventoryPoint { get { return TonTong * UnitPrice * InventoryPointRate / 1000000; } }
         [DisplayName("Kho SX 1")]
         public double TonKhoSX1 { get; set; }
         [DisplayName("Kho SX 2/CNC")]

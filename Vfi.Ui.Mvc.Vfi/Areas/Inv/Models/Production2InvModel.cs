@@ -14,14 +14,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
             ImportSx2 = 0;
             ImportCnc = 0;
             ImportCxl1 = 0;
-            ImportElse = 0;
+            //ImportElse = 0;
 
             ExportQcA = 0;
             ExportCxl1 = 0;
             ExportGcn = 0;
             ExportRb = 0;
             ExportSx2 = 0;
-            ExportElse = 0;
+            //ExportElse = 0;
             ExportDefect = 0;
             DiffImport = 0;
             DiffExport = 0;
@@ -44,10 +44,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double ImportSx2 { get; set; }
         public double ImportCnc { get; set; }
         public double ImportCxl1 { get; set; }
-        public double ImportElse { get; set; }
-        public double TotalImport {
-            get { return ImportSx1 + ImportSx2 + ImportCnc + ImportCxl1 + ImportElse; }
-        }
+        public double ImportElse { get { return TotalImport - ImportSx1 - ImportSx2 - ImportCnc - ImportCxl1; } }
+        public double TotalImport { get; set; }
         public double TotalImportKg {
             get { return Math.Round(TotalImport * Weight, 3); }
         }
@@ -60,11 +58,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double ExportQcA { get; set; }
         public double ExportCxl1 { get; set; }
         public double ExportDefect { get; set; }
-        public double ExportElse { get; set; }
-
-        public double TotalExport {
-            get { return ExportSx2 + ExportCnc + ExportNl + ExportRb + ExportGcn + ExportQcA + ExportCxl1 + ExportDefect + ExportElse; }
+        public double ExportElse {
+            get {
+                return TotalExport - ExportSx2 - ExportCnc - ExportNl - ExportRb - ExportGcn - ExportQcA - ExportCxl1 - ExportDefect;
+            }
         }
+
+        public double TotalExport { get; set; }
         public double TotalExportKg {
             get { return Math.Round(TotalExport * Weight, 3); }
         }

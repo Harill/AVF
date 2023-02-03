@@ -560,7 +560,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     return Json(entity);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception) {
                 return Json("0");
             }
             return Json("0");

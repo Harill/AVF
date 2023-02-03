@@ -47,7 +47,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         [DisplayName(@"Loại nguyên liệu")]
         public string MaterialTypeName { get; set; }
         public string Identity { get; set; }
-        public string MaterialCode { get; set; }
+        public new string MaterialCode { get; set; }
         [DisplayName(@"Nhà cung cấp")]
         public string VendorName { get; set; }
         [DisplayName(@"Thông số")]

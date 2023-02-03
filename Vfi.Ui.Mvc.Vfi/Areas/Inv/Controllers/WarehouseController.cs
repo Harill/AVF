@@ -88,26 +88,42 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     IsQC = x.IsQC,
                     IsPacking = x.IsPacking,
                     IsFinish = x.IsFinish,
-
                     CanInternal = x.CanInternal,
                     CanPurchase = x.CanPurchase,
                     CanStock = x.CanStock,
                     CanWeighing = x.CanWeighing,
                     IsOutOfProcess = x.IsOutOfProcess,
                     IsCncMilling = x.IsCncMilling,
-                    AutoGenerateProcess = x.AutoGenerateProcess ?? false
+                    AutoGenerateProcess = x.AutoGenerateProcess ?? false,
+                    IsDefect = x.IsDefect ?? false,
+                    IsDestroy = x.IsDestroy ?? false,
+                    IsTransfer = x.IsTransfer ?? false,
                 }).ToList();
             }
             return model.OrderByDescending(m => m.Active).ThenBy(m => m.Idx).ThenBy(m => m.WarehouseName).ToList();
         }
         [GridAction]
         public ActionResult SelectActiveWarehouse() {
-            return View(new GridModel(GetWarehouseModels().Where(x => x.Active).ToList()));
+            var model = new List<WarehouseModel>();
+            try {
+                model = GetWarehouseModels().Where(x => x.Active).ToList();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectActiveWarehouse", ex.Message);
+            }
+            return View(new GridModel(model));
         }
 
         [GridAction]
         public ActionResult SelectWarehouse_user() {
-            return View(new GridModel(GetWarehouseModels().Where(w => w.WarehouseTypeId != 1)));
+            var model = new List<WarehouseModel>();
+            try {
+                model = GetWarehouseModels().Where(x => x.Active && x.WarehouseTypeId != 1).ToList();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectWarehouse_user", ex.Message);
+            }
+            return View(new GridModel(model));
         }
 
         [HttpPost]
@@ -227,16 +243,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
 
         [GridAction]
-        public ActionResult SelectWarehouseConfiguration(int warehouseId) {
-            return View(new GridModel(GetWarehouseModels().Where(x => x.WarehouseId == warehouseId)));
+        public ActionResult SelectWarehouseProcessConfiguration(int warehouseId) {
+            var model = new List<WarehouseModel>();
+            try {
+                model = GetWarehouseModels().Where(x => x.WarehouseId == warehouseId).ToList();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectWarehouseProcessConfiguration", ex.Message);
+            }
+            return View(new GridModel(model));
         }
 
         [HttpPost]
         [GridAction]
-        public ActionResult UpdateWarehouseConfiguration(WarehouseModel updated) {
+        public ActionResult UpdateWarehouseProcessConfiguration(WarehouseModel updated) {
 
             if (!Request.IsAuthenticated) {
-                ModelState.AddModelError("UpdateWarehouseConfiguration",
+                ModelState.AddModelError("UpdateWarehouseProcessConfiguration",
                                          "Bạn đã bị mất quyền đăng nhập. " +
                                          "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
                                          "\r\n Xin vui lòng đăng nhập lại hệ thống.");
@@ -249,12 +272,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (entity == null) {
                         throw new AggregateException("Lỗi! Không tìm thấy kho cần cập nhật");
                     }
-                    //entity.IsMainProcess = updated.IsMainProcess;
-                    //entity.IsOutOfProcess = updated.IsOutOfProcess;
-                    //entity.AutoGenerateProcess = updated.AutoGenerateProcess;
-                    entity.CanInternal = updated.CanInternal;
-                    entity.CanPurchase = updated.CanPurchase;
-                    entity.CanStock = updated.CanStock;
                     entity.IsHeatTreatment = updated.IsHeatTreatment;
                     entity.IsPolish = updated.IsPolish;
                     entity.IsProduction = updated.IsProduction;
@@ -266,13 +283,59 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     entity.IsPacking = updated.IsPacking;
                     entity.IsPlating = updated.IsPlating;
                     entity.IsFinish = updated.IsFinish;
-                    entity.CanWeighing = updated.CanWeighing;
+                    entity.IsDefect = updated.IsDefect;
 
                     vfi.SaveChanges();
                 }
             }
             catch (Exception exception) {
-                ModelState.AddModelError("UpdateWarehouseConfiguration", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
+                ModelState.AddModelError("UpdateWarehouseProcessConfiguration", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
+            }
+            return View(new GridModel(GetWarehouseModels().Where(x => x.WarehouseId == updated.WarehouseId)));
+        }
+
+        [GridAction]
+        public ActionResult SelectWarehouseFunctionConfiguration(int warehouseId) {
+            var model = new List<WarehouseModel>();
+            try {
+                model = GetWarehouseModels().Where(x => x.WarehouseId == warehouseId).ToList();
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectWarehouseFunctionConfiguration", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateWarehouseFunctionConfiguration(WarehouseModel updated) {
+
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("UpdateWarehouseFunctionConfiguration",
+                                         "Bạn đã bị mất quyền đăng nhập. " +
+                                         "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
+                                         "\r\n Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<WarehouseModel>()));
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+
+                    var entity = vfi.Warehouses.FirstOrDefault(w => w.WarehouseId == updated.WarehouseId);
+                    if (entity == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy kho cần cập nhật");
+                    }
+                    entity.CanInternal = updated.CanInternal;
+                    entity.CanPurchase = updated.CanPurchase;
+                    entity.CanStock = updated.CanStock;
+                    entity.CanWeighing = updated.CanWeighing;
+                    entity.IsDestroy = updated.IsDestroy;
+                    entity.IsTransfer = updated.IsTransfer;
+
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("UpdateWarehouseFunctionConfiguration", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
             }
             return View(new GridModel(GetWarehouseModels().Where(x => x.WarehouseId == updated.WarehouseId)));
         }
@@ -293,6 +356,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                              && (config.IsPlating == null || x.IsPlating == config.IsPlating)
                              && (config.IsPacking == null || x.IsPacking == config.IsPacking)
                              && (config.IsFinish == null || x.IsFinish == config.IsFinish)
+                             && (config.IsDefect == null || x.IsDefect == config.IsDefect)
+                             && (config.IsDestroy == null || x.IsDestroy == config.IsDestroy)
+                             && (config.IsTransfer == null || x.IsTransfer == config.IsTransfer)
                              && (config.IsReprocessing == null || x.IsReprocessing == config.IsReprocessing)
                              && (config.IsOutOfProcess == null || x.IsOutOfProcess == config.IsOutOfProcess)
                              && (config.CanInternal == null || x.CanInternal == config.CanInternal)
@@ -366,6 +432,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         public ActionResult SelectComboBoxWarehouseCncMilling() {
             return new JsonResult {
                 Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsCncMilling = true }), "WarehouseId", "WarehouseName")
+            };
+        }
+        public ActionResult SelectComboBoxWarehouseProduction2All() {
+            return new JsonResult {
+                Data = new SelectList(GetActiveWarehouseModels(new WarehouseConfiguration { IsProduction2 = true, AddFirstAll = true }), "WarehouseId", "WarehouseName")
             };
         }
         public ActionResult SelectComboBoxWarehouseProduction2() {
@@ -647,55 +718,55 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             try {
                 throw new AggregateException("Lỗi! Chưa làm chức năng này");
-                using (var vfi = new tammaContext()) {
-                    if (string.IsNullOrWhiteSpace(updated.ShelfName)) {
-                        throw new AggregateException("Lỗi! Vui lòng nhập tên kệ");
-                    }
-                    else { updated.ShelfName = updated.ShelfName.Trim(); }
+                //using (var vfi = new tammaContext()) {
+                //    if (string.IsNullOrWhiteSpace(updated.ShelfName)) {
+                //        throw new AggregateException("Lỗi! Vui lòng nhập tên kệ");
+                //    }
+                //    else { updated.ShelfName = updated.ShelfName.Trim(); }
 
-                    if (updated.MaxRow <= 0 || updated.MaxColumn <= 0) {
-                        throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
-                    }
+                //    if (updated.MaxRow <= 0 || updated.MaxColumn <= 0) {
+                //        throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
+                //    }
 
-                    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(updated.ShelfName)
-                                                                        && x.ClassifiedId == updated.ClassifiedId
-                                                                        && x.ShelfId != updated.ShelfId);
-                    if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
+                //    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(updated.ShelfName)
+                //                                                        && x.ClassifiedId == updated.ClassifiedId
+                //                                                        && x.ShelfId != updated.ShelfId);
+                //    if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
 
-                    shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfId == updated.ShelfId);
-                    if (shelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ"); }
+                //    shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfId == updated.ShelfId);
+                //    if (shelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ"); }
 
-                    shelf.ShelfName = updated.ShelfName;
-                    //shelf.ClassifiedId = updated.ClassifiedId;
-                    shelf.Active = updated.Active;
-                    shelf.ModifiedDate = DateTime.Now;
-                    shelf.ModifiedUser = HttpContext.User.Identity.Name;
-                    //if (shelf.MaxRow < updated.MaxRow) { shelf.MaxRow = updated.MaxRow; }
-                    //if (shelf.MaxColumn < updated.MaxColumn) { shelf.MaxColumn = updated.MaxColumn; }
+                //    shelf.ShelfName = updated.ShelfName;
+                //    //shelf.ClassifiedId = updated.ClassifiedId;
+                //    shelf.Active = updated.Active;
+                //    shelf.ModifiedDate = DateTime.Now;
+                //    shelf.ModifiedUser = HttpContext.User.Identity.Name;
+                //    //if (shelf.MaxRow < updated.MaxRow) { shelf.MaxRow = updated.MaxRow; }
+                //    //if (shelf.MaxColumn < updated.MaxColumn) { shelf.MaxColumn = updated.MaxColumn; }
 
-                    //if (updated.WarehouseId > 0) {
-                    //    if (updated.WarehouseId != shelf.WarehouseId) {
-                    //        shelf.WarehouseId = updated.WarehouseId;
-                    //    }
-                    //}
-                    //else { shelf.WarehouseId = null; }
-                    //var drawers = new List<InventoryDrawer>();
-                    //for (var i = 1; i <= inserted.MaxColumn; i++) {
-                    //    for (var j = 0; j < inserted.MaxRow; j++) {
-                    //        var drawer = new InventoryDrawer {
-                    //            InventoryShelf = shelf,
-                    //            Active = shelf.Active,
-                    //            ModifiedDate = shelf.ModifiedDate,
-                    //            ModifiedUser = shelf.ModifiedUser,
-                    //            ColumnName = string.Format("{0:00}", i),
-                    //            RowName = Convert.ToChar(65 + j) + "",
-                    //        };
-                    //        drawers.Add(drawer);
-                    //    }
-                    //}
-                    //vfi.InventoryDrawers.AddRange(drawers);
-                    vfi.SaveChanges();
-                }
+                //    //if (updated.WarehouseId > 0) {
+                //    //    if (updated.WarehouseId != shelf.WarehouseId) {
+                //    //        shelf.WarehouseId = updated.WarehouseId;
+                //    //    }
+                //    //}
+                //    //else { shelf.WarehouseId = null; }
+                //    //var drawers = new List<InventoryDrawer>();
+                //    //for (var i = 1; i <= inserted.MaxColumn; i++) {
+                //    //    for (var j = 0; j < inserted.MaxRow; j++) {
+                //    //        var drawer = new InventoryDrawer {
+                //    //            InventoryShelf = shelf,
+                //    //            Active = shelf.Active,
+                //    //            ModifiedDate = shelf.ModifiedDate,
+                //    //            ModifiedUser = shelf.ModifiedUser,
+                //    //            ColumnName = string.Format("{0:00}", i),
+                //    //            RowName = Convert.ToChar(65 + j) + "",
+                //    //        };
+                //    //        drawers.Add(drawer);
+                //    //    }
+                //    //}
+                //    //vfi.InventoryDrawers.AddRange(drawers);
+                //    vfi.SaveChanges();
+                //}
             }
             catch (Exception exception) {
                 ModelState.AddModelError("UpdateInventoryShelf", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
@@ -818,8 +889,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             try {
                 throw new AggregateException("Lỗi! Chưa làm chức năng này");
-                using (var vfi = new tammaContext()) {
-                }
+                //using (var vfi = new tammaContext()) {
+                //}
             }
             catch (Exception exception) {
                 ModelState.AddModelError("InsertInventoryDrawer", @"Lỗi giá trị nhập. (try-catch). " + exception.Message);
@@ -840,8 +911,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             }
             try {
                 throw new AggregateException("Lỗi! Chưa làm chức năng này");
-                using (var vfi = new tammaContext()) {
-                }
+                //using (var vfi = new tammaContext()) {
+                //}
             }
             catch (Exception exception) {
                 ModelState.AddModelError("UpdateInventoryDrawer", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);

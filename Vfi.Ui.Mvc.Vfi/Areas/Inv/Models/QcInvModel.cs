@@ -19,13 +19,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             ImportNcu = 0;
             ImportCxl1 = 0;
             ImportQc = 0;
-            ImportElse = 0;
+            TotalImport = 0;
             
             //get { return ImportSx1 + ImportCnc + ImportSx2 + ImportRb + ImportNcu + ImportCxl1 + ImportQc + ImportElse; }
             ExportCxl1 = 0;
             ExportQc = 0;
             ExportPacking = 0;
-            ExportElse = 0;
+            TotalExport = 0;
 
             DiffImport = 0;
             DiffExport = 0;
@@ -52,24 +52,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ImportNcu { get; set; }
         public double ImportCxl1 { get; set; }
         public double ImportQc { get; set; }
-        public double ImportElse { get; set; }
-
-        public double TotalImport
-        {
-            get { return ImportSx1 + ImportCnc + ImportSx2 + ImportRb + ImportNcu + ImportCxl1 + ImportQc + ImportElse; }
+        public double ImportElse {
+            get {
+                return TotalImport - ImportSx1 - ImportCnc - ImportSx2 - ImportRb - ImportNcu - ImportQc - ImportCxl1;
+            }
         }
+
+        public double TotalImport { get; set; }
 
         public double ExportCxl1 { get; set; }
         public double ExportQc { get; set; }
         public double ExportSx2 { get; set; }
         public double ExportGcn { get; set; }
+        public double ExportDefect { get; set; }
         public double ExportPacking { get; set; }
-        public double ExportElse { get; set; }
-
-        public double TotalExport
-        {
-            get { return ExportGcn+ ExportSx2 + ExportCxl1 + ExportQc + ExportPacking + ExportElse; }
+        public double ExportFinish { get; set; }
+        public double ExportElse {
+            get {
+                return TotalExport - ExportCxl1 - ExportQc - ExportSx2 - ExportGcn - ExportPacking - ExportFinish - ExportDefect;
+            }
         }
+
+        public double TotalExport { get; set; }
 
         public double LastInventory { get; set; }
 
