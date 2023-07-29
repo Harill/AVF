@@ -773,3 +773,6 @@ C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Re
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Web-server.config
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Web-server.Release.config
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\bin\Web-server.Debug.config
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptDeliverySalesReport.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptOrderDeliveryProgress.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrderAVF.resources

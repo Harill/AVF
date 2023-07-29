@@ -6,6 +6,7 @@
 }
 
 @section Scripts{
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
 
         function grid_OnDataBinding(args) {
@@ -33,6 +34,7 @@
                 toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
             }
 
+            var inquiryNumber = $("#InquiryNumber").data("tAutoComplete").value();
             //    if (customerId == 0)
             //        customerId = 0;
 
@@ -40,7 +42,8 @@
                 active: active,
                 status: statusValue,
                 fromDate: fromDate,
-                toDate: toDate
+                toDate: toDate,
+                inquiryNumber: inquiryNumber
             });
 
         }
@@ -107,27 +110,38 @@
         }
 
         function PrintPurchaseOrderTracking() {
-            var fromDate = $("#fromDate").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            if (!onLoading) {
+                OnLoadingData();
+                var fromDate = $("#StartDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
 
-            var toDate = $("#toDate").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+                var toDate = $("#EndDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
 
-            $('#result').load('@Url.Action("PrintPurchaseOrderTracking", "PurchaseOrder", new { area = "Purchasing" })',
-                {
-                    fromDate: fromDate,
-                    toDate: toDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
+                var classified = $('#MaterialClassifiedName').data('tComboBox').value();
+                if (classified == '') {
+                    classified = 0;
+                }
+                var inquiryNumber = $("#InquiryNumber").data("tAutoComplete").value();
+                $('#result').load('@Url.Action("PrintPurchaseOrderTracking", "PurchaseOrder", new { area = "Purchasing" })',
+                    {
+                        classifiedId: classified,
+                        fromDate: fromDate,
+                        toDate: toDate,
+                        inquiryNumber: inquiryNumber,
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
         }
 
         function grid_OnRowDataBound(e) {
@@ -209,20 +223,63 @@
 }
 
 <div class="title">Quản lý thông tin mua hàng</div>
-<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
-
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+    
+    <div class="grid_2">Phân loại</div> 
+    <div class="grid_5">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("MaterialClassifiedName")
+                    .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialClassified", "Material", new { area = "" }))
+                    .HtmlAttributes(new { style = "width: 175px" })
+                    .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .Render();                                              
+            }
+    </div>
+    <div class="grid_2_5">
+        @{
+            Html.Telerik().DatePicker()
+                .Name("StartDate")
+                .Format("dd/MM/yyyy")
+                .Value(DateTime.Today.AddDays(-7))
+                .Render();
+        }
+    </div>
+    <div class="grid_2_5">
+        @{
+            Html.Telerik().DatePicker()
+                .Name("EndDate")
+                .Format("dd/MM/yyyy")
+                .Value(DateTime.Today)
+                .Render();
+        }
+    </div>
     <div class="grid_7 prefix_1">
         <button id="btnPrintTracking" class="t-button" onclick=" return PrintPurchaseOrderTracking(); ">
             <span class='t-icon t-insert'></span>
             Theo dõi phiếu mua hàng
-        </button>
+                <span class="loadButton"></span>
+        </button>  
+
     </div>
     <div class="clear"></div>
     <br />
 
     <fieldset>
         <legend>Tiêu chí trích lọc</legend>
-
+        <div class="grid_3">
+                Số yêu cầu 
+        </div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().AutoComplete()
+                    .Name("InquiryNumber")
+                    .Encode(false)
+                    .AutoFill(true)
+                    .HighlightFirstMatch(true)
+                    .Render();
+            }
+        </div>
         <div class="grid_2">
             Duyệt phiếu
         </div>
@@ -325,11 +382,12 @@
                        .ClientTemplate("<#= Tolerance == null ? 0 : $.telerik.formatString('{0:n0}', Tolerance) #>%").ReadOnly(true);
                 columns.Bound(f => f.StatusName).Width(75).ReadOnly(true);
                 columns.Bound(f => f.EmployeeName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true);
-                columns.Bound(f => f.ModifiedDate).Title("Ngày lập").Width(90).Format("{0:dd/MM/yyyy HH:mm:ss}").ReadOnly(true);
-                columns.Bound(f => f.PurchaseOrderId).Title("In").Width(45).ReadOnly(true)
+                columns.Bound(f => f.Note).Width(120).ReadOnly(true);
+                columns.Bound(f => f.PurchaseOrderId).Title("In").Width(55).ReadOnly(true)
                        .ClientTemplate("<input type='button' id='id_<#= PurchaseOrderId #>' value='In' class='t-button' onclick=PrintPOForm(<#= PurchaseOrderId #>) />")
                        .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Title("Ngày lập").Width(90).Format("{0:dd/MM/yyyy HH:mm:ss}").ReadOnly(true);
             })
             .DetailView(details => details.ClientTemplate(
                 Html.Telerik().TabStrip()
@@ -349,8 +407,8 @@
                                     columns.Command(command =>
                                         command.Edit().ButtonType(GridButtonType.Image)
                                         ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.Code).Width(100).Title("Mã").ReadOnly(true);
-                                    columns.Bound(f => f.OrderQty).Width(50).ReadOnly(true)
+                                    columns.Bound(f => f.Code).Width(150).Title("Mã").ReadOnly(true);
+                                    columns.Bound(f => f.OrderQty).Width(100).ReadOnly(true)
                                         .HtmlAttributes(new { style = "text-align: right;" })
                                         .Format("{0:n}")
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
@@ -358,22 +416,22 @@
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
                                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>");
 
-                                    columns.Bound(f => f.Unit).Width(50).ReadOnly(true);
-                                    columns.Bound(f => f.ReceivedQty).Width(50).ReadOnly(true)
+                                    columns.Bound(f => f.Unit).Width(70).ReadOnly(true);
+                                    columns.Bound(f => f.ReceivedQty).Width(100).ReadOnly(true)
                                         .HtmlAttributes(new { style = "text-align: right;" })
                                         .Format("{0:n}")
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
                                         .Aggregate(agg => agg.Sum())
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
                                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>");
-                                    columns.Bound(f => f.RejectedQty).Width(50).ReadOnly(true)
+                                    columns.Bound(f => f.RejectedQty).Width(100).ReadOnly(true)
                                         .HtmlAttributes(new { style = "text-align: right;" })
                                         .Format("{0:n}")
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
                                         .Aggregate(agg => agg.Sum())
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
                                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>");
-                                    columns.Bound(f => f.UnitPrice).Width(50)
+                                    columns.Bound(f => f.UnitPrice).Width(70)
                                         .HtmlAttributes(new { style = "text-align: right;" })
                                         .ClientTemplate("<#= UnitPriceString  #>");
                                     columns.Bound(f => f.LineTotal).Width(100).ReadOnly(true)
@@ -383,8 +441,9 @@
                                         .Aggregate(agg => agg.Sum())
                                         .FooterHtmlAttributes(new { style = "text-align: right;" })
                                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                                    columns.Bound(f => f.DueDate).Title("Ngày giao").ReadOnly(true).Width(100)
+                                    columns.Bound(f => f.DueDate).Title("Ngày giao").ReadOnly(true).Width(80)
                                         .Format("{0:dd/MM/yyyy}");
+                                    columns.Bound(f => f.InquiryNote).Title("Số Yêu cầu").ReadOnly(true).Width(150);
                                 })
                                 .ClientEvents(events => events.OnError("grid_OnError")
 

@@ -16,17 +16,20 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 //using OrderDetail = Vfi.Server.Core.DataModel.BaseEntities.OrderDetail;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
+using Vfi.Ui.Mvc.Vfi.Controllers.Production;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
     public class SalesOrderController : Controller {
         private readonly IUnitOfWork _unitOfWork;
         private readonly WarehouseController _warehouseController;
+        private readonly ProductController _productController;
         [InjectionConstructor]
-        public SalesOrderController(IUnitOfWork unitOfWork, WarehouseController warehouseController) {
+        public SalesOrderController(IUnitOfWork unitOfWork, WarehouseController warehouseController, ProductController productController) {
             if (unitOfWork == null) throw new ArgumentNullException("unitOfWork");
 
             _unitOfWork = unitOfWork;
             _warehouseController = warehouseController;
+            _productController = productController;
         }
 
         ViewDataDictionary GetPageConfigData() {
@@ -1063,6 +1066,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                               od.Note,
                                           }).ToList();
                     var totalQuality = order.OrderDetails.Sum(od => od.RequiedNumber);
+                    var fckProcess = new List<OrderProgressModel> { };
+                    fckProcess.Add(new OrderProgressModel {
+                        WarehouseName = "Nguyên liệu"
+                    });
+                    fckProcess.Add(new OrderProgressModel {
+                        WarehouseName = "Công cụ LM"
+                    });
+                    fckProcess.Add(new OrderProgressModel {
+                        WarehouseName = "Công cụ KT"
+                    });
                     foreach (var detail in order.OrderDetails) {
                         var detailEntity = new OrderDetailModel {
                             CustomerCode = order.Customer.CustomerCode,
@@ -1086,6 +1099,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         }
                         detailEntity.AvailableQty = detailEntity.ApprovedOrderDetails.Sum(od => od.RequireNumber);
                         detailEntity.OrderProcessDetails = GetProductionExpectedByOrderDetail(detail.OrderDetailId);
+                        detailEntity.OrderProcessDetails.InsertRange(0, fckProcess);
                         model.Add(detailEntity);
                     }
                 }
@@ -2154,6 +2168,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         //IsInvManager = isInvManager ? 1 : 0,
                         //IsProductionManager = isProductionManager ? 1 : 0,
                         IsSaleManager = isSalesManager ? 1 : 0,
+                        OrderNote = orderDetail.OrderNote
                     };
 
                     models.Add(entity);
@@ -2274,7 +2289,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         //IsInvManager = isInvManager ? 1 : 0,
                         //IsProductionManager = isProductionManager ? 1 : 0,
                         IsSaleManager = salesManager ? 1 : 0,
-                        //VFIDueDate = order.due
+                        //VFIDueDate = order.due,
+                        //OrderNote = 
                     };
 
                     var orderDetailsById = orderDetails.Where(od => od.ProductId == entity.ProductId).ToList();
@@ -2351,6 +2367,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                         od.Note,
                                         od.UnitPrice,
                                         od.Product.Productivity,
+                                        od.OrderNote,
                                     }).ToList();
 
                 var productIds = orderDetails.Select(od => od.ProductId).Distinct().ToList();
@@ -2433,6 +2450,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         IsInvManager = isInvManager ? 1 : 0,
                         IsProductionManager = isProductionManager ? 1 : 0,
                         IsSaleManager = isSalesManager ? 1 : 0,
+                        OrderNote = orderDetail.OrderNote
                     };
                     var dueDate = orderDetail.VFIDueDate != null ? orderDetail.VFIDueDate : orderDetail.CustomerDueDate;
 
@@ -2755,53 +2773,60 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         status = Convert.ToByte(updated.StatusName);
                     }
                     catch (FormatException) { }
-                    if (status == (byte)MyUtilities.Sales.Status.Cancel) {
-                        if (order.OrderDetails.Any(od => od.RequiedNumber != od.OrderQty)) {
-                            throw new AggregateException("Đơn hàng " + order.OrderNumber +
-                                                         " đã có giao không thể hủy ! Vui lòng hủy số lượng trong đơn hàng !");
-                        }
-                    }
-                    else if (status == (byte)MyUtilities.Sales.Status.Completed) {
-                        if (order.OrderDetails.Any(x => x.RequiedNumber > 0)) {
-                            throw new AggregateException("Đơn hàng " + order.OrderNumber +
-                                                         " chưa giao đủ không thể hoàn thành ! Vui lòng hủy số lượng trong đơn hàng !");
-                        }
-                    }
+                    Order newOrder = null;
+                    var monthChange = false;
                     if (status > 0) {
+                        if (status == (byte)MyUtilities.Sales.Status.Cancel) {
+                            if (order.OrderDetails.Any(od => od.RequiedNumber != od.OrderQty)) {
+                                throw new AggregateException("Đơn hàng " + order.OrderNumber +
+                                                             " đã có giao không thể hủy ! Vui lòng hủy số lượng trong đơn hàng !");
+                            }
+                        }
+                        else if (status == (byte)MyUtilities.Sales.Status.Completed) {
+                            if (order.OrderDetails.Any(x => x.RequiedNumber > 0)) {
+                                throw new AggregateException("Đơn hàng " + order.OrderNumber +
+                                                             " chưa giao đủ không thể hoàn thành ! Vui lòng hủy số lượng trong đơn hàng !");
+                            }
+                        }
                         order.Status = status;
                     }
-                    if (updated.DueDate != order.DueDate) {
+                    else if (updated.DueDate != order.DueDate) {
                         if (updated.DueDate <= DateTime.Now) {
                             throw new AggregateException("Lỗi! Không thể dời ngày giao hàng về trước hiện tại");
                         }
-                        else {
-                            if (order.OrderDetails.Any(x => x.RequiedNumber != x.OrderQty)) {
-                                var newOrder = new Order { 
-                                    ParentOrderId = order.OrderId,
-                                    CustomerId = order.CustomerId,
-                                    CurrencyCode = order.CurrencyCode,
-                                    SalesPersonId = order.SalesPersonId,
-                                    BillToAddress = order.BillToAddress,
-                                    ShipToAddress = order.ShipToAddress,
-                                    ShipMethodId = order.ShipMethodId,
-                                    ShipmentDay = order.ShipmentDay,
-                                    Status = (byte) MyUtilities.Sales.Status.Waiting,
-                                    Active = true,
-                                    CreatedDate = DateTime.Now,
-                                    ModifiedDate = DateTime.Now,
-                                    ModifiedUser = HttpContext.User.Identity.Name,
-                                    LotNumber = order.LotNumber,
-                                    ModelNumber = order.ModelNumber,
-                                    Note = order.Note,
-                                    PoNumber = order.PoNumber,
-                                    ShippedDate = order.ShippedDate,
-
-                                    DueDate = updated.DueDate,
-                                };
-                                foreach (var detail in order.OrderDetails) {
-                                    if (detail.RequiedNumber == detail.OrderQty || detail.RequiedNumber == 0) continue;
-                                    detail.OrderQty -= detail.RequiedNumber;
-                                    var newDetail = new OrderDetail { 
+                        if (updated.DueDate.Value.Month != order.DueDate.Value.Month 
+                            || updated.DueDate.Value.Year != order.DueDate.Value.Year) {
+                            monthChange = true;
+                        }
+                        if (order.OrderDetails.Any(x => x.RequiedNumber != x.OrderQty)) {
+                            newOrder = new Order {
+                                ParentOrderId = order.ParentOrderId ?? order.OrderId,
+                                CustomerId = order.CustomerId,
+                                CurrencyCode = order.CurrencyCode,
+                                SalesPersonId = order.SalesPersonId,
+                                BillToAddress = order.BillToAddress,
+                                ShipToAddress = order.ShipToAddress,
+                                ShipMethodId = order.ShipMethodId,
+                                ShipmentDay = order.ShipmentDay,
+                                Status = (byte)MyUtilities.Sales.Status.Waiting,
+                                Active = true,
+                                CreatedDate = DateTime.Now,
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                LotNumber = order.LotNumber,
+                                ModelNumber = order.ModelNumber,
+                                Note = order.Note + "! Đổi ngày giao hàng:" + order.DueDate.Value.ToString("dd/MM")
+                                                                    + "->" + updated.DueDate.Value.ToString("dd/MM"),
+                                PoNumber = order.PoNumber,
+                                ShippedDate = order.ShippedDate,
+                                DueDate = updated.DueDate,
+                                OrderDate = order.OrderDate,
+                                OrderNumber = order.OrderNumber + "-" + string.Format("{0:00}", (order.Orders1.Count + 1))
+                            };
+                            foreach (var detail in order.OrderDetails) {
+                                if (detail.RequiedNumber == 0) continue;
+                                detail.OrderQty -= detail.RequiedNumber;
+                                var newDetail = new OrderDetail {
                                     Active = true,
                                     CarrierTrackingNumber = detail.CarrierTrackingNumber,
                                     CustomerDueDate = detail.CustomerDueDate,
@@ -2811,25 +2836,84 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                     ProductId = detail.ProductId,
                                     UnitPrice = detail.UnitPrice,
                                     UnitPriceDiscount = detail.UnitPriceDiscount,
-                                    VFIDueDate= detail.VFIDueDate,
-                                    
-                                    };
-                                }
-                            } else {
-
+                                    VFIDueDate = detail.VFIDueDate,
+                                    OrderQty = detail.RequiedNumber,
+                                    RequiedNumber = detail.RequiedNumber,
+                                };
+                                detail.RequiedNumber = 0;
+                                detail.IsComplete = true;
+                                newOrder.OrderDetails.Add(newDetail);
                             }
+                            vfi.Orders.Add(newOrder);
+                            order.Status = (byte)MyUtilities.Sales.Status.Completed;
+                        }
+                        else {
+                            order.Note = order.Note + "! Đổi ngày giao hàng:" + order.DueDate.Value.ToString("dd/MM")
+                                                                + "->" + updated.DueDate.Value.ToString("dd/MM");
                             order.DueDate = updated.DueDate;
                         }
                     }
+
                     order.ModifiedDate = DateTime.Now;
                     order.ModifiedUser = HttpContext.User.Identity.Name;
                     vfi.SaveChanges();
+
+                    if (monthChange) {
+                        if (newOrder != null) {
+                            CreateForecaseOrder(newOrder.OrderId);
+                        }
+                        else {
+                            CreateForecaseOrder(order.OrderId);
+                        }
+                    }
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("UpdateOrderStatus", "" + ex.Message);
             }
             return View(new GridModel(GetOrderNeedCancel().OrderByDescending(o => o.ModifiedDate)));
+        }
+
+        public int CreateForecaseOrder(long orderId) {
+            var saved = 0;
+            using (var vfi = new tammaContext()) {
+                var order = vfi.Orders.FirstOrDefault(o => o.OrderId == orderId);
+                var productIds = order.OrderDetails.Select(x => x.ProductId).Distinct().ToList();
+                var allOrderDetails = vfi.OrderDetails.Where(od => productIds.Contains(od.ProductId) &&
+                            od.Order.Status != (byte)MyUtilities.Sales.Status.Cancel &&
+                            od.Order.DueDate != null &&
+                           od.Order.DueDate.Value.Month == order.DueDate.Value.Month &&
+                           od.Order.DueDate.Value.Year == order.DueDate.Value.Year &&
+                           od.OrderId != order.OrderId)
+                           .Select(x => new { x.ProductId, x.OrderQty }).ToList();
+                foreach (var productId in productIds) {
+                    var forecast = vfi.ForecastOrders.FirstOrDefault(f => f.ProductId == productId &&
+                        f.ForecastDate.Month == order.DueDate.Value.Month &&
+                        f.ForecastDate.Year == order.DueDate.Value.Year);
+                    if (forecast == null) {
+                        forecast = new ForecastOrder {
+                            ProductId = productId,
+                            ForecastDate = order.DueDate.Value,
+                            Quantity = 0,
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = HttpContext.User.Identity.Name + "-Auto",
+                            IsSelling = true,
+                            Status = (byte)MyUtilities.Transaction.Status.Approved,
+                        };
+                        vfi.ForecastOrders.Add(forecast);
+                    }
+                    var orderDetailsById = allOrderDetails.Where(od => od.ProductId == productId).ToList();
+                    var orderDetailsInOrder = order.OrderDetails.Where(od => od.ProductId == productId).ToList();
+                    var totalQuantity = orderDetailsById.Sum(od => od.OrderQty.Value) +
+                        orderDetailsInOrder.Sum(od => od.OrderQty.Value);
+                    if (forecast.Quantity < totalQuantity) {
+                        forecast.Quantity = totalQuantity;
+                        forecast.ModifiedDate = DateTime.Now;
+                    }
+                }
+                saved += vfi.SaveChanges();
+            }
+            return saved;
         }
 
         [GridAction]
@@ -2859,6 +2943,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     model.ModifiedDate = order.ModifiedDate;
                     model.StatusName = MyUtilities.Sales.GetText(order.Status);
                     model.DueDate = order.DueDate;
+                    model.Note = order.Note;
                     //var area =
                     //    vfi.Areas.FirstOrDefault(
                     //        a => a.AreaId == (order.Customer.Area != null ? order.Customer.Area.AreaId : 1));
@@ -8356,6 +8441,77 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     ModelState.AddModelError("SelectQuotationProductDetail", "" + exception.Message);
                 }
             }
+            return View(new GridModel(new List<ProductQuotationModel>()));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult CreateProductQuoteForm(
+            int customerId, int quoteId, string productIds, int salesPersonId,
+            string quoteDate, string endDate, string currencyCode, double exchangeRate,
+            int deliveryTerm, string portName, int paymentMethod, int deliveryPeriod, int paymentCondition, string note) {
+            if (!Request.IsAuthenticated) {
+                ModelState.AddModelError("CreateProductQuoteForm",
+                                         @"Bạn đã bị mất quyền đăng nhập. \r\n 
+                                         1 trong các nguyên nhân như mất thời gian chờ. \r\n 
+                                         Xin vui lòng đăng nhập lại hệ thống.");
+                return View(new GridModel(new List<ProductQuotationModel>()));
+            }
+            if (customerId == 0) {
+                ModelState.AddModelError("SelectQuotationProductDetail", "Please pick Customer up!");
+            }
+            var checkedrecords = MyUtilities.Function.StringToIds(productIds);
+            var list = _productController.GetProductQuoteCalculate(0, "", 0, checkedrecords, false);
+            try {
+                var qDate = MyUtilities.Function.ParseDate(quoteDate);
+                var eDate = MyUtilities.Function.ParseDate(endDate);
+                var quotation = new QuoteForm {
+                    CustomerId = customerId,
+                    QuoteNumber =
+                        MyUtilities.AutoIncrease.GetParam((int)MyUtilities.AutoIncrease.IncreaseNum.Quote,
+                                                          1),
+                    QuoteDate = qDate,
+                    OutOfDate = eDate,
+                    QuoteCount = 1,
+                    QuoteDetails = new List<QuoteDetail>(),
+                    Status = (byte)MyUtilities.Transaction.Status.Open,
+                    DeliveryTerm = deliveryTerm,
+                    PaymentMethodId = paymentMethod,
+                    DeliveryPeriodId = deliveryPeriod,
+                    PaymentCondition = paymentCondition,
+                    Note = note + "",
+                    ModifiedDate = DateTime.Now,
+                    ModifiedUser = HttpContext.User.Identity.Name,
+                    CurrencyCode = currencyCode,
+                    ExchangeRate = exchangeRate,
+                    PortName = portName,
+                    SalesPersonId = salesPersonId,
+                };
+                foreach (var entity in list) {
+                    var detail = new QuoteDetail {
+                        QuoteForm = quotation,
+                        QuoteId = quotation.QuoteId,
+                        ProductId = entity.ProductId,
+                        ProcessingCost = 0,
+                        ProductWeight = entity.UnitWeight,
+                        QuoteCost = entity.QuotePrice,
+                        MaterialDesign = "",
+                        Dimension = "",
+                        Note = "",
+                        Quantity = 0,
+                        MaterialPrice = entity.MaterialPrice,
+                    };
+                    quotation.QuoteDetails.Add(detail);
+                }
+                using (var vfi = new tammaContext()) {
+                    vfi.QuoteForms.Add(quotation);
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception exception) {
+                ModelState.AddModelError("CreateProductQuoteForm", "" + exception.Message);
+            }
+
             return View(new GridModel(new List<ProductQuotationModel>()));
         }
 

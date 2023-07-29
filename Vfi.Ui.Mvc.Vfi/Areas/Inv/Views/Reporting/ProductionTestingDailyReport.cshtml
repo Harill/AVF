@@ -101,31 +101,6 @@
                 RefreshGrid(name);
             }
         }
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
-            }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
     </script>
 
 }
@@ -195,14 +170,14 @@
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
                     <span class='t-icon t-insert'></span>
                     Làm mới
-                    <span class="twoToneButton"></span>
+                    <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_4">
                 <button id="btnReport" class="t-button" onclick=" return printMachineProductionOnTest(); ">
                     <span class='t-icon t-insert'></span>
                     In đo kiểm<br /> (máy và sản phẩm)
-		            <span class="twoToneButton"></span>
+		            <span class="loadButton"></span>
                 </button>
             </div>
         </fieldset>

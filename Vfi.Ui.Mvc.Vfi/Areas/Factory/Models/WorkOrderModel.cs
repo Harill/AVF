@@ -7,13 +7,22 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
     public class WorkOrderModel {
+        public WorkOrderModel() {
+            MaterialShape = "";
+        }
         public int WorkOrderId { get; set; }
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
+        public string ProductName { get; set; }
+        public string ProductDesign { get; set; }
         public long OrderDetailId { get; set; }
         public string OrderNumber { get; set; }
+        public DateTime OrderDate { get; set; }
+        public string PONumber { get; set; }
+        public string OrderNote { get; set; }
 
         public int OrderQty { get; set; }
+        public double OrderQtyKg { get; set; }
         public DateTime StartDate { get; set; }
         [DataType("_DateTemplateNullable")]
         public DateTime? EndDate { get; set; }
@@ -44,6 +53,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string StartDateStr { get { return StartDate.ToString("dd/MM/yy HH:mm"); } }
         public string EndDateStr { get { return EndDate != null ? EndDate.Value.ToString("dd/MM/yy HH:mm") : ""; } }
         public List<WorkOrderRoutingModel> Routings { get; set; }
+
+        public string MaterialTypeName { get; set; }
+        public double ProductionRate { get; set; }
+        public double ProductDiameter { get; set; }
+        public string MaterialShape { get; set; }
+        public string MaterialShapeName { get { return MyUtilities.Material.CaseTextMaterialShape(MaterialShape); } }
 
         public bool CanAdd { get; set; }
         public string CanAddDisplay {

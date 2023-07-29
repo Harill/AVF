@@ -35,6 +35,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<bool> IsComplete { get; set; }
         public int RequiedNumber { get; set; }
         public string Note { get; set; }
+        public string OrderNote { get; set; }
         public Nullable<bool> IsAlert { get; set; }
         public virtual ICollection<WorkOrder> WorkOrders { get; set; }
         public virtual ICollection<ExportFormTP_KDDetail> ExportFormTP_KDDetail { get; set; }

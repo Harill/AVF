@@ -287,18 +287,20 @@
                     columns.Bound(f => f.PurchaseOrderDetailId).Title("Chọn").Width(75)
                            .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= PurchaseOrderDetailId #>' />")
                            .HtmlAttributes(new { style = "text-align:center" });
-                    columns.Bound(f => f.VendorCodeName).Title("NCC").Width(100);
+                    columns.Bound(f => f.VendorCodeName).Title("NCC").Width(120);
+                    columns.Bound(f => f.Name).Title("Tên công cụ").Width(150);
                     columns.Bound(f => f.Code).Title("Mã công cụ").Width(200);
-                    columns.Bound(f => f.Unit).Width(50)
+                    columns.Bound(f => f.Unit).Title("ĐVT").Width(70)
                            .HtmlAttributes(new { style = "text-align:center" });
                     //columns.Bound(f => f.LotNumber);
-                    columns.Bound(f => f.OrderQty).Title("Số lượng yêu cầu").Width(75)
+                    columns.Bound(f => f.OrderQty).Title("Số lượng</br>yêu cầu").Width(100)
                            .HtmlAttributes(new { style = "text-align:right" })
                            .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
-                    columns.Bound(f => f.RequireQty).Title("Số lượng còn lại").Width(75)
+                    columns.Bound(f => f.RequireQty).Title("Số lượng</br>còn lại").Width(100)
                            .HtmlAttributes(new { style = "text-align:right" })
                           .ClientTemplate("<#= RequireQty == null ? 0 : $.telerik.formatString('{0:n2}', RequireQty) #>");
-                
+
+                    columns.Bound(f => f.Note).Title("Ghi chú");
                 })
             .Scrollable(f => f.Height(200))
             .ClientEvents(events => events.OnDataBinding("gridPoDetail_OnDataBinding")
@@ -321,9 +323,9 @@
         .DataBinding(dataBindings => dataBindings.Ajax()
             .Select("SelectToolInPo", "Tool", new { ids = "", poId = 0 })
             .Update("UpdateImportTool", "Tool"))
-        .Columns(columns =>
-            {
-                columns.Bound(f => f.ToolFullCodeName).Width(280).ReadOnly(true).Title("Mã công cụ")
+        .Columns(columns => {
+                columns.Bound(f => f.ToolName).Width(120).ReadOnly(true).Title("Tên");
+                columns.Bound(f => f.ToolFullCodeName).Width(200).ReadOnly(true).Title("Mã công cụ")
                        .FooterHtmlAttributes(new {style = "text-align: right;"})
                        .Aggregate(agg => agg.Count())
                        .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>");
@@ -332,9 +334,9 @@
                            .HtmlAttributes(new { style = "text-align:right" })
                    .ClientTemplate("<#= RequiredQuantity == null ? 0 : $.telerik.formatString('{0:n1}', RequiredQuantity) #>");
 
-            columns.Bound(f => f.UnitMeasure).Width(50).ReadOnly(true).Title("ĐVT")
+            columns.Bound(f => f.UnitMeasure).Width(70).ReadOnly(true).Title("ĐVT")
                    .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.Quantity).Width(70)
+            columns.Bound(f => f.Quantity).Width(100)
                    .HeaderTemplate("Số lượng nhập")
                     .HeaderHtmlAttributes(new { @class = "edit-column" })
                    .HtmlAttributes(new { style = "text-align: right;" })

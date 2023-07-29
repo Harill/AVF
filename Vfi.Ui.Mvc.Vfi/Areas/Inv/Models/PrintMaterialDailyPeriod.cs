@@ -679,5 +679,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double ProductOrder { get; set; }
         public byte OrderStatus { get; set; }
         public int ProductionMaterialStatus { get; set; }
+
+        public double ProductionUnitWeight { get; set; }
+        public double ProductionPlan { get; set; }
     }
 }

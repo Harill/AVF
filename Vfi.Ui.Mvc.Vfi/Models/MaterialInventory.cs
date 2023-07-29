@@ -42,6 +42,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string StoreCode { get; set; }
         public double Length { get; set; }
         public string InfoImg { get; set; }
+        public string InfoImg2 { get; set; }
         public virtual ICollection<SmartProduction> SmartProductions { get; set; }
         public virtual ICollection<TrackUpMaterial> TrackUpMaterials { get; set; }
         public virtual ICollection<WorkOrderRouting> WorkOrderRoutings { get; set; }

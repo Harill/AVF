@@ -19,7 +19,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             VendorCode = "";
             LotNumber = "";
         }
+
+        public string UploadDate { get; set; }
         //[Required(ErrorMessage = @"Vui lòng nhập số lượng.")]
+        public string InfoImg { get; set; }
+        public string InfoImg2 { get; set; }
         [DisplayName(@"Số lượng(Cây)")]
         [DataType("Number")]
         public double Quantity { get; set; }

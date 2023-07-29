@@ -2024,6 +2024,23 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             };
         }
 
+        public ActionResult SelectComboBoxTestingProduct() {
+            var model = new List<ProductModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.Products.Where(f => f.Active && f.ProductionTestings.Any(x => x.ProductionTestingDetails.Any(y => y.Active)))
+                    .Select(p => new ProductModel {
+                        ProductId = p.ProductId,
+                        ProductCode = p.ProductCode
+                    })
+                    .OrderBy(p => p.ProductCode)
+                    .ToList();
+            }
+            return new JsonResult {
+                Data = new SelectList(model, "ProductId", "ProductCode"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet
+            };
+        }
+
         public ActionResult SelectComboBoxProductStatus() {
             var val = from MyUtilities.Product.ProductStatusEnum stt in Enum.GetValues(typeof(MyUtilities.Product.ProductStatusEnum))
                       select new {
@@ -3205,7 +3222,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     Description = newSection.Description + "",
                     InsertDate = DateTime.Now,
                     InserUser = HttpContext.User.Identity.Name,
-                    PlatingCost = 0,
+                    //PlatingCost = newSection.PlatingCost,
                     ModifiedDate = DateTime.Now,
                     ModifiedUser = "",
                 };
@@ -3237,6 +3254,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         //section.ProductId = productId;
                         plating.Active = true;
                         plating.PlatingName = edit.PlatingName;
+                        //plating.PlatingCost = edit.PlatingCost;
                         plating.Description = edit.Description;
                         plating.InsertDate = DateTime.Now;
                         plating.InserUser = HttpContext.User.Identity.Name;
@@ -4611,12 +4629,12 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
         #region product quote
 
         [GridAction]
-        public ActionResult SelectProductQuoteCalculate(int customerId, string productCode) {
+        public ActionResult SelectProductQuoteCalculate(int customerId, string productCode, bool isLock = false) {
             if (customerId == 0 && string.IsNullOrWhiteSpace(productCode))
                 return View(new GridModel(new List<ProductQuoteCalculateModel>()));
             var model = new List<ProductQuoteCalculateModel>();
             try {
-                model = GetProductQuoteCalculate(customerId, productCode, 0);
+                model = GetProductQuoteCalculate(customerId, productCode, 0, null, isLock);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductQuoteCalculate", ex.Message);
@@ -4624,15 +4642,19 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             return View(new GridModel(model));
         }
 
-        List<ProductQuoteCalculateModel> GetProductQuoteCalculate(int customerId, string productCode, int productId) {
+        public List<ProductQuoteCalculateModel> GetProductQuoteCalculate(
+            int customerId, string productCode, int productId, 
+            List<int> productIds, bool isLock) {
             var model = new List<ProductQuoteCalculateModel>();
             var salesManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.SaleManagementLv2);
             using (var vfi = new tammaContext()) {
-                var products = vfi.Products.Where(x => (customerId == 0 || x.CustomerId == customerId) 
-                    && (productId == 0 || x.ProductId == productId) 
-                    && x.Active);
+                var products = vfi.Products.Where(x => (customerId == 0 || x.CustomerId == customerId)
+                    && (productId == 0 || x.ProductId == productId)
+                    && (!isLock || x.IsCalculateLock == isLock)
+                    && (productIds.Any() || productIds.Contains(x.ProductId))
+                    && x.Active).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) { 
-                    products = products.Where(x => x.ProductCode.Contains(productCode)); 
+                    products = products.Where(x => x.ProductCode.Contains(productCode)).ToList(); 
                 }
                 //var materialTypeIds = products.Where(x => x.MaterialId != null).Select(x => x.Material.MaterialTypeId).ToList();
                 //var materialTypes = 
@@ -4671,7 +4693,8 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         }
                     }
 
-                    entity.Productivity = product.ProductionProductivityQuoteBases.Where(x => x.Active).Sum(x => x.Time);
+                    //entity.Productivity = product.ProductionProductivityQuoteBases.Where(x => x.Active).Sum(x => x.Time);
+                    entity.Productivity = product.Productivity ?? 0;
                     entity.MachineClassifiedFactor = product.ProcessClassifiedId != null ? (product.ProcessClassified.SalesFactor) : 0;
                     entity.ProductLevelFactor = product.ProductionLevel != null ? product.ProductionProductLevel.Factor : 1;
 
@@ -4684,7 +4707,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                                         ? Math.Round((product.Customer.ShipMethod.ShipBase ?? 0) * entity.UnitWeight / 1000, 4)
                                         : 0;
                     entity.PackingPrice = (product.PackingFee ?? 0);
-
+                    entity.AdditionFee = product.ProductAdditionFees.Where(x => x.Active).Sum(x => x.Price);
                     model.Add(entity);
                 }
             }
@@ -4724,9 +4747,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         entity.MaterialTypeName = product.Material.MaterialType.MaterialTypeName;
                         entity.MaterialProductionFactor = (product.Material.MaterialType.ProductionFactor ?? 0);
                     }
-                    if (product.ProductionProductivityQuoteBases.Any(x => x.Active)) {
-                        entity.Productivity = product.ProductionProductivityQuoteBases.Where(x => x.Active).Sum(x => x.Time);
-                    }
+                    entity.Productivity = product.Productivity ?? 0;
+                    //if (product.ProductionProductivityQuoteBases.Any(x => x.Active)) {
+                    //    entity.Productivity = product.ProductionProductivityQuoteBases.Where(x => x.Active).Sum(x => x.Time);
+                    //}
                 }
             }
             catch (Exception ex) {
@@ -4741,7 +4765,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             try {
                 using (var vfi = new tammaContext()) {
                     var templates = vfi.MOQTemplates.Where(x => x.Active).OrderBy(x => x.FromQuantity).ToList();
-                    var productCalculate = GetProductQuoteCalculate(0, "", productId).FirstOrDefault();
+                    var productCalculate = GetProductQuoteCalculate(0, "", productId,null, false).FirstOrDefault();
                     foreach (var template in templates) {
                         var entity = new MOQTemplateModel {
                             TemplateId = template.TemplateId,

@@ -144,34 +144,6 @@
             return false;
         }
 
-
-
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
-            }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
-
         var startGrid = false;
         function RefreshGrid2(name) {
             if (!onLoading) {
@@ -196,7 +168,7 @@
             <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
                 <span class='t-icon t-insert'></span>
                 Duyệt các sổ lệnh
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
             </button>
         </div>
         <div class="clear"></div>

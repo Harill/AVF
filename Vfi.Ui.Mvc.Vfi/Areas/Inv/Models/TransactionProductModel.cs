@@ -39,5 +39,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 
         public List<TransactionDetailModel> Details { get; set; }
         public WorkGroupInfo Info { get; set; }
+        public int GroupIndex { get; set; }
     }
 }

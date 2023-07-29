@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "Tiêu chuẩn xi mạ";
+    ViewBag.Title = "Sản phẩm gia công ngoài";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -102,7 +102,7 @@
                        .HeaderTemplate("Mã SP");
 
                 columns.Bound(f => f.PlatingIndex).Width(50)
-                       .HeaderTemplate("STT");
+                       .HeaderTemplate("STT</br>GCN");
                 columns.Bound(f => f.PlatingName).Width(200)
                        .HeaderTemplate("Gia công");
                 columns.Bound(f => f.SaltSprayTime).Width(100)
@@ -110,7 +110,7 @@
                 columns.Bound(f => f.Thickness).Width(100)
                        .HeaderTemplate("Độ dày");
                 columns.Bound(f => f.PlatingDay).Width(100)
-                       .HeaderTemplate("Thời gian(d)")
+                       .HeaderTemplate("Thời gian</br>(d)")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.PlatingCost).Width(100)
                        .HeaderTemplate("Chi phí")
@@ -118,15 +118,15 @@
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Description)
                        .HeaderTemplate("Ghi chú");
-                columns.Bound(f => f.Active).Width(40).Title("Kích hoạt")
+                columns.Bound(f => f.Active).Width(40).Title("Kích</br>hoạt")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")
+                columns.Bound(f => f.IsMainProcess).Width(40).Title("CĐ</br>chính")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
-                       .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                       .Format("{0:dd/MM/yyyy HH:mm}");
+                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

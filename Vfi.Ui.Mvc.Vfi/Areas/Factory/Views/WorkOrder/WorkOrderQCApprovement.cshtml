@@ -58,7 +58,7 @@
 
 <div class="title">Duyệt đo kiểm</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span></div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<WorkOrderProcessModel>()
@@ -92,8 +92,8 @@
                 columns.Bound(f => f.Date).Title("Ngày").Width(70).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy HH:mm}")
                     .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.MachineName).Title("Máy").Width(70).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
+                //columns.Bound(f => f.MachineName).Title("Máy").Width(70).ReadOnly(true)
+                //    .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(120).ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: center;" });
 
@@ -129,6 +129,8 @@
                 columns.Bound(f => f.EmployeeName).Title("Nhân viên").Width(100).ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(100).ReadOnly(true)
+                    .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.ProcessNote).Title("Ghi chú</br>người đo kiểm").Width(100).ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy").Width(50);
                 columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(100).ReadOnly(true)

@@ -1329,247 +1329,251 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     //transaction.ModifiedDate = DateTime.Now;
                     //    vfi.SaveChanges();
                     //    return Json("okie");
-                        //continue;
-                        // nhap nguyen lieu
-                        if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, transaction.CreatedDate)) {
-                            throw new AggregateException(
-                                @"Không có quyền duyệt phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
+                    //continue;
+                    // nhap nguyen lieu
+                    if (MyUtilities.UserRole.CheckTransaction(HttpContext.User.Identity.Name, transaction.CreatedDate)) {
+                        throw new AggregateException(
+                            @"Không có quyền duyệt phiếu tháng trước! \n Hạn chót ngày: 05! \n Vui lòng liên hệ quản lý !");
+                    }
+                    if (transaction.EoI.Equals("0")) { // nhập kho nguyên liệu
+                        var importPO =
+                            vfi.ImportPurchaseOrders.FirstOrDefault(
+                                i => i.TransactionId == transaction.TransactionId);
+                        if (importPO == null)
+                            throw new AggregateException("Lỗi phiếu nhập");
+                        PurchaseOrder purchaseOrder = null;
+                        if (importPO.PurchaseOrderId != null) {
+                            purchaseOrder =
+                                vfi.PurchaseOrders.FirstOrDefault(
+                                    po => po.PurchaseOrderId == importPO.PurchaseOrderId);
                         }
-                        if (transaction.EoI.Equals("0")) { // nhập kho nguyên liệu
-                            var importPO =
-                                vfi.ImportPurchaseOrders.FirstOrDefault(
-                                    i => i.TransactionId == transaction.TransactionId);
-                            if (importPO == null)
-                                throw new AggregateException("Lỗi phiếu nhập");
-                            PurchaseOrder purchaseOrder = null;
-                            if (importPO.PurchaseOrderId != null) {
-                                purchaseOrder =
-                                    vfi.PurchaseOrders.FirstOrDefault(
-                                        po => po.PurchaseOrderId == importPO.PurchaseOrderId);
-                            }
-                            foreach (var detail in transaction.TransactionDetails) {
-                                PurchaseOrderDetail poDetail = null;
-                                ImportPurchaseOrderDetail importDetail = null;
-                                if (purchaseOrder != null && detail.PoDetailId != null) {
-                                    poDetail =
-                                        purchaseOrder.PurchaseOrderDetails.FirstOrDefault(
-                                            pod => pod.PurchaseOrderDetailId == detail.PoDetailId);
-                                    if (detail.PoDetailId != null) {
-                                        importDetail =
-                                            importPO.ImportPurchaseOrderDetails.FirstOrDefault(
-                                                id => id.PoDetailId == detail.PoDetailId);
-                                    }
-                                }
-                                else {
+                        foreach (var detail in transaction.TransactionDetails) {
+                            PurchaseOrderDetail poDetail = null;
+                            ImportPurchaseOrderDetail importDetail = null;
+                            if (purchaseOrder != null && detail.PoDetailId != null) {
+                                poDetail =
+                                    purchaseOrder.PurchaseOrderDetails.FirstOrDefault(
+                                        pod => pod.PurchaseOrderDetailId == detail.PoDetailId);
+                                if (detail.PoDetailId != null) {
                                     importDetail =
                                         importPO.ImportPurchaseOrderDetails.FirstOrDefault(
-                                        id => id.MaterialId == detail.ReferenceId
-                                        && (detail.LotNumber == null
-                                            || detail.LotNumber.Equals(id.LotNumber))
-                                                );
+                                            id => id.PoDetailId == detail.PoDetailId);
                                 }
-                                if (string.IsNullOrWhiteSpace(importDetail.LotNumber))
-                                    importDetail.LotNumber = MyUtilities.Material.GetMaterialLot(importDetail.VendorId,
-                                        detail.ReferenceId.Value, importDetail.Length, transaction.CreatedDate, 0);
-                                var materialByLot =
-                                    vfi.MaterialInventories.FirstOrDefault(
-                                        mi =>
-                                        mi.LotNumber.Equals(importDetail.LotNumber) &&
-                                        mi.MaterialId == detail.ReferenceId &&
-                                        mi.VendorId == importDetail.VendorId &&
-                                        mi.Length == importDetail.Length);
-                                //var isNewInv = false;
-                                // nhap moi nguyen lieu
-                                if (materialByLot == null) {
-                                    materialByLot = new MaterialInventory {
-                                        TotalQty = 0,
-                                        TotalQtyKg = 0,
-                                        LotNumber = importDetail.LotNumber,
-                                        MaterialId = importDetail.MaterialId.Value,
-                                        ModifiedDate = DateTime.Now,
-                                        ModifiedUser = HttpContext.User.Identity.Name,
-                                        Active = true,
-                                        UnitPrice = importDetail.UnitPrice,
-                                        UnitWeight = importDetail.UnitWeight,
-                                        VendorId = importDetail.VendorId,
-                                        ImportDate = transaction.CreatedDate,
-                                        ImportQuantity = Math.Round((importDetail.Quantity), 2),
-                                        ImportQuantityKg = Math.Round((importDetail.QuantityKg), 3),
-                                        StoreCode = importDetail.StoreCode,
-                                        Length = importDetail.Length,
-                                    };
-                                    //isNewInv = true;
-                                    vfi.MaterialInventories.Add(materialByLot);
-                                    vfi.SaveChanges();
-                                }
-                                var materialInvPeriod = new Vfi.Models.MaterialInventoryPeriod {
-                                    MaterialId = materialByLot.MaterialId,
+                            }
+                            else {
+                                importDetail =
+                                    importPO.ImportPurchaseOrderDetails.FirstOrDefault(
+                                    id => id.MaterialId == detail.ReferenceId
+                                    && (detail.LotNumber == null
+                                        || detail.LotNumber.Equals(id.LotNumber))
+                                            );
+                            }
+                            if (string.IsNullOrWhiteSpace(importDetail.LotNumber))
+                                importDetail.LotNumber = MyUtilities.Material.GetMaterialLot(importDetail.VendorId,
+                                    detail.ReferenceId.Value, importDetail.Length, transaction.CreatedDate, 0);
+                            var materialByLot =
+                                vfi.MaterialInventories.FirstOrDefault(
+                                    mi =>
+                                    mi.LotNumber.Equals(importDetail.LotNumber) &&
+                                    mi.MaterialId == detail.ReferenceId &&
+                                    mi.VendorId == importDetail.VendorId &&
+                                    mi.Length == importDetail.Length);
+                            //var isNewInv = false;
+                            // nhap moi nguyen lieu
+                            if (materialByLot == null) {
+                                materialByLot = new MaterialInventory {
+                                    TotalQty = 0,
+                                    TotalQtyKg = 0,
+                                    LotNumber = importDetail.LotNumber,
+                                    MaterialId = importDetail.MaterialId.Value,
                                     ModifiedDate = DateTime.Now,
                                     ModifiedUser = HttpContext.User.Identity.Name,
-                                    PeriodDate = transaction.CreatedDate,
-                                    PeriodDay = transaction.CreatedDate.Day,
-                                    PeriodMonth = transaction.CreatedDate.Month,
-                                    PeriodYear = transaction.CreatedDate.Year,
-                                    Quantity = Math.Round(detail.Quantity, 2),
-                                    QuantityKg = Math.Round(detail.QuantityKg.Value, 3),
-                                    EarlyPeriodQuantity = materialByLot.TotalQty,
-                                    EarlyPeriodQuantityKg = materialByLot.TotalQtyKg,
-                                    TransactionId = transaction.TransactionId,
-                                    UnitPrice = detail.Price,
-                                    MaterialInventoryId = materialByLot.MaterialInventoryId,
+                                    Active = true,
+                                    UnitPrice = importDetail.UnitPrice,
+                                    UnitWeight = importDetail.UnitWeight,
+                                    VendorId = importDetail.VendorId,
+                                    ImportDate = transaction.CreatedDate,
+                                    ImportQuantity = Math.Round((importDetail.Quantity), 2),
+                                    ImportQuantityKg = Math.Round((importDetail.QuantityKg), 3),
+                                    StoreCode = importDetail.StoreCode,
+                                    Length = importDetail.Length,
                                 };
-                                materialByLot.TotalQty += Math.Round(detail.Quantity, 2);
-                                materialByLot.TotalQtyKg += Math.Round(detail.QuantityKg.Value, 3);
-                                materialByLot.ModifiedDate = DateTime.Now;
-                                materialByLot.ModifiedUser = HttpContext.User.Identity.Name;
-                                materialByLot.Active = true;
-
-                                materialInvPeriod.LastPeriodQuantity = materialByLot.TotalQty;
-                                materialInvPeriod.LastPeriodQuantityKg = materialByLot.TotalQtyKg;
-
-                                materialByLot.EndDate = null;
-                                vfi.MaterialInventoryPeriods.Add(materialInvPeriod);
-                                if (detail.DrawerId > 0) {
-                                    var onShelf = new OnShelf {
-                                        ReferenceInvId = materialByLot.MaterialInventoryId,
-                                        ReferenceId = materialByLot.MaterialId,
-                                        Active = true,
-                                        ModifiedDate = DateTime.Now,
-                                        ModifiedUser = transaction.ModifiedUser,
-                                        OnDate = DateTime.Today,
-                                        DrawerId = detail.DrawerId.Value,
-                                    };
-                                    vfi.OnShelves.Add(onShelf);
-                                }
-                                if (poDetail != null) {
-                                    if (poDetail.Unit.Contains("Kg")) {
-                                        poDetail.ReceivedQty += Math.Round(detail.QuantityKg.Value, 3);
-                                        if (poDetail.OrderQty - poDetail.ReceivedQty - poDetail.RejectedQty <= 0)
-                                            poDetail.IsComplete = true;
-                                    }
-                                    else {
-                                        poDetail.ReceivedQty += detail.Quantity;
-                                        materialByLot.UnitPrice = materialByLot.UnitPrice / materialByLot.UnitWeight;
-                                    }
-                                    if (poDetail.OrderQty - poDetail.ReceivedQty - poDetail.RejectedQty <= 0)
-                                        poDetail.IsComplete = true;
-                                    var material = vfi.Materials.FirstOrDefault(m => m.MaterialId == materialByLot.MaterialId);
-                                    if (material.UnitPrice < materialByLot.UnitPrice)
-                                        material.UnitPrice = materialByLot.UnitPrice;
-                                }
-
-                                if (purchaseOrder != null && !purchaseOrder.PurchaseOrderDetails.Any(pod => !(pod.IsComplete ?? false)))
-                                    purchaseOrder.Status = (byte)MyUtilities.Sales.Status.Completed;
-                                transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
-                                //if (isNewInv) {
-                                //    vfi.MaterialInventories.Add(materialByLot);
-                                //}
+                                //isNewInv = true;
+                                vfi.MaterialInventories.Add(materialByLot);
                                 vfi.SaveChanges();
                             }
-                        }
-                        else if (transaction.EoI.Equals("1")) { // xuất kho nguyên liệu
-                            var exportMaterial =
-                                vfi.ExportMaterials.FirstOrDefault(em => em.TransactionId == transaction.TransactionId);
-                            var isDestroy = exportMaterial.ShiftType == null;
-                            var invIdsEmpty = new List<int>();
-                            // kiem tra ton kho nguyen lieu theo lo
-                            var materialInvIds =
-                                exportMaterial.ExportMaterialDetails.Select(u => u.MaterialInvId).Distinct().ToList();
-                            foreach (var materialInvId in materialInvIds) {
-                                var materialInvs =
-                                    exportMaterial.ExportMaterialDetails.Where(u => u.MaterialInvId == materialInvId);
-                                var materialInventory =
-                                    vfi.MaterialInventories.FirstOrDefault(mi => mi.MaterialInventoryId == materialInvId);
+                            var materialInvPeriod = new Vfi.Models.MaterialInventoryPeriod {
+                                MaterialId = materialByLot.MaterialId,
+                                ModifiedDate = DateTime.Now,
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                PeriodDate = transaction.CreatedDate,
+                                PeriodDay = transaction.CreatedDate.Day,
+                                PeriodMonth = transaction.CreatedDate.Month,
+                                PeriodYear = transaction.CreatedDate.Year,
+                                Quantity = Math.Round(detail.Quantity, 2),
+                                QuantityKg = Math.Round(detail.QuantityKg.Value, 3),
+                                EarlyPeriodQuantity = materialByLot.TotalQty,
+                                EarlyPeriodQuantityKg = materialByLot.TotalQtyKg,
+                                TransactionId = transaction.TransactionId,
+                                UnitPrice = detail.Price,
+                                MaterialInventoryId = materialByLot.MaterialInventoryId,
+                            };
+                            materialByLot.TotalQty += Math.Round(detail.Quantity, 2);
+                            materialByLot.TotalQtyKg += Math.Round(detail.QuantityKg.Value, 3);
+                            materialByLot.ModifiedDate = DateTime.Now;
+                            materialByLot.ModifiedUser = HttpContext.User.Identity.Name;
+                            materialByLot.Active = true;
 
-                                var exportMaterialQuantity = Math.Round(materialInvs.Sum(u => u.Quantity), 2);
-                                if (exportMaterialQuantity > Math.Round(materialInventory.TotalQty, 2)) {
-                                    throw new AggregateException("Nguyên liệu cây" +
-                                                                 materialInvs.FirstOrDefault().Material.MaterialCode +
-                                                                 " không đủ!\n" +
-                                                                 (materialInventory.TotalQty - exportMaterialQuantity));
-                                }
-                                var materialInvPeriod = new MaterialInventoryPeriod {
-                                    ModifiedUser = HttpContext.User.Identity.Name,
+                            materialInvPeriod.LastPeriodQuantity = materialByLot.TotalQty;
+                            materialInvPeriod.LastPeriodQuantityKg = materialByLot.TotalQtyKg;
+
+                            materialByLot.EndDate = null;
+                            vfi.MaterialInventoryPeriods.Add(materialInvPeriod);
+                            if (detail.DrawerId > 0) {
+                                var onShelf = new OnShelf {
+                                    ReferenceInvId = materialByLot.MaterialInventoryId,
+                                    ReferenceId = materialByLot.MaterialId,
+                                    Active = true,
                                     ModifiedDate = DateTime.Now,
-                                    MaterialId = materialInventory.MaterialId,
-                                    MaterialInventoryId = materialInventory.MaterialInventoryId,
-                                    Quantity = Math.Round(exportMaterialQuantity, 2),
-                                    //QuantityKg = Math.Round(exportMaterialQuantity, 2),
-                                    PeriodDate = transaction.CreatedDate,
-                                    PeriodDay = transaction.CreatedDate.Day,
-                                    PeriodMonth = transaction.CreatedDate.Month,
-                                    PeriodYear = transaction.CreatedDate.Year,
-                                    EarlyPeriodQuantity = Math.Round(materialInventory.TotalQty, 2),
-                                    EarlyPeriodQuantityKg = Math.Round(materialInventory.TotalQtyKg ?? 0, 3),
-                                    TransactionId = transaction.TransactionId,
+                                    ModifiedUser = transaction.ModifiedUser,
+                                    OnDate = DateTime.Today,
+                                    DrawerId = detail.DrawerId.Value,
                                 };
-                                if (materialInventory.TotalQty == materialInventory.ImportQuantity)
-                                    materialInventory.FirstUseDate = DateTime.Now;
-                                materialInventory.TotalQty -= Math.Round(exportMaterialQuantity, 2);
-                                materialInventory.TotalQtyKg -=
-                                    Math.Round(exportMaterialQuantity * materialInventory.UnitWeight, 3);
-                                materialInvPeriod.LastPeriodQuantity = materialInventory.TotalQty;
-                                materialInvPeriod.LastPeriodQuantityKg = materialInventory.TotalQtyKg;
-
-                                if (Math.Round(materialInventory.TotalQty, 2) == 0) {
-                                    materialInventory.TotalQty = 0;
-                                    materialInventory.TotalQtyKg = 0;
-                                    if (isDestroy) {
-                                        materialInventory.EndDate = DateTime.Now;
-                                        invIdsEmpty.Add(materialInventory.MaterialInventoryId);
-                                    }
-                                }
-                                vfi.MaterialInventoryPeriods.Add(materialInvPeriod);
+                                vfi.OnShelves.Add(onShelf);
                             }
-                            //
-                            foreach (var transactionDetail in transaction.TransactionDetails) {
-                                var exportDetail =
-                                    exportMaterial.ExportMaterialDetails.FirstOrDefault(
-                                        emd => emd.TransactionDetailId == transactionDetail.TransactionDetailId);
-                                if (exportDetail.MachineId == null) continue;
-                                var materialOnMachine =
-                                    vfi.MaterialInvOnMachines.FirstOrDefault(
-                                        mim =>
-                                        mim.MachineId == exportDetail.MachineId &&
-                                        mim.MaterialInvId == exportDetail.MaterialInvId);
-                                var materialOnMachinePeriod = new MaterialInvOnMachinePeriod {
-                                    ModifiedUser = HttpContext.User.Identity.Name,
-                                    ModifiedDate = DateTime.Now,
-                                    MachineId = exportDetail.MachineId,
-                                    MaterialInvId = exportDetail.MaterialInvId,
-                                    Quantity = Math.Round(transactionDetail.Quantity, 2),
-                                    PeriodDate = transaction.CreatedDate,
-                                };
-                                if (materialOnMachine == null) {
-                                    materialOnMachinePeriod.EarlyQuantity = 0;
-                                    materialOnMachinePeriod.LastQuantity = transactionDetail.Quantity;
-                                    materialOnMachine = new MaterialInvOnMachine {
-                                        MachineId = exportDetail.MachineId,
-                                        MaterialInvId = exportDetail.MaterialInvId,
-                                        ModifiedDate = DateTime.Now,
-                                        ModifiedUser = HttpContext.User.Identity.Name,
-                                        TotalQuantity = Math.Round(transactionDetail.Quantity, 2),
-                                    };
-                                    vfi.MaterialInvOnMachines.Add(materialOnMachine);
-                                    vfi.SaveChanges();
+                            if (poDetail != null) {
+                                if (poDetail.Unit.Contains("Kg")) {
+                                    poDetail.ReceivedQty += Math.Round(detail.QuantityKg.Value, 3);
+                                    if (poDetail.OrderQty - poDetail.ReceivedQty - poDetail.RejectedQty <= 0)
+                                        poDetail.IsComplete = true;
                                 }
                                 else {
-                                    materialOnMachinePeriod.EarlyQuantity =
-                                        Math.Round(materialOnMachine.TotalQuantity, 2);
-                                    materialOnMachinePeriod.LastQuantity = materialOnMachinePeriod.EarlyQuantity +
-                                                                           Math.Round(transactionDetail.Quantity, 2);
-                                    materialOnMachine.ModifiedDate = DateTime.Now;
-                                    materialOnMachine.ModifiedUser = HttpContext.User.Identity.Name;
-                                    materialOnMachine.TotalQuantity += Math.Round(transactionDetail.Quantity, 2);
+                                    poDetail.ReceivedQty += detail.Quantity;
+                                    materialByLot.UnitPrice = materialByLot.UnitPrice / materialByLot.UnitWeight;
                                 }
-                                vfi.MaterialInvOnMachinePeriods.Add(materialOnMachinePeriod);
+                                if (poDetail.OrderQty - poDetail.ReceivedQty - poDetail.RejectedQty <= 0)
+                                    poDetail.IsComplete = true;
+                                var material = vfi.Materials.FirstOrDefault(m => m.MaterialId == materialByLot.MaterialId);
+                                if (material.UnitPrice < materialByLot.UnitPrice)
+                                    material.UnitPrice = materialByLot.UnitPrice;
                             }
-                            transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
 
+                            if (purchaseOrder != null && !purchaseOrder.PurchaseOrderDetails.Any(pod => !(pod.IsComplete ?? false)))
+                                purchaseOrder.Status = (byte)MyUtilities.Sales.Status.Completed;
+                            transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
+                            //if (isNewInv) {
+                            //    vfi.MaterialInventories.Add(materialByLot);
+                            //}
                             vfi.SaveChanges();
-                            DeActiveInventoryOnShelf(invIdsEmpty);
-                            UpdateStatusWorkOrderRoutingMaterial(exportMaterial.ExportId);
                         }
+                    }
+                    else if (transaction.EoI.Equals("1")) { // xuất kho nguyên liệu
+                        var exportMaterial =
+                            vfi.ExportMaterials.FirstOrDefault(em => em.TransactionId == transaction.TransactionId);
+                        var isDestroy = exportMaterial.ShiftType == null;
+                        var invIdsEmpty = new List<int>();
+                        // kiem tra ton kho nguyen lieu theo lo
+                        var materialInvIds =
+                            exportMaterial.ExportMaterialDetails.Select(u => u.MaterialInvId).Distinct().ToList();
+                        foreach (var materialInvId in materialInvIds) {
+                            var materialInvs =
+                                exportMaterial.ExportMaterialDetails.Where(u => u.MaterialInvId == materialInvId);
+                            var materialInventory =
+                                vfi.MaterialInventories.FirstOrDefault(mi => mi.MaterialInventoryId == materialInvId);
+
+                            var exportMaterialQuantity = Math.Round(materialInvs.Sum(u => u.Quantity), 2);
+                            if (exportMaterialQuantity > Math.Round(materialInventory.TotalQty, 2)) {
+                                throw new AggregateException("Nguyên liệu cây" +
+                                                             materialInvs.FirstOrDefault().Material.MaterialCode +
+                                                             " không đủ!\n" +
+                                                             (materialInventory.TotalQty - exportMaterialQuantity));
+                            }
+                            var materialInvPeriod = new MaterialInventoryPeriod {
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                MaterialId = materialInventory.MaterialId,
+                                MaterialInventoryId = materialInventory.MaterialInventoryId,
+                                Quantity = Math.Round(exportMaterialQuantity, 2),
+                                //QuantityKg = Math.Round(exportMaterialQuantity, 2),
+                                PeriodDate = transaction.CreatedDate,
+                                PeriodDay = transaction.CreatedDate.Day,
+                                PeriodMonth = transaction.CreatedDate.Month,
+                                PeriodYear = transaction.CreatedDate.Year,
+                                EarlyPeriodQuantity = Math.Round(materialInventory.TotalQty, 2),
+                                EarlyPeriodQuantityKg = Math.Round(materialInventory.TotalQtyKg ?? 0, 3),
+                                TransactionId = transaction.TransactionId,
+                            };
+                            if (materialInventory.FirstUseDate == null) {
+                                materialInventory.FirstUseDate = DateTime.Now;
+                            }
+                            materialInventory.TotalQty -= Math.Round(exportMaterialQuantity, 2);
+                            materialInventory.TotalQtyKg -=
+                                Math.Round(exportMaterialQuantity * materialInventory.UnitWeight, 3);
+                            materialInvPeriod.LastPeriodQuantity = materialInventory.TotalQty;
+                            materialInvPeriod.LastPeriodQuantityKg = materialInventory.TotalQtyKg;
+
+                            if (Math.Round(materialInventory.TotalQty, 2) == 0) {
+                                materialInventory.TotalQty = 0;
+                                materialInventory.TotalQtyKg = 0;
+                                invIdsEmpty.Add(materialInventory.MaterialInventoryId);
+                                //if (isDestroy) {
+                                //    if (!materialInventory.MaterialInvOnMachines.Any(x => x.TotalQuantity > 0)) {
+                                //        materialInventory.EndDate = DateTime.Now;
+                                //    }
+                                //}
+                            }
+                            vfi.MaterialInventoryPeriods.Add(materialInvPeriod);
+                        }
+                        //
+                        foreach (var transactionDetail in transaction.TransactionDetails) {
+                            var exportDetail =
+                                exportMaterial.ExportMaterialDetails.FirstOrDefault(
+                                    emd => emd.TransactionDetailId == transactionDetail.TransactionDetailId);
+                            if (exportDetail.MachineId == null) continue;
+                            var materialOnMachine =
+                                vfi.MaterialInvOnMachines.FirstOrDefault(
+                                    mim =>
+                                    mim.MachineId == exportDetail.MachineId &&
+                                    mim.MaterialInvId == exportDetail.MaterialInvId);
+                            var materialOnMachinePeriod = new MaterialInvOnMachinePeriod {
+                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                                MachineId = exportDetail.MachineId,
+                                MaterialInvId = exportDetail.MaterialInvId,
+                                Quantity = Math.Round(transactionDetail.Quantity, 2),
+                                PeriodDate = transaction.CreatedDate,
+                            };
+                            if (materialOnMachine == null) {
+                                materialOnMachinePeriod.EarlyQuantity = 0;
+                                materialOnMachinePeriod.LastQuantity = transactionDetail.Quantity;
+                                materialOnMachine = new MaterialInvOnMachine {
+                                    MachineId = exportDetail.MachineId,
+                                    MaterialInvId = exportDetail.MaterialInvId,
+                                    ModifiedDate = DateTime.Now,
+                                    ModifiedUser = HttpContext.User.Identity.Name,
+                                    TotalQuantity = Math.Round(transactionDetail.Quantity, 2),
+                                };
+                                vfi.MaterialInvOnMachines.Add(materialOnMachine);
+                                vfi.SaveChanges();
+                            }
+                            else {
+                                materialOnMachinePeriod.EarlyQuantity =
+                                    Math.Round(materialOnMachine.TotalQuantity, 2);
+                                materialOnMachinePeriod.LastQuantity = materialOnMachinePeriod.EarlyQuantity +
+                                                                       Math.Round(transactionDetail.Quantity, 2);
+                                materialOnMachine.ModifiedDate = DateTime.Now;
+                                materialOnMachine.ModifiedUser = HttpContext.User.Identity.Name;
+                                materialOnMachine.TotalQuantity += Math.Round(transactionDetail.Quantity, 2);
+                            }
+                            vfi.MaterialInvOnMachinePeriods.Add(materialOnMachinePeriod);
+                        }
+                        transaction.Status = (byte)MyUtilities.Transaction.Status.Approved;
+
+                        vfi.SaveChanges();
+                        DeActiveInventoryOnShelf(invIdsEmpty);
+                        UpdateMaterialInventoryEndState(invIdsEmpty);
+                        UpdateStatusWorkOrderRoutingMaterial(exportMaterial.ExportId);
+                    }
                     //}
                 }
 
@@ -7725,7 +7729,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             msg += "Lỗi! Sản phẩm " + productInv.Product.ProductCode + " chưa cập nhật tồn kho";
 
                         var details = updates.Where(u => u.ProductInvId == productInvId);
-                        if (productInv.TotalQty == null || productInv.TotalQty - details.Sum(d => d.RealNumber) < 0)
+                        if (productInv.TotalQty - details.Sum(d => d.RealNumber) < 0)
                             msg += "Lỗi! Sản phẩm " + productInv.Product.ProductCode
                                    + " lô " + productInv.LotNumber + " tồn kho không đủ";
                     }
@@ -12780,18 +12784,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         useInShift.Status = (byte)MyUtilities.Transaction.Status.Approved;
                     }
                     vfi.SaveChanges();
-
-                    if (endMaterialInvIds.Any()) {
-                        endMaterialInvIds = endMaterialInvIds.Distinct().ToList();
-                        foreach (var materialInvId in endMaterialInvIds) {
-                            var existedOnMachine = vfi.MaterialInvOnMachines.Any(x => x.MaterialInvId == materialInvId && x.TotalQuantity > 0);
-                            if (existedOnMachine) continue;
-                            var materialInv = vfi.MaterialInventories.FirstOrDefault(x => x.MaterialInventoryId == materialInvId);
-                            if (materialInv == null) continue;
-                            materialInv.EndDate = DateTime.Now;
-                        }
-                        vfi.SaveChanges();
-                    }
+                    UpdateMaterialInventoryEndState(endMaterialInvIds);
                 }
             }
             catch (Exception exception) {
@@ -12801,6 +12794,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return Json("okie");
         }
         #endregion
+
+        int UpdateMaterialInventoryEndState(List<int> invIds) {
+            var a = 0;
+            using (var vfi = new tammaContext()) {
+                var materialInvs = vfi.MaterialInventories.Where(x => invIds.Contains(x.MaterialInventoryId));
+                foreach (var materialInv in materialInvs) {
+                    if (Math.Round(materialInv.TotalQty, 2) == 0) {
+                        materialInv.TotalQty = 0;
+                        materialInv.TotalQtyKg = 0;
+                        if (!materialInv.MaterialInvOnMachines.Any(x => x.TotalQuantity > 0)) {
+                            materialInv.EndDate = null;
+                        }
+                        else {
+                            materialInv.EndDate = DateTime.Now;
+                        }
+                    }
+                    else {
+                        materialInv.EndDate = null;
+                    }
+                }
+                a = vfi.SaveChanges();
+            }
+            return a;
+        }
 
         #region upload excel production
 

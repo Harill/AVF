@@ -50,6 +50,9 @@
             columns.Bound(f => f.Production2).Width(75).Title("Khác")
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production2' <#=Production2? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.ModifiedUser).Width(100).ReadOnly(true);
+            columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true)
+                .Format("{0:dd/MM/yyyy HH:mm}");
             
         })
         .Editable(editing => editing.Mode(GridEditMode.InLine))

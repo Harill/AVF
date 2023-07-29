@@ -1,13 +1,12 @@
 ﻿
 using System.Collections.Generic;
 using System.Linq;
+using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
-    public class ExpectedMaterialPlanModel
-    {
-        public ExpectedMaterialPlanModel()
-        {
+    public class ExpectedMaterialPlanModel {
+        public ExpectedMaterialPlanModel() {
             Details = new List<ExpectedProductionMaterialPlanModel>();
         }
         public int Index { get; set; }
@@ -21,68 +20,73 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string DiameterType { get; set; }
         public double InDiameter { get; set; }
         public string Shape { get; set; }
-        
+
         public double TotalInv { get; set; }
         public double TotalInvKg { get; set; }
-        public int MonthCount { get; set; }
-        public double ForecastInYearKg
-        {
-            get { return Details.Sum(d => d.ForecastInYearKg); }
-        }
 
-        public double RequireInYearKg
-        {
-            get
-            {
+        public double OnPurchaseQuantity { get; set; }
+        public int MonthCount { get; set; }
+
+        public List<ExpectedProductionMaterialPlanModel> Details { get; set; }
+
+        public double UseInMonthKg { get { return Details.Sum(x => x.UseInMonthKg); } }
+        public double UseAvgInYearKg { get { return Details.Sum(x => x.UseAvgInYearKg); } }
+        public double OrderRemaining { get { return Details.Sum(x => x.OrderRemaining); } }
+        public double OrderRemainingKg { get { return Details.Sum(x => x.OrderRemainingKg); } }
+
+        public double OrderLastYear { get { return Details.Sum(x => x.OrderLastYear); } }
+        public double OrderLastYearKg { get { return Details.Sum(x => x.OrderLastYearKg); } }
+
+        public double ForecastInYearKg { get { return Details.Sum(d => d.ForecastInYearKg); } }
+
+        public double RequireInYearKg {
+            get {
                 return ForecastInYearKg > TotalInvKg
                            ? ForecastInYearKg - TotalInvKg
                            : 0;
             }
         }
-        public double ForecastByMonthKg
-        {
-            get { return ForecastInYearKg*MonthCount/12; }
-        }
-        public double RequireByMonthKg
-        {
-            get
-            {
-                return ForecastByMonthKg > TotalInvKg
-                         ? ForecastByMonthKg - TotalInvKg
+        public double ForecastByMonthKg { get { return Details.Sum(d => d.ForecastByMonthKg); } }
+
+        public double ProductRequireByMonthKg { get { return Details.Sum(d => d.RequireByMonthKg); } }
+
+        public double RequireByMonthKg {
+            get {
+                return ProductRequireByMonthKg > TotalInvKg
+                         ? ProductRequireByMonthKg - TotalInvKg
                          : 0;
             }
         }
-        public double ForecastInMonthKg
-        {
-            get { return Details.Sum(d => d.ForecastInMonthKg); }
-        }
-        public double RequireInMonthKg
-        {
-            get
-            {
+
+        public double ForecastInMonthKg { get { return Details.Sum(d => d.ForecastInMonthKg); } }
+        public double RequireInMonthKg {
+            get {
                 return ForecastInMonthKg > TotalInvKg
                          ? ForecastInMonthKg - TotalInvKg
                          : 0;
             }
         }
-        public double ForecastNextMonthKg
-        {
-            get { return Details.Sum(d => d.ForecastNextMonthKg); }
-        }
-        public double RequireNextMonthKg
-        {
-            get
-            {
-                return ForecastNextMonthKg >( TotalInvKg - ForecastInMonthKg)
+        public double ForecastNextMonthKg { get { return Details.Sum(d => d.ForecastNextMonthKg); } }
+        public double RequireNextMonthKg {
+            get {
+                return ForecastNextMonthKg > (TotalInvKg - ForecastInMonthKg)
                          ? ForecastNextMonthKg - (TotalInvKg - ForecastInMonthKg)
                          : 0;
             }
         }
         public double TotalRequireKg { get { return RequireInMonthKg + RequireNextMonthKg; } }
-        public List<ExpectedProductionMaterialPlanModel> Details { get; set; }
 
+        public int ExpectedProductionDay {
+            get {
+                return Details.Any(x => x.MaxUseInMonthKg > 0)
+                    ? MyUtilities.Function.Round(TotalInvKg / Details.Sum(x => x.MaxUseInMonthKg))
+                    : 0;
+            }
+        }
 
+        public bool HasProductDuplicate { get; set; }
     }
+
     public class ExpectedProductionMaterialPlanModel
     {
         public ExpectedProductionMaterialPlanModel()
@@ -121,7 +125,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public string ProductCode { get; set; }
         public bool UseForecast { get; set; }
         public double UnitWeightByMaterial { get; set; }
+        public bool Show { get { return RequireByMonthKg + UseInMonthKg > 0; } }
 
+        public double UseInMonthKg { get; set; }
+        public double MaxUseInMonthKg { get; set; }
+        public double UseAvgInYearKg { get; set; }
+
+        public double OrderRemaining { get; set; }
+        public double OrderRemainingKg {
+            get { return OrderRemaining * UnitWeightByMaterial / 1000; }
+        }
+        public double OrderLastYear { get; set; }
+        public double OrderLastYearKg {
+            get { return OrderLastYear * UnitWeightByMaterial / 1000; }
+        }
 
         public double ForecastInYear { get; set; }
         public double ForecastInYearKg
@@ -140,49 +157,46 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         {
             get { return ForecastByMonth * UnitWeightByMaterial / 1000; }
         }
+        public double ForecastInMonth { get; set; }
+        public double ForecastInMonthKg {
+            get { return ForecastInMonth * UnitWeightByMaterial / 1000; }
+        }
+        public double ForecastNextMonth { get; set; }
+        public double ForecastNextMonthKg {
+            get { return ForecastNextMonth * UnitWeightByMaterial / 1000; }
+        }
         public double RequireByMonth { get; set; }
-        public double RequireByMonthKg
-        {
+        public double RequireByMonthKg {
             get { return RequireByMonth * UnitWeightByMaterial / 1000; }
         }
 
-        public double ForecastInMonth { get; set; }
-        public double ForecastInMonthKg
-        {
-            get { return ForecastInMonth * UnitWeightByMaterial / 1000; }
-        }
-        public double OrderInMonth { get; set; }
-        public double OrderInMonthKg
-        {
-            get { return OrderInMonth * UnitWeightByMaterial / 1000; }
-        }
+        //public double OrderInMonth { get; set; }
+        //public double OrderInMonthKg
+        //{
+        //    get { return OrderInMonth * UnitWeightByMaterial / 1000; }
+        //}
         public double RequireInMonth { get; set; }
-        public double RequireInMonthKg
-        {
+        public double RequireInMonthKg {
             get { return RequireInMonth * UnitWeightByMaterial / 1000; }
         }
 
-        public double ForecastNextMonth { get; set; }
-        public double ForecastNextMonthKg
-        {
-            get { return ForecastNextMonth * UnitWeightByMaterial / 1000; }
-        }
-        public double OrderNextMonth { get; set; }
-        public double OrderNextMonthKg
-        {
-            get { return OrderNextMonth * UnitWeightByMaterial / 1000; }
-        }
-        public double RequireNextMonth { get; set; }
-        public double RequireNextMonthKg
-        {
-            get { return RequireNextMonth * UnitWeightByMaterial / 1000; }
-        }
+        //public double OrderNextMonth { get; set; }
+        //public double OrderNextMonthKg
+        //{
+        //    get { return OrderNextMonth * UnitWeightByMaterial / 1000; }
+        //}
+        //public double RequireNextMonth { get; set; }
+        //public double RequireNextMonthKg
+        //{
+        //    get { return RequireNextMonth * UnitWeightByMaterial / 1000; }
+        //}
         public double TotalRequire { get; set; }
-        public double TotalRequireKg
-        {
+        public double TotalRequireKg {
             get { return TotalRequire * UnitWeightByMaterial / 1000; }
         }
         public double OnPoKg { get; set; }
         public double RequirePoKg { get; set; }
+
+        public bool IsDuplicate { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
             Currency = "";
         }
         public long InquiryId { get; set; }
+        public string InquiryNumber { get; set; }
 
         public int VendorId { get; set; }
         [DataType("_VendorEditByClasstifiedTemplate")]
@@ -25,6 +26,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public int ReferenceId { get; set; }
         [DataType("_MaterialEditByTypeTemplate")]
         public string ReferenceCode { get; set; }
+        public string ReferenceName { get; set; }
 
         public int TypeId { get; set; }
         public string TypeName { get; set; }
@@ -66,7 +68,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
             }
         }
 
-        [Required(ErrorMessage = "*")]
         [DataType("_DateTemplate")]
         public DateTime? DueDate { get; set; }
         public byte Status { get; set; }
@@ -74,6 +75,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         [DataType("_CurrencyEditTemplate")]
         public string Currency { get; set; }
         public string Note { get; set; }
+
+        public int State {
+            get {
+                if (DueDate == null) return 1;
+                if (DueDate.Value <= DateTime.Today.AddDays(3)) return 1; // red
+                if (DueDate.Value <= DateTime.Today.AddDays(7)) return 2; // yellow
+                return 0;
+            }
+        }
 
         public string ModifiedUser { get; set; }
         public DateTime ModifiedDate { get; set; }

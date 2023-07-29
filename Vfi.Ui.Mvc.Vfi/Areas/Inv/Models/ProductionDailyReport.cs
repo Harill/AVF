@@ -5,11 +5,9 @@ using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 {
-    public class ProductionDailyReport
-    {
-        
-        public ProductionDailyReport()
-        {
+    public class ProductionDailyReport {
+
+        public ProductionDailyReport() {
             Shifts = new List<Shift>();
             DisplaySum = true;
             PrintCost = 1;
@@ -26,6 +24,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public bool DisplaySum { get; set; }
         public int MachineId { get; set; }
         public string MachineName { get; set; }
+        public string MachineStateName { get; set; }
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
         public int MaterialInvId { get; set; }
@@ -39,7 +38,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public int ProductionPrice { get; set; }
         public double ProductionCost { get { return ProductionPrice * TotalShift.Quantity; } }
         public double Productivity { get; set; }
-        
+
         public double ProductivityInShift {
             get {
                 if (MachineName.Contains("P")) {
@@ -56,6 +55,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
                 return MyUtilities.Product.GetProductionRateInFactoryDayTime(Productivity);
             }
         }
+        //public double ProductivityInDayPlan {
+        //    get { return ProductivityInDay * 0.9; }
+        //}
 
         public DateTime ReportDate { get; set; }
 
@@ -64,8 +66,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public int ProductivityAlarm2 { get; set; }
 
         public double SumProductivity { get { return TotalShift.TotalQuantity > 0 ? ProductivityInDay : 0; } }
-        public int CountMachineRun
-        {
+        public int CountMachineRun {
             get { return TotalShift.TotalQuantity > 0 ? 1 : 0; }
         }
 
@@ -83,9 +84,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ShiftCMateialUse { get; set; }
 
         public List<Shift> Shifts { get; set; }
-        public Shift TotalShift{
-            get
-            {
+        public Shift TotalShift {
+            get {
                 return new Shift {
                     Quantity = Shifts.Sum(s => s.Quantity),
                     ProcessingQuantity = Shifts.Sum(s => s.ProcessingQuantity),
@@ -154,7 +154,56 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             }
         }
 
+
+        public bool EmptyPlan { get; set; }
+        public double ProductivityInDayPlan { get; set; }
+        public double ProductivityInDayReal { get; set; }
+        public double ProductivityInDayRate {
+            get {
+                return ProductivityInDayPlan > 0
+                    ? ProductivityInDayReal / ProductivityInDayPlan * 100
+                    : ProductivityInDayReal > 0
+                        ? 100
+                        : 0;
+            }
+        }
+
+        public double ProductivityInDayState {
+            get {
+                return ProductivityInDayPlan > 0
+                        ? ProductivityInDayRate < 50
+                            ? 3 // yellow
+                            : ProductivityInDayRate < 70
+                                ? 2 // red
+                                : 0 : 0;
+            }
+        }
+
+        public double ProductivityInWeekPlan { get { return ProductivityInDayPlan * 6; } }
+        public double ProductivityInWeekReal { get; set; }
+        public double ProductivityInWeekRate {
+            get {
+                return ProductivityInWeekPlan > 0
+                    ? ProductivityInWeekReal / ProductivityInWeekPlan * 100
+                    : ProductivityInWeekReal > 0
+                        ? 100
+                        : 0;
+            }
+        }
+
+        public double ProductivityInWeekState {
+            get {
+                return
+                    ProductivityInDayPlan > 0
+                    ? ProductivityInWeekRate < 50
+                        ? 3 // yellow
+                        : ProductivityInWeekRate < 70
+                            ? 2 // red
+                            : 0 : 0;
+            }
+        }
     }
+
     public class Shift
     {
         public Shift()
@@ -242,4 +291,46 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             }
         }
     }
+
+
+    public class ProductionDailyGroupReport {
+        public ProductionDailyGroupReport() {
+            Details = new List<ProductionDailyReport>();
+        }
+        
+        public DateTime ReportDate { get; set; }
+
+        public Shift ShiftA { get; set; }
+        public Shift ShiftB { get; set; }
+        public Shift ShiftC { get; set; }
+
+        public List<Shift> Shifts { get; set; }
+        public Shift TotalShift {
+            get {
+                return new Shift {
+                    Quantity = Shifts.Sum(s => s.Quantity),
+                    ProcessingQuantity = Shifts.Sum(s => s.ProcessingQuantity),
+                    DefectQuantity = Shifts.Sum(s => s.DefectQuantity),
+                    MaterialUse = Shifts.Sum(s => s.MaterialUse),
+                    ProductionPrice = Shifts.Sum(s => s.ProductionPrice),
+                    ProductCost = Shifts.Sum(s => s.ProductCost),
+                    ProductCostInMonth = Shifts.Sum(s => s.ProductCostInMonth),
+                    MaterialWeight = Shifts.Sum(s => s.MaterialWeight),
+                    //ProductionMaterialPlan = Shifts.Sum(s=> s.ProductionMaterialPlan),
+                    //MaterialProductionRate = Shifts.Sum(s => s.MaterialProductionRate),
+                    NGCost = Shifts.Sum(s => s.NGCost),
+                    MaterialDiff = Shifts.Sum(s => s.MaterialDiff),
+                    MaterialDiffCost = Shifts.Sum(s => s.MaterialDiffCost),
+                    ProductionRate = Shifts.Count > 0 ? Shifts.FirstOrDefault().ProductionRate : 0,
+
+                    DesignProductivity = Shifts.Count > 0 ? Shifts.FirstOrDefault().DesignProductivity : 0,
+                };
+            }
+        }
+
+        public double ProductivityInDayPlan { get; set; }
+
+        public List<ProductionDailyReport> Details { get; set; }
+    }
+
 }

@@ -1,0 +1,283 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
+@model MaterialInventoryModel
+@{
+    ViewBag.Title = "Báo cáo kết quả sản xuất";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
+    <script type="text/javascript">
+
+        var startGrid = false;
+        function grid_OnDataBinding(args) {
+
+            if (startGrid && !onLoading) {
+                OnLoadingData();
+
+                var toDate = $("#ToDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                var fromDate = $("#FromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+
+                args.data = $.extend(args.data,
+                {
+                    fromDate: fromDate,
+                    toDate: toDate
+                });
+            }
+        }
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+            if (startGrid) {
+                RefreshChart();
+            }
+        }
+
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                startGrid = true;
+                RefreshGrid(name);
+            }
+        }
+    </script>
+
+    <script>
+        function chart_OnDataBound(e) {
+            //alert('a');
+        }
+
+
+        function RefreshChart() {
+            var fromYear = '', toYear = '';
+            var fromDate = $("#FromDate").data("tDatePicker").value();
+            if (fromDate === null)
+                fromDate = "";
+            else {
+                fromYear = $.telerik.formatString('{0:yyyy}', fromDate);
+                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+            }
+            var toDate = $("#ToDate").data("tDatePicker").value();
+            if (toDate === null)
+                toDate = "";
+            else {
+                toYear = $.telerik.formatString('{0:yyyy}', toDate);
+                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+            }
+            var title = 'Báo cáo kết quả sản xuất ';
+            if (fromYear !== toYear) {
+                title += fromYear + "-" + toYear;
+            }
+            else {
+                title += fromYear;
+            }
+            $("#chart").data("tChart").options.title.text = title;
+            $("#chart").data("tChart").rebind({
+                fromDate:fromDate,
+                toDate: toDate
+            });
+        }
+    </script>
+}
+
+    <div class="title">Báo cáo kết quả sản xuất	</div>
+
+<div id="pnlInv">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
+        <fieldset>
+            <legend>Tiêu chí trích lọc</legend>
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("FromDate")
+                        .Format("MM/yyyy")
+                        .Value(new DateTime(DateTime.Now.Year-1,1,1))
+                        .Render();
+                }
+            </div><div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("ToDate")
+                        .Format("MM/yyyy")
+                        .Value(new DateTime(DateTime.Now.Year-1, 12, 1))
+                        .Render();
+                }
+            </div>
+            <div class="grid_5">
+                <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2('grid'); ">
+                    <span class='t-icon t-insert'></span>
+                    Làm mới
+                    <span class="loadButton"></span>
+                </button>
+                <br />
+                    (chỉ lấy tối đa 12 tháng trong thời gian chỉ định)
+            </div>
+        </fieldset>
+
+    </div>
+    <div class="clear"></div>
+    <div class="cover-div" style="width:700px;float:left;">
+        @{
+            Html.Telerik().Grid<ProductionYearlyReportModel>()
+                .Name("grid")
+                .DataKeys(keys => keys.Add(f => f.Month).RouteKey("month"))
+                .DataBinding(dataBindings => dataBindings.Ajax()
+                    .Select("SelectProductionYearlyReport", "Reporting", new { fromDate = "", toDate = "" })
+                )
+                .Columns(columns => {
+                    columns.Bound(f => f.Month).Title("Tháng</br>Năm")
+                        .HtmlAttributes(new { style = "text-align: center;" });
+                    //
+                    columns.Bound(f => f.ProductionQuantity).Width(80)
+                        .HeaderTemplate("<strong>SX 1</br>OK</br>(pcs)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: right;" })
+                        .Aggregate(agg => agg.Sum())
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.ProductionQuantityLossRate).Width(60)
+                        .HeaderTemplate("<strong>Tỉ lệ</br>HH</br>(%)</strong>")
+                        .Format("{0:n2}")
+                        .HtmlAttributes(new { style = "text-align: center;" })
+                        //.Aggregate(agg => agg.Sum())
+                        //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.NGDefectQuantity).Width(75)
+                        .HeaderTemplate("<strong>SX 1</br>NG</br>(pcs)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: right;" })
+                        .Aggregate(agg => agg.Sum())
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.NGPercent).Width(60)
+                        .HeaderTemplate("<strong>Tỉ lệ</br>NG</br>(%)</strong>")
+                        .Format("{0:n2}")
+                        .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
+                        //.Aggregate(agg => agg.Sum())
+                        //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n3}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.NGDefectQuantityAfter).Width(75)
+                        .HeaderTemplate("<strong>Sau SX1</br>NG</br>(pcs)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: right;" })
+                        .Aggregate(agg => agg.Sum())
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    //columns.Bound(f => f.DefectQuantityAfter).Width(70)
+                    //    .HeaderTemplate("<strong>Sau SX1</br>PP</br>(pcs)</strong>")
+                    //    .Format("{0:n0}")
+                    //    .HtmlAttributes(new { style = "text-align: right;" })
+                    //    .Aggregate(agg => agg.Sum())
+                    //    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    //    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.NGAfterPercent).Width(70)
+                        .HeaderTemplate("<strong>Sau SX1</br>TL NG</br>(%)</strong>")
+                        .Format("{0:n2}")
+                        .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
+                        //.Aggregate(agg => agg.Sum())
+                        //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n3}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.ExportQuantity).Width(80)
+                        .HeaderTemplate("<strong>Hàng SX</br>xuất bán</br>(pcs)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: right;" })
+                        .Aggregate(agg => agg.Sum())
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.ReturnQuantity).Width(70)
+                        .HeaderTemplate("<strong>Hàng SX</br>trả hàng</br>(pcs)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: right;" })
+                        .Aggregate(agg => agg.Sum())
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    //
+                })
+                .Scrollable(f => f.Height(280))
+                .Resizable(f => f.Columns(true))
+                .ClientEvents(events => events.OnError("grid_OnError")
+                    .OnDataBinding("grid_OnDataBinding")
+                    .OnDataBound("grid_OnDataBound"))
+                .Render();
+        }
+    </div>
+
+
+    
+        <div class="cover-div" style="background: white;float:left;margin-left:10px;">
+              
+            @{
+                Html.Telerik().Chart<ProductionYearlyReportModel>()
+                    .Name("chart")
+                    //.ChartArea(area => area.Background("#ccff00"))
+                        //.PlotArea(area => area.Background("#ccff00"))
+
+                    //.Theme(Html.GetCurrentTheme())
+                    .DataBinding(dataBinding => dataBinding.Ajax()
+                        .Select("SelectProductionYearlyChartReport", "Reporting", new { fromDate = "", toDate = "" })
+                    )
+                    .Title("Báo cáo kết quả sản xuất")
+                    .Legend(legend => legend.Position(Telerik.Web.Mvc.UI.ChartLegendPosition.Bottom)
+                    )
+                    //.PlotArea(plotArea => plotArea.Margin(20))
+
+                    //.SeriesDefaults(series =>
+                    //                series.Bar().Labels(labels => labels.Visible(true).Format("${0:#,##0}"))
+                    //)
+                    .Series(series => {
+                        //series.Bar("EmployeeName").Name("Nhân viên");
+                        series.Column(s => s.ProductionQuantity).Name("SX1 OK").Stack(true)
+                              .Labels(labels => labels.Visible(true)
+                                  .Format("{0:n0}")
+                                  .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.Center)
+                            );
+                        series.Column(s => s.NGDefectQuantity).Name("SX1 NG").Stack(true)
+                              .Labels(labels => labels.Visible(true)
+                                  .Format("{0:n0}")
+                                  .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                            );
+                              //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
+                        //series.Line(s => s.NGQuantity).Name("NG SX1");
+                        //series.Line(s => s.DefectQuantity).Name("PP SX1");
+                        //series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
+                        })
+                    .Series(series => {
+                        //series.Bar("EmployeeName").Name("Nhân viên");
+                        //series.Bar(s => s.ProductionQuantity).Name("Sản lượng SX1")
+                        //      .Labels(labels => labels.Visible(true)
+                        //          .Format("{0:n0}")
+                        //          .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                        //    );
+
+                        //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
+                        series.Line(s => s.ExportQuantity).Name("Xuất bán").Stack(true);
+                        series.Line(s => s.NGDefectQuantityAfter).Name("NG sau SX").Stack(true);
+                        //series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
+                    })
+                    //.Series(series =>
+                    //    {
+                    //        series.Line(s => s.NGQuantity).Name("NG SX1")
+                    //              .Labels(labels => labels.Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                    //            );
+                    //    })
+                    .CategoryAxis(axis => axis.Categories(s => s.Month)//.Orientation(Telerik.Web.Mvc.UI.ChartAxisOrientation.Horizontal)
+                    )
+                    .ValueAxis(axis => axis.Numeric().Labels(labels => labels.Format("{0:n0}"))
+                    )
+                    //.ChartBarSeries(x=> x.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical))
+                    
+                    .HtmlAttributes(new { style = "min-width: 700px; height: 380px;" })
+                    .ClientEvents(events => events
+                            .OnDataBound("chart_OnDataBound"))
+                    .Render();
+            }
+        </div>
+
+</div>

@@ -791,6 +791,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                      select o).FirstOrDefault();
                     var info = new OrderModel {
                         BillToAddress = customer.Address,
+                        CurrencyCode = "",
+                        ShipMethodName = "",
+                        SalesPersonName = "",
+                        PaymentMethodName = ""
                     };
                     if (lastOrder != null) {
                         info.CurrencyCode = lastOrder.CurrencyCode;
@@ -809,6 +813,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         if (lastOrder.Employee != null) {
                             info.SalesPersonId = lastOrder.SalesPersonId.Value;
                             info.SalesPersonName = lastOrder.Employee.EmployeeName;
+                        }
+                    }
+                    else {
+                        info.SalesPersonId = customer.EmployeeId;
+                        info.SalesPersonName = customer.Employee.EmployeeName;
+                        info.BillToAddress = customer.Address;
+                        info.ShipToAddress = customer.Eaddress;
+                        if (customer.ShippingMethodId != null) {
+                            info.ShipMethodId = customer.ShippingMethodId ?? 0;
+                            info.ShipMethodName = customer.ShipMethod.Name;
                         }
                     }
                     return Json(

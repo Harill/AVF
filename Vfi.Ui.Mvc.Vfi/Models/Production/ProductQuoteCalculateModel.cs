@@ -27,6 +27,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production {
         public string MaterialTypeName { get; set; }
         public double MaterialProductionFactor { get; set; }
 
+        public double AdditionFee { get; set; }
+
         public double ProductionPrice {
             get {
                 return Math.Round(Productivity * MachineClassifiedFactor * ProductLevelFactor * MaterialProductionFactor, 4);
@@ -40,7 +42,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production {
                 return Math.Round(
                     ((MaterialPrice + ProductionPrice + Production2Price + OutsideProductionPrice)
                     * PackingPrice * MaterialTypeFactor
-                    + ShippingPrice)
+                    + ShippingPrice + AdditionFee)
                     * MaterialTaxFactor, 4);
             }
         } 

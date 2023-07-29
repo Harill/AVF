@@ -9,7 +9,6 @@
     <!-- grid Monthly -->
     <script type="text/javascript">
         function GetData() {
-            //var customerId = $("#Customer").data('tComboBox').value();
             var productCode = $("#ProductCodeName").data("tAutoComplete").value();
             var btn = document.querySelector('.twoToneButton');
             if (btn) {
@@ -123,6 +122,7 @@
             <button id="btnRefesh" class="t-button twoToneButton" onclick=" return GetData(); ">
                 <span class='t-icon t-refresh'></span>
                 Làm mới
+                <span class="loadButton"></span>
             </button>
         </div>
     </fieldset>

@@ -187,7 +187,8 @@
             var i = 0;
             var drawing2D = "";
             var editRow = e.target.getElementsByClassName("t-grid-edit-row")[0];
-            var ul2D = editRow.childNodes[2].childNodes[1].childNodes[1];
+            //var ul2D = editRow.childNodes[2].childNodes[1].childNodes[1];
+            var ul2D = editRow.getElementsByClassName("t-upload-files t-reset")[0];
             if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
                 drawing2D = e.dataItem.InfoImg;
             } else if (ul2D != null) {
@@ -200,19 +201,34 @@
                     }
                 }
             }
+            var drawing2D2 = "";
+            //var ul2D2 = editRow.childNodes[3].childNodes[1].childNodes[1];
+            var ul2D2 = editRow.getElementsByClassName("t-upload-files t-reset")[1];
+            if (ul2D2 == null && e.Upload === "" || typeof ul2D2 == 'undefined') {
+                drawing2D2 = e.dataItem.InfoImg2;
+            } else if (ul2D2 != null) {
+                var child2D2 = ul2D2.childNodes;
+                for (i = child2D2.length - 1; i >= 0; i--) {
+                    if (child2D2[i].childNodes[0].textContent === "uploaded") {
+                        e.values.InfoImg2 = child2D2[0].childNodes[1].title;
+                        drawing2D2 = child2D2[0].childNodes[1].title;
+                        break;
+                    }
+                }
+            }
             var message = "";
-            if (drawing2D === "" || drawing2D === "askquestion.jpg") {
+            if (drawing2D === "" || drawing2D === "askquestion.jpg" ||
+                drawing2D2 === "" || drawing2D2 === "askquestion.jpg") {
                 message += "\nCảnh báo!";
-                if (drawing2D === "")
-                    message += "\nBản vẽ sản phẩm chưa có !";
-                message += "\nSẽ dùng hình mặc định !";
+                if (drawing2D === "") {
+                    message += "\nSẽ dùng hình mặc định !";
+                }
                 message += "\nĐồng ý lưu ??";
                 if (confirm(message)) {};
             } else {
                 return true;
             }
         }
-
         var startGrid = false;
 
         function gridMaterialInventory_onDataBinding(args) {
@@ -261,31 +277,28 @@
             OnLoadedData();
         }
 
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
+        function grid_OnRowDataBound(e) {
+            if (!e.dataItem.CanEdit && !e.dataItem.CanUpload) {
+                e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
+            }
+        }
+        function grid_OnEdit(e) {
+
+            var mode = e.mode;
+            var form = e.form;
+            if (mode === 'insert') {
+            } else if (mode === 'edit') {
+                if (!e.dataItem.CanEdit) {
+                    var dataItem = e.dataItem;
+                    nodes = $(form).find('#MaterialUnitWeight');
+                    nodes[0].parentNode.innerHTML = (dataItem.MaterialUnitWeight).format(4);
+                    nodes = $(form).find('#MaterialUnitPrice');
+                    nodes[0].parentNode.innerHTML = (dataItem.MaterialUnitPrice).format(0);
                 }
             }
         }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
+
+
     </script>
 
 
@@ -387,9 +400,9 @@
                 @{
                     Html.Telerik().AutoComplete()
                         .Name("MaterialCodeName")
-                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new {materialTypeId = 0}))
+                        .DataBinding(binding => binding.Ajax().Select("AutoCompletedMaterialInventory", "Inv", new { materialTypeId = 0 }))
                         //.HtmlAttributes(new { style = "width: 185px; " })
-                        .DropDownHtmlAttributes(new {style = "width: 250px; "})
+                        .DropDownHtmlAttributes(new { style = "width: 250px; " })
                         .Encode(false)
                         .AutoFill(true)
                         .HighlightFirstMatch(true)
@@ -418,14 +431,14 @@
                 <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2('gridMaterialInventory'); ">
                     <span class='t-icon t-insert'></span>
                     Làm mới
-                    <span class="twoToneButton"></span>
+                    <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_6">
                 <button id="btnMaterialInv" class="t-button" onclick="return printMaterialInvTotalInMonth(); ">
                     <span class='t-icon t-insert'></span>
                     Xuất báo cáo tồn kho nguyên liệu
-                    <span class="twoToneButton"></span>
+                    <span class="loadButton"></span>
                 </button>
             </div>
         </fieldset>
@@ -450,12 +463,17 @@
                 .Update("UpdateMaterialInventoryTotal", "Reporting")
             )
 
-            .Columns(columns =>
-            {
+            .Columns(columns => {
+                columns.Bound(f => f.CanEdit).Width(50).Hidden(true);
+                columns.Bound(f => f.CanUpload).Width(50).Hidden(true);
                 columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("");
-                columns.Bound(f => f.InfoImg).Width(45).Title("Giấy CN").Filterable(false)
+                columns.Bound(f => f.InfoImg).Width(45).Title("Giấy</br>CN NCC").Filterable(false)
                     .ClientTemplate("<a id='<#=MaterialInvId#>' href='" + Url.Content("~/Content/FileUpload/CertificateMaterial/") + "<#=InfoImg#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                     "<img src='" + Url.Content("~/Content/FileUpload/CertificateMaterial/") + "<#=InfoImg#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                    "</a><div class='highslide-caption'><#= MaterialCode #></div>");
+                columns.Bound(f => f.InfoImg2).Width(45).Title("Giấy</br>CN VF").Filterable(false)
+                    .ClientTemplate("<a id='<#=MaterialInvId#>_2' href='" + Url.Content("~/Content/FileUpload/CertificateMaterial2/") + "<#=InfoImg2#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                    "<img src='" + Url.Content("~/Content/FileUpload/CertificateMaterial2/") + "<#=InfoImg2#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
                                     "</a><div class='highslide-caption'><#= MaterialCode #></div>");
                 columns.Bound(f => f.MaterialTypeCode).Width(50).ReadOnly(true)
                     .HeaderTemplate("Loại");
@@ -484,11 +502,11 @@
                     .HtmlAttributes(new {style = "text-align: center;"});
                 columns.Bound(f => f.MaterialLot).Title("Lô").Width(70).ReadOnly(true)
                     .HtmlAttributes(new {style = "text-align: center;"});
-                columns.Bound(f => f.MaterialUnitWeight).Width(70).ReadOnly(true)
+                columns.Bound(f => f.MaterialUnitWeight).Width(70)
                     .HeaderTemplate("Trọng</br>lượng")
                     .Format("{0:n4}")
                     .HtmlAttributes(new {style = "text-align: right;"});
-                columns.Bound(f => f.MaterialUnitPrice).Title("Đơn giá").Width(75).ReadOnly(true)
+                columns.Bound(f => f.MaterialUnitPrice).Title("Đơn giá").Width(75)
                     .Format("{0:n0}")
                     .HtmlAttributes(new {style = "text-align: right;"});
                 //
@@ -704,7 +722,7 @@
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.StoreCode).Width(150)
+                columns.Bound(f => f.StoreCode).Width(150).ReadOnly(true)
                     .Title("Mã Kho")
                     .HtmlAttributes(new { style = "border-left: 1px solid black;" });
                 columns.Bound(f => f.ImportDateString).Width(90).ReadOnly(true)
@@ -767,6 +785,8 @@
             .ClientEvents(events => events.OnError("grid_OnError")
                 .OnSave("grid_OnSave")
                 .OnDataBound("grid_OnDataBound")
+                .OnRowDataBound("grid_OnRowDataBound")
+                .OnEdit("grid_OnEdit")
                 .OnDataBinding("gridMaterialInventory_onDataBinding"))
             .Render();
     }

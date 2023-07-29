@@ -83,6 +83,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 
 
         //public string SpecificNote { get; set; }
+        public InquiryPoModel Inquiry { get; set; }
+        public string InquiryNote {
+            get {
+                var note = "";
+                if (Inquiry == null) return note;
+                note = Inquiry.InquiryNumber;
+                if (Inquiry.DueDate != null) {
+                    note += "-" + Inquiry.DueDate.Value.ToString("dd/MM/yy");
+                }
+                return note;
+            }
+        }
 
         public WorkGroupInfo Info { get; set; }
     }

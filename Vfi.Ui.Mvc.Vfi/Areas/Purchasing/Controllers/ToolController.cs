@@ -612,7 +612,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ToolMaterial = tool.ToolMaterial,
                             PoDetailId = detail.PoDetailId ?? 0
                         };
-                        entity.Price = entity.UnitPrice * entity.Quantity;
                         if (!string.IsNullOrWhiteSpace(detail.LotNumber)) {
                             var toolInv =
                                 vfi.ToolInventories.FirstOrDefault(
@@ -626,6 +625,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 vfi.ExportToolDetails.FirstOrDefault(
                                     ed => ed.ExportId == export.ExportId && ed.TransactionDetailId == detail.DetailId);
                             if (exportDetail != null) {
+                                entity.UnitPrice = exportDetail.ToolInventory.UnitPrice;
                                 var machine = vfi.Machines.FirstOrDefault(m => m.MachineId == exportDetail.MachineId);
                                 if (machine != null)
                                     entity.Note += "| " + machine.MachineName;
@@ -634,6 +634,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     entity.Note += ("-" + product.ProductCode);
                             }
                         }
+                        entity.Price = entity.UnitPrice * entity.Quantity;
                         model.Add(entity);
                     }
                 }
@@ -695,6 +696,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             throw new AggregateException("Lỗi!" + tool.ToolFullCode + " đã nhập đủ số lượng!");
                         var entity = new TransactionFptDetailModel() {
                             ToolId = tool.ToolId,
+                            ToolName = tool.ToolName,
                             ToolFullCodeName = tool.ToolFullCode,
                             RequiredQuantity = poDetail.OrderQty - poDetail.ReceivedQty,
                             VendorName = poDetail.PurchaseOrder.Vendor.ShortName,
@@ -789,8 +791,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             vfi.ToolInventories.FirstOrDefault(
                                 ti =>
                                 ti.ToolId == detailModel.ToolId && ti.LotNumber.Equals(detailModel.LotNumber.Trim()));
-                        if (toolInv != null)
-                            detailModel.UnitPrice = toolInv.UnitPrice;
+                        if (toolInv != null) {
+                            if (toolInv.ToolInventoryPeriods.Any() && purchaseOrder == null) {
+                                detailModel.UnitPrice = toolInv.UnitPrice;
+                            }
+                            else {
+                                toolInv.UnitPrice = detailModel.UnitPrice;
+                            }
+                        }
                         if (detailModel.UnitPrice <= 0 && poId == 0)
                             throw new AggregateException("Lỗi đơn giá ! Vui lòng kiểm tra lại.\n" +
                                                          detailModel.ToolFullCodeName);
@@ -908,7 +916,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 ti =>
                                 ti.ToolId == detailModel.ToolId && ti.LotNumber.Equals(detailModel.LotNumber.Trim()));
                         if (toolInv != null) {
-                            detailModel.UnitPrice = toolInv.UnitPrice;
+                            if (toolInv.ToolInventoryPeriods.Any()) {
+                                detailModel.UnitPrice = toolInv.UnitPrice;
+                            }
+                            else {
+                                toolInv.UnitPrice = detailModel.UnitPrice;
+                            }
                         }
                         //if (detailModel.UnitPrice <= 0 && poId == 0)
                         //    throw new AggregateException("Lỗi đơn giá ! Vui lòng kiểm tra lại.\n" +
@@ -1339,10 +1352,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     PeriodDate = transaction.TransactionDate
                                 };
                                 toolInv.TotalQuantity = period.LastQuantity;
-                                if (toolInv.FirstUseDate == null)
+                                if (toolInv.FirstUseDate == null) {
                                     toolInv.FirstUseDate = transaction.TransactionDate;
+                                }
                                 if (Math.Round(toolInv.TotalQuantity, 2) == 0) {
                                     toolInv.EndDate = DateTime.Now;
+                                }
+                                else {
+                                    toolInv.EndDate = null;
                                 }
                                 vfi.ToolInventoryPeriods.Add(period);
                                 //if (transaction.Type == (byte)MyUtilities.Tool.ExportType.Production) {
@@ -1471,22 +1488,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         return PartialView("PagePrintImportTool", model);
                     }
                     else if (transaction.EoI == Convert.ToInt16(MyUtilities.PurchaseOrder.EoILot.Export)) {
-                        var export = vfi.ExportTools.FirstOrDefault(x => x.TransactionId == transactionId);
-                        var exportDetails = from ed in vfi.ExportToolDetails
-                                            where ed.ExportTool.TransactionId == transactionId
-                                            select ed;
+                        var exportDetails = (from x in vfi.ExportToolDetails
+                                            where x.ExportTool.TransactionId == transactionId
+                                            select new {
+                                                x.TransactionDetailId,
+                                                x.ToolInventory,
+                                                x.ToolInvId,
+                                                x.ExportTool.Department,
+                                                x.ExportTool.Description,
+                                                MachineName = x.MachineId != null ? x.Machine.MachineName : "",
+                                                ProductCode = x.ProductId != null ? x.Product.ProductCode : "",
+                                            }).ToList();
                         foreach (var detail in transaction.TransactionFptDetails) {
-                            var tool = vfi.Tools.FirstOrDefault(f => f.ToolId == detail.FptId);
+                            //var tool = vfi.Tools.FirstOrDefault(f => f.ToolId == detail.FptId);
+                            var tool = vfi.ToolInventories.FirstOrDefault(f => f.ToolId == detail.FptId && f.LotNumber.Equals(detail.LotNumber));
                             var entity = new TransactionFptDetailModel {
                                 LotNumber = detail.LotNumber,
                                 Note = detail.Note,
                                 Quantity = detail.Quantity,
-                                UnitPrice = detail.UnitPrice,
-                                Price = detail.Quantity * detail.UnitPrice,
-                                ToolCode = tool.ToolCode,
-                                ToolName = tool.ToolName,
-                                ToolDesignNo = tool.ToolDesignNo + "-" + tool.ToolMaterial,
-                                ToolFullCodeName = tool.ToolFullCode,
+                                UnitPrice = tool.UnitPrice,
+                                Price = detail.Quantity * tool.UnitPrice,
+                                ToolCode = tool.Tool.ToolCode,
+                                ToolName = tool.Tool.ToolName,
+                                ToolDesignNo = tool.Tool.ToolDesignNo + "-" + tool.Tool.ToolMaterial,
+                                ToolFullCodeName = tool.Tool.ToolFullCode,
                                 TransactionDate = transaction.TransactionDate,
                                 TransactionCode = transaction.TransactionCode,
                                 ModifiedDate = transaction.ModifiedDate,
@@ -1497,14 +1522,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 EoI = transaction.EoI,
                                 EoIName = MyUtilities.PurchaseOrder.GetEoIName(transaction.EoI, transaction.Type),
                                 Type = transaction.Type,
-                                TypeName = tool.MaterialType.MaterialTypeName,
+                                TypeName = tool.Tool.MaterialType.MaterialTypeName,
                                 FptType = transaction.Fpt,
                                 FptTypeName = MyUtilities.PurchaseOrder.GetFptName(transaction.Fpt),
                                 PurchasingSignature = transaction.PurchasingSignature,
                                 InventorySignature = transaction.InventorySignature,
-                                ToolMaterial = tool.ToolMaterial,
-                                Department = export != null ? export.Department : "",
-                                Description = export != null ? export.Description : "",
+                                ToolMaterial = tool.Tool.ToolMaterial,
                                 Info = info
                             };
                             if (transaction.PoId > 0) {
@@ -1517,10 +1540,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             }
                             var exportDetail = exportDetails.FirstOrDefault(ed => ed.TransactionDetailId == detail.DetailId);
                             if (exportDetail != null) {
-                                if (exportDetail.MachineId != null) {
-                                    entity.MachineName = exportDetail.Machine.MachineName;
-                                    entity.ProductCode = exportDetail.Product.ProductCode;
-                                }
+                                entity.MachineName = exportDetail.MachineName;
+                                entity.ProductCode = exportDetail.ProductCode;
+                                entity.Department = exportDetail.Department;
+                                entity.Description = exportDetail.Description;
                             }
                             model.Add(entity);
                         }
@@ -1622,6 +1645,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     }
                     else { // export case
                         inv.TotalQuantity += period.Quantity;
+                        inv.EndDate = null;
                     }
                 }
                 vfi.ToolInventoryPeriods.RemoveRange(periods);

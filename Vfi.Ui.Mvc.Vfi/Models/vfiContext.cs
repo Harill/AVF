@@ -146,6 +146,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public DbSet<MaterialType> MaterialTypes { get; set; }
         public DbSet<OrderProgress> OrderProgresses { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductAdditionFee> ProductAdditionFees { get; set; }
         public DbSet<ProductCombinationRecipe> ProductCombinationRecipes { get; set; }
         public DbSet<ProductCombinationRecipeDetail> ProductCombinationRecipeDetails { get; set; }
         public DbSet<ProductChange> ProductChanges { get; set; }
@@ -352,6 +353,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             modelBuilder.Configurations.Add(new MaterialTypeMap());
             modelBuilder.Configurations.Add(new OrderProgressMap());
             modelBuilder.Configurations.Add(new ProductMap());
+            modelBuilder.Configurations.Add(new ProductAdditionFeeMap());
             modelBuilder.Configurations.Add(new ProductCombinationRecipeMap());
             modelBuilder.Configurations.Add(new ProductCombinationRecipeDetailMap());
             modelBuilder.Configurations.Add(new ProductChangeMap());

@@ -39,33 +39,6 @@
             return false;
         }
     </script>
-    <script type="text/javascript">
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
-            }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
-    </script>
 }
 
 <div class="title">Phát nguyên liệu cho Work Order</div>
@@ -75,7 +48,7 @@
         <button id="btnPrintUsing" class="t-button" onclick="printWOMaterialUse();">
             <span class='t-icon t-insert'></span>
             In sử dụng nguyên liệu
-            <span class="twoToneButton"></span>
+            <span class="loadButton"></span>
         </button>
         <div class="clear"></div><br />
 
@@ -112,6 +85,7 @@
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('grid'); ">
                 <span class='t-icon t-insert'></span>
                 Làm mới
+                <span class="loadButton"></span>
             </button>
         </div>
     </fieldset>

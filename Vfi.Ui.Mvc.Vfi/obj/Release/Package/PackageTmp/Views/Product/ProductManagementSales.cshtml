@@ -722,7 +722,45 @@
                                             .OnSave("gridProductionPlating_OnSave"))
                                         .ToHtmlString()
                                     );
-                                
+
+                                items.Add().Text("Phí khác").Content(
+                                        Html.Telerik().Grid<ProductAdditionFeeModel>()
+                                            .Name("gridAdditionFee_<#= ProductId #>")
+                                            .HtmlAttributes(new { lockInsert = "<#= IsCalculateLock #>" })
+                                            .DataKeys(key => key.Add(f => f.FeeId).RouteKey("feeId"))
+                                            .ToolBar(tool => tool.Insert().Text("Thêm mới")
+                                                    .ButtonType(GridButtonType.ImageAndText)
+                                                    .ImageHtmlAttributes(new { style = "margin-left:0px;" })
+                                                    //.HtmlAttributes(new { id = "gridAdditionFee_<#= ProductId #>_Insert" })
+                                                    )
+                                            .DataBinding(
+                                                dataBinding => dataBinding.Ajax()
+                                                                          .Select("SelectProductAdditionFee", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                          .Insert("InsertProductAdditionFee", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                                          .Update("UpdateProductAdditionFee", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                            )
+                                            .Columns(columns => {
+                                                columns.Command(command =>
+                                                                command.Edit().ButtonType(GridButtonType.Image)
+                                                    ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(f => f.Name).Width(120)
+                                                       .Title("Tên");
+                                                columns.Bound(f => f.Price).Width(100).Title("Giá (usd/pc)")
+                                                    .Format("{0:n4}");
+                                                columns.Bound(f => f.Active).Width(100)
+                                                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
+                                                       .HtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                                                       .Format("{0:dd/MM/yyyy HH:mm}");
+                                                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                                            })
+                                            .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                            .ClientEvents(events => events.OnError("grid_OnError")
+                                            //.OnLoad("gridAdditionFee_OnLoad")
+                                            //.OnRowDataBound("gridAdditionFee_OnRowDataBound")
+                                            )
+                                            .ToHtmlString()
+                                        );
 
                                 items.Add().Text("Quy trình kho").Content(
                                     Html.Telerik().Grid<ProductionProcessModel>()

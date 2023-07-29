@@ -32,6 +32,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.PlatingFormId).HasColumnName("PlatingFormId");
             this.Property(t => t.TransactionId).HasColumnName("TransactionId");
             this.Property(t => t.PurchasingSignature).HasColumnName("PurchasingSignature");
+            this.Property(t => t.IsWorkOrder).HasColumnName("IsWorkOrder");
 
             // Relationships
             this.HasOptional(t => t.PlatingForm)

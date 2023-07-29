@@ -18,6 +18,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedUser)
                 .HasMaxLength(50);
 
+            this.Property(t => t.InquiryNumber)
+                .HasMaxLength(50);
+
             this.Property(t => t.Currency)
                 .IsFixedLength()
                 .HasMaxLength(10);
@@ -38,6 +41,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.VendorId).HasColumnName("VendorId");
             this.Property(t => t.Note).HasColumnName("Note");
             this.Property(t => t.Currency).HasColumnName("Currency");
+            this.Property(t => t.InquiryNumber).HasColumnName("InquiryNumber");
 
             // Relationships
             this.HasRequired(t => t.MaterialClassified)

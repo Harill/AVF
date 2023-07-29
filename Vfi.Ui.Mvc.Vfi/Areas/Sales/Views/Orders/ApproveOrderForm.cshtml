@@ -147,6 +147,17 @@
                 });
             return false;
         }
+
+        function PrintPrepareDetail(val) {
+            $('#result').load('@Url.Action("PrintPreparationTools", "Orders", new { area = "Sales" })',
+                {
+                    orderDetailId: val
+                }, function () {
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                });
+            return false;
+        }
     </script>
 }
 
@@ -259,11 +270,15 @@
                         columns.Bound(f => f.CustomerDueDate).Width(70).Title("KH yêu cầu").Format("{0:dd/MM/yyyy}").ReadOnly(true);
                         columns.Bound(f => f.VFIDueDate).Width(65).Title("VF giao hàng")
                             .ClientTemplate("<#= VFIDueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', VFIDueDate) #>");
-                        columns.Bound(f => f.Note).Title("Ghi chú").ReadOnly(true);
+                        columns.Bound(f => f.OrderNote).Title("Ghi chú ĐH").ReadOnly(true);
+                        columns.Bound(f => f.Note).Title("Ghi chú khác").ReadOnly(true);
                         columns.Bound(f => f.ProductionDate).Width(70).Title("ĐH gần nhất").ReadOnly(true)
                             .ClientTemplate("<#= ProductionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ProductionDate) #>");
                         columns.Bound(f => f.MachineRun).Width(50).Title("Số lượng").ReadOnly(true)
                             .ClientTemplate("<#= MachineRun == 0 ? '' : $.telerik.formatString('{0:n0}', MachineRun) #>");
+                        columns.Bound(f => f.OrderDetailId).Title("In YCCB").Width(45).ReadOnly(true)
+                               .ClientTemplate("<input type='button' id='id_<#= OrderId #>' style='min-width:30px' value='In' class='t-button' onclick=PrintPrepareDetail(<#= OrderDetailId #>) />")
+                               .HtmlAttributes(new { style = "text-align:center" });
                     })
                     .DetailView(details2 => details2.ClientTemplate(
                         Html.Telerik().TabStrip()

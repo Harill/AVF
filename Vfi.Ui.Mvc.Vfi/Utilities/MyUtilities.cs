@@ -10,6 +10,7 @@ using Vfi.Ui.Mvc.Vfi.Models.Production;
 using System.Web;
 using System.Data.Entity.Validation;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.Core;
 
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
@@ -120,6 +121,13 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     var exType = (DbUpdateException)ex;
                     return exType.InnerException.InnerException.Message ?? ex.Message;
                 }
+                else if (ex.InnerException != null) {
+                    return ex.InnerException.InnerException.Message ?? ex.Message;
+                }
+                //else if (ex.GetType() == typeof(EntityCommandExecutionException)) {
+                //    var exType = (EntityCommandExecutionException)ex;
+                //    return exType.InnerException.InnerException.Message ?? ex.Message;
+                //}
                 //else if (ex.GetType() == typeof(DbUpdateException)) {
                 //    var exType = (DbUpdateException)ex;
                 //    return exType.InnerException.InnerException.Message ?? ex.Message;
@@ -493,6 +501,11 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 list.Add(end.Day);
                 return list;
             }
+
+            public static DateTime StartOfWeekDate(DateTime date, DayOfWeek startOfWeek) {
+                int diff = (7 + (date.DayOfWeek - startOfWeek)) % 7;
+                return date.AddDays(-1 * diff).Date;
+            }
             
             /// <summary>
             /// Convert string to date with vi-VN timezone.
@@ -502,11 +515,16 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             public static DateTime ParseDate(string date) {
                 return string.IsNullOrWhiteSpace(date) ? DateTime.Today : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
             }
+            public static DateTime ParseDateTime(string date) {
+                return string.IsNullOrWhiteSpace(date) ? DateTime.Now : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
+            }
+
             public static DateTime ParseLastDateTime(string date) {
                 return ParseDate(date).AddDays(1).AddSeconds(-1);
             }
-            public static DateTime ParseDateTime(string date) {
-                return string.IsNullOrWhiteSpace(date) ? DateTime.Now : Convert.ToDateTime(date, new CultureInfo("vi-VN"));
+            public static DateTime ParseLastMonthTime(string date) {
+                var d = ParseDate(date);
+                return new DateTime(d.Year, d.Month, 1).AddMonths(1).AddSeconds(-1);
             }
 
             public static string GetDayOfWeek(DateTime date) {
@@ -815,6 +833,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 public static int BadState = 59;
                 public static int Setup = 60;
                 public static int OutOfTool = 61;
+                public static int EmptyMachine = 61;
                 public static int Done = 65;
                 public static int Repairing = 70;
                 public static int Error = 0;
@@ -826,6 +845,15 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                     OutOfTool = 61,
                     Done = 65,
                     Repairing = 70,
+                }
+                public static List<int> GetNoneProductonStateList() {
+                    return new List<int>
+                    {
+                        OutOfMaterial,
+                        BadState,
+                        Setup,
+                        OutOfTool,
+                    };
                 }
                 public static List<int> GetStaticStateList() {
                     return new List<int>
@@ -898,6 +926,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             }
 
             public static TrackUpMachineModel LastTrackUpMachine(int machineId, int? materialId, int? productId, DateTime date) {
+                var lastDateTime = MyUtilities.Function.ParseLastDateTime(date.ToString("dd/MM/yyyy HH:mm:ss"));
                 using (var vfi = new vfiContext()) {
                     var lastTrackFound =
                                    (from t in vfi.TrackUpMachines
@@ -1741,8 +1770,43 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
             public enum InquiryEnum {
                 Pending = 1,
+                Approved = 3,
                 MakePo = 5,
                 Cancel = 9
+            }
+
+            public static string GetInquiryTrackingStatusName(int status) {
+                string name = "";
+                switch (status) {
+                    case (int)InquiryEnum.Pending:
+                    case (int)InquiryEnum.Approved:
+                        name = "Chưa đặt";
+                        break;
+                    case (int)InquiryEnum.MakePo:
+                        name = "Đã đặt";
+                        break;
+                }
+                return name;
+            }
+
+            public static string GetInquiryEnumStatusName(int status) {
+                string name = "";
+                switch (status) {
+                    case (int)InquiryEnum.Pending:
+                        name = "Chờ duyệt";
+                        break;
+                    case (int)InquiryEnum.Approved:
+                        name = "Đã duyệt";
+                        break;
+                    case (int)InquiryEnum.MakePo:
+                        name = "Đã có đơn mua";
+                        break;
+                    case (int)InquiryEnum.Cancel:
+                        name = "Hủy";
+                        break;
+
+                }
+                return name;
             }
 
             public static string GetFptName(int fpt) {
@@ -2065,8 +2129,16 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         var toolsDesign = vfi.ProductionTools.Where(pt => pt.Active && pt.ProductId == productId);
                         if (!toolsDesign.Any())
                             return;
-                        var process = vfi.ProductionProcesses.Where(pp => pp.ProductId == productId && pp.IsNecessary);
-                        if (!process.Any())
+                        var processes = vfi.ProductionProcesses.Where(pp => pp.ProductId == productId && pp.IsNecessary);
+                        if (!processes.Any())
+                            return;
+                        if (processes.Any(x => x.Warehouse.IsProduction2) && !product.ProductionSections.Any(x => x.Active))
+                            return;
+                        if (processes.Any(x => x.Warehouse.IsHeatTreatment) && !product.ProductionHeatTreatments.Any(x => x.Active))
+                            return;
+                        if (processes.Any(x => x.Warehouse.IsPolish) && !product.ProductionPolishes.Any(x => x.Active))
+                            return;
+                        if (processes.Any(x => x.Warehouse.IsPlating) && !product.ProductionPlatings.Any(x => x.Active))
                             return;
 
                         product.FinishDesign = true;
@@ -2477,7 +2549,22 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         return "";
                 }
             }
-
+            public static string CaseTextMaterialShape(string shape) {
+                switch (shape.Trim()) {
+                    case "D":
+                        return "Rod";
+                    case "R":
+                        return "Rectangel";
+                    case "S":
+                        return "Square";
+                    case "T":
+                        return "Tube";
+                    case "H":
+                        return "Hexagon";
+                    default:
+                        return "";
+                }
+            }
             public enum UseType {
                 Using = 1,
                 SendBack = 2
@@ -2671,6 +2758,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                         rs = "Đã kích hoạt";
                         break;
                     case (byte)Status.InProcess:
+                    //case (byte)Status.SecondProcess:
                         rs = "Đang xử lý";
                         break;
                     case (byte)Status.Finish:

@@ -25,9 +25,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string CustomerCode { get; set; }
         public int WarehouseId { get; set; }
         public string WarehouseName { get; set; }
-        [DataType("Number3Digit")]
+        [DataType("Number5Digit")]
         public double MinNumber { get; set; }
-        [DataType("Number3Digit")]
+        [DataType("Number5Digit")]
         public double MaxNumber { get; set; }
         [DataType("Number1Digit")]
         public double TestRate { get; set; }

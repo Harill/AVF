@@ -419,8 +419,8 @@
                                             .HtmlAttributes(new {style = "text-align: right;"});
                                         columns.Bound(f => f.ForecastInMonth).Width(70).ReadOnly(true).Title("Dự báo")
                                             .Format("{0:n0}")
-                                            .HtmlAttributes(new {style = "text-align: right;"});
-                                        columns.Bound(f => f.Note).Title("Note");
+                                            .HtmlAttributes(new { style = "text-align: right;" });
+                                        columns.Bound(f => f.Note).Title("Ghi chú");
                                     })
                                     .DetailView(details2 => details2.ClientTemplate(
                                         Html.Telerik().Grid<OrderDetailModel>()
@@ -449,7 +449,8 @@
                                                     .HtmlAttributes(new { style = "text-align: right;" });
                                                 columns.Bound(f => f.CustomerDueDate).Width(70).Title("Ngày KH YC").ReadOnly(true)
                                                      .Format("{0:dd/MM/yyyy}");
-                                                columns.Bound(f => f.Note).ReadOnly(true).Title("Note");
+                                                columns.Bound(f => f.OrderNote).Title("Ghi chú ĐH");
+                                                columns.Bound(f => f.Note).Title("Ghi chú khác");
                                             })
 
                                             .ClientEvents(e => e.OnError("grid_OnError").OnRowDataBound("gridDetail_OnRowDataBound"))
@@ -458,7 +459,7 @@
                                     .Resizable(f => f.Columns(true))
                                     .ClientEvents(e => e.OnError("grid_OnError"))
                                     .ToHtmlString());
-                                items.Add().Text("Thông tin thực tế").Content(
+                                items.Add().Text("Thông tin đơn hàng").Content(
                                     Html.Telerik().Grid<OrderModel>()
                                         .Name("gridOrderInfo_<#= OrderId #>")
                                         .DataKeys(key => key.Add(f => f.OrderId).RouteKey("orderId"))

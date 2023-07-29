@@ -374,6 +374,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     }
                     else { // export case
                         inv.TotalQuantity += period.Quantity;
+                        inv.EndDate = null;
                     }
                 }
                 vfi.FuelInventoryPeriods.RemoveRange(periods);
@@ -679,10 +680,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     LastQuantity = fuelInv.TotalQuantity - detail.Quantity,
                                     PeriodDate = transaction.TransactionDate,
                                 };
-                                fuelInv.TotalQuantity = fuelInv.TotalQuantity - detail.Quantity;
-                                if (Math.Round(fuelInv.TotalQuantity, 2) == 0) {
+                                fuelInv.TotalQuantity = Math.Round(fuelInv.TotalQuantity - detail.Quantity, 2);
+                                if (fuelInv.TotalQuantity == 0) {
                                     fuelInv.TotalQuantity = 0;
                                     fuelInv.EndDate = DateTime.Now;
+                                }
+                                else {
+                                    fuelInv.EndDate = null;
                                 }
                                 vfi.FuelInventoryPeriods.Add(period);
                             }

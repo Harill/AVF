@@ -20,6 +20,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<System.DateTime> ExportDate { get; set; }
         public Nullable<int> PlatingFormId { get; set; }
         public Nullable<long> TransactionId { get; set; }
+        public Nullable<bool> IsWorkOrder { get; set; }
         public virtual PlatingForm PlatingForm { get; set; }
         public virtual Transaction Transaction { get; set; }
         public virtual ICollection<ExportGCN_NCUDetail> ExportGCN_NCUDetail { get; set; }

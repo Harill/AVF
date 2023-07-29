@@ -21,5 +21,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
                 base.ProductCode = value;
             }
         }
+        public string OrderNote { get; set; }
     }
 }

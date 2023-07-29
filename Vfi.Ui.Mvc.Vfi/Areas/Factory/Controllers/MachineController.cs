@@ -153,6 +153,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View();
         }
 
+        public ActionResult MachineCard() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+
         public ActionResult ProductionMachineDiagram() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });
@@ -997,7 +1005,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                         ProcessingTypeName = x.ProcessingType.TypeName,
                                         Production2 = x.Production2,
                                         MachineFunction = x.MachineFunction,
-                                        //DiagramTypeName = MyUtilities.Machine.Diagram.GetText(x.DiagramType ?? 1)
+                                        //DiagramTypeName = MyUtilities.Machine.Diagram.GetText(x.DiagramType ?? 1),
+                                        ModifiedDate = x.ModifiedDate,
+                                        ModifiedUser = x.ModifiedUser,
                                     }).ToList();
                     model.ForEach(x => x.DiagramTypeName = MyUtilities.Machine.GetDiagramText(x.DiagramType));
                     if (production1 && production2) { }
@@ -1040,7 +1050,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 if (!Request.IsAuthenticated) {
                     throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n 1 trong các nguyên nhân như mất thời gian chờ. \r\n Xin vui lòng đăng nhập lại hệ thống.");
                 }
-
+                if (string.IsNullOrWhiteSpace(newMachine.MachineCode)) {
+                    throw new AggregateException("Lỗi! Tên máy không được để trống!");
+                }
                 if (newMachine.Active == newMachine.Production2) {
                     if (!newMachine.Active) newMachine.Active = true;
                     else throw new AggregateException("Lỗi! 1 máy không thể ở nhiều vị trí !");
@@ -1158,7 +1170,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         if (updateMachine.Active)
                             throw new AggregateException("Lỗi! 1 máy không thể ở nhiều vị trí !");
                     }
-                    if (entity.MachineName.Equals(updateMachine.MachineCode) &&
+                    if (entity.MachineName !=null &&
+                        entity.MachineName.Equals(updateMachine.MachineCode) &&
                         entity.Active == updateMachine.Active &&
                         entity.Production2 == updateMachine.Production2 &&
                         entity.MachineId != updateMachine.MachineId)

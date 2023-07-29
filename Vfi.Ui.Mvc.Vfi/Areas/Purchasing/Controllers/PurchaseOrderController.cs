@@ -371,11 +371,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             if (active == null) {
                 return View(new GridModel(new List<PurchaseOrderModel>()));
             }
-            return View(new GridModel(SelectPurchaseOrderView(status, active, "", "")));
+            return View(new GridModel(SelectPurchaseOrderView(status, active, "", "", "")));
         }
 
         private List<PurchaseOrderModel> SelectPurchaseOrderView(byte? status, bool? active, string fromDate,
-                                                                 string toDate) {
+                                                                 string toDate, string inquiryNumber) {
             var model = new List<PurchaseOrderModel>();
             bool byDate = !string.IsNullOrWhiteSpace(fromDate) && !string.IsNullOrWhiteSpace(toDate);
             var poManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name,
@@ -423,6 +423,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     list = (from po in vfi.PurchaseOrders
                             where po.Status == status && po.Active == active
                             select po).ToList();
+                }
+
+                if (!string.IsNullOrWhiteSpace(inquiryNumber)) {
+                    list = list.Where(x => x.PurchaseOrderDetails
+                                            .Any(y => y.InquiryPoes
+                                                .Any(z => z.InquiryNumber.Contains(inquiryNumber))))
+                                            .ToList();
                 }
                 /*
                  * DeliveryMethod :Method
@@ -497,9 +504,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 StatusName = MyUtilities.Transaction.CastText.GetTextStatus(purchaseOrder.Status),
                                 PurchaseDateTime = purchaseOrder.ShipDate ?? purchaseOrder.OrderDate,
                                 IsPurchaseManager = manager,
-                                Info = info
+                                Info = info,
+                                Note = purchaseOrder.Note
                             };
                             entity.RequireQty = entity.OrderQty - (entity.ReceivedQty + entity.RejectedQty);
+                            if (poDetail.InquiryPoes.Any(x => x.Status == (byte)MyUtilities.PurchaseOrder.InquiryEnum.MakePo)) {
+                                entity.Inquiry = poDetail.InquiryPoes.Where(x => x.Status == (byte)MyUtilities.PurchaseOrder.InquiryEnum.MakePo)
+                                    .Select(x => new InquiryPoModel {
+                                        InquiryNumber = x.InquiryNumber,
+                                        DueDate = x.DueDate,
+                                    })
+                                    .FirstOrDefault();
+                            }
                             if (entity.RequireQty < 0)
                                 entity.RequireQty = 0;
                             switch (purchaseOrder.MaterialClassifiedId) {
@@ -636,65 +652,68 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         throw new AggregateException("Lỗi! Không tìm thấy chi tiết cần sửa");
                     update.PurchaseOrderId = poDetail.PurchaseOrderId;
                     var po = poDetail.PurchaseOrder;
-                    if (poDetail.ReceivedQty + poDetail.RejectedQty > 0)
+                    if (poDetail.ReceivedQty + poDetail.RejectedQty > 0) {
                         switch (po.MaterialClassifiedId) {
-                            case 1:
-                                var importDetails1 =
-                                    vfi.ImportPurchaseOrderDetails
-                                        .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
-                                foreach (var importDetail in importDetails1) {
-                                    if (importDetail.PoReferenceDetailId != null)
-                                        throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
-                                    if (importDetail.ImportPurchaseOrder.Transaction.Status
-                                        == (byte)MyUtilities.Transaction.Status.Approved) {
-                                        var materialInv = vfi.MaterialInventories
-                                            .FirstOrDefault(ti => ti.MaterialId == importDetail.MaterialId &&
-                                                                  ti.LotNumber.Equals(importDetail.LotNumber) &&
-                                                                  ti.VendorId == importDetail.VendorId);
-                                        if (materialInv != null)
-                                            materialInv.UnitPrice = update.UnitPrice;
+                            case 1: {
+                                    var importDetails1 =
+                                        vfi.ImportPurchaseOrderDetails
+                                            .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
+                                    foreach (var importDetail in importDetails1) {
+                                        if (importDetail.PoReferenceDetailId != null)
+                                            throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
+                                        if (importDetail.ImportPurchaseOrder.Transaction.Status
+                                            == (byte)MyUtilities.Transaction.Status.Approved) {
+                                            var materialInv = vfi.MaterialInventories
+                                                .FirstOrDefault(ti => ti.MaterialId == importDetail.MaterialId &&
+                                                                      ti.LotNumber.Equals(importDetail.LotNumber) &&
+                                                                      ti.VendorId == importDetail.VendorId);
+                                            if (materialInv != null)
+                                                materialInv.UnitPrice = update.UnitPrice;
+                                        }
+                                        importDetail.UnitPrice = update.UnitPrice;
                                     }
-                                    importDetail.UnitPrice = update.UnitPrice;
+                                    break;
                                 }
-                                break;
-                            case 2:
-                                var importDetails2 =
-                                    vfi.TransactionFptDetails
-                                        .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
-                                foreach (var importDetail in importDetails2) {
-                                    if (importDetail.PoReferenceDetailId != null)
-                                        throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
-                                    if (importDetail.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved) {
-                                        var fuelInv = vfi.FuelInventories
-                                            .FirstOrDefault(ti => ti.FuelId == importDetail.FptId &&
-                                                                  ti.LotNumber.Equals(importDetail.LotNumber) &&
-                                                                  ti.VendorId == importDetail.VendorId);
-                                        if (fuelInv != null)
-                                            fuelInv.UnitPrice = update.UnitPrice;
+                            case 2: {
+                                    var importDetails2 =
+                                        vfi.TransactionFptDetails
+                                            .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
+                                    foreach (var importDetail in importDetails2) {
+                                        if (importDetail.PoReferenceDetailId != null)
+                                            throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
+                                        if (importDetail.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved) {
+                                            var fuelInv = vfi.FuelInventories
+                                                .FirstOrDefault(ti => ti.FuelId == importDetail.FptId &&
+                                                                      ti.LotNumber.Equals(importDetail.LotNumber) &&
+                                                                      ti.VendorId == importDetail.VendorId);
+                                            if (fuelInv != null)
+                                                fuelInv.UnitPrice = update.UnitPrice;
+                                        }
+                                        importDetail.UnitPrice = update.UnitPrice;
                                     }
-                                    importDetail.UnitPrice = update.UnitPrice;
+                                    break;
                                 }
-                                break;
-                            case 3:
-                                var importDetails3 =
-                                    vfi.TransactionFptDetails
-                                        .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
-                                foreach (var importDetail in importDetails3) {
-                                    if (importDetail.PoReferenceDetailId != null)
-                                        throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
-                                    if (importDetail.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved) {
-                                        var toolInv = vfi.ToolInventories
-                                            .FirstOrDefault(ti => ti.ToolId == importDetail.FptId &&
-                                                                  ti.LotNumber.Equals(importDetail.LotNumber) &&
-                                                                  ti.VendorId == importDetail.VendorId);
-                                        if (toolInv != null)
-                                            toolInv.UnitPrice = update.UnitPrice;
+                            case 3: {
+                                    var importDetails3 =
+                                        vfi.TransactionFptDetails
+                                            .Where(td => td.PoDetailId == update.PurchaseOrderDetailId);
+                                    foreach (var importDetail in importDetails3) {
+                                        if (importDetail.PoReferenceDetailId != null)
+                                            throw new AggregateException("Lỗi! Chi tiết đã có xuất hoá đơn!");
+                                        if (importDetail.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved) {
+                                            var toolInv = vfi.ToolInventories
+                                                .FirstOrDefault(ti => ti.ToolId == importDetail.FptId &&
+                                                                      ti.LotNumber.Equals(importDetail.LotNumber) &&
+                                                                      ti.VendorId == importDetail.VendorId);
+                                            if (toolInv != null)
+                                                toolInv.UnitPrice = update.UnitPrice;
+                                        }
+                                        importDetail.UnitPrice = update.UnitPrice;
                                     }
-                                    importDetail.UnitPrice = update.UnitPrice;
+                                    break;
                                 }
-                                break;
                         }
-
+                    }
                     poDetail.UnitPrice = update.UnitPrice;
                     vfi.SaveChanges();
                 }
@@ -704,6 +723,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             }
             return View(new GridModel(GetPurchaseOrderDetailModel(update.PurchaseOrderId)));
         }
+
         [HttpPost]
         [GridAction]
         public ActionResult UpdateApprovePurchaseOrder(int purchaseOrderId, string shipDate) {
@@ -712,7 +732,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                          "Bạn đã bị mất quyền đăng nhập. " +
                                          "\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
                                          "\r\n Xin vui lòng đăng nhập lại hệ thống.");
-                return View(new GridModel(SelectPurchaseOrderView(1, false, "", "")));
+                return View(new GridModel(SelectPurchaseOrderView(1, false, "", "", "")));
             }
             try {
                 using (var vfi = new tammaContext()) {
@@ -730,7 +750,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 ModelState.AddModelError("ApprovePObyId", ex.Message);
 
             }
-            return View(new GridModel(SelectPurchaseOrderView(1, false, "", "")));
+            return View(new GridModel(SelectPurchaseOrderView(1, false, "", "","")));
         }
 
         public ActionResult SplitPurchaseOrderDetails(long purchaseOrderId, long[] detailIds) {
@@ -788,7 +808,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                          @"Bạn đã bị mất quyền đăng nhập. " +
                                          @"\r\n 1 trong các nguyên nhân như mất thời gian chờ. " +
                                          @"\r\n Xin vui lòng đăng nhập lại hệ thống.");
-                return View(new GridModel(SelectPurchaseOrderView(1, false, "", "")));
+                return View(new GridModel(SelectPurchaseOrderView(1, false, "", "","")));
             }
             try {
                 using (var vfi = new tammaContext()) {
@@ -806,30 +826,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 ModelState.AddModelError("ApprovePObyId", ex.Message);
 
             }
-            return View(new GridModel(SelectPurchaseOrderView(1, false, "", "")));
+            return View(new GridModel(SelectPurchaseOrderView(1, false, "", "","")));
         }
 
 
         [HttpPost]
-        public ActionResult PrintPurchaseOrderTracking(string fromDate, string toDate) {
+        public ActionResult PrintPurchaseOrderTracking(int classifiedId, string fromDate, string toDate, string inquiryNumber) {
             var model = new List<GroupPoTracking>();
-            var toDay = DateTime.Now;
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                                   ? new DateTime(toDay.Year, toDay.Month, 1)
-                                   : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                            ? toDay
-                            : Convert.ToDateTime(toDate, ci);
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseDate(toDate);
             try {
                 using (var vfi = new tammaContext()) {
-                    var purchaseOrders = (from po in vfi.PurchaseOrders
-                                          where po.Active && po.ShipDate != null
-                                                && (po.MaterialClassifiedId <= 3)
-                                                && po.ShipDate <= tDate
-                                                && po.Status != (byte)MyUtilities.Sales.Status.Completed
-                                                && po.Status != (byte)MyUtilities.Sales.Status.Cancel
-                                          select po.PurchaseOrderId).ToList();
+                    var purchaseOrderIds = (from po in vfi.PurchaseOrders
+                                            where po.Active && po.ShipDate != null
+                                                  && (classifiedId == 0 || po.MaterialClassifiedId == classifiedId)
+                                                  && po.ShipDate >= fDate
+                                                  && po.ShipDate <= tDate
+                                                  //&& po.ShipDate <= tDate
+                                                  //&& po.Status != (byte)MyUtilities.Sales.Status.Completed
+                                                  && po.Status != (byte)MyUtilities.Sales.Status.Cancel
+                                            select po.PurchaseOrderId).ToList();
                     //var purchaseOrderIds = purchaseOrders.Select(po => po.PurchaseOrderId).ToList();
                     var importPoInMonth = (from pod in vfi.ImportPurchaseOrders
                                            where pod.PurchaseOrderId != null &&
@@ -837,6 +853,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                  (byte)MyUtilities.Transaction.Status.Approved &&
                                                  pod.Transaction.CreatedDate >= fDate &&
                                                  pod.Transaction.CreatedDate <= tDate
+                                                  && (classifiedId == 0 || pod.PurchaseOrder.MaterialClassifiedId == classifiedId)
                                            select pod.PurchaseOrderId.Value).ToList();
                     var transactionInMonth = (from td in vfi.TransactionFpts
                                               where
@@ -845,33 +862,73 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                   td.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
                                                   td.TransactionDate >= fDate &&
                                                   td.TransactionDate <= tDate
+                                                  && (classifiedId == 0 || td.PurchaseOrder.MaterialClassifiedId == classifiedId)
                                               select td.PoId.Value).ToList();
-                    purchaseOrders =
-                        purchaseOrders.Union(importPoInMonth).Union(transactionInMonth).Distinct().ToList();
-                    var classifieds = from mc in vfi.MaterialClassifieds
-                                      where mc.MaterialClassifiedId <= 3
-                                      select mc;
-                    foreach (var materialClassified in classifieds) {
+                    purchaseOrderIds = purchaseOrderIds.Union(importPoInMonth).Union(transactionInMonth).Distinct().ToList();
+
+                    var purchaseOrders = (from x in vfi.PurchaseOrders
+                                          where purchaseOrderIds.Contains(x.PurchaseOrderId)
+                                          select new {
+                                              x.PurchaseOrderId,
+                                              x.Status,
+                                              x.MaterialClassifiedId,
+                                              x.MaterialClassified.MaterialClassifiedName,
+                                              x.VendorId,
+                                              x.Vendor.VendorName,
+                                              x.CurrencyCode,
+                                              x.ShipDate,
+                                              x.OrderDate,
+                                              x.PurchaseOrderDetails,
+                                          }).ToList();
+                    var importMaterials = (from x in vfi.ImportPurchaseOrderDetails
+                                           where x.ImportPurchaseOrder.PurchaseOrderId != null &&
+                                                 purchaseOrderIds.Contains(x.ImportPurchaseOrder.PurchaseOrderId.Value) &&
+                                                 x.ImportPurchaseOrder.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                               //x.ImportPurchaseOrder.Transaction.CreatedDate >= fDate &&
+                                                 x.ImportPurchaseOrder.Transaction.CreatedDate <= tDate
+                                           select new {
+                                               x.ImportPurchaseOrder.PurchaseOrderId,
+                                               x.MaterialId,
+                                               x.Quantity,
+                                               x.QuantityKg,
+                                               x.ImportPurchaseOrder.ImportDate,
+                                               x.ImportPurchaseOrder.ExchangeRate,
+                                           }).ToList();
+                    var imports = (from x in vfi.TransactionFptDetails
+                                   where
+                                       x.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                                       x.TransactionFpt.PoId != null &&
+                                       purchaseOrderIds.Contains(x.TransactionFpt.PoId.Value) &&
+                                       x.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
+                                       x.TransactionFpt.TransactionDate <= tDate
+                                   select new {
+                                       x.TransactionFpt.PoId,
+                                       x.FptId,
+                                       x.Quantity,
+                                       x.TransactionFpt.TransactionDate,
+                                       x.TransactionFpt.ExchangeRate,
+                                   }).ToList();
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
+                    var classifieds = purchaseOrders.Select(x => new { x.MaterialClassifiedId, x.MaterialClassifiedName }).Distinct().ToList();
+                    foreach (var classified in classifieds) {
                         var group = new GroupPoTracking {
-                            TypeName = materialClassified.MaterialClassifiedName,
-                            ReportDate = tDate
+                            TypeName = classified.MaterialClassifiedName,
+                            ReportDate = tDate,
+                            //ReportDateStr = fDate.ToString("dd/MM/yy") + "-" + tDate.ToString("dd/MM/yy"),
+                            ReportDateStr = tDate.ToString("dd/MM"),
                         };
-                        var purchaseOrdersById =
-                            vfi.PurchaseOrders.Where(
-                                po =>
-                                po.MaterialClassifiedId == materialClassified.MaterialClassifiedId &&
-                                purchaseOrders.Contains(po.PurchaseOrderId));
+                        var purchaseOrdersById = purchaseOrders.Where(po => po.MaterialClassifiedId == classified.MaterialClassifiedId);
                         var vendorIds = purchaseOrdersById.Select(po => po.VendorId).Distinct().ToList();
                         var index = 1;
                         foreach (var vendorId in vendorIds) {
-                            var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == vendorId);
+                            //var vendor = vfi.Vendors.FirstOrDefault(v => v.VendorId == vendorId);
                             var purchaseOrderByVendor = purchaseOrdersById.Where(po => po.VendorId == vendorId);
                             foreach (var purchaseOrder in purchaseOrderByVendor) {
                                 var entity = new PoTracking {
                                     VendorId = vendorId,
-                                    VendorName = vendor.VendorName,
-                                    PoDate = purchaseOrder.ShipDate.Value,
-                                    CreateDate = purchaseOrder.OrderDate,
+                                    VendorName = purchaseOrder.VendorName,
+                                    PoDate = purchaseOrder.ShipDate != null ? purchaseOrder.ShipDate.Value : purchaseOrder.OrderDate,
+                                    CreateDate = purchaseOrder.OrderDate
                                 };
                                 foreach (var poDetail in purchaseOrder.PurchaseOrderDetails) {
                                     var detail = new PoTrackingDetail {
@@ -881,14 +938,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                         ExchangeRate = 1,
                                         UnitMeasure = poDetail.Unit,
                                         Index = index++,
-                                        PoDate = entity.PoDate,
-                                        CreateDate = entity.CreateDate,
+                                        //PoDate = entity.PoDate,
+                                        //CreateDate = entity.CreateDate,
+                                        PoDateStr = entity.PoDate.ToString("dd/MM/yyyy"),
+                                        CreateDateStr = entity.CreateDate.ToString("dd/MM/yyyy"),  
                                     };
                                     if (detail.Currency.Equals("USD"))
-                                        detail.ExchangeRate = 23000;
+                                        detail.ExchangeRate = exchangeRate;
                                     else if (detail.Currency.Equals("EUR"))
                                         detail.ExchangeRate = 25000;
-                                    switch (materialClassified.MaterialClassifiedId) {
+                                    switch (classified.MaterialClassifiedId) {
                                         case 1:
                                             var material =
                                                 vfi.Materials.FirstOrDefault(m => m.MaterialId == poDetail.ReferenceId);
@@ -901,15 +960,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                                                          material.DiameterType,
                                                                                          material.Shape);
                                             var importPoFirst =
-                                                vfi.ImportPurchaseOrderDetails.Where(
+                                                importMaterials.Where(
                                                     i =>
-                                                    i.ImportPurchaseOrder.PurchaseOrderId ==
-                                                    purchaseOrder.PurchaseOrderId &&
-                                                    i.ImportPurchaseOrder.Transaction.Status ==
-                                                    (byte)MyUtilities.Transaction.Status.Approved &&
-                                                    i.ImportPurchaseOrder.Transaction.CreatedDate <
-                                                    fDate &&
-                                                    i.MaterialId == poDetail.ReferenceId);
+                                                    i.PurchaseOrderId == purchaseOrder.PurchaseOrderId &&
+                                                    i.ImportDate < fDate &&
+                                                    i.MaterialId == poDetail.ReferenceId).ToList();
                                             if (importPoFirst.Any())
                                                 detail.Quantity -= importPoFirst.Sum(id => id.QuantityKg);
                                             if (detail.Quantity < 0) {
@@ -918,23 +973,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                             }
 
                                             var importPos =
-                                                vfi.ImportPurchaseOrderDetails.Where(
+                                                importMaterials.Where(
                                                     i =>
-                                                    i.ImportPurchaseOrder.PurchaseOrderId ==
-                                                    purchaseOrder.PurchaseOrderId &&
-                                                    i.ImportPurchaseOrder.Transaction.Status ==
-                                                    (byte)MyUtilities.Transaction.Status.Approved &&
-                                                    i.ImportPurchaseOrder.Transaction.CreatedDate >=
-                                                    fDate &&
-                                                    i.ImportPurchaseOrder.Transaction.CreatedDate <=
-                                                    tDate &&
-                                                    i.MaterialId == poDetail.ReferenceId);
+                                                    i.PurchaseOrderId == purchaseOrder.PurchaseOrderId &&
+                                                    i.ImportDate >= fDate &&
+                                                    i.ImportDate <= tDate &&
+                                                    i.MaterialId == poDetail.ReferenceId).ToList();
                                             foreach (var importPoDetail in importPos) {
                                                 var importDetail = new PoTrackingImportDetail {
-                                                    ImportDateString = importPoDetail.ImportPurchaseOrder.ImportDate.ToString("dd/MM"),
+                                                    ImportDateString = importPoDetail.ImportDate.ToString("dd/MM"),
                                                     ImportQuantity = importPoDetail.QuantityKg,
                                                     UnitPrice = detail.UnitPrice,
-                                                    ExchangeRate = importPoDetail.ImportPurchaseOrder.ExchangeRate,
+                                                    ExchangeRate = importPoDetail.ExchangeRate,
                                                     Currency = detail.Currency
                                                 };
                                                 detail.ImportDetails.Add(importDetail);
@@ -949,16 +999,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                             detail.PoDetailName = fuel.FuelName;
                                             detail.PoDetailDesign = fuel.FuelDesignNo;
 
-                                            var transactionFuelFirsts = from td in vfi.TransactionFptDetails
-                                                                        where
-                                                                            td.TransactionFpt.Status ==
-                                                                            (byte)MyUtilities.Transaction.Status.Approved &&
-                                                                            td.TransactionFpt.PoId ==
-                                                                            purchaseOrder.PurchaseOrderId &&
-                                                                            td.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
-                                                                            td.FptId == poDetail.ReferenceId &&
-                                                                            td.TransactionFpt.TransactionDate < fDate
-                                                                        select td;
+                                            var transactionFuelFirsts = imports.Where(x => x.PoId == purchaseOrder.PurchaseOrderId
+                                                                                        && x.FptId == poDetail.ReferenceId
+                                                                                        && x.TransactionDate < fDate).ToList();
                                             if (transactionFuelFirsts.Any())
                                                 detail.Quantity -= transactionFuelFirsts.Sum(id => id.Quantity);
                                             if (detail.Quantity < 0) {
@@ -966,24 +1009,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                 continue;
                                             }
 
-                                            var transactionFuels = from td in vfi.TransactionFptDetails
-                                                                   where
-                                                                       td.TransactionFpt.Status ==
-                                                                       (byte)MyUtilities.Transaction.Status.Approved &&
-                                                                       td.TransactionFpt.PoId ==
-                                                                       purchaseOrder.PurchaseOrderId &&
-                                                                       td.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
-                                                                       td.FptId == poDetail.ReferenceId &&
-                                                                       td.TransactionFpt.TransactionDate >= fDate &&
-                                                                       td.TransactionFpt.TransactionDate <= tDate
-                                                                   select td;
+                                            var transactionFuels = imports.Where(x => x.PoId == purchaseOrder.PurchaseOrderId
+                                                                                        && x.FptId == poDetail.ReferenceId
+                                                                                        && x.TransactionDate >= fDate
+                                                                                        && x.TransactionDate <= tDate).ToList();
                                             foreach (var importPoDetail in transactionFuels) {
                                                 var importDetail = new PoTrackingImportDetail {
-                                                    ImportDateString = importPoDetail.TransactionFpt.TransactionDate.ToString("dd/MM"),
+                                                    ImportDateString = importPoDetail.TransactionDate.ToString("dd/MM"),
                                                     ImportQuantity = importPoDetail.Quantity,
                                                     UnitPrice = detail.UnitPrice,
-                                                    ExchangeRate =
-                                                        importPoDetail.TransactionFpt.ExchangeRate,
+                                                    ExchangeRate = importPoDetail.ExchangeRate,
                                                     Currency = detail.Currency
                                                 };
                                                 detail.ImportDetails.Add(importDetail);
@@ -997,16 +1032,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                             detail.PoDetailName = tool.ToolName;
                                             detail.PoDetailDesign = tool.ToolDesignNo + "-" + tool.ToolMaterial;
 
-                                            var transactionToolFirsts = from td in vfi.TransactionFptDetails
-                                                                        where
-                                                                            td.TransactionFpt.Status ==
-                                                                            (byte)MyUtilities.Transaction.Status.Approved &&
-                                                                            td.TransactionFpt.PoId ==
-                                                                            purchaseOrder.PurchaseOrderId &&
-                                                                            td.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
-                                                                            td.FptId == poDetail.ReferenceId &&
-                                                                            td.TransactionFpt.TransactionDate < fDate
-                                                                        select td;
+                                            var transactionToolFirsts = imports.Where(x => x.PoId == purchaseOrder.PurchaseOrderId
+                                                                                        && x.FptId == poDetail.ReferenceId
+                                                                                        && x.TransactionDate < fDate).ToList();
                                             if (transactionToolFirsts.Any())
                                                 detail.Quantity -= transactionToolFirsts.Sum(id => id.Quantity);
                                             if (detail.Quantity < 0) {
@@ -1014,24 +1042,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                 continue;
                                             }
 
-                                            var transactionTools = from td in vfi.TransactionFptDetails
-                                                                   where
-                                                                       td.TransactionFpt.Status ==
-                                                                       (byte)MyUtilities.Transaction.Status.Approved &&
-                                                                       td.TransactionFpt.PoId ==
-                                                                       purchaseOrder.PurchaseOrderId &&
-                                                                       td.TransactionFpt.EoI == (int)MyUtilities.PurchaseOrder.EoILot.Import &&
-                                                                       td.FptId == poDetail.ReferenceId &&
-                                                                       td.TransactionFpt.TransactionDate >= fDate &&
-                                                                       td.TransactionFpt.TransactionDate <= tDate
-                                                                   select td;
+                                            var transactionTools = imports.Where(x => x.PoId == purchaseOrder.PurchaseOrderId
+                                                                                        && x.FptId == poDetail.ReferenceId
+                                                                                        && x.TransactionDate >= fDate
+                                                                                        && x.TransactionDate <= tDate).ToList();
                                             foreach (var importPoDetail in transactionTools) {
                                                 var importDetail = new PoTrackingImportDetail {
-                                                    ImportDateString = importPoDetail.TransactionFpt.TransactionDate.ToString("dd/MM"),
+                                                    ImportDateString = importPoDetail.TransactionDate.ToString("dd/MM"),
                                                     ImportQuantity = importPoDetail.Quantity,
                                                     UnitPrice = detail.UnitPrice,
-                                                    ExchangeRate =
-                                                        importPoDetail.TransactionFpt.ExchangeRate,
+                                                    ExchangeRate = importPoDetail.ExchangeRate,
                                                     Currency = detail.Currency
                                                 };
                                                 detail.ImportDetails.Add(importDetail);
@@ -1046,6 +1066,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                         };
                                         detail.ImportDetails.Add(importDetail);
                                     }
+
+                                    if (poDetail.InquiryPoes.Any()) {
+                                        var inquiry = poDetail.InquiryPoes.FirstOrDefault();
+                                        if (!string.IsNullOrWhiteSpace(inquiryNumber)) {
+                                            if (!inquiry.InquiryNumber.Contains(inquiryNumber)) continue;
+                                        }
+                                        detail.InquiryNumber = inquiry.InquiryNumber;
+                                        if (inquiry.DueDate != null) {
+                                            detail.InquiryDateStr = inquiry.DueDate.Value.ToString("dd/MM/yyyy");
+                                            if (detail.Quantity > detail.ImportQuantity) {
+                                                if (inquiry.DueDate.Value <= DateTime.Today) detail.InquiryState = 1; // red
+                                                else if (inquiry.DueDate.Value <= DateTime.Today.AddDays(5)) detail.InquiryState = 3; // orange
+                                                else if (inquiry.DueDate.Value <= DateTime.Today.AddDays(10)) detail.InquiryState = 2; // yellow
+                                                else detail.InquiryState = 0;
+                                            }
+                                        }
+                                        else {
+                                            detail.InquiryDateStr = "";
+                                            detail.InquiryState = 1;
+                                        }
+                                        detail.InquiryStatus = MyUtilities.PurchaseOrder.GetInquiryTrackingStatusName(inquiry.Status);
+                                    }
                                     if (detail.ImportDetails.Any())
                                         entity.Details.Add(detail);
                                 }
@@ -1053,14 +1095,118 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     group.List.Add(entity);
                             }
                         }
-                        if (group.List.Any())
+
+                        if (group.List.Any()) {
                             model.Add(group);
+                        }
+                    }
+
+                    var pendingInquiries = (from x in vfi.InquiryPoes
+                                            where (x.Status == (byte)MyUtilities.PurchaseOrder.InquiryEnum.Pending
+                                                || x.Status == (byte)MyUtilities.PurchaseOrder.InquiryEnum.Approved)
+                                            && (x.DueDate == null || x.DueDate.Value <= tDate)
+                                            && (classifiedId == 0 || x.ClasstifiedId == classifiedId)
+                                            select new {
+                                                x.Status,
+                                                InquiryNumber = x.InquiryNumber + "",
+                                                x.DueDate,
+                                                x.ClasstifiedId,
+                                                x.VendorId,
+                                                VendorName = x.VendorId == null ? "Chưa có nhà cung cấp" : x.Vendor.VendorName,
+                                                x.ReferenceId,
+                                                x.Currency,
+                                                x.UnitPrice,
+                                                x.Unit,
+                                                x.OrderQty,
+                                            }).ToList();
+                    if (!string.IsNullOrWhiteSpace(inquiryNumber)) {
+                        pendingInquiries = pendingInquiries.Where(x => x.InquiryNumber.Contains(inquiryNumber)).ToList();
+                    }
+                    if (pendingInquiries.Any()) {
+                        var group = new GroupPoTracking {
+                            TypeName = "Chưa đặt hàng",
+                            ReportDate = tDate
+                        };
+                        model.Insert(0, group);
+                        var index = 1;
+                        var inquiriesVendors = pendingInquiries.Select(x => new { x.VendorId, x.VendorName }).Distinct().ToList();
+                        foreach (var vendor in inquiriesVendors) {
+                            var entity = new PoTracking {
+                                VendorId = vendor.VendorId ?? 0,
+                                VendorName = vendor.VendorName,
+                            };
+                            group.List.Add(entity);
+                            var inquiriesById = pendingInquiries.Where(x => x.VendorId == vendor.VendorId).ToList();
+                            foreach (var inquiry in inquiriesById) {
+                                var detail = new PoTrackingDetail {
+                                    Currency = (inquiry.Currency + "").Trim(),
+                                    Quantity = inquiry.OrderQty,
+                                    UnitPrice = inquiry.UnitPrice,
+                                    ExchangeRate = 1,
+                                    UnitMeasure = inquiry.Unit,
+                                    Index = index++,
+                                    //PoDate = inquiry.PoDate,
+                                    //CreateDate = entity.CreateDate,
+                                    InquiryDateStr = inquiry.DueDate != null ? inquiry.DueDate.Value.ToString("dd/MM/yyyy") : "",
+                                    InquiryNumber = inquiry.InquiryNumber,
+                                    InquiryStatus = MyUtilities.PurchaseOrder.GetInquiryTrackingStatusName(inquiry.Status)
+                                };
+                                if (inquiry.DueDate != null) {
+                                    detail.InquiryDateStr = inquiry.DueDate.Value.ToString("dd/MM/yyyy");
+                                    if (inquiry.DueDate.Value <= DateTime.Today) detail.InquiryState = 1; // red
+                                    else if (inquiry.DueDate.Value <= DateTime.Today.AddDays(5)) detail.InquiryState = 3; // orange
+                                    else if (inquiry.DueDate.Value <= DateTime.Today.AddDays(10)) detail.InquiryState = 2; // yellow
+                                    else detail.InquiryState = 0;
+                                }
+                                else {
+                                    detail.InquiryDateStr = "";
+                                    detail.InquiryState = 1;
+                                }
+                                //detail.InquiryStatus = MyUtilities.PurchaseOrder.GetInquiryTrackingStatusName(inquiry.Status);
+                                if (detail.Currency.Equals("USD"))
+                                    detail.ExchangeRate = exchangeRate;
+                                else if (detail.Currency.Equals("EUR"))
+                                    detail.ExchangeRate = 25000;
+                                entity.Details.Add(detail);
+                                switch (inquiry.ClasstifiedId) {
+                                    case 1:
+                                        var material =
+                                            vfi.Materials.FirstOrDefault(m => m.MaterialId == inquiry.ReferenceId);
+                                        if (material == null)
+                                            throw new AggregateException("Lỗi! Không tìm thấy nguyên liệu");
+                                        detail.PoDetailName = material.MaterialName;
+                                        detail.PoDetailDesign =
+                                            MyUtilities.Material.GetMaterialDesignNo(material.OutDiameter,
+                                                                                     material.InDiameter,
+                                                                                     material.DiameterType,
+                                                                                     material.Shape);
+                                        break;
+                                    case 2:
+                                        var fuel =
+                                            vfi.Fuels.FirstOrDefault(m => m.FuelId == inquiry.ReferenceId);
+                                        if (fuel == null)
+                                            throw new AggregateException("Lỗi! Không tìm thấy nhiên liệu");
+                                        detail.PoDetailName = fuel.FuelName;
+                                        detail.PoDetailDesign = fuel.FuelDesignNo;
+
+                                        break;
+                                    case 3:
+                                        var tool =
+                                            vfi.Tools.FirstOrDefault(m => m.ToolId == inquiry.ReferenceId);
+                                        if (tool == null)
+                                            throw new AggregateException("Lỗi! Không tìm thấy công cụ");
+                                        detail.PoDetailName = tool.ToolName;
+                                        detail.PoDetailDesign = tool.ToolDesignNo + "-" + tool.ToolMaterial;
+                                        break;
+                                }
+                            }
+                        }
                     }
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("PagePrinPlatingForm", "\n" + ex.Message);
-
+                ModelState.AddModelError("PagePrintPurchaseOrderTracking", "\n" + ex.Message);
+                return Json(ex.Message);
             }
             return PartialView("PagePrintPurchaseOrderTracking", model);
             //return PartialView(null);
@@ -1170,8 +1316,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectManagePurchaseOrders(byte? status, bool? active, string fromDate, string toDate) {
-            return View(new GridModel(SelectPurchaseOrderView(status, active, fromDate, toDate)));
+        public ActionResult SelectManagePurchaseOrders(byte? status, bool? active, string fromDate, string toDate, string inquiryNumber = "") {
+            return View(new GridModel(SelectPurchaseOrderView(status, active, fromDate, toDate, inquiryNumber)));
         }
 
         List<TransactionFptModel> GetImportByPoId(long purchaseOrderId) {
@@ -3198,22 +3344,30 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             }
             return View(new GridModel(model));
         }
-        List<InquiryPoModel> GetInquiryPo(int classified, int type, int vendorId, int status, string fromDate, string toDate) {
 
+        List<InquiryPoModel> GetInquiryPo(int classified, int type, int vendorId, int status, string fromDate, string toDate) {
             var model = new List<InquiryPoModel>();
-            var ci = new CultureInfo("vi-VN");
-            var fDate = string.IsNullOrWhiteSpace(fromDate)
-                            ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1)
-                            : Convert.ToDateTime(fromDate, ci);
-            var tDate = string.IsNullOrWhiteSpace(toDate)
-                            ? DateTime.Now
-                            : Convert.ToDateTime(toDate, ci);
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseDate(toDate);
             using (var vfi = new tammaContext()) {
+                var statuses = new List<int>();
+                if (status == 0) {
+                    statuses.Add((int)MyUtilities.PurchaseOrder.InquiryEnum.Pending);
+                    statuses.Add((int)MyUtilities.PurchaseOrder.InquiryEnum.Approved);
+                } if (status == -1) {
+                    statuses.Add((int)MyUtilities.PurchaseOrder.InquiryEnum.Pending);
+                    statuses.Add((int)MyUtilities.PurchaseOrder.InquiryEnum.Approved);
+                    statuses.Add((int)MyUtilities.PurchaseOrder.InquiryEnum.MakePo);
+                }
+                else {
+                    statuses.Add(status);
+                }
                 var inquiryPos = (from ip in vfi.InquiryPoes
                                   where (classified == 0 || ip.ClasstifiedId == classified) &&
                                       //(type == 0 || ip.MaterialClassified.MaterialTypes.Any(mt=> mt.MaterialTypeId == type)) &&
                                   (vendorId == 0 || ip.VendorId == vendorId) &&
-                                  status == ip.Status
+                                  (statuses.Contains(ip.Status))
+                                  orderby ip.DueDate
                                   select ip).ToList();
                 if (!string.IsNullOrWhiteSpace(toDate)) {
                     inquiryPos = inquiryPos.Where(ip => ip.DueDate >= fDate && ip.DueDate <= tDate).ToList();
@@ -3233,6 +3387,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         Status = ip.Status,
                         DueDate = ip.DueDate,
                         ReferenceId = ip.ReferenceId,
+                        InquiryNumber = ip.InquiryNumber
                     };
                     if (ip.VendorId != null) {
                         entity.VendorId = ip.VendorId.Value;
@@ -3246,6 +3401,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             if (material == null) continue;
                             entity.TypeId = material.MaterialTypeId;
                             entity.TypeName = material.MaterialType.MaterialTypeName;
+                            entity.ReferenceName = material.MaterialName;
                             entity.ReferenceCode = material.MaterialCode;
 
                             var materialInvs =
@@ -3260,6 +3416,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 vfi.Fuels.FirstOrDefault(m => m.FuelId == entity.ReferenceId);
                             if (fuel == null) continue;
                             entity.ReferenceCode = fuel.FuelFullCode;
+                            entity.ReferenceName = fuel.FuelName;
 
                             var fuelInvs =
                                 vfi.FuelInventories.Where(
@@ -3274,6 +3431,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             entity.TypeId = tool.MaterialTypeId;
                             entity.TypeName = tool.MaterialType.MaterialTypeName;
                             entity.ReferenceCode = tool.ToolFullCode;
+                            entity.ReferenceName = tool.ToolName;
 
                             var toolInvs =
                                 vfi.ToolInventories.Where(
@@ -3381,15 +3539,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     inquiry.Note = update.Note;
                     inquiry.OrderQty = update.OrderQty;
                     inquiry.DueDate = update.DueDate;
+                    inquiry.InquiryNumber = update.InquiryNumber;
+                    if (!string.IsNullOrWhiteSpace(inquiry.InquiryNumber)) {
+                        inquiry.Status = (byte)MyUtilities.PurchaseOrder.InquiryEnum.Approved;
+                    }
+                    else {
+                        inquiry.Status = (byte)MyUtilities.PurchaseOrder.InquiryEnum.Pending;
+                    }
                     vfi.SaveChanges();
                 }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("UpdateInquiryPo", ex.Message);
             }
-            return View(new GridModel(
-                GetInquiryPo(classified, type, vendorId,
-                (byte)MyUtilities.PurchaseOrder.InquiryEnum.Pending, "", "")));
+            return View(new GridModel( GetInquiryPo(classified, type, vendorId, 0, "", "")));
         }
 
         [GridAction]
@@ -3406,9 +3569,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("UpdateInquiryPo", ex.Message);
             }
-            return View(new GridModel(
-                GetInquiryPo(classified, type, vendorId,
-                (byte)MyUtilities.PurchaseOrder.InquiryEnum.Pending, "", "")));
+            return View(new GridModel( GetInquiryPo(classified, type, vendorId, 0, "", "")));
         }
 
         public ActionResult TransformToPo(string ids) {
@@ -3430,6 +3591,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     if (!inquiries.Any())
                         throw new AggregateException("Lỗi! Không tìm thấy chi tiết cần chuyển");
                     var msg = "";
+                    if (inquiries.Any(ip => string.IsNullOrWhiteSpace(ip.InquiryNumber)))
+                        msg = "Chưa có nhập số phiếu đầy đủ \n";
                     if (inquiries.Any(ip => ip.VendorId == null))
                         msg = "Vui lòng điền đủ nhà cung cấp \n";
                     if (inquiries.Any(ip => ip.UnitPrice == 0))
@@ -3508,6 +3671,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     var inquiries = vfi.InquiryPoes.Where(ip => checkedRecords.Contains(ip.InquiryId));
+                    var inquiriesNumber = inquiries.Select(x => x.InquiryNumber).Distinct().ToList();
+                    if (inquiriesNumber.Count > 1) {
+                        throw new AggregateException("Lỗi! Danh sách in có nhiều số yêu cầu! Chỉ được cho phép có 1 số yêu cầu");
+                    }
                     var info = new WorkGroupInfo();
                     var workgroup = vfi.WorkGroups.FirstOrDefault(x => x.Active);
                     if (workgroup != null) {
@@ -3537,7 +3704,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             Status = ip.Status,
                             DueDate = ip.DueDate,
                             ReferenceId = ip.ReferenceId,
-                            Info = info
+                            Info = info,
+                            InquiryNumber = ip.InquiryNumber,
+                            //State = ip.Status
                         };
                         if (ip.VendorId != null) {
                             entity.VendorId = ip.VendorId.Value;
@@ -3550,6 +3719,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     vfi.Materials.FirstOrDefault(m => m.MaterialId == entity.ReferenceId);
                                 entity.TypeId = material.MaterialTypeId;
                                 entity.TypeName = material.MaterialType.MaterialTypeName;
+                                entity.ReferenceName = material.MaterialName;
                                 entity.ReferenceCode = material.MaterialCode;
 
                                 var materialInvs =
@@ -3562,6 +3732,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             case 2:
                                 var fuel =
                                     vfi.Fuels.FirstOrDefault(m => m.FuelId == entity.ReferenceId);
+                                entity.ReferenceName = fuel.FuelName;
                                 entity.ReferenceCode = fuel.FuelFullCode;
 
                                 var fuelInvs =
@@ -3575,6 +3746,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     vfi.Tools.FirstOrDefault(m => m.ToolId == entity.ReferenceId);
                                 entity.TypeId = tool.MaterialTypeId;
                                 entity.TypeName = tool.MaterialType.MaterialTypeName;
+                                entity.ReferenceName = tool.ToolName;
                                 entity.ReferenceCode = tool.ToolFullCode;
 
                                 var toolInvs =
@@ -3592,11 +3764,43 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("PrintInquiryForm", ex.Message);
-
+                //ModelState.AddModelError("PrintInquiryForm", ex.Message);
+                //return PartialView("PagePrintInquiryForm", ex.Message);
+                return Json(ex.Message);
             }
-            return PartialView(null);
+            //return PartialView(null);
         }
+
+        public ActionResult SelectComboBoxAllInquiryStatus() {
+            var val = from MyUtilities.PurchaseOrder.InquiryEnum stt in Enum.GetValues(typeof(MyUtilities.PurchaseOrder.InquiryEnum))
+                      select new {
+                          Value = (int)Enum.Parse(typeof(MyUtilities.PurchaseOrder.InquiryEnum), stt.ToString()),
+                          Text =
+                      MyUtilities.PurchaseOrder.GetInquiryEnumStatusName(
+                          (int)Enum.Parse(typeof(MyUtilities.PurchaseOrder.InquiryEnum), stt.ToString()))
+                      };
+
+            return new JsonResult {
+                Data = new SelectList(val, "Value", "Text")
+            };
+        }
+
+        public ActionResult SelectComboBoxInquiryStatus() {
+            var val = from MyUtilities.PurchaseOrder.InquiryEnum stt in Enum.GetValues(typeof(MyUtilities.PurchaseOrder.InquiryEnum))
+                      where stt != MyUtilities.PurchaseOrder.InquiryEnum.MakePo &&
+                            stt != MyUtilities.PurchaseOrder.InquiryEnum.Cancel
+                      select new {
+                          Value = (int)Enum.Parse(typeof(MyUtilities.PurchaseOrder.InquiryEnum), stt.ToString()),
+                          Text =
+                      MyUtilities.PurchaseOrder.GetInquiryEnumStatusName(
+                          (int)Enum.Parse(typeof(MyUtilities.PurchaseOrder.InquiryEnum), stt.ToString()))
+                      };
+
+            return new JsonResult {
+                Data = new SelectList(val, "Value", "Text")
+            };
+        }
+
         #endregion
 
         #region Fuel

@@ -34,7 +34,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             var data = list.FirstOrDefault();
             this.picLogo.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
             this.picLogo.Value = data.Info.Logo;
-            this.Name = "Export_Tool_" + data.TransactionDate.ToString("yy_MM_dd");
+            this.Name = "Tool_Internal_Transaction" + data.TransactionDate.ToString("yy_MM_dd");
         }
     }
 }

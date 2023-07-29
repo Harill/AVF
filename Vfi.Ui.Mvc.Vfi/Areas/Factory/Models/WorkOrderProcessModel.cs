@@ -25,6 +25,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double DefectQuantity { get; set; }
         public double DefectWeight { get; set; }
 
+        public string ProcessNote { get; set; }
         public int EmployeeId { get; set; }
         public string EmployeeName { get; set; }
 

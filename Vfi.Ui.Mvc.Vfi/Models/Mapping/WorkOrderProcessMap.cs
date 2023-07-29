@@ -29,6 +29,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedDate).HasColumnName("ModifiedDate");
             this.Property(t => t.Status).HasColumnName("Status");
             this.Property(t => t.UnitWeight).HasColumnName("UnitWeight");
+            this.Property(t => t.ProcessNote).HasColumnName("ProcessNote");
 
             // Relationships
             this.HasRequired(t => t.Employee)

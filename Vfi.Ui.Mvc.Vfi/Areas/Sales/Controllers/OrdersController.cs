@@ -15,6 +15,7 @@ using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 using Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers;
+using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
     public class OrdersController : Controller {
@@ -180,7 +181,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         }
         #endregion
         
-        #region order detail
+        #region order
         [GridAction]
         public ActionResult SelectOrderDetail() {
             return View(new GridModel(new List<OrderDetailModel>()));
@@ -566,6 +567,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                         IsComplete = false,
                                         Status = (int)MyUtilities.Sales.Status.Waiting,
                                         IsAlert = entity.IsAlert,
+                                        OrderNote = entity.OrderNote
                                     };
                                     if (currencyCode.Equals("USD")) {
                                         detail.UnitPrice = Math.Round(entity.UnitPrice, 4);
@@ -592,8 +594,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                 vfi.OrderDetails.AddRange(orderDetails);
                                 vfi.SaveChanges();
                             }
-
-
                         }
                     }
                 }
@@ -604,6 +604,107 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
             return View(new GridModel(new List<SalesOrderDetailModel>()));
         }
 
+        public ActionResult PrintPreparationTools(int orderDetailId) {
+            var model = new List<PreparationToolModel>();
+            try {
+                using (var vfi = new vfiContext()) {
+                    var orderDetail = vfi.OrderDetails.FirstOrDefault(x => x.OrderDetailId == orderDetailId);
+                    if (orderDetail == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy thông tin");
+                    }
+                    var productionTools = (from pt in vfi.ProductionTools
+                                          where pt.Active && pt.ProductId == orderDetail.ProductId
+                                          select pt).ToList();
+                    var toolIds = productionTools.Select(x => x.ToolId).Distinct().ToList();
+                    var toolInvs = vfi.ToolInventories.Where(x => x.TotalQuantity > 0 && toolIds.Contains(x.ToolId)).ToList();
+                    var allProductionTools = vfi.SelectCurrentProductionTools;
+                    var materialInv = 0.0;
+                    var material = orderDetail.Product.ProductionMaterials.Where(x => x.Active).OrderBy(x => x.Priority).FirstOrDefault();
+                    if (material != null) {
+                        materialInv = vfi.MaterialInventories.Where(mi => mi.TotalQty > 0 && mi.MaterialId == material.MaterialId)
+                                                            .ToList().Sum(x => x.TotalQty);
+                    }
+                    var index = 1;
+                    var employeeName = orderDetail.Order.SalesPersonId != null ? orderDetail.Order.Employee.EmployeeName : "";
+                    var machineName = orderDetail.Product.ProcessingDesign != null ? orderDetail.Product.ProcessingType.TypeName : "";
+                    foreach (var productionTool in productionTools) {
+                        var detail = new PreparationToolDetail {
+                            ToolId = productionTool.ToolId,
+                            ToolName = productionTool.Tool.ToolFullCode,
+                            ToolUse = productionTool.Note,
+                            TypeId = productionTool.Tool.MaterialTypeId,
+                            TypeName = productionTool.Tool.MaterialType.MaterialTypeName,
+
+                            ToolIndex = productionTool.ToolIndex ?? 0,
+                            ExportQuantity = productionTool.UseNumber,
+                            PrepareQuantity = 0,
+                            TotalInv = 0,
+                        };
+                        var sameProductionTools = allProductionTools.Where(pt => pt.ToolId == detail.ToolId);
+                        foreach (var sameProductionTool in sameProductionTools) {
+                            var same = detail.SameMachines.FirstOrDefault(s => s.MachineId == sameProductionTool.MachineId);
+                            if (same == null) {
+                                same = new SamePreparation {
+                                    MachineId = sameProductionTool.MachineId,
+                                    MachineName = sameProductionTool.MachineName,
+                                };
+                                detail.SameMachines.Add(same);
+                            }
+                        }
+
+                        var toolInvsById = toolInvs.Where(ti => ti.ToolId == detail.ToolId);
+                        if (toolInvsById.Any()) {
+                            detail.TotalInv = toolInvsById.Sum(ti => ti.TotalQuantity);
+                        }
+
+                        var entity = model.FirstOrDefault(m => m.ToolTypeId == detail.TypeId);
+                        if (entity == null) {
+                            entity = new PreparationToolModel {
+                                Index = index,
+                                TrackId = orderDetailId,
+                                Quantity = orderDetail.OrderQty ?? 0,
+                                DeliveryDate = orderDetail.CustomerDueDate ?? DateTime.Now,
+
+                                DeliveryEmployee = employeeName,
+                                ReceiveEmployee = employeeName,
+
+                                ProductId = orderDetail.ProductId,
+                                ProductCode = orderDetail.Product.ProductCode,
+                                Productivity = orderDetail.Product.Productivity ?? 0,
+                                ProductionRate = orderDetail.Product.ProductionRate ?? 0,
+
+                                MaterialId =  material!=null ? material.MaterialId : 0,
+                                MaterialCode = material!=null ?  material.Material.MaterialCode :"",
+                                MaterialTypeName = material!=null ? material.Material.MaterialType.MaterialTypeName: "",
+
+                                //MachineId = track.MachineId,
+                                MachineName = machineName,
+                                ToolTypeId = detail.TypeId,
+                                ToolTypeName = detail.TypeName,
+                                MaterialInv = materialInv
+                            };
+                            var sameMaterialProductions = vfi.SelectCurrentTrackUpMachines
+                                .Where(t => t.MaterialId == entity.MaterialId);
+                            foreach (var sameMaterialProduction in sameMaterialProductions) {
+                                var same = new SamePreparation {
+                                    MachineId = sameMaterialProduction.MachineId,
+                                    MachineName = sameMaterialProduction.MachineName
+                                };
+                                entity.SameMachines.Add(same);
+                            }
+                            index++;
+                            model.Add(entity);
+
+                        }
+                        entity.Details.Add(detail);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                return Json(ex.Message);
+            }
+            return PartialView("PagePreparationTools", model);
+        }
         #endregion
 
         #region tâm ma
@@ -778,7 +879,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                 ForecastDate = order.DueDate.Value,
                                 Quantity = 0,
                                 ModifiedDate = DateTime.Now,
-                                ModifiedUser = HttpContext.User.Identity.Name,
+                                ModifiedUser = HttpContext.User.Identity.Name + "-Auto",
                                 IsSelling = true,
                                 Status = (byte)MyUtilities.Transaction.Status.Approved,
                             };

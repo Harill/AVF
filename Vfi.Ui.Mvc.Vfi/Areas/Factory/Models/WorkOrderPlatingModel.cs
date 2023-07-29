@@ -1,0 +1,168 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+using Vfi.Ui.Mvc.Vfi.Utilities;
+
+namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
+    public class WorkOrderPlatingModel {
+        public WorkOrderPlatingModel() {
+            Details = new List<WorkOrderPlatingDetailModel>();
+        }
+        public int FormId { get; set; }
+        public int FormType { get; set; }
+        public int VendorId { get; set; }
+        public string VendorCode { get; set; }
+        public string VendorName { get; set; }
+        public string VendorCodeName {
+            get { return VendorCode + " -- " + VendorName; }
+            set { VendorCode = value; }
+        }
+        public string PlatingFormNumber { get; set; }
+        public int ExportId { get; set; }
+        public long TransactionId { get; set; }
+        public string TransactionCode { get; set; }
+        public string TransactionExportNumber {
+            get {
+                return VendorCodeName + " -- " + ExportDate.ToString("dd/MM/yy");
+            }
+        }
+        public DateTime ExportDate { get; set; }
+        public DateTime ImportDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public string ModifiedUser { get; set; }
+        public byte Status { get; set; }
+        public string StatusName { get; set; }
+        public int PlatingType { get; set; }
+        public string PlatingTypeName { get; set; }
+        public string CurrencyCodeName { get; set; }
+        public int ExchangeRate { get; set; }
+        public string Note { get; set; }
+        public double Export { get; set; }
+        public double ExportKg { get; set; }
+        public double ExportPrice { get; set; }
+        public double Import { get; set; }
+        public double ImportKg { get; set; }
+        public double ImportPrice { get; set; }
+        public double Price { get; set; }
+        public List<WorkOrderPlatingDetailModel> Details { get; set; }
+    }
+
+    public class WorkOrderPlatingDetailModel {
+        public int RoutingId { get; set; }
+        public string RoutingName { get; set; }
+        public string RoutingFullName { get { return RoutingName + "-" + SerialNumber + "-" + ProductCode; } }
+        public int WorkOrderId { get; set; }
+        public string SerialNumber { get; set; }
+        public string RoutingSerial { get { return SerialNumber + string.Format("{0:000}", RoutingIndex); } }
+        public int ProductId { get; set; }
+        public string ProductCode { get; set; }
+        public double ProductWeight { get; set; }
+        public int WarehouseId { get; set; }
+        public string WarehouseName { get; set; }
+        public double ActualResourceHrs { get; set; }
+        public double ActualResources { get; set; }
+        public double PlannedCost { get; set; }
+        public double ActualCost { get; set; }
+        public string ModifiedUser { get; set; }
+        public DateTime ModifiedDate { get; set; }
+        public int MaterialInvId { get; set; }
+        public string MaterialInvCode { get; set; }
+        public byte Status { get; set; }
+        public string StatusName { get { return MyUtilities.WorkOrder.GetText(Status); } }
+        public string MoreInfo { get; set; }
+        [DataType("Number0Digit")]
+        public double RoutingIndex { get; set; }
+        public string RoutingLot { get; set; }
+        public int NextRouteId { get; set; }
+        public string NextRouteName { get; set; }
+
+        public double PreviousRouteQuantity { get; set; }
+        public double RequireQuantity { get; set; }
+        public double WaitingApproveQuantity { get; set; }
+
+        public double PlannedWeight { get; set; }
+
+        public WorkOrderProductionInfo MoreInfoObject { get; set; }
+
+        [DataType("_MaterialUseProductionNumberTemplate")]
+        public double UsingQuantity { get; set; }
+        [DataType("Number0Digit")]
+        public double GoodQuantity { get; set; }
+        [DataType("Number0Digit")]
+        public double NGQuantity { get; set; }
+        [DataType("Number0Digit")]
+        public double DefectQuantity { get; set; }
+
+        [DataType("Number0Digit")]
+        public double UsingWeight { get; set; }
+        [DataType("Number0Digit")]
+        public double GoodWeight { get; set; }
+        [DataType("Number0Digit")]
+        public double NGWeight { get; set; }
+        [DataType("Number0Digit")]
+        public double DefectWeight { get; set; }
+
+        public ProductionFuelModel PackingInfo { get; set; }
+        public double TotalQuantity { get { return GoodQuantity + NGQuantity + DefectQuantity; } }
+        public double TotalWeight { get { return GoodWeight + NGWeight + DefectWeight; } }
+        public double DiffQuantity { get; set; }
+        public double DiffQuantityKg { get; set; }
+        public double MaxQuantity { get; set; }
+        public double DiffPercent { get { return MaxQuantity > 0 ? (TotalQuantity / MaxQuantity - 1) * 100 : 0; } }
+
+        public string PrintGoodQuantity {
+            get {
+                return Status != (byte)MyUtilities.WorkOrder.Status.Pending
+                    && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
+                    && GoodQuantity > 0
+                ? string.Format("{0:n0}", GoodQuantity)
+                : "";
+            }
+        }
+        public string PrintNGQuantity {
+            get {
+                return Status != (byte)MyUtilities.WorkOrder.Status.Pending
+                    && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
+                    && NGQuantity > 0
+                ? string.Format("{0:n0}", NGQuantity)
+                : ""; ;
+            }
+        }
+        public string PrintDefectQuantity {
+            get {
+                return Status != (byte)MyUtilities.WorkOrder.Status.Pending
+                    && Status != (byte)MyUtilities.WorkOrder.Status.Cancel
+                    && DefectQuantity > 0
+                ? string.Format("{0:n0}", DefectQuantity)
+                : ""; ;
+            }
+        }
+
+        public bool CanAdd { get; set; }
+        public bool CanChose { get; set; }
+        public int DetailId { get; set; }
+        public string Note { get; set; }
+        //public PlatingDetailModel PlatingModel { get; set; }
+        public int ProductInvId { get; set; }
+        [DataType("_PlatingTemplate")]
+        public string PlatingCode { get; set; }
+        public string Thickness { get; set; }
+        public string SaltSprayTime { get; set; }
+        public string SpecialRequest { get; set; }
+        public string Sample { get; set; }
+        public string TestingEquipment { get; set; }
+        [DataType("_PlatingUnitTemplate")]
+        public string Unit { get; set; }
+        [UIHint("Number")]
+        public double QuantityRequirement { get; set; }
+        [UIHint("Number")]
+        public double UnitPrice { get; set; }
+        public int ProductivityHr { get; set; }
+        //public int ProductionRate { get; set; }
+        //public double ProductOutDiameter { get; set; }
+        //public double MaterialOutDiameter { get; set; }
+        //public string MaterialShape { get; set; }
+    }
+}

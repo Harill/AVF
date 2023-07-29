@@ -72,6 +72,16 @@
         });
         return false;
     }
+    function Print2(id) {
+        $('#result').load('@Url.Action("PrintWorkOrder2", "WorkOrder")',
+        {
+            workOrderId: id
+        }, function () {
+            var window = $('#windowReport').data('tWindow');
+            window.open();
+        });
+        return false;
+    }
 </script>
 <script>
     function gridRouting_OnEdit(e) {
@@ -150,9 +160,9 @@
             </div>
             <div class="grid_3">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('grid'); ">
-                    <span class='t-icon t-insert'></span>
-                    Làm mới
-                <span class="twoToneButton"></span>
+                <span class='t-icon t-insert'></span>
+                Làm mới
+                <span class="loadButton"></span>
                 </button>
             </div>
         </fieldset>
@@ -252,8 +262,11 @@
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
                             columns.Bound(f => f.RoutingName).Title("Công đoạn</br>đang XL");
-                            columns.Bound(f => f.WorkOrderId).Title("").Width(55).ReadOnly(true).Filterable(false)
+                            columns.Bound(f => f.WorkOrderId).Title("1").Width(55).ReadOnly(true).Filterable(false)
                                 .ClientTemplate("<input type='button' value='In' class='t-button' onclick=Print(<#= WorkOrderId #>) />")
+                                .HtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(f => f.WorkOrderId).Title("2").Width(55).ReadOnly(true).Filterable(false)
+                                .ClientTemplate("<input type='button' value='In' class='t-button' onclick=Print2(<#= WorkOrderId #>) />")
                                 .HtmlAttributes(new { style = "text-align:center" });
                             columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy</br>WO").Width(35);
                         })

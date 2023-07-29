@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models;
+using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models;
 using Vfi.Ui.Mvc.Vfi.Utilities;
 
@@ -15,6 +16,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string RoutingFullName { get { return RoutingName + "-" + SerialNumber + "-" + ProductCode; } }
         public int WorkOrderId { get; set; }
         public string SerialNumber { get; set; }
+        public string RoutingSerial { get { return SerialNumber + string.Format("{0:000}", RoutingIndex); } }
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
         public double ProductWeight { get; set; }
@@ -33,6 +35,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public DateTime ModifiedDate { get; set; }
         public int MachineId { get; set; }
         public string MachineName { get; set; }
+        public string MachineTypeName { get; set; }
         public int MaterialInvId { get; set; }
         public string MaterialInvCode { get; set; }
         public byte Status { get; set; }
@@ -61,6 +64,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         [DataType("Number0Digit")]
         public double DefectQuantity { get; set; }
 
+        [DataType("Number0Digit")]
         public double UsingWeight { get; set; }
         [DataType("Number0Digit")]
         public double GoodWeight { get; set; }
@@ -107,6 +111,28 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public bool CanAdd { get; set; }
         public string CanAddDisplay { get { return CanAdd ? "" : "display:none"; } }
         public int ProductionLossRate { get; set; }
+
+        public string Note { get; set; }
+        //public PlatingDetailModel PlatingModel { get; set; }
+        public int ProductInvId { get; set; }
+        [DataType("_PlatingTemplate")]
+        public string PlatingCode { get; set; }
+        public string Thickness { get; set; }
+        public string SaltSprayTime { get; set; }
+        public string SpecialRequest { get; set; }
+        public string Sample { get; set; }
+        public string TestingEquipment { get; set; }
+        [DataType("_PlatingUnitTemplate")]
+        public string Unit { get; set; }
+        [UIHint("Number")]
+        public double QuantityRequirement { get; set; }
+        [UIHint("Number")]
+        public double UnitPrice { get; set; }
+        public int ProductivityHr { get; set; }
+        //public int ProductionRate { get; set; }
+        //public double ProductOutDiameter { get; set; }
+        //public double MaterialOutDiameter { get; set; }
+        //public string MaterialShape { get; set; }
     }
     // damm
     public class WorkOrderRoutingInfo {

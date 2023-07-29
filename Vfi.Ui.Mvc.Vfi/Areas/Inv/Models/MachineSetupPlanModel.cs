@@ -15,6 +15,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public string ProductCode { get; set; }
         public string CustomerCode { get; set; }
         public double TotalInv { get; set; }
+
+        public int MaterialId { get; set; }
+        public string MaterialCode { get; set; }
+        public double MaterialInv { get; set; }
+        public double MaterialInvKg { get; set; }
+
         public int Function { get; set; }
 
         public double OrderNumber { get; set; }

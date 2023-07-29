@@ -43,7 +43,7 @@
                 upload: drawing
             },
             dataType: 'json',
-            url: '@Url.Action("CheckUploadImage", "Reporting", new {area = "Inv"})',
+            url: '@Url.Action("CheckUploadImage", "Reporting", new { area = "Inv" })',
             timeout: 20000,
             success: function (data) {
                 if (data.startsWith("9!")) {

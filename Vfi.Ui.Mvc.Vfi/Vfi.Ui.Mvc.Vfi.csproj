@@ -487,6 +487,7 @@
     <Compile Include="Areas\Factory\Models\DefectTransactionDetailModel.cs" />
     <Compile Include="Areas\Factory\Models\DefectTransactionModel.cs" />
     <Compile Include="Areas\Factory\Models\WorkOrderModel.cs" />
+    <Compile Include="Areas\Factory\Models\WorkOrderPlatingModel.cs" />
     <Compile Include="Areas\Factory\Models\WorkOrderProcessModel.cs" />
     <Compile Include="Areas\Factory\Models\WorkOrderRoutingModel.cs" />
     <Compile Include="Areas\Inv\Controllers\InvController.cs" />
@@ -501,6 +502,7 @@
     <Compile Include="Areas\Inv\Models\CncFormModel.cs" />
     <Compile Include="Areas\Inv\Models\CncFormDetailModel.cs" />
     <Compile Include="Areas\Inv\Models\CncInvModel.cs" />
+    <Compile Include="Areas\Inv\Models\DeliverySalesReportModel.cs" />
     <Compile Include="Areas\Inv\Models\FactoryProductionProcessModel.cs" />
     <Compile Include="Areas\Inv\Models\InventoryDrawerModel.cs" />
     <Compile Include="Areas\Inv\Models\InventoryShelfModel.cs" />
@@ -579,9 +581,13 @@
     <Compile Include="Areas\Inv\Models\ProductionPlanModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionTestingDailyModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductionWeeklyModel.cs" />
+    <Compile Include="Areas\Inv\Models\ProductionYearlyReportModel.cs" />
     <Compile Include="Areas\Inv\Models\ProductState.cs" />
     <Compile Include="Areas\Inv\Models\ProductStatusModel.cs" />
+    <Compile Include="Areas\Inv\Models\PurchasesReportModel.cs" />
     <Compile Include="Areas\Inv\Models\QcInvModel.cs" />
+    <Compile Include="Areas\Inv\Models\ResourcesReportModel.cs" />
+    <Compile Include="Areas\Inv\Models\SalesReportModel.cs" />
     <Compile Include="Areas\Inv\Models\SelectProductInOrderModel.cs" />
     <Compile Include="Areas\Inv\Models\SmartProductionModel.cs" />
     <Compile Include="Areas\Inv\Models\StockOrderDetailModel.cs" />
@@ -600,6 +606,24 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptWorkOrderAVF.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptWorkOrderAVF.Designer.cs">
+      <DependentUpon>RptWorkOrderAVF.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptOrderDeliveryProgress.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptOrderDeliveryProgress.Designer.cs">
+      <DependentUpon>RptOrderDeliveryProgress.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptDeliverySalesReport.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptDeliverySalesReport.Designer.cs">
+      <DependentUpon>RptDeliverySalesReport.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptImportProductForm.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1260,6 +1284,7 @@
     <Compile Include="Models\Mapping\MOQTemplateMap.cs" />
     <Compile Include="Models\Mapping\OutsideProcessMap.cs" />
     <Compile Include="Models\Mapping\ProcessClassifiedMap.cs" />
+    <Compile Include="Models\Mapping\ProductAdditionFeeMap.cs" />
     <Compile Include="Models\Mapping\ProductionProductivityQuoteBaseMap.cs" />
     <Compile Include="Models\Mapping\ProductionProductLevelMap.cs" />
     <Compile Include="Models\Mapping\SelectDiagram1Map.cs" />
@@ -1272,11 +1297,13 @@
     <Compile Include="Models\MOQTemplate.cs" />
     <Compile Include="Models\OutsideProcess.cs" />
     <Compile Include="Models\ProcessClassified.cs" />
+    <Compile Include="Models\ProductAdditionFee.cs" />
     <Compile Include="Models\ProductionProductivityQuoteBase.cs" />
     <Compile Include="Models\ProductionProductLevel.cs" />
     <Compile Include="Models\Production\DateType.cs" />
     <Compile Include="Models\Production\MaterialProductQuote.cs" />
     <Compile Include="Models\Production\MaterialQuoteBaseDetailModel.cs" />
+    <Compile Include="Models\Production\ProductAdditionFeeModel.cs" />
     <Compile Include="Models\Production\ProductMaterialDesignModel.cs" />
     <Compile Include="Models\Production\ProductQuoteCalculateModel.cs" />
     <Compile Include="Models\SelectDiagram1.cs" />
@@ -1286,12 +1313,16 @@
     <Compile Include="Models\WorkOrderRouting1.cs" />
     <Compile Include="Utilities\MyPrintService.cs" />
     <Compile Include="Utilities\MyWeighingService.cs" />
+    <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrderAVF.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOMaterialUse.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrder.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOAssignMaterial.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageImportProductForm.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageTransactionFormGroup.aspx" />
+    <Content Include="Areas\Inv\Views\Reporting\PageDeliverySalesReport.aspx" />
     <Content Include="Areas\Purchasing\Views\Tool\PagePrintToolTransactionInternal.aspx" />
+    <Content Include="Areas\Sales\Views\Orders\PagePreparationTools.aspx" />
+    <Content Include="Content\FileUpload\CertificateMaterial2\askquestion.jpg" />
     <Content Include="Content\FileUpload\ProductImg\askquestion.jpg" />
     <Content Include="Content\Images\Background\2.png" />
     <Content Include="Content\Images\Logo\d-gear-logoa.jpg" />
@@ -2995,12 +3026,36 @@
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderProductionProcessManagement.cshtml" />
     <Content Include="Areas\Sales\Views\Employee\EditorTemplates\_UserEditTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\EditorTemplates\_MaterialUseProductionNumberTemplate.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\ProductionYearlyReport.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\SalesReport.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\PurchasesReport.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\ResourcesReport.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\DeliverySalesReport.cshtml" />
+    <Content Include="Areas\Inv\Views\Reporting\EditorTemplates\_Upload2Template.cshtml" />
+    <Content Include="Areas\Factory\Views\Production\ProductionOnTestingInput.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderHeatApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderHeatConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderHeatManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderHeatProcess.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPlatingApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPlatingConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPlatingManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPlatingExport.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\EditorTemplates\_PlatingTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\EditorTemplates\_PlatingUnitTemplate.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPlatingImport.cshtml" />
+    <Content Include="Areas\Factory\Views\Machine\MachineCard.cshtml" />
     <None Include="Utilities\weighingvalue.json" />
     <Content Include="Logs\read.txt" />
     <Content Include="Resources\lock.png" />
     <Content Include="Resources\unlock.png" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\jqplot\plugins\jqplot.barRenderer.js" />
     <Content Include="Scripts\OnLoad.js" />
     <Content Include="Scripts\OnProcess.js" />
+    <Content Include="Scripts\vanillaSelectBox\initComponent.js" />
+    <Content Include="Scripts\vanillaSelectBox\vanillaSelectBox.css" />
+    <Content Include="Scripts\vanillaSelectBox\vanillaSelectBox.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -3060,6 +3115,7 @@
     <Content Include="Views\Product\EditorTemplates\_OutsideProcessEditTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_ProcessClassifiedTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_WarehouseMainProcessTemplate.cshtml" />
+    <Content Include="Views\Shared\EditorTemplates\Number5Digit.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -3329,6 +3385,7 @@
     <Folder Include="Areas\Inv\Reports\tmp\" />
     <Folder Include="Content\Images\NewFolder1\" />
     <Folder Include="Content\Logs\" />
+    <Folder Include="Scripts\jqplot\syntaxhighlighter\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Shared\EditorTemplates\Currency.cshtml" />
@@ -3774,6 +3831,15 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptWorkOrderAVF.resx">
+      <DependentUpon>RptWorkOrderAVF.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptOrderDeliveryProgress.resx">
+      <DependentUpon>RptOrderDeliveryProgress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptDeliverySalesReport.resx">
+      <DependentUpon>RptDeliverySalesReport.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptImportProductForm.resx">
       <DependentUpon>RptImportProductForm.cs</DependentUpon>
       <SubType>Designer</SubType>

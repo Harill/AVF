@@ -55,6 +55,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.ForecastOrders = new List<ForecastOrder>();
             this.InvoiceDetails = new List<InvoiceDetail>();
             this.PlatingFormDetails = new List<PlatingFormDetail>();
+            this.ProductAdditionFees = new List<ProductAdditionFee>();
             this.ProductCombinationRecipes = new List<ProductCombinationRecipe>();
             this.ProductCombinationRecipeDetails = new List<ProductCombinationRecipeDetail>();
             this.ProductChanges = new List<ProductChange>();
@@ -187,6 +188,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public virtual ICollection<PlatingFormDetail> PlatingFormDetails { get; set; }
         public virtual Customer Customer { get; set; }
+        public virtual ICollection<ProductAdditionFee> ProductAdditionFees { get; set; }
         public virtual ICollection<ProductCombinationRecipe> ProductCombinationRecipes { get; set; }
         public virtual ICollection<ProductCombinationRecipeDetail> ProductCombinationRecipeDetails { get; set; }
         public virtual ICollection<ProductChange> ProductChanges { get; set; }

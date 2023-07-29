@@ -1122,8 +1122,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 if (!updatedDetails.Any()) { return View(new GridModel(new List<DefectTransactionDetailModel>())); }
                 var ci = new CultureInfo("vi-VN");
                 var fDate = DateTime.Now;
-                if (!string.IsNullOrWhiteSpace(date))
-                    fDate = Convert.ToDateTime(date, ci);
+                if (!string.IsNullOrWhiteSpace(date)) {
+                    fDate = MyUtilities.Function.ParseDate(date);
+                }
                 using (var vfi = new vfiContext()) {
                     var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId == transactionId);
                     var shift = updatedDetails.FirstOrDefault().Shift;

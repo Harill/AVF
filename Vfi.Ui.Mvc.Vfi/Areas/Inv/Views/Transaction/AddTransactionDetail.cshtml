@@ -7,6 +7,8 @@
 }
 
 @section Scripts{
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
 
         function transaction_OnChange() {
@@ -14,7 +16,6 @@
         }
 
         var index = 0;
-
         function grid_OnDataBinding(args) {
             var id = $("#Transaction").data('tComboBox').value();
             if (id === "")
@@ -24,13 +25,36 @@
                 transactionId: id
             });
             index = 0;
+            groupIndex = 0;
+            gridData = [];
+            productCode = "";
+        }
+
+        var groupIndex = 0;
+        var gridData = [];
+        var productCode = "";
+        function grid_OnRowDataBound(e) {
+            if (productCode === "") groupIndex = 0;
+            var dataItem = e.dataItem;
+            if (dataItem.ProductCode !== productCode) {
+                groupIndex++;
+                productCode = dataItem.ProductCode;
+            }
+            dataItem.GroupIndex = groupIndex;
+            gridData.push({
+                id: dataItem.ProductInvId,
+                groupIndex: dataItem.GroupIndex,
+                quantity: e.dataItem.Quantity,
+            });
+            if (dataItem.Status === 1)
+                e.row.childNodes[6].style.backgroundColor = "#F4FA58";
         }
 
         function grid_OnSave(e) {
 
             var quanlity = $(e.cell).find('#Quantity').val();
             if (!isNaN(parseInt(quanlity))) {
-
+                quanlity = parseInt(quanlity);
                 var sumQuality = 0;
                 var spanRequests = $("span[name='Quantity']");
                 for (var i = 0; i < spanRequests.length; i++) {
@@ -38,10 +62,32 @@
                     innerText = innerText.replace(/,/g, '');
                     sumQuality = sumQuality + parseInt(innerText);
                 }
-                sumQuality = sumQuality + parseInt(quanlity);
-                $("#TotalQty").text(sumQuality);
+                sumQuality = sumQuality + quanlity;
+                $("#TotalQuantity").text(sumQuality.format(0));
             }
 
+            var entity = gridData.filter(function (dataRow) {
+                return dataRow["id"] === e.dataItem.ProductInvId;
+            });
+            if (entity.length > 0) {
+                entity = entity[0];
+                entity.quantity = quanlity;
+            }
+            calculateSumGroup(e.dataItem.GroupIndex);
+        }
+
+        function calculateSumGroup(groupIndex) {
+            sumReal = 0;
+            var data = gridData.filter(function (dataRow) {
+                return dataRow["groupIndex"] === groupIndex && dataRow.quantity > 0;
+            });
+            if (data.length <= 0) { }
+            else {
+                for (i = 0; i < data.length; i++) {
+                    sumReal = sumReal + data[i].quantity;
+                }
+            }
+            $("#GroupQuantity_" + groupIndex).text(sumReal.format(0));
         }
 
         function AddDefault() {
@@ -58,11 +104,6 @@
             return false;
         }
 
-        function grid_OnRowDataBound(e) {
-            var dataItem = e.dataItem;
-            if (dataItem.Status === 1)
-                e.row.childNodes[6].style.backgroundColor = "#F4FA58";
-        }
     </script>
 
 }
@@ -137,11 +178,16 @@
                     .Format("{0:n0}")
                     .HtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.Quantity).Width(70).HeaderTemplate("SL xuất</br>(pcs)")
-                    .Format("{0:n0}")
+                    //.Format("{0:n0}")
                     .HtmlAttributes(new {style = "text-align: right;"})
+                    .ClientTemplate("<span name='Quantity' class='Quantity'><#= $.telerik.formatString('{0:n0}', Quantity) #></span>")
+                    
                     .Aggregate(agg => agg.Sum())
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    //.ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantity_<#= ++groupIndex #>'><#= $.telerik.formatString('{0:n0}', Sum) #></span></div>")
+                    
+                    //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    .ClientFooterTemplate("<span id='TotalQuantity'><#= $.telerik.formatString('{0:n0}', Sum) #></span>")
                     .FooterHtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.Note).Title("Ghi chú");
             })
@@ -150,7 +196,7 @@
                 .OnRowDataBound("grid_OnRowDataBound")
                 .OnSave("grid_OnSave")
                 .OnError("grid_OnError"))
-                .Groupable(group => group.Groups(g => g.Add(model => model.ProductCode)))
+            .Groupable(group => group.Groups(g => g.Add(model => model.ProductCode)).Visible(false))
             .Editable(f => f.Mode(GridEditMode.InCell))
             .Render();
     }

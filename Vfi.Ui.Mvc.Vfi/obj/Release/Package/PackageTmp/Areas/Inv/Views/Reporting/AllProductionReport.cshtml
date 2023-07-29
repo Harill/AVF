@@ -145,32 +145,6 @@
             combobox.select(1);
         }
 
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
-            }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
-
         var startGrid = false;
         function RefreshGrid2(name) {
             if (!onLoading) {
@@ -193,13 +167,13 @@
             <button id="btnImportExportProduction3" class="t-button" onclick=" return printImportExportProduction3(); ">
                 <span class='t-icon t-insert'></span>
                 Xuất báo cáo năm
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
             </button>
 
             <button id="btnImportExportProduction2" class="t-button" onclick=" return printImportExportProduction2(); ">
                 <span class='t-icon t-insert'></span>
                 Xuất báo cáo xuất nhập
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
             </button>
 
         </div>
@@ -269,14 +243,14 @@
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridProductionMonthly'); ">
                     <span class='t-icon t-insert'></span>
                     Làm mới
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_4">
             <button id="btnImportExportProduction" class="t-button" onclick=" return printImportExportProduction(); ">
                 <span class='t-icon t-insert'></span>
                 Xuất báo cáo tháng
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
             </button>
                 
             </div>
@@ -495,6 +469,20 @@
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        //columns.Bound(f => f.DiffImport).Title("Lệch</br>nhập").Width(70)
+                        //       .Format("{0:n0}")
+                        //       .HtmlAttributes(new { style = "text-align: right;" })
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        //columns.Bound(f => f.DiffExport).Title("Lệch</br>xuất").Width(70)
+                        //       .Format("{0:n0}")
+                        //       .HtmlAttributes(new { style = "text-align: right;" })
+                        //       .Aggregate(agg => agg.Sum())
+                        //       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        //       .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.TranferInv)
                             .HeaderTemplate("Tồn kho<br/>trung chuyển").Width(70)
                                .Aggregate(agg => agg.Sum())

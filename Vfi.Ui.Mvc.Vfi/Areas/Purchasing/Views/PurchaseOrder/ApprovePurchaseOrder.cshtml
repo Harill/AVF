@@ -93,9 +93,9 @@
                 columns.Bound(f => f.RevisionNumber).Width(100).ReadOnly(true);
                 columns.Bound(f => f.OrderDate).Width(100).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.MaterialClasstifiedName).Width(120).ReadOnly(true);
+                columns.Bound(f => f.MaterialClasstifiedName).Width(100).Title("Phân loại").ReadOnly(true);
                 columns.Bound(f => f.VendorCodeName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.ContractNumber).Width(120).ReadOnly(true);
+                columns.Bound(f => f.ContractNumber).Width(100).ReadOnly(true);
                 columns.Bound(f => f.ShipDate).Width(100)
                        .ClientTemplate("<strong><#= ShipDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ShipDate) #></strong>");
                 columns.Bound(f => f.TotalQuality).Title("Tổng SL").Width(75)
@@ -103,9 +103,10 @@
                        .ClientTemplate("<#= TotalQuality == null ? 0 : $.telerik.formatString('{0:n}', TotalQuality) #>").ReadOnly(true);
                 columns.Bound(f => f.StatusName).Width(75).ReadOnly(true);
                 columns.Bound(f => f.EmployeeName).Width(75).ReadOnly(true);
+                columns.Bound(f => f.Note).ReadOnly(true);
+                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(40);
                 columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true);
                 columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(90).Format("{0:dd/MM/yyyy HH:mm:ss}").ReadOnly(true);
-                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(40);
             })
 
         .DetailView(details => details.ClientTemplate(
@@ -155,8 +156,8 @@
                                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>");
                                        columns.Bound(f => f.DueDate).Title("Ngày giao").Width(90).Format("{0:dd/MM/yyyy}");
 
-                                       columns.Bound(f => f.Note).Title("Ghi chú");
-                                       columns.Bound(f => f.SpecificNote).Width(200).Title("");
+                                       columns.Bound(f => f.InquiryNote).Title("Ghi chú YC");
+                                       columns.Bound(f => f.SpecificNote).Title("");
                                    })
         .ClientEvents(events => events.OnError("grid_OnError"))
                                .ToHtmlString()

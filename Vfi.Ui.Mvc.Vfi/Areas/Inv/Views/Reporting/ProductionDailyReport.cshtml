@@ -161,31 +161,6 @@
             OnLoadedData();
         }
 
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
-            }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
     </script>
 }
 
@@ -239,7 +214,7 @@
             <button id="btnProductionInMonth" class="t-button" onclick=" return printProductionSx1InMonth(); ">
                 <span class='t-icon t-insert'></span>
                 Xuất báo cáo sản xuất trong tháng
-		            <span class="twoToneButton"></span>
+		            <span class="loadButton"></span>
             </button>
         </div>
         <br />
@@ -267,7 +242,7 @@
             <button id="btnProductionMonthly" class="t-button" onclick=" return printProductionMonthly(); ">
                 <span class='t-icon t-insert'></span>
                 Xuất báo cáo tháng
-		            <span class="twoToneButton"></span>
+		            <span class="loadButton"></span>
             </button>
         </div>
         <br />
@@ -303,14 +278,14 @@
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridProductionSX1Report'); ">
                     <span class='t-icon t-refresh'></span>
                     Làm mới
-		                <span class="twoToneButton"></span>
+		                <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_4">
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printProductionSx1(); ">
                     <span class='t-icon t-insert'></span>
                     Xuất báo cáo
-		                <span class="twoToneButton"></span>
+		                <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_2">
@@ -536,6 +511,54 @@
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .FooterHtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
+                        columns.Bound(f => f.ProductivityInDayPlan).Width(100).ReadOnly(true)
+                               .HeaderTemplate("KH ngày</br>(pcs)")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ProductivityInDayReal).Width(100).ReadOnly(true)
+                               .HeaderTemplate("TT ngày</br>(pcs)")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ProductivityInDayRate).Width(100).ReadOnly(true)
+                               .HeaderTemplate("Tỉ lệ</br>TT/KH(%)")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" });
+                        columns.Bound(f => f.ProductivityInWeekPlan).Width(100).ReadOnly(true)
+                               .HeaderTemplate("KH tuần</br>(pcs)")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ProductivityInWeekReal).Width(100).ReadOnly(true)
+                               .HeaderTemplate("TT tuần</br>(pcs)")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.ProductivityInWeekRate).Width(100).ReadOnly(true)
+                               .HeaderTemplate("Tỉ lệ</br>TT/KH(%)")
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" })
+                               .Aggregate(agg => agg.Sum())
+                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                               .FooterHtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" });
                     })
                 .Scrollable(f => f.Height(510))
                 //.HtmlAttributes(new { style = "width: 950px;" })

@@ -14,7 +14,8 @@
         var startGrid = false;
 
         function grid_OnDataBinding(args) {
-            if (startGrid) {
+            if (startGrid && !onLoading) {
+                OnLoadingData();
 
                 var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
 
@@ -50,113 +51,9 @@
                 });
             }
         }
-    </script>
-    <!-- report -->
-    <script type="text/javascript">
 
-        function printOrderProgressInMonth() {
-
-            var toDate = $("#toDate").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
-
-            var invDate = $("#invDate").data("tDatePicker").value();
-            if (invDate === null)
-                invDate = "";
-            else
-                invDate = $.telerik.formatString('{0:dd/MM/yyyy}', invDate);
-            var month = $("#Month").data("tDropDownList").value();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-            var year = $("#Year").val();
-            if (year === null || year == "")
-                month = new Date().getYear() + 1;
-            var isAllOrder = $("input[name='chkAllOrder']").attr('checked');
-            $('#result').load('@Url.Action("PrintOrderProgressInMonth", "Reporting")',
-                {
-                    toDate: toDate,
-                    invDate: invDate,
-                    month: month,
-                    year: year,
-                    isAllOrder: isAllOrder
-                }, function (data) {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
-
-        function printProductionProgressInMonth() {
-
-            var month = $("#Month").data("tDropDownList").value();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-            var year = $("#Year").val();
-            if (year === null || year == "")
-                month = new Date().getYear() + 1;
-            //var type = $("#Type").data("tDropDownList").value();
-            //if (type === "")
-            //    type = 1;
-            $('#result').load('@Url.Action("PrintOrderProgressProduction", "Reporting")',
-                {
-                    month: month,
-                    year: year
-                }, function (data) {
-
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
-
-        function printProductState() {
-
-            var month = $("#Month").data("tDropDownList").value();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-            var year = $("#Year").val();
-            if (year === null || year == "")
-                month = new Date().getYear() + 1;
-            //var type = $("#Type").data("tDropDownList").value();
-            //if (type === "")
-            //    type = 1;
-            $('#result').load('@Url.Action("PrintOrderProgress", "Reporting")',
-                {
-                    month: month,
-                    year: year
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
-        }
-
-        function printExpecedSalesReport() {
-
-            var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
-
-            var customerId = $("#CustomerForMonthly").data('tComboBox').value();
-            if (customerId == 0)
-                customerId = 0;
-            var month = $("#Month").data("tDropDownList").value();
-            if (month === null)
-                month = new Date().getMonth() + 1;
-            var year = $("#Year").val();
-            if (year === null || year == "")
-                month = new Date().getYear() + 1;
-            $('#result').load('@Url.Action("PrintExpectedSalesReport", "Reporting")',
-                {
-                    customerId: customerId,
-                    productCode: productCodeNameForMonthly,
-                    month: month,
-                    year: year
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
-            return false;
+        function grid_OnDataBound() {
+            OnLoadedData();
         }
 
         function type_onLoad() {
@@ -193,10 +90,135 @@
             combobox.value(new Date().getMonth() + 1);
         }
 
-        function RefreshGrid2() {
+        function RefreshGrid2(name) {
             startGrid = true;
-            RefreshGrid("gridExpectedSales");
+            RefreshGrid(name);
         }
+    </script>
+    <!-- report -->
+    <script type="text/javascript">
+
+        function printOrderProgressInMonth() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+
+                var invDate = $("#invDate").data("tDatePicker").value();
+                if (invDate === null)
+                    invDate = "";
+                else
+                    invDate = $.telerik.formatString('{0:dd/MM/yyyy}', invDate);
+                var month = $("#Month").data("tDropDownList").value();
+                if (month === null)
+                    month = new Date().getMonth() + 1;
+                var year = $("#Year").val();
+                if (year === null || year == "")
+                    month = new Date().getYear() + 1;
+                var isAllOrder = $("input[name='chkAllOrder']").attr('checked');
+                $('#result').load('@Url.Action("PrintOrderProgressInMonth", "Reporting")',
+                    {
+                        toDate: toDate,
+                        invDate: invDate,
+                        month: month,
+                        year: year,
+                        isAllOrder: isAllOrder
+                    }, function (data) {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+
+        function printProductionProgressInMonth() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var month = $("#Month").data("tDropDownList").value();
+                if (month === null)
+                    month = new Date().getMonth() + 1;
+                var year = $("#Year").val();
+                if (year === null || year == "")
+                    month = new Date().getYear() + 1;
+                //var type = $("#Type").data("tDropDownList").value();
+                //if (type === "")
+                //    type = 1;
+                $('#result').load('@Url.Action("PrintOrderProgressProduction", "Reporting")',
+                    {
+                        month: month,
+                        year: year
+                    }, function (data) {
+
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+
+        function printProductState() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var month = $("#Month").data("tDropDownList").value();
+                if (month === null)
+                    month = new Date().getMonth() + 1;
+                var year = $("#Year").val();
+                if (year === null || year == "")
+                    month = new Date().getYear() + 1;
+                //var type = $("#Type").data("tDropDownList").value();
+                //if (type === "")
+                //    type = 1;
+                $('#result').load('@Url.Action("PrintOrderProgress", "Reporting")',
+                    {
+                        month: month,
+                        year: year
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+
+        function printExpecedSalesReport() {
+            
+            if (!onLoading) {
+                OnLoadingData();
+                var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+
+                var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+                if (customerId == 0)
+                    customerId = 0;
+                var month = $("#Month").data("tDropDownList").value();
+                if (month === null)
+                    month = new Date().getMonth() + 1;
+                var year = $("#Year").val();
+                if (year === null || year == "")
+                    month = new Date().getYear() + 1;
+                $('#result').load('@Url.Action("PrintExpectedSalesReport", "Reporting")',
+                    {
+                        customerId: customerId,
+                        productCode: productCodeNameForMonthly,
+                        month: month,
+                        year: year
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+                return false;
+            }
+        }
+
     </script>
 }
 
@@ -205,7 +227,7 @@
 <br />
 
 <div id="pnlInvMonthly">
-    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
+    <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
 
         @* <div class="grid_8 prefix_15">
@@ -215,7 +237,7 @@
                 Tiến độ thực hiện dự báo đơn hàng
             </button>
         </div>*@
-        <div class="grid_2">Lấy đơn hàng</div>
+        <div class="grid_2_5">Lấy đơn hàng</div>
         <div class="grid_3">
             @{
                 Html.Telerik().DatePicker()
@@ -232,7 +254,7 @@
             </label>
             <br />
         </div>
-        <div class="grid_2">Lấy xuất kho</div>
+        <div class="grid_2_5">Lấy xuất kho</div>
         <div class="grid_3">
             @{
                 Html.Telerik().DatePicker()
@@ -243,20 +265,21 @@
             }
         </div>
 
-        <div class="grid_8">
+        <div class="grid_9">
 
             <button id="btnOrderProgressInMonth" class="t-button" onclick=" return printOrderProgressInMonth(); ">
                 <span class='t-icon t-insert'></span>
                 Tiến độ thực hiện đơn hàng trong tháng
+                <span class="loadButton"></span>
             </button>
-        </div>
-
-        <div class="grid_8 prefix_15">
+        <br />
             <button id="btnProductionProgressInMonth" class="t-button" onclick=" return printProductionProgressInMonth(); ">
                 <span class='t-icon t-insert'></span>
                 Tiến độ thực hiện sản xuất
+                <span class="loadButton"></span>
             </button>
         </div>
+
         <br />
 
         <div class="clear"></div>
@@ -324,9 +347,10 @@
                 }
             </div>
             <div class="grid_3 prefix_1">
-                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridExpectedSales'); ">
                     <span class='t-icon t-insert'></span>
                     Làm mới
+                    <span class="loadButton"></span>
                 </button>
             </div>
         </fieldset>

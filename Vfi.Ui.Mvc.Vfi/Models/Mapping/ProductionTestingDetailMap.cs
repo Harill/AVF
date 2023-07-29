@@ -14,9 +14,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.TestingCode)
                 .HasMaxLength(50);
 
-            this.Property(t => t.TestingName)
-                .HasMaxLength(50);
-
             this.Property(t => t.ModifiedUser)
                 .HasMaxLength(50);
 

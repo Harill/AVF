@@ -95,6 +95,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             ViewData = GetPageConfigData();
             return View(entity);
         }
+        public ActionResult ProductionOnTestingInput() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
 
         #endregion
 
@@ -381,43 +388,121 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             }
             return View(new GridModel(model));
         }
+
         List<ProductionPlatingModel> GetProductionPlatingByProductId(int customerId, int productId, string productCode, bool isQuote) {
             var model = new List<ProductionPlatingModel>();
             using (var vfi = new tammaContext()) {
-                model = (from x in vfi.ProductionPlatings
-                         where (productId == 0 || x.ProductId == productId) &&
-                                (customerId == 0 || x.Product.CustomerId == customerId)
-                         select new ProductionPlatingModel {
-                             ModifiedDate = x.ModifiedDate,
-                             ModifiedUser = x.ModifiedUser,
-                             Active = x.Active,
-                             ProductId = x.ProductId,
-                             PlatingId = x.PlatingId,
-                             Description = x.Description + "",
-                             PlatingCost = x.PlatingCost,
-                             PlatingIndex = x.PlatingIndex,
-                             PlatingDay = x.PlatingDay,
-                             SaltSprayTime = x.SaltSprayTime,
-                             Thickness = x.Thickness,
-                             ProductCode = x.Product.ProductCode,
-                             CustomerCode = x.Product.Customer.CustomerCode,
-                             IsMainProcess = x.IsMainProcess,
-                             OutsideProcessId = x.ProcessId ?? 0,
-                             PlatingName = x.PlatingName,
-                             UnitWeight = x.Product.QcWeight ?? 0,
-                             ProcessPrice = x.ProcessId != null ? x.OutsideProcess.Price : 0,
-                         }).ToList();
+
+                var processes = (from x in vfi.ProductionProcesses
+                                 where (productId == 0 || x.ProductId == productId) &&
+                                 (customerId == 0 || x.Product.CustomerId == customerId) &&
+                                 x.Warehouse.IsPlating
+                                 select new {
+                                     x.ProcessId,
+                                     ModifiedDate = x.ModifiedDate,
+                                     ModifiedUser = x.ModifiedUser,
+                                     x.IsAlert,
+                                     x.IsNecessary,
+                                     ProductId = x.ProductId,
+                                     ProductCode = x.Product.ProductCode,
+                                     CustomerCode = x.Product.Customer.CustomerCode,
+                                     UnitWeight = x.Product.OutsideProcessWeight ?? 0,
+                                     x.Product.ProductionPlatings,
+                                 }).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) {
-                    model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
+                    processes = processes.Where(x => x.ProductCode.Contains(productCode)).ToList();
                 }
+                foreach (var process in processes) {
+                    if (process.ProductionPlatings.Any()) {
+                        foreach (var plating in process.ProductionPlatings) {
+                            var entity = new ProductionPlatingModel {
+                                ProductCode = process.ProductCode,
+                                CustomerCode = process.CustomerCode,
+                                ModifiedDate = plating.ModifiedDate,
+                                ModifiedUser = plating.ModifiedUser,
+                                Active = plating.Active,
+                                ProductId = plating.ProductId,
+                                PlatingId = plating.PlatingId,
+                                Description = plating.Description + "",
+                                PlatingCost = plating.PlatingCost,
+                                PlatingIndex = plating.PlatingIndex,
+                                PlatingDay = plating.PlatingDay,
+                                SaltSprayTime = plating.SaltSprayTime,
+                                Thickness = plating.Thickness,
+                                IsMainProcess = plating.IsMainProcess,
+                                OutsideProcessId = plating.ProcessId ?? 0,
+                                PlatingName = plating.PlatingName,
+                                UnitWeight = process.UnitWeight,
+                            };
+                            model.Add(entity);
+                        }
+                    }
+                    else {
+                        var entity = new ProductionPlatingModel {
+                            ProductCode = process.ProductCode,
+                            CustomerCode = process.CustomerCode,
+                            ModifiedDate = process.ModifiedDate,
+                            ModifiedUser = process.ModifiedUser,
+                            Active = process.IsNecessary,
+                            IsMainProcess = process.IsNecessary,
+                            ProductId = process.ProductId,
+                            PlatingId = 0,
+                            Description = "",
+                            PlatingCost = 0,
+                            PlatingIndex = 0,
+                            PlatingDay = 0,
+                            SaltSprayTime = "",
+                            Thickness = "",
+                            OutsideProcessId = process.ProcessId,
+                            PlatingName = "Chưa thiết lập",
+                            UnitWeight = process.UnitWeight,
+                        };
+                        model.Add(entity);
+                    }
+                }
+                //model = (from x in vfi.ProductionPlatings
+                //         where (productId == 0 || x.ProductId == productId) &&
+                //                (customerId == 0 || x.Product.CustomerId == customerId)
+                //         select new ProductionPlatingModel {
+                //             ModifiedDate = x.ModifiedDate,
+                //             ModifiedUser = x.ModifiedUser,
+                //             Active = x.Active,
+                //             ProductId = x.ProductId,
+                //             PlatingId = x.PlatingId,
+                //             Description = x.Description + "",
+                //             PlatingCost = x.PlatingCost,
+                //             PlatingIndex = x.PlatingIndex,
+                //             PlatingDay = x.PlatingDay,
+                //             SaltSprayTime = x.SaltSprayTime,
+                //             Thickness = x.Thickness,
+                //             ProductCode = x.Product.ProductCode,
+                //             CustomerCode = x.Product.Customer.CustomerCode,
+                //             IsMainProcess = x.IsMainProcess,
+                //             OutsideProcessId = x.ProcessId ?? 0,
+                //             PlatingName = x.PlatingName,
+                //             UnitWeight = x.Product.OutsideProcessWeight > 0
+                //                         ? x.Product.OutsideProcessWeight.Value
+                //                         : (x.Product.QcWeight ?? 0),
+                //             //ProcessPrice = x.ProcessId != null ? x.OutsideProcess.Price : 0,
+                //             //ProcessPrice = x.PlatingCost
+                //         }).ToList();
+                //if (!string.IsNullOrWhiteSpace(productCode)) {
+                //    model = model.Where(x => x.ProductCode.Contains(productCode)).ToList();
+                //}
                 if (isQuote) {
                     model = model.Where(x => x.Active && x.IsMainProcess).ToList();
                 }
                 model.ForEach(x => {
-                    if (x.UnitWeight > 0) { x.PlatingCost = Math.Round(x.ProcessPrice / x.UnitWeight, 4); }
+                    if (x.UnitWeight > 0) {
+                        //x.PlatingCost = Math.Round(x.ProcessPrice / x.UnitWeight, 4);
+                        x.ProcessPrice = (x.PlatingCost * x.UnitWeight) / 1000;
+                    }
                 });
             }
-            return model.OrderBy(x => x.CustomerCode).ThenBy(x => x.ProductCode).ThenBy(m => m.PlatingIndex).ToList();
+            return model.OrderBy(x => !x.Active)
+                .ThenBy(x => x.CustomerCode)
+                .ThenBy(x => x.ProductCode)
+                .ThenBy(m => m.PlatingIndex).ToList();
         }
 
         [HttpPost]
@@ -485,8 +570,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     if (user == null)
                         throw new AggregateException("Vui lòng đăng nhập lại");
                     var entity = vfi.ProductionPlatings.FirstOrDefault(pt => pt.PlatingId == update.PlatingId);
-                    if (entity == null)
-                        throw new AggregateException("Lỗi! Không tìm thấy công cụ trong sản phấm! Liên hệ admin");
+                    //if (entity == null)
+                    //    throw new AggregateException("Lỗi! Không tìm thấy công đoạn trong sản phấm! Liên hệ admin");
 
                     var processId = 0;
                     try {
@@ -496,23 +581,46 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     if (processId != 0) {
                         var outsideProcess = vfi.OutsideProcesses.FirstOrDefault(x => x.ProcessId == processId);
                         if (outsideProcess == null) { throw new AggregateException("Lỗi! Vui lòng chọn lại gia công ngoài!"); }
-                        entity.PlatingName = outsideProcess.Name;
-                        entity.ProcessId = processId;
+                        update.PlatingName = outsideProcess.Name;
+                        update.OutsideProcessId = processId;
                     }
-
-                    entity.Active = update.Active;
-                    entity.IsMainProcess = update.IsMainProcess;
-                    entity.ModifiedDate = DateTime.Now;
-                    entity.ModifiedUser = HttpContext.User.Identity.Name;
-
-                    //entity.PlatingName = update.PlatingName;
-                    entity.PlatingIndex = update.PlatingIndex;
-                    entity.Description = update.Description + "";
-                    entity.PlatingDay = update.PlatingDay;
-                    entity.SaltSprayTime = update.SaltSprayTime;
-                    entity.Thickness = update.Thickness;
-                    entity.PlatingCost = 0;
-                   
+                    if (update.PlatingId == 0) {
+                        entity = new ProductionPlating {
+                            ProductId = productId,
+                            Active = true,
+                            //PlatingName = insert.PlatingName,
+                            PlatingName = update.PlatingName,
+                            ProcessId = update.OutsideProcessId,
+                            Description = update.Description + "",
+                            InsertDate = DateTime.Now,
+                            InserUser = HttpContext.User.Identity.Name,
+                            PlatingCost = 0,
+                            ModifiedDate = DateTime.Now,
+                            ModifiedUser = HttpContext.User.Identity.Name,
+                            PlatingIndex = update.PlatingIndex,
+                            PlatingDay = update.PlatingDay,
+                            SaltSprayTime = update.SaltSprayTime,
+                            Thickness = update.Thickness,
+                            IsMainProcess = update.IsMainProcess,
+                        };
+                        vfi.ProductionPlatings.Add(entity);
+                    }
+                    else {
+                        entity.Active = update.Active;
+                        entity.IsMainProcess = update.IsMainProcess;
+                        entity.ModifiedDate = DateTime.Now;
+                        entity.ModifiedUser = HttpContext.User.Identity.Name;
+                        if (processId != 0) {
+                            entity.ProcessId = update.OutsideProcessId;
+                            entity.PlatingName = update.PlatingName;
+                        }
+                        entity.PlatingIndex = update.PlatingIndex;
+                        entity.Description = update.Description + "";
+                        entity.PlatingDay = update.PlatingDay;
+                        entity.SaltSprayTime = update.SaltSprayTime;
+                        entity.Thickness = update.Thickness;
+                        //entity.PlatingCost = 0;
+                    }
                     vfi.SaveChanges();
                 }
                 MyUtilities.Product.UpdateProductDesign(productId);
@@ -1215,16 +1323,18 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     if (insert.ProductionTestingId == 0) {
-                        var productionTesting = new ProductionTesting {
-                            ProductId = productId,
-                            WarehouseId = warehouseId,
-                            Note = "",
-                            ModifiedUser = "Auto-" + HttpContext.User.Identity.Name,
-                            ModifiedDate = DateTime.Now,
-                        };
-                        vfi.ProductionTestings.Add(productionTesting);
-                        vfi.SaveChanges();
-
+                        var productionTesting = vfi.ProductionTestings.FirstOrDefault(x => x.ProductId == productId && x.WarehouseId == warehouseId);
+                        if (productionTesting == null) {
+                            productionTesting = new ProductionTesting {
+                                ProductId = productId,
+                                WarehouseId = warehouseId,
+                                Note = "",
+                                ModifiedUser = "Auto-" + HttpContext.User.Identity.Name,
+                                ModifiedDate = DateTime.Now,
+                            };
+                            vfi.ProductionTestings.Add(productionTesting);
+                            vfi.SaveChanges();
+                        }
                         insert.ProductionTestingId = productionTesting.ProductionTestingId;
                     }
                     var detail = new ProductionTestingDetail { 
@@ -1284,6 +1394,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
         public List<RealTestingModel> GetActiveTestingDetails(int productId, int warehouseId) {
             var model = new List<RealTestingModel>();
+            if (productId == 0) return model;
             using (var vfi = new tammaContext()) {
                 var list = GetProductionTestingDetailsById(0, "", productId, warehouseId);
                 model = (from x in list
@@ -1413,7 +1524,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         public ActionResult SelectProductionTestingProduction1(int productId, int warehouseId) {
             var model = new List<RealTestingModel>();
             try {
-                model = GetActiveTestingDetails(productId, warehouseId);
+                if (productId != 0) {
+                    model = GetActiveTestingDetails(productId, warehouseId);
+                }
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductionTestingProduction1", ex.Message);
@@ -1427,9 +1540,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             [Bind(Prefix = "inserted")] IEnumerable<RealTestingModel> inserteds,
             [Bind(Prefix = "updated")] IEnumerable<RealTestingModel> updateds,
             [Bind(Prefix = "deleted")] IEnumerable<RealTestingModel> deleteds,
-            int machineId, int productId, int warehouseId, int forWarehouseId, int employeeId) {
+            int machineId, int productId, int warehouseId, int forWarehouseId, int employeeId, string datetime) {
             try {
-                var save = SaveProductionTesting(updateds.ToList(), warehouseId, machineId, productId, forWarehouseId, employeeId);
+                var save = SaveProductionTesting(updateds.ToList(), warehouseId, machineId, productId, forWarehouseId, employeeId, datetime);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SaveProductionTestingProduction1", ex.Message);
@@ -1437,9 +1550,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
             return View(new GridModel(GetActiveTestingDetails(productId, warehouseId)));
         }
-        public bool SaveProductionTesting(List<RealTestingModel> model, int warehouseId, int machineId, int productId, int forWarehouseId, int employeeId) {
+        public bool SaveProductionTesting(List<RealTestingModel> model, 
+            int warehouseId, int machineId, int productId,
+            int forWarehouseId, int employeeId, string datetime) {
             using (var vfi = new tammaContext()) {
-
+                var machine = vfi.Machines.FirstOrDefault(x=> x.MachineId == machineId);
+                if (machine == null) {
+                    throw new AggregateException("Lỗi! Không tìm thấy máy");
+                }
+                if (warehouseId == 0) {
+                    warehouseId = machine.ProcessingType.ForWarehouseId ?? 0;
+                }
+                if (warehouseId == 0) {
+                    throw new AggregateException("Lỗi! Chưa thiết lập công đoạn cho máy");
+                }
+                var inputDate = MyUtilities.Function.ParseDateTime(datetime);
                 foreach (var testing in model) {
                     var entity = new RealTesting {
                         Idx = testing.Idx,
@@ -1459,11 +1584,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         ModifiedUser = HttpContext.User.Identity.Name,
                         MinNumber = testing.MinNumber,
                         MaxNumber = testing.MaxNumber,
-                        TestDate = DateTime.Now,
-                        ProductionDate = DateTime.Today,
+                        TestDate = inputDate,
+                        ProductionDate = inputDate,
                         
                         //MachineId = testing.MachineId
                     };
+                    if (forWarehouseId == 0) { 
+                        //var machine = 
+                    }
                     if (testing.MachineId != 0) { entity.MachineId = testing.MachineId; }
                     //var machineId = 0;
                     //try { machineId = Convert.ToInt32(testing.MachineId }
@@ -1624,7 +1752,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         L = insert.L,
                         Name = insert.Name,
                         Round = insert.Round,
-                        Time = (insert.Round * insert.F) > 0 ? (insert.L * 60) / (insert.Round * insert.F) : 0,
+                        //Time = (insert.Round * insert.F) > 0 ? (insert.L * 60) / (insert.Round * insert.F) : 0,
+                        Time = insert.Time,
                         ModifiedDate = DateTime.Now,
                         ModifiedUser = HttpContext.User.Identity.Name,
                         Idx = insert.Idx,
@@ -1657,7 +1786,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     quote.F = update.F;
                     quote.L = update.L;
                     quote.Round = update.Round;
-                    quote.Time = (update.Round * update.F) > 0 ? (update.L * 60) / (update.Round * update.F) : 0;
+                    //quote.Time = (update.Round * update.F) > 0 ? (update.L * 60) / (update.Round * update.F) : 0;
+                    quote.Time = update.Time;
                     quote. ModifiedDate = DateTime.Now;
                     quote.ModifiedUser = HttpContext.User.Identity.Name;
                     quote.Idx = update.Idx;
@@ -1670,9 +1800,103 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             catch (Exception ex) {
                 ModelState.AddModelError("UpdateProductionProductivityQuote", ex.Message);
             }
-            return View(new GridModel(GetProductionProductivityQuote(update.ProductId,false)));
+            return View(new GridModel(GetProductionProductivityQuote(update.ProductId, false)));
         }
 
+        #endregion
+
+        #region addition fee
+        [GridAction]
+        public ActionResult SelectProductAdditionFee(int productId, bool isQuote = false) {
+            var model = new List<ProductAdditionFeeModel>();
+            try {
+                model = GetProductAdditionFee(productId, isQuote);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductAdditionFee", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        List<ProductAdditionFeeModel> GetProductAdditionFee(int productId, bool isQuote) {
+            var model = new List<ProductAdditionFeeModel>();
+            using (var vfi = new tammaContext()) {
+                model = vfi.ProductAdditionFees.Where(x => x.ProductId == productId && (isQuote == false || x.Active))
+                    .Select(x => new ProductAdditionFeeModel {
+                        FeeId = x.FeeId,
+                        ProductId = productId,
+                        Name = x.Name,
+                        Price = x.Price,
+                        ModifiedDate = x.ModifiedDate,
+                        ModifiedUser = x.ModifiedUser,
+                        Active = x.Active,
+                        IsCalculateLock = x.Product.IsCalculateLock ?? false
+                    })
+                    .ToList();
+            }
+            return model.ToList();
+
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductAdditionFee(ProductAdditionFeeModel insert, int productId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var fee = new ProductAdditionFee {
+                        ProductId = productId,
+                        Name = insert.Name,
+                        Price = insert.Price,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name,
+                        Active = true,
+                    };
+                    vfi.ProductAdditionFees.Add(fee);
+                    vfi.SaveChanges();
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductAdditionFee", ex.Message);
+            }
+            return View(new GridModel(GetProductAdditionFee(productId, false)));
+        }
+
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductAdditionFee(ProductAdditionFeeModel update) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                         "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                         "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var fee = vfi.ProductAdditionFees.FirstOrDefault(x => x.FeeId == update.FeeId);
+                    if (fee == null) {
+                        throw new AggregateException("Lỗi! không tìm thấy dữ liệu");
+                    }
+                    fee.Name = update.Name;
+                    fee.Active = update.Active;
+                    fee.Price = update.Price;
+                    fee.ModifiedDate = DateTime.Now;
+                    fee.ModifiedUser = HttpContext.User.Identity.Name;
+                    vfi.SaveChanges();
+                    update.ProductId = fee.ProductId;
+                }
+
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductAdditionFee", ex.Message);
+            }
+            return View(new GridModel(GetProductAdditionFee(update.ProductId, false)));
+        }
         #endregion
 
         #region production product level

@@ -24,16 +24,16 @@
             .Columns(columns =>
             {
                 columns.Command(command =>
-                    command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Duyệt").CancelText("Trở lại")
-                    ).Width(98).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Duyệt").CancelText("Trở lại")
+                    ).Width(50).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
 
                 columns.Bound(f => f.DueDate).Title("Ngày giao").Width(100)
                         .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
-                columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(50).ReadOnly(true);
-                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(50);
-                columns.Bound(f => f.SalesPersonName).Width(150).ReadOnly(true);
+                columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(100).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(70);
+                columns.Bound(f => f.SalesPersonName).Width(100).ReadOnly(true);
                 columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(75).ReadOnly(true);
-                columns.Bound(f => f.Area).Title("Khu Vực").Width(75).ReadOnly(true);
+                //columns.Bound(f => f.Area).Title("Khu Vực").Width(75).ReadOnly(true);
                 columns.Bound(f => f.TotalQuality).Width(100).ReadOnly(true)
                     .Format("{0:n0}")
                     .HtmlAttributes(new {style = "text-align: right;"})
@@ -46,6 +46,7 @@
                     .Aggregate(agg => agg.Sum())
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                columns.Bound(f => f.Note).Title("Ghi chú ĐH").ReadOnly(true);
             })
             .DetailView(details => details.ClientTemplate(
                 Html.Telerik().TabStrip()

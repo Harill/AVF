@@ -222,7 +222,7 @@
                         columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true)
                                .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                                .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100).ReadOnly(true)
+                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(120).ReadOnly(true)
                                .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                                .Aggregate(agg => agg.Count())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
@@ -232,7 +232,7 @@
                         //       .HeaderTemplate("Loại").ReadOnly(true)
                         //       .HtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" });
                         columns.Bound(f => f.TotalInv).Width(70)
-                               .HeaderTemplate("Tổng tồn").ReadOnly(true)
+                               .HeaderTemplate("Tổng</br>tồn").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.OrderNumber).Width(70)
@@ -252,11 +252,22 @@
                                .Format("{0:dd/MM/yyyy}")
                                .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.State).Width(50)
-                               .HeaderTemplate("Tình trạng");
+                               .HeaderTemplate("Tình</br>trạng");
                         columns.Bound(f => f.SetupDate).Width(85)
                                .HeaderTemplate("Thời hạn</br>lên máy").ReadOnly(true)
                                .Format("{0:dd/MM/yyyy}")
                                .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.MaterialCode).Width(100)
+                               .HeaderTemplate("Nguyên</br>liệu").ReadOnly(true)
+                               .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.MaterialInv).Width(70)
+                               .HeaderTemplate("Tồn kho</br>NL (cây)").ReadOnly(true)
+                               .Format("{0:n0}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.MaterialInvKg).Width(70)
+                               .HeaderTemplate("Tồn kho</br>NL (kg)").ReadOnly(true)
+                               .Format("{0:n2}")
+                               .HtmlAttributes(new { style = "text-align: right;" });
 
                         columns.Bound(f => f.ProductionHistory).Width(100)
                                .Format("{0}")

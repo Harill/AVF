@@ -4,9 +4,24 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@section Scripts{
+    <!-- grid Monthly -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
+    <script type="text/javascript">
+
+        function grid_OnSave(args) {
+            if (!onProcessing) {
+                OnProcessingData();
+            }
+        }
+        function grid_OnDataBound() {
+            OnProcessedData();
+        }
+    </script>
+}
 <div class="title">Nhận đo kiểm</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh chuyển kho<span id="twoToneButton"></span></div>
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span></div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<WorkOrderRoutingModel>()
@@ -43,6 +58,8 @@
             .Selectable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
+                .OnSave("grid_OnSave")
+                .OnDataBound("grid_OnDataBound")
                 .OnError("grid_OnError"))
             .Render();
     }

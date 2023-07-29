@@ -25,15 +25,79 @@
     .fieldheader3 {
         width: 35%;
     }
+    
+    .demo-zone {
+        display: block;
+        width: 100%;
+    }
+		
+    button.demo {
+        margin-right: 0;
+        margin-left: 4px;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border-radius: 4px;
+        z-index: 1;
+        color: #333;
+        background: white;
+        background-image: linear-gradient(to bottom,#fff 0,#e0e0e0 100%);
+        border: 1px solid #ccc !important;
+        color: #333;
+        line-height: 20px;
+        font-size: 14px;
+        padding: 4px 12px;
+        margin-bottom: 2px;
+    }
+
+	button.demo:hover {
+		background-image: linear-gradient(to top,#fff 0,#e0e0e0 100%);
+	}
+    .vsb-main .title {
+        color:inherit;
+        font-weight: inherit;
+        font-size: inherit;
+        margin-top: inherit;
+        margin-bottom: inherit;
+    }
 </style>
+
+    <link rel="stylesheet" href="@Url.Content("~/Scripts/vanillaSelectBox/vanillaSelectBox.css")">
 @section Scripts{
-    <!-- grid Monthly -->
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
+    
+    <script type="text/javascript" src="@Url.Content("~/Scripts/vanillaSelectBox/vanillaSelectBox.js?v1.0.3")"></script>
     <script type="text/javascript">
+        
+        var selectBox = null;
+        function empty(id) {
+            if (selectBox != null) {
+                selectBox.empty();
+            }
+        }
+        function init(id) {
+            selectBox = new vanillaSelectBox(
+                ("#" + id),
+                {
+                    "disableSelectAll": true,
+                    "maxHeight": 200,
+                    "itemsSeparator": ", ",
+                    "search": true,
+                    "translations": { "all": "All", "items": "items", "selectAll": "Check All", "clearAll": "Clear All" }
+                });
+        }
+
+        function setValues(id, value) {
+            if (selectBox != null) {
+                selectBox.setValue(value);
+            }
+        }
 
         $(document).ready(function () {
             loadEmployeeLogin();
+            init("employeesMulti");
         });
 
         function loadEmployeeLogin() {
@@ -67,6 +131,7 @@
                 }
             });
         }
+
         function workOrder_OnChange() {
             if (!onLoading) {
                 OnLoadingData();
@@ -209,6 +274,7 @@
                 var employee = $("#Employee").data('tComboBox').value();
                 if (employee === "") employee = 0;
                 var productWeight = $("#ProductWeight").data("tTextBox").value();
+                var employeeNote = selectBox.getResult().join(',')
                 if (employee === 0 || productWeight == 0) {
                     alert("Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
                     OnProcessedData();
@@ -221,6 +287,7 @@
                             employeeId: employee,
                             machineId: 0,
                             productWeight: productWeight,
+                            note: employeeNote,
                         });
                 }
             } else {
@@ -467,7 +534,7 @@
         <div style="text-align: center; width: 100%;  font-size: xxx-large;">
             <span id="QuantityValue">~</span>
             pcs
-            <span class="twoToneButton_2"></span>
+            <span class="processButton"></span>
         </div>
 
     </fieldset>
@@ -499,6 +566,21 @@
         <div class="grid_8" style="font-size: large;">
             <span id="MaterialInvCode">~~</span>
         </div>
+        
+        <div class="clear"></div>
+        <div class="grid_8">
+            Danh sách nhân viên đo kiểm
+        <button class="demo" onClick="empty('brandsMulti')">X</button>
+        </div>
+        <div class="clear"></div>
+	<div class="demo-zone" id="demo-multiple">
+		<select id="employeesMulti" multiple size="all">
+                @foreach (var employee in Model) {
+                    <option value="@employee">@employee</option>
+                }
+		</select>
+    </div>
+    
     </fieldset>
 </div>
 

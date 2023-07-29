@@ -28,6 +28,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
         {
             DataSource = models;
         }
+
         void ProductCatalog_ItemDataBinding(object sender, EventArgs e)
         {
             string cultureID = (string)this.ReportParameters["CultureID"].Value;
@@ -44,6 +45,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
 
             this.Culture = cultureInfo;
         }
+
         public static string FormatAmount(double value)
         {
             string formatted = "";

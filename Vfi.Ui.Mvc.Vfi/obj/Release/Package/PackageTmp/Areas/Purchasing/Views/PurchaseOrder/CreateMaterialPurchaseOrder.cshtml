@@ -349,6 +349,7 @@
 
                 columns.Bound(f => f.DueDate).Width(98)
                        .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                //columns.Bound(f => f.InquiryNote).Title("Ghi chú");
                 columns.Command(commands => commands.Delete()).Width(98).Title("");
             })
             .ClientEvents(events => events

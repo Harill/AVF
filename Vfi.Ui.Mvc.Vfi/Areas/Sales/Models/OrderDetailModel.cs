@@ -112,7 +112,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         public bool ApproveType { get; set; }
         public int ExportDetailId { get; set; }
 
-
+        public string OrderNote { get; set; }
         public List<OrderProgressModel> OrderProcessDetails { get; set; }
         public List<ApprovedOrderDetail> ApprovedOrderDetails { get; set; }
 

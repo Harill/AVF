@@ -223,12 +223,7 @@
             }
             index++;
         }
-
-        function gridProductionPlating_OnDataBinding() {
-            indexP = 0;
-            countP = 0;
-        }
-
+        
         var indexP = 0;
         var countP = 0;
 
@@ -926,6 +921,7 @@
                                                               .OnSave("gridProductionTool_onSave"))
                                 .ToHtmlString()
                             );
+                        
                         items.Add().Text("Công đoạn 1").Content(
                                 Html.Telerik().Grid<ProductionProductivityQuoteBaseModel>()
                                     .Name("gridProductionProductivity_<#= ProductId #>")
@@ -958,7 +954,7 @@
                                             .Format("{0:n2}");
                                         columns.Bound(f => f.F).Width(50).Title("F")
                                             .Format("{0:n2}");
-                                        columns.Bound(f => f.Time).Width(100).Title("Thời gian(s)").ReadOnly(true)
+                                        columns.Bound(f => f.Time).Width(100).Title("Thời gian(s)")
                                             .Format("{0:n2}");
                                         columns.Bound(f => f.Active).Width(100)
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")

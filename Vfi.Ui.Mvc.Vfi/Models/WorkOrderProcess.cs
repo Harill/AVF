@@ -18,6 +18,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public System.DateTime ModifiedDate { get; set; }
         public byte Status { get; set; }
         public double UnitWeight { get; set; }
+        public string ProcessNote { get; set; }
         public virtual Employee Employee { get; set; }
         public virtual WorkOrderRouting WorkOrderRouting { get; set; }
     }

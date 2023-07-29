@@ -394,7 +394,7 @@
             .DataKeys(key => key.Add(f => f.HowToFix).RouteKey("howToFix"))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
-                                          .Select("SelectMachineErrorState", "Machine", new {fromDate = "", toDate = "", status = -1}))
+                                          .Select("SelectMachineErrorState", "Machine", new {machineId = 0, fromDate = "", toDate = "", status = -1}))
             .Columns(columns =>
                 {
                     columns.Bound(f => f.MachineName).Width(70).Title("Máy")

@@ -12,6 +12,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models {
         public string TypeName { get; set; }
 
         public DateTime ReportDate { get; set; }
+        public string ReportDateStr { get; set; }
 
         public double Quantity {
             get { return List.Sum(l => l.Quantity); }
@@ -121,8 +122,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models {
         public string PoDetailDesign { get; set; }
         public string UnitMeasure { get; set; }
         public double UnitPrice { get; set; }
-        public DateTime PoDate { get; set; }
-        public DateTime CreateDate { get; set; }
+        //public DateTime PoDate { get; set; }
+        public string PoDateStr { get; set; }
+        //public DateTime CreateDate { get; set; }
+        public string CreateDateStr { get; set; }
 
         public string UnitPriceString {
             get {
@@ -135,6 +138,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models {
         public string Currency { get; set; }
         public double ExchangeRate { get; set; }
         public double Quantity { get; set; }
+        public double ImportedQuantity { get; set; }
 
         public double TotalPriceUSD {
             get {
@@ -207,6 +211,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models {
         }
 
         public List<PoTrackingImportDetail> ImportDetails { get; set; }
+
+        public string InquiryNumber { get; set; }
+        public string InquiryDateStr { get; set; }
+        public string InquiryStatus { get; set; }
+        public int InquiryState { get; set; }
     }
 
     public class PoTrackingImportDetail {

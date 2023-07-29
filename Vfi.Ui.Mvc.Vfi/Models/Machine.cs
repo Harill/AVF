@@ -41,7 +41,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string MachineName { get; set; }
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }
-        public Nullable<System.DateTime> ModifiedDate { get; set; }
+        public System.DateTime ModifiedDate { get; set; }
         public Nullable<int> StateId { get; set; }
         public Nullable<double> Number { get; set; }
         public Nullable<int> DayRate { get; set; }

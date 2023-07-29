@@ -20,6 +20,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
             ImportMore = 0;
             ImportOnMachine = 0;
         }
+        public bool CanUpload { get; set; }
+        public bool CanEdit { get; set; }
         [DataType("_DateTemplate")]
         public DateTime FromDate { get; set; }
         public string FromDateString { get; set; }
@@ -115,6 +117,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         [UIHint("_UploadTemplate")]
         public string InfoImg { get; set; }
         public string UploadDate { get; set; }
+        [UIHint("_Upload2Template")]
+        public string InfoImg2 { get; set; }
     }
 
     public class MaterialPeriodModel {

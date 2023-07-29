@@ -125,6 +125,7 @@
         </fieldset>
     </div>
 </div>
+
 <div class="cover-div">
     @{
         Html.Telerik().Grid<ProductQuoteCalculateModel>()
@@ -182,6 +183,9 @@
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align:center;" });
                     columns.Bound(f => f.ShippingPrice).Width(100).Title("Giá</br>VC").ReadOnly(true)
+                            .Format("{0:n4}")
+                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
+                    columns.Bound(f => f.AdditionFee).Width(100).Title("Phí</br>khác").ReadOnly(true)
                             .Format("{0:n4}")
                             .HtmlAttributes(new { style = "border-left:1px solid black;text-align:center;" });
                     columns.Bound(f => f.MaterialTaxFactor).Width(100).Title("HS Thuế</br>loại NL").ReadOnly(true)
@@ -563,7 +567,7 @@
                                             .HeaderTemplate("Chi phí</br>(USD/kg)")
                                             .Format("{0:n4}")
                                            .HtmlAttributes(new { style = "border-left:1px solid black;text-align: center;" });
-                                        columns.Bound(f => f.PlatingCost).Width(100)
+                                        columns.Bound(f => f.UnitWeight).Width(100)
                                             .HeaderTemplate("TL SP</br>(g/pc)")
                                             .Format("{0:n4}")
                                             .HtmlAttributes(new { style = "text-align: center;" });
@@ -664,6 +668,28 @@
                                                               )
                                 .ToHtmlString()
                             );
+                        items.Add().Text("Phí khác").Content(
+                                Html.Telerik().Grid<ProductAdditionFeeModel>()
+                                    .Name("gridAdditionFee_<#= ProductId #>")
+                                    .DataKeys(key => key.Add(f => f.FeeId).RouteKey("feeId"))
+                                    .DataBinding(
+                                        dataBinding => dataBinding.Ajax()
+                                                                  .Select("SelectProductAdditionFee", "Production", new { area = "Factory", productId = "<#= ProductId #>", isQuote = true })
+                                    )
+                                    .Columns(columns => {
+                                        columns.Bound(f => f.Name).Width(120)
+                                               .Title("Tên");
+                                        columns.Bound(f => f.Price).Width(100).Title("Giá (usd/pc)")
+                                            .Format("{0:n4}");
+                                        columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                                               .Format("{0:dd/MM/yyyy HH:mm}");
+                                        columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                                    })
+                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .ClientEvents(events => events.OnError("grid_OnError")
+                                    )
+                                    .ToHtmlString()
+                                );
                         items.Add().Text("Quy trình công đoạn").Content(
                             Html.Telerik().Grid<ProductionProcessModel>()
                                 .Name("gridProductionProcess_<#= ProductId #>")

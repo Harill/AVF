@@ -40,6 +40,10 @@
            
             var customerId = $(this).data('tComboBox').value();
 
+            var cboShipmethod = $("#ShipMethodName").data("tDropDownList");
+            var cboPaymentTerm = $("#PaymentTerm").data("tDropDownList");
+            var cboEmployee = $("#EmployeeName").data("tDropDownList");
+            var cboCurrency = $("#CurrencyCode").data("tDropDownList");
             $.ajax({
                 type: 'post',
                 data: { customerId: customerId },
@@ -52,19 +56,56 @@
                     } else {
                         $("#BillToAddress").val(res.Data.BillToAddress);
                         $("#ShipToAddress").val(res.Data.ShipToAddress);
-                        $("#CurrencyCode").val(res.Data.CurrencyCode);
-                        $("#CurrencyCode").data("tDropDownList").$text[0].innerHTML = res.Data.CurrencyCode;
-                        $("#ShipMethodName").val(res.Data.ShipMethodId);
-                        $("#ShipMethodName").data("tDropDownList").$text[0].innerHTML = res.Data.ShipMethodName;
-                        $("#PaymentTerm").val(res.Data.PaymentMethodId);
-                        $("#PaymentTerm").data("tDropDownList").$text[0].innerHTML = res.Data.PaymentMethodName;
-                        $("#EmployeeName").val(res.Data.SalesPersonId);
-                        $("#EmployeeName").data("tDropDownList").$text[0].innerHTML = res.Data.SalesPersonName;
+                        
+                        if (res.Data.CurrencyCode !== "") {
+                            $("#CurrencyCode").val(res.Data.CurrencyCode);
+                        } else {
+                            $("#CurrencyCode").val('');
+                            cboCurrency.selectedIndex = -1;
+                            cboCurrency.previousValue = "";
+                            cboCurrency.value(-1);
+                            cboCurrency.text("");
+                        }
+                        cboCurrency.$text[0].innerHTML = res.Data.CurrencyCode;
+
+                        if (res.Data.ShipMethodId > 0) {
+                            $("#ShipMethodName").val(res.Data.ShipMethodId);
+                        } else {
+                            $("#ShipMethodName").val('');
+                            cboShipmethod.selectedIndex = -1;
+                            cboShipmethod.previousValue = "";
+                            cboShipmethod.value(-1);
+                            cboShipmethod.text("");
+                        }
+                        cboShipmethod.$text[0].innerHTML = res.Data.ShipMethodName;
+
+                        if (res.Data.PaymentMethodId > 0) {
+                            $("#PaymentTerm").val(res.Data.PaymentMethodId);
+                        } else {
+                            $("#PaymentTerm").val('');
+                            cboPaymentTerm.selectedIndex = -1;
+                            cboPaymentTerm.previousValue = "";
+                            cboPaymentTerm.value(-1);
+                            cboPaymentTerm.text("");
+                        }
+                        cboPaymentTerm.$text[0].innerHTML = res.Data.PaymentMethodName;
+
+                        if (res.Data.SalesPersonId > 0) {
+                            $("#EmployeeName").val(res.Data.SalesPersonId);
+                        } else {
+                            $("#EmployeeName").val('');
+                            cboEmployee.selectedIndex = -1;
+                            cboEmployee.previousValue = "";
+                            cboEmployee.value(-1);
+                            cboEmployee.text("");
+                        }
+                        cboEmployee.$text[0].innerHTML = res.Data.SalesPersonName;
                     }
                 }
             });
             return false;
         }
+
     </script>
   
     <script type="text/javascript">
@@ -591,6 +632,7 @@
                     columns.Bound(f => f.IsAlert).Width(50).Title("Lưu ý")
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsAlert' <#=IsAlert? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.OrderNote).Title("Ghi chú");
                     columns.Command(commands => commands.Delete()).Width(98).Title("Commands");
                 })
             .ClientEvents(events => events

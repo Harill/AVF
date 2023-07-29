@@ -49,6 +49,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.RequiedNumber).HasColumnName("RequiedNumber");
             this.Property(t => t.Note).HasColumnName("Note");
             this.Property(t => t.IsAlert).HasColumnName("IsAlert");
+            this.Property(t => t.OrderNote).HasColumnName("OrderNote");
 
             // Relationships
             this.HasRequired(t => t.Product)

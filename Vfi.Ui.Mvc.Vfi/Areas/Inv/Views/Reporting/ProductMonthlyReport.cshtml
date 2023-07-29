@@ -49,33 +49,7 @@
         function grid_OnDataBound() {
             OnLoadedData();
         }
-
-        var onLoading = false;
-        function OnLoadingData() {
-            if (!onLoading) {
-                onLoading = true;
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-                    loading.classList.add('loading');
-                }
-            }
-        }
-        function OnLoadedData() {
-            if (onLoading) {
-                var loadings = document.querySelectorAll('.twoToneButton');
-                for (var i = 0; i < loadings.length; i++) {
-                    var loading = loadings[i];
-                    if (loading && loading.className.includes("loading")) {
-                        loading.classList.remove('loading');
-                        loading.innerHTML = "<span></span>";
-                    }
-                }
-                onLoading = false;
-            }
-        }
-
+        
     </script>
     <!-- report -->
     <script type="text/javascript">
@@ -276,7 +250,7 @@
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridProductInventoryForMonthly'); ">
                     <span class='t-icon t-insert'></span>
                     Làm mới
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_4">
@@ -306,7 +280,7 @@
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printProductInvTotal(); ">
                     <span class='t-icon t-insert'></span>
                     Báo cáo All (Print)
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_5">
@@ -314,14 +288,14 @@
                 <button id="btnPrintWithCustomer" class="t-button" onclick=" return printProductInvTotalWithCustomer(); ">
                     <span class='t-icon t-insert'></span>
                     Báo cáo theo KH (Print)
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
                 </button>
             </div>
             <div class="grid_4"  style="visibility:@Model.Print2">
                 <button id="btnPrintOrderPlan" class='t-button' onclick="return printProductInvAllTotal();" style="width: 175px">
                     <span class='t-icon t-insert'></span>
                     Báo cáo tổng hợp (ALL)
-                <span class="twoToneButton"></span>
+                <span class="loadButton"></span>
                 </button>
             </div>
 

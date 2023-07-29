@@ -96,9 +96,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
                     - ImportQuantity - ImportPurchase
                     - ImportInternal
                     - ImportReturn
-                    - ImportMore - ImportTransfer;
+                    - ImportMore - ImportTransfer
+                    - ImportElse;
             }
         }
+        public double ImportElse { get; set; }
         /// <summary>
         /// re check export
         /// </summary>
@@ -108,9 +110,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
                     - ExportQuantity
                     - ExportInternal
                     - ExportDefect
-                    - ExportDestroy - ExportTransfer;
+                    - ExportDestroy - ExportTransfer
+                    - ExportElse;
             }
         }
+        public double ExportElse { get; set; }
 
         public bool Show {
             get {

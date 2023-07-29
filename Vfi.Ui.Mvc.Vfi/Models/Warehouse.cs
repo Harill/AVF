@@ -66,10 +66,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool CanWeighing { get; set; }
         public bool IsPacking { get; set; }
         public bool IsFinish { get; set; }
+        public Nullable<bool> AutoGenerateProcess { get; set; }
         public Nullable<bool> IsDefect { get; set; }
         public Nullable<bool> IsDestroy { get; set; }
         public Nullable<bool> IsTransfer { get; set; }
-        public Nullable<bool> AutoGenerateProcess { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
         public virtual ICollection<DefectTransactionDetail> DefectTransactionDetails { get; set; }
         public virtual ICollection<MachineAppraisal> MachineAppraisals { get; set; }
