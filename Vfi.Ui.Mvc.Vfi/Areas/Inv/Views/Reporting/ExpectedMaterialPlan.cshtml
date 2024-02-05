@@ -20,11 +20,13 @@
             if (monthCount === null || monthCount == "")
                 monthCount = 3;
             var materialCode = $("#MaterialCodeName").data("tAutoComplete").value();
+            var isAll = $("input[name='chkAll']").attr('checked');
             args.data = $.extend(args.data, {
                 materialCode: materialCode,
                 month: month,
                 year: year,
                 monthCount: monthCount,
+                isAll: isAll,
             });
             index = 0;
             $("#ForecastByMonthHeader")[0].innerText = (monthCount + " tháng");
@@ -124,7 +126,7 @@
         <div class="grid_1">
             @Html.Label("Năm")
         </div>
-        <div class="grid_1">
+        <div class="grid_1_5">
 
             @{
                 Html.Telerik().AutoComplete()
@@ -133,6 +135,12 @@
                     .HtmlAttributes(new { style = "width: 42px" })
                     .Render();
             }
+        </div>
+        <div class="grid_2_5">
+            <label>
+                <input type="checkbox" id="chkAll" name="chkAll" />
+                Xem tất cả
+            </label>
         </div>
         <div class="grid_3 prefix_1">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridPlan'); ">

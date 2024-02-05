@@ -194,6 +194,7 @@
             .Reorderable(f => f.Columns(true))
             .Sortable()
             .Groupable()
+            .Filterable()
             .Selectable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")

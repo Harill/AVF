@@ -123,6 +123,7 @@
             }
             return false;
         }
+
         function printWOMaterialUse() {
             if (!onLoading) {
                 OnLoadingData();
@@ -134,6 +135,39 @@
                 $('#result').load('@Url.Action("PrintWOMaterialUse", "WorkOrder", new { area = "Factory" })',
                     {
                         date: printDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
+
+        function printBarcode() {
+            if (!onLoading) {
+                OnLoadingData();
+                var $checkedRecords = $("input[name='chkIds']:checked")
+
+                if ($checkedRecords.length < 1) {
+                    alert("Vui lọn chọn ít nhất 1 kệ");
+                    OnProcessedData();
+                    return;
+                }
+
+                var a = {};
+                checkedRecords = "";
+                for (var i = 0; i < $checkedRecords.length; i++) {
+                    if ($checkedRecords[i] === "0") continue;
+                    a[i] = $checkedRecords[i].value;
+
+                    checkedRecords += $checkedRecords[i].value;
+                    if (i < ($checkedRecords.length - 1))
+                        checkedRecords += ":";
+                }
+                $('#result').load('@Url.Action("PrintBarcode", "WorkOrder", new { area = "Factory" })',
+                    {
+                        ids: checkedRecords
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');
@@ -182,6 +216,11 @@
         <button id="btnPrintUsing" class="t-button" onclick="printWOMaterialUse();">
             <span class='t-icon t-insert'></span>
             In sử dụng nguyên liệu
+            <span class="loadButton"></span>
+        </button>
+        <button id="btnPrintBarcode" class="t-button" onclick="printBarcode();">
+            <span class='t-icon t-insert'></span>
+            In barcode
             <span class="loadButton"></span>
         </button>
         <div class="clear"></div><br />

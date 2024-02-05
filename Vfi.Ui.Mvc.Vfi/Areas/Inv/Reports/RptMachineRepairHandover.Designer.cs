@@ -40,6 +40,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox48 = new Telerik.Reporting.TextBox();
             this.textBox49 = new Telerik.Reporting.TextBox();
             this.textBox46 = new Telerik.Reporting.TextBox();
+            this.textBox8 = new Telerik.Reporting.TextBox();
             this.group1 = new Telerik.Reporting.Group();
             this.groupFooterSection1 = new Telerik.Reporting.GroupFooterSection();
             this.groupHeaderSection1 = new Telerik.Reporting.GroupHeaderSection();
@@ -67,7 +68,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox7 = new Telerik.Reporting.TextBox();
             this.textBox32 = new Telerik.Reporting.TextBox();
             this.textBox33 = new Telerik.Reporting.TextBox();
-            this.textBox8 = new Telerik.Reporting.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // groupFooterSection2
@@ -422,6 +422,23 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox46.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
             this.textBox46.StyleName = "Data";
             this.textBox46.Value = "=\"THỜI ĐIỂM BÀN GIAO\r\n\"+ Time";
+            // 
+            // textBox8
+            // 
+            this.textBox8.CanGrow = true;
+            this.textBox8.Format = "{0:dd/MM/yyyy HH:mm}";
+            this.textBox8.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(0D), Telerik.Reporting.Drawing.Unit.Inch(0.40003934502601624D));
+            this.textBox8.Name = "textBox8";
+            this.textBox8.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.5D), Telerik.Reporting.Drawing.Unit.Inch(0.193171426653862D));
+            this.textBox8.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.None;
+            this.textBox8.Style.BorderStyle.Left = Telerik.Reporting.Drawing.BorderType.None;
+            this.textBox8.Style.BorderStyle.Right = Telerik.Reporting.Drawing.BorderType.None;
+            this.textBox8.Style.Font.Name = "Arial";
+            this.textBox8.Style.Font.Size = Telerik.Reporting.Drawing.Unit.Point(8D);
+            this.textBox8.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
+            this.textBox8.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
+            this.textBox8.StyleName = "Data";
+            this.textBox8.Value = "=NOW()";
             // 
             // group1
             // 
@@ -872,23 +889,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.textBox33.Style.Font.Name = "Arial";
             this.textBox33.StyleName = "Data";
             this.textBox33.Value = "A/ Những máy phải theo dõi kích thước thường xuyên:";
-            // 
-            // textBox8
-            // 
-            this.textBox8.CanGrow = true;
-            this.textBox8.Format = "{0:dd/MM/yyyy hh:mm}";
-            this.textBox8.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(0D), Telerik.Reporting.Drawing.Unit.Inch(0.40003934502601624D));
-            this.textBox8.Name = "textBox8";
-            this.textBox8.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.5D), Telerik.Reporting.Drawing.Unit.Inch(0.193171426653862D));
-            this.textBox8.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.None;
-            this.textBox8.Style.BorderStyle.Left = Telerik.Reporting.Drawing.BorderType.None;
-            this.textBox8.Style.BorderStyle.Right = Telerik.Reporting.Drawing.BorderType.None;
-            this.textBox8.Style.Font.Name = "Arial";
-            this.textBox8.Style.Font.Size = Telerik.Reporting.Drawing.Unit.Point(8D);
-            this.textBox8.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Center;
-            this.textBox8.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
-            this.textBox8.StyleName = "Data";
-            this.textBox8.Value = "=NOW()";
             // 
             // RptMachineRepairHandover
             // 

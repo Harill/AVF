@@ -499,7 +499,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var model = new List<List<MachineDiagram>>();
             var allMachineDiagram = new List<MachineDiagram>();
             using (var vfi = new vfiContext()) {
-
                 var cncs = vfi.SelectDiagram2;
                 var staticStateList = MyUtilities.Machine.State.GetStaticStateList();
                 var productIds = cncs.Select(c => c.ProductId).Distinct().ToList();
@@ -509,25 +508,40 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 var machineIds = cncs.Select(c => c.MachineId).Distinct().ToList();
                 var machines = vfi.Machines.Where(m => machineIds.Contains(m.MachineId));
 
-                var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
-                                        where id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
-                                              (byte)MyUtilities.Transaction.Status.Approved &&
-                                              productIds.Contains(id.ProductId) &&
-                                              machineIds.Contains(id.MachineId.Value) &&
-                                              materialIds.Contains(id.MaterialInventory.MaterialId) &&
-                                              id.ImportFormSX1.MaterialUseDate > lastTrackDate
-                                        orderby id.ImportFormSX1.MaterialUseDate descending
-                                        select new {
-                                            id.MaterialInventory.MaterialId,
-                                            MachineId = id.MachineId ?? 0,
-                                            id.ProductId,
-                                            id.ImportFormSX1.MaterialUseDate,
-                                            Quantity = id.Number1 + id.Number2 +
-                                                       id.Processing1 + id.Processing2,
-                                            MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
-                                        }).ToList();
+                //var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
+                //                        where 
+                //                        id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
+                //                              (byte)MyUtilities.Transaction.Status.Approved &&
+                //                              productIds.Contains(id.ProductId) &&
+                //                              machineIds.Contains(id.MachineId.Value) &&
+                //                              materialIds.Contains(id.MaterialInventory.MaterialId) &&
+                //                              id.ImportFormSX1.MaterialUseDate > lastTrackDate
+                //                        orderby id.ImportFormSX1.MaterialUseDate descending
+                //                        select new {
+                //                            id.MaterialInventory.MaterialId,
+                //                            MachineId = id.MachineId ?? 0,
+                //                            id.ProductId,
+                //                            id.ImportFormSX1.MaterialUseDate,
+                //                            Quantity = id.Number1 + id.Number2 +
+                //                                       id.Processing1 + id.Processing2,
+                //                            MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
+                //                        }).ToList();
+                var importDetailsSx12 = vfi.ImportFormSX1Detail
+                        .Where(x => productIds.Contains(x.ProductId)
+                            && machineIds.Contains(x.MachineId.Value)
+                            && materialIds.Contains(x.MaterialInventory.MaterialId)
+                            && x.ImportFormSX1.MaterialUseDate > lastTrackDate
+                            && x.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved)
+                        .GroupBy(x => new { x.ProductId, x.MaterialInventory.MaterialId, MachineId = x.MachineId.Value })
+                        .Select(x => new {
+                            x.Key,
+                            Quantity = x.Sum(y => y.Number1 + y.Number2 + y.Processing1 + y.Processing2),
+                            MaterialUse = x.Sum(y => y.MaterialUse1 + y.MaterialUse2)
+                        })
+                        .ToList();
+
                 var maxColumn = machines.Max(m => m.ColumnIndex);
                 for (int i = 1; i <= maxColumn; i++) {
                     var machineColumns = machines.Where(c => c.ColumnIndex == i).OrderByDescending(c => c.RowIndex);
@@ -560,10 +574,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             entity.MaterialCode = cnc.MaterialCode;
                             entity.StartDate = cnc.DeliveryDate;
                             entity.EndDate = cnc.EndDate;
-                            var productions = importDetailsSx1.Where(id => id.MachineId == cnc.MachineId &&
-                                id.MaterialId == cnc.MaterialId &&
-                                id.ProductId == cnc.ProductId &&
-                                id.MaterialUseDate >= cnc.DeliveryDate).ToList();
+                            //var productions = importDetailsSx1.Where(id => id.MachineId == cnc.MachineId &&
+                            //    id.MaterialId == cnc.MaterialId &&
+                            //    id.ProductId == cnc.ProductId &&
+                            //    id.MaterialUseDate >= cnc.DeliveryDate).ToList();
+                            var productions = importDetailsSx12.Where(id => id.Key.MachineId == cnc.MachineId &&
+                                id.Key.MaterialId == cnc.MaterialId &&
+                                id.Key.ProductId == cnc.ProductId).ToList();
                             entity.Production = productions.Sum(p => p.Quantity);
                             entity.MaterialUse = productions.Sum(p => p.MaterialUse);
                         }
@@ -1364,6 +1381,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         public ActionResult SelectComboBoxMachineProductionMoreInfo() {
             return new JsonResult {
                 Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsProduction = true }), "MachineId", "MachineFullName")
+            };
+        }
+        public ActionResult SelectComboBoxMachineCNC()
+        {
+            return new JsonResult
+            {
+                Data = new SelectList(GetActiveMachines(new MachineConfiguration { IsCncMilling = true }), "MachineId", "MachineName")
             };
         }
         public ActionResult SelectComboBoxMachineProduction2() {
@@ -2584,7 +2608,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             MoreTime = machineState.MoreTime,
                             CauseDate = machineState.CauseDate,
                             ErrorQuantity = machineState.ErrorQuantity ?? 0,
-                            Time = "15h",
+                            Time = "15h và 21h",
                             Title = "BIÊN BẢN BÀN GIAO MÁY"
                         };
                         if (reportType == 2) {

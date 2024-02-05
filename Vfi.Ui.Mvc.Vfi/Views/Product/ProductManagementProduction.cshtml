@@ -991,12 +991,12 @@
                                             ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
                                         columns.Bound(f => f.SectionName).Width(120)
                                                .Title("Tên công đoạn");
-                                        columns.Bound(f => f.SectionIndex).Width(50).Title("Tiến trình")
+                                        columns.Bound(f => f.SectionIndex).Width(100).Title("Tiến trình")
                                                .HtmlAttributes(new { style = "text-align:center;" });
-                                        columns.Bound(f => f.Productivity).Width(50).Title("Năng suất");
-                                        columns.Bound(f => f.Weight).Width(50).Title("TL đầu ra")
+                                        columns.Bound(f => f.Productivity).Width(100).Title("Năng suất");
+                                        columns.Bound(f => f.Weight).Width(100).Title("TL đầu ra")
                                                .Format("{0:n3}").HtmlAttributes(new { style = "text-align:right;" });
-                                        columns.Bound(f => f.MachineName).Width(100).Title("Máy");
+                                        columns.Bound(f => f.MachineName).Width(150).Title("Máy");
                                         columns.Bound(f => f.Description).Title("Mô tả");
                                         columns.Bound(f => f.Active).Width(100).Title("Kích hoạt")
                                                .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
@@ -1009,6 +1009,7 @@
                                         columns.Bound(f => f.UpdateUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                     })
                                     .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .Resizable(f => f.Columns(true))
                                     .ClientEvents(events => events.OnError("grid_OnError")
                                     .OnLoad("gridProduction2_OnLoad")
                                     .OnRowDataBound("gridProduction2_OnRowDataBound")
@@ -1063,6 +1064,7 @@
                                     columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .Resizable(f => f.Columns(true))
                                 .ClientEvents(events => events.OnError("grid_OnError")
                                     .OnLoad("gridProductionHeatTreatment_OnLoad")
                                     .OnRowDataBound("gridProductionHeatTreatment_OnRowDataBound"))
@@ -1116,6 +1118,7 @@
                                     columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .Resizable(f => f.Columns(true))
                                 .ClientEvents(events => events.OnError("grid_OnError")
                                     .OnLoad("gridProductionPolish_OnLoad")
                                     .OnRowDataBound("gridProductionPolish_OnRowDataBound"))
@@ -1167,6 +1170,7 @@
                                         columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
                                     })
                                     .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                    .Resizable(f => f.Columns(true))
                                     .ClientEvents(events => events.OnError("grid_OnError")
                                         .OnLoad("gridProductionPlating_OnLoad")
                                         .OnRowDataBound("gridProductionPlating_OnRowDataBound"))
@@ -1220,6 +1224,7 @@
 
                                 })
                                 .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .Resizable(f => f.Columns(true))
                                 .ClientEvents(events => events.OnError("grid_OnError")
                             //.OnSave("gridProductionFuel_onSave")
                                                               )

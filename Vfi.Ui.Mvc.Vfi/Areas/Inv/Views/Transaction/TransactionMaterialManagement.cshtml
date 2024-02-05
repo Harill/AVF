@@ -61,6 +61,10 @@
                     countSignature1++;
                 }
             }
+
+            if (!e.dataItem.CanApprove) {
+                e.row.getElementsByClassName("t-button rollback_" + e.dataItem.TransactionId)[0].parentNode.innerHTML = "";
+            }
         }
 
         var indexSignature1 = 0;
@@ -130,6 +134,32 @@
         });
         return false;
     }
+
+        function RollbackTransaction(id) {
+            var message = "Phục hồi lệnh trở về chưa duyệt";
+            message += "\nĐồng ý ??";
+            if (confirm(message)) {
+                $.ajax({
+                    type: 'post',
+                    data: { transactionId: id },
+                    dataType: 'json',
+                    url: '@Url.Action("CreateRollbackTransactionMaterial", "Transaction", new { area = "Inv" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            alert("Đã lưu " + res.Data);
+                            if (res.Message && res.Message != "") {
+                                alert(res.Message);
+                            }
+                            RefreshGrid("gridTransaction");
+                        } else {
+                            alert("Lỗi! " + res.Message);
+                        }
+                    }
+                });
+            } else {
+            }
+        }
     </script>
 
 }
@@ -221,6 +251,9 @@
                        .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.TransactionId).Title("QL mua").Width(50)
                        .ClientTemplate("<button class='t-button purchasing' id='QLM_<#= TransactionId #>' onclick=Signature(<#= TransactionId #>) ><span class='t-icon t-insert'></span></button>")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.TransactionId).Title("").Width(50).ReadOnly(true)
+                       .ClientTemplate("<input type='button' id='rollback_<#= TransactionId #>' value='Rollback' class='t-button rollback_<#= TransactionId #>' onclick='RollbackTransaction(<#= TransactionId #>)' />")
                        .HtmlAttributes(new { style = "text-align:center" });
             })
             .DetailView(details => details.ClientTemplate(

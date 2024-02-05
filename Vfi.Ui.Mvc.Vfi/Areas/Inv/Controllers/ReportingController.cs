@@ -2171,6 +2171,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (update.CanEdit) {
                         materialInv.UnitPrice = update.MaterialUnitPrice;
                         materialInv.UnitWeight = update.MaterialUnitWeight;
+                        materialInv.EndDate = !string.IsNullOrWhiteSpace(update.EndUseDateString)
+                            ? MyUtilities.Function.ParseDate(update.EndUseDateString)
+                            : DateTime.Now;
                     }
                     vfi.SaveChanges();
                 }
@@ -2828,6 +2831,137 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         model.OrderBy(m => m.MachineName).ThenBy(m => m.MaterialCode).ThenBy(m => m.ProductCode)));
         }
 
+
+        [GridAction]
+        public ActionResult SelectToolYearlyReport(string toolName, int toolType, int year, int exportType) {
+            var model = new List<MaterialYearlyReportModel>();
+            if (year == 0)
+                return View(new GridModel(model));
+            try {
+                using (var vfi = new tammaContext()) {
+                    var tools = (from t in vfi.Tools
+                                 where t.Active &&
+                                       (toolType == 0 || t.MaterialTypeId == toolType)
+                                 select new {
+                                     t.ToolId,
+                                     t.ToolCode,
+                                     t.ToolFullCode,
+                                     t.ToolDesignNo,
+                                     t.ToolMaterial,
+                                     t.ToolProduction,
+                                     t.ToolTypeId,
+                                     t.MaterialType.MaterialTypeName
+                                 }).ToList();
+                    if (!string.IsNullOrWhiteSpace(toolName)) {
+                        tools = tools.Where(t => t.ToolFullCode.Contains(toolName)).ToList();
+                    }
+                    var toolIds = tools.Select(t => t.ToolId);
+                    var imports = (from tip in vfi.ToolInventoryPeriods
+                                   where toolIds.Contains(tip.ToolId)
+                                         && tip.PeriodDate.Year == year &&
+                                         tip.LastQuantity > tip.EarlyQuantity
+                                   select new {
+                                       tip.ToolId,
+                                       IsPurchase = tip.TransactionFpt.PoId != null,
+                                       tip.PeriodDate.Month,
+                                       tip.Quantity,
+                                       tip.TransactionFpt.Type,
+                                       IsInternal = tip.TransactionFpt.IsInternal ?? false
+                                   }).ToList();
+                    var exports = (from tip in vfi.ToolInventoryPeriods
+                                   where toolIds.Contains(tip.ToolId)
+                                         && tip.PeriodDate.Year == year &&
+                                         tip.LastQuantity < tip.EarlyQuantity
+                                   select new {
+                                       tip.ToolId,
+                                       IsPurchase = tip.TransactionFpt.PoId != null,
+                                       tip.PeriodDate.Month,
+                                       tip.Quantity,
+                                       tip.TransactionFpt.Type,
+                                       IsInternal = tip.TransactionFpt.IsInternal ?? false
+                                   }).ToList();
+                    var toolInvs = (from ti in vfi.ToolInventories
+                                    where toolIds.Contains(ti.ToolId) &&
+                                          ti.TotalQuantity > 0
+                                    select ti).ToList();
+                    //var exports = (from ed in vfi.ExportToolDetails
+                    //               where ed.ExportTool.ExportDate.Value.Year == year &&
+                    //                     toolIds.Contains(ed.ToolInventory.ToolId) &&
+                    //                     ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                    //                     (exportType == 0 || ed.ExportTool.TransactionFpt.Type == exportType)
+                    //               select new {
+                    //                   ed.ToolInventory.ToolId,
+                    //                   ed.ExportTool.ExportDate.Value.Month,
+                    //                   ed.ExportTool.TransactionFpt.Type,
+                    //                   ed.Quantity,
+                    //                   IsInternal = ed.TransactionFptDetail.IsInternal ?? false
+                    //               }).ToList();
+
+                    foreach (var tool in tools) {
+                        var entity = new MaterialYearlyReportModel {
+                            MaterialId = tool.ToolId,
+                            MaterialName = tool.ToolCode,
+                            //MaterialCode = tool.ToolFullCode,
+                            MaterialCode = MyUtilities.Tool.GetFullToolDesign(tool.ToolDesignNo, tool.ToolMaterial, tool.ToolProduction),
+                            MaterialTypeId = tool.ToolTypeId,
+                            MaterialTypeName = tool.MaterialTypeName,
+                            Months = new List<MaterialMonthlyReportModel>()
+                        };
+                        var importsById = imports.Where(p => p.ToolId == entity.MaterialId).ToList();
+                        var exportsById = exports.Where(p => p.ToolId == entity.MaterialId).ToList();
+                        var toolInvsById = toolInvs.Where(ti => ti.ToolId == entity.MaterialId).ToList();
+                        entity.TotalInv = toolInvsById.Sum(ti => ti.TotalQuantity);
+                        //var emDestroyById = emDestroyInMonth.Where(em => em.MaterialId == entity.MaterialId).ToList();
+                        if (!importsById.Any() && !exportsById.Any()) continue;
+                        var months = new List<MaterialMonthlyReportModel>();
+                        for (int month = 1; month <= 12; month++) {
+                            var byMonth = new MaterialMonthlyReportModel {
+                                MaterialId = entity.MaterialId,
+                                Import = 0,
+                                ImportMore = 0,
+                                ExportUse = 0,
+                                ExportDestroy = 0
+                            };
+                            months.Add(byMonth);
+
+                            var importsInMonth = importsById.Where(p => p.Month == month).ToList();
+                            if (importsInMonth.Any()) {
+                                var periodsByParam = importsInMonth.Where(p => p.IsPurchase).ToList();
+                                byMonth.Import = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
+                                periodsByParam = importsInMonth.Where(p => !p.IsPurchase).ToList();
+                                byMonth.ImportMore = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
+                            }
+
+                            var exportsInMonth = exports.Where(p => p.ToolId == entity.MaterialId && p.Month == month).ToList();
+                            if (exportsInMonth.Any()) {
+                                var exportsParam = exportsInMonth.Where(p => p.Type != (int)MyUtilities.Tool.ExportType.Destroy).ToList();
+                                byMonth.ExportUse = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
+
+                                exportsParam = exportsInMonth.Where(p => p.Type == (int)MyUtilities.Tool.ExportType.Destroy).ToList();
+                                byMonth.ExportDestroy = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
+                            }
+                        }
+                        var total = new MaterialMonthlyReportModel {
+                            Import = months.Sum(m => m.Import),
+                            ImportMore = months.Sum(m => m.ImportMore),
+                            ExportUse = months.Sum(m => m.ExportUse),
+                            ExportDestroy = months.Sum(m => m.ExportDestroy)
+                        };
+                        if (total.Import + total.ImportMore + total.ExportUse + total.ExportDestroy > 0) {
+                            entity.Months.Add(total);
+                            entity.Months.AddRange(months);
+                            model.Add(entity);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectToolYearlyReport", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+
         #endregion
 
         #region product
@@ -3095,13 +3229,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var model = new List<ImportExportProductionModel>();
             var warehouseId = MyUtilities.Warehouse.Finish;
             using (var vfi = new tammaContext()) {
-                var ci = new CultureInfo("vi-VN");
-                var fDate = string.IsNullOrWhiteSpace(fromDate)
-                                  ? DateTime.Today
-                                  : Convert.ToDateTime(fromDate, ci);
-                var tDate = string.IsNullOrWhiteSpace(toDate)
-                                  ? DateTime.Today
-                                  : Convert.ToDateTime(toDate, ci);
+                var fDate = MyUtilities.Function.ParseDate(fromDate);
+                var tDate = MyUtilities.Function.ParseLastDateTime(toDate);
                 var products = (from pi in vfi.ProductInventories
                                 where
                                     pi.Warehouse.IsFinish == true &&
@@ -3532,7 +3661,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 using (var vfi = new tammaContext()) {
                     vfi.Configuration.LazyLoadingEnabled = false;
                     var fDate = MyUtilities.Function.ParseDate(fromDate);
-                    var tDate = MyUtilities.Function.ParseDate(toDate);
+                    var tDate = MyUtilities.Function.ParseDateTime(toDate);
                     var customers = (from c in vfi.Customers
                                      where c.State == (byte)MyUtilities.Sales.CustomerState.Active
                                            && (customerId == 0 || c.CustomerId == customerId)
@@ -3574,6 +3703,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                     pip.ProductInventoryPeriodId,
                                                     pip.ProductId,
                                                     Quantity = pip.Quantity,
+                                                    //PeriodQuantity = Math.Round(pip.LastPeriodQuantity - pip.EarlyPeriodQuantity),
                                                     LastPeriodQuantity = pip.LastPeriodQuantity,
                                                     EarlyPeriodQuantity = pip.EarlyPeriodQuantity,
                                                     pip.PeriodDate,
@@ -3599,22 +3729,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                     //watch = System.Diagnostics.Stopwatch.StartNew();
                     var importProductions = (from sx in vfi.ImportFormSX1Detail
-                                            where
-                                                sx.ImportFormSX1.ImportDate >= fDate &&
-                                                sx.ImportFormSX1.ImportDate <= tDate &&
-                                                sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                                                sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                                                sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
-                                                  .Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
-                                                && productIds.Contains(sx.ProductId) &&
-                                                sx.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved
-                                            orderby sx.ImportFormSX1.MaterialUseDate
-                                            select new {
-                                                sx.ProductId,
-                                                sx.ImportFormSX1.ImportDate,
-                                                Quantity = (sx.Number1 + sx.Number2 + sx.Processing1 + sx.Processing2),
-                                                sx.ImportFormSX1.MaterialUseDate,
-                                            }).ToList();
+                                             where
+                                                 sx.ImportFormSX1.ImportDate >= fDate &&
+                                                 sx.ImportFormSX1.ImportDate <= tDate &&
+                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                                                 sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
+                                                   .Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                                 && productIds.Contains(sx.ProductId) &&
+                                                 sx.ImportFormSX1.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                             orderby sx.ImportFormSX1.MaterialUseDate
+                                             group sx by sx.ProductId into sxx
+                                             select new {
+                                                 ProductId = sxx.Key,
+                                                 //sx.ImportFormSX1.ImportDate,
+                                                 Quantity = sxx.Sum(x => x.Number1 + x.Number2 + x.Processing1 + x.Processing2),
+                                                 //sx.ImportFormSX1.MaterialUseDate,
+                                             }
+                                            ).ToList();
                     //watch.Stop();
                     //MyUtilities.Function.SaveLog("importSx1Details", watch.ElapsedMilliseconds + " ms");
                     //watch.Start();
@@ -3656,9 +3788,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                              ond.OrderNote.CreatedDate <= tDate &&
                                              ond.OrderNote.Status == (byte)MyUtilities.Transaction.Status.Approved &&
                                              productIds.Contains(ond.ProductId.Value)
+                                       group ond by ond.ProductId into x
                                        select new {
-                                           ond.ProductId,
-                                           ond.Quantity
+                                           ProductId = x.Key,
+                                           Quantity = x.Sum(y => y.Quantity)
                                        }).ToList();
                     //watch.Stop();
                     //MyUtilities.Function.SaveLog("import query", watch.ElapsedMilliseconds + " ms");
@@ -3739,14 +3872,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             detail.EarlyQuantity =
                                 earlyProduction.Where(
                                     p => p.ProductId == product.ProductId && warehouses.Contains(p.WarehouseId))
-                                               .Sum(p => Math.Round(p.LastPeriodQuantity - p.EarlyPeriodQuantity, 0));
+                                               .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
                             detail.LastQuantity =
                                 allProductionPeriods.Where(
                                     p => p.ProductId == product.ProductId && warehouses.Contains(p.WarehouseId))
                                                .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
-                            detail.TranferInv = allProductionPeriods.Where(p => p.ProductId == product.ProductId &&
-                                                                                p.WarehouseId == MyUtilities.Warehouse.Tranfer)
-                                                                    .Sum(p => Math.Round(p.LastPeriodQuantity - p.EarlyPeriodQuantity, 0));
+                            detail.TranferInv = 
+                                allProductionPeriods.Where(p => p.ProductId == product.ProductId &&
+                                                                p.WarehouseId == MyUtilities.Warehouse.Tranfer)
+                                                    .Sum(p => Math.Round(p.LastPeriodQuantity - p.EarlyPeriodQuantity, 0));
 
                             detail.ImportQuantity = importProductions.Where(p => p.ProductId == product.ProductId)
                                                                     .Sum(p => p.Quantity);
@@ -4430,6 +4564,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          p.PeriodDate.Month == reportDate.Month &&
                                          p.PeriodDate.Year == reportDate.Year
                                      select p).ToList();
+                    var ppInDay = ppInMonth.Where(x => x.PeriodDate.Day == reportDate.Day).ToList();
                     var giaodichKho1Huy = (from p in allProductInventoryPeriodsByDate
                                            where
                                                p.Transaction.WarehouseReceiptId == MyUtilities.Warehouse.Destroy &&
@@ -4498,6 +4633,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                     od.DueDate.Value.Month == nextMonth.Month &&
                                                     od.DueDate.Value.Year == nextMonth.Year
                                                 select od).ToList();
+                    var orderRemainings = orderDetails.Where(x => x.RequiedNumber > 0
+                                                              && x.Status != (byte)MyUtilities.Sales.Status.Completed)
+                        .GroupBy(x => x.ProductId)
+                        .Select(x => new {
+                            ProductId = x.Key,
+                            Quantity = x.Sum(y => y.RequiedNumber)
+                        })
+                        .ToList();
+                    
                     //
                     var orderDetailRemaining = (from od in orderDetails
                                                 where od.DueDate < lastMonth
@@ -4793,6 +4937,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             DeductionMachine = deductionCncMachine,
                             ReportMessage = reportMessage,
                         };
+
                         //var traHangById = sendBackInMonth.Where(ep => ep.ProductId == product.ProductId).ToList();
                         sp.DonHangTrongThang =
                             orderDetailInMonth.Where(od => od.ProductId == product.ProductId)
@@ -4918,6 +5063,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             productPeriodByIds.Where(p => reProcessWarehouses.Contains(p.WarehouseId))
                                               .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
                         sp.TonKhoPP = ppInMonth.Where(p => p.ProductId == product.ProductId).Sum(p => p.Quantity);
+                        sp.DefectPriceInMonth = sp.TonKhoPP * sp.UnitPrice / 1000000;
+                        sp.DefectPrice = ppInDay.Where(p => p.ProductId == product.ProductId).Sum(p => p.Quantity) * sp.UnitPrice / 1000000;
                         sp.TonKhoTPA =
                             productPeriodByIds.Where(p => p.WarehouseId == MyUtilities.Warehouse.Finish)
                                               .Sum(p => p.LastPeriodQuantity - p.EarlyPeriodQuantity);
@@ -4933,6 +5080,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             + (sp.TonKhoTPB - hangDoi)
                             ;
                         sp.LuyKeXuat = sp.LuyKeXuat + sp.TonKhoTPB - hangDoi;
+
+                        sp.ExportDailyPoint = ((sp.XuatThanhPham) * sp.UnitPrice) / 1000000;
+                        sp.ExportInMonthPoint = ((sp.LuyKeXuat + hangTra) * sp.UnitPrice) / 1000000;
+                        sp.ForecastPoint = ((sp.DuBaoSX) * sp.UnitPrice) / 1000000;
+                        sp.OrderPoint = ((sp.DonHangTrongThang) * sp.UnitPrice) / 1000000;
+                        var orderRemainingById = orderRemainings.FirstOrDefault(x => x.ProductId == sp.ProductId);
+                        if (orderRemainingById != null) {
+                            sp.OrderRemainingPoint = orderRemainingById.Quantity * sp.UnitPrice / 1000000;
+                        }
                         if (!chkLuyKeSX && !chkLuyKeXuat && !chkDonHangThangKe && !chkDonHangConLai)
                             sp.HienThi = true;
                         else {
@@ -4984,11 +5140,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                           Math.Round((i.Number1) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint) +
                                           Math.Round((i.Number2) * i.UnitPrice / 1000000, MyUtilities.Product.ProductionDecimalPoint));
                             sp.CamesDailyPoint = sp.ProductionDailyPoint - sp.CncDailyPoint - sp.Cnc2DailyPoint;
-                            sp.ExportDailyPoint = ((sp.XuatThanhPham) * sp.UnitPrice) / 1000000;
                             // cheat point sp.LuyKeXuat - hangTra
-                            sp.ExportInMonthPoint = ((sp.LuyKeXuat + hangTra) * sp.UnitPrice) / 1000000;
-                            sp.ForecastPoint = ((sp.DuBaoSX) * sp.UnitPrice) / 1000000;
-                            sp.OrderPoint = ((sp.DonHangTrongThang) * sp.UnitPrice) / 1000000;
 
                             sp.ProductionDaily = (sp.SanXuat1) * sp.Productivity * 5;
                             sp.CncDaily =
@@ -5028,109 +5180,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 }
                             }
 
-
-                            //{
-                            //if (sp.DonHangThangTruoc > 0 && sp.MinOrderDate < reportDate) {
-                            //var orderRemaining =
-                            //    orderDetailRemaining.Where(od => od.ProductId == product.ProductId && od.RequiedNumber != 0);
-                            //    if (orderRemaining.Any()) {
-                            //        sp.HintProduction = DateTime.Now.AddDays(7) >
-                            //                            orderRemaining.FirstOrDefault().DueDate
-                            //                                ? 1
-                            //                                : 2;
-                            //        sp.HintProduction2 = sp.HintProduction;
-                            //        //1 red - 2 yellow
-                            //    }
-                            //}
-                            //if (sp.HintProduction == 0) {
-                            //    var orderInMonth =
-                            //        orderDetailInMonth.Where(
-                            //            od => od.ProductId == product.ProductId && od.RequiedNumber != 0);
-                            //    if (orderInMonth.Any()) {
-                            //        if (sp.SanXuat1 != 0) {
-                            //            day = (int)((sp.DonHangConLai - (sp.TonTong - sp.TonKhoCXL)) /
-                            //                         sp.SanXuat1);
-                            //        }
-                            //        else if (sp.Productivity != 0) {
-                            //            day = (int)((sp.DonHangConLai - (sp.TonTong - sp.TonKhoCXL)) /
-                            //                         MyUtilities.Product.GetProductionRateInFactoryDayTime(sp.Productivity));
-                            //        }
-                            //        if (DateTime.Now.AddDays(day) >
-                            //            orderInMonth.FirstOrDefault().DueDate)
-                            //            sp.HintProduction = DateTime.Now.AddDays(day) >
-                            //                                orderInMonth.FirstOrDefault()
-                            //                                            .DueDate.Value.AddDays(7)
-                            //                                    ? 1
-                            //                                    : 2;
-                            //        //1 red - 2 yellow
-                            //        if (sp.Production2Inv > 0) {
-                            //            var sections =
-                            //                productionSections.Where(ps => ps.ProductId == sp.ProductId);
-                            //            if (sections.Any()) {
-                            //                var productivity2 = sections.Sum(ps => ps.Productivity);
-                            //                if (productivity2 != 0) {
-                            //                    day =
-                            //                        (int)
-                            //                        ((sp.DonHangConLai -
-                            //                          (sp.TonTong - sp.TonKhoCXL - sp.Production2Inv)) /
-                            //                         28800 / productivity2);
-                            //                }
-                            //            }
-                            //            if (DateTime.Now.AddDays(day) > orderInMonth.FirstOrDefault().DueDate)
-                            //                sp.HintProduction2 = DateTime.Now.AddDays(day) >
-                            //                                     orderInMonth.FirstOrDefault()
-                            //                                                 .DueDate.Value.AddDays(7)
-                            //                                         ? 1
-                            //                                         : 2;
-                            //        }
-
-                            //    }
-
-                            //}
-                            //// to ton tong
-                            //if (sp.DonHangConLai > sp.TonTong) {
-                            //    sp.HintOrder = 1;//red
-                            //}
-                            //else if (sp.DonHangConLai + sp.DonHangThangKe > sp.TonTong)
-                            //    sp.HintOrder = 2; //yellow
-                            //}
-                            //else if ((sp.DonHangSauThangKe + sp.DonHangThangKe) > 0) {
-                            //    var orderNextMonth =
-                            //                  orderDetailNextMonth.Where(od => od.ProductId == product.ProductId && od.RequiedNumber != 0);
-                            //    if (orderNextMonth.Any()) {
-                            //        if ((sp.DonHangSauThangKe + sp.DonHangThangKe) - (sp.TonTong - sp.TonKhoCXL) > 0) {
-                            //            if (sp.SanXuat1 != 0) {
-                            //                day = (int)(((sp.DonHangSauThangKe + sp.DonHangThangKe) - (sp.TonTong - sp.TonKhoCXL)) /
-                            //                             sp.SanXuat1);
-                            //            }
-                            //            else if (sp.Productivity != 0) {
-                            //                day = (int)(((sp.DonHangSauThangKe + sp.DonHangThangKe) - (sp.TonTong - sp.TonKhoCXL)) /
-                            //                             (72000 / sp.Productivity));
-                            //            }
-                            //            sp.HintProduction = DateTime.Now.AddDays(day) >
-                            //                                orderNextMonth.FirstOrDefault().DueDate
-                            //                                    ? 5
-                            //                                    : 0;
-                            //        }
-                            //        if (sp.Production2Inv > 0 && (sp.DonHangSauThangKe + sp.DonHangThangKe) - (sp.TonTong - sp.TonKhoCXL - sp.Production2Inv) > 0) {
-                            //            var sections = productionSections.Where(ps => ps.ProductId == sp.ProductId);
-                            //            if (sections.Any()) {
-                            //                var productivity2 = sections.Sum(ps => ps.Productivity);
-                            //                if (productivity2 != 0) {
-                            //                    day =
-                            //                        (int)
-                            //                        (((sp.DonHangSauThangKe + sp.DonHangThangKe) - (sp.TonTong - sp.TonKhoCXL - sp.Production2Inv)) /
-                            //                         28800 / productivity2);
-                            //                }
-                            //            }
-                            //            sp.HintProduction2 = DateTime.Now.AddDays(day) >
-                            //                                orderNextMonth.FirstOrDefault().DueDate
-                            //                                    ? 5
-                            //                                    : 0;
-                            //        }
-                            //        //5 blue - 0 blank
-                            //    }
-                            //}
                         }
                         model.Add(sp);
                     }
@@ -9109,7 +9158,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectExpectedMaterialPlan(string materialcode, int month, int year, int monthCount) {
+        public ActionResult SelectExpectedMaterialPlan(string materialcode, int month, int year, int monthCount, bool isAll) {
             var model = new List<ExpectedMaterialPlanModel>();
             //var nextMonth = new DateTime(year, month, 1).AddMonths(2).AddSeconds(-1);
             //var reportDate = new DateTime(year, month, 1).AddMonths(1).AddSeconds(-1);
@@ -9212,6 +9261,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             var duplicateProduct = duplicateProducts.FirstOrDefault(x => x.MaterialIds.Contains(entity.MaterialId));
                             if (duplicateProduct != null) {
                                 entity.HasProductDuplicate = true;
+                            }
+                            model.Add(entity);
+                        }
+                        else if(isAll) {
+                            var entity = new ExpectedMaterialPlanModel {
+                                MaterialTypeName = material.MaterialTypeName,
+                                MaterialId = material.MaterialId,
+                                MaterialCode = material.MaterialCode,
+                                TotalInv = 0,
+                                TotalInvKg = 0,
+                                MonthCount = monthCount,
+                                HasProductDuplicate = false,
+                            };
+                            var po = pos.FirstOrDefault(x => x.MaterialId == material.MaterialId);
+                            if (po != null) {
+                                entity.OnPurchaseQuantity = po.Quantity;
+                            }
+                            var materialInv = materialInvs.FirstOrDefault(mi => mi.MaterialId == material.MaterialId);
+                            if (materialInv != null) {
+                                entity.TotalInvKg = materialInv.Quantity;
                             }
                             model.Add(entity);
                         }
@@ -15017,6 +15086,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         .Select(x => new {
                             x.OrderDetailId,
                             OrderQty = x.OrderQty ?? 0,
+                            x.UnitPrice,
                             x.RequiedNumber,
                             x.PONumber,
 
@@ -15134,6 +15204,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 foreach (var orderDetail in orderDetails) {
                     var entity = new DeliverySalesReportModel {
                         OrderDetailId = orderDetail.OrderDetailId,
+                        UnitPrice = orderDetail.UnitPrice,
                         ProductId = orderDetail.ProductId,
                         ProductCode = orderDetail.ProductCode,
 
@@ -15271,135 +15342,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
         }
 
         #endregion
-
-        [GridAction]
-        public ActionResult SelectToolYearlyReport(string toolName, int toolType, int year, int exportType) {
-            var model = new List<MaterialYearlyReportModel>();
-            if (year == 0)
-                return View(new GridModel(model));
-            try {
-                using (var vfi = new tammaContext()) {
-                    var tools = (from t in vfi.Tools
-                                where t.Active &&
-                                      (toolType == 0 || t.MaterialTypeId == toolType)
-                                select new {
-                                    t.ToolId,
-                                    t.ToolCode,
-                                    t.ToolFullCode,
-                                    t.ToolDesignNo,
-                                    t.ToolMaterial,
-                                    t.ToolProduction,
-                                    t.ToolTypeId,
-                                    t.MaterialType.MaterialTypeName
-                                }).ToList();
-                    if (!string.IsNullOrWhiteSpace(toolName)) {
-                        tools = tools.Where(t => t.ToolFullCode.Contains(toolName)).ToList();
-                    }
-                    var toolIds = tools.Select(t => t.ToolId);
-                    var imports = (from tip in vfi.ToolInventoryPeriods
-                                   where toolIds.Contains(tip.ToolId)
-                                         && tip.PeriodDate.Year == year &&
-                                         tip.LastQuantity > tip.EarlyQuantity
-                                   select new {
-                                       tip.ToolId,
-                                       IsPurchase = tip.TransactionFpt.PoId != null,
-                                       tip.PeriodDate.Month,
-                                       tip.Quantity,
-                                       tip.TransactionFpt.Type,
-                                       IsInternal = tip.TransactionFpt.IsInternal ?? false
-                                   }).ToList();
-                    var exports = (from tip in vfi.ToolInventoryPeriods
-                                   where toolIds.Contains(tip.ToolId)
-                                         && tip.PeriodDate.Year == year &&
-                                         tip.LastQuantity < tip.EarlyQuantity
-                                   select new {
-                                       tip.ToolId,
-                                       IsPurchase = tip.TransactionFpt.PoId != null,
-                                       tip.PeriodDate.Month,
-                                       tip.Quantity,
-                                       tip.TransactionFpt.Type,
-                                       IsInternal = tip.TransactionFpt.IsInternal ?? false
-                                   }).ToList();
-                    var toolInvs = (from ti in vfi.ToolInventories
-                                   where toolIds.Contains(ti.ToolId) &&
-                                         ti.TotalQuantity > 0
-                                   select ti).ToList();
-                    //var exports = (from ed in vfi.ExportToolDetails
-                    //               where ed.ExportTool.ExportDate.Value.Year == year &&
-                    //                     toolIds.Contains(ed.ToolInventory.ToolId) &&
-                    //                     ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                    //                     (exportType == 0 || ed.ExportTool.TransactionFpt.Type == exportType)
-                    //               select new {
-                    //                   ed.ToolInventory.ToolId,
-                    //                   ed.ExportTool.ExportDate.Value.Month,
-                    //                   ed.ExportTool.TransactionFpt.Type,
-                    //                   ed.Quantity,
-                    //                   IsInternal = ed.TransactionFptDetail.IsInternal ?? false
-                    //               }).ToList();
-
-                    foreach (var tool in tools) {
-                        var entity = new MaterialYearlyReportModel {
-                            MaterialId = tool.ToolId,
-                            MaterialName = tool.ToolCode,
-                            //MaterialCode = tool.ToolFullCode,
-                            MaterialCode = MyUtilities.Tool.GetFullToolDesign(tool.ToolDesignNo, tool.ToolMaterial, tool.ToolProduction),
-                            MaterialTypeId = tool.ToolTypeId,
-                            MaterialTypeName = tool.MaterialTypeName,
-                            Months = new List<MaterialMonthlyReportModel>()
-                        };
-                        var importsById = imports.Where(p => p.ToolId == entity.MaterialId).ToList();
-                        var exportsById = exports.Where(p => p.ToolId == entity.MaterialId).ToList();
-                        var toolInvsById = toolInvs.Where(ti => ti.ToolId == entity.MaterialId).ToList();
-                        entity.TotalInv = toolInvsById.Sum(ti => ti.TotalQuantity);
-                        //var emDestroyById = emDestroyInMonth.Where(em => em.MaterialId == entity.MaterialId).ToList();
-                        if (!importsById.Any() && !exportsById.Any()) continue;
-                        var months = new List<MaterialMonthlyReportModel>();
-                        for (int month = 1; month <= 12; month++) {
-                            var byMonth = new MaterialMonthlyReportModel {
-                                MaterialId = entity.MaterialId,
-                                Import = 0,
-                                ImportMore = 0,
-                                ExportUse = 0,
-                                ExportDestroy = 0
-                            };
-                            months.Add(byMonth);
-
-                            var importsInMonth = importsById.Where(p => p.Month == month).ToList();
-                            if (importsInMonth.Any()) {
-                                var periodsByParam = importsInMonth.Where(p => p.IsPurchase).ToList();
-                                byMonth.Import = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
-                                periodsByParam = importsInMonth.Where(p => !p.IsPurchase).ToList();
-                                byMonth.ImportMore = Math.Round(periodsByParam.Sum(period => period.Quantity), 1);
-                            }
-
-                            var exportsInMonth = exports.Where(p => p.ToolId == entity.MaterialId && p.Month == month).ToList();
-                            if (exportsInMonth.Any()) {
-                                var exportsParam = exportsInMonth.Where(p => p.Type != (int)MyUtilities.Tool.ExportType.Destroy).ToList();
-                                byMonth.ExportUse = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
-
-                                exportsParam = exportsInMonth.Where(p => p.Type == (int)MyUtilities.Tool.ExportType.Destroy).ToList();
-                                byMonth.ExportDestroy = Math.Round(exportsParam.Sum(e => e.Quantity), 1);
-                            }
-                        }
-                        var total = new MaterialMonthlyReportModel {
-                            Import = months.Sum(m => m.Import),
-                            ImportMore = months.Sum(m => m.ImportMore),
-                            ExportUse = months.Sum(m => m.ExportUse),
-                            ExportDestroy = months.Sum(m => m.ExportDestroy)
-                        };
-                        if (total.Import + total.ImportMore + total.ExportUse + total.ExportDestroy > 0) {
-                            entity.Months.Add(total);
-                            entity.Months.AddRange(months);
-                            model.Add(entity);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex) {
-                ModelState.AddModelError("SelectToolYearlyReport", ex.Message);
-            }
-            return View(new GridModel(model));
-        }
 
         #region planning
 
@@ -17865,7 +17807,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
 
         List<ProductionYearlyReportModel> GetProductionYearlyReport(string fromDate, string toDate) {
             var model = new List<ProductionYearlyReportModel>();
-            if (string.IsNullOrWhiteSpace(fromDate)) return model ;
+            if (string.IsNullOrWhiteSpace(fromDate)) return model;
             try {
                 var fDate = MyUtilities.Function.ParseDate(fromDate);
                 var tDate = MyUtilities.Function.ParseLastMonthTime(toDate);
@@ -17880,18 +17822,24 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         .Select(x => new {
                             x.ImportFormSX1.MaterialUseDate.Month,
                             x.ImportFormSX1.MaterialUseDate.Year,
-                            ProductKey = x.ProductId + "@@" + x.LotNumber,
+                            ProductId = x.ProductId,
+                            LotNumber = x.LotNumber,
+                            //ProductKey = x.ProductId + "@@" + x.LotNumber,
                             MaxQuantity = (x.MaterialUse1 + x.MaterialUse2) * x.ProductionRate,
                             GoodQuantity = x.Number1 + x.Number2,
                             NGQuantity = x.Processing1 + x.Processing2,
                             DefectQuantity = x.DefectProduct1 + x.DefectProduct2,
                         })
-                        .GroupBy(x => new { x.Year, x.Month, x.ProductKey, })
+                        .GroupBy(x => new { x.Year, x.Month, x.ProductId, x.LotNumber })
                         .OrderBy(x => x.Key)
                         .Select(x => new {
                             x.Key.Month,
                             x.Key.Year,
-                            x.Key.ProductKey,
+                            x.Key.ProductId,
+                            x.Key.LotNumber,
+                            ProductKey = x.Key.ProductId + "@@" + x.Key.LotNumber,
+                            //x.FirstOrDefault().ProductId,
+                            //x.FirstOrDefault().LotNumber,
                             MaxQuantity = x.Sum(y => y.MaxQuantity),
                             GoodQuantity = x.Sum(y => y.GoodQuantity),
                             NGQuantity = x.Sum(y => y.NGQuantity),
@@ -17899,34 +17847,45 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         })
                         .ToList();
 
+                    //var productKeys = productions.Select(x => x.ProductKey).Distinct().ToList();
+                    var productIds = productions.Select(x => x.ProductId).Distinct().ToList();
+                    var lotNumbers = productions.Select(x => x.LotNumber).Distinct().ToList();
                     var yearLot = fDate.ToString("yy");
                     var productPeriods = vfi.ProductInventoryPeriods
-                        .Where(x =>  x.LotNumber.StartsWith(yearLot)
-                            && x.EarlyPeriodQuantity > x.LastPeriodQuantity
+                        .Where(x => x.EarlyPeriodQuantity > x.LastPeriodQuantity
                             && x.Transaction.WarehouseIssueId != null && !x.Transaction.Warehouse.IsProduction
                             && x.Transaction.WarehouseReceiptId != null
                             && (x.Transaction.Warehouse1.IsReprocessing
                                 || x.Transaction.Warehouse1.IsDefect == true)
+                            && productIds.Contains(x.ProductId)
+                            && lotNumbers.Contains(x.LotNumber)
+                        //&& productKeys.Contains(x.ProductId + "@@" + x.LotNumber)
                         )
                         .Select(x => new {
                             ProductKey = x.ProductId + "@@" + x.LotNumber,
-                            WarehouseReceipt = new {
-                                IsReprocessing = x.Transaction.Warehouse1.IsReprocessing,
-                                IsDefect = x.Transaction.Warehouse1.IsDefect ?? false,
-                                //IsDestroy = x.Transaction.Warehouse1.IsDestroy ?? false,
-                            },
+                            //WarehouseReceipt = new {
+                            //    IsReprocessing = x.Transaction.Warehouse1.IsReprocessing,
+                            //    IsDefect = x.Transaction.Warehouse1.IsDefect ?? false,
+                            //    //IsDestroy = x.Transaction.Warehouse1.IsDestroy ?? false,
+                            //},
                             Quantity = x.Quantity,
                         })
-                        .GroupBy(x => new { x.ProductKey, x.WarehouseReceipt })
+                        //.Where(x => productKeys.Contains(x.ProductKey))
+                        .GroupBy(x => new {
+                            x.ProductKey,
+                            //x.WarehouseReceipt
+                        })
                         .Select(x => new {
                             x.Key.ProductKey,
-                            x.Key.WarehouseReceipt,
+                            //x.Key.WarehouseReceipt,
                             Quantity = x.Sum(y => y.Quantity),
                         })
                         .ToList();
                     var exportSales = vfi.TransactionDetails
-                        .Where(x => x.LotNumber.StartsWith(yearLot)
-                        && x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                        .Where(x => x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                            //&& productKeys.Contains(x.ReferenceId.Value + "@@" + x.LotNumber)
+                        && productIds.Contains(x.ReferenceId.Value)
+                        && lotNumbers.Contains(x.LotNumber)
                         && x.Transaction.WarehouseIssueId != null && x.Transaction.Warehouse.IsFinish
                         && x.Transaction.WarehouseReceiptId != null)
                         .Select(x => new {
@@ -17946,8 +17905,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         .ToList();
                     var returnSales = vfi.TransactionDetails
                         .Where(x => x.Transaction.OrderNotes.Any()
-                        && x.LotNumber.StartsWith(yearLot)
-                        && x.Transaction.Status == (byte) MyUtilities.Transaction.Status.Approved)
+                        && x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                        && productIds.Contains(x.ReferenceId.Value)
+                        && lotNumbers.Contains(x.LotNumber)
+                        //&& productKeys.Contains(x.ReferenceId.Value + "@@" + x.LotNumber)
+                        )
                         .Select(x => new {
                             ProductKey = x.ReferenceId.Value + "@@" + x.LotNumber,
                             Quantity = x.Quantity,
@@ -17965,7 +17927,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         };
                         var productionsById = productions.Where(x => x.Month == dateLoop.Month && x.Year == dateLoop.Year).ToList();
                         if (productionsById.Any()) {
-                            entity.ProductionQuantityMax = productionsById.Sum(x => x. MaxQuantity);
+                            entity.ProductionQuantityMax = productionsById.Sum(x => x.MaxQuantity);
                             entity.ProductionQuantity = productionsById.Sum(x => x.GoodQuantity);
                             entity.NGQuantity = productionsById.Sum(x => x.NGQuantity);
                             entity.DefectQuantity = productionsById.Sum(x => x.DefectQuantity);
@@ -18059,6 +18021,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 x.ProductId,
                                 Quantity = x.OrderQty ?? 0,
                                 LateOrder = x.InvoiceDetails.Any(y => y.Active && y.Invoice.ShipmentDate > x.Order.DueDate) ? 1 : 0,
+                                Ontime = x.InvoiceDetails.Where(y => y.Active && y.Invoice.ShipmentDate <= x.Order.DueDate)
+                                                        .Sum(y => (int?)y.Piece),
                                 //Price = (x.OrderQty ?? 0 * x.UnitPrice),
                             })
                             .GroupBy(x => new { x.Month, x.Year, x.ProductId })
@@ -18068,6 +18032,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 x.Key.ProductId,
                                 LateOrder = x.Count(),
                                 Quantity = x.Sum(y => y.Quantity),
+                                Ontime = x.Sum(y => y.Ontime) ?? 0,
                                 //Price = x.Sum(y => y.Price),
                             })
                             .ToList();
@@ -18125,6 +18090,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             entity.OrderQuantity = ordersById.Sum(x => x.Quantity);
                             entity.OrderProductCount = ordersById.Select(x => x.ProductId).Distinct().Count();
                             entity.OrderLateCount = ordersById.Where(x => x.LateOrder > 0).Select(x => x.ProductId).Distinct().Count();
+                            entity.OntimeDeliveryQuantity = ordersById.Sum(x => x.Ontime);
                             //entity.OrderPrice = ordersById.Sum(x => x.Price);
                         }
                         var forecastsById = forecasts.Where(x => x.Month == dateLoop.Month && x.Year == dateLoop.Year).ToList();
@@ -18136,6 +18102,129 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                 }
             return model;
+        }
+
+
+        [GridAction]
+        public ActionResult SelectSalesReportDetail(string fromDate, string toDate) {
+            return Json(GetSalesReportDetail(fromDate, toDate));
+        }
+
+        List<SalesReportModel> GetSalesReportDetail(string fromDate, string toDate) {
+            var model = new List<SalesReportModel>();
+            if (string.IsNullOrWhiteSpace(fromDate)) return model;
+            var fDate = MyUtilities.Function.ParseDate(fromDate);
+            var tDate = MyUtilities.Function.ParseLastMonthTime(toDate);
+            //if (fDate.AddMonths(13) < tDate) {
+            //    tDate = fDate.AddYears(1).AddSeconds(-1);
+            //}
+            using (var vfi = new tammaContext()) {
+                //var exportSales = vfi.TransactionDetails
+                //        .Where(x => x.Transaction.CreatedDate >= fDate && x.Transaction.CreatedDate <= tDate
+                //            && x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
+                //            && x.Transaction.WarehouseIssueId != null && x.Transaction.Warehouse.IsFinish
+                //            && x.Transaction.WarehouseReceiptId != null)
+                //        .Select(x => new {
+                //            x.Transaction.CreatedDate.Month,
+                //            x.Transaction.CreatedDate.Year,
+                //            x.Transaction.TransactionCode,
+                //            Quantity = x.Quantity,
+                //        })
+                //        .Join(vfi.ExportFormTP_KD, x => x.TransactionCode, y => y.TransactionCode, (x, y) => new {
+                //            x.Month,
+                //            x.Year,
+                //            Quantity = x.Quantity,
+                //        })
+                //        .GroupBy(x => new { x.Month, x.Year })
+                //        .Select(x => new {
+                //            x.Key.Month,
+                //            x.Key.Year,
+                //            Quantity = x.Sum(y => y.Quantity),
+                //        })
+                //        .ToList();
+                var orders = vfi.OrderDetails
+                        .Where(x => x.Order.Status != (byte)MyUtilities.Sales.Status.Cancel
+                            && x.OrderQty > 0
+                            && x.Order.DueDate != null
+                            && x.Order.DueDate >= fDate && x.Order.DueDate < tDate)
+                        .Select(x => new {
+                            x.Order.DueDate.Value.Month,
+                            x.Order.DueDate.Value.Year,
+                            x.ProductId,
+                            x.Order.Customer.CustomerCode,
+                            Quantity = x.OrderQty ?? 0,
+                            UnitPrice = x.UnitPrice,
+                            LateOrder = x.InvoiceDetails.Any(y => y.Active && y.Invoice.ShipmentDate > x.Order.DueDate) ? 1 : 0,
+                            Ontime = x.InvoiceDetails.Where(y => y.Active && y.Invoice.ShipmentDate <= x.Order.DueDate && y.Piece > 0)
+                                                    .Sum(y => (int?)y.Piece),
+                            Return = x.InvoiceDetails.Where(y => y.Active && y.Piece < 0)
+                                                    .Sum(y => (int?)y.Piece),
+                            ReturnCount = x.InvoiceDetails.Count(y => y.Active && y.Piece < 0),
+                            //Price = (x.OrderQty ?? 0 * x.UnitPrice),
+                        })
+                        .GroupBy(x => new { x.CustomerCode })
+                        .Select(x => new {
+                            x.Key.CustomerCode,
+                            LateOrder = x.Count(),
+                            Quantity = x.Sum(y => y.Quantity),
+                            TotalPrice = x.Sum(y => y.Quantity * y.UnitPrice),
+                            Ontime = x.Sum(y => y.Ontime) ?? 0,
+                            OntimePrice = x.Sum(y => y.Ontime * y.UnitPrice) ?? 0,
+                            Return = x.Sum(y => y.Return) ?? 0,
+                            ReturnCount = x.Sum(y => y.ReturnCount),
+                            //Price = x.Sum(y => y.Price),
+                        })
+                        .ToList();
+                //var forecasts = vfi.ForecastOrders
+                //        .Where(x => x.Status != (byte)MyUtilities.Sales.Status.Cancel
+                //            && x.Quantity > 0
+                //            && x.ForecastDate >= fDate && x.ForecastDate < tDate)
+                //        .Select(x => new {
+                //            x.ForecastDate.Month,
+                //            x.ForecastDate.Year,
+                //            Quantity = x.Quantity,
+                //        })
+                //        .GroupBy(x => new { x.Month, x.Year })
+                //        .Select(x => new {
+                //            x.Key.Month,
+                //            x.Key.Year,
+                //            Quantity = x.Sum(y => y.Quantity),
+                //        })
+                //        .ToList();
+
+                //var returnSales = vfi.TransactionDetails
+                //    .Where(x => x.Transaction.OrderNotes.Any()
+                //    && x.Transaction.CreatedDate >= fDate && x.Transaction.CreatedDate < tDate
+                //    && x.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved)
+                //    .Select(x => new {
+                //        x.Transaction.CreatedDate.Month,
+                //        x.Transaction.CreatedDate.Year,
+                //        TransactionId = x.TransactionId.Value,
+                //        Quantity = x.Quantity,
+                //    })
+                //    .GroupBy(x => new { x.Month, x.Year })
+                //    .Select(x => new {
+                //        x.Key.Month,
+                //        x.Key.Year,
+                //        Count = x.Count(),
+                //        Quantity = x.Sum(y => y.Quantity),
+                //    })
+                //    .ToList();
+                foreach (var order in orders) {
+                    var entity = new SalesReportModel {
+                        Month = order.CustomerCode,
+                        OrderQuantity = order.Quantity,
+                        OrderPrice = order.TotalPrice,
+                        OntimeDeliveryQuantity = order.Ontime,
+                        OntimeDeliveryPrice = order.OntimePrice,
+                        ReturnQuantity = order.Return,
+                        ReturnCount = order.ReturnCount,
+                    };
+                    model.Add(entity);
+                }
+
+            }
+            return model.OrderBy(x => x.Month).ToList();
         }
 
         [GridAction]

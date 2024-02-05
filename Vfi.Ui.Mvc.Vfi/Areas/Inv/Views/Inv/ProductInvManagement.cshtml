@@ -197,13 +197,15 @@
                 if (customerId == 0)
                     customerId = 0;
 
+                var isGroup = $("input[name='chkGroup']").attr('checked');
                 args.data = $.extend(args.data, {
                     customerId: customerId,
                     warehouseId: warehouseReceiptForPeriod,
                     productCode: productCodeNameForPeriod,
                     lotnumber: lot,
                     fromDate: fromDate, //$.telerik.formatString('{0:dd/MM/yyyy}', fromDate),
-                    toDate: toDate//$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
+                    toDate: toDate, //$.telerik.formatString('{0:dd/MM/yyyy}', toDate )
+                    isGroup: isGroup,
                 });
             }
         }
@@ -621,7 +623,12 @@
                     Làm mới
                 </button>
             </div>
-    
+            <div class="grid_3">
+                <label>
+                    <input type="checkbox" id="chkGroup" name="chkGroup" checked />
+                    Gọp số liệu
+                </label>
+            </div>
         </fieldset>
     </div>
     <div class="clear"></div>
@@ -643,7 +650,7 @@
 .DataKeys(keys => keys.Add(f => f.TransactionDetailId).RouteKey("transactionDetailId"))
                 .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectProductInventoryPeriodByCustomerAndWarehouse", "Inv",
-                                                                 new {customerId = 0, warehouseId = 0}))
+                                                                 new {customerId = 0, warehouseId = 0, isGroup = false}))
                 .Columns(columns =>
                     {
 

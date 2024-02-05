@@ -117,11 +117,13 @@
             var workOrder = $("#WorkOrder").data('tComboBox').value();
             if (workOrder === "") workOrder = 0;
             var productWeight = $("#ProductWeight").data("tTextBox").value();
+            var multiple = $("#Multiple").data("tTextBox").value();
             e.data = $.extend(e.data, {
                 routingId: workOrder,
                 productWeight: productWeight,
                 packageWeight: 0,
-                quantity: quantity
+                quantity: quantity,
+                multiple: multiple
             });
             quantity = 0;
             destroyQuantity = 0;
@@ -391,6 +393,21 @@
                     .Render();
             }
         </div>
+        
+        <div class="grid_0_5">x
+            </div>
+        <div class="grid_1">
+            @{
+                Html.Telerik().NumericTextBox()
+                    .Name("Multiple")
+                    .MinValue(1)
+                    .DecimalDigits(0)
+                    .Value(1)
+                    .Spinners(false)
+                    .InputHtmlAttributes(new { style = "text-align:right; width:100%;" })
+                    .Render();
+            }
+        </div>
         <div class="grid_2">
             <button class="t-button" id="btnAdd" name="btnDisConnect" onclick=" Add() ">
                 <span class='t-icon t-insert'></span>
@@ -483,7 +500,7 @@
             })
             .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
-                .Select("SelectWorkOrderPackingProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0, packageWeight = 0, quantity = 0 })
+                .Select("SelectWorkOrderPackingProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0, packageWeight = 0, quantity = 0, multiple= 1 })
                 //.Update("ImportWorkOrderPackingProcess", "WorkOrder", new { area = "Factory", productWeight = 0 })
                 )
             .Columns(columns => {

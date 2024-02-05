@@ -6,10 +6,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
     <script type="text/javascript">
 
         function materialClassified_OnChange() {
             var classified = $('#MaterialClassifiedName').data('tDropDownList').value();
+            var vendor = $('#VendorCodeName').data('tComboBox');
+            //RefreshCombobox('VendorCodeName');
+            //RefreshDropDownList('VendorCodeName');
+            //RefreshGrid("grid");
             $.ajax({
                 type: 'post',
                 data: { classified: classified },
@@ -17,6 +22,7 @@
                 url: '@Url.Action("SelectComboBoxVendorByClassified", "PurchaseOrder", new { area = "Purchasing" })',
                 timeout: 20000,
                 success: function (data) {
+                    vendor.dataBind(data);
                     RefreshGrid("grid");
                 }
             });
@@ -34,7 +40,7 @@
             var classified = $("#MaterialClassifiedName").data("tDropDownList").value();
             if (classified === "")
                 classified = 0;
-            var vendor = $("#VendorCodeName").data("tDropDownList").value();
+            var vendor = $("#VendorCodeName").data("tComboBox").value();
             if (vendor === "")
                 vendor = 0;
 
@@ -66,6 +72,13 @@
             }
         }
 
+        function vendor_OnChange() {
+            RefreshGrid("grid");
+        }
+        function status_OnChange() {
+            RefreshGrid("grid");
+        }
+
         function vendorGrid_OnDataBinding(e) {
             e.data = $.extend(e.data, {
                 classified: classifiedId,
@@ -76,67 +89,74 @@
 
     <script type="text/javascript">
         function printInquiryForm() {
+            
+            if (!onProcessing) {
+                OnProcessingData();
+                var $checkedRecords = $("input[name='chkIds']:checked")
 
-            var $checkedRecords = $("input[name='chkIds']:checked")
+                if ($checkedRecords.length < 1) {
+                    alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                    return;
+                }
 
-            if ($checkedRecords.length < 1) {
-                alert("Vui lọn chọn ít nhất 1 sản phẩm");
-                return;
+                var a = {};
+                var ids = "";
+
+                for (var i = 0; i < $checkedRecords.length; i++) {
+                    if ($checkedRecords[i] === "0") continue;
+                    a[i] = $checkedRecords[i].value;
+
+                    ids += $checkedRecords[i].value;
+                    if (i < ($checkedRecords.length - 1))
+                        ids += ":";
+                }
+                //alert(ids);
+                $('#result').load('@Url.Action("PrintInquiryForm", "PurchaseOrder", new { area = "Purchasing" })',
+                    {
+                        ids: ids,
+                    }, function () {
+                        OnProcessedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
             }
-
-            var a = {};
-            var ids = "";
-
-            for (var i = 0; i < $checkedRecords.length; i++) {
-                if ($checkedRecords[i] === "0") continue;
-                a[i] = $checkedRecords[i].value;
-
-                ids += $checkedRecords[i].value;
-                if (i < ($checkedRecords.length - 1))
-                    ids += ":";
-            }
-            //alert(ids);
-            $('#result').load('@Url.Action("PrintInquiryForm", "PurchaseOrder", new { area = "Purchasing" })',
-                {
-                    ids: ids,
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
             return false;
         }
 
-        function printTransform() {
+        function transformToPO() {
+            if (!onProcessing) {
+                OnProcessingData();
+                var $checkedRecords = $("input[name='chkIds']:checked")
 
-            var $checkedRecords = $("input[name='chkIds']:checked")
-
-            if ($checkedRecords.length < 1) {
-                alert("Vui lọn chọn ít nhất 1 sản phẩm");
-                return;
-            }
-
-            var a = {};
-            var ids = "";
-
-            for (var i = 0; i < $checkedRecords.length; i++) {
-                if ($checkedRecords[i] === "0") continue;
-                a[i] = $checkedRecords[i].value;
-
-                ids += $checkedRecords[i].value;
-                if (i < ($checkedRecords.length - 1))
-                    ids += ":";
-            }
-            $.ajax({
-                type: 'post',
-                data: { ids: ids },
-                dataType: 'json',
-                url: '@Url.Action("TransformToPo", "PurchaseOrder", new { area = "Purchasing" })',
-                timeout: 20000,
-                success: function (data) {
-                    alert(data);
-                    RefreshGrid("grid");
+                if ($checkedRecords.length < 1) {
+                    alert("Vui lọn chọn ít nhất 1 sản phẩm");
+                    return;
                 }
-             });
+
+                var a = {};
+                var ids = "";
+
+                for (var i = 0; i < $checkedRecords.length; i++) {
+                    if ($checkedRecords[i] === "0") continue;
+                    a[i] = $checkedRecords[i].value;
+
+                    ids += $checkedRecords[i].value;
+                    if (i < ($checkedRecords.length - 1))
+                        ids += ":";
+                }
+                $.ajax({
+                    type: 'post',
+                    data: { ids: ids },
+                    dataType: 'json',
+                    url: '@Url.Action("TransformToPo", "PurchaseOrder", new { area = "Purchasing" })',
+                    timeout: 20000,
+                    success: function (data) {
+                        alert(data);
+                        RefreshGrid("grid");
+                        OnProcessedData();
+                    }
+                });
+            }
         }
     </script>
 
@@ -173,12 +193,12 @@
         </div>
         <div class="grid_6">
             @{
-                Html.Telerik().DropDownList()
+                Html.Telerik().ComboBox()
                     .Name("VendorCodeName")
                     //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxMaterialVendor", "Vendor"))
                     .HtmlAttributes(new { style = "width: 175px" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
-                    //.ClientEvents(e => e.OnChange("vendor_OnChange"))
+                    .ClientEvents(e => e.OnChange("vendor_OnChange"))
                     .Render();                                              
             }
         </div>
@@ -202,6 +222,7 @@
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxInquiryStatus", "PurchaseOrder", new { area = "Purchasing" }))
                     .HtmlAttributes(new { style = "width: 150px" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
+                    .ClientEvents(e => e.OnChange("status_OnChange"))
                     .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
@@ -217,10 +238,7 @@
             <button class="t-button" id="btnPrintForm" name="btnPickupId" onclick=" printInquiryForm() ">
                 <span class='t-icon t-insert'></span>
                 In Phiếu Yêu Cầu
-            </button>
-            <button class="t-button" id="btnTransform" name="btnPickupId" onclick=" printTransform() ">
-                <span class='t-icon t-insert'></span>
-                Chuyển thành mua hàng
+                <span class="processButton"></span>
             </button>
 
         </div>
@@ -234,9 +252,21 @@
         Html.Telerik().Grid<InquiryPoModel>()
             .Name("grid")
             .DataKeys(keys => keys.Add(f => f.InquiryId).RouteKey("inquiryId"))
+            
+            .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_9">
+            <button class="t-button" id="btnTransform" name="btnPickupId" onclick=" transformToPO() ">
+                <span class='t-icon t-insert'></span>
+                Chuyển thành mua hàng
+                <span class="processButton"></span>
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
             .DataBinding(dataBindings => dataBindings.Ajax()
-                .Select("SelectInquiryPo", "PurchaseOrder", new
-                {
+                .Select("SelectInquiryPo", "PurchaseOrder", new {
                     classified = 0,
                     type = 0,
                     vendorId = 0,
@@ -244,23 +274,20 @@
                     fromDate = "",
                     toDate = ""
                 })
-                .Update("UpdateInquiryPo", "PurchaseOrder", new
-                {
+                .Update("UpdateInquiryPo", "PurchaseOrder", new {
                     classified = 0,
                     type = 0,
                     vendorId = 0,
                     status = 0,
                 })
-                .Delete("CancelInquiryPo", "PurchaseOrder", new
-                {
+                .Delete("CancelInquiryPo", "PurchaseOrder", new {
                     classified = 0,
                     type = 0,
                     vendorId = 0,
                     status = 0,
                 })
             )
-            .Columns(columns =>
-            {
+            .Columns(columns => {
                 columns.Bound(f => f.InquiryId).Title("Chọn").Width(50).ReadOnly(true)
                     .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= InquiryId #>' />")
                     .HtmlAttributes(new { style = "text-align:center" });
@@ -274,7 +301,7 @@
                 columns.Bound(f => f.ReferenceName).Width(100).Title("Tên").ReadOnly(true);
                 columns.Bound(f => f.ReferenceCode).Width(170).Title("Mã").ReadOnly(true);
                 columns.Bound(f => f.Unit).Width(50).Title("ĐVT");
-                
+
                 columns.Bound(f => f.Currency).Width(70).Title("Tiền tệ");
                 columns.Bound(f => f.OrderQty).Width(70).Title("SL")
                     .HtmlAttributes(new { style = "text-align: right;" })
@@ -286,8 +313,8 @@
                 columns.Bound(f => f.UnitPrice).Width(100).Title("ĐG")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .ClientTemplate("<#= UnitPriceStr #>");
-                
-                
+
+
                 columns.Bound(f => f.Price).Width(100).Title("TT").ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
@@ -315,6 +342,7 @@
             )
             .Groupable(group => group.Groups(g => g.Add(model => model.ClassifiedName)))
             .Scrollable(f => f.Height("auto"))
+            .Sortable()
             .Filterable()
             .Resizable(resizing => resizing.Columns(true))
             .Footer(true)

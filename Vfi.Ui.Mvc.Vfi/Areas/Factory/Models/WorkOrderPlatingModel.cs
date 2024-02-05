@@ -47,6 +47,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double ImportPrice { get; set; }
         public double Price { get; set; }
         public List<WorkOrderPlatingDetailModel> Details { get; set; }
+
+        public double NGQuantity { get; set; }
+        public double DefectQuantity { get; set; }
     }
 
     public class WorkOrderPlatingDetailModel {

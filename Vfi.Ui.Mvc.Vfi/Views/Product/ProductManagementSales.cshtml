@@ -170,6 +170,7 @@
             var customer = $("#Customer").data("tComboBox").value();
             if (customer === "")
                 customer = 0;
+            //var productCodeName2 = $("#ProductCodeName").data("tAutoComplete");
             var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
             var productName = $("#ProductName").data("tAutoComplete").value();
             args.data = $.extend(args.data, {
@@ -244,7 +245,7 @@
             var editRow = document.getElementsByClassName("t-grid-edit-row")[0];
             var ul2D = editRow.childNodes[2].childNodes[1].childNodes[1];
             if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
-                drawing2D = e.dataItem.Upload2D;
+                drawing2D = e.dataItem?.Upload2D;
             } else {
                 var child2D = ul2D.childNodes;
                 for (i = child2D.length - 1; i >= 0; i--) {
@@ -256,7 +257,7 @@
                 }
             }
             var drawing = "";
-            var ulReal = editRow.childNodes[3].childNodes[1].childNodes[1];
+            var ulReal = editRow.childNodes[3]?.childNodes[1]?.childNodes[1];
             if (ulReal == null && e.Upload === "" || typeof ulReal == 'undefined') {
                 drawing = drawing2D;
             } else {
@@ -280,7 +281,7 @@
                 message += "\nSẽ dùng hình mặc định !";
                 message += "\nĐồng ý lưu ??";
                 if (confirm(message)) {
-                    
+                    return true;
                 };
             } else {
                 return true;
@@ -497,6 +498,8 @@
                             .AutoFill(true)
                             .HighlightFirstMatch(true)
                             .Value("")
+                            //.Multiple(multi => multi.Enabled(true).Separator(", "))
+
                             //.ClientEvents(events => events.OnClose("ProductCodeName_OnClose"))
                             .Render();
                     }

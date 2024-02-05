@@ -735,7 +735,7 @@
                     .HtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.FirstUseDateString).Width(90).ReadOnly(true)
                     .HeaderTemplate("Bắt đầu</br>sử dụng");
-                columns.Bound(f => f.EndUseDateString).Width(90).ReadOnly(true)
+                columns.Bound(f => f.EndUseDateString).Width(90)
                     .HeaderTemplate("Ngày cuối</br>sử dụng");
             })
             

@@ -197,6 +197,10 @@
             //        )
             //        .ToHtmlString()))
             .Selectable()
+            .Reorderable(f => f.Columns(true))
+            .Sortable()
+            .Groupable()
+            .Filterable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
                 .OnError("grid_OnError"))

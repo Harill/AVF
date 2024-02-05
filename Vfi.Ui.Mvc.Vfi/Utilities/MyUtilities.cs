@@ -11,6 +11,8 @@ using System.Web;
 using System.Data.Entity.Validation;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Core;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
@@ -138,6 +140,64 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 public int Value { get; set; }
                 public string Text { get; set; }
             }
+
+            public static string MyHash(string text) {
+                Encoding enc = Encoding.ASCII;
+                byte[] buffer = enc.GetBytes(text);
+
+                var crypto = new SHA256CryptoServiceProvider();
+                byte[] hash = crypto.ComputeHash(buffer);
+
+                return Encoding.Unicode.GetString(hash);
+            }
+            const long MUST_BE_LESS_THAN = 10000000000; // 10 decimal digits
+
+            public static long GetStableHash(string s) {
+                uint hash = 0;
+                // if you care this can be done much faster with unsafe 
+                // using fixed char* reinterpreted as a byte*
+                foreach (byte b in System.Text.Encoding.Unicode.GetBytes(s)) {
+                    hash += b;
+                    hash += (hash << 10);
+                    hash ^= (hash >> 6);
+                }
+                // final avalanche
+                hash += (hash << 3);
+                hash ^= (hash >> 11);
+                hash += (hash << 15);
+                // helpfully we only want positive integer < MUST_BE_LESS_THAN
+                // so simple truncate cast is ok if not perfect
+                return (long)(hash % MUST_BE_LESS_THAN);
+            }
+
+            public static string Base64Encode(string plainText) {
+                var plainTextBytes = System.Text.Encoding.Unicode.GetBytes(plainText);
+                return System.Convert.ToBase64String(plainTextBytes);
+            }
+            public static string Base64Decode(string base64EncodedData) {
+                //var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+                //return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+
+                byte[] base64SingleBytes = Convert.FromBase64String(base64EncodedData);
+                return System.Text.Encoding.Unicode.GetString(base64SingleBytes);
+            }
+            //public static string GetStableDeHash(long s) {
+            //    uint hash = 0;
+            //    // if you care this can be done much faster with unsafe 
+            //    // using fixed char* reinterpreted as a byte*
+            //    foreach (byte b in System.Text.Decoder.GetBytes(s)) {
+            //        hash += b;
+            //        hash += (hash << 10);
+            //        hash ^= (hash >> 6);
+            //    }
+            //    // final avalanche
+            //    hash += (hash << 3);
+            //    hash ^= (hash >> 11);
+            //    hash += (hash << 15);
+            //    // helpfully we only want positive integer < MUST_BE_LESS_THAN
+            //    // so simple truncate cast is ok if not perfect
+            //    return (long)(hash % MUST_BE_LESS_THAN);
+            //}
         }
 
         #endregion

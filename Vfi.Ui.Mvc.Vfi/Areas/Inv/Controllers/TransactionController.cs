@@ -561,27 +561,37 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             var time = DateTime.Now;
             var value = 0.0;
             if (!string.IsNullOrWhiteSpace(signal)) {
-                var data = signal.Split('k').ToList();
-                if (data.Any()) {
-                    var valueStr = data[0];
-                    //var valueStr = "";
-                    //if (data.Count > 1) {
-                    //    valueStr = data[1];
-                    //}
-                    //else {
-                    // valueStr = data[0];
-                    //}
-                    try {
-                        //MyUtilities.Function.SaveLog(contentPath(), "ConvertSignal", "signal/convert: " + valueStr);
-                        if (!string.IsNullOrWhiteSpace(valueStr) && !errorStrs.Contains(valueStr)) {
-                            value = Convert.ToDouble(valueStr);
+                if (signal.Contains("kg")) {
+                    var data = signal.Split('k').ToList();
+                    if (data.Any()) {
+                        var valueStr = data[0];
+                        try {
+                            if (!string.IsNullOrWhiteSpace(valueStr) && !errorStrs.Contains(valueStr)) {
+                                value = Convert.ToDouble(valueStr);
+                            }
                         }
-                        //MyUtilities.Function.SaveLog(contentPath(), "ConvertSignal", "signal/converted: " + value);
+                        catch (FormatException ex) {
+                            MyUtilities.Function.SaveLog("ConvertSignal", "signal/error: " + ex.Message);
+                        }
+                    }
+                }
+                else if (signal.Contains('g')) {
+                    var data = signal.Split('g').ToList();
+                    if (data.Any()) {
+                        var valueStr = data[0];
+                        try {
+                            if (!string.IsNullOrWhiteSpace(valueStr) && !errorStrs.Contains(valueStr)) {
+                                value = Convert.ToDouble(valueStr) / 1000;
+                            }
+                        }
+                        catch (FormatException ex) {
+                            MyUtilities.Function.SaveLog("ConvertSignal", "signal/error: " + ex.Message);
+                        }
+                    }
 
-                    }
-                    catch (FormatException ex) {
-                        MyUtilities.Function.SaveLog("ConvertSignal", "signal/error: " + ex.Message);
-                    }
+                }
+                else {
+                    MyUtilities.Function.SaveLog("ConvertSignal", "signal/no match: " + signal);
                 }
             }
             return value;
@@ -2215,7 +2225,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 productInventories.Add(invIssue);
                             }
                             if (invIssue.ErrorId != null)
-                                invIssue.ExportDate = transaction.CreatedDate;
+                                invIssue.ExportDate = DateTime.Now;
                             var lastPeriodQuantity = invIssue.TotalQty - transactionDetail.Quantity;
                             if ((lastPeriodQuantity + 2) < 0) {
                                 if (checkInventory)
@@ -7023,6 +7033,52 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(model.OrderByDescending(f => f.CreatedDate)));
         }
 
+        public ActionResult CreateRollbackTransactionMaterial(long transactionId) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var transaction = vfi.Transactions.FirstOrDefault(x => x.TransactionId == transactionId); 
+                    if (transaction == null) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.NotFound,
+                            "",
+                            0));
+                    }
+                    if (transaction.Status != (byte)MyUtilities.Transaction.Status.Approved) {
+                        return Json(new MyUtilities.Monitor.MyJsonResult(
+                            (int)MyUtilities.Monitor.ErrorCode.StatusChanged,
+                            "Phiếu chưa duyệt không thể trả phiếu",
+                            0));
+                    }
+                    if (transaction.IsInternal == true) {
+                    }
+                    if (transaction.EoI == Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export).ToString()) {
+                        if (transaction.IsInternal != true) {
+                            return Json(new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.NotImplement,
+                                "Chưa xử lý phát nguyên liệu",
+                                0));
+                        }
+                    }
+                    var result = RollbackMaterialInventory(transactionId);
+                    if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
+                        return Json(result);
+                    }
+                    transaction.Status = (byte)MyUtilities.Transaction.Status.Open;
+                    var saved = vfi.SaveChanges();
+
+                    return Json(new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError,
+                        "",
+                        saved));
+                }
+            }
+            catch (Exception ex) {
+                return Json(new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.Exception,
+                    ex.Message,
+                    0));
+            }
+        }
         public ActionResult CreateRollbackTransaction(long transactionId) {
             try {
                 using (var vfi = new tammaContext()) {
@@ -7094,6 +7150,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 0));
                         }
                     }
+
                     var result = RollbackProductInventory(transactionId);
                     if (result.Code != (int)MyUtilities.Monitor.ErrorCode.NoError) {
                         return Json(result);
@@ -7146,6 +7203,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     saved);
             }
         }
+
+        MyUtilities.Monitor.MyJsonResult RollbackMaterialInventory(long transactionId) {
+            using (var vfi = new tammaContext()) {
+                var periods = vfi.MaterialInventoryPeriods.Where(x => x.TransactionId == transactionId);
+                if (!periods.Any()) {
+                    return new MyUtilities.Monitor.MyJsonResult(
+                        (int)MyUtilities.Monitor.ErrorCode.NoError, "", 0);
+                }
+                var invIds = periods.Select(x => x.MaterialInventoryId).Distinct().ToList();
+                var invs = vfi.MaterialInventories.Where(x => invIds.Contains(x.MaterialInventoryId));
+                foreach (var period in periods) {
+                    var inv = invs.FirstOrDefault(x => x.MaterialInventoryId == period.MaterialInventoryId);
+                    if (period.LastPeriodQuantity > period.EarlyPeriodQuantity) {
+                        if (inv.TotalQty < period.Quantity) {
+                            return new MyUtilities.Monitor.MyJsonResult(
+                                (int)MyUtilities.Monitor.ErrorCode.ReferenceError, "Lỗi! Tồn kho không đủ để trả phiếu", 0);
+                        }
+                        inv.TotalQty -= period.Quantity;
+                    }
+                    else {
+                        inv.TotalQty += period.Quantity;
+                    }
+                }
+                vfi.MaterialInventoryPeriods.RemoveRange(periods);
+                var saved = vfi.SaveChanges();
+                return new MyUtilities.Monitor.MyJsonResult(
+                    (int)MyUtilities.Monitor.ErrorCode.NoError,
+                    "",
+                    saved);
+            }
+        }
+
 
         [GridAction]
         public ActionResult UpdateTransactions(TransactionModel update) {

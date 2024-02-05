@@ -285,6 +285,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double Cnc2Daily { get; set; }
         public double ForecastPoint { get; set; }
         public double OrderPoint { get; set; }
+        public double OrderRemainingPoint { get; set; }
         public double ProductionInMonthPoint { get; set; }
         public double ProductionMonthly { get; set; }
         public double CamesMonthly { get; set; }
@@ -373,6 +374,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double Productivity2 { get; set; }
         public double ProductionPrice { get; set; }
         public double ProductionPriceInMonth { get; set; }
+        public double DefectPrice { get; set; }
+        public double DefectPriceInMonth { get; set; }
         public string InMonthString { get; set; }
         public string NextMonthString { get; set; }
         public string ProcessingType { get; set; }

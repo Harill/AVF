@@ -23,6 +23,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public int Status { get; set; }
         public string StatusName { get; set; }
 
+        public int WorkOrderId { get; set; }
         public int WorkOrderCount { get; set; }
         public double TotalInv { get; set; }
 

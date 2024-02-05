@@ -263,6 +263,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     if (string.IsNullOrWhiteSpace(insertModel.DefectCode) || string.IsNullOrWhiteSpace(insertModel.DefectName) || typeId == 0 || productId == 0) {
                         throw new AggregateException("Lỗi giá trị nhập | DefectCode | DefectName | Type | Product");
                     }
+                    var entity = vfi.ProductionDefects.FirstOrDefault(x => x.ProductId == productId
+                                                                        && x.DefectTypeId == typeId
+                                                                        && x.DefectName.Equals(insertModel.DefectName.Trim()));
+                    if (entity != null) {
+                        throw new AggregateException("Giá trị nhập đã tồn tại !" + insertModel.DefectCode.Trim());
+                    }
                     var newM = new ProductionDefect {
                         Active = true,
                         ModifiedUser = HttpContext.User.Identity.Name,
@@ -309,6 +315,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             productId = Convert.ToInt32(updateModel.ProductCode);
                         }
                         catch (FormatException) { }
+                    }
+                    var entity = vfi.ProductionDefects.FirstOrDefault(x => x.DefectId != updateModel.DefectId
+                                                                        && x.ProductId == productId
+                                                                        && x.DefectTypeId == typeId
+                                                                        && x.DefectName.Equals(updateModel.DefectName.Trim()));
+                    if (entity != null) {
+                        throw new AggregateException("Giá trị nhập đã tồn tại !" + updateModel.DefectCode.Trim());
                     }
                     var isUse = vfi.DefectTransactionDetails.Any(x => x.DefectId == update.DefectId);
                     var isManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.TechicalManagerLv1);
@@ -1414,13 +1427,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var model = new List<DefectGroupReportModel>();
             try {
                 using (var vfi = new vfiContext()) {
-                    var ci = new CultureInfo("vi-VN");
-                    var fDate = DateTime.Today;
-                    if (!string.IsNullOrWhiteSpace(fromDate))
-                        fDate = Convert.ToDateTime(fromDate, ci);
-                    var tDate = DateTime.Today;
-                    if (!string.IsNullOrWhiteSpace(toDate))
-                        tDate = Convert.ToDateTime(toDate, ci);
+                    var fDate = MyUtilities.Function.ParseDate(fromDate);
+                    var tDate = MyUtilities.Function.ParseDateTime(toDate);
+
                     var transactions = (from x in vfi.DefectTransactions
                                         where x.Status != (byte)MyUtilities.Transaction.Status.Cancel
                                             && x.CreateDate >= fDate

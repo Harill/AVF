@@ -20,3 +20,14 @@ C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core
 C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.CrossCutting\obj\Debug\Vfi.Server.Core.CrossCutting.csprojResolveAssemblyReference.cache
 C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.CrossCutting\obj\Debug\Vfi.Server.Core.CrossCutting.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.CrossCutting\obj\Debug\Vfi.Server.Core.CrossCutting.pdb
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core.CrossCutting.dll
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core.CrossCutting.pdb
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Microsoft.Practices.Unity.dll
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\obj\Debug\Vfi.Server.Core.CrossCutting.csprojResolveAssemblyReference.cache
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\obj\Debug\Vfi.Server.Core.CrossCutting.dll
+C:\workspace\vfi\Vfi.Server.Core.CrossCutting\obj\Debug\Vfi.Server.Core.CrossCutting.pdb

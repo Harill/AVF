@@ -268,6 +268,9 @@
                                         ).ToHtmlString()))
 
             .Selectable()
+            .Sortable()
+            .Groupable()
+            .Filterable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
                 .OnDataBinding("grid_OnDataBinding")

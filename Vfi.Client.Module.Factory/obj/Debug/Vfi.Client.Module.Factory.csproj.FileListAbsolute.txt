@@ -56,3 +56,14 @@ C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Server.Core.Dat
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Server.Core.Repository.pdb
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Factory\obj\Debug\Vfi.Client.Module.Factory.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Client.Module.Factory\obj\Debug\Vfi.Client.Module.Factory.pdb
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Client.Module.Factory.dll
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Client.Module.Factory.pdb
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Microsoft.Practices.Unity.dll
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Microsoft.Practices.ServiceLocation.dll
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\workspace\vfi\Vfi.Client.Module.Factory\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\workspace\vfi\Vfi.Client.Module.Factory\obj\Debug\Vfi.Client.Module.Factory.csprojResolveAssemblyReference.cache
+C:\workspace\vfi\Vfi.Client.Module.Factory\obj\Debug\Vfi.Client.Module.Factory.dll
+C:\workspace\vfi\Vfi.Client.Module.Factory\obj\Debug\Vfi.Client.Module.Factory.pdb

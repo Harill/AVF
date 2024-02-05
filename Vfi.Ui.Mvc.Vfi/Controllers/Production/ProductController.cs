@@ -2279,6 +2279,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         SectionId = section.ProductionSectionId,
                         SectionName = section.Section.SectionName,
                         SectionCost = section.Section.SaleFactor * section.Productivity,
+                        Weight = section.Weight,
                         UpdateDate = section.UpdateDate ?? DateTime.Now,
                         UpdateUser = section.UpdateUser,
                         Description = section.Description,

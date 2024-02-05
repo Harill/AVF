@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models;
 using Vfi.Ui.Mvc.Vfi.Models.Production;
+using Vfi.Ui.Mvc.Vfi.Utilities;
 
 namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
     public class MaterialInvShelfDiagramModel {
@@ -17,7 +18,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public string AdditionName { get; set; }
         public string RowCode { get { return RowName + ShelfName; } }
         public string DrawerCode { get { return RowName + ShelfName + "-" + ColumnName + AdditionName; } }
-        
         public List<MaterialInvShelfDiagramDetailModel> Details { get; set; }
     }
 
@@ -35,6 +35,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public string ReferenceCode { get; set; }
         public int ReferenceInvId { get; set; }
         public string ReferenceInvCode { get; set; }
+        public string ReferenceFullCode { get { return ReferenceCode + ReferenceInvCode + LotNumber; } }
+        public string ReferenceHashCode { get { return MyUtilities.MySystem.Base64Encode(ReferenceFullCode); } }
         public string LotNumber { get; set; }
         public string OwnerName { get; set; }
         public double UnitWeight { get; set; }
@@ -54,6 +56,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
 
         public string MaterialStateCode { get; set; }
         public string MaterialStateColor { get; set; }
+        public string ShelfBarcode { get; set; }
     }
 
     public class MaterialInvShelfDiagramColumnModel {

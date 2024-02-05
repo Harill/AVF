@@ -1078,6 +1078,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         var detail = new MaterialInvShelfDiagramDetailModel { };
                                         var materialInvsById = materialInvs.FirstOrDefault(x => x.MaterialInventoryId == onShelf.ReferenceInvId);
                                         if (materialInvsById != null) {
+                                            detail.ShelfBarcode = materialInvsById.ShelfBarcode;
                                             detail.ReferenceInvId = materialInvsById.MaterialInventoryId;
                                             detail.ReferenceCode = materialInvsById.MaterialName;
                                             detail.ReferenceInvCode = MyUtilities.Material.GetMaterialDesignNo(materialInvsById.OutDiameter,

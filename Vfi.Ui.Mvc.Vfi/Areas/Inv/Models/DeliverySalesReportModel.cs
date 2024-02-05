@@ -8,6 +8,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public DeliverySalesReportModel() {
             Details = new List<DeliverySalesReportDetailModel>();
             Productions = new List<ProductionSalesReportDetailModel>();
+            UnitPrice = 0;
         }
         public string CustomerCode { get; set; }
         public int ProductId { get; set; }
@@ -15,17 +16,21 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public string ProductCode { get; set; }
 
         public long OrderDetailId { get; set; }
+        public double UnitPrice { get; set; }
         public string OrderNumber { get; set; }
         public string CustomerPO { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime DueDate { get; set; }
 
         public double OrderQuantity { get; set; }
+        public double OrderPrice { get { return OrderQuantity * UnitPrice; } }
         public double TotalInv { get; set; }
         public double FinishInv { get; set; }
 
         public double Deliveried { get; set; }
+        public double DeliveriedPrice { get { return Deliveried * UnitPrice; } }
         public double Remaining { get { return OrderQuantity - Deliveried; } }
+        public double RemainingPrice { get { return Remaining * UnitPrice; } }
 
         public DateTime? LastShippedDate { get; set; }
         public double ShippingQuantity { get; set; }

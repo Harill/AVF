@@ -52,9 +52,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ImportNcu { get; set; }
         public double ImportCxl1 { get; set; }
         public double ImportQc { get; set; }
+        public double ImportInternal { get; set; }
         public double ImportElse {
             get {
-                return TotalImport - ImportSx1 - ImportCnc - ImportSx2 - ImportRb - ImportNcu - ImportQc - ImportCxl1;
+                return TotalImport 
+                    - ImportSx1 - ImportCnc - ImportSx2 
+                    - ImportRb - ImportNcu - ImportQc 
+                    - ImportCxl1 - ImportInternal;
             }
         }
 
@@ -67,9 +71,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ExportDefect { get; set; }
         public double ExportPacking { get; set; }
         public double ExportFinish { get; set; }
+        public double ExportInternal { get; set; }
         public double ExportElse {
             get {
-                return TotalExport - ExportCxl1 - ExportQc - ExportSx2 - ExportGcn - ExportPacking - ExportFinish - ExportDefect;
+                return TotalExport
+                    - ExportSx2 - ExportGcn
+                    - ExportPacking - ExportFinish
+                    - ExportCxl1 - ExportQc 
+                    - ExportDefect - ExportInternal;
             }
         }
 

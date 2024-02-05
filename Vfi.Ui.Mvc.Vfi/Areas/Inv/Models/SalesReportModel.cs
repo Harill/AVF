@@ -19,5 +19,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
 
         public double ReturnCount { get; set; }
         public double ReturnQuantity { get; set; }
+
+        public double OntimeDeliveryQuantity { get; set; }
+        public double OntimeDeliveryPrice { get; set; }
+        public double OntimeDeliveryPercent {
+            get {
+                return OrderQuantity > 0 ? OntimeDeliveryQuantity / OrderQuantity * 100 : 0;
+            }
+        }
+
     }
 }

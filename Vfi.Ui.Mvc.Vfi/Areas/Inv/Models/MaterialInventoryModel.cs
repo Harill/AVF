@@ -44,6 +44,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double OutDiameter { get; set; }
         public double InDiameter { get; set; }
         public string DiameterType { get; set; }
+
+        [DataType("Number0")]
         public double Length { get; set; }
 
         public DateTime FirstUseDate { get; set; }
@@ -161,6 +163,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ProductionDiff { get; set; }
         public double MaterialWorkpiece { get; set; }
         public double Require { get; set; }
+        public string ShelfBarcode { get { return string.Format("{0:0000000000}", MaterialInventoryId); } }
     }
 
     public class ProductionMaterialMachine

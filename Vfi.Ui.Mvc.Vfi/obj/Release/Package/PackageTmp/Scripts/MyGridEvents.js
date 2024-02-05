@@ -32,6 +32,12 @@ function RefreshCombobox(name) {
     cbo.value("");
 }
 function RefreshDropDownList(name) {
+    var cbo = $('#' + name).data("tDropDownList");
+    cbo.reload();
+    cbo.text("");
+    cbo.value("");
+}
+function RefreshDropDownList(name) {
     $('#' + name).data("tDropDownList").reload();
 }
 function grid_OnRowSelect(e) {
@@ -66,6 +72,8 @@ function grid_OnError(args) {
             }
         });
         args.preventDefault();
+        OnProcessedData();
+        OnLoadedData();
         alert(message);
     }
     OnLoadedData();

@@ -606,6 +606,12 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptBarcode.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptBarcode.Designer.cs">
+      <DependentUpon>RptBarcode.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptWorkOrderAVF.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1313,6 +1319,7 @@
     <Compile Include="Models\WorkOrderRouting1.cs" />
     <Compile Include="Utilities\MyPrintService.cs" />
     <Compile Include="Utilities\MyWeighingService.cs" />
+    <Content Include="Areas\Factory\Views\WorkOrder\PageBarcode.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrderAVF.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOMaterialUse.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrder.aspx" />
@@ -3045,6 +3052,13 @@
     <Content Include="Areas\Factory\Views\WorkOrder\EditorTemplates\_PlatingUnitTemplate.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderPlatingImport.cshtml" />
     <Content Include="Areas\Factory\Views\Machine\MachineCard.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCNCApprovement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCNCConfirmation.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCNCManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCNCProcess.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderMaterialScanCode.cshtml" />
+    <Content Include="Areas\Inv\Views\Transaction\ImportTransactionMaterial.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderFinishManagement.cshtml" />
     <None Include="Utilities\weighingvalue.json" />
     <Content Include="Logs\read.txt" />
     <Content Include="Resources\lock.png" />
@@ -3831,6 +3845,9 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptBarcode.resx">
+      <DependentUpon>RptBarcode.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptWorkOrderAVF.resx">
       <DependentUpon>RptWorkOrderAVF.cs</DependentUpon>
     </EmbeddedResource>

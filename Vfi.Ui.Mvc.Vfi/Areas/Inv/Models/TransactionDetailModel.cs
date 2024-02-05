@@ -28,12 +28,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         [DisplayName(@"Trọng lượng")]
         public virtual double UnitWeight { get; set; }
 
-        //public int WarehouseIssueId { get; set; }
+        public int WarehouseIssueId { get; set; }
         [DisplayName(@"Kho xuất")]
         public string WarehouseIssueName { get; set; }
-        //public int WarehouseReceiptId { get; set; }
+        //public string WarehouseIssueSetting { get; set; }
+        public int WarehouseReceiptId { get; set; }
         [DisplayName(@"Kho nhập")]
         public string WarehouseReceiptName { get; set; }
+        //public string WarehouseIssueSetting { get; set; }
 
         [DisplayName(@"Ngày báo cáo")]
         public DateTime PeriodDate { get; set; }

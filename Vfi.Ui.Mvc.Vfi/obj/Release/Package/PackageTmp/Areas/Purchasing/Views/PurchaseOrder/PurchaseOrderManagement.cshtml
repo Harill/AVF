@@ -128,11 +128,13 @@
                 if (classified == '') {
                     classified = 0;
                 }
+                var inquiryNumber = $("#InquiryNumber").data("tAutoComplete").value();
                 $('#result').load('@Url.Action("PrintPurchaseOrderTracking", "PurchaseOrder", new { area = "Purchasing" })',
                     {
                         classifiedId: classified,
                         fromDate: fromDate,
-                        toDate: toDate
+                        toDate: toDate,
+                        inquiryNumber: inquiryNumber,
                     }, function () {
                         OnLoadedData();
                         var window = $('#windowReport').data('tWindow');

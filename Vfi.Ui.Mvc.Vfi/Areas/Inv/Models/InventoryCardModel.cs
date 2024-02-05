@@ -19,12 +19,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public double InventoryStart { get; set; }
         //public double InventoryStartKg { get { return InventoryStart*Weight; } }
         public double ImportProduction { get; set; }
+        public double ProcessProduction { get; set; }
         public double ImportVirtual { get; set; }
         public double ImportInternal { get; set; }
-        public double ImportProcessing { get; set; }
+        public double ProductionProcessing { get; set; }
+        public double ProcessProcessing { get; set; }
+        public double TotalProcessing { get { return ProductionProcessing + ProcessProcessing; } }
         public double SendBack { get; set; }
         public double TotalImport {
-            get { return ImportProduction + ImportVirtual + ImportInternal + ImportProcessing + SendBack; }
+            get { return ImportProduction + ImportVirtual + ImportInternal + SendBack; }
         }
         public double ExportSell { get; set; }
         public double ExportDestroy { get; set; }
@@ -41,14 +44,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
         public bool Show {
             get {
                 return TotalImport + Math.Abs(TotalExport) +
-                        Order + Forecast +
-                        ProcessCNC + ProcessProduction2 + ProcessProcessing > 0;
+                       Order + Forecast +
+                       ProcessProduction + ProcessCNC + ProcessProduction2 + TotalProcessing > 0;
             }
         }
         public double Order { get; set; }
         public double ProcessCNC { get; set; }
         public double ProcessProduction2 { get; set; }
-        public double ProcessProcessing { get; set; }
 
         public double Forecast { get; set; }
         public string LotNumber { get; set; }

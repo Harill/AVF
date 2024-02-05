@@ -1,0 +1,455 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model WorkOrderRoutingModel
+@{
+    ViewBag.Title = "Phát nguyên liệu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .fieldheader {
+        /*height: 150px;*/
+        padding-left: 15px;
+        padding-right: 15px;
+        float: left;
+    }
+
+    .fieldheader1 {
+        width: 35%;
+        min-width: 420px;
+        margin-right: 10px;
+    }
+
+    .fieldheader2 {
+        width: 20%;
+        margin-right: 10px;
+    }
+
+    .fieldheader3 {
+        width: 35%;
+    }
+</style>
+@section Scripts{
+    <!-- grid Monthly -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            loadEmployeeLogin();
+            clearWorkOrderInfo();
+            document.getElementById("RoutingSerial").focus();
+        });
+
+        function loadEmployeeLogin() {
+            $.ajax({
+                type: 'post',
+                data: {},
+                dataType: 'json',
+                url: '@Url.Action("GetComboBoxEmployeeLogin", "Employee", new { area = "Sales" })',
+                timeout: 20000,
+                success: function (data) {
+                    //a
+                    var cbo = $('#Employee').data('tComboBox');
+                    cbo.dataBind(data);
+                    if (cbo.selectedIndex > -1) {
+
+                        var selected = cbo.data[cbo.selectedIndex];
+
+                        if (selected != undefined) {
+                            cbo.value(selected.Value);
+                            cbo.text(selected.Text);
+                            cbo.selectedIndex = cbo.selectedIndex;
+                            cbo.previousValue = selected.Value;
+                        } else {
+                            cbo.value(-1);
+                            cbo.text("");
+                        }
+                    } else {
+                        cbo.value(-1);
+                        cbo.text("");
+                    }
+                }
+            });
+        }
+
+        @*        function grid_OnDataBinding(e) {
+            if (routingId > 0) {
+                e.data = $.extend(e.data, {
+                    routingId: routingId,
+                });
+            }
+        }
+
+        function saveProcess() {
+            $.ajax({
+                type: 'post',
+                data: { },
+                dataType: 'json',
+                url: '@Url.Action("CreateAssignWorkOrderMaterial", "WorkOrder", new { area = "Factory" })',
+                    timeout: 20000,
+                    success: function (res) {
+                        if (res.Code === 1) {
+                            alert("Đã lưu " + res.Data);
+                            if (res.Message && res.Message != "") {
+                                alert(res.Message);
+                            }
+                            ClearData();
+                            RefreshCombobox("WorkOrder");
+                            RefreshGrid("grid");
+                        } else {
+                            alert("Lỗi! " + res.Message);
+                        }
+                        OnProcessedData();
+                    }
+            });
+        }
+
+
+        function grid_OnSubmitChanges(e) {
+            if (!onProcessing) {
+                OnProcessingData();
+                var workOrder = $("#WorkOrder").data('tComboBox').value();
+                if (workOrder === "") workOrder = 0;
+                var employee = $("#Employee").data('tComboBox').value();
+                if (employee === "") employee = 0;
+                var productWeight = $("#ProductWeight").data("tTextBox").value();
+                if (employee === 0 || productWeight == 0) {
+                    alert("Vui lòng điền đủ thông tin: nhân viên, trọng lượng SP");
+                    OnProcessedData();
+                    e.preventDefault();
+                }
+                else {
+                    e.values = $.extend(e.values,
+                        {
+                            routingId: workOrder,
+                            employeeId: employee,
+                            machineId: 0,
+                            productWeight: productWeight,
+                        });
+                }
+            } else {
+                e.preventDefault();
+            }
+        }
+
+        function grid_OnDataBound() {
+            OnProcessedData();
+            clearWorkOrderInfo();
+            clearMaterialInvInfo();
+            document.getElementById("RoutingSerial").focus();
+        }
+        function grid_OnRowDataBound(e) {
+            if (e.dataItem.DiffQuantity < 0) {
+                e.row.lastChild.bgColor = 'orange';
+            }
+        }*@
+    </script>
+
+    <script>
+
+        var materialInvId = 0;
+        var plannedCost = 0;
+        var routingId = 0;
+        function workOrderOnChange() {
+            var routingSerial = $("#RoutingSerial").val();
+            //alert(routingSerial);
+            $.ajax({
+                type: 'post',
+                data: { serialNumber: routingSerial },
+                dataType: 'json',
+                url: '@Url.Action("CheckWorkOrderRoutingInfoBySerialNumber", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    //OnLoadedData();
+                    if (res.Code === 1) {
+                        routingId = res.Data.RoutingId;
+                        $("#ProductCode")[0].innerText = res.Data.ProductCode;
+
+                        $("#RoutingName")[0].innerText = res.Data.RoutingName;
+                        $("#NextRouteName")[0].innerText = res.Data.NextRouteName;
+
+                        $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
+                        plannedCost = res.Data.PlannedCost;
+                        materialInvId = res.Data.MaterialInvId;
+                        routingId = res.Data.RoutingId;
+                        clearMaterialInvInfo();
+                        document.getElementById("MaterialInvCode").focus();
+                        //OnLoadedData();
+                    } else {
+                            var audio = new Audio('https://docs.google.com/uc?export=download&id=11VRt5QgoJC3_Rd9oya-0WxJIoLAp3Byb');
+                        audio.play();
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });
+        }
+        function materialInvOnChange() {
+            var materialInvCode = $("#MaterialInvCode").val();
+            $.ajax({
+                type: 'post',
+                data: { serialNumber: materialInvCode },
+                dataType: 'json',
+                url: '@Url.Action("CheckMaterialInventory", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    //OnLoadedData();
+                    if (res.Code === 1) {
+                        $("#MaterialCode")[0].innerText = res.Data.MaterialCode;
+                        $("#MaterialLot")[0].innerText = res.Data.LotNumber;
+                        $("#MaterialInvQuantity")[0].innerText = res.Data.TotalQty.format(2);
+                        $("#MaterialInvKg")[0].innerText = res.Data.TotalQtyKg.format(2);
+                        if (res.Data.MaterialInventoryId === materialInvId) {
+                            if (res.Data.TotalQty <= plannedCost) {
+                                var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
+                                audio.play();
+                                alert("Lỗi! Nguyên liệu không đủ tồn kho");
+                            } else {
+                                //alert("Chúc mừng bạn đã làm đúng gòi");
+                                clearWorkOrderInfo();
+                                var employee = $('#Employee').data('tComboBox').value();
+                                if (employee === "") {
+                                    employee = 0;
+                                }
+                                $.ajax({
+                                    type: 'post',
+                                    data: {
+                                        ids: routingId,
+                                        employeeId: employee,
+                                    },
+                                    dataType: 'json',
+                                    url: '@Url.Action("AssignMaterialWorkOrders", "WorkOrder", new { area = "Factory" })',
+                                    timeout: 20000,
+                                    success: function (res) {
+                                        if (res.Code === 1) {
+                                            //alert("Hoàn thành lưu " + res.Data);
+                                            var audio = new Audio('https://docs.google.com/uc?export=download&id=1dMAgUiI2HYNPE3hCXL5ba3ySqTfPZGyS');
+                                            audio.play();
+                                            document.getElementById("RoutingSerial").focus();
+                                        } else {
+                                            alert(res.Message);
+                                        }
+                                        OnProcessedData();
+                                    }
+                                });
+                            }
+                        }
+                        else {
+                            var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
+                            audio.play();
+                            alert("Sai nguyên liệu sử dụng trong của Work Order");
+                            document.getElementById("MaterialInvCode").focus();
+                            document.getElementById("MaterialInvCode").setSelectionRange(0, materialInvCode.length);
+                        }
+                    } else {
+                        var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
+                        audio.play();
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });
+            //alert(materialInvCode);
+        }
+    </script>
+
+    <script>
+        function clearWorkOrderInfo() {
+            document.getElementById("RoutingSerial").value = '';
+            $("#ProductCode")[0].innerText = '~~';
+            $("#RoutingName")[0].innerText = '~~';
+            $("#NextRouteName")[0].innerText = '~~';
+            $("#WorkOrderQuantity")[0].innerText = '0';
+            plannedCost = 0;
+            materialInvId = 0;
+            routingId = 0;
+            clearMaterialInvInfo();
+        }
+        function clearMaterialInvInfo() {
+            document.getElementById("MaterialInvCode").value = '';
+            $("#MaterialCode")[0].innerText = '~~';
+            $("#MaterialLot")[0].innerText = '~~';
+            $("#MaterialInvQuantity")[0].innerText = '0';
+            $("#MaterialInvKg")[0].innerText = '0';
+        }
+    </script>
+}
+
+<div class="title">Phát nguyên liệu Work Order</div>
+
+<div class="grid_2">Nhân viên</div>
+<div class="grid_4">
+    @{
+        Html.Telerik().ComboBox()
+            .Name("Employee")
+            //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployeeLogin", "Employee", new { area = "Sales" }).Delay(350))
+            .HtmlAttributes(new { style = "width: 100%" })
+            //.DropDownHtmlAttributes(new { style = "width: 150px" })
+            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+            .HighlightFirstMatch(true)
+            .AutoFill(true)
+            .Render();
+    }
+</div>
+<div class="clear"></div>
+<br />
+
+<div class="t-info-sha fieldheader fieldheader1">
+    <fieldset>
+        <legend>Thông tin Work Order</legend>
+        <div class="grid_2_5">
+            Số Work Order
+        </div>
+        <div class="grid_6">
+            @Html.TextBoxFor(f => f.RoutingSerial, new { style = "color: maroon;", @onchange = "workOrderOnChange();" })
+        </div>
+        <div class="grid_3_5">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshCombobox('WorkOrder'); ">
+                <span class='t-icon t-refresh'></span>
+                <span class="loadButton"></span>
+            </button>
+        </div>
+        <div class="clear"></div>
+        <div class="grid_12">
+            <div class="grid_2">
+                Sản phẩm
+            </div>
+            <div class="grid_4" style="font-size: large;">
+                <span id="ProductCode">~~</span>
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                Công đoạn
+            </div>
+            <div class="grid_3">
+                <span id="RoutingName">~~</span>
+            </div>
+            <div class="grid_2">
+                CĐ kế
+            </div>
+            <div class="grid_3">
+                <span id="NextRouteName">~~</span>
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                Kế hoạch:
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="WorkOrderQuantity">0</span> (cây)
+            </div>
+            <div class="clear"></div>
+            <br />
+
+        </div>
+    </fieldset>
+</div>
+
+<div class="t-info-sha fieldheader fieldheader3">
+    <fieldset>
+        <legend>Thông tin nguyên liệu</legend>
+        <div class="grid_2_5">Số nguyên liệu</div>
+        <div class="grid_4">
+            @Html.TextBoxFor(f => f.MaterialInvCode, new { style = "color: maroon;", @onchange = "materialInvOnChange();" })
+        </div>
+        <div class="clear"></div>
+        <div class="clear"></div>
+        <br />
+        <div class="grid_2">
+            Nguyên liệu
+        </div>
+        <div class="grid_8" style="font-size: large;">
+            <span id="MaterialCode">~~</span>
+        </div>
+        <div class="clear"></div>
+        <br />
+        <div class="grid_2">
+            Lô
+        </div>
+        <div class="grid_8" style="font-size: large;">
+            <span id="MaterialLot">~~</span>
+        </div>
+        <div class="clear"></div>
+        <br />
+        <div class="grid_2">
+            Tồn kho
+        </div>
+        <div class="grid_8" style="font-size: large;">
+            <span id="MaterialInvQuantity">0</span> cây | 
+            <span id="MaterialInvKg">0</span> kg
+        </div>
+        <br />
+    </fieldset>
+</div>
+
+@*<div class="t-info-sha fieldheader fieldheader2">
+    <fieldset>
+        <legend>Thông tin sản xuất</legend>
+        <div class="grid_2">Nhân viên</div>
+        <div class="grid_4">
+            @{
+                Html.Telerik().ComboBox()
+                    .Name("Employee")
+                    //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployeeLogin", "Employee", new { area = "Sales" }).Delay(350))
+                    .HtmlAttributes(new { style = "width: 100%" })
+                    //.DropDownHtmlAttributes(new { style = "width: 150px" })
+                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .HighlightFirstMatch(true)
+                    .AutoFill(true)
+                    .Render();
+            }
+        </div>
+    </fieldset>
+</div>*@
+
+<div class="clear"></div>
+<br />
+
+@*<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("grid")
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
+            .ToolBar(bar => bar.Template(
+        @<text>
+        <div class="grid_9">
+            <button class="t-button" id="btnSaveProcess" name="btnSaveProcess" onclick=" SaveProcess() ">
+                <span class='t-icon t-insert'></span>
+                Lưu nhập liệu
+                <span class="processButton"></span>
+            </button>
+        </div>
+        <div class="clear"></div>
+        </text>
+))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectAssignWorkOrderMaterial", "WorkOrder", new { area = "Factory", routingId = 0 })
+                .Update("CreateAssignWorkOrderMaterial", "WorkOrder", new { area = "Factory", productWeight = 0 })
+                .Delete("DeleteAssignWorkOrderMaterial", "WorkOrder", new { area = "Factory" })
+                )
+            .Columns(columns => {
+                columns.Bound(f => f.SerialNumber).Title("Work Order").Width(100).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(150).ReadOnly(true);
+                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(270).ReadOnly(true);
+                columns.Bound(f => f.PlannedCost).Title("Số lượng</br>(cây)").Width(70).ReadOnly(true);
+                columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
+                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy").Width(50);
+            })
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .ClientEvents(events => events
+                .OnDataBinding("grid_OnDataBinding")
+                //.OnSave("grid_OnSave")
+                .OnDataBound("grid_OnDataBound")
+                //.OnRowDataBound("grid_OnRowDataBound")
+                //.OnSubmitChanges("grid_OnSubmitChanges")
+                .OnError("grid_OnError")
+            )
+            .KeyboardNavigation()
+            .Render();   
+    }
+</div>*@
+
+<div class="clear"></div>
+<br />

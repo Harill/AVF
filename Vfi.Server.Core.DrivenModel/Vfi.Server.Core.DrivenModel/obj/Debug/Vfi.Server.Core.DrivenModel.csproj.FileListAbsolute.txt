@@ -47,3 +47,13 @@ C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\EntityFramework.SqlServer.xml
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Debug\Vfi.Server.Core.DrivenModel.dll
 C:\workspace\Vfi_new\Vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Debug\Vfi.Server.Core.DrivenModel.pdb
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\Vfi.Server.Core.DrivenModel.dll.config
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\Vfi.Server.Core.DrivenModel.dll
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\Vfi.Server.Core.DrivenModel.pdb
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\EntityFramework.dll
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\EntityFramework.SqlServer.dll
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\EntityFramework.xml
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\bin\Debug\EntityFramework.SqlServer.xml
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Debug\Vfi.Server.Core.DrivenModel.csprojResolveAssemblyReference.cache
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Debug\Vfi.Server.Core.DrivenModel.dll
+C:\workspace\vfi\Vfi.Server.Core.DrivenModel\Vfi.Server.Core.DrivenModel\obj\Debug\Vfi.Server.Core.DrivenModel.pdb

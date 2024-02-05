@@ -280,8 +280,11 @@
                                             //.Pageable(page => page.PageSize(10))
                                             .ToHtmlString())
                                         ).ToHtmlString()))
-                                                          
+
             .Selectable()
+            .Sortable()
+            .Filterable()
+            .Groupable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
                 .OnDataBinding("grid_OnDataBinding")

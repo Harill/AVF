@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <parameters>
   <parameter name="VfiEntities-Web.config Connection String" description="VfiEntities Connection String used in web.config by the application to access the database." defaultValue="metadata=res://*/vfi.csdl|res://*/vfi.ssdl|res://*/vfi.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=.;Initial Catalog=vfi;persist security info=True;user id=sa;password=sa123;multipleactiveresultsets=True;application name=EntityFramework&quot;" tags="SqlConnectionString">
-    <parameterEntry kind="XmlFile" scope="C:\\Workspace\\vfi-sync\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='VfiEntities']/@connectionString" />
+    <parameterEntry kind="XmlFile" scope="C:\\workspace\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='VfiEntities']/@connectionString" />
   </parameter>
   <parameter name="vfiContext-Web.config Connection String" description="vfiContext Connection String used in web.config by the application to access the database." defaultValue="Data Source=.;Initial Catalog=vfi;Persist Security Info=True;User ID=sa;Password=sa123;MultipleActiveResultSets=True" tags="SqlConnectionString">
-    <parameterEntry kind="XmlFile" scope="C:\\Workspace\\vfi-sync\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='vfiContext']/@connectionString" />
+    <parameterEntry kind="XmlFile" scope="C:\\workspace\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='vfiContext']/@connectionString" />
   </parameter>
   <parameter name="ApplicationServices-Web.config Connection String" description="ApplicationServices Connection String used in web.config by the application to access the database." defaultValue="Data Source=.;Initial Catalog=vfi;Integrated Security=True;User ID=sa;Password=sa123;MultipleActiveResultSets=True" tags="SqlConnectionString">
-    <parameterEntry kind="XmlFile" scope="C:\\Workspace\\vfi-sync\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='ApplicationServices']/@connectionString" />
+    <parameterEntry kind="XmlFile" scope="C:\\workspace\\vfi\\Vfi\.Ui\.Mvc\.Vfi\\obj\\Release\\Package\\PackageTmp\\Web\.config$" match="/configuration/connectionStrings/add[@name='ApplicationServices']/@connectionString" />
   </parameter>
 </parameters>

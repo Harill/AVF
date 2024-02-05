@@ -1030,7 +1030,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                             if (tool == null)
                                                 throw new AggregateException("Lỗi! Không tìm thấy công cụ");
                                             detail.PoDetailName = tool.ToolName;
-                                            detail.PoDetailDesign = tool.ToolDesignNo + "-" + tool.ToolMaterial;
+                                           // detail.PoDetailDesign = tool.ToolDesignNo + "-" + tool.ToolMaterial;
+                                            detail.PoDetailDesign = tool.ToolFullCode;
 
                                             var transactionToolFirsts = imports.Where(x => x.PoId == purchaseOrder.PurchaseOrderId
                                                                                         && x.FptId == poDetail.ReferenceId
@@ -1088,6 +1089,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                         }
                                         detail.InquiryStatus = MyUtilities.PurchaseOrder.GetInquiryTrackingStatusName(inquiry.Status);
                                     }
+                                    else if (!string.IsNullOrWhiteSpace(inquiryNumber)) continue;
+
                                     if (detail.ImportDetails.Any())
                                         entity.Details.Add(detail);
                                 }
@@ -1106,6 +1109,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                                 || x.Status == (byte)MyUtilities.PurchaseOrder.InquiryEnum.Approved)
                                             && (x.DueDate == null || x.DueDate.Value <= tDate)
                                             && (classifiedId == 0 || x.ClasstifiedId == classifiedId)
+                                            orderby x.InquiryNumber
                                             select new {
                                                 x.Status,
                                                 InquiryNumber = x.InquiryNumber + "",
@@ -1129,15 +1133,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         };
                         model.Insert(0, group);
                         var index = 1;
-                        var inquiriesVendors = pendingInquiries.Select(x => new { x.VendorId, x.VendorName }).Distinct().ToList();
-                        foreach (var vendor in inquiriesVendors) {
+                        //var inquiriesVendors = pendingInquiries.Select(x => new { x.VendorId, x.VendorName }).Distinct().ToList();
+                        foreach (var inquiry in pendingInquiries) {
                             var entity = new PoTracking {
-                                VendorId = vendor.VendorId ?? 0,
-                                VendorName = vendor.VendorName,
+                                VendorId = inquiry.VendorId ?? 0,
+                                VendorName = inquiry.VendorName,
                             };
                             group.List.Add(entity);
-                            var inquiriesById = pendingInquiries.Where(x => x.VendorId == vendor.VendorId).ToList();
-                            foreach (var inquiry in inquiriesById) {
+                            //var inquiriesById = pendingInquiries.Where(x => x.VendorId == vendor.VendorId).ToList();
+                            //foreach (var inquiry in inquiriesById) {
                                 var detail = new PoTrackingDetail {
                                     Currency = (inquiry.Currency + "").Trim(),
                                     Quantity = inquiry.OrderQty,
@@ -1196,10 +1200,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                         if (tool == null)
                                             throw new AggregateException("Lỗi! Không tìm thấy công cụ");
                                         detail.PoDetailName = tool.ToolName;
-                                        detail.PoDetailDesign = tool.ToolDesignNo + "-" + tool.ToolMaterial;
+                                        //detail.PoDetailDesign = tool.ToolDesignNo + "-" + tool.ToolMaterial;
+                                        detail.PoDetailDesign = tool.ToolFullCode;
                                         break;
                                 }
-                            }
+                            //}
                         }
                     }
                 }
@@ -4205,7 +4210,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
             using (var vfi = new tammaContext()) {
                 var platingForm = vfi.PlatingForms.FirstOrDefault(pf => pf.FormId == formId);
-                var exportDetails = from ed in vfi.ExportGCN_NCUDetail
+                var exportDetails = (from ed in vfi.ExportGCN_NCUDetail
                                     where
                                         ed.ExportGCN_NCU.PlatingFormId == formId &&
                                         ed.ExportGCN_NCU.Transaction.Status == (byte)MyUtilities.Transaction.Status.Approved
@@ -4213,8 +4218,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                         ed.RealNumber,
                                         ed.PlatingDetailId,
                                         Weight = ed.Weight ?? 0
-                                    };
-                var importDetails = from id in vfi.ImportNCU_QCBDetail
+                                    }).ToList();
+                var importDetails = (from id in vfi.ImportNCU_QCBDetail
                                     where id.ImportNCU_QCB.PlatingFormId == formId &&
                                           id.ImportNCU_QCB.Transaction.Status ==
                                           (byte)MyUtilities.Transaction.Status.Approved
@@ -4223,7 +4228,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                         id.Weight,
                                         id.ExportGCN_NCUDetail,
                                         id.ExportGCN_NCUDetail.PlatingDetailId
-                                    };
+                                    }).ToList();
                 foreach (var detailModel in platingForm.PlatingFormDetails) {
                     var detail = new PlatingDetailModel {
                         FormId = detailModel.FormId,

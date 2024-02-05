@@ -96,15 +96,16 @@
                     Html.Telerik().DatePicker()
                         .Name("FromDate")
                         .Format("MM/yyyy")
-                        .Value(new DateTime(DateTime.Now.Year-1,1,1))
+                        .Value(new DateTime(DateTime.Now.Year - 1, 1, 1))
                         .Render();
                 }
-            </div><div class="grid_3">
+            </div>
+            <div class="grid_3">
                 @{
                     Html.Telerik().DatePicker()
                         .Name("ToDate")
                         .Format("MM/yyyy")
-                        .Value(new DateTime(DateTime.Now.Year-1, 12, 1))
+                        .Value(new DateTime(DateTime.Now.Year - 1, 12, 1))
                         .Render();
                 }
             </div>
@@ -115,13 +116,13 @@
                     <span class="loadButton"></span>
                 </button>
                 <br />
-                    (chỉ lấy tối đa 12 tháng trong thời gian chỉ định)
+                (chỉ lấy tối đa 12 tháng trong thời gian chỉ định)
             </div>
         </fieldset>
 
     </div>
     <div class="clear"></div>
-    <div class="cover-div" style="min-width:600px;float:left;">
+    <div class="cover-div" style="min-width: 600px; float: left;">
         @{
             Html.Telerik().Grid<SalesReportModel>()
                 .Name("grid")
@@ -147,6 +148,20 @@
                     //    .Aggregate(agg => agg.Sum())
                     //    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     //    .FooterHtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.OntimeDeliveryQuantity).Width(60)
+                        .HeaderTemplate("<strong>OTD</br>(pcs)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: center;" })
+                        .Aggregate(agg => agg.Sum())
+                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                        .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    columns.Bound(f => f.OntimeDeliveryPercent).Width(60)
+                        .HeaderTemplate("<strong>OTD</br>(%)</strong>")
+                        .Format("{0:n0}")
+                        .HtmlAttributes(new { style = "text-align: center;" });
+                    //.Aggregate(agg => agg.Sum())
+                    //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                    //.FooterHtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.OrderProductCount).Width(60)
                         .HeaderTemplate("<strong>Đặt</br>hàng</br>(SL SP)</strong>")
                         .Format("{0:n0}")
@@ -189,10 +204,56 @@
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
-                    
+
                 })
+            .DetailView(details => details.ClientTemplate(
+                Html.Telerik().Grid<SalesReportModel>()
+                    .Name("gridDetail_<#= Month #>")
+                    .DataBinding(dataDindings => dataDindings.Ajax()
+                        .Select("SelectSalesReportDetail", "Reporting",
+                            new { fromDate = "<#= Month #>", toDate = "<#= Month #>" }))
+                    .Columns(columns => {
+                        columns.Bound(f => f.Month).Width(100).Title("KH");
+                        columns.Bound(f => f.OrderQuantity).Width(90)
+                            .Title("<strong>Đặt</br>hàng</br>(pcs)</strong>")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new { style = "text-align: right;" })
+                            .Aggregate(agg => agg.Sum())
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.OntimeDeliveryQuantity).Width(60)
+                            .Title("<strong>OTD</br>(pcs)</strong>")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new { style = "text-align: center;" })
+                            .Aggregate(agg => agg.Sum())
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.OntimeDeliveryPercent).Width(60)
+                            .Title("<strong>OTD</br>(%)</strong>")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.OrderPrice).Width(60)
+                            .Title("<strong>Giá trị</br>ĐH</strong>")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new { style = "text-align: center;" })
+                            .Aggregate(agg => agg.Sum())
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: center;" });
+                        columns.Bound(f => f.OntimeDeliveryPrice).Width(60)
+                            .Title("<strong>Giá trị</br>OTD</strong>")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new { style = "text-align: center;" })
+                            .Aggregate(agg => agg.Sum())
+                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                            .FooterHtmlAttributes(new { style = "text-align: center;" });
+                    })
+                    .ClientEvents(events => events.OnError("grid_OnError"))
+                    .Reorderable(f => f.Columns(true))
+                    .Sortable()
+                    .ToHtmlString()))
                 //.Scrollable(f => f.Height(510))
                 .Resizable(f => f.Columns(true))
+                .Reorderable(f => f.Columns(true))
                 .ClientEvents(events => events.OnError("grid_OnError")
                     .OnDataBinding("grid_OnDataBinding")
                     .OnDataBound("grid_OnDataBound"))
@@ -201,88 +262,88 @@
     </div>
 
 
-    
-     <div class="cover-div" style="background: white;float:left;margin-left:10px;">
-              
-            @{
-                Html.Telerik().Chart<SalesReportModel>()
-                    .Name("chart")
-                    //.ChartArea(area => area.Background("#ccff00"))
-                        //.PlotArea(area => area.Background("#ccff00"))
 
-                    //.Theme(Html.GetCurrentTheme())
-                    .DataBinding(dataBinding => dataBinding.Ajax()
-                        .Select("SelectSalesChartReport", "Reporting", new { fromDate = "", toDate = "" })
-                    )
-                    .Title("Báo cáo kết quả kinh doanh")
-                    .Legend(legend => legend.Position(Telerik.Web.Mvc.UI.ChartLegendPosition.Bottom)
-                    )
-                    //.PlotArea(plotArea => plotArea.Margin(20))
+    <div class="cover-div" style="background: white; float: left; margin-left: 10px;">
 
-                    //.SeriesDefaults(series =>
-                    //                series.Bar().Labels(labels => labels.Visible(true).Format("${0:#,##0}"))
-                    //)
-                    .Series(series => {
-                        //series.Bar("EmployeeName").Name("Nhân viên");
-                        series.Column(s => s.OrderQuantity).Name("Đơn đặt hàng")
-                              .Labels(labels => labels.Visible(true)
-                                  .Format("{0:n0}")
-                                  .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                            );
-                        series.Column(s => s.ForecastQuantity).Name("Dự báo hàng")
-                              .Labels(labels => labels.Visible(true)
-                                  .Format("{0:n0}")
-                                  .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                            );
-                        series.Column(s => s.ExportQuantity).Name("Xuất bán")
-                              .Labels(labels => labels.Visible(true)
-                                  .Format("{0:n0}")
-                                  .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                            );
-                        series.Column(s => s.ReturnQuantity).Name("Trả hàng")
-                              .Labels(labels => labels.Visible(true)
-                                  .Format("{0:n0}")
-                                  .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                            );
-                              //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
-                        //series.Line(s => s.NGQuantity).Name("NG SX1");
-                        //series.Line(s => s.DefectQuantity).Name("PP SX1");
-                        //series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
-                        })
-                    //.Series(series => {
-                    //    //series.Bar("EmployeeName").Name("Nhân viên");
-                    //    //series.Bar(s => s.ProductionQuantity).Name("Sản lượng SX1")
-                    //    //      .Labels(labels => labels.Visible(true)
-                    //    //          .Format("{0:n0}")
-                    //    //          .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                    //    //    );
-                    //    //series.Bar(s => s.NGQuantity).Name("SX1 NG")
-                    //    //      .Labels(labels => labels.Visible(true)
-                    //    //          .Format("{0:n0}")
-                    //    //          .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                    //    //    ).Stack(true);
-                    //          //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
-                    //    //series.Line(s => s.NGQuantity).Name("NG SX1");
-                    //    //series.Line(s => s.DefectQuantity).Name("PP SX1");
-                    //    series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
-                    //    })
-                    //.Series(series =>
-                    //    {
-                    //        series.Line(s => s.NGQuantity).Name("NG SX1")
-                    //              .Labels(labels => labels.Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
-                    //            );
-                    //    })
-                    .CategoryAxis(axis => axis.Categories(s => s.Month)//.Orientation(Telerik.Web.Mvc.UI.ChartAxisOrientation.Horizontal)
-                    )
-                    .ValueAxis(axis => axis.Numeric().Labels(labels => labels.Format("{0:n0}"))
-                    )
-                    //.ChartBarSeries(x=> x.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical))
-                    
-                    .HtmlAttributes(new { style = "min-width: 800px; height: 500px;" })
-                    .ClientEvents(events => events
-                            .OnDataBound("chart_OnDataBound"))
-                    .Render();
-            }
-        </div>
+        @{
+            Html.Telerik().Chart<SalesReportModel>()
+                .Name("chart")
+                //.ChartArea(area => area.Background("#ccff00"))
+                //.PlotArea(area => area.Background("#ccff00"))
+
+                //.Theme(Html.GetCurrentTheme())
+                .DataBinding(dataBinding => dataBinding.Ajax()
+                    .Select("SelectSalesChartReport", "Reporting", new { fromDate = "", toDate = "" })
+                )
+                .Title("Báo cáo kết quả kinh doanh")
+                .Legend(legend => legend.Position(Telerik.Web.Mvc.UI.ChartLegendPosition.Bottom)
+                )
+                //.PlotArea(plotArea => plotArea.Margin(20))
+
+                //.SeriesDefaults(series =>
+                //                series.Bar().Labels(labels => labels.Visible(true).Format("${0:#,##0}"))
+                //)
+                .Series(series => {
+                    //series.Bar("EmployeeName").Name("Nhân viên");
+                    series.Column(s => s.OrderQuantity).Name("Đơn đặt hàng")
+                          .Labels(labels => labels.Visible(true)
+                              .Format("{0:n0}")
+                              .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                        );
+                    series.Column(s => s.ForecastQuantity).Name("Dự báo hàng")
+                          .Labels(labels => labels.Visible(true)
+                              .Format("{0:n0}")
+                              .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                        );
+                    series.Column(s => s.ExportQuantity).Name("Xuất bán")
+                          .Labels(labels => labels.Visible(true)
+                              .Format("{0:n0}")
+                              .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                        );
+                    series.Column(s => s.ReturnQuantity).Name("Trả hàng")
+                          .Labels(labels => labels.Visible(true)
+                              .Format("{0:n0}")
+                              .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                        );
+                    //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
+                    //series.Line(s => s.NGQuantity).Name("NG SX1");
+                    //series.Line(s => s.DefectQuantity).Name("PP SX1");
+                    //series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
+                })
+                //.Series(series => {
+                //    //series.Bar("EmployeeName").Name("Nhân viên");
+                //    //series.Bar(s => s.ProductionQuantity).Name("Sản lượng SX1")
+                //    //      .Labels(labels => labels.Visible(true)
+                //    //          .Format("{0:n0}")
+                //    //          .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                //    //    );
+                //    //series.Bar(s => s.NGQuantity).Name("SX1 NG")
+                //    //      .Labels(labels => labels.Visible(true)
+                //    //          .Format("{0:n0}")
+                //    //          .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                //    //    ).Stack(true);
+                //          //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
+                //    //series.Line(s => s.NGQuantity).Name("NG SX1");
+                //    //series.Line(s => s.DefectQuantity).Name("PP SX1");
+                //    series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
+                //    })
+                //.Series(series =>
+                //    {
+                //        series.Line(s => s.NGQuantity).Name("NG SX1")
+                //              .Labels(labels => labels.Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
+                //            );
+                //    })
+                .CategoryAxis(axis => axis.Categories(s => s.Month)//.Orientation(Telerik.Web.Mvc.UI.ChartAxisOrientation.Horizontal)
+                )
+                .ValueAxis(axis => axis.Numeric().Labels(labels => labels.Format("{0:n0}"))
+                )
+                //.ChartBarSeries(x=> x.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical))
+
+                .HtmlAttributes(new { style = "min-width: 700px; height: 500px;" })
+                .ClientEvents(events => events
+                        .OnDataBound("chart_OnDataBound"))
+                .Render();
+        }
+    </div>
 
 </div>
