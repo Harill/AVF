@@ -660,7 +660,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (inserted.MaxRow <= 0 || inserted.MaxColumn <= 0) {
                         throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
                     }
-                    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(inserted.ShelfName) && x.ClassifiedId == inserted.ClassifiedId);
+                    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(inserted.ShelfName) 
+                                                                      && x.ClassifiedId == inserted.ClassifiedId);
                     if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
                     var classifiedId = 0;
                     try { classifiedId = Convert.ToInt32(inserted.ClassifiedName); }
@@ -717,56 +718,95 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 return View(new GridModel(new List<InventoryShelfModel>()));
             }
             try {
-                throw new AggregateException("Lỗi! Chưa làm chức năng này");
-                //using (var vfi = new tammaContext()) {
-                //    if (string.IsNullOrWhiteSpace(updated.ShelfName)) {
-                //        throw new AggregateException("Lỗi! Vui lòng nhập tên kệ");
-                //    }
-                //    else { updated.ShelfName = updated.ShelfName.Trim(); }
+                //throw new AggregateException("Lỗi! Chưa làm chức năng này");
+                using (var vfi = new tammaContext()) {
+                    if (string.IsNullOrWhiteSpace(updated.ShelfName)) {
+                        throw new AggregateException("Lỗi! Vui lòng nhập tên kệ");
+                    }
+                    else { updated.ShelfName = updated.ShelfName.Trim(); }
 
-                //    if (updated.MaxRow <= 0 || updated.MaxColumn <= 0) {
-                //        throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
-                //    }
+                    if (updated.MaxRow <= 0 || updated.MaxColumn <= 0) {
+                        throw new AggregateException("Lỗi! Số hàng hoặc số cột lỗi");
+                    }
 
-                //    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(updated.ShelfName)
-                //                                                        && x.ClassifiedId == updated.ClassifiedId
-                //                                                        && x.ShelfId != updated.ShelfId);
-                //    if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
+                    var shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfName.Equals(updated.ShelfName)
+                                                                        && x.ClassifiedId == updated.ClassifiedId
+                                                                        && x.ShelfId != updated.ShelfId);
+                    if (shelf != null) { throw new AggregateException("Lỗi! Kệ trùng tên"); }
 
-                //    shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfId == updated.ShelfId);
-                //    if (shelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ"); }
+                    shelf = vfi.InventoryShelves.FirstOrDefault(x => x.ShelfId == updated.ShelfId);
+                    if (shelf == null) { throw new AggregateException("Lỗi! Không tìm thấy kệ"); }
+                    if (shelf.MaxRow > updated.MaxRow || shelf.MaxColumn > updated.MaxColumn) { 
+                        throw new AggregateException("Lỗi! Không thể giảm số cột và dòng"); 
+                    }
 
-                //    shelf.ShelfName = updated.ShelfName;
-                //    //shelf.ClassifiedId = updated.ClassifiedId;
-                //    shelf.Active = updated.Active;
-                //    shelf.ModifiedDate = DateTime.Now;
-                //    shelf.ModifiedUser = HttpContext.User.Identity.Name;
-                //    //if (shelf.MaxRow < updated.MaxRow) { shelf.MaxRow = updated.MaxRow; }
-                //    //if (shelf.MaxColumn < updated.MaxColumn) { shelf.MaxColumn = updated.MaxColumn; }
+                    shelf.ShelfName = updated.ShelfName;
+                    //shelf.ClassifiedId = updated.ClassifiedId;
+                    shelf.Active = updated.Active;
+                    shelf.ModifiedDate = DateTime.Now;
+                    shelf.ModifiedUser = HttpContext.User.Identity.Name;
 
-                //    //if (updated.WarehouseId > 0) {
-                //    //    if (updated.WarehouseId != shelf.WarehouseId) {
-                //    //        shelf.WarehouseId = updated.WarehouseId;
-                //    //    }
-                //    //}
-                //    //else { shelf.WarehouseId = null; }
-                //    //var drawers = new List<InventoryDrawer>();
-                //    //for (var i = 1; i <= inserted.MaxColumn; i++) {
-                //    //    for (var j = 0; j < inserted.MaxRow; j++) {
-                //    //        var drawer = new InventoryDrawer {
-                //    //            InventoryShelf = shelf,
-                //    //            Active = shelf.Active,
-                //    //            ModifiedDate = shelf.ModifiedDate,
-                //    //            ModifiedUser = shelf.ModifiedUser,
-                //    //            ColumnName = string.Format("{0:00}", i),
-                //    //            RowName = Convert.ToChar(65 + j) + "",
-                //    //        };
-                //    //        drawers.Add(drawer);
-                //    //    }
-                //    //}
-                //    //vfi.InventoryDrawers.AddRange(drawers);
-                //    vfi.SaveChanges();
-                //}
+                    var drawers = new List<InventoryDrawer>();
+                    if (updated.MaxColumn > shelf.MaxColumn) {
+                        for (var i = shelf.MaxColumn + 1; i <= updated.MaxColumn; i++) {
+                            for (var j = 0; j < updated.MaxRow; j++) {
+                                var drawer = new InventoryDrawer {
+                                    InventoryShelf = shelf,
+                                    Active = shelf.Active,
+                                    ModifiedDate = shelf.ModifiedDate,
+                                    ModifiedUser = shelf.ModifiedUser,
+                                    ColumnName = string.Format("{0:00}", i),
+                                    RowName = Convert.ToChar(65 + j) + "",
+                                };
+                                drawers.Add(drawer);
+                            }
+                        }
+                        shelf.MaxColumn = updated.MaxColumn;
+                    }
+                    if (updated.MaxRow > shelf.MaxRow) {
+                        for (var i = 1; i <= updated.MaxColumn; i++) {
+                            for (var j = shelf.MaxRow; j < updated.MaxRow; j++) {
+                                var drawer = new InventoryDrawer {
+                                    InventoryShelf = shelf,
+                                    Active = shelf.Active,
+                                    ModifiedDate = shelf.ModifiedDate,
+                                    ModifiedUser = shelf.ModifiedUser,
+                                    ColumnName = string.Format("{0:00}", i),
+                                    RowName = Convert.ToChar(65 + j) + "",
+                                };
+                                drawers.Add(drawer);
+                            }
+                        }
+                        shelf.MaxRow = updated.MaxRow;
+                    }
+                    vfi.InventoryDrawers.AddRange(drawers);
+
+                    //if (shelf.MaxRow < updated.MaxRow) { shelf.MaxRow = updated.MaxRow; }
+                    //if (shelf.MaxColumn < updated.MaxColumn) { shelf.MaxColumn = updated.MaxColumn; }
+
+                    //if (updated.WarehouseId > 0) {
+                    //    if (updated.WarehouseId != shelf.WarehouseId) {
+                    //        shelf.WarehouseId = updated.WarehouseId;
+                    //    }
+                    //}
+                    //else { shelf.WarehouseId = null; }
+                    //var drawers = new List<InventoryDrawer>();
+                    //for (var i = 1; i <= inserted.MaxColumn; i++) {
+                    //    for (var j = 0; j < inserted.MaxRow; j++) {
+                    //        var drawer = new InventoryDrawer {
+                    //            InventoryShelf = shelf,
+                    //            Active = shelf.Active,
+                    //            ModifiedDate = shelf.ModifiedDate,
+                    //            ModifiedUser = shelf.ModifiedUser,
+                    //            ColumnName = string.Format("{0:00}", i),
+                    //            RowName = Convert.ToChar(65 + j) + "",
+                    //        };
+                    //        drawers.Add(drawer);
+                    //    }
+                    //}
+                    //vfi.InventoryDrawers.AddRange(drawers);
+                    vfi.SaveChanges();
+                }
             }
             catch (Exception exception) {
                 ModelState.AddModelError("UpdateInventoryShelf", @"Lỗi giá trị nhập.\r\n(try-catch)\r\n" + exception.Message);
