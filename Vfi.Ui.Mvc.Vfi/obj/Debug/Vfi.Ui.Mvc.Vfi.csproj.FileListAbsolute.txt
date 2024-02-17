@@ -802,3 +802,4 @@ C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.csproj.GenerateResource
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.pdb
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources

@@ -783,7 +783,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                   x.OrderNumber,
                                   x.PoNumber,
                                   x.Customer.CustomerCode,
-                                  x.Customer.IsNotRequire(,
+                                  x.Customer.IsNotRequireApproveOrder,
                                   x.ModifiedDate,
                                   x.ModifiedUser,
                                   x.CurrencyCode,
