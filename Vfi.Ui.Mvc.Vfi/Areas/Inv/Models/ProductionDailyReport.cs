@@ -135,6 +135,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             }
         }
         public double ErrorTimeByRepairForm { get; set; }
+        public double TimeByMachineRunning { get; set; }
+
         public double ErrorCountByRepairForm { get; set; }
 
         public int TeamDPrice { get; set; }
