@@ -1268,7 +1268,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         || routing.Status == (byte)MyUtilities.WorkOrder.Status.Cancel) {
                         throw new AggregateException("Lỗi! Tình trạng công đoạn không thể điều chỉnh");
                     }
-                    var previousRouting = routing.WorkOrderRouting1.FirstOrDefault();
+                    var previousRouting = routing.WorkOrderRouting1
+                        .FirstOrDefault(x => x.Status != (byte)MyUtilities.WorkOrder.Status.Cancel);
                     previousRouting.NextRouteId = routing.NextRouteId;
                     if (routing.NextRouteId != null) {
                         if (routing.WorkOrderRouting2.Warehouse.IsFinish) {
@@ -1279,6 +1280,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         }
                         routing.WorkOrderRouting2.PlannedCost = routing.PlannedCost;
                         routing.WorkOrderRouting2.ActualStartDate = DateTime.Now;
+                        routing.NextRouteId = null;
                     }
                     routing.Status = (byte)MyUtilities.WorkOrder.Status.Cancel;
                     routing.ActualEndDate = DateTime.Now;
