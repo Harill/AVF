@@ -10,3 +10,4 @@ C:\workspace\vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.d
 C:\workspace\vfi\Vfi.Server.Core.DataModel\bin\Debug\Vfi.Server.Core.DataModel.pdb
 C:\workspace\vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.dll
 C:\workspace\vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.pdb
+C:\Workspace\vfi-sync\vfi\Vfi.Server.Core.DataModel\obj\Debug\Vfi.Server.Core.DataModel.csprojResolveAssemblyReference.cache

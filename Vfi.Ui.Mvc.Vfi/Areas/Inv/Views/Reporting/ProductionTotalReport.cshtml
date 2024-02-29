@@ -289,6 +289,9 @@
                         columns.Bound(f => f.ErrorTimeByRepairForm).Title("TG</br>sửa máy").Width(50)
                               .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.TimeByMachineRunning).Title("TG</br>máy chạy").Width(50)
+                                  .Format("{0:n0}")
+                                   .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.ErrorCountByRepairForm).Title("Số lần</br>sửa máy").Width(50)
                               .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });

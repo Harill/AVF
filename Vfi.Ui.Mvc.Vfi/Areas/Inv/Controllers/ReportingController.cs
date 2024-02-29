@@ -7534,6 +7534,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 var tDate = string.IsNullOrWhiteSpace(toDate)
                     ? DateTime.Today
                     : Convert.ToDateTime(toDate, ci);
+                var soNgay = (tDate - fDate).TotalDays;
                 using (var vfi = new tammaContext()) {
                     //vfi.Configuration.LazyLoadingEnabled = false;
 
@@ -7714,11 +7715,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             }
                             entity.Shift1Count = entity.Shifts.Count;
                             entity.UnitPrice = entity.Shifts.Average(s => s.MaterialPrice);
+
                             var repairFormsById = repairForms.Where(rm => rm.MachineId == entity.MachineId);
                             if (repairFormsById.Any()) {
                                 entity.ErrorTimeByRepairForm = repairFormsById.Sum(rm => (rm.FinishDate - rm.StartDate).TotalHours);
                                 entity.ErrorCountByRepairForm = repairFormsById.Count(rm => rm.StateId != MyUtilities.Machine.State.Setup);
                             }
+                            entity.TimeByMachineRunning = soNgay * 24 - entity.ErrorTimeByRepairForm;
                             //var details = new List<MachineRepairFormModel>();
                             //foreach (var repair in repairMachinesById) {
                             //    var detail = new MachineRepairFormModel() {
