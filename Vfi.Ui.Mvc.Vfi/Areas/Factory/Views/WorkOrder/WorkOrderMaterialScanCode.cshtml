@@ -174,7 +174,9 @@
                         document.getElementById("MaterialInvCode").focus();
                         //OnLoadedData();
                     } else {
-                            var audio = new Audio('https://docs.google.com/uc?export=download&id=11VRt5QgoJC3_Rd9oya-0WxJIoLAp3Byb');
+                        var url = '@Url.Content("~/Resources/wo_error.mp3")';
+                        //var audio = new Audio('https://docs.google.com/uc?export=download&id=11VRt5QgoJC3_Rd9oya-0WxJIoLAp3Byb');
+                        var audio = new Audio(url);
                         audio.play();
                         alert("Lỗi! " + res.Message);
                     }
@@ -219,7 +221,8 @@
                                     success: function (res) {
                                         if (res.Code === 1) {
                                             //alert("Hoàn thành lưu " + res.Data);
-                                            var audio = new Audio('https://docs.google.com/uc?export=download&id=1dMAgUiI2HYNPE3hCXL5ba3ySqTfPZGyS');
+                                            var url = '@Url.Content("~/Resources/success.mp3")';
+                                            var audio = new Audio(url);
                                             audio.play();
                                             document.getElementById("RoutingSerial").focus();
                                             clearWorkOrderInfo();
@@ -232,14 +235,18 @@
                             }
                         }
                         else {
-                            var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
+                            var url = '@Url.Content("~/Resources/material_error.mp3")';
+                            var audio = new Audio(url);
+                            //var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
                             audio.play();
                             alert("Sai nguyên liệu sử dụng trong của Work Order");
                             document.getElementById("MaterialInvCode").focus();
                             document.getElementById("MaterialInvCode").setSelectionRange(0, materialInvCode.length);
                         }
                     } else {
-                        var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
+                        var url = '@Url.Content("~/Resources/material_error.mp3")';
+                        var audio = new Audio(url);
+                        //var audio = new Audio('https://docs.google.com/uc?export=download&id=1UpzMB5NHWew3Up0LpqbgfIBSbBq_Jjx7');
                         audio.play();
                         alert("Lỗi! " + res.Message);
                     }
