@@ -170,7 +170,6 @@
                         $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
                         plannedCost = res.Data.PlannedCost;
                         materialInvId = res.Data.MaterialInvId;
-                        routingId = res.Data.RoutingId;
                         clearMaterialInvInfo();
                         document.getElementById("MaterialInvCode").focus();
                         //OnLoadedData();
@@ -204,10 +203,9 @@
                                 alert("Lỗi! Nguyên liệu không đủ tồn kho");
                             } else {
                                 //alert("Chúc mừng bạn đã làm đúng gòi");
-                                clearWorkOrderInfo();
                                 var employee = $('#Employee').data('tComboBox').value();
-                                if (employee === "") {
-                                    employee = 0;
+                                if (employee === "" || employee < 0) {
+                                    alert("Lỗi! Chưa chọn nhân viên.");
                                 }
                                 $.ajax({
                                     type: 'post',
@@ -224,6 +222,7 @@
                                             var audio = new Audio('https://docs.google.com/uc?export=download&id=1dMAgUiI2HYNPE3hCXL5ba3ySqTfPZGyS');
                                             audio.play();
                                             document.getElementById("RoutingSerial").focus();
+                                            clearWorkOrderInfo();
                                         } else {
                                             alert(res.Message);
                                         }
