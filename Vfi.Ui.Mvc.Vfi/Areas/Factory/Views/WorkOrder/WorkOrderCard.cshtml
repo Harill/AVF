@@ -1,0 +1,250 @@
+﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
+@model WorkOrderRoutingModel
+@{
+    ViewBag.Title = "Thẻ Work Order ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .fieldheader {
+        /*height: 150px;*/
+        padding-left: 15px;
+        padding-right: 15px;
+        float: left;
+    }
+
+    .fieldheader1 {
+        width: 35%;
+        min-width: 420px;
+        margin-right: 10px;
+    }
+
+    .fieldheader2 {
+        width: 20%;
+        margin-right: 10px;
+    }
+
+    .fieldheader3 {
+        width: 35%;
+    }
+</style>
+@section Scripts{
+    <!-- grid Monthly -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnProcess.js")"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            document.getElementById("RoutingSerial").focus();
+        });
+        var workOrderId = 0;
+        function grid_OnDataBinding(e) {
+            if (workOrderId > 0) {
+                e.data = $.extend(e.data, {
+                    ids: workOrderId,
+                });
+            }
+        }
+
+    </script>
+
+    <script>
+        function workOrderOnChange() {
+            var routingSerial = $("#RoutingSerial").val();
+            //alert(routingSerial);
+            $.ajax({
+                type: 'post',
+                data: { serialNumber: routingSerial },
+                dataType: 'json',
+                url: '@Url.Action("CheckWorkOrderInfoBySerialNumber", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    //OnLoadedData();
+                    if (res.Code === 1) {
+                        //routingId = res.Data.RoutingId;
+                        workOrderId = res.Data.WorkOrderId;
+                        $("#ProductCode")[0].innerText = res.Data.ProductCode;
+                        $("#MaterialName")[0].innerText = res.Data.MaterialName;
+                        if (res.Data.RoutingName) {
+                            $("#StatusName")[0].innerText = res.Data.StatusName + ": " + res.Data.RoutingName;
+                        } else {
+                            $("#StatusName")[0].innerText = res.Data.StatusName;
+                        }
+                        $("#OrderQty")[0].innerText = res.Data.OrderQty;
+                        $("#MaterialPlan")[0].innerText = res.Data.MaterialPlan;
+                        $("#GoodQuantity")[0].innerText = res.Data.GoodQuantity;
+                        $("#NGQuantity")[0].innerText = res.Data.NGQuantity;
+                        $("#DefectQuantity")[0].innerText = res.Data.DefectQuantity;
+                        RefreshGrid('grid');
+                        //$("#RoutingName")[0].innerText = res.Data.RoutingName;
+                        //$("#NextRouteName")[0].innerText = res.Data.NextRouteName;
+
+                        //$("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
+                        //plannedCost = res.Data.PlannedCost;
+                        //document.getElementById("MaterialInvCode").focus();
+                        //OnLoadedData();
+                    } else {
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });
+        }
+
+    </script>
+}
+
+<div class="title">Thẻ Work Order</div>
+
+<div class="t-info-sha">
+    <fieldset>
+        <legend>Thông tin Work Order</legend>
+        <div class="grid_2_5">
+            Số Work Order
+        </div>
+        <div class="grid_6">
+            @Html.TextBoxFor(f => f.RoutingSerial, new { style = "color: maroon;", @onchange = "workOrderOnChange();" })
+        </div>
+        <div class="grid_3_5">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshCombobox('WorkOrder'); ">
+                <span class='t-icon t-refresh'></span>
+                <span class="loadButton"></span>
+            </button>
+        </div>
+        <div class="clear"></div>
+        <div class="grid_24">
+            <div class="grid_2">
+                Tình trạng
+            </div>
+            <div class="grid_8" style="font-size: large;">
+                <span id="StatusName">~~</span>
+            </div>
+
+            <div class="clear"></div>
+            <br />
+            <div class="grid_2">
+                Sản phẩm
+            </div>
+            <div class="grid_4" style="font-size: large;">
+                <span id="ProductCode">~~</span>
+            </div>
+
+            <div class="grid_2">
+                Nguyên liệu
+            </div>
+            <div class="grid_5" style="font-size: large;">
+                <span id="MaterialName">~~</span>
+            </div>
+
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                Kế hoạch
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="OrderQty">~~</span> (pcs)
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="MaterialPlan">~~</span> (cây)
+            </div>
+            <div class="grid_2">
+                CĐ kế
+            </div>
+            <div class="clear"></div>
+            <br />
+
+            <div class="grid_2">
+                Thực tế:
+            </div>
+            <div class="grid_1">
+                OK:
+            </div>
+            <div class="grid_2">
+                <span id="GoodQuantity">0</span> (pcs)
+            </div>
+            <div class="grid_1">
+                NG:
+            </div>
+            <div class="grid_2">
+                <span id="NGQuantity">0</span> (pcs)
+            </div>
+            <div class="grid_1">
+                PP:
+            </div>
+            <div class="grid_2">
+                <span id="DefectQuantity">0</span> (pcs)
+            </div>
+            <div class="clear"></div>
+            <br />
+
+        </div>
+    </fieldset>
+</div>
+
+<div class="clear"></div>
+<br />
+
+<div class="cover-div">
+    @{
+        Html.Telerik().Grid<WorkOrderRoutingModel>()
+            .Name("grid")
+            .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
+            .DataBinding(dataBindings => dataBindings.Ajax()
+                .Select("SelectWorkOrderRouting", "WorkOrder", new { area = "Factory", ids = "" + "", isActive = true })
+                )
+            .Columns(columns => {
+                columns.Bound(f => f.RoutingIndex).Width(40).Title("STT");
+                columns.Bound(f => f.RoutingName).Width(100).Title("Công đoạn");
+                columns.Bound(f => f.StatusName).Width(70).Title("Tình trạng").ReadOnly(true)
+                    .HtmlAttributes(new { style = "border-right:1px solid black;" });
+                columns.Bound(f => f.PlannedCost).Width(65).Title("Kế</br>hoạch").ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.ActualCost).Width(65).Title("Thực</br>tế").ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.UsingQuantity).Width(65).Title("Sử</br>dụng").ReadOnly(true)
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
+                columns.Bound(f => f.GoodQuantity).Width(65).Title("OK</br>(pcs)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.GoodWeight).Width(65).Title("OK</br>(g)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "good-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.NGQuantity).Width(65).Title("NG</br>(pcs)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.NGWeight).Width(65).Title("NG</br>(g)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "ng-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.DefectQuantity).Width(65).Title("PP</br>(pcs)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;" });
+                columns.Bound(f => f.DefectWeight).Width(65).Title("PP</br>(g)").ReadOnly(true)
+                    .HeaderHtmlAttributes(new { @class = "defect-column" })
+                    .Format("{0:n0}")
+                    .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
+                columns.Bound(f => f.MoreInfo).Title("Mô tả").ReadOnly(true)
+                    .ClientTemplate("<span class='wraptext'><#= MoreInfo #></span>");
+            })
+            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .ClientEvents(events => events
+                .OnDataBinding("grid_OnDataBinding")
+                //.OnSave("grid_OnSave")
+                //.OnDataBound("grid_OnDataBound")
+                //.OnRowDataBound("grid_OnRowDataBound")
+                //.OnSubmitChanges("grid_OnSubmitChanges")
+                .OnError("grid_OnError")
+            )
+            .KeyboardNavigation()
+            .Render();   
+    }
+</div>
+
+<div class="clear"></div>
+<br />

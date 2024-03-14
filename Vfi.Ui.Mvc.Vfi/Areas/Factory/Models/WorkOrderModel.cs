@@ -54,6 +54,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public string EndDateStr { get { return EndDate != null ? EndDate.Value.ToString("dd/MM/yy HH:mm") : ""; } }
         public List<WorkOrderRoutingModel> Routings { get; set; }
 
+        public double MaterialPlan { get; set; }
         public string MaterialTypeName { get; set; }
         public double ProductionRate { get; set; }
         public double ProductDiameter { get; set; }
