@@ -2540,13 +2540,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             int reportType
             ) {
             var model = new List<MachineRepairFormModel>();
-            var ci = new CultureInfo("vi-VN");
-            var from = string.IsNullOrWhiteSpace(fromDate)
-                                  ? DateTime.Today
-                                  : Convert.ToDateTime(fromDate, ci);
-            var to = string.IsNullOrWhiteSpace(toDate)
-                                  ? DateTime.Today
-                                  : Convert.ToDateTime(toDate, ci);
+            var from = MyUtilities.Function.ParseDateTime(fromDate);
+            var to = MyUtilities.Function.ParseDateTime(toDate);
             try {
                 using (var vfi = new vfiContext()) {
                     var machineStates = vfi.MachineRepairForms.Where(ms => ms.SectionId == null).ToList();
