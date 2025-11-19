@@ -599,7 +599,14 @@ C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.csproj.Generat
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrderAVF.resources
+C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\AutoMapper.Net4.dll
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\CertificateMaterial2\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\ProductHistory\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\ProductImg\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\CertificateMaterial\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\Drawing\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\ToolImg\askquestion.jpg
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\arrow.gif
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\cross.gif
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Scripts\jscolor\hs.png
@@ -701,6 +708,9 @@ C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\System.Web.WebPages.Deployment.xml
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\System.Web.WebPages.Razor.xml
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Vfi.Client.Core.Common.pdb
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.csprojResolveAssemblyReference.cache
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptAllProducts.resources
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrderFinishCard.resources
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrderAVF.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptOrderDeliveryProgress.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptDeliverySalesReport.resources
@@ -773,7 +783,7 @@ C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptPr
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptExpectedPlating.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptExpectedSales.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptForecastOrder.resources
-C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptAllProducts.resources
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptNotFinishInvProduct.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptMaterialDailyReport.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptTransactionForm.resources
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkpieceMaterial.resources
@@ -801,5 +811,3 @@ C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Properties.Resources.re
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.csproj.GenerateResource.Cache
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.pdb
-C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources
-C:\Workspace\vfi-sync\vfi\Vfi.Ui.Mvc.Vfi\obj\Debug\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources

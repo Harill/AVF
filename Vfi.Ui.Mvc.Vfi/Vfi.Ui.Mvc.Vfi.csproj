@@ -449,6 +449,7 @@
     <Compile Include="Areas\Factory\Models\ProcessingTypeModel.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Areas\Factory\Models\ProductHistoryModel.cs" />
     <Compile Include="Areas\Factory\Models\Production2Model.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -606,6 +607,18 @@
     <Compile Include="Areas\Inv\Models\ExpectedProduction2PlanModel.cs" />
     <Compile Include="Areas\Inv\Models\MaterialProductionReport.cs" />
     <Compile Include="Areas\Inv\Models\ProductionLockModel.cs" />
+    <Compile Include="Areas\Inv\Reports\RptAllProducts.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptAllProducts.Designer.cs">
+      <DependentUpon>RptAllProducts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptWorkOrderFinishCard.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Areas\Inv\Reports\RptWorkOrderFinishCard.Designer.cs">
+      <DependentUpon>RptWorkOrderFinishCard.cs</DependentUpon>
+    </Compile>
     <Compile Include="Areas\Inv\Reports\RptBarcode.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -1044,11 +1057,11 @@
     <Compile Include="Areas\Inv\Reports\RptForecastOrder.Designer.cs">
       <DependentUpon>RptForecastOrder.cs</DependentUpon>
     </Compile>
-    <Compile Include="Areas\Inv\Reports\RptAllProducts.cs">
+    <Compile Include="Areas\Inv\Reports\RptNotFinishInvProduct.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Areas\Inv\Reports\RptAllProducts.Designer.cs">
-      <DependentUpon>RptAllProducts.cs</DependentUpon>
+    <Compile Include="Areas\Inv\Reports\RptNotFinishInvProduct.Designer.cs">
+      <DependentUpon>RptNotFinishInvProduct.cs</DependentUpon>
     </Compile>
     <Compile Include="Areas\Inv\Reports\RptMaterialDailyReport.cs">
       <SubType>Component</SubType>
@@ -1291,6 +1304,7 @@
     <Compile Include="Models\Mapping\OutsideProcessMap.cs" />
     <Compile Include="Models\Mapping\ProcessClassifiedMap.cs" />
     <Compile Include="Models\Mapping\ProductAdditionFeeMap.cs" />
+    <Compile Include="Models\Mapping\ProductHistoryMap.cs" />
     <Compile Include="Models\Mapping\ProductionProductivityQuoteBaseMap.cs" />
     <Compile Include="Models\Mapping\ProductionProductLevelMap.cs" />
     <Compile Include="Models\Mapping\SelectDiagram1Map.cs" />
@@ -1304,6 +1318,7 @@
     <Compile Include="Models\OutsideProcess.cs" />
     <Compile Include="Models\ProcessClassified.cs" />
     <Compile Include="Models\ProductAdditionFee.cs" />
+    <Compile Include="Models\ProductHistory.cs" />
     <Compile Include="Models\ProductionProductivityQuoteBase.cs" />
     <Compile Include="Models\ProductionProductLevel.cs" />
     <Compile Include="Models\Production\DateType.cs" />
@@ -1319,6 +1334,7 @@
     <Compile Include="Models\WorkOrderRouting1.cs" />
     <Compile Include="Utilities\MyPrintService.cs" />
     <Compile Include="Utilities\MyWeighingService.cs" />
+    <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrderFinishBarcode.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageBarcode.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWorkOrderAVF.aspx" />
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOMaterialUse.aspx" />
@@ -1326,11 +1342,19 @@
     <Content Include="Areas\Factory\Views\WorkOrder\PageWOAssignMaterial.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageImportProductForm.aspx" />
     <Content Include="Areas\Inv\Views\Inv\PageTransactionFormGroup.aspx" />
+    <Content Include="Areas\Inv\Views\Reporting\PageNotFinishInvProductReport.aspx" />
     <Content Include="Areas\Inv\Views\Reporting\PageDeliverySalesReport.aspx" />
     <Content Include="Areas\Purchasing\Views\Tool\PagePrintToolTransactionInternal.aspx" />
     <Content Include="Areas\Sales\Views\Orders\PagePreparationTools.aspx" />
-    <Content Include="Content\FileUpload\CertificateMaterial2\askquestion.jpg" />
-    <Content Include="Content\FileUpload\ProductImg\askquestion.jpg" />
+    <Content Include="Content\FileUpload\CertificateMaterial2\askquestion.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\FileUpload\ProductHistory\askquestion.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\FileUpload\ProductImg\askquestion.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Images\Background\2.png" />
     <Content Include="Content\Images\Logo\d-gear-logoa.jpg" />
     <Content Include="Content\Isotope.css" />
@@ -2292,9 +2316,15 @@
     <Content Include="Content\960\rtl_text.css" />
     <Content Include="Content\960\text.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\FileUpload\CertificateMaterial\askquestion.jpg" />
-    <Content Include="Content\FileUpload\Drawing\askquestion.jpg" />
-    <Content Include="Content\FileUpload\ToolImg\askquestion.jpg" />
+    <Content Include="Content\FileUpload\CertificateMaterial\askquestion.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\FileUpload\Drawing\askquestion.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\FileUpload\ToolImg\askquestion.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Icons\Accounting.png" />
     <Content Include="Content\Icons\add1-128.png" />
     <Content Include="Content\Icons\add1-16.png" />
@@ -3059,10 +3089,18 @@
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderMaterialScanCode.cshtml" />
     <Content Include="Areas\Inv\Views\Transaction\ImportTransactionMaterial.cshtml" />
     <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderFinishManagement.cshtml" />
+    <Content Include="Areas\Factory\Views\WorkOrder\WorkOrderCard.cshtml" />
+    <Content Include="ClassDiagram1.cd" />
+    <Content Include="ClassDiagram2.cd" />
+    <Content Include="Areas\Sales\Views\Customer\EditorTemplates\Int.cshtml" />
+    <Content Include="Areas\Sales\Views\Customer\EditorTemplates\Number2.cshtml" />
     <None Include="Utilities\weighingvalue.json" />
     <Content Include="Logs\read.txt" />
     <Content Include="Resources\lock.png" />
+    <Content Include="Resources\material_error.mp3" />
+    <Content Include="Resources\success.mp3" />
     <Content Include="Resources\unlock.png" />
+    <Content Include="Resources\wo_error.mp3" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jqplot\plugins\jqplot.barRenderer.js" />
     <Content Include="Scripts\OnLoad.js" />
@@ -3130,6 +3168,8 @@
     <Content Include="Views\Product\EditorTemplates\_ProcessClassifiedTemplate.cshtml" />
     <Content Include="Views\Product\EditorTemplates\_WarehouseMainProcessTemplate.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\Number5Digit.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_UploadProductHistoryImage.cshtml" />
+    <Content Include="Views\Product\EditorTemplates\_DateTemplateNullable.cshtml" />
     <None Include="Web-server.Release.config">
       <DependentUpon>Web-server.config</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -3696,18 +3736,22 @@
     <Content Include="App_GlobalResources\EditorLocalization.bg-BG.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>EditorLocalization.bg-BG1.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="App_GlobalResources\EditorLocalization.da-DK.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>EditorLocalization.da-DK1.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="App_GlobalResources\EditorLocalization.de-DE.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>EditorLocalization.de-DE1.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="App_GlobalResources\EditorLocalization.en-US.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>EditorLocalization.en-US1.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="App_GlobalResources\EditorLocalization.fr-FR.resx">
       <Generator>GlobalResourceProxyGenerator</Generator>
@@ -3845,6 +3889,12 @@
       <Generator>GlobalResourceProxyGenerator</Generator>
       <LastGenOutput>GridLocalization.vi-VN1.designer.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptAllProducts.resx">
+      <DependentUpon>RptAllProducts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptWorkOrderFinishCard.resx">
+      <DependentUpon>RptWorkOrderFinishCard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptBarcode.resx">
       <DependentUpon>RptBarcode.cs</DependentUpon>
     </EmbeddedResource>
@@ -4072,8 +4122,8 @@
     <EmbeddedResource Include="Areas\Inv\Reports\RptForecastOrder.resx">
       <DependentUpon>RptForecastOrder.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Areas\Inv\Reports\RptAllProducts.resx">
-      <DependentUpon>RptAllProducts.cs</DependentUpon>
+    <EmbeddedResource Include="Areas\Inv\Reports\RptNotFinishInvProduct.resx">
+      <DependentUpon>RptNotFinishInvProduct.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Areas\Inv\Reports\RptMaterialDailyReport.resx">
       <DependentUpon>RptMaterialDailyReport.cs</DependentUpon>

@@ -99,7 +99,7 @@
             $("#WeighValue")[0].innerText = "0.00";
             $("#QuantityValue")[0].innerText = "0";
             dataInput = {
-                UsingQuantity: 0,
+                UsingQuantity: 0.0,
                 GoodQuantity: 0,
                 NGQuantity: 0,
                 DefectQuantity: 0,
@@ -111,6 +111,7 @@
                 OnLoadingData();
                 var workOrder = $("#WorkOrder").data('tComboBox').value();
                 if (workOrder === "") workOrder = 0;
+                ClearData();
                 $.ajax({
                     type: 'post',
                     data: { routingId: workOrder },
@@ -119,6 +120,9 @@
                     timeout: 20000,
                     success: function (res) {
                         if (res.Code === 1) {
+                            roundNumberConfig = res.Data.IsWorkOrderNotFullMaterial;
+                            quantity = 0;
+                            weight = 0;
                             $("#SerialNumber")[0].innerText = res.Data.SerialNumber;
                             $("#WorkOrderQuantity")[0].innerText = res.Data.PlannedCost.format(0);
                             $("#RoutingName")[0].innerText = res.Data.RoutingName + " (" + res.Data.ProductionLossRate + "%)";
@@ -141,11 +145,8 @@
                             $("#MaterialUse")[0].innerText = res.Data.UsingQuantity.format(roundNumberConfig);
                             $("#MaterialWaiting")[0].innerText = res.Data.WaitingApproveQuantity.format(roundNumberConfig);
                             $("#MaterialRes")[0].innerText = (res.Data.ActualResources - res.Data.UsingQuantity - res.Data.WaitingApproveQuantity).format(roundNumberConfig);
-                            quantity = 0;
-                            weight = 0;
                             $("#WeighValue")[0].innerText = "0.00";
                             $("#QuantityValue")[0].innerText = "0";
-
                             RefreshGrid("grid");
                             OnLoadedData();
                         } else {

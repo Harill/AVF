@@ -100,6 +100,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         StateName = MyUtilities.Sales.GetCustomerState(customer.State),
                         IsNotRequireApproveOrder = customer.IsNotRequireApproveOrder,
                         IsWorkOrder = customer.IsWorkOrder,
+                        IsWorkOrderNotFullMaterial = customer.IsWorkOrderNotFullMaterial,
+                        ImportTax = customer.ImportTax,
+                        QuotationFactor = customer.QuotationFactor,
                     };
                     entity.PayType = payType.FirstOrDefault(pt => pt.Id == customer.CustomerPayTypeId).TypeName;
                     if (customer.ShippingMethodId != null) {
@@ -403,7 +406,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         IsMonitor = true,
                         StartDate = customerUpdate.StartDate,
                         IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder,
-                        IsWorkOrder = customerUpdate.IsWorkOrder
+                        IsWorkOrder = customerUpdate.IsWorkOrder,
+                        IsWorkOrderNotFullMaterial = customerUpdate.IsWorkOrderNotFullMaterial,
+                        QuotationFactor = 1,
+                        ImportTax = 0
                     };
                     if (string.IsNullOrWhiteSpace(customer.CustomerCode))
                         customer.State = (byte)MyUtilities.Sales.CustomerState.NewCustomer;
@@ -536,6 +542,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                         customer.State = state;
                         customer.IsNotRequireApproveOrder = customerUpdate.IsNotRequireApproveOrder;
                         customer.IsWorkOrder = customerUpdate.IsWorkOrder;
+                        customer.IsWorkOrderNotFullMaterial = customerUpdate.IsWorkOrderNotFullMaterial;
                         if (string.IsNullOrWhiteSpace(customer.CustomerCode))
                             customer.State = (byte)MyUtilities.Sales.CustomerState.NewCustomer;
                         else if (customer.State == (byte)MyUtilities.Sales.CustomerState.NewCustomer)
@@ -646,6 +653,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     customer.TaxCode = customerUpdate.TaxCode ?? "";
                     customer.BankAccount = customerUpdate.BankAccount ?? "";
                     customer.MaxCredit = customerUpdate.MaxCredit ?? 0;
+                    customer.ImportTax = customerUpdate.ImportTax;
+                    customer.QuotationFactor = customerUpdate.QuotationFactor;
                     vfi.SaveChanges();
                 }
             }

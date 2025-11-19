@@ -48,5 +48,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double DiffQuantityKg { get; set; }
         public double MaxQuantity { get; set; }
         public double DiffPercent { get { return MaxQuantity > 0 ? (TotalQuantity / MaxQuantity - 1) * 100 : 0; } }
+
+        public int RoundConfig { get; set; }
     }
 }

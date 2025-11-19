@@ -8,6 +8,29 @@
     <!-- grid Monthly -->
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
+        
+        $(document).ready(function () {
+            loadWO_Summary();
+        });
+        
+        function loadWO_Summary() {
+            $.ajax({
+                type: 'post',
+                data: { configStr: '{IsProduction2: true}' },
+                dataType: 'json',
+                url: '@Url.Action("GetWOSummary", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        $("#wo_onProcess")[0].innerText = res.Data.DM.format(0);
+                        $("#wo_inventory")[0].innerText = res.Data.NS.format(0);
+
+                    } else {
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });   
+        }
 
         function grid_OnDataBinding(args) {
             if (startGrid && !onLoading) {
@@ -38,7 +61,7 @@
         function grid_OnRowDataBound(e) {
             if(e.dataItem.Status != @Convert.ToInt32(MyUtilities.WorkOrder.Status.InProcess)){            
                 e.row.childNodes[e.row.childNodes.length - 1].innerHTML = "";
-            }
+        }
         }
 
         function ForceFinish(routingId) {
@@ -74,8 +97,8 @@
 }
 <div class="title">Danh sách lệnh công đoạn 2</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
-        <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+    <fieldset>
+        <legend>Tiêu chí trích lọc</legend>
         <div class="grid_2">Sản phẩm:</div>
         <div class="grid_4">
             @{
@@ -106,32 +129,44 @@
                     .Render();
             }
         </div>
-            <div class="grid_3">
-                @{
-                    Html.Telerik().DatePicker()
-                        .Name("FromDate")
-                        .Format("dd/MM/yyyy")
-                        .Value(DateTime.Today.Month + "/01/" + DateTime.Today.Year)
-                        .Render();
-                }
+        <div class="grid_3">
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("FromDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today.Month + "/01/" + DateTime.Today.Year)
+                    .Render();
+            }
             <div class="clear"></div>
-                @{
-                    Html.Telerik().DatePicker()
-                        .Name("ToDate")
-                        .Format("dd/MM/yyyy")
-                        .Value(DateTime.Today)
-                        .Render();
-                }
-            </div>
-            <div class="grid_3">
-                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
-                    <span class='t-icon t-insert'></span>
-                    Làm mới
+            @{
+                Html.Telerik().DatePicker()
+                    .Name("ToDate")
+                    .Format("dd/MM/yyyy")
+                    .Value(DateTime.Today)
+                    .Render();
+            }
+        </div>
+        <div class="grid_3">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
+                <span class='t-icon t-insert'></span>
+                Làm mới
                 <span class="loadButton"></span>
-                </button>
-            </div>
-        </fieldset>
-    </div>
+            </button>
+        </div>
+        <div class="grid_2">
+            Tổng WO đang xử lý
+        </div>
+        <div class="grid_3" style="font-size: large;">
+            <span id="wo_onProcess">~~</span>
+        </div>
+        <div class="grid_2">
+            Tổng WO đang tồn kho
+        </div>
+        <div class="grid_3" style="font-size: large;">
+            <span id="wo_inventory">~~</span>
+        </div>
+    </fieldset>
+</div>
 
 <div class="cover-div">
     @{
@@ -265,7 +300,7 @@
 
                                             .Editable(editing => editing.Mode(GridEditMode.InLine))
                                             .ClientEvents(e => e.OnError("grid_OnError"))
-                                            //.Pageable(page => page.PageSize(10))
+                                //.Pageable(page => page.PageSize(10))
                                             .ToHtmlString())
                                         ).ToHtmlString()))
 

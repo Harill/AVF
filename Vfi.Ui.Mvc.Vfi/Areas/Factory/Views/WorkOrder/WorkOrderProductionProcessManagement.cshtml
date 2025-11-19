@@ -121,11 +121,12 @@
             )
             .Columns(columns => {
                 columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(120).ReadOnly(true);
-                columns.Bound(f => f.WorkOrderSerial).Title("Số WO").Width(100).ReadOnly(true);
-                columns.Bound(f => f.Date).Title("Ngày").Width(70).ReadOnly(true)
+                columns.Bound(f => f.WorkOrderSerial).Title("Số WO").Width(120).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Máy").Width(120).ReadOnly(true);
+                columns.Bound(f => f.Date).Title("Ngày").Width(120).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy HH:mm}")
                     .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" });
-                columns.Bound(f => f.StatusName).Width(70).Title("Tình trạng");
+                columns.Bound(f => f.StatusName).Width(100).Title("Tình trạng");
                 //columns.Bound(f => f.Shift).Title("Ca").Width(40).ReadOnly(true);
                 columns.Bound(f => f.UsingQuantity).Title("Sử dụng</br>(cây)").ReadOnly(true).Width(50)
                     .Format("{0:n0}")
@@ -188,7 +189,7 @@
                 //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Average) #>")
                 //.FooterHtmlAttributes(new { style = "text-align: center;" });
 
-                columns.Bound(f => f.EmployeeName).Title("Nhân viên").Width(100).ReadOnly(true)
+                columns.Bound(f => f.EmployeeName).Title("Nhân viên").ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: center;" });
             })
             .Reorderable(f => f.Columns(true))

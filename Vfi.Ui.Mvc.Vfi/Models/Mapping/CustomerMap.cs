@@ -87,7 +87,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.State).HasColumnName("State");
             this.Property(t => t.IsNotRequireApproveOrder).HasColumnName("IsNotRequireApproveOrder");
             this.Property(t => t.IsWorkOrder).HasColumnName("IsWorkOrder");
+            this.Property(t => t.IsWorkOrderNotFullMaterial).HasColumnName("IsWorkOrderNotFullMaterial");
             this.Property(t => t.ShippingMethodId).HasColumnName("ShippingMethodId");
+            this.Property(t => t.ImportTax).HasColumnName("ImportTax");
+            this.Property(t => t.QuotationFactor).HasColumnName("QuotationFactor");
 
             // Relationships
             this.HasOptional(t => t.ShipMethod)

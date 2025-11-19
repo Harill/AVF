@@ -17,6 +17,10 @@
             if (customerId === "") {
                 customerId = 0;
             }
+            var machineId = $("#Machine").data('tComboBox').value();
+            if (machineId === "") {
+                machineId = 0;
+            }
             var productCode = $("#ProductCodeName").data("tAutoComplete").value();
             var fromDate = $("#FromDate").data("tDatePicker").value();
             if (fromDate === null)
@@ -30,6 +34,7 @@
                 toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
             args.data = $.extend(args.data, {
                 customerId: customerId,
+                machineId: machineId,
                 productCode: productCode,
                 status: status,
                 fromDate: fromDate,
@@ -143,6 +148,21 @@
                         .Encode(false)
                         .AutoFill(true)
                         .HighlightFirstMatch(true)
+                        .Render();
+                }
+            </div>
+            <div class="grid_2">
+                Máy
+            </div>
+            <div class="grid_4">
+                @{
+                    Html.Telerik().ComboBox()
+                        .Name("Machine")
+                        .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachineAllProduction", "Machine", new { area = "Factory" }))
+                        .HtmlAttributes(new { style = "width: 100%" })
+                        //.DropDownHtmlAttributes(new { style = "width: 100%" })
+                        .AutoFill(true)
+                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
@@ -288,7 +308,7 @@
                                                 columns.Bound(f => f.PlannedCost).Width(65).Title("Kế</br>hoạch").ReadOnly(true)
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                                columns.Bound(f => f.ActualCost).Width(65).Title("Thực</br>tế").ReadOnly(true)
+                                                columns.Bound(f => f.ActualCostSum).Width(65).Title("Thực</br>tế").ReadOnly(true)
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
                                                 columns.Bound(f => f.UsingQuantity).Width(65).Title("Sử</br>dụng").ReadOnly(true)

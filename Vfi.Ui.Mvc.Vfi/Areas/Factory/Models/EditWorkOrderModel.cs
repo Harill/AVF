@@ -41,10 +41,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public int MaterialInvId { get; set; }
         public int MachineId { get; set; }
 
+        public int IsWorkOrderNotFullMaterial { get; set; }
         public double MaterialRequirement {
             get {
                 return Info.DM > 0
-                    ? MyUtilities.Function.RoundUp(Quantity / Info.DM)
+                    ? IsWorkOrderNotFullMaterial == 1 ? Quantity / Info.DM : MyUtilities.Function.RoundUp(Quantity / Info.DM)
                     : 0;
             }
         }

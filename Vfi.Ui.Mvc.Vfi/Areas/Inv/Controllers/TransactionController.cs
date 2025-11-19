@@ -3641,6 +3641,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     if (canApproveDefect) {
                         warehouseIds.Add(MyUtilities.Warehouse.Defect);
                     }
+                    else {
+                        warehouseIds.Remove(MyUtilities.Warehouse.Defect);
+                    }
                 }
 
                 var canApproveInternal = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.ApproveInternalProduct);
@@ -5726,44 +5729,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
             return View(new GridModel(models.OrderBy(m => m.ProductCode)));
         }
 
-        [GridAction]
-        public ActionResult UpdateExportPlatingDetail(ManageImportExportDetailModel update) {
-            try {
-                using (var vfi = new tammaContext()) {
-                    var detail = vfi.ExportGCN_NCUDetail.FirstOrDefault(pfd => pfd.DetailId == update.DetailId);
-                    if (detail == null) {
-                        throw new AggregateException("Lỗi! Không tìm thấy chi tiết cần sửa!");
-                    }
-                    detail.Package = update.Package;
-                    update.TransactionId = detail.ExportGCN_NCU.TransactionId ?? 0;
-                    vfi.SaveChanges();
-                }
-            }
-            catch (Exception ex) {
-                ModelState.AddModelError("UpdateExportPlatingDetail", ex.Message);
-            }
-            return View(new GridModel(GetListFormDetailByTransactionId(update.TransactionId, (int)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU)));
-        }
-        
-        [GridAction]
-        public ActionResult UpdateImportPlatingDetail(ManageImportExportDetailModel update) {
-            try {
-                using (var vfi = new tammaContext()) {
-                    var detail = vfi.ImportNCU_QCBDetail.FirstOrDefault(pfd => pfd.DetailId == update.DetailId);
-                    if (detail == null) {
-                        throw new AggregateException("Lỗi! Không tìm thấy chi tiết cần sửa!");
-                    }
-                    detail.Package = update.Package;
-                    update.TransactionId = detail.ImportNCU_QCB.TransactionId ?? 0;
-                    vfi.SaveChanges();
-                }
-            }
-            catch (Exception ex) {
-                ModelState.AddModelError("UpdateExportPlatingDetail", ex.Message);
-            }
-            return View(new GridModel(GetListFormDetailByTransactionId(update.TransactionId, (int)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB)));
-        }
-
         List<ManageImportExportDetailModel> GetListFormDetailByTransactionId(long transactionId, int formType) {
 
             var models = new List<ManageImportExportDetailModel>();
@@ -5882,7 +5847,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             foreach (var detail in export.ExportFormTP_KDDetail) {
                                 var model = new ManageImportExportDetailModel {
                                     DetailId = detail.DetailId,
-                                    ProductId =  detail.ProductId ?? 0,
+                                    ProductId = detail.ProductId ?? 0,
                                     ProductCode = detail.Product.ProductCode,
                                     Number = (detail.Quality),
                                     Note = detail.Note,
@@ -5911,6 +5876,228 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     TransactionId = transactionId,
                                     FormType = formType,
                                     Weight = detail.Weight.Value / 1000
+                                };
+                                if (model.Number > 0) models.Add(model);
+                            }
+                        }
+                        break;
+                }
+            }
+            return models.OrderBy(m => m.ProductCode).ToList();
+        }
+
+
+        [GridAction]
+        public ActionResult UpdateExportPlatingDetail(ManageImportExportDetailModel update) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var detail = vfi.ExportGCN_NCUDetail.FirstOrDefault(pfd => pfd.DetailId == update.DetailId);
+                    if (detail == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy chi tiết cần sửa!");
+                    }
+                    detail.Package = update.Package;
+                    update.TransactionId = detail.ExportGCN_NCU.TransactionId ?? 0;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateExportPlatingDetail", ex.Message);
+            }
+            return View(new GridModel(GetListFormDetailByTransactionId(update.TransactionId, (int)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU)));
+        }
+        
+        [GridAction]
+        public ActionResult UpdateImportPlatingDetail(ManageImportExportDetailModel update) {
+            try {
+                using (var vfi = new tammaContext()) {
+                    var detail = vfi.ImportNCU_QCBDetail.FirstOrDefault(pfd => pfd.DetailId == update.DetailId);
+                    if (detail == null) {
+                        throw new AggregateException("Lỗi! Không tìm thấy chi tiết cần sửa!");
+                    }
+                    detail.Package = update.Package;
+                    update.TransactionId = detail.ImportNCU_QCB.TransactionId ?? 0;
+                    vfi.SaveChanges();
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateExportPlatingDetail", ex.Message);
+            }
+            return View(new GridModel(GetListFormDetailByTransactionId(update.TransactionId, (int)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB)));
+        }
+
+        [GridAction]
+        public ActionResult SelectFormDetailLotNumberByTransactionId(long transactionId, int formType) {
+            var models = new List<ManageImportExportDetailModel>();
+            try {
+                models = GetListFormDetailLotNumberByTransactionId(transactionId, formType);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectFormDetailByTransactionId", ex.Message);
+            }
+            return View(new GridModel(models.OrderBy(m => m.ProductCode)));
+        }
+
+        List<ManageImportExportDetailModel> GetListFormDetailLotNumberByTransactionId(long transactionId, int formType) {
+
+            var models = new List<ManageImportExportDetailModel>();
+            //return View(new GridModel(models));
+            using (var vfi = new tammaContext()) {
+                var isInvManager = MyUtilities.UserRole.CheckRole(HttpContext.User.Identity.Name, MyUtilities.UserRole.InvManagement);
+
+                switch (formType) {
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportSX1: {
+                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var import =
+                                vfi.ImportFormSX1.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
+                            var importDetails = vfi.ImportFormSX1Detail.Where(id => id.ImportId == import.ImportId);
+                            foreach (var detail in importDetails) {
+                                var entity = new ManageImportExportDetailModel {
+                                    DetailId = detail.DetailId,
+                                    ProductId = detail.ProductId,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Number1 + detail.Number2),
+                                    Note = "Máy chạy:" + detail.Machine,
+                                    CanEdit = false,
+                                    TransactionId = transactionId,
+                                    FormType = formType,
+                                    LotNumber = detail.LotNumber,
+                                };
+                                entity.Weight = entity.Number * detail.ProductWeight;
+                                if (entity.Number > 0) models.Add(entity);
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportCNC: {
+                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var import =
+                                vfi.ImportFormCncs.FirstOrDefault(i => i.TransactionCode.Equals(transaction.TransactionCode));
+                            var importDetails = vfi.ImportFormCncDetails.Where(id => id.ImportId == import.ImportId);
+                            foreach (var detail in importDetails) {
+                                var entity = new ManageImportExportDetailModel {
+                                    DetailId = detail.DetailId,
+                                    ProductId = detail.ProductId,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Number1 + detail.Number2),
+                                    Note = "Máy chạy:" + detail.Machine.MachineName,
+                                    CanEdit = false,
+                                    TransactionId = transactionId,
+                                    FormType = formType,
+                                    
+                                };
+                                if (detail.ProductInventory != null) {
+                                    entity.LotNumber = detail.ProductInventory.LotNumber;
+                                }
+                                entity.Weight = entity.Number * detail.ProductWeight;
+                                if (entity.Number > 0) models.Add(entity);
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportGCN_NCU: {
+                            var exportPlating = vfi.ExportGCN_NCU.FirstOrDefault(t => t.TransactionId == transactionId);
+                            if (exportPlating == null) break;
+                            foreach (var detail in exportPlating.ExportGCN_NCUDetail) {
+                                var entity = models.FirstOrDefault(m => m.ProductId == detail.ProductId &&
+                                    detail.PlatingDetailId == m.PlatingDetailId);
+                                if (entity == null) {
+                                    entity = new ManageImportExportDetailModel {
+                                        DetailId = detail.DetailId,
+                                        ProductId = detail.ProductId,
+                                        ProductCode = detail.Product.ProductCode,
+                                        Number = (detail.RealNumber),
+                                        Weight = (detail.Weight) ?? 0,
+                                        Note = detail.Note,
+                                        Package = detail.Package,
+                                        CanEdit = false,
+                                        TransactionId = transactionId,
+                                        FormType = formType,
+                                        PlatingDetailId = detail.PlatingDetailId
+                                    };
+                                    if (detail.ProductInventory != null) {
+                                        entity.LotNumber = detail.ProductInventory.LotNumber;
+                                    }
+                                    if (entity.Number > 0) models.Add(entity);
+                                }
+                                else {
+                                    entity.Number += detail.RealNumber;
+                                    entity.Weight += (detail.Weight) ?? 0;
+                                    entity.Note += (detail.Note + " ");
+                                }
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ImportNCU_QCB: {
+                            var importPlating = vfi.ImportNCU_QCB.FirstOrDefault(t => t.TransactionId == transactionId);
+                            if (importPlating == null) break;
+                            foreach (var detail in importPlating.ImportNCU_QCBDetail) {
+                                var entity = models.FirstOrDefault(m => m.ProductId == detail.ProductId &&
+                                    detail.ExportGCN_NCUDetail.PlatingDetailId == m.PlatingDetailId);
+                                if (entity == null) {
+                                    entity = new ManageImportExportDetailModel {
+                                        DetailId = detail.DetailId,
+                                        ProductId = detail.ProductId,
+                                        ProductCode = detail.Product.ProductCode,
+                                        Number = (detail.RealNumber),
+                                        Weight = (detail.Weight),
+                                        Note = detail.Note,
+                                        Package = detail.Package,
+                                        CanEdit = false,
+                                        TransactionId = transactionId,
+                                        FormType = formType,
+                                        PlatingDetailId = detail.ExportGCN_NCUDetail.PlatingDetailId
+                                    };
+                                    if (detail.ProductInventory != null) {
+                                        entity.LotNumber = detail.ProductInventory.LotNumber;
+                                    }
+                                    if (entity.Number > 0) models.Add(entity);
+                                }
+                                else {
+                                    entity.Number += detail.RealNumber;
+                                    entity.Weight += (detail.Weight);
+                                    entity.Note += (detail.Note + " ");
+                                }
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportTP: {
+                            var transaction10 = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var export =
+                                vfi.ExportFormTP_KD.FirstOrDefault(
+                                    e => e.TransactionCode.Equals(transaction10.TransactionCode));
+                            var exportDetails = vfi.TransactionProducts.Where(x => x.TransactionId == transactionId);
+                            foreach (var detail in transaction10.TransactionDetails) {
+                                var model = new ManageImportExportDetailModel {
+                                    DetailId = detail.TransactionDetailId,
+                                    ProductId = detail.ReferenceId ?? 0,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Quantity),
+                                    Weight = (detail.QuantityKg ?? 0),
+                                    Note = detail.Note,
+                                    CanEdit = isInvManager,
+                                    TransactionId = transactionId,
+                                    FormType = formType,
+                                    LotNumber = detail.LotNumber
+                                };
+                                if (model.Number > 0) models.Add(model);
+                            }
+                        }
+                        break;
+                    case (byte)MyUtilities.Transaction.FormTypeEnum.ExportChange: {
+                            var transaction = vfi.Transactions.FirstOrDefault(t => t.TransactionId.Equals(transactionId));
+                            var exportChange =
+                                 vfi.ExportFormTP_KD.FirstOrDefault(
+                                     e => e.TransactionCode.Equals(transaction.TransactionCode));
+                            foreach (var detail in transaction.TransactionDetails) {
+                                var model = new ManageImportExportDetailModel {
+                                    DetailId = detail.TransactionDetailId,
+                                    ProductId = detail.ReferenceId ?? 0,
+                                    ProductCode = detail.Product.ProductCode,
+                                    Number = (detail.Quantity),
+                                    Weight = (detail.QuantityKg ?? 0),
+                                    Note = detail.Note,
+                                    CanEdit = isInvManager,
+                                    TransactionId = transactionId,
+                                    FormType = formType,
+                                    LotNumber = detail.LotNumber
                                 };
                                 if (model.Number > 0) models.Add(model);
                             }
@@ -7051,8 +7238,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     }
                     if (transaction.IsInternal == true) {
                     }
-                    if (transaction.EoI == Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export).ToString()) {
-                        if (transaction.IsInternal != true) {
+                    else if (transaction.EoI == Convert.ToChar(MyUtilities.Transaction.EoIEnum.Export).ToString()) {
+                        var exportMaterial = transaction.ExportMaterials.FirstOrDefault();
+                        if (exportMaterial != null && exportMaterial.ShiftType != null) {
                             return Json(new MyUtilities.Monitor.MyJsonResult(
                                 (int)MyUtilities.Monitor.ErrorCode.NotImplement,
                                 "Chưa xử lý phát nguyên liệu",
@@ -7079,6 +7267,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                     0));
             }
         }
+
         public ActionResult CreateRollbackTransaction(long transactionId) {
             try {
                 using (var vfi = new tammaContext()) {

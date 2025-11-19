@@ -199,6 +199,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
                         : 0;
             }
         }
+        public int DiffEstimateTime {
+            get {
+                return
+                    (FinishDate != null && StartDate != null)
+                        ? Status == (byte)MyUtilities.Machine.State.RepairStatus.Finish
+                              ? Convert.ToInt32((FinishDate - StartDate).Value.TotalMinutes) - EstimateTime - MoreTime > 0
+                                    ? Convert.ToInt32((FinishDate - StartDate).Value.TotalMinutes) - EstimateTime - MoreTime
+                                    : 0
+                              : Convert.ToInt32((FinishDate - StartDate).Value.TotalMinutes) - EstimateTime > 0
+                                  ? Convert.ToInt32((FinishDate - StartDate).Value.TotalMinutes) - EstimateTime
+                                  : 0
+                        : 0;
+            }
+        }
 
         public double Productivity { get; set; }
 

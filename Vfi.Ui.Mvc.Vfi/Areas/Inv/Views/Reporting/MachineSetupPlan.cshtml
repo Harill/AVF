@@ -272,6 +272,9 @@
                         columns.Bound(f => f.ProductionHistory).Width(100)
                                .Format("{0}")
                                .HeaderTemplate("Lịch sử máy SX");
+                        columns.Bound(f => f.ProductionOnRun).Width(100)
+                               .Format("{0}")
+                               .HeaderTemplate("Máy đang chạy</br>(theo sơ đồ máy)");
                         columns.Bound(f => f.AvailableMachine).Width(100)
                                .Format("{0}")
                                .HeaderTemplate("Máy trống theo</br>chức năng SP");

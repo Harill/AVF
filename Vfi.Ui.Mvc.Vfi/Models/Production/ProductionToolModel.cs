@@ -2,8 +2,7 @@
 
 namespace Vfi.Ui.Mvc.Vfi.Models.Production
 {
-    public class ProductionToolModel
-    {
+    public class ProductionToolModel {
         public int RealToolId { get; set; }
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
@@ -40,5 +39,32 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public int? ProcessWarehouseId { get; set; }
         [UIHint("_WarehouseEditTemplate")]
         public string ProcessWarehouseName { get; set; }
+
+
+        public double ToolQuota { get; set; }
+        public double ProductForcast { get; set; }
+        public double ProductInventory { get; set; }
+        public double ProductionQuantity { get; set; }
+        public double ProductRequired { get { return ProductForcast > ProductInventory ? ProductForcast - ProductInventory : 0; } }
+        public double ToolRequired {
+            get {
+                return (ToolQuota > 0 && ProductRequired / ToolQuota - ToolInv > 0)
+                    ? ProductRequired / ToolQuota - ToolInv : 0;
+            }
+        }
+        public int ToolRequiredColor { get; set; }
+        //public int ToolRequiredColor {
+        //    get {
+        //        return ToolQuota > 0
+        //            ? ProductionQuantity / ToolQuota > 1.2
+        //                ? 1 
+        //                : ProductionQuantity / ToolQuota > 1.1
+        //                    ? 2
+        //                    : ProductionQuantity / ToolQuota > 1
+        //                        ? 3
+        //                        : 0
+        //            : 1;
+        //    }
+        //}
     }
 }

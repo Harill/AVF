@@ -665,7 +665,7 @@
             this.textBox49.Style.BorderWidth.Default = Telerik.Reporting.Drawing.Unit.Point(0.5D);
             this.textBox49.Style.TextAlign = Telerik.Reporting.Drawing.HorizontalAlign.Left;
             this.textBox49.Style.VerticalAlign = Telerik.Reporting.Drawing.VerticalAlign.Middle;
-            this.textBox49.Value = "(kg)";
+            this.textBox49.Value = "(g)";
             // 
             // panel21
             // 

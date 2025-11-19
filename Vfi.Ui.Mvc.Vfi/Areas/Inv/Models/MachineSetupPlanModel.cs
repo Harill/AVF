@@ -10,6 +10,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
             OrderNumber = 0;
             ForecastNumber = 0;
             MachineSetupHistoryList = new List<MachineSetupHistory>();
+            MachineRunningList = new List<string>();
         }
         public int ProductId { get; set; }
         public string ProductCode { get; set; }
@@ -40,6 +41,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models {
                 var str = "";
                 foreach (var machine in MachineSetupHistoryList) {
                     str += machine.MachineName + "-" + machine.MachineType + "(" + machine.Function + "), ";
+                }
+                return str;
+            }
+        }
+        
+        public List<string> MachineRunningList { get; set; }
+        public string ProductionOnRun {
+            get {
+                var str = "";
+                foreach (var machine in MachineRunningList) {
+                    str += machine + ", ";
                 }
                 return str;
             }

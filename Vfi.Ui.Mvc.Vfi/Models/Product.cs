@@ -59,6 +59,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
             this.ProductCombinationRecipes = new List<ProductCombinationRecipe>();
             this.ProductCombinationRecipeDetails = new List<ProductCombinationRecipeDetail>();
             this.ProductChanges = new List<ProductChange>();
+            this.ProductHistories = new List<ProductHistory>();
             this.QuoteDetails = new List<QuoteDetail>();
             this.OrderDetails = new List<OrderDetail>();
             this.TaxInvoiceProducts = new List<TaxInvoiceProduct>();
@@ -131,8 +132,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public int MaxQuantityInTrayRunTime { get; set; }
         public string IdentityCode { get; set; }
         public Nullable<int> ProductionLevel { get; set; }
-        public Nullable<int> ProcessClassifiedId { get; set; }
         public Nullable<double> PackingFee { get; set; }
+        public Nullable<int> ProcessClassifiedId { get; set; }
         public Nullable<bool> IsCalculateLock { get; set; }
         public Nullable<int> ProductionLossRate { get; set; }
         public virtual ICollection<ProductionPlan> ProductionPlans { get; set; }
@@ -192,6 +193,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ProductCombinationRecipe> ProductCombinationRecipes { get; set; }
         public virtual ICollection<ProductCombinationRecipeDetail> ProductCombinationRecipeDetails { get; set; }
         public virtual ICollection<ProductChange> ProductChanges { get; set; }
+        public virtual ICollection<ProductHistory> ProductHistories { get; set; }
         public virtual ICollection<QuoteDetail> QuoteDetails { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
         public virtual ICollection<TaxInvoiceProduct> TaxInvoiceProducts { get; set; }

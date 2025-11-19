@@ -6,25 +6,95 @@
 @section Scripts{
     <script type="text/javascript">
 
+        function Grid_OnDataBinding(args) {
+
+            var month = $('#Month').data('tComboBox').value();
+            var year = $('#Year').data('tAutoComplete').text();
+
+            args.data = $.extend(args.data, {
+                month: month,
+                year: year
+            });
+        }
+
         function grid_OnRowDataBound(e) {
             if (e.dataItem.Quantity > e.dataItem.Receive)
                 e.row.childNodes[3].style.backgroundColor = "#F4FA58";
         }
+
         function Grid_OnDelete(e) {
-            var value = e.values;
-            var invoiceId = value.InvoiceId;
-            var note = value.Note;
-            e.data = $.extend(e.data, {
-                invoiceId: invoiceId,
-                note: note
+            var month = $('#Month').data('tComboBox').value();
+            var year = $('#Year').data('tAutoComplete').text();
+            e.values = $.extend(e.values, {
+                month: month,
+                year: year,
             });
         }
 
+        function month_onLoad() {
+            var combobox = $('#Month').data('tComboBox');
+            var dataSource =
+            [
+                { Text: "1", Value: "1" },
+                { Text: "2", Value: "2" },
+                { Text: "3", Value: "3" },
+                { Text: "4", Value: "4" },
+                { Text: "5", Value: "5" },
+                { Text: "6", Value: "6" },
+                { Text: "7", Value: "7" },
+                { Text: "8", Value: "8" },
+                { Text: "9", Value: "9" },
+                { Text: "10", Value: "10" },
+                { Text: "11", Value: "11" },
+                { Text: "12", Value: "12" }
+            ];
+
+            combobox.dataBind(dataSource);
+            if (new Date().getMonth() === 12)
+                combobox.value = "1";
+            else combobox.value(new Date().getMonth() + 1);
+        }
     </script> 
  
 }
 
 <div class="title">Duyệt chứng từ</div>
+<div>
+    <div class="grid_1">
+        @Html.Label("Tháng")
+    </div>
+    <div class="grid_2">
+        @{
+            Html.Telerik().ComboBox()
+                .Name("Month")
+                .HtmlAttributes(new { style = "width: 40px" })
+                .DropDownHtmlAttributes(new { style = "width: 40px" })
+                //.Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                // .HighlightFirstMatch(true)
+                //.AutoFill(true)
+                .ClientEvents(events => events.OnLoad("month_onLoad"))
+                .Render();
+        }
+    </div>
+
+    <div class="grid_1">
+        @Html.Label("Năm")
+    </div>
+    <div class="grid_2">
+
+        @{
+            Html.Telerik().AutoComplete()
+                .Name("Year")
+                .Value(DateTime.Now.Year + "")
+                .HtmlAttributes(new { style = "width: 40px" })
+                .Render();
+        }
+    </div>
+    <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridTaxInvoice'); ">
+        <span class='t-icon t-insert'></span>
+        Làm mới
+    </button>
+</div>
 
 <div class="cover-div">
     @{
@@ -33,9 +103,9 @@
             .DataKeys(key => key.Add(f => f.TaxInvoiceId).RouteKey("taxInvoiceId"))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
-                                          .Select("SelectTaxInvoiceWaiting", "SalesOrder", new {area = "Sales"})
+                                          .Select("SelectTaxInvoiceWaiting", "SalesOrder", new { area = "Sales", month = DateTime.Now.Month, year = DateTime.Now.Year })
                                    //.Update("UpdateTaxInvoice", "Orders", new {area = "Sales"})
-                                          .Delete("CancelTaxInvoice", "SalesOrder", new {area = "Sales"}))
+                                          .Delete("CancelTaxInvoice", "SalesOrder", new { area = "Sales", month = DateTime.Now.Month, year = DateTime.Now.Year }))
             .Columns(columns =>
                 {
                     //columns.Command(command =>
@@ -149,6 +219,7 @@
             .Editable(editing => editing.Mode(GridEditMode.InLine))
             .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect")
                                           .OnDelete("Grid_OnDelete")
+                                          .OnDataBinding("Grid_OnDataBinding")
                                           .OnError("grid_OnError"))
             .Scrollable(f => f.Height(500))
             //.HtmlAttributes(new {style = "width: 950px;"})

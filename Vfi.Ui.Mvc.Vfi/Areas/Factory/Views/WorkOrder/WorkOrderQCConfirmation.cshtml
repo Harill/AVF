@@ -11,17 +11,55 @@
 
         function grid_OnSave(args) {
             if (!onProcessing) {
+
+                var processDate = $("#ProcessDate").data("tDateTimePicker").value();
+                if (processDate === null)
+                    processDate = "";
+                else
+                    processDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', processDate);
+
+                args.values = $.extend(args.values,
+                    {
+                        processDate: processDate
+                    }
+                );
                 OnProcessingData();
             }
         }
         function grid_OnDataBound() {
             OnProcessedData();
         }
+        function grid_OnDelete(e) {
+            var message = "Hủy tiếp nhận: " + e.dataItem.RoutingFullName;
+            message += "\nĐồng ý ??";
+            if (confirm(message)) {
+
+                // Save it!
+            } else {
+                e.preventDefault();
+            }
+        }
+        function grid_OnRowDataBound(e) {
+            if (!e.dataItem.CanCancel) {
+                e.row.getElementsByClassName("t-button t-grid-delete t-button-icon")[0].parentNode.innerHTML = "";
+            }
+        }
     </script>
 }
 <div class="title">Nhận đo kiểm</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span></div>
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span>
+<div class="grid_5">
+    @{
+            Html.Telerik().DateTimePicker()
+                .Name("ProcessDate")
+                .Format("dd/MM/yyyy HH:mm")
+                .Value(DateTime.Now)
+                .Render();
+        }
+</div>
+</div>
+
 <div class="cover-div">
     @{
         Html.Telerik().Grid<WorkOrderRoutingModel>()
@@ -29,7 +67,11 @@
             .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectWorkOrderQCConfirmation", "WorkOrder", new { area = "Factory" })
-                .Update("ConfirmWorkOrderQC", "WorkOrder", new { area = "Factory" })
+                .Update("ConfirmWorkOrderQC", "WorkOrder", new { area = "Factory", processDate = "" })
+                .Delete("RejectWorkOrder", "WorkOrder", new {
+                    area = "Factory",
+                    config = new RoutingConfiguration { IsQC = true }
+                })
             )
             .Columns(columns => {
                 columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("Duyệt")
@@ -54,12 +96,15 @@
                 columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(170).ReadOnly(true)
                     .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.MoreInfo).Title("Ghi chú").ReadOnly(true);
+                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Trả</br>WO").Width(35);
             })
             .Selectable()
             .ClientEvents(events => events
                 .OnRowSelect("grid_OnRowSelect")
                 .OnSave("grid_OnSave")
                 .OnDataBound("grid_OnDataBound")
+                .OnDelete("grid_OnDelete")
+                .OnRowDataBound("grid_OnRowDataBound")
                 .OnError("grid_OnError"))
             .Render();
     }

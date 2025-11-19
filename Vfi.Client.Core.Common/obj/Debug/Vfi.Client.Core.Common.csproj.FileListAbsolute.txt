@@ -6,8 +6,9 @@ C:\Workspace\vfi-sync\vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Commo
 C:\Workspace\vfi-sync\vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.pdb
 C:\Workspace\vfi-sync\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.dll
 C:\Workspace\vfi-sync\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.pdb
+C:\Workspace\vfi-sync\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache
 C:\workspace\vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.dll
 C:\workspace\vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.pdb
 C:\workspace\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.dll
 C:\workspace\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.pdb
-C:\Workspace\vfi-sync\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache
+C:\workspace\vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache

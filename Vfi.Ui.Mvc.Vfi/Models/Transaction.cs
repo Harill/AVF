@@ -39,6 +39,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public Nullable<long> PoId { get; set; }
         public Nullable<long> ReferenceId { get; set; }
         public Nullable<bool> IsInternal { get; set; }
+        public Nullable<bool> IsPacking { get; set; }
         public virtual ICollection<ExportChangeProduct> ExportChangeProducts { get; set; }
         public virtual ICollection<ExportGCN_NCU> ExportGCN_NCU { get; set; }
         public virtual ICollection<ExportMaterial> ExportMaterials { get; set; }

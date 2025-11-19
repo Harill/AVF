@@ -88,6 +88,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
                 return EstimateTime >= 120 ? 1 : 0;
             }
         }
+        public int MaterialId { get; set; }
+        public double MaterialUse { get; set; }
+        public double ProductionQuantity { get; set; }
+    }
+
+    public class ShiftDate {
+        public DateTime FromDate { get; set; }
+        public DateTime ToDate { get; set; }
     }
 
     public class GroupMachineStateHandoverModel {
@@ -138,6 +146,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         }
         public double ProductionProductPlan {
             get { return Details.Sum(d => d.ProductionProductPlan); }
+        }
+        public double MaterialUse {
+            get { return Details.Sum(d => d.MaterialUse); }
+        }
+        public double ProductionQuantity {
+            get { return Details.Sum(d => d.ProductionQuantity); }
         }
         public List<MachineStateHandoverModel> Details { get; set; }
     }

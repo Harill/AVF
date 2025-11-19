@@ -19,8 +19,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public string ProviderName { get; set; }
         public Nullable<int> PlatingFormId { get; set; }
         public Nullable<long> TransactionId { get; set; }
-        public Nullable<bool> IsWorkOrder { get; set; }
         public byte PurchasingSignature { get; set; }
+        public Nullable<bool> IsWorkOrder { get; set; }
         public virtual PlatingForm PlatingForm { get; set; }
         public virtual Transaction Transaction { get; set; }
         public virtual ICollection<ImportNCU_QCBDetail> ImportNCU_QCBDetail { get; set; }

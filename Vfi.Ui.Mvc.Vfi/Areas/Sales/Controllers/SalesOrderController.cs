@@ -3599,9 +3599,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         }
 
         [GridAction]
-        public ActionResult SelectTaxInvoiceWaiting() {
+        public ActionResult SelectTaxInvoiceWaiting(int month,int year) {
             try {
-                return View(new GridModel(TaxInvoiceWaiting().OrderByDescending(o => o.ModifiedDate)));
+                return View(new GridModel(TaxInvoiceWaiting(month, year).OrderByDescending(o => o.ModifiedDate)));
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectPrepareTaxInvoice", ex.Message);
@@ -3610,7 +3610,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
         }
 
 
-        private List<TaxInvoiceModel> TaxInvoiceWaiting() {
+        private List<TaxInvoiceModel> TaxInvoiceWaiting(int month, int year) {
             var model = new List<TaxInvoiceModel>();
             try {
                 using (var vfi = new tammaContext()) {
@@ -3618,8 +3618,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                     var taxInvoices = vfi.TaxInvoices.Where(ti => (ti.Status == (byte)MyUtilities.Sales.Status.Waiting ||
                                                                    ti.Status == (byte)MyUtilities.Sales.Status.InProcess)
                                                                   && ti.SetupDate > startTaxInvoiceDate
+                                                                  && ti.SetupDate.Value.Month == month
+                                                                  && ti.SetupDate.Value.Year == year
                         //&& ti.TaxInvoiceList.Equals("VP/14P-0055")
-                        );
+                        ).ToList();
                     foreach (var taxInvoice in taxInvoices) {
                         //var taxInvoiceProductDetails =
                         //    taxInvoice.TaxInvoiceProductDetails.Where(tip => tip.Active == true
@@ -3663,7 +3665,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
 
         [GridAction]
-        public ActionResult CancelTaxInvoice(int taxInvoiceId) {
+        public ActionResult CancelTaxInvoice(int taxInvoiceId, int month, int year) {
             try {
                 if (!Request.IsAuthenticated) {
                     throw new AggregateException(@"Bạn đã bị mất quyền đăng nhập. \r\n 
@@ -3684,7 +3686,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
 
                     vfi.SaveChanges();
                 }
-                return View(new GridModel(TaxInvoiceWaiting().OrderByDescending(o => o.ModifiedDate)));
+                return View(new GridModel(TaxInvoiceWaiting(month, year).OrderByDescending(o => o.ModifiedDate)));
             }
             catch (Exception ex) {
                 ModelState.AddModelError("ApproveTaxInvoice", ex.Message);

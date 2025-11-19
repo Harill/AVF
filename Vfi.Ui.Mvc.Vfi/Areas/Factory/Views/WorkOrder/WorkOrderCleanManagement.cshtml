@@ -8,6 +8,29 @@
     <!-- grid Monthly -->
     <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
+        
+        $(document).ready(function () {
+            loadWO_Summary();
+        });
+
+        function loadWO_Summary() {
+            $.ajax({
+                type: 'post',
+                data: { configStr: '{IsPolish: true}' },
+                dataType: 'json',
+                url: '@Url.Action("GetWOSummary", "WorkOrder", new { area = "Factory" })',
+                timeout: 20000,
+                success: function (res) {
+                    if (res.Code === 1) {
+                        $("#wo_onProcess")[0].innerText = res.Data.DM.format(0);
+                        $("#wo_inventory")[0].innerText = res.Data.NS.format(0);
+
+                    } else {
+                        alert("Lỗi! " + res.Message);
+                    }
+                }
+            });
+        }
 
         function grid_OnDataBinding(args) {
             if (startGrid && !onLoading) {
@@ -129,6 +152,18 @@
                     Làm mới
                 <span class="loadButton"></span>
                 </button>
+            </div>
+            <div class="grid_2">
+                Tổng WO đang xử lý
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="wo_onProcess">~~</span>
+            </div>
+            <div class="grid_2">
+                Tổng WO đang tồn kho
+            </div>
+            <div class="grid_3" style="font-size: large;">
+                <span id="wo_inventory">~~</span>
             </div>
         </fieldset>
     </div>

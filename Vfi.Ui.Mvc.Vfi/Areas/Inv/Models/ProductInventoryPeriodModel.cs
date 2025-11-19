@@ -275,27 +275,41 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
             }
         }
 
-        public double ProductionDailyPoint { get; set; }
-        public double CamesDailyPoint { get; set; }
-        public double CncDailyPoint { get; set; }
-        public double Cnc2DailyPoint { get; set; }
         public double ProductionDaily { get; set; }
+        public double ProductionDailyPoint { get; set; }
+        public double ProductionWeekly { get; set; }
+        public double ProductionWeeklyPoint { get; set; }
+        public double ProductionMonthly { get; set; }
+        public double ProductionMonthlyPoint { get; set; }
+
         public double CamesDaily { get; set; }
+        public double CamesDailyPoint { get; set; }
+        public double CamesWeekly { get; set; }
+        public double CamesWeeklyPoint { get; set; }
+        public double CamesMonthly { get; set; }
+        public double CamesMonthlyPoint { get; set; }
+
         public double CncDaily { get; set; }
-        public double Cnc2Daily { get; set; }
+        public double CncDailyPoint { get; set; }
+        public double CncWeekly { get; set; }
+        public double CncWeeklyPoint { get; set; }
+        public double CncMonthly { get; set; }
+        public double CncMonthlyPoint { get; set; }
+
+        //public double Cnc2Daily { get; set; }
+        public double Cnc2DailyPoint { get; set; }
+        //public double Cnc2Monthly { get; set; }
+        public double Cnc2WeeklyPoint { get; set; }
+        public double Cnc2MonthlyPoint { get; set; }
+
         public double ForecastPoint { get; set; }
         public double OrderPoint { get; set; }
         public double OrderRemainingPoint { get; set; }
-        public double ProductionInMonthPoint { get; set; }
-        public double ProductionMonthly { get; set; }
-        public double CamesMonthly { get; set; }
-        public double CncMonthly { get; set; }
-        public double Cnc2Monthly { get; set; }
-        public double CamesMonthlyPoint { get; set; }
-        public double CncMonthlyPoint { get; set; }
-        public double Cnc2MonthlyPoint { get; set; }
+
         public double ExportDailyPoint { get; set; }
-        public double ExportInMonthPoint { get; set; }
+        public double ExportWeekly { get; set; }
+        public double ExportWeeklyPoint { get; set; }
+        public double ExportMonthlyPoint { get; set; }
 
         public double DonHangThangTruoc { get; set; }
         public double DonHangTrongThang { get; set; }
@@ -375,6 +389,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double ProductionPrice { get; set; }
         public double ProductionPriceInMonth { get; set; }
         public double DefectPrice { get; set; }
+        public double DefectPriceInWeek { get; set; }
         public double DefectPriceInMonth { get; set; }
         public string InMonthString { get; set; }
         public string NextMonthString { get; set; }

@@ -202,7 +202,7 @@
             <div class="grid_2">
                 Loại máy
             </div>
-            <div class="grid_4">
+            <div class="grid_5">
                 @{
                     Html.Telerik().ComboBox()
                         .Name("MachineType")
@@ -213,7 +213,7 @@
                         .Render();
                 }
             </div>
-         <div class="grid_6">
+         <div class="grid_8">
               <button id="btnTechnicalHandover" class="t-button" onclick=" return printTechnicalHandover(); ">
                 <span class='t-icon t-insert'></span>
                In báo cáo bàn giao kỹ thuật
@@ -221,14 +221,6 @@
             </button>
             </div>
     <div class="clear"></div>
-         <div class="grid_6">
-              <button id="btnPrintErrorMachineList" class="t-button" onclick=" return printErrorMachineList(); ">
-                <span class='t-icon t-insert'></span>
-                Tình trạng máy
-                <span class="loadButton"></span>
-            </button>
-             
-            </div>
     
             <div class="grid_1">
                 @Html.Label("Máy")
@@ -246,20 +238,26 @@
                         .Render();
                 }
             </div>
+            <div class="grid_4">
                 <label>
                     <input type="checkbox" id="chkState" name="chkState"/>
                     Hiện trạng máy
                 </label>
-    <div class="clear"></div>
+            </div>
          <div class="grid_6">
-              <button id="btnPrintJobAssignment" class="t-button" onclick=" return printJobAssignment(); ">
+              <button id="btnPrintErrorMachineList" class="t-button" onclick=" return printErrorMachineList(); ">
                 <span class='t-icon t-insert'></span>
-                Phân công sửa máy
+                Tình trạng máy
                 <span class="loadButton"></span>
             </button>
+             
             </div>
+    <div class="clear"></div>
     
-     <div class="grid_4">
+            <div class="grid_1">
+                Ngày
+            </div>
+     <div class="grid_3">
             @{
                 Html.Telerik().DatePicker()
                     .Name("FromDate2")
@@ -268,7 +266,7 @@
                     .Render();
             }
         </div>
-     <div class="grid_4">
+     <div class="grid_3">
             @{
                 Html.Telerik().DatePicker()
                     .Name("ToDate2")
@@ -277,15 +275,15 @@
                     .Render();
             }
         </div>
-    <div class="clear"></div>
-       
-         <div class="grid_5">
-              <button id="btnPrintMachineStateHandover" class="t-button" onclick=" return printMachineStateHandover(); ">
+         <div class="grid_6">
+              <button id="btnPrintJobAssignment" class="t-button" onclick=" return printJobAssignment(); ">
                 <span class='t-icon t-insert'></span>
-                Tình trạng bàn giao ca
+                Phân công sửa máy
                 <span class="loadButton"></span>
             </button>
             </div>
+    <div class="clear"></div>
+       
     
             <div class="grid_1">
                 Ca
@@ -301,6 +299,9 @@
                     .Render();
             }
             </div>
+            <div class="grid_1">
+                Ngày
+            </div>
      <div class="grid_4">
             @{
                 Html.Telerik().DatePicker()
@@ -310,6 +311,13 @@
                     .Render();
             }
         </div>
+         <div class="grid_7">
+              <button id="btnPrintMachineStateHandover" class="t-button" onclick=" return printMachineStateHandover(); ">
+                <span class='t-icon t-insert'></span>
+                Tình trạng bàn giao ca
+                <span class="loadButton"></span>
+            </button>
+            </div>
     <div class="clear"></div>
     <fieldset>
         <legend>Tiêu chí trích lọc</legend>

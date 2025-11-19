@@ -447,6 +447,28 @@
             }
             return true;
         }
+
+        function gridProductHistory_OnSave(e) {
+            //var i = 0;
+            //var drawing2D = "";
+            var editRow = e.target.getElementsByClassName("t-grid-edit-row")[0];
+            var ul2D = editRow.childNodes[1].childNodes[1].childNodes[1];
+            //if (ul2D == null && e.Upload === "" || typeof ul2D == 'undefined') {
+            //    //drawing2D = e.dataItem.ImgUrl;
+            //} else
+            if (ul2D != null) {
+                var child2D = ul2D.childNodes;
+                for (var i = child2D.length - 1; i >= 0; i--) {
+                    if (child2D[i].childNodes[0].textContent === "uploaded") {
+                        e.values.RefImage = child2D[0].childNodes[1].title;
+                        //drawing2D = child2D[0].childNodes[1].title;
+                        break;
+                    }
+                }
+            }
+            return true;
+        }
+
         function gridProductImg_OnRowDataBound(e) {
             if (!e.dataItem.CanModify) {
                 e.row.getElementsByClassName("t-button t-grid-edit t-button-icon")[0].parentNode.innerHTML = "";
@@ -778,9 +800,9 @@
                                         ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
                                     columns.Bound(f => f.WarehouseName).Title("Công đoạn").Width(70);
                                     columns.Bound(f => f.ImgUrl).Width(40).Title("Bản vẽ")
-                                           .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                           .ClientTemplate("<a id='<#=ImgId#>' href='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                                            "<img src='" + Url.Content("~/Content/FileUpload/ProductImg/") + "<#=ImgUrl#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
-                                                           "</a><div class='highslide-caption'><#= ProductCode #>-<#= Description #></div>");
+                                                           "</a><div class='highslide-caption'><#= WarehouseName #>-<#= Description #></div>");
                                     columns.Bound(f => f.Description).Title("Mô tả").Width(70);
                                     columns.Bound(f => f.Step).Title("Thứ tự").Width(70);
                                     columns.Bound(f => f.ModifiedUser).Title("Người tạo").ReadOnly(true).Width(70);
@@ -1548,7 +1570,7 @@
                                 })
                                 .DetailView(details2 => details2.ClientTemplate(
                                     Html.Telerik().TabStrip()
-                                        .Name("TabStrip_<#= ProductId #>")
+                                        .Name("gridProductionProcessMachineDetail_<#= ProductId #>_<#= MachineId #>")
                                         .SelectedIndex(0)
                                         .Items(items3 => items3.Add().Text("Quy trình kho")
                                             .Content(
@@ -1652,7 +1674,7 @@
                                 })
                                 .DetailView(details3 => details3.ClientTemplate(
                                     Html.Telerik().TabStrip()
-                                        .Name("TabStripRecipe_<#= ProductId #>")
+                                        .Name("TabStripRecipe_<#= ProductId #>_<#= RecipeId #>")
                                         .SelectedIndex(0)
                                         .Items(items3 => items3.Add().Text("Danh sách chi tiết công thức")
                                             .Content(
@@ -1687,6 +1709,44 @@
                                 .ClientEvents(events => events.OnError("grid_OnError"))
                                 .ToHtmlString()
                             );
+                        items.Add().Text("Lịch sử").Content(
+                            Html.Telerik().Grid<ProductHistoryModel>()
+                                .Name("gridProductHistory_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.HistoryId).RouteKey("historyId"))
+                                .ToolBar(
+                                    toolbar =>
+                                    toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductHistory", "Production", new { area = "Factory", productId = "<#= ProductId #>", customerId = 0 })
+                                                              .Insert("InsertProductHistory", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                              .Update("UpdateProductHistory", "Production", new { area = "Factory", productId = "<#= ProductId #>" })
+                                                              //.Delete("DeleteProductImg", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    columns.Command(command =>
+                                                    command.Edit().ButtonType(GridButtonType.Image)
+                                        ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                    columns.Bound(f => f.RefImage).Width(60).Title("Bản vẽ")
+                                           .ClientTemplate("<a id='<#=HistoryId#>' href='" + Url.Content("~/Content/FileUpload/ProductHistory/") + "<#=RefImage#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                                           "<img src='" + Url.Content("~/Content/FileUpload/ProductHistory/") + "<#=RefImage#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                                           "</a><div class='highslide-caption'><#= CodeNumber #></div>");
+                                    columns.Bound(f => f.HistoryDate).Title("Ngày").Width(110)
+                                            .ClientTemplate("<#= HistoryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', HistoryDate) #>");
+                                    columns.Bound(f => f.CodeNumber).Title("Mã").Width(100);
+                                    columns.Bound(f => f.Before).Title("Trước");
+                                    columns.Bound(f => f.After).Title("Sau");
+                                    columns.Bound(f => f.ModifiedUser).Title("Người tạo").ReadOnly(true).Width(70);
+                                    columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").ReadOnly(true).Width(80)
+                                           .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                                    //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("Xoá");
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnError("grid_OnError")
+                                    .OnSave("gridProductHistory_OnSave")
+                                    //.OnRowDataBound("gridProductImg_OnRowDataBound")
+                                    )
+                                .ToHtmlString());
                     }
                     )
                     .ToHtmlString()

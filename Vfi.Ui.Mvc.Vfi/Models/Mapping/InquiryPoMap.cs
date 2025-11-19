@@ -18,12 +18,12 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ModifiedUser)
                 .HasMaxLength(50);
 
-            this.Property(t => t.InquiryNumber)
-                .HasMaxLength(50);
-
             this.Property(t => t.Currency)
                 .IsFixedLength()
                 .HasMaxLength(10);
+
+            this.Property(t => t.InquiryNumber)
+                .HasMaxLength(50);
 
             // Table & Column Mappings
             this.ToTable("InquiryPo", "Purchasing");

@@ -199,7 +199,7 @@
                 columns.Bound(f => f.Unit).Width(50).Title("ĐVT");
                 
                 columns.Bound(f => f.Currency).Width(70).Title("Tiền tệ");
-                columns.Bound(f => f.UnitPrice).Width(70).Title("ĐG")
+                columns.Bound(f => f.UnitPrice).Width(70).Title("Đơn giá")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .ClientTemplate("<#= UnitPriceStr #>");
                 

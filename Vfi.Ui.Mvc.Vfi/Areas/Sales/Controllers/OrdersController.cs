@@ -569,13 +569,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Controllers {
                                         IsAlert = entity.IsAlert,
                                         OrderNote = entity.OrderNote
                                     };
-                                    if (currencyCode.Equals("USD")) {
-                                        detail.UnitPrice = Math.Round(entity.UnitPrice, 4);
-                                        detail.UnitPriceDiscount = Math.Round(entity.UnitPrice, 4);
-                                    }
-                                    else {
+                                    if (currencyCode.Equals("VND")) {
                                         detail.UnitPrice = Math.Round(entity.UnitPrice, 0);
                                         detail.UnitPriceDiscount = Math.Round(entity.UnitPrice, 0);
+                                    }
+                                    else {
+                                        detail.UnitPrice = Math.Round(entity.UnitPrice, 4);
+                                        detail.UnitPriceDiscount = Math.Round(entity.UnitPrice, 4);
                                     }
                                     var product =
                                         vfi.Products.FirstOrDefault(

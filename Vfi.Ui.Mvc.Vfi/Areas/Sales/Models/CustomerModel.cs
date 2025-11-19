@@ -23,5 +23,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
         [UIHint("_ShippingMethodEditTemplate")]
         public string ShippingMethodName { get; set; }
         public double ShippingMethodFee { get; set; }
+
+        public bool IsWorkOrderNotFullMaterial { get; set; }
+        [UIHint("Int")]
+        public int ImportTax { get; set; }
+        [UIHint("Number2")]
+        public double QuotationFactor { get; set; }
     }
 }

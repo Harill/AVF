@@ -132,6 +132,41 @@
             return false;
         }
 
+        function printNotFinishInvProduct() {
+            if (!onLoading) {
+                OnLoadingData();
+                var productCode = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+                var type = $("#ReportType").data("tDropDownList").value();
+                if (type === null)
+                    type = 2;
+                var fromDate = $("#fromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+                if (customerId === "")
+                    customerId = 0;
+                $('#result').load('@Url.Action("PrintNotFinishInvProduct", "Reporting")',
+                    {
+                        customerId: customerId,
+                        productCode: productCode,
+                        caculateModel: type,
+                        fromDate: fromDate,
+                        toDate: toDate,
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+        }
 
         function reportType_onLoad() {
             var combobox = $('#ReportType').data('tDropDownList');
@@ -169,10 +204,15 @@
                 Xuất báo cáo năm
                 <span class="loadButton"></span>
             </button>
-
+            
             <button id="btnImportExportProduction2" class="t-button" onclick=" return printImportExportProduction2(); ">
                 <span class='t-icon t-insert'></span>
                 Xuất báo cáo xuất nhập
+                <span class="loadButton"></span>
+            </button>
+            <button id="btnNotFinishInvProduct" class="t-button" onclick=" return printNotFinishInvProduct(); ">
+                <span class='t-icon t-insert'></span>
+                Xuất báo cáo bán thành phẩm
                 <span class="loadButton"></span>
             </button>
 

@@ -211,10 +211,7 @@
                                 }
                                 $.ajax({
                                     type: 'post',
-                                    data: {
-                                        ids: routingId,
-                                        employeeId: employee,
-                                    },
+                                    data: { ids: routingId, employeeId: employee, },
                                     dataType: 'json',
                                     url: '@Url.Action("AssignMaterialWorkOrders", "WorkOrder", new { area = "Factory" })',
                                     timeout: 20000,

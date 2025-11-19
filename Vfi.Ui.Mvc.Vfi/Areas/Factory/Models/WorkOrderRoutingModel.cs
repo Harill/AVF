@@ -31,6 +31,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         public double ActualResources { get; set; }
         public double PlannedCost { get; set; }
         public double ActualCost { get; set; }
+        public double ActualCostSum { get { return GoodQuantity + NGQuantity + DefectQuantity; } }
         public string ModifiedUser { get; set; }
         public DateTime ModifiedDate { get; set; }
         public int MachineId { get; set; }
@@ -133,6 +134,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         //public double ProductOutDiameter { get; set; }
         //public double MaterialOutDiameter { get; set; }
         //public string MaterialShape { get; set; }
+        public int IsWorkOrderNotFullMaterial { get; set; }
     }
     // damm
     public class WorkOrderRoutingInfo {

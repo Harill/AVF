@@ -979,3 +979,11 @@ C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.csproj.GenerateResour
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.dll
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.pdb
 C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptBarcode.resources
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptWorkOrderFinishCard.resources
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\obj\Release\Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports.RptNotFinishInvProduct.resources
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\CertificateMaterial2\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\ProductHistory\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\ProductImg\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\CertificateMaterial\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\Drawing\askquestion.jpg
+C:\workspace\vfi\Vfi.Ui.Mvc.Vfi\bin\Content\FileUpload\ToolImg\askquestion.jpg

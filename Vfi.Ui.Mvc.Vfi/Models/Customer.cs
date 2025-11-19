@@ -45,6 +45,9 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public int State { get; set; }
         public bool IsNotRequireApproveOrder { get; set; }
         public bool IsWorkOrder { get; set; }
+        public bool IsWorkOrderNotFullMaterial { get; set; }
+        public int ImportTax { get; set; }
+        public double QuotationFactor { get; set; }
         public Nullable<int> ShippingMethodId { get; set; }
         public virtual ICollection<ExportFormTP_KD> ExportFormTP_KD { get; set; }
         public virtual ICollection<Product> Products { get; set; }

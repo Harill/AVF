@@ -34,9 +34,7 @@
                 }
                 $.ajax({
                     type: 'post',
-                    data: {
-                        ids: ids
-                    },
+                    data: { ids: ids },
                     dataType: 'json',
                     url: '@Url.Action("ApproveWorkOrderQCProcess", "WorkOrder", new { area = "Factory" })',
                     timeout: 20000,

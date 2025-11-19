@@ -1286,6 +1286,12 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                     product.HeatTreatmentWeight = updateProduct.HeatTreatmentWeight;
                     product.SurfaceTreatmentWeight = updateProduct.SurfaceTreatmentWeight;
                     product.WaitingPlatingWeight = updateProduct.WaitingPlatingWeight;
+                    if (updateProduct.OutsideProcessWeight > 0) {
+                        product.OutsideProcessWeight = updateProduct.OutsideProcessWeight;
+                    }
+                    else { 
+                        product.OutsideProcessWeight = product.WaitingPlatingWeight; 
+                    }
                     product.PlatingWeight = updateProduct.PlatingWeight;
                     product.QcWeight = updateProduct.QcWeight;
                     //product.FinishWeight = updateProduct.FinishWeight; 
@@ -1634,6 +1640,81 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
         }
 
         [GridAction]
+        public ActionResult SelectFirstTrackUpProductionById(int productId) {
+            var model = new List<TrackUpMachineModel>();
+            try {
+                using (var vfi = new tammaContext()) {
+
+                    var realProduction = (from rp in vfi.RealProductions
+                                          where
+                                              rp.ProductId == productId &&
+                                              rp.TrackUpMachine.Status == (byte)MyUtilities.Transaction.Status.Approved
+                                          orderby rp.Machine.MachineName
+                                          select new {
+                                              rp.Machine,
+                                              rp.TrackUpMachine
+                                          }).ToList();
+
+                    var allTrackUpMachines = (from x in vfi.TrackUpMachines
+                                              where x.ProductId == productId
+                                              select x).ToList();
+
+                    foreach (var production in realProduction) {
+                        var track = production.TrackUpMachine;
+                        var lastDiffTrack = allTrackUpMachines.Where(x => x.MachineId == production.Machine.MachineId
+                            && x.MaterialId != production.TrackUpMachine.MaterialId
+                            && x.TrackId != production.TrackUpMachine.TrackId)
+                            .OrderByDescending(x => x.DeliveryDate)
+                            .FirstOrDefault();
+                        if (lastDiffTrack != null) {
+                            var lastTrack = allTrackUpMachines.Where(x => x.TrackId > lastDiffTrack.TrackId
+                            && x.MachineId == production.Machine.MachineId
+                            && x.MaterialId == production.TrackUpMachine.MaterialId)
+                                .OrderBy(x => x.DeliveryDate)
+                                .FirstOrDefault();
+                            if (lastTrack != null) {
+                                track = lastTrack;
+                            }
+                        }
+                        else {
+                            var lastTrack = allTrackUpMachines.Where(x => x.MachineId == production.Machine.MachineId
+                            && x.MaterialId == production.TrackUpMachine.MaterialId)
+                                .OrderBy(x => x.DeliveryDate)
+                                .FirstOrDefault();
+                            if (lastTrack != null) {
+                                track = lastTrack;
+                            }
+                        }
+                        var entity = new TrackUpMachineModel() {
+                            MachineName = production.Machine.MachineName,
+                            RealRate = track.RealRate,
+                            RealProductivity = track.RealProductivity,
+                            KnifeCut = track.KnifeCut,
+                            DeliveryDate = track.DeliveryDate ?? track.StartDate,
+                            DeliveryEmployee = track.DeliveryEmployee,
+                            Phase = track.Phase,
+                            ReceiveEmployee = track.ReceiveEmployee,
+                            RoundPerMinute = track.RoundPerMinute,
+                            WorkPiece = track.WorkPiece,
+                            Quantity = track.Quantity,
+                            EndDate = track.EndDate,
+                            Note = track.Note,
+                            StatusName = production.Machine.ProcessingType.TypeName,
+                        };
+                        if (production.TrackUpMachine.Material != null) {
+                            entity.MaterialCode = track.Material.MaterialCode;
+                        }
+                        model.Add(entity);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectRealProductionById", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+
+        [GridAction]
         public ActionResult SelectTrackUpMachineById(int productId) {
             var model = new List<TrackUpMachineModel>();
             try {
@@ -1760,13 +1841,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 return Json(0);
             }
         }
-        private Bitmap ResizeBitmap(Bitmap b, int nWidth, int nHeight) {
-            Bitmap result = new Bitmap(nWidth, nHeight);
-            using (Graphics g = Graphics.FromImage((Image)result))
-                g.DrawImage(b, 0, 0, nWidth, nHeight);
-            return result;
-        }
-
         private ImageCodecInfo GetEncoder(ImageFormat format) {
 
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
@@ -1805,7 +1879,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         var ratio = ratioH < ratioW ? ratioH : ratioW;
                         var newWidth = Convert.ToInt32(bm.Width * ratio);
                         var newHeight = Convert.ToInt32(bm.Height * ratio);
-                        bm = ResizeBitmap((Bitmap)bm, newWidth, newHeight);
+                        bm = MyUtilities.Function.ResizeBitmap((Bitmap)bm, newWidth, newHeight);
                         bm.Save(destinationPath, bm.RawFormat);
 
                         //giam chat luong hinh anh
@@ -1864,7 +1938,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                         var ratio = ratioH < ratioW ? ratioH : ratioW;
                         var newWidth = Convert.ToInt32(bm.Width * ratio);
                         var newHeight = Convert.ToInt32(bm.Height * ratio);
-                        bm = ResizeBitmap((Bitmap)bm, newWidth, newHeight);
+                        bm = MyUtilities.Function.ResizeBitmap((Bitmap)bm, newWidth, newHeight);
                         bm.Save(destinationPath, bm.RawFormat);
                     }
                     return Json("Upload thành công !");
@@ -4635,7 +4709,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 return View(new GridModel(new List<ProductQuoteCalculateModel>()));
             var model = new List<ProductQuoteCalculateModel>();
             try {
-                model = GetProductQuoteCalculate(customerId, productCode, 0, null, isLock);
+                model = GetProductQuoteCalculate(customerId, productCode, 0, new List<int>(), isLock);
             }
             catch (Exception ex) {
                 ModelState.AddModelError("SelectProductQuoteCalculate", ex.Message);
@@ -4652,7 +4726,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
                 var products = vfi.Products.Where(x => (customerId == 0 || x.CustomerId == customerId)
                     && (productId == 0 || x.ProductId == productId)
                     && (!isLock || x.IsCalculateLock == isLock)
-                    && (productIds.Any() || productIds.Contains(x.ProductId))
+                    && (!productIds.Any() || productIds.Contains(x.ProductId))
                     && x.Active).ToList();
                 if (!string.IsNullOrWhiteSpace(productCode)) { 
                     products = products.Where(x => x.ProductCode.Contains(productCode)).ToList(); 
@@ -4701,9 +4775,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
 
                     entity.Production2Price = product.ProductionSections.Where(x => x.Active)
                         .Sum(x => Math.Round(x.Productivity * x.Section.SaleFactor, 4));
-                    entity.OutsideProductionPrice = product.ProductionPlatings.Where(x => x.IsMainProcess && x.ProcessId != null)
-                        .Sum(x => Math.Round(x.OutsideProcess.Price / entity.UnitWeight, 4));
-
+                    //entity.OutsideProductionPrice = product.ProductionPlatings.Where(x => x.IsMainProcess && x.ProcessId != null)
+                    //    .Sum(x => Math.Round(x.OutsideProcess.Price / entity.UnitWeight, 4));
+                    entity.OutsideProductionPrice = product.ProductionPlatings.Where(x => x.Active).Sum(x => x.PlatingCost);
                     entity.ShippingPrice = (product.Customer.ShippingMethodId != null)
                                         ? Math.Round((product.Customer.ShipMethod.ShipBase ?? 0) * entity.UnitWeight / 1000, 4)
                                         : 0;
@@ -4766,7 +4840,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Production {
             try {
                 using (var vfi = new tammaContext()) {
                     var templates = vfi.MOQTemplates.Where(x => x.Active).OrderBy(x => x.FromQuantity).ToList();
-                    var productCalculate = GetProductQuoteCalculate(0, "", productId,null, false).FirstOrDefault();
+                    var productCalculate = GetProductQuoteCalculate(0, "", productId, new List<int>(), false).FirstOrDefault();
                     foreach (var template in templates) {
                         var entity = new MOQTemplateModel {
                             TemplateId = template.TemplateId,

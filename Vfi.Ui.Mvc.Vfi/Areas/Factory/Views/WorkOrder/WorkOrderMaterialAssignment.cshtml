@@ -73,10 +73,7 @@
                 if (checkedRecords.length > 0 && employee > 0) {
                     $.ajax({
                         type: 'post',
-                        data: {
-                            ids: checkedRecords,
-                            employeeId: employee,
-                        },
+                        data: { ids: checkedRecords, employeeId: employee, },
                         dataType: 'json',
                         url: '@Url.Action("AssignMaterialWorkOrders", "WorkOrder", new { area = "Factory" })',
                         timeout: 20000,

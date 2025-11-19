@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -2099,6 +2101,186 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         }
         #endregion
 
+        #region history management
+
+        [GridAction]
+        public ActionResult SelectProductHistory(int customerId, int productId, string productCode) {
+            var model = new List<ProductHistoryModel>();
+            try {
+                model = GetProductHistoryByProductId(customerId, productId, productCode);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("SelectProductHistory", ex.Message);
+            }
+            return View(new GridModel(model));
+        }
+        List<ProductHistoryModel> GetProductHistoryByProductId(int customerId, int productId, string productCode) {
+            var model = new List<ProductHistoryModel>();
+            using (var vfi = new tammaContext()) {
+                model = (from x in vfi.ProductHistories
+                         where (productId == 0 || x.ProductId == productId) &&
+                                 (customerId == 0 || x.Product.CustomerId == customerId)
+                         select new ProductHistoryModel {
+                             HistoryId = x.HistoryId,
+                             ProductId = x.ProductId,
+                             HistoryDate = x.HistoryDate,
+                             CodeNumber = x.CodeNumber,
+                             Before = x.Before,
+                             After = x.After,
+                             ModifiedDate = x.ModifiedDate,
+                             ModifiedUser = x.ModifiedUser,
+                             RefImage = x.RefImage,
+                             //UploadDate = x.ModifiedDate.ToString("yyyyMMddhhmmss"),
+                         }).ToList();
+            }
+            return model.OrderBy(x => x.CodeNumber).ToList();
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult InsertProductHistory(ProductHistoryModel insert, int productId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
+                    if (user == null)
+                        throw new AggregateException("Vui lòng đăng nhập lại");
+
+                    var entity = new ProductHistory {
+                        HistoryId = insert.HistoryId,
+                        HistoryDate = insert.HistoryDate.Value,
+                        CodeNumber = insert.CodeNumber,
+                        Before = insert.Before,
+                        After = insert.After,
+                        ProductId = productId,
+                        ModifiedDate = DateTime.Now,
+                        ModifiedUser = HttpContext.User.Identity.Name
+                    };
+                    if (!string.IsNullOrWhiteSpace(insert.RefImage))
+                        entity.RefImage = insert.RefImage;
+                    else
+                        entity.RefImage = "askquestion.jpg";
+
+                    vfi.ProductHistories.Add(entity);
+                    vfi.SaveChanges();
+                }
+                MyUtilities.Product.UpdateProductDesign(productId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("InsertProductHistory", ex.Message);
+            }
+
+            return View(new GridModel(GetProductHistoryByProductId(0, productId, "")));
+        }
+
+        [HttpPost]
+        [GridAction]
+        public ActionResult UpdateProductHistory(ProductHistoryModel update, int productId) {
+            if (!Request.IsAuthenticated) {
+                throw new AggregateException("Bạn đã bị mất quyền đăng nhập. \r\n " +
+                                             "1 trong các nguyên nhân như mất thời gian chờ. \r\n " +
+                                             "Xin vui lòng đăng nhập lại hệ thống.");
+            }
+            try {
+                using (var vfi = new tammaContext()) {
+                    var user = vfi.Users.FirstOrDefault(u => u.Username.Equals(HttpContext.User.Identity.Name));
+                    if (user == null)
+                        throw new AggregateException("Vui lòng đăng nhập lại");
+                    var entity = vfi.ProductHistories.FirstOrDefault(pt => pt.HistoryId == update.HistoryId);
+                    if (entity == null)
+                        throw new AggregateException("Lỗi! Không tìm thấy công cụ trong sản phấm! Liên hệ admin");
+                    entity.CodeNumber = update.CodeNumber;
+                    entity.HistoryDate = update.HistoryDate.Value;
+                    entity.Before = update.Before;
+                    entity.After = update.After;
+                    entity.ModifiedDate = DateTime.Now;
+                    entity.ModifiedUser = HttpContext.User.Identity.Name;
+
+                    if (!string.IsNullOrWhiteSpace(update.RefImage))
+                        entity.RefImage = update.RefImage;
+
+                    vfi.SaveChanges();
+                }
+                MyUtilities.Product.UpdateProductDesign(productId);
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UpdateProductHistory", ex.Message);
+            }
+
+            return View(new GridModel(GetProductHistoryByProductId(0, productId, "")));
+        }
+
+        public ActionResult CheckUploadHistoryImage(string upload) {
+            //if (date.DayOfWeek == DayOfWeek.Monday)
+            //    date = date.AddDays(-2);
+            //else
+            //    date = date.AddDays(-1);
+            try {
+
+                using (var vfi = new tammaContext()) {
+                    var productCodes = "";
+                    var products = vfi.Products.Where(p => p.Drawing2D.Equals(upload));
+                    if (products.Any()) {
+                        foreach (var product in products) {
+                            productCodes += product.ProductCode + " | ";
+                        }
+                        return Json("9! " + productCodes);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                return Json("0! " + ex.Message);
+            }
+            return Json("");
+        }
+
+
+        [HttpPost]
+        public ActionResult SaveProductHistoryImage(IEnumerable<HttpPostedFileBase> HistoryImage) {
+            // The Name of the Upload component is "attachments"       
+            try {
+                var attachments = new List<HttpPostedFileBase>();
+                if (HistoryImage != null && HistoryImage.Any()) {
+                    attachments.AddRange(HistoryImage.ToList());
+                }
+                if (attachments.Any()) {
+                    foreach (var file in attachments) {
+                        // Some browsers send file names with full path. We only care about the file name.
+                        var fileName = Path.GetFileName(file.FileName);
+                        if (fileName == null) continue;
+                        var destinationPath = Path.Combine(Server.MapPath("~/Content/FileUpload/ProductHistory"), fileName);
+                        // giam kich thuoc
+                        Image bm = Image.FromStream(file.InputStream);
+                        var designWidth = 3000.0;
+                        var designHeight = 1500.0;
+                        var ratioW = designWidth / (double)bm.Width;
+                        var ratioH = designHeight / (double)bm.Height;
+                        var ratio = ratioH < ratioW ? ratioH : ratioW;
+                        var newWidth = Convert.ToInt32(bm.Width * ratio);
+                        var newHeight = Convert.ToInt32(bm.Height * ratio);
+                        bm = MyUtilities.Function.ResizeBitmap((Bitmap)bm, newWidth, newHeight);
+                        bm.Save(destinationPath, bm.RawFormat);
+                    }
+                    return Json("Upload thành công !");
+                }
+                else {
+                    throw new AggregateException("attachments null");
+                }
+            }
+            catch (Exception ex) {
+                ModelState.AddModelError("UploadSave", ex.Message);
+                return Json(ex.Message);
+            }
+            // Redirect to a view showing the result of the form submissSaveion.    
+            //return Json("False");
+        }
+
+
+        #endregion
 
         [HttpPost]
         public ActionResult PrintProductionForm(int productId) {

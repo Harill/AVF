@@ -45,6 +45,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.PoId).HasColumnName("PoId");
             this.Property(t => t.ReferenceId).HasColumnName("ReferenceId");
             this.Property(t => t.IsInternal).HasColumnName("IsInternal");
+            this.Property(t => t.IsPacking).HasColumnName("IsPacking");
 
             // Relationships
             this.HasOptional(t => t.StockOrder)

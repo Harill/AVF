@@ -3510,13 +3510,20 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                           ms.MachineRepairForm,
                                           ms.Employee,
                                           ms.EmployeeId,
+                                          //ms.
                                           ms.Status,
                                           StartDate = ms.StartDate < fDate ? fDate : ms.StartDate,
                                           StartRepair = ms.StartDate,
                                           FinishDate = (ms.FinishDate == null || ms.FinishDate > tDate)
                                           ? tDate
                                           : ms.FinishDate.Value,
-                                          FinishRepair = ms.FinishDate
+                                          FinishRepair = ms.FinishDate,
+                                          HowToFix = ms.FixId > 0 
+                                               ?   ms.MachineStateDetail.Description 
+                                               : "" ,
+                                       ErrorCause = ms.MachineRepairForm.ErrorCauseId  > 0 
+                                               ?   ms.MachineRepairForm.ErrorCauseForm.Name 
+                                               : ""
                                       }).ToList();
                 var dayCount = MyUtilities.Function.DaysNoSunDay(fDate, tDate);
                 var maxRunTime = MyUtilities.Function.RoundDown(dayCount
@@ -3524,6 +3531,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                 / 60);
                 foreach (var repair in repairMachines) {
                     var entity = new MachineStateStatisticModel() {
+                        ErrorCause = repair.ErrorCause,
+                        HowToFix = repair.HowToFix,
                         MachineName = repair.MachineRepairForm.Machine.MachineName,
                         ProductCode = repair.MachineRepairForm.Product.ProductCode,
                         EstimateTime = repair.MachineRepairForm.MachineState.EstimateTime,
@@ -3534,6 +3543,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         FinishDate = repair.FinishRepair,
                         StatusName = MyUtilities.Machine.State.GetRepairStatusText(repair.Status),
                         Note = repair.MachineRepairForm.Note,
+                        CauseDate = repair.MachineRepairForm.CauseDate
                     };
                     var qcEmployee = repair.MachineRepairForm.Employee1;
                     if (qcEmployee != null) {
@@ -3620,46 +3630,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
         public List<MachineStateHandoverModel> GetMachineStateHandover(string machineType, int shift, string printDate) {
             var model = new List<MachineStateHandoverModel>();
             try {
-                var ci = new CultureInfo("vi-VN");
-                var pDate = string.IsNullOrWhiteSpace(printDate)
-                                      ? DateTime.Today
-                                      : Convert.ToDateTime(printDate, ci);
-                var fromDate = pDate;
-                var toDate = pDate;
-                if (shift == 1) {
-                    fromDate = new DateTime(pDate.Year, pDate.Month, pDate.Day, MyUtilities.Product.StartShift1_HOUR, 0, 0);
-                    toDate = new DateTime(pDate.Year, pDate.Month, pDate.Day, MyUtilities.Product.StartShift2_HOUR, 0, 0);
-                }
-                else if (shift == 2) {
-                    fromDate = new DateTime(pDate.Year, pDate.Month, pDate.Day, MyUtilities.Product.StartShift2_HOUR, 0, 0);
-                    toDate = new DateTime(pDate.Year, pDate.Month, pDate.Day, MyUtilities.Product.StartShift1_HOUR, 0, 0).AddDays(1);
-                }
-                else if (shift == -1) {
-                    toDate = DateTime.Now;
-                    fromDate = toDate.AddDays(-1);
-                }
-                else {
-                    throw new AggregateException("Không hổ trợ ca " + shift);
-                }
+                var pDate = MyUtilities.Function.ParseDate(printDate);
+                var shiftDate = MyUtilities.Product.GetShiftRangeDate(shift, pDate);
                 using (var vfi = new vfiContext()) {
-
                     var errorMachineState = from ms in vfi.MachineRepairForms
                                             where ms.Status != (byte)MyUtilities.Machine.State.RepairStatus.Delete &&
-                                            ms.CauseDate >= fromDate && ms.CauseDate <= toDate
+                                            ms.CauseDate >= shiftDate.FromDate && ms.CauseDate <= shiftDate.ToDate
                                             select ms;
                     var repairForms = (from ms in vfi.MachineRepairForms
                                        where ms.Status != (byte)MyUtilities.Machine.State.RepairStatus.Delete &&
                                          (
-                                          (ms.CauseDate >= fromDate && ms.CauseDate <= toDate) ||
-                                           (ms.CauseDate <= toDate && ms.FinishDate == null) ||
-                                           (ms.FinishDate >= fromDate && ms.FinishDate <= toDate) ||
-                                           (ms.CauseDate < fromDate && ms.FinishDate > toDate)
+                                          (ms.CauseDate >= shiftDate.FromDate && ms.CauseDate <= shiftDate.ToDate) ||
+                                           (ms.CauseDate <= shiftDate.ToDate && ms.FinishDate == null) ||
+                                           (ms.FinishDate >= shiftDate.FromDate && ms.FinishDate <= shiftDate.ToDate) ||
+                                           (ms.CauseDate < shiftDate.FromDate && ms.FinishDate > shiftDate.ToDate)
                                           )
                                        select new {
                                            ms.MachineId,
-                                           StartDate = (ms.CauseDate < fromDate ? fromDate : ms.CauseDate),
-                                           FinishDate = (ms.FinishDate == null || ms.FinishDate > toDate)
-                                           ? toDate
+                                           StartDate = (ms.CauseDate < shiftDate.FromDate ? shiftDate.FromDate : ms.CauseDate),
+                                           FinishDate = (ms.FinishDate == null || ms.FinishDate > shiftDate.ToDate)
+                                           ? shiftDate.ToDate
                                            : ms.FinishDate.Value,
                                            StartState = ms.CauseDate,
                                            FinishState = ms.FinishDate,
@@ -3686,32 +3676,37 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             break;
                     }
                     var statisStateList = MyUtilities.Machine.State.GetStaticStateList();
+                    var productions = (from id in vfi.ImportFormSX1Detail
+                                       where
+                                           id.ImportFormSX1.MaterialUseDate.Day == shiftDate.FromDate.Day &&
+                                           id.ImportFormSX1.MaterialUseDate.Month == shiftDate.FromDate.Month &&
+                                           id.ImportFormSX1.MaterialUseDate.Year == shiftDate.FromDate.Year &&
+                                           //id.ImportFormSX1.MaterialUseDate <= shiftDate.ToDate &&
+                                           //id.ImportFormSX1.MaterialUseDate <= shiftDate.ToDate &&
+                                           //shift == 1 ? id.Shift1 != "" :  id.Shift2 != "" &&
+                                             id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                                             id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                                             id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
+                                               .Transaction.Status ==
+                                             (byte)MyUtilities.Transaction.Status.Approved
+                                       select new {
+                                           id.MachineId,
+                                           //id.MaterialInventory.MaterialId,
+                                           //id.ImportFormSX1.MaterialUseDate,
+                                           MaterialUse = shift == 1 ? (id.MaterialUse1) : (id.MaterialUse2),
+                                           Production = shift == 1 ? (id.Number1) : (id.Number2),
+                                       }).GroupBy(x => new {
+                                           MachineId = x.MachineId.Value,
+                                           //MaterialId = x.MaterialId
+                                       })
+                                       .Select(x => new {
+                                           x.Key.MachineId,
+                                           //x.Key.MaterialId,
+                                           MaterialUse = x.Sum(y => y.MaterialUse),
+                                           Production = x.Sum(y => y.Production),
+                                       }).ToList();
+
                     foreach (var machine in machines) {
-                        var lastTrack =
-                                (from t in vfi.TrackUpMachines
-                                 where
-                                 t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
-                                 t.MachineId == machine.MachineId &&
-                                 ((t.DeliveryDate != null ? t.DeliveryDate.Value <= toDate : t.StartDate <= toDate) ||
-                                  (t.StartDate <= toDate))
-                                 select new {
-                                     t.MachineId,
-                                     t.ProductId,
-                                     t.Product.ProductCode,
-                                     t.Quantity,
-                                     t.RealProductivity,
-                                     t.RealRate,
-                                     t.TrackUpMaterials,
-                                     t.MaterialId,
-                                     t.Material,
-                                     t.WorkPiece,
-                                     t.KnifeCut,
-                                     Length = t.Product.Length ?? 0,
-                                     Date = t.DeliveryDate != null ? t.DeliveryDate.Value : t.StartDate,
-                                     t.Note,
-                                 })
-                                .OrderByDescending(t => t.Date)
-                                .FirstOrDefault();
                         var repair = repairForms.Where(ms => ms.MachineId == machine.MachineId).
                             OrderByDescending(ms => ms.FinishDate).FirstOrDefault();
                         var countErrorState = errorMachineState.Where(e => e.MachineId == machine.MachineId).Count();
@@ -3755,10 +3750,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 ReportDate = pDate,
                                 StateId = 1,
                                 CountErrorState = countErrorState,
-                                StartState = fromDate,
-                                FinishState = toDate,
-                                StartDate = fromDate,
-                                FinishDate = toDate,
+                                StartState = shiftDate.FromDate,
+                                FinishState = shiftDate.ToDate,
+                                StartDate = shiftDate.FromDate,
+                                FinishDate = shiftDate.ToDate,
                                 ErrorTime = 0,
                                 RunningTime = 12,
                             };
@@ -3771,11 +3766,38 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             else if (entity.StateId == MyUtilities.Machine.State.BadState)
                                 entity.StateId = 0;
                         }
+                        var lastTrack = MyUtilities.Machine.LastTrackUpProduct(machine.MachineId, "", 0, 0, shiftDate.ToDate);
+                        //var lastTrack =
+                        //        (from t in vfi.TrackUpMachines
+                        //         where
+                        //         t.Status == (byte)MyUtilities.Transaction.Status.Approved &&
+                        //         t.MachineId == machine.MachineId &&
+                        //         ((t.DeliveryDate != null ? t.DeliveryDate.Value <= shiftDate.ToDate : t.StartDate <= shiftDate.ToDate) ||
+                        //          (t.StartDate <= shiftDate.ToDate))
+                        //         select new {
+                        //             t.MachineId,
+                        //             t.ProductId,
+                        //             t.Product.ProductCode,
+                        //             t.Quantity,
+                        //             t.RealProductivity,
+                        //             t.RealRate,
+                        //             t.TrackUpMaterials,
+                        //             t.MaterialId,
+                        //             t.Material,
+                        //             t.WorkPiece,
+                        //             t.KnifeCut,
+                        //             Length = t.Product.Length ?? 0,
+                        //             Date = t.DeliveryDate != null ? t.DeliveryDate.Value : t.StartDate,
+                        //             t.Note,
+                        //         })
+                        //        .OrderByDescending(t => t.Date)
+                        //        .FirstOrDefault();
                         if (lastTrack != null) {
                             entity.RealProductivity = lastTrack.RealProductivity;
                             //entity.RealRate = lastTrack.RealRate;
-                            entity.RealRate = MyUtilities.Product.GetProductRate(3000, lastTrack.WorkPiece, lastTrack.Length, lastTrack.KnifeCut); 	
+                            entity.RealRate = MyUtilities.Product.GetProductRate(3000, lastTrack.WorkPiece, lastTrack.ProductLength, lastTrack.KnifeCut); 	
                             entity.ProductId = lastTrack.ProductId;
+                            entity.MaterialId = lastTrack.MaterialId.Value;
                             entity.ProductCode = lastTrack.ProductCode;
                             if (entity.MachineName.Contains("P")) {
                                 entity.ProductionProductPlan = MyUtilities.Product.GetCncProductionRateInFactoryShiftTime(entity.RealProductivity, entity.RealRate);
@@ -3788,6 +3810,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 entity.ProductionMaterialPlan = entity.ProductionProductPlan / entity.RealRate;
                             }
                             entity.Note = lastTrack.Note;
+
+                        }
+                        var productionsByMachine = productions.Where(x => x.MachineId == entity.MachineId).ToList();
+                        if (productionsByMachine.Any()) {
+                            entity.MaterialUse = productionsByMachine.Sum(x => x.MaterialUse);
+                            entity.ProductionQuantity = productionsByMachine.Sum(x => x.Production);
                         }
                         model.Add(entity);
                     }
@@ -3803,10 +3831,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             var group = new List<GroupMachineStateHandoverModel>();
             var model = new List<MachineStateHandoverModel>();
             try {
-                var ci = new CultureInfo("vi-VN");
-                var pDate = string.IsNullOrWhiteSpace(printDate)
-                                      ? DateTime.Today
-                                      : Convert.ToDateTime(printDate, ci);
+                var pDate = MyUtilities.Function.ParseDate(printDate);
+                var shiftDate = MyUtilities.Product.GetShiftRangeDate(shift, pDate);
+                //var productions = 
                 var list = GetMachineStateHandover("", shift, printDate);
                 var machineIds = list.Select(m => m.MachineId).Distinct().ToList();
                 foreach (var machineId in machineIds) {
@@ -3831,6 +3858,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         RealProductivity = first.RealProductivity,
                         RealRate = first.RealRate,
                         Note = first.Note,
+                        MaterialUse = listById.Sum(l => l.MaterialUse),
+                        ProductionQuantity = listById.Sum(l => l.ProductionQuantity),
                     };
 
                     if (entity.ErrorTime > 12)
@@ -5951,7 +5980,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             try {
                 using (var vfi = new tammaContext()) {
                     var entity = vfi.ProcessClassifieds.FirstOrDefault(x => x.ClassifiedId == update.ClassifiedId);
-                    if (entity == null) { throw new AggregateException("Lỗi! Không tìm thấy gia công ngoài"); }
+                    if (entity == null) { throw new AggregateException("Lỗi! Không tìm thấy data"); }
                     entity.Name = update.Name;
                     entity.Description = update.Description;
                     entity.SalesFactor = update.SalesFactor;

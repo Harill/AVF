@@ -13,6 +13,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Core;
 using System.Text;
 using System.Security.Cryptography;
+using System.Drawing;
 
 namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
@@ -332,6 +333,13 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
         #region function utilities
         public static class Function {
 
+            public static Bitmap ResizeBitmap(Bitmap b, int nWidth, int nHeight) {
+                Bitmap result = new Bitmap(nWidth, nHeight);
+                using (Graphics g = Graphics.FromImage((Image)result))
+                    g.DrawImage(b, 0, 0, nWidth, nHeight);
+                return result;
+            }
+
             private static char SplitChar = ';';
             public static double GetTimeStamp() {
                 return (DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1)).TotalSeconds;
@@ -562,9 +570,18 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 return list;
             }
 
-            public static DateTime StartOfWeekDate(DateTime date, DayOfWeek startOfWeek) {
+            public static DateTime StartOfWeekDate(DateTime date, DayOfWeek startOfWeek = DayOfWeek.Monday) {
                 int diff = (7 + (date.DayOfWeek - startOfWeek)) % 7;
                 return date.AddDays(-1 * diff).Date;
+            }
+
+            public static DateTime EndOfWeekDate(DateTime date, DayOfWeek startOfWeek = DayOfWeek.Monday) {
+                var start = StartOfWeekDate(date, startOfWeek);
+                return start.AddDays(7).Date;
+            }
+            public static DateTime EndTimeOfWeekDate(DateTime date, DayOfWeek startOfWeek = DayOfWeek.Monday) {
+                var start = StartOfWeekDate(date, startOfWeek);
+                return start.AddDays(7).AddSeconds(-1);
             }
             
             /// <summary>
@@ -950,7 +967,7 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                                         (machineId == 0 || t.MachineId == machineId) &&
                                         t.Machine.MachineName.Contains(machineContain) &&
                                         (materialId == 0 || t.MaterialId == materialId) &&
-                                        t.ProductId == productId &&
+                                        (productId == 0 || t.ProductId == productId) &&
                                         ((t.DeliveryDate != null
                                             ? t.DeliveryDate.Value <= date
                                             : t.StartDate <= date)
@@ -1990,6 +2007,27 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
             //public static double Second12h = 43200; // 12h
             //public static double Second20h = 72000; //20h
             //public static double Second24h = 86400; // 24h
+
+            public static ShiftDate GetShiftRangeDate(int shift, DateTime date) {
+                switch (shift) {
+                    case 1:
+                        return new ShiftDate {
+                            FromDate = new DateTime(date.Year, date.Month, date.Day, StartShift1_HOUR, 0, 0),
+                            ToDate = new DateTime(date.Year, date.Month, date.Day, StartShift2_HOUR, 0, 0).AddSeconds(-1)
+                        };
+                    case 2:
+                        return new ShiftDate {
+                            FromDate = new DateTime(date.Year, date.Month, date.Day, StartShift2_HOUR, 0, 0),
+                            ToDate = new DateTime(date.Year, date.Month, date.Day, StartShift1_HOUR, 0, 0).AddDays(1).AddSeconds(-1)
+                        };
+                    default:
+                        return new ShiftDate {
+                            FromDate = DateTime.Today,
+                            ToDate = DateTime.Now
+                        };
+                }
+            }
+
             public static int GetProductRate(
                 double materialLenght, double materialWorkpiece,
                 double productLenght, double knifeCut) {

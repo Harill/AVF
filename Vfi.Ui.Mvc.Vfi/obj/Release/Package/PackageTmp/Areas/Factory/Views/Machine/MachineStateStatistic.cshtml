@@ -108,20 +108,36 @@
                     columns.Bound(f => f.ProductCode).Width(70).Title("SP");
 
                     columns.Bound(f => f.StateCode).Width(150).Title("Tình trạng");
+                    columns.Bound(f => f.ErrorCause).Width(150).Title("Nguyên nhân lỗi");
+                    columns.Bound(f => f.HowToFix).Width(150).Title("Cách sửa");
                     columns.Bound(f => f.StatusName).Width(100).Title("Trạng thái");
-                    columns.Bound(f => f.EstimateTime).Width(70).Title("KH sửa(p)").ReadOnly(true)
-                           .Format("{0:n0}")
-                           .HtmlAttributes(new { style = "text-align:right;" });
-                    columns.Bound(f => f.FixTime).Width(70).Title("TT sửa(p)").ReadOnly(true)
-                           .HtmlAttributes("<#= FixTimeString  #>")
+                    columns.Bound(f => f.CauseDate).Width(85).Title("Ngày lỗi").ReadOnly(true)
+                           .Format("{0:dd/MM/yyyy HH:mm}");
+                    columns.Bound(f => f.EstimateTime).Width(70).Title("KH sửa<br>(p)").ReadOnly(true)
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" })
                            .Aggregate(agg => agg.Sum())
                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align:right;" });
-                    columns.Bound(f => f.FixTimeHhMm).Width(70).Title("TT sửa").ReadOnly(true)
-                           .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.FixTime).Width(70).Title("TT sửa<br>(p)").ReadOnly(true)
+                           //.ClientTemplate("<#= FixTimeString  #>")
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align:right;" });
+                    //columns.Bound(f => f.FixTimeHhMm).Width(70).Title("TT sửa").ReadOnly(true)
+                    //       .ClientTemplate("<#= FixTimeString  #>")
+                    //       .HtmlAttributes(new { style = "text-align:right;" });
+                    columns.Bound(f => f.DiffEstimateTime).Width(70).Title("Lệch<br>(p)").ReadOnly(true)
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" })
+                           .Aggregate(agg => agg.Sum())
+                           .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                           .FooterHtmlAttributes(new { style = "text-align:right;" });
 
                     columns.Bound(f => f.StartDate).Width(85).Title("BĐ sửa").ReadOnly(true)
                            .Format("{0:dd/MM/yyyy HH:mm}");

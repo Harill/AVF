@@ -121,8 +121,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.MaxQuantityInTrayRunTime).HasColumnName("MaxQuantityInTrayRunTime");
             this.Property(t => t.IdentityCode).HasColumnName("IdentityCode");
             this.Property(t => t.ProductionLevel).HasColumnName("ProductionLevel");
-            this.Property(t => t.ProcessClassifiedId).HasColumnName("ProcessClassifiedId");
             this.Property(t => t.PackingFee).HasColumnName("PackingFee");
+            this.Property(t => t.ProcessClassifiedId).HasColumnName("ProcessClassifiedId");
             this.Property(t => t.IsCalculateLock).HasColumnName("IsCalculateLock");
             this.Property(t => t.ProductionLossRate).HasColumnName("ProductionLossRate");
 

@@ -39,14 +39,15 @@
             ProductionRateDesign: 0,
             ProductionRate: 0,
             MaterialLength: 0,
-            MaterialRequirementDesign: 0,
-            MaterialRequirement: 0,
-            MaterialAvailable: 0,
-            MaterialAssign: 0,
+            MaterialRequirementDesign: 0.0,
+            MaterialRequirement: 0.0,
+            MaterialAvailable: 0.0,
+            MaterialAssign: 0.0,
             Ids: "",
             ProductId: 0,
             MaterialId: 0,
-            StartDate: new Date()
+            StartDate: new Date(),
+            IsWorkOrderNotFullMaterial: 0
         };
         $(document).ready(function () {
             // map info
@@ -62,6 +63,7 @@
             info.TotalQuantity = @Model.TotalQuantity
             info.MaterialRequirementDesign = @Model.MaterialRequirement
             info.MaterialRequirement = @Model.MaterialRequirement
+            info.IsWorkOrderNotFullMaterial = @Model.IsWorkOrderNotFullMaterial
             //info.MaterialLength = 3000
             info.Ids = $("#WorkOrderIds")[0].innerText;
             //
@@ -75,7 +77,7 @@
             $("#ProductionRateDesign")[0].innerText = info.ProductionRate;
             //$("#MaterialLength")[0].innerText = info.MaterialLength;
 
-            $("#MaterialRequirementDesign")[0].innerText = info.MaterialRequirement;
+            $("#MaterialRequirementDesign")[0].innerText = info.MaterialRequirement.format(2);
         });
 
         function materialInv_OnChange(e) {
@@ -166,12 +168,14 @@
             if (temp > 0) info.ProductionRate = info.ProductionRate - temp + Math.pow(10, 0);
             $("#ProductionRate")[0].innerText = info.ProductionRate;
             info.MaterialRequirement = (info.Quantity / info.ProductionRate);
-            temp = info.MaterialRequirement % Math.pow(10, 0);
-            if (temp > 0) info.MaterialRequirement = info.MaterialRequirement - temp + Math.pow(10, 0);
-            $("#MaterialRequirement")[0].innerText = info.MaterialRequirement;
+            if (info.IsWorkOrderNotFullMaterial == 0) {
+                temp = info.MaterialRequirement % Math.pow(10, 0);
+                if (temp > 0) info.MaterialRequirement = info.MaterialRequirement - temp + Math.pow(10, 0);
+            }
+            $("#MaterialRequirement")[0].innerText = info.MaterialRequirement.format(info.IsWorkOrderNotFullMaterial == 0 ? 0 : 2);
             info.MaterialAssign = info.MaterialRequirement > info.MaterialAvailable ? info.MaterialAvailable : info.MaterialRequirement;
             $("#MaterialAssign").val(info.MaterialAssign);
-            $("#MaterialAssign").data("tTextBox").$text[0].innerHTML = info.MaterialAssign.format(0);
+            $("#MaterialAssign").data("tTextBox").$text[0].innerHTML = info.MaterialAssign.format(info.IsWorkOrderNotFullMaterial == 0 ? 0 : 2);
             $("#MaterialAssign").data("tTextBox").value(info.MaterialAssign);
         }
         function AlertValidation() {
@@ -361,7 +365,7 @@
                         .Name("MaterialAssign")
                         .MinValue(0)
                         .MaxValue(1000)
-                        .DecimalDigits(0)
+                        .DecimalDigits(2)
                         .Value(0)
                         .Spinners(false)
                         .InputHtmlAttributes(new { style = "text-align:right;width:100%;width:100%;" })

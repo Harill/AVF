@@ -1202,7 +1202,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                        where
                                            sx.ProductId == productId &&
                                            sx.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                                           sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                                           //sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
                                            sx.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
                                              .Transaction.Status ==
                                            (byte)MyUtilities.Transaction.Status.Approved &&
@@ -2251,7 +2251,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             var entity =
                                 model.FirstOrDefault(
                                     m =>
-                                    m.MachineId == sx1Detail.MachineId && m.MaterialInvId == sx1Detail.MaterialInvId);
+                                    m.MachineId == sx1Detail.MachineId
+                                    && m.MaterialInvId == sx1Detail.MaterialInvId
+                                    && m.LotNumber.Equals(sx1Detail.LotNumber));
                             if (entity == null) {
                                 var product = vfi.Products.FirstOrDefault(p => p.ProductId == sx1Detail.ProductId);
                                 entity = new ProductionDailyReport {
@@ -3390,7 +3392,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                    FromProductIds = x.ProductCombinationRecipeDetails.Select(y => y.FromProductId)
                                }).ToList();
                 if (!String.IsNullOrWhiteSpace(productCode)) {
-                    recipes = recipes.Where(x => x.ProductCode.Contains(productCode.ToUpper())).ToList();
+                    recipes = recipes.Where(x => x.ProductCode.ToUpper().Contains(productCode.ToUpper())).ToList();
                 }
                 if (!recipes.Any()) {
                     return model;
@@ -5937,7 +5939,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         }
                         else {
                             entity.RealNumber += tDetail.RealNumber;
-                            entity.RequestNumber += tDetail.RequestNumber;
+                            //entity.RequestNumber += tDetail.RequestNumber;
                             entity.Weight += (tDetail.Weight ?? 0) / 1000;
                             if (platingForm != null) {
                                 if (tDetail.PlatingFormDetail.Unit.Contains("Kg")) {
@@ -6328,15 +6330,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                 var product = vfi.Products.FirstOrDefault(p => p.ProductId == exportDetail.ProductId);
                                 var invoiceDetails = exportDetail.InvoiceDetails.Where(id => id.Active).ToList();
                                 if (invoiceDetails.Any()) {
+                                    var invoiceDetail = invoiceDetails.FirstOrDefault(x => x.OrderDetailId != null);
                                     var detail = new CustomerIncomeDetailModel {
                                         ProductCodeName = product.ProductCode,
                                         ProductId = product.ProductId,
                                         Quatity = invoiceDetails.Sum(id => id.Piece),
-                                        UnitPrice = invoiceDetails.FirstOrDefault().Price.Value,
+                                        UnitPrice = invoiceDetail != null ? invoiceDetail.Price.Value : 0,
                                         DueDateString = export.DateTransporter != null
                                                             ? export.DateTransporter.Value.ToString("dd/MM/yyyy")
                                                             : "",
-                                        CurrencyCode = invoiceDetails.FirstOrDefault().OrderDetail.Order.CurrencyCode,
+                                        CurrencyCode = invoiceDetail != null ? invoiceDetail.OrderDetail.Order.CurrencyCode : "",
                                         TaxInvoiceNumber = "",
                                         InvoiceNumber = invoice.InvoiceNumber,
                                         ExchangeRate = invoice.ExchangeRate,
@@ -8118,8 +8121,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         where
                                             //id.ImportFormSX1.ImportDate <= importSx1.ImportDate &&
                                             //id.ImportFormSX1.ImportDate >= startMonth &&
-                                            id.ImportFormSX1.ImportDate.Month == importSx1.ImportDate.Month &&
-                                            id.ImportFormSX1.ImportDate.Year == importSx1.ImportDate.Year &&
+                                            id.ImportFormSX1.MaterialUseDate.Month == importSx1.MaterialUseDate.Month &&
+                                            id.ImportFormSX1.MaterialUseDate.Year == importSx1.MaterialUseDate.Year &&
                                             id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
                                             id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault()
                                               .Transaction.Status ==
@@ -8430,7 +8433,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                      period.LastPeriodQuantity > period.EarlyPeriodQuantity);
                             if (importInMonth.Any()) {
                                 detail.ImportInMonth = Math.Round(importInMonth.Sum(period => period.Quantity), 2);
-                                var importInDay = importInMonth.Where(ipo => ipo.PeriodDate == importSx1.MaterialUseDate);
+                                var importInDay = importInMonth.Where(ipo => ipo.PeriodDate.Day == importSx1.MaterialUseDate.Day 
+                                    && ipo.PeriodDate.Month == importSx1.MaterialUseDate.Month 
+                                    && ipo.PeriodDate.Year == importSx1.MaterialUseDate.Year);
                                 if (importInDay.Any()) {
                                     detail.Import = Math.Round(importInDay.Sum(e => e.Quantity), 2);
                                 }
@@ -8452,7 +8457,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                                   select ed).ToList();
                             if (exportsInMonth.Any()) {
                                 detail.ExportInMonth = Math.Round(exportsInMonth.Sum(e => e.Quantity), 2);
-                                var exportInDay = exportsInMonth.Where(ipo => ipo.ExportDate == importSx1.MaterialUseDate);
+                                var exportInDay = exportsInMonth.Where(ipo => ipo.ExportDate.Day == importSx1.MaterialUseDate.Day
+                                    && ipo.ExportDate.Month == importSx1.MaterialUseDate.Month
+                                    && ipo.ExportDate.Year == importSx1.MaterialUseDate.Year);
                                 if (exportInDay.Any()) {
                                     detail.Export = Math.Round(exportInDay.Sum(e => e.Quantity), 2);
                                 }
@@ -8611,7 +8618,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                     var useInDay =
                                         useInMonthById.Where(
                                             ipo =>
-                                            ipo.MaterialUseDate == importSx1.MaterialUseDate).ToList();
+                                            ipo.MaterialUseDate.Day == importSx1.MaterialUseDate.Day
+                                            && ipo.MaterialUseDate.Month == importSx1.MaterialUseDate.Month
+                                            && ipo.MaterialUseDate.Year == importSx1.MaterialUseDate.Year).ToList();
                                     if (useInDay.Any()) {
                                         onMachine.MaterialUse = Math.Round(useInDay.Sum(e => e.MaterialUse), 2);
                                         onMachine.ProductQuantity = useInDay.Sum(e => e.Production);

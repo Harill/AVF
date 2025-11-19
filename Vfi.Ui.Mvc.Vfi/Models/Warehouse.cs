@@ -59,8 +59,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public bool IsMainProcess { get; set; }
         public bool IsQC { get; set; }
         public bool IsPlating { get; set; }
-        public bool IsOutOfProcess { get; set; }
         public bool CanStock { get; set; }
+        public bool IsOutOfProcess { get; set; }
         public bool IsProduction { get; set; }
         public bool IsCncMilling { get; set; }
         public bool CanWeighing { get; set; }

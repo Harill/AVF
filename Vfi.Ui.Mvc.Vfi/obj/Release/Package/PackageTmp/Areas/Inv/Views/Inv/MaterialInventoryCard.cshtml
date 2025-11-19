@@ -268,7 +268,11 @@
                         columns.Bound(f => f.UnitWeight).Width(50)
                             .HeaderTemplate("TL")
                             .Format("{0:n3}")
-                            .HtmlAttributes(new {style = "text-align:right;border-right:1px solid black;"});
+                            .HtmlAttributes(new { style = "text-align:right;" });
+                        columns.Bound(f => f.UnitPrice).Width(50)
+                            .HeaderTemplate("ĐG")
+                            .Format("{0:n0}")
+                            .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
                         columns.Bound(f => f.TotalQty).Width(70)
                             .HeaderTemplate("Tồn kho</br>(cây)")
                             .Format("{0:n2}")

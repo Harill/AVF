@@ -648,14 +648,14 @@
                                             .Name("gridRealProduction_<#= ProductId #>")
                                             .DataKeys(key => key.Add(f => f.TrackId).RouteKey("trackId"))
                                             .DataBinding(dataDindings => dataDindings.Ajax()
-                                                                                     .Select("SelectRealProductionById", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                                                                     .Select("SelectFirstTrackUpProductionById", "Product", new { area = "", productId = "<#= ProductId #>" })
                                             )
                                             .Columns(columns => {
                                                     columns.Bound(f => f.DeliveryDate).Width(75).Title("Ngày giao")
                                                            .ClientTemplate("<#= DeliveryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DeliveryDate) #>");
-                                                    columns.Bound(f => f.MachineName).Width(80).Title("Máy")
+                                                    columns.Bound(f => f.MachineName).Width(100).Title("Máy")
                                                            .ClientTemplate("<strong><#= MachineName #></strong>");
-                                                    columns.Bound(f => f.StatusName).Width(80).Title("Tên Máy")
+                                                    columns.Bound(f => f.StatusName).Width(120).Title("Tên Máy")
                                                           .ClientTemplate("<strong><#= StatusName #></strong>"); // todo
                                                     columns.Bound(f => f.MaterialCode).Width(170).Title("Nguyên liệu")
                                                            .ClientTemplate("<strong><#= MaterialCode #></strong>");
@@ -675,6 +675,35 @@
                                             .ClientEvents(events => events.OnError("grid_OnError"))
                                             .ToHtmlString()
                                         );
+                                    items.Add().Text("Lịch sử").Content(
+                            Html.Telerik().Grid<ProductHistoryModel>()
+                                .Name("gridProductHistory_<#= ProductId #>")
+                                .DataKeys(key => key.Add(f => f.HistoryId).RouteKey("historyId"))
+                                .DataBinding(
+                                    dataBinding => dataBinding.Ajax()
+                                                              .Select("SelectProductHistory", "Production", new { area = "Factory", productId = "<#= ProductId #>", customerId = 0 })
+                                        //.Delete("DeleteProductImg", "Product", new { area = "", productId = "<#= ProductId #>" })
+                                )
+                                .Columns(columns => {
+                                    columns.Bound(f => f.RefImage).Width(60).Title("Bản vẽ")
+                                           .ClientTemplate("<a id='<#=HistoryId#>' href='" + Url.Content("~/Content/FileUpload/ProductHistory/") + "<#=RefImage#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
+                                                           "<img src='" + Url.Content("~/Content/FileUpload/ProductHistory/") + "<#=RefImage#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
+                                                           "</a><div class='highslide-caption'><#= CodeNumber #></div>");
+                                    columns.Bound(f => f.HistoryDate).Title("Ngày").Width(110)
+                                            .ClientTemplate("<#= HistoryDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', HistoryDate) #>");
+                                    columns.Bound(f => f.CodeNumber).Title("Mã").Width(100);
+                                    columns.Bound(f => f.Before).Title("Trước");
+                                    columns.Bound(f => f.After).Title("Sau");
+                                    columns.Bound(f => f.ModifiedUser).Title("Người tạo").ReadOnly(true).Width(70);
+                                    columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").ReadOnly(true).Width(80)
+                                           .Format("{0:dd/MM/yyyy HH:mm:ss}");
+                                    //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("Xoá");
+                                })
+                                .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                .ClientEvents(e => e.OnError("grid_OnError")
+                                        //.OnRowDataBound("gridProductImg_OnRowDataBound")
+                                    )
+                                .ToHtmlString());
                                 }
                             )
                             .ToHtmlString()

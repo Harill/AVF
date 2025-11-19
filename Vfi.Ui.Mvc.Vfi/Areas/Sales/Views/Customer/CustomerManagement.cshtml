@@ -151,6 +151,9 @@
                     columns.Bound(f => f.IsWorkOrder).Width(75).Title("Work Order")
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsWorkOrder' <#=IsWorkOrder? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(f => f.IsWorkOrderNotFullMaterial).Width(75).Title("WO lẻ")
+                           .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsWorkOrder' <#=IsWorkOrderNotFullMaterial? checked='checked' : '' #> />")
+                           .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.IsMonitor).Width(75)
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMonitor' <#=IsMonitor? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });
@@ -223,6 +226,8 @@
                                                         command.Edit().ButtonType(GridButtonType.Image)
                                             ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
 
+                                        columns.Bound(f => f.ImportTax).Width(225).Title("Thuế nhập khẩu (%)");
+                                        columns.Bound(f => f.QuotationFactor).Width(225).Title("Hệ số báo giá");
                                         columns.Bound(f => f.TaxCode).Width(225);
                                         columns.Bound(f => f.BankAccount).Width(275);
                                         columns.Bound(f => f.MaxCredit).Width(225);

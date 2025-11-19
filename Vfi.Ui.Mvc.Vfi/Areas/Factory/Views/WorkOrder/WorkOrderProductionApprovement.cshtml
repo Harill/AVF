@@ -33,11 +33,15 @@
                     if (i < ($checkedRecords.length - 1))
                         ids += ":";
                 }
+                var processDate = $("#ProcessDate").data("tDateTimePicker").value();
+                if (processDate === null)
+                    processDate = "";
+                else
+                    processDate = $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', processDate);
+
                 $.ajax({
                     type: 'post',
-                    data: {
-                        ids: ids
-                    },
+                    data: { ids: ids, processDate: processDate },
                     dataType: 'json',
                     url: '@Url.Action("ApproveWorkOrderProductionProcess", "WorkOrder", new { area = "Factory" })',
                     timeout: 20000,
@@ -62,7 +66,16 @@
 
 <div class="title">Duyệt công đoạn 1</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span></div>
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span>	
+<div class="grid_5">
+    @{
+            Html.Telerik().DateTimePicker()
+                .Name("ProcessDate")
+                .Format("dd/MM/yyyy HH:mm")
+                .Value(DateTime.Now)
+                .Render();
+        }
+</div></div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<WorkOrderProcessModel>()
