@@ -19,6 +19,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
         public string MachineCode { get; set; }
         [UIHint("_MachineEditTemplate")]
         public string MachineName { get; set; }
+        public string MachineIdName { get; set; }
         public string MachineFullName { get { return MachineName + " -- " + ProcessingTypeName; } }
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }

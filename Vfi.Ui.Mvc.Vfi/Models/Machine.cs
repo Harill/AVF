@@ -39,6 +39,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
 
         public int MachineId { get; set; }
         public string MachineName { get; set; }
+        public string MachineIdName { get; set; }
         public bool Active { get; set; }
         public string ModifiedUser { get; set; }
         public System.DateTime ModifiedDate { get; set; }

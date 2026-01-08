@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
-@model MaterialInventoryModel
+@*@model MaterialInventoryModel*@
 @{
     ViewBag.Title = "Xuất công cụ (SX1)";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -27,13 +27,22 @@
                     //a
                     product.dataBind(data);
                     if (product.selectedIndex > -1) {
-                        var selected = product.data[product.selectedIndex];
+                        //if (!data || data.length === 0) {
+
+                        var selected = product.data[product.selectedIndex];             // selected = lay ma sp
+                        //var selected = product.dataItem(product.selectedIndex);
+
                         if (selected != undefined) {
                             productSelectId = selected.Value;
-                            product.value(selected.value);
+
+                            //product.value(selected.value); 
+                            product.value(selected.Value);
+
                             product.text(selected.Text);
-                            product.selectedIndex = product.selectedIndex;
-                            product.previousValue = selected.value;
+
+
+                            //product.previousValue = selected.value;                   //  selected.Value voi .value thuong khac gi nhau khong?
+                            product.previousValue = selected.Value;
                         } else {
                             product.value(-1);
                             product.text("");

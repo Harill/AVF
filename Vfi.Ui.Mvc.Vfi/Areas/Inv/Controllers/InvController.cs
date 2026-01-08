@@ -6295,7 +6295,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                          x.ShipmentDate > fromMonthly
                                          && x.ShipmentDate < toMonthly
                                          && x.Active
-                                        //&& e.InvoiceId == 1647
+                                         //&& x.InvoiceId == 1647
+                                         //&& x.InvoiceNumber == "VFI-251999"
                                          && x.Status != (byte)MyUtilities.Sales.Status.Cancel
                                     select new {
                                         x.InvoiceDetails,
@@ -6316,12 +6317,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                         e.CustomerName,
                         e.CustomerTypeId
                     }).Distinct().ToList();
+                    
+                    var exchangeRate = MyUtilities.Monitor.GetParameterValue(MyUtilities.Monitor.ExchangeToVndRate);
                     //var orderIds = invoices.Select(e => e.OrderId).Distinct();
                     foreach (var customer in customers) {
                         //var customer = vfi.Customers.FirstOrDefault(c => c.CustomerId == customerId);
                         var entity = new CustomerIncomeModel {
                             CustomerCodeName = customer.CustomerCode + "-" + customer.CustomerName,
-                            ReportDateString = toMonthly.ToString("MM/yyyy")
+                            ReportDateString = toMonthly.ToString("MM/yyyy"),
                         };
                         var invoicesByCustomer = invoices.Where(i => i.CustomerId == customer.CustomerId);
                         foreach (var invoice in invoicesByCustomer) {
@@ -6339,17 +6342,19 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         DueDateString = export.DateTransporter != null
                                                             ? export.DateTransporter.Value.ToString("dd/MM/yyyy")
                                                             : "",
-                                        CurrencyCode = invoiceDetail != null ? invoiceDetail.OrderDetail.Order.CurrencyCode : "",
+                                        //CurrencyCode = invoiceDetail != null ? invoiceDetail.OrderDetail.Order.CurrencyCode : "",
+                                        CurrencyCode = invoiceDetail.OrderDetail.Order.CurrencyCode,
                                         TaxInvoiceNumber = "",
                                         InvoiceNumber = invoice.InvoiceNumber,
                                         ExchangeRate = invoice.ExchangeRate,
                                         TaxPercent = invoice.TaxPercent,
+                                        
                                     };
                                     if (detail.Quatity == 0) continue;
                                     var taxInvoiceProductDetail =
                                         vfi.TaxInvoiceProductDetails.FirstOrDefault(
                                             tip => tip.ExportDetailId == exportDetail.DetailId && tip.Active.Value);
-                                    if (taxInvoiceProductDetail != null) {
+                                    if (taxInvoiceProductDetail != null) {              
                                         detail.TaxInvoiceNumber = taxInvoiceProductDetail.TaxInvoice.TaxInvoiceList;
                                         detail.TaxPercent = taxInvoiceProductDetail.TaxInvoice.TaxPercent;
                                         detail.CurrencyCode = taxInvoiceProductDetail.TaxInvoice.Currency;
@@ -6361,6 +6366,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         else {
                                             detail.ExchangeRate = taxInvoiceProductDetail.TaxInvoice.ExchangeRate;
                                         }
+
+                                        var exchangerate = detail.ExchangeRate;
                                         var taxInvoiceProduct = vfi.TaxInvoiceProducts
                                                                    .FirstOrDefault(
                                                                        tip =>
@@ -6376,6 +6383,11 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                                         detail.UnitPrice = detail.UnitPrice * detail.ExchangeRate;
                                         detail.ExchangeRate = 1;
                                     }
+
+                                    if (detail.CurrencyCode != "VND" && detail.ExchangeRate == 1) {
+                                        detail.ExchangeRate = exchangeRate;
+                                    }
+
                                     entity.Details.Add(detail);
                                 }
                                 else {
@@ -6399,7 +6411,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                 }
             }
             catch (Exception ex) {
-                ModelState.AddModelError("PrintCustomerIncome", "" + ex.Message);
+                ModelState.AddModelError("GetCustomerIncomeReport", "" + ex.Message);
             }
             return model;
         }

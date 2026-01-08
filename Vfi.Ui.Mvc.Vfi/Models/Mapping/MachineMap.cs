@@ -39,6 +39,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ProcessingTypeId).HasColumnName("ProcessingTypeId");
             this.Property(t => t.Production2).HasColumnName("Production2");
             this.Property(t => t.MachineFunction).HasColumnName("MachineFunction");
+            this.Property(t => t.MachineIdName).HasColumnName("MachineIdName");
 
             // Relationships
             this.HasOptional(t => t.MachineState)

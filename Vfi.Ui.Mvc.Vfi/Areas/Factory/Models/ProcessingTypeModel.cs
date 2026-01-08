@@ -24,5 +24,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 
         [DataType("_WarehouseMainProcessTemplate")]
         public string WarehouseName { get; set; }
+
     }
 }

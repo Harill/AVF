@@ -13,7 +13,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         }
 
         public int TypeId { get; set; }
-        public string TypeName { get; set; }
+        public string TypeName { get; set; }        
         public string Description { get; set; }
         public bool Active { get; set; }
         public Nullable<System.DateTime> ModifiedDate { get; set; }

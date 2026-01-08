@@ -182,6 +182,30 @@
             return false;
         }
 
+
+        function printProductionToolByDay() {
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+
+                $('#result').load('@Url.Action("PrintProductionToolByDay", "Tool")',
+                    { monthlyDate: monthlyDate },
+                    function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    });
+            }
+            return false;
+
+
+
+        }
+
         function printToolInvInMonth() {
             if (!onLoading) {
                 OnLoadingData();
@@ -267,6 +291,26 @@
             <span class="twoToneButton"></span>
         </button>
     </div>
+
+
+     <div class="grid_6">
+        <button id="btnAssignTool" class="t-button" onclick=" return printProductionToolByDay(); ">
+            <span class='t-icon t-insert'></span>
+            Số lượng sản phẩm/Công cụ
+            <span class="twoToneButton"></span>
+        </button>
+      </div>
+
+            <div class="grid_3">
+                @{
+                    Html.Telerik().DatePicker()
+                        .Name("MonthlyDate")
+                        .Format("dd/MM/yyyy")
+                        .Value(DateTime.Today)
+                        .Render();
+                }
+        </div>
+
 
     <div class="clear"></div>
     <br />

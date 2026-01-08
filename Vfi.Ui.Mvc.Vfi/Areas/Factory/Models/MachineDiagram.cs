@@ -16,6 +16,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Models {
         }
         public int MachineId { get; set; }
         public string MachineName { get; set; }
+        public string MachineIdName { get; set; }               // moi them
         public int ProductId { get; set; }
         [UIHint("_ProductCodeNameTemplate")]
         public string ProductCode { get; set; }

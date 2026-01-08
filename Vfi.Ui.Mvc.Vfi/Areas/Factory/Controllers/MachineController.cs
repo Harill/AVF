@@ -196,25 +196,27 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
 
                     var machineIds = cames.Select(c => c.MachineId).Distinct().ToList();
                     var machines = vfi.Machines.Where(m => machineIds.Contains(m.MachineId));
-                    var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
-                                            where id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                                                  id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                                                  id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
-                                                  (byte)MyUtilities.Transaction.Status.Approved &&
-                                                  productIds.Contains(id.ProductId) &&
-                                                  machineIds.Contains(id.MachineId.Value) &&
-                                                  materialIds.Contains(id.MaterialInventory.MaterialId) &&
-                                                  id.ImportFormSX1.MaterialUseDate > lastTrackDate
-                                            orderby id.ImportFormSX1.MaterialUseDate descending
-                                            select new {
-                                                id.MaterialInventory.MaterialId,
-                                                MachineId = id.MachineId ?? 0,
-                                                id.ProductId,
-                                                id.ImportFormSX1.MaterialUseDate,
-                                                Quantity = id.Number1 + id.Number2 +
-                                                           id.Processing1 + id.Processing2,
-                                                MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
-                                            }).ToList();
+                    //var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
+                    //                        where id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                    //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                    //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
+                    //                              (byte)MyUtilities.Transaction.Status.Approved &&
+                    //                              productIds.Contains(id.ProductId) &&
+                    //                              machineIds.Contains(id.MachineId.Value) &&
+                    //                              materialIds.Contains(id.MaterialInventory.MaterialId) &&
+                    //                              id.ImportFormSX1.MaterialUseDate > lastTrackDate
+                    //                        orderby id.ImportFormSX1.MaterialUseDate descending
+                    //                        select new {
+                    //                            id.MaterialInventory.MaterialId,
+                    //                            MachineId = id.MachineId ?? 0,
+                    //                            id.ProductId,
+                    //                            id.ImportFormSX1.MaterialUseDate,
+                    //                            Quantity = id.Number1 + id.Number2 +
+                    //                                       id.Processing1 + id.Processing2,
+                    //                            MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
+                    //                        }).ToList();
+
+
                     var maxColumn = machines.Max(x => x.ColumnIndex).Value;
                     for (int i = 1; i <= maxColumn; i++) {
                         var machineColumns = machines.Where(c => c.ColumnIndex == i).OrderByDescending(c => c.RowIndex);
@@ -226,6 +228,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             var entity = new MachineDiagram {
                                 MachineId = machine.MachineId,
                                 MachineName = machine.MachineName,
+                                MachineIdName = machine.MachineIdName,              // moi them
                                 Information = "",
                                 MachineState = machine.StateId ?? 0,
                                 WarrningColor = machine.MachineState.WarrningColor,
@@ -251,12 +254,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 entity.MaterialCode = camesInColumn.MaterialCode;
                                 entity.StartDate = camesInColumn.DeliveryDate;
                                 entity.EndDate = camesInColumn.EndDate;
-                                var productions = importDetailsSx1.Where(id => id.MachineId == camesInColumn.MachineId &&
-                                    id.MaterialId == camesInColumn.MaterialId &&
-                                    id.ProductId == camesInColumn.ProductId &&
-                                    id.MaterialUseDate >= camesInColumn.DeliveryDate).ToList();
-                                entity.Production = productions.Sum(p => p.Quantity);
-                                entity.MaterialUse = productions.Sum(p => p.MaterialUse);
+                                //var productions = importDetailsSx1.Where(id => id.MachineId == camesInColumn.MachineId &&
+                                //    id.MaterialId == camesInColumn.MaterialId &&
+                                //    id.ProductId == camesInColumn.ProductId
+                                //    && id.MaterialUseDate >= camesInColumn.DeliveryDate
+                                //    )
+                                //    .ToList();
+                                //entity.Production = productions.Sum(p => p.Quantity);
+                                //entity.MaterialUse = productions.Sum(p => p.MaterialUse);
                             }
                             if (machine.ProcessingType != null) {
                                 entity.MachineType = machine.ProcessingType.TypeName;
@@ -1014,6 +1019,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                     select new MachineModel {
                                         MachineId = x.MachineId,
                                         MachineCode = x.MachineName,
+                                        MachineIdName = x.MachineIdName,
                                         Active = x.Active,
                                         DiagramType = x.DiagramType ?? 1,
                                         ColumnIndex = x.ColumnIndex ?? 1,
@@ -1109,6 +1115,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         }
                         entity = new Machine {
                             MachineName = newMachine.MachineCode,
+                            MachineIdName = newMachine.MachineIdName,
                             Active = newMachine.Active,
                             ModifiedDate = DateTime.Now,
                             ModifiedUser = HttpContext.User.Identity.Name,
@@ -1191,7 +1198,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         entity.MachineName.Equals(updateMachine.MachineCode) &&
                         entity.Active == updateMachine.Active &&
                         entity.Production2 == updateMachine.Production2 &&
-                        entity.MachineId != updateMachine.MachineId)
+                        entity.MachineId != updateMachine.MachineId &&
+                        entity.MachineIdName != updateMachine.MachineIdName)                                // moi them
                         throw new AggregateException("Lỗi! Tên máy đã được sử dụng");
                     var diagram = 1;
                     try {
@@ -1216,6 +1224,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 pt => pt.TypeName.Equals(updateMachine.ProcessingTypeName)).TypeId;
                     }
                     entity.MachineName = updateMachine.MachineCode;
+                    entity.MachineIdName = updateMachine.MachineIdName;
                     entity.Active = updateMachine.Active;
                     entity.ModifiedDate = DateTime.Now;
                     entity.ModifiedUser = HttpContext.User.Identity.Name;

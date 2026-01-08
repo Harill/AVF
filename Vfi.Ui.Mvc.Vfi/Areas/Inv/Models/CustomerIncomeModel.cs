@@ -30,6 +30,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
                            .Sum(d => d.Total);
             }
         }
+        public double TotalNoTaxInvoiceVnd {
+            get {
+                return
+                    Details.Where(d => d.CurrencyCode.Equals("VND") &&
+                                       string.IsNullOrWhiteSpace(d.TaxInvoiceNumber))
+                           .Sum(d => d.Total);
+            }
+        }
 
         public double TotalTaxInvoiceUsd {
             get {
@@ -39,23 +47,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
                            .Sum(d => d.Total);
             }
         }
-        public double TotalNoTaxInvoiceVnd {
-            get {
-                return
-                    Details.Where(d => !d.CurrencyCode.Equals("VND") &&
-                                       string.IsNullOrWhiteSpace(d.TaxInvoiceNumber))
-                           .Sum(d => d.Total);
-            }
-        }
         public double TotalTaxInvoiceVnd {
             get {
                 return
-                    Details.Where(d => !d.CurrencyCode.Equals("VND") &&
+                    Details.Where(d => d.CurrencyCode.Equals("VND") &&
                                        !string.IsNullOrWhiteSpace(d.TaxInvoiceNumber))
                            .Sum(d => d.Total);
             }
         }
-
+ 
     }
     public class CustomerIncomeDetailModel
     {
@@ -79,6 +79,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
         public double TaxPercent { get; set; }
         public double ExchangeRate { get; set; }
         public string CurrencyCode { get; set; }
+
 
         public double Total
         {

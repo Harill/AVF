@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Vfi.Ui.Mvc.Vfi.Models.Production
-{
+namespace Vfi.Ui.Mvc.Vfi.Models.Production {
     public class ProductionToolModel {
         public int RealToolId { get; set; }
         public int ProductId { get; set; }
@@ -45,7 +44,11 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         public double ProductForcast { get; set; }
         public double ProductInventory { get; set; }
         public double ProductionQuantity { get; set; }
-        public double ProductRequired { get { return ProductForcast > ProductInventory ? ProductForcast - ProductInventory : 0; } }
+        public double ProductRequired {
+            get {
+                return ProductForcast > ProductInventory ? ProductForcast - ProductInventory : 0;
+            }
+        }
         public double ToolRequired {
             get {
                 return (ToolQuota > 0 && ProductRequired / ToolQuota - ToolInv > 0)
@@ -66,5 +69,17 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         //            : 1;
         //    }
         //}
+
+        public int MachineId { get; set; }
+
+        public System.DateTime? ExportDate { get; set; }
+
+        public string ExportDateStr {
+            get {
+                return ExportDate != null
+                    ? ExportDate.Value.ToString("dd/MM/yyyy")
+                    : "";
+            }
+        }
     }
 }
