@@ -2986,7 +2986,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         [HttpPost]
         public ActionResult ChangeProductionProduct(string transactionCode, int oldProduct, int newProduct, int machineId) {
 
-            var a = 0;
+            //var a = 0;
             try {
                 using (var vfi = new tammaContext()) {
 
@@ -3151,7 +3151,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
 
         [HttpPost]
         public ActionResult ChangeExportSaleProduct(string invoiceNumber, int oldProduct, int newProduct) {
-            var a = 0;
+            //var a = 0;
             try {
                 using (var vfi = new tammaContext()) {
                     var invoice = vfi.Invoices.FirstOrDefault(i => i.InvoiceNumber.Equals(invoiceNumber));

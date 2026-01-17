@@ -293,10 +293,10 @@
     </div>
 
 
-     <div class="grid_6">
+     <div class="grid_7">
         <button id="btnAssignTool" class="t-button" onclick=" return printProductionToolByDay(); ">
             <span class='t-icon t-insert'></span>
-            Số lượng sản phẩm/Công cụ
+            In sản phẩm dùng công cụ sản xuất ngày
             <span class="twoToneButton"></span>
         </button>
       </div>
@@ -324,7 +324,7 @@
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxToolVendor", "Vendor", new { area = "Purchasing" }))
                     .HtmlAttributes(new { style = "width: 100%" })
                     .AutoFill(true)
-                    .Filterable(f=>f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f=>f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
@@ -338,7 +338,7 @@
                         .HtmlAttributes(new { style = "width: 100%" })
                         //.DropDownHtmlAttributes(new { style = "width: 100%" })
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .ClientEvents(e => e.OnChange("ToolType_OnChange"))
                         .Render();
                 }

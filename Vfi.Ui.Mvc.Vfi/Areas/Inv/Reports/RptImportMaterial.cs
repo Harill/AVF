@@ -23,7 +23,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             //
 
             //this.Name = "NhapKhoNguyenLieu";
-            //this.pictureBox1.Value = Properties.Resources.ql_muahang;
+            this.signBox.Value = Properties.Resources.ql_muahang;
         }
         
         public void BindDataOwner(object models)
@@ -34,6 +34,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Reports
             this.picLogo.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
             this.picLogo.Value = data.Info.Logo;
             this.Name = "Import_Material_" + data.CreatedDate.ToString("yy_MM_dd");
+            //this.pictureBox1.Value = Properties.Resources.ql_muahang;
         }
         public static double? GetItemValue(List<double?> values, int index)
         {

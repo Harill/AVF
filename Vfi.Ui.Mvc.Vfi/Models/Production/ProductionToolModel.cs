@@ -81,5 +81,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production {
                     : "";
             }
         }
+        public System.DateTime? TheDay { get; set; }
+
     }
 }

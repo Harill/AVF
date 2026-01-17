@@ -17,5 +17,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual Product Product { get; set; }
         public virtual ToolInventory ToolInventory { get; set; }
         public virtual TransactionFptDetail TransactionFptDetail { get; set; }
+
+        public string ToolLocation { get; set; }                                        // moi them (17/01/2026)
+
     }
 }

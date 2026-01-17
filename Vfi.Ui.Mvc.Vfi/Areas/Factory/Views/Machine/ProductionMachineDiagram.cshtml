@@ -284,8 +284,8 @@
         </div>
 
         <div>
-            <section id="options" class="clearfix">
-                <ul id="filters" class="option-set clearfix" data-option-key="filter">
+            <section id="options" class="clearfix">                                                     
+                <ul id="filters" class="option-set clearfix" data-option-key="filter">                                     
                     @{
                         foreach (var func in Model.ListFunction) {
                         <li><a href="#" data-filter=".mf-@func.Code" class="t-button">(@func.Count) @func.Code</a></li>
@@ -301,7 +301,7 @@
         </div>
         <div>
             <section id="options" class="clearfix">
-                <ul id="filters" class="option-set clearfix" data-option-key="filter">
+                <ul id="filters" class="option-set clearfix" data-option-key="filter">                   <!-- noi chinh sua loai may -->
                     @{
                         foreach (var type in Model.ListType) {
                         <li><a href="#" data-filter=".mt-@type.Code" class="t-button">(@type.Count) @type.Code</a></li>
@@ -315,7 +315,7 @@
 <div class="clear"></div>
 @{
     int i = 0;
-    var columnWidth = 360;               <!-- sua o day, so cu la 270 -->
+    var columnWidth = 280;              
     var columnSpace = 10;
     var space = 100;
     var divWidth = ((columnWidth + columnSpace) * Model.ListMachineDiagram.Count + space) + "px";
@@ -332,10 +332,10 @@
                              style="width:@entityWidth; position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
 
                         <div class="line1">
-                            <div class="line-item" style='width: 65%; text-align: left; background-color: #@entity.WarrningColor;'>                                                      <!-- sua o day -->
-                                <span class="itemLeft highlight" style="margin-left: 10px">@entity.MachineName | @entity.MachineType | @entity.MachineIdName | @entity.MachineFunction</span>      <!-- sua o day -->
+                            <div class="line-item" style='width: 60%; text-align: left; background-color: #@entity.WarrningColor;'>                                                 
+                                <span class="itemLeft highlight" style="margin-left: 10px">@entity.MachineName | @entity.MachineIdName | @entity.MachineFunction</span>      <!-- Xoa  entity.MachineType, them entity.MachineIdName  -->
                             </div>
-                            <div class="line-item" style='width: 35%; text-align: right; background-color: #ccc2d6; color: #3333cc;'>                                                        <!-- sua o day -->
+                            <div class="line-item" style='width: 40%; text-align: right; background-color: #ccc2d6; color: #3333cc;'>                                                    
                                 <span class="itemRight" style="padding-top: 5px; margin-right: 10px; font-weight: bold">@entity.ProductCode</span>
                             </div>
                         </div>

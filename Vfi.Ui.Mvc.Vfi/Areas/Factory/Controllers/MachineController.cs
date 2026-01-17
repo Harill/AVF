@@ -195,26 +195,26 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                     var lastTrackDate = cames.Min(c => c.DeliveryDate) ?? DateTime.Now;
 
                     var machineIds = cames.Select(c => c.MachineId).Distinct().ToList();
-                    var machines = vfi.Machines.Where(m => machineIds.Contains(m.MachineId));
-                    //var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
-                    //                        where id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
-                    //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
-                    //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
-                    //                              (byte)MyUtilities.Transaction.Status.Approved &&
-                    //                              productIds.Contains(id.ProductId) &&
-                    //                              machineIds.Contains(id.MachineId.Value) &&
-                    //                              materialIds.Contains(id.MaterialInventory.MaterialId) &&
-                    //                              id.ImportFormSX1.MaterialUseDate > lastTrackDate
-                    //                        orderby id.ImportFormSX1.MaterialUseDate descending
-                    //                        select new {
-                    //                            id.MaterialInventory.MaterialId,
-                    //                            MachineId = id.MachineId ?? 0,
-                    //                            id.ProductId,
-                    //                            id.ImportFormSX1.MaterialUseDate,
-                    //                            Quantity = id.Number1 + id.Number2 +
-                    //                                       id.Processing1 + id.Processing2,
-                    //                            MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
-                    //                        }).ToList();
+                    var machines = vfi.Machines.Where(m => m.Active && m.DiagramType == 1);
+                    var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
+                                            where id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
+                                                  id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
+                                                  id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
+                                                  (byte)MyUtilities.Transaction.Status.Approved &&
+                                                  productIds.Contains(id.ProductId) &&
+                                                  machineIds.Contains(id.MachineId.Value) &&
+                                                  materialIds.Contains(id.MaterialInventory.MaterialId) &&
+                                                  id.ImportFormSX1.MaterialUseDate > lastTrackDate
+                                            orderby id.ImportFormSX1.MaterialUseDate descending
+                                            select new {
+                                                id.MaterialInventory.MaterialId,
+                                                MachineId = id.MachineId ?? 0,
+                                                id.ProductId,
+                                                id.ImportFormSX1.MaterialUseDate,
+                                                Quantity = id.Number1 + id.Number2 +
+                                                           id.Processing1 + id.Processing2,
+                                                MaterialUse = (id.MaterialUse1 + id.MaterialUse2) * id.MaterialInventory.UnitWeight,
+                                            }).ToList();
 
 
                     var maxColumn = machines.Max(x => x.ColumnIndex).Value;
@@ -254,14 +254,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                 entity.MaterialCode = camesInColumn.MaterialCode;
                                 entity.StartDate = camesInColumn.DeliveryDate;
                                 entity.EndDate = camesInColumn.EndDate;
-                                //var productions = importDetailsSx1.Where(id => id.MachineId == camesInColumn.MachineId &&
-                                //    id.MaterialId == camesInColumn.MaterialId &&
-                                //    id.ProductId == camesInColumn.ProductId
-                                //    && id.MaterialUseDate >= camesInColumn.DeliveryDate
-                                //    )
-                                //    .ToList();
-                                //entity.Production = productions.Sum(p => p.Quantity);
-                                //entity.MaterialUse = productions.Sum(p => p.MaterialUse);
+                                var productions = importDetailsSx1.Where(id => id.MachineId == camesInColumn.MachineId &&
+                                    id.MaterialId == camesInColumn.MaterialId &&
+                                    id.ProductId == camesInColumn.ProductId
+                                    && id.MaterialUseDate >= camesInColumn.DeliveryDate
+                                    )
+                                    .ToList();
+                                entity.Production = productions.Sum(p => p.Quantity);
+                                entity.MaterialUse = productions.Sum(p => p.MaterialUse);
                             }
                             if (machine.ProcessingType != null) {
                                 entity.MachineType = machine.ProcessingType.TypeName;
