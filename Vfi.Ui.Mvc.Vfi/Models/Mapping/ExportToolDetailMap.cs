@@ -20,6 +20,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ToolInvId).HasColumnName("ToolInvId");
             this.Property(t => t.ProductId).HasColumnName("ProductId");
             this.Property(t => t.TransactionDetailId).HasColumnName("TransactionDetailId");
+            this.Property(t => t.RealToolId).HasColumnName("RealToolId");                             // 19/01/2026
+
 
             // Relationships
             this.HasOptional(t => t.Machine)

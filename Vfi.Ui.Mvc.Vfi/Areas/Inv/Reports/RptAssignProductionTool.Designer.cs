@@ -24,6 +24,7 @@
             this.textBox3 = new Telerik.Reporting.TextBox();
             this.textBox6 = new Telerik.Reporting.TextBox();
             this.textBox7 = new Telerik.Reporting.TextBox();
+            this.textBox27 = new Telerik.Reporting.TextBox();
             this.panel1 = new Telerik.Reporting.Panel();
             this.textBox5 = new Telerik.Reporting.TextBox();
             this.textBox9 = new Telerik.Reporting.TextBox();
@@ -57,7 +58,6 @@
             this.textBox8 = new Telerik.Reporting.TextBox();
             this.reportHeader = new Telerik.Reporting.ReportHeaderSection();
             this.titleTextBox = new Telerik.Reporting.TextBox();
-            this.currentTimeTextBox = new Telerik.Reporting.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
             // objectDataSource1
@@ -87,7 +87,7 @@
             this.textBox3,
             this.textBox6,
             this.textBox7,
-            this.currentTimeTextBox});
+            this.textBox27});
             this.panel2.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(0D), Telerik.Reporting.Drawing.Unit.Inch(0.33102625608444214D));
             this.panel2.Name = "panel2";
             this.panel2.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(12.399997711181641D), Telerik.Reporting.Drawing.Unit.Inch(0.25D));
@@ -125,6 +125,7 @@
             // textBox7
             // 
             this.textBox7.CanGrow = true;
+            this.textBox7.CanShrink = false;
             this.textBox7.Docking = Telerik.Reporting.DockingStyle.Left;
             this.textBox7.Format = "{0:n0}";
             this.textBox7.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Cm(15.747701644897461D), Telerik.Reporting.Drawing.Unit.Cm(0D));
@@ -135,6 +136,21 @@
             this.textBox7.Style.Font.Name = "Times New Roman";
             this.textBox7.StyleName = "Data";
             this.textBox7.Value = "=Sum(ToolInv)";
+            // 
+            // textBox27
+            // 
+            this.textBox27.CanGrow = true;
+            this.textBox27.CanShrink = false;
+            this.textBox27.Docking = Telerik.Reporting.DockingStyle.Left;
+            this.textBox27.Format = "{0:dd/MM/yyyy}";
+            this.textBox27.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(6.89980411529541D), Telerik.Reporting.Drawing.Unit.Inch(0D));
+            this.textBox27.Name = "textBox27";
+            this.textBox27.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(0.80015617609024048D), Telerik.Reporting.Drawing.Unit.Inch(0.25D));
+            this.textBox27.Style.BorderStyle.Default = Telerik.Reporting.Drawing.BorderType.Solid;
+            this.textBox27.Style.Font.Bold = true;
+            this.textBox27.Style.Font.Name = "Times New Roman";
+            this.textBox27.StyleName = "Data";
+            this.textBox27.Value = "=TheDay";
             // 
             // panel1
             // 
@@ -603,16 +619,6 @@
             this.titleTextBox.StyleName = "Title";
             this.titleTextBox.Value = "DANH SÁCH CÔNG CỤ ĐANG SỬ DỤNG";
             // 
-            // currentTimeTextBox
-            // 
-            this.currentTimeTextBox.Format = "{0:dd/MM/yyyy}";
-            this.currentTimeTextBox.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Inch(10.900035858154297D), Telerik.Reporting.Drawing.Unit.Inch(0D));
-            this.currentTimeTextBox.Name = "currentTimeTextBox";
-            this.currentTimeTextBox.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Inch(1.4999216794967651D), Telerik.Reporting.Drawing.Unit.Inch(0.24992111325263977D));
-            this.currentTimeTextBox.Style.Font.Name = "Times New Roman";
-            this.currentTimeTextBox.StyleName = "Data";
-            this.currentTimeTextBox.Value = "=TheDay";
-            // 
             // RptAssignProductionTool
             // 
             this.DataSource = this.objectDataSource1;
@@ -709,7 +715,7 @@
         private Telerik.Reporting.TextBox textBox22;
         private Telerik.Reporting.TextBox textBox24;
         private Telerik.Reporting.TextBox textBox8;
-        private Telerik.Reporting.TextBox currentTimeTextBox;
+        private Telerik.Reporting.TextBox textBox27;
 
     }
 }

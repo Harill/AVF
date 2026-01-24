@@ -211,7 +211,7 @@
             .DataKeys(keys => keys.Add(f => f.ToolInvId).RouteKey("toolInvId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectAssignToolProduction", "Tool", new {machineId = 0, productId = 0 })
-                .Update("UpdateAssignToolProduction", "Tool"))
+                .Update("UpdateAssignToolProduction", "Tool"))                  // luu them productionToolId
             .Columns(columns =>
             {
                 columns.Bound(f => f.VendorName).Width(100).Title("NCC").ReadOnly(true);

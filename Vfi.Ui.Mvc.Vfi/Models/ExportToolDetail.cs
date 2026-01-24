@@ -18,7 +18,10 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ToolInventory ToolInventory { get; set; }
         public virtual TransactionFptDetail TransactionFptDetail { get; set; }
 
-        public string ToolLocation { get; set; }                                        // moi them (17/01/2026)
+
+        public Nullable <int> RealToolId { get; set; }                             // 19/01/2026
+
+
 
     }
 }

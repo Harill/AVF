@@ -166,5 +166,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
         public bool IsDestroy { get; set; }
 
         public WorkGroupInfo Info { get; set; }
+
+
+        public Nullable<int> ProductionToolId { get; set; }                 //20/01/2026
     }
 }

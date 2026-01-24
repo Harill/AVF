@@ -36,6 +36,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.ExchangeRate).HasColumnName("ExchangeRate");
             this.Property(t => t.IsInternal).HasColumnName("IsInternal");
 
+
             // Relationships
             this.HasOptional(t => t.PurchaseOrder)
                 .WithMany(t => t.TransactionFpts)

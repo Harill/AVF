@@ -2026,13 +2026,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 VendorCode = toolInv.Vendor.VendorCode,
                                 VendorName = toolInv.Vendor.VendorName,
                                 UnitMeasure = toolInv.UnitMeasure,
-                                FptTypeName = tool.MaterialType.MaterialTypeName,
+                                FptTypeName = tool.MaterialType.MaterialTypeName,   
                                 StatusName =
                                     productionTool.ToolIndex +
                                     ".QCSD: " + productionTool.Description +
                                     " - Vị trí:" + productionTool.ToolLocation + " - " +
                                     productionTool.Note,
-                                AvailInv = toolInv.TotalQuantity
+                                AvailInv = toolInv.TotalQuantity,
+                                ProductionToolId = productionTool.RealToolId                        // 20/01/2026
                             };
                             if (toolInv.ImportDate != null)
                                 entity.TaxInvoiceDate = toolInv.ImportDate.Value;
@@ -2072,7 +2073,9 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     ".QCSD: " + productionTool.Description +
                                     " - Vị trí:" + productionTool.ToolLocation + " - " +
                                     productionTool.Note,
-                                AvailInv = 0
+                                AvailInv = 0,
+                                ProductionToolId = productionTool.RealToolId                        //20/01/2026
+
                             };
                             if (machine != null) {
                                 entity.MachineId = machine.MachineId;
@@ -2123,12 +2126,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 VendorName = toolInv.Vendor.VendorName,
                                 UnitMeasure = toolInv.UnitMeasure,
                                 FptTypeName = tool.MaterialType.MaterialTypeName,
-                                StatusName = "CCTT: " 
-                                     //+ " - Vị trí:" + toolInv.ToolLocation + " - " +
-                                     //toolInv.Note
-                                    ,
+                                //StatusName = "CCTT: " ,
                                 AvailInv = toolInv.TotalQuantity,
+                                ProductionToolId = replaceTool.ProductionToolId                            // 21/01/2026
+
                             };
+                            var note = productionTools.Where(pt => pt.RealToolId == entity.ProductionToolId).FirstOrDefault();
+                            entity.StatusName = "CCTT - Vị trí: " + note.ToolLocation;
                             if (machine != null) {
                                 entity.MachineId = machine.MachineId;
                                 entity.MachineName = machine.MachineName;
@@ -2160,9 +2164,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 VendorName = "",
                                 UnitMeasure = "",
                                 FptTypeName = tool.MaterialType.MaterialTypeName,
-                                StatusName = "CCTT",
-                                AvailInv = 0
+                                //StatusName = "CCTT",
+                                AvailInv = 0,
+                                ProductionToolId = replaceTool.ProductionToolId                            // 21/01/2026
+
                             };
+
+                            var note = productionTools.Where(pt => pt.RealToolId == entity.ProductionToolId).FirstOrDefault();
+                            entity.StatusName = "CCTT - Vị trí: " + note.ToolLocation;
                             if (machine != null) {
                                 entity.MachineId = machine.MachineId;
                                 entity.MachineName = machine.MachineName;
@@ -2212,6 +2221,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                 }
 
                 using (var vfi = new tammaContext()) {
+
                     var assignUpdates = updatedDetails.Where(ud => ud.Quantity > 0);
                     var transaction = new TransactionFpt {
                         TransactionDate = date,
@@ -2228,8 +2238,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         InventorySignature = 0,
                         PurchasingSignature = 0,
                         QcSignature = 0,
-                        ExchangeRate = 1
+                        ExchangeRate = 1,
                     };
+
+                                                                            
                     var exportTool = new ExportTool {
                         TransactionFpt = transaction,
                         TransactionId = transaction.TransactionId,
@@ -2244,7 +2256,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     };
                     if (!assignUpdates.Any())
                         goto part2;
-                    //
+                    
                     foreach (var detail in assignUpdates) {
                         if (detail.Quantity == 0 || detail.ToolInvId == 0) continue;
                         var toolInv = vfi.ToolInventories.FirstOrDefault(m => m.ToolInvId == detail.ToolInvId);
@@ -2279,6 +2291,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             TransactionDetailId = transactionDetail.DetailId,
                             ProductId = exportTool.ProductId,
                             MachineId = exportTool.MachineId,
+                            
                         };
                         exportTool.ExportToolDetails.Add(exportDetail);
                     }
@@ -2396,7 +2409,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     if (!updatedDetails.Any()) {
                         throw new AggregateException("Cập nhật không thành công !");
                     }
+
+
                     using (var vfi = new tammaContext()) {
+
                         var transaction = new TransactionFpt {
                             TransactionDate = date,
                             ModifiedDate = DateTime.Now,
@@ -2500,6 +2516,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 TransactionDetailId = transactionDetail.DetailId,
                                 ProductId = exportTool.ProductId,
                                 MachineId = exportTool.MachineId,
+                                RealToolId = detail.ProductionToolId,                                //20/01/20026
                             };
                             exportTool.ExportToolDetails.Add(exportDetail);
                         }
@@ -3524,7 +3541,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     // Step 1: Load all active machines
                     var machines = vfi.Machines
                         .Where(m => (m.Active || m.Production2)
-                        //&& m.MachineName.Equals("C02")
+                        //&& m.MachineName.Equals("C24")
                         && m.ProcessingType.ForWarehouseId == MyUtilities.Warehouse.Production1
                         && m.StateId != MyUtilities.Machine.State.Done
                         && m.StateId != MyUtilities.Machine.State.OutOfMaterial
@@ -3547,7 +3564,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 MachineName = t.Machine.MachineName,
                                 t.ProductId,
                                 ProductCode = t.Product.ProductCode,
-                                Date = t.DeliveryDate.Value
+                                Date = t.DeliveryDate.Value,
+                                TrackId = t.TrackId,
                             })
                             .ToList();
 
@@ -3559,10 +3577,41 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         .Where(pt => productIds.Contains(pt.ProductId) && pt.Active && pt.Tool.Active && pt.Active)
                         .ToList();
 
+                    var replaceTools = vfi.ProductionToolReplacements.Where(rp => rp.ToolId != null
+                                                                                    && productIds.Contains(rp.TrackUpMachine.ProductId)
+                                                                                    && machineIds.Contains(rp.TrackUpMachine.MachineId))
+                                                                       .Select(rp => new {
+                                                                           toolCode = rp.Tool.ToolCode,
+                                                                           toolDesign = rp.Tool.ToolDesignNo,
+                                                                           toolFullCode = rp.Tool.ToolFullCode,
+                                                                           toolMaterial = rp.Tool.ToolMaterial,
+                                                                           toolProduction = rp.Tool.ToolProduction,
+                                                                           toolName = rp.Tool.ToolName,
+                                                                           toolTypeName = rp.Tool.MaterialType.MaterialTypeName,
+                                                                           note = rp.Note,
+                                                                           ProductId = rp.TrackUpMachine.ProductId,
+                                                                           ToolId = rp.ToolId.Value,
+                                                                           Active = true,
+                                                                           trackId = rp.TrackId,
+                                                                           RealToolId = rp.ProductionToolId,
+                                                                           MachineId = rp.TrackUpMachine.MachineId,
+                                                                       })
+                                                                       .ToList();
+
+                    var listRealToolId = productionTools.Select(rp => rp.RealToolId).ToList();
+                    var listReplaceRealToolId = replaceTools.Select(rp => rp.RealToolId).ToList();
+
+                    listRealToolId.AddRange(listReplaceRealToolId);
+                    var new_listRealToolId = listRealToolId.Distinct().ToList();
+
                     // Step 5: Load all active tools with inventory
                     var toolIds = productionTools.Select(x => x.ToolId).Distinct().ToList();
+                    var replaceToolIds = replaceTools.Select(x => x.ToolId).Distinct().ToList();
+                    toolIds.AddRange(replaceToolIds);
+
+                    var new_toolIds = toolIds.ToList();
                     var toolInvs = vfi.ToolInventoryPeriods                                 // bat dau o day
-                        .Where(ti => toolIds.Contains(ti.ToolId))
+                        .Where(ti => new_toolIds.Contains(ti.ToolId))
                         .ToList();
 
                     var warehouseIds = MyUtilities.Warehouse.GetWarehouseId_SumTotalQuantity2();
@@ -3584,18 +3633,25 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                             .Sum()
                                     })
                                     .ToList();
+
+
+
+
                     var lastExportTools = vfi.ExportToolDetails
                         .Where(ed =>
                             ed.ExportTool.TransactionFpt.Type == (byte)MyUtilities.Tool.ExportType.Production
                             && ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved
                             && ed.ExportTool.TransactionFpt.Fpt == (byte)MyUtilities.PurchaseOrder.FptLot.Tool
-                            && toolIds.Contains(ed.ToolInventory.ToolId)
+                            && ed.ExportTool.ExportDate <= ReportDate
+                            && ed.RealToolId != null && new_listRealToolId.Contains(ed.RealToolId.Value)
+                            && new_toolIds.Contains(ed.ToolInventory.ToolId)
                             && ed.MachineId != null && machineIds.Contains(ed.MachineId.Value)
                             && ed.ProductId != null && productIds.Contains(ed.ProductId.Value))
                         .GroupBy(ed => new {
                             MachineId = ed.MachineId.Value,
                             ToolId = ed.ToolInventory.ToolId,
-                            ProductId = ed.ProductId.Value
+                            ProductId = ed.ProductId.Value,
+                            RealtoolId = ed.RealToolId.Value,
                         })
                         .Select(g => g.OrderByDescending(t => t.ExportTool.ExportDate).FirstOrDefault())
                         .Select(ed => new {
@@ -3603,6 +3659,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ToolId = ed.ToolInventory.ToolId,
                             ProductId = ed.ProductId.Value,
                             ExportDate = ed.ExportTool.ExportDate,
+                            RealToolId = ed.RealToolId.Value,
                         })
                         .ToList();
                     var lastExportTools_productIds = lastExportTools.Select(ed => ed.ProductId).Distinct().ToList();
@@ -3643,7 +3700,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     MachineName = lastTrack.MachineName,
                                     ToolQuota = productionTool.Quota,
                                     MachineId = lastTrack.MachineId,
-                                    Note = productionTool.Note
+                                    RealToolId = productionTool.RealToolId,                                                               // 19/01/2026
+                                    Note = "Vị trí:" + productionTool.ToolLocation + " - " +                                                // 16/01/2026
+                                    productionTool.Note,
+
                                 };
 
                                     //ToolInv
@@ -3654,7 +3714,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     //ProductionQuantity
                                 var lastExport = lastExportTools.FirstOrDefault(t => t.ProductId == entity.ProductId 
                                                                                 && t.MachineId == entity.MachineId
-                                                                                && t.ToolId == entity.ToolId);
+                                                                                && t.ToolId == entity.ToolId
+                                                                                && t.RealToolId == entity.RealToolId);
 
                                 if (lastExport != null) {
                                     var ProductQuantity = productions.Where(t => t.ProductId == entity.ProductId
@@ -3667,14 +3728,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     }
                                     entity.ProductionQuantity = ProductQuantity ?? 0;
                                     entity.ToolRequiredColor = entity.ToolQuota > 0
-                                          ? entity.ProductionQuantity / entity.ToolQuota > 1.2
+                                          ? entity.ProductionQuantity / entity.ToolQuota > 1.1
                                               ? 1
-                                          : entity.ProductionQuantity / entity.ToolQuota > 1.1
-                                              ? 2
-                                          : entity.ProductionQuantity / entity.ToolQuota > 1
-                                              ? 3
-                                          : entity.ProductionQuantity / entity.ToolQuota >= 0.85
-                                              ? 4
+                                              : entity.ProductionQuantity / entity.ToolQuota > 1.0
+                                                  ? 2
+                                                  : entity.ProductionQuantity / entity.ToolQuota > 0.9
+                                                    ? 3
+                                                    : entity.ProductionQuantity / entity.ToolQuota >= 0.75
+                                                      ? 4
                                                     : 0
                                     : 1;
                                 }
@@ -3692,6 +3753,82 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
 
                                 model.Add(entity);
+                            }
+
+
+
+                            //replaceTool
+                            var replaceToolById = replaceTools.Where(pt => pt.ProductId == lastTrack.ProductId
+                                            && pt.MachineId == lastTrack.MachineId).ToList();              //22/01/2026
+                            foreach (var replacement in replaceToolById) {
+                                var entity2 = new ProductionToolModel {
+                                    ToolId = replacement.ToolId,
+                                    ToolCode = replacement.toolCode,
+                                    ToolDesign = replacement.toolDesign,
+                                    ToolFullCode = replacement.toolFullCode,
+                                    ToolMaterial = replacement.toolMaterial,
+                                    ToolProduction = replacement.toolProduction,
+                                    ToolName = replacement.toolName,
+                                    ToolTypeName = replacement.toolTypeName,
+                                    ProductId = lastTrack.ProductId,
+                                    ProductCode = lastTrack.ProductCode,
+                                    MachineName = lastTrack.MachineName,
+                                    MachineId = lastTrack.MachineId,
+                                    RealToolId = replacement.RealToolId,                                                        //21/01/2026
+                                    Note = "CCTT - Vị trí: "                                                                // 13/01/2026
+                                    ,
+
+                                };
+                                var productionTool = productionToolsById.FirstOrDefault(x => x.RealToolId == replacement.RealToolId);   // 13/01/2026
+                                entity2.Quota = productionTool.Quota;
+                                entity2.ToolLocation = productionTool.ToolLocation;
+
+                                entity2.Note = entity2.Note + entity2.ToolLocation;
+
+                                var toolInvsById = toolInvs.Where(ti => ti.ToolId == entity2.ToolId).ToList();
+                                entity2.ToolInv = toolInvsById.Sum(ti => ti.LastQuantity - ti.EarlyQuantity);
+
+                                var lastExport = lastExportTools.FirstOrDefault(x =>
+                                                                                x.ProductId == entity2.ProductId
+                                                                                && x.MachineId == entity2.MachineId
+                                                                                && x.ToolId == entity2.ToolId                       //22/01/2026
+                                                                                && x.RealToolId == entity2.RealToolId               //19/01/2026
+                                                                                );
+
+                                if (lastExport != null) {
+                                    var ExportProductionQty = productions.Where(p => p.ProductId == entity2.ProductId
+                                                                                && p.PeriodDate > lastExport.ExportDate)
+                                                                         .Select(x => (double?)x.Quantity)
+                                                                         .DefaultIfEmpty(0)
+                                                                         .Sum();
+                                    entity2.ProductionQuantity = ExportProductionQty ?? 0;
+
+
+                                    entity2.ExportDate = lastExport.ExportDate;
+
+
+                                    entity2.ToolRequiredColor = entity2.ToolQuota > 0
+                                                   ? entity2.ProductionQuantity / entity2.ToolQuota > 1.1
+                                                       ? 1
+                                                       : entity2.ProductionQuantity / entity2.ToolQuota >= 1.0
+                                                           ? 2
+                                                           : entity2.ProductionQuantity / entity2.ToolQuota >= 0.9
+                                                               ? 3
+                                                               : entity2.ProductionQuantity / entity2.ToolQuota >= 0.75
+                                                                     ? 4
+                                                               : 0
+                                                   : 1;
+                                }
+
+
+                                var product = products.FirstOrDefault(pt => pt.ProductId == entity2.ProductId);
+                                if (product != null) {
+                                    entity2.ProductForcast = product.Forecasts ?? 0;
+                                    entity2.ProductInventory = product.Inventories ?? 0;
+                                }
+                                entity2.TheDay = ReportDate;                                     // 16/01/2026
+
+                                model.Add(entity2);
                             }
                             if (productionToolsById.Count ==0) {
                                 var entity = new ProductionToolModel {
@@ -3745,7 +3882,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     // Step 1: Load all active machines
                     var machines = vfi.Machines
                         .Where(m => (m.Active || m.Production2)
-                        && m.MachineName.Equals("C24")
+                        //&& m.MachineName.Equals("C18")
                         && m.ProcessingType.ForWarehouseId == MyUtilities.Warehouse.Production1
                         && m.StateId != MyUtilities.Machine.State.Done
                         && m.StateId != MyUtilities.Machine.State.OutOfMaterial
@@ -3768,16 +3905,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             t.ProductId,
                             ProductCode = t.Product.ProductCode,
                             Date = t.DeliveryDate.Value,
-                            TrackId = t.TrackId
+                            TrackId = t.TrackId,
                         })
                         .ToList();
-                    var machine_ids_track = lastTracks.Select(x => x.MachineId).Distinct().ToList();
+                    //var machine_ids_track = lastTracks.Select(x => x.MachineId).Distinct().ToList();                  //22/01/2026 tat
+
                     // Step 3: Get all relevant product IDs
                     var productIds = lastTracks.Select(t => t.ProductId).Distinct().ToList();
 
                     // Step 4: Load all active production tools for those products
                     var productionTools = vfi.ProductionTools
-                        .Where(pt => productIds.Contains(pt.ProductId) && pt.Active && pt.Tool.Active && pt.Active)
+                        .Where(pt => productIds.Contains(pt.ProductId) && pt.Tool.Active && pt.Active && pt.Active)
                         //.GroupBy(pt => new { pt.ProductId, pt.ToolId })
                         //.Select(pt => new {
 
@@ -3787,17 +3925,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         //})
                         .ToList();
 
-                    var ToolLocation = productionTools.Select(tl => new {                     // moi them (17/01/2026)
-                            toolId = tl.ToolId,
-                            toolPlace = tl.ToolLocation
-                        })
-                        .ToList();
 
+                    //var trackIds = lastTracks.Select(t => t.TrackId).Distinct().ToList();                      // 13/01/2026 (bo do khong can`)
 
-
-                    var trackIds = lastTracks.Select(t => t.TrackId).Distinct().ToList();                      // moi them  (13/01/2026)
-
-                    var replaceTools = vfi.ProductionToolReplacements                                           // moi them    (13/01/2026)
+                    var replaceTools = vfi.ProductionToolReplacements                                           // 13/01/2026
                         .Where(rp => rp.ToolId != null
                         && productIds.Contains(rp.TrackUpMachine.ProductId)
                         && machineIds.Contains(rp.TrackUpMachine.MachineId)
@@ -3815,23 +3946,32 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ToolId = rp.ToolId.Value,
                             Active = true,
                             trackId = rp.TrackId,
-                            rp.ProductionToolId,
+                            RealToolId = rp.ProductionToolId,
+                            MachineId = rp.TrackUpMachine.MachineId,
 
                         })
                         .ToList();
 
 
 
+                    var realToolIdList = productionTools.Select(rt => rt.RealToolId).ToList();                    // 19/01/2026
+                    var replaceRealToolId = replaceTools.Select(rt => rt.RealToolId).ToList();
+
+                    realToolIdList.AddRange(replaceRealToolId);
+                    var new_realToolIdList = realToolIdList.ToList();
+
+
+
 
 
                     // Step 5: Load all active tools with inventory
-                    var replaceToolIds = replaceTools.Select(x => x.ToolId).Distinct().ToList();                 // moi them  (13/01/2026)
+                    var replaceToolIds = replaceTools.Select(x => x.ToolId).Distinct().ToList();                 // 13/01/2026
                     var toolIds = productionTools.Select(x => x.ToolId).Distinct().ToList();
 
                     toolIds.AddRange(replaceToolIds);
-                    var new_toolIds = toolIds.Distinct().ToList();                                                     // danh sach co ca tool + replace tool   (13 / 01 / 2026)
+                    var new_toolIds = toolIds.Distinct().ToList();                                                     // danh sach co ca tool + replace tool   13/01/2026
 
-                    var toolInvs = vfi.ToolInventories                                                              // danh sach ton` kho cua new_toolId    (13 / 01 / 2026)
+                    var toolInvs = vfi.ToolInventories                                                              // danh sach ton` kho cua new_toolId    13/01/2026
                         .Where(ti => new_toolIds.Contains(ti.ToolId) && ti.TotalQuantity > 0)
                         .ToList();
 
@@ -3839,9 +3979,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                     var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
                     var endDate = startDate.AddMonths(3);
                     var products = vfi.Products
-                                    .Where(p => productIds.Contains(p.ProductId)
-                                        
-                                    )
+                                    .Where(p => productIds.Contains(p.ProductId))
                                     .Select(p => new {
                                         ProductId = p.ProductId,
                                         Forecasts = vfi.ForecastOrders
@@ -3892,13 +4030,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ed.ExportTool.TransactionFpt.Type == (byte)MyUtilities.Tool.ExportType.Production
                             && ed.ExportTool.TransactionFpt.Status == (byte)MyUtilities.Transaction.Status.Approved
                             && ed.ExportTool.TransactionFpt.Fpt == (byte)MyUtilities.PurchaseOrder.FptLot.Tool
-                            && new_toolIds.Contains(ed.ToolInventory.ToolId)                                                           // thay toolIds = new_toolIds (13/01/2026)
+                            && ed.ExportTool.ExportDate < DateTime.Now                                                                      // 22/01/2026
+                            && new_toolIds.Contains(ed.ToolInventory.ToolId)                                                                // thay toolIds = new_toolIds (13/01/2026)
+                            && ed.RealToolId != null && new_realToolIdList.Contains(ed.RealToolId.Value)                                    // 19/01/2026
                             && ed.MachineId != null && machineIds.Contains(ed.MachineId.Value)
                             && ed.ProductId != null && productIds.Contains(ed.ProductId.Value))
                         .GroupBy(ed => new {
                             MachineId = ed.MachineId.Value,
                             ToolId = ed.ToolInventory.ToolId,
                             ProductId = ed.ProductId.Value,
+                            RealToolId = ed.RealToolId.Value,                                                                                //22/01/2026
                         })
                         .Select(g => g.OrderByDescending(t => t.ExportTool.ExportDate).FirstOrDefault())
                         .Select(ed => new {
@@ -3906,9 +4047,12 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                             ToolId = ed.ToolInventory.ToolId,
                             ProductId = ed.ProductId.Value,
                             ExportDate = ed.ExportTool.ExportDate,
-                            //toolLocation = ed.ToolLocation,
+                            RealToolId = ed.RealToolId.Value,                                                                                // 19/01/2026
                         })
                         .ToList();
+
+
+
 
 
 
@@ -3994,6 +4138,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                         if (lastTrack != null) {
 
                             var productionToolsById = productionTools.Where(pt => pt.ProductId == lastTrack.ProductId).ToList();
+
                             foreach (var productionTool in productionToolsById) {
                                 //var entity =
                                 //    model.FirstOrDefault(
@@ -4014,8 +4159,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     MachineName = lastTrack.MachineName,
                                     MachineId = lastTrack.MachineId,
                                     ToolQuota = productionTool.Quota,
-
-                                    Note = "Vị trí:" + productionTool.ToolLocation + " - " +
+                                    RealToolId = productionTool.RealToolId,                                                               // 19/01/2026
+                                    Note = "Vị trí:" + productionTool.ToolLocation + " - " +                                                // 16/01/2026
                                     productionTool.Note,
 
                                 };
@@ -4025,10 +4170,10 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
 
 
-                                var lastExport = lastExportTools.FirstOrDefault(x =>
-                                                                                x.ProductId == entity.ProductId
-                                                                                && x.MachineId == entity.MachineId
-                                                                                && x.ToolId == entity.ToolId
+                                var lastExport = lastExportTools.FirstOrDefault(x => x.ProductId == entity.ProductId
+                                                                                  && x.MachineId == entity.MachineId
+                                                                                  && x.ToolId == entity.ToolId                               //22/01/2026
+                                                                                  && x.RealToolId == entity.RealToolId                       //19/01/2026
                                                                                 );
 
                                 if (lastExport != null) {
@@ -4045,13 +4190,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
                                     // to^ mau`
                                     entity.ToolRequiredColor = entity.ToolQuota > 0
-                                                   ? entity.ProductionQuantity / entity.ToolQuota > 1.2
+                                                   ? entity.ProductionQuantity / entity.ToolQuota > 1.1
                                                        ? 1
-                                                       : entity.ProductionQuantity / entity.ToolQuota > 1.1
+                                                       : entity.ProductionQuantity / entity.ToolQuota > 1.0
                                                            ? 2
-                                                           : entity.ProductionQuantity / entity.ToolQuota > 1
+                                                           : entity.ProductionQuantity / entity.ToolQuota > 0.9
                                                                ? 3
-                                                               : entity.ProductionQuantity / entity.ToolQuota >= 0.85
+                                                               : entity.ProductionQuantity / entity.ToolQuota >= 0.75
                                                                      ? 4
                                                                : 0
                                                    : 1;
@@ -4065,7 +4210,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     entity.ProductInventory = product.Inventories ?? 0;
                                 }
 
-                                entity.TheDay = DateTime.Today;                                     // moi them (16/01/2026)
+                                entity.TheDay = DateTime.Now;                                     // 16/01/2026
 
                                 model.Add(entity);
                                 //else {
@@ -4083,7 +4228,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
                             
 
-                            var replaceToolById = replaceTools.Where(pt => pt.trackId == lastTrack.TrackId).ToList();
+                            var replaceToolById = replaceTools.Where(pt => pt.ProductId == lastTrack.ProductId
+                                                                        && pt.MachineId == lastTrack.MachineId).ToList();              //22/01/2026
                             foreach (var replacement in replaceToolById) {
                                 var entity2 = new ProductionToolModel {
                                     ToolId = replacement.ToolId,
@@ -4098,13 +4244,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     ProductCode = lastTrack.ProductCode,
                                     MachineName = lastTrack.MachineName,
                                     MachineId = lastTrack.MachineId,
-                                    Note = "CCTT - Vị trí: "                                                                // moi them (13 / 01 / 2026)
-                                    //+ replacement.ToolLocation + " - "
-                                    //replacement.Note
+                                    RealToolId = replacement.RealToolId,                                                        //21/01/2026
+
+                                    Note = "CCTT - Vị trí: "                                                                // 13/01/2026
+
                                     ,
 
                                 };
-                                var productionTool = productionToolsById.FirstOrDefault(x => x.RealToolId == replacement.ProductionToolId);   // moi them (13 / 01 / 2026)
+                                var productionTool = productionToolsById.FirstOrDefault(x => x.RealToolId == replacement.RealToolId);   // 13/01/2026
                                 entity2.Quota = productionTool.Quota;
                                 entity2.ToolLocation = productionTool.ToolLocation;
 
@@ -4116,7 +4263,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                 var lastExport = lastExportTools.FirstOrDefault(x =>
                                                                                 x.ProductId == entity2.ProductId
                                                                                 && x.MachineId == entity2.MachineId
-                                                                                && x.ToolId == entity2.ToolId
+                                                                                && x.ToolId == entity2.ToolId                       //22/01/2026
+                                                                                && x.RealToolId == entity2.RealToolId               //19/01/2026
                                                                                 );
 
                                 if (lastExport != null) {
@@ -4132,13 +4280,13 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
 
 
                                     entity2.ToolRequiredColor = entity2.ToolQuota > 0
-                                                   ? entity2.ProductionQuantity / entity2.ToolQuota > 1.2
+                                                   ? entity2.ProductionQuantity / entity2.ToolQuota > 1.1
                                                        ? 1
-                                                       : entity2.ProductionQuantity / entity2.ToolQuota > 1.1
+                                                       : entity2.ProductionQuantity / entity2.ToolQuota >= 1.0
                                                            ? 2
-                                                           : entity2.ProductionQuantity / entity2.ToolQuota > 1
+                                                           : entity2.ProductionQuantity / entity2.ToolQuota >= 0.9
                                                                ? 3
-                                                               : entity2.ProductionQuantity / entity2.ToolQuota >= 0.85
+                                                               : entity2.ProductionQuantity / entity2.ToolQuota >= 0.75
                                                                      ? 4
                                                                : 0
                                                    : 1;
@@ -4150,6 +4298,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Controllers {
                                     entity2.ProductForcast = product.Forecasts ?? 0;
                                     entity2.ProductInventory = product.Inventories ?? 0;
                                 }
+                                entity2.TheDay = DateTime.Now;                                     // 16/01/2026
+
                                 model.Add(entity2);
                             }
 

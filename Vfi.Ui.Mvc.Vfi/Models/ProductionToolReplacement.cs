@@ -15,5 +15,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public int PrepareQuantity { get; set; }
         public virtual Tool Tool { get; set; }
         public virtual TrackUpMachine TrackUpMachine { get; set; }
+
+
     }
 }

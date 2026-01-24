@@ -36,5 +36,6 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ToolInvOnMachinePeriod> ToolInvOnMachinePeriods { get; set; }
         public virtual PurchaseOrder PurchaseOrder { get; set; }
         public virtual ICollection<TransactionFptDetail> TransactionFptDetails { get; set; }
+
     }
 }

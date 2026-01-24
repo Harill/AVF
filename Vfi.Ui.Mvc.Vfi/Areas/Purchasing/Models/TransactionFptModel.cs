@@ -56,5 +56,6 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 
         public int InvManager { get; set; }
         public bool IsInternal { get; set; }
+
     }
 }

@@ -26,5 +26,8 @@ namespace Vfi.Ui.Mvc.Vfi.Models
         public virtual ICollection<ExportToolDetail> ExportToolDetails { get; set; }
         public virtual PoTaxInvoiceReferenceDetail PoTaxInvoiceReferenceDetail { get; set; }
         public virtual TransactionFpt TransactionFpt { get; set; }
+
+
+
     }
 }

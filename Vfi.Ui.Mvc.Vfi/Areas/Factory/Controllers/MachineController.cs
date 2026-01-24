@@ -513,8 +513,8 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                 var machineIds = cncs.Select(c => c.MachineId).Distinct().ToList();
                 var machines = vfi.Machines.Where(m => machineIds.Contains(m.MachineId));
 
-                //var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail
-                //                        where 
+                //var importDetailsSx1 = (from id in vfi.ImportFormSX1Detail                                                              
+                //                        where
                 //                        id.ImportFormSX1.ImportWorkpieceMaterials.Any() &&
                 //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault() != null &&
                 //                              id.ImportFormSX1.ImportWorkpieceMaterials.FirstOrDefault().Transaction.Status ==
@@ -579,11 +579,16 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             entity.MaterialCode = cnc.MaterialCode;
                             entity.StartDate = cnc.DeliveryDate;
                             entity.EndDate = cnc.EndDate;
+
+
                             //var productions = importDetailsSx1.Where(id => id.MachineId == cnc.MachineId &&
                             //    id.MaterialId == cnc.MaterialId &&
                             //    id.ProductId == cnc.ProductId &&
                             //    id.MaterialUseDate >= cnc.DeliveryDate).ToList();
-                            var productions = importDetailsSx12.Where(id => id.Key.MachineId == cnc.MachineId &&
+
+
+
+                            var productions = importDetailsSx12.Where(id => id.Key.MachineId == cnc.MachineId &&                              
                                 id.Key.MaterialId == cnc.MaterialId &&
                                 id.Key.ProductId == cnc.ProductId).ToList();
                             entity.Production = productions.Sum(p => p.Quantity);

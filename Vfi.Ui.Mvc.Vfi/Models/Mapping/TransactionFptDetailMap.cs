@@ -30,6 +30,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Mapping
             this.Property(t => t.PoDetailId).HasColumnName("PoDetailId");
             this.Property(t => t.IsInternal).HasColumnName("IsInternal");
 
+
             // Relationships
             this.HasOptional(t => t.PoTaxInvoiceReferenceDetail)
                 .WithMany(t => t.TransactionFptDetails)
