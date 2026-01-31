@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "Products Management";
+    ViewBag.Title = "Products Management (Inv)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -41,17 +41,17 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin sản phẩm (kho)</div>
+<div class="title">Products Management (Inv)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Criteria Filtering</legend>
             
-           <div class="grid_1">
-                    Mã KH
+           <div class="grid_1_5">
+                    Customer Code
                 </div>
-                <div class="grid_4">
+                <div class="grid_5">
                      @{
                          Html.Telerik().ComboBox()
                              .Name("Customer")
@@ -60,12 +60,12 @@
                              .DropDownHtmlAttributes(new {style = "width: 250px"})
                              .ClientEvents(events => events.OnChange("customer_onChange"))
                              .AutoFill(true)
-                             .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                             .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                              .Render();
                      }
                 </div>
                
-                <div class="grid_1">Sản phẩm</div>
+                <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -83,7 +83,7 @@
             </div>
               <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
                     <span class='t-icon t-insert'></span>
-                   Làm mới
+                   Find
                 </button>
         </fieldset>
     </div>
@@ -105,39 +105,45 @@
             .Columns(columns =>
                 {
                     columns.Command(command =>
-                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Delete").Text("Fix")
                         ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
                     columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
-                           .HeaderTemplate("<strong>Mã</br>KH</strong>")
+                           .HeaderTemplate("<strong>Customer</br>Code</strong>")
                            .HeaderHtmlAttributes(new {style = "text-align:center;"})
                            .HtmlAttributes(new {style = "text-align:center;"})
                            .ClientTemplate("<strong><#= CustomerCode #></strong>");
 
                     columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
-                           .HeaderTemplate("<strong>Mã</br>SP</strong>")
+                           .HeaderTemplate("<strong>Product</br>Code</strong>")
                            .HeaderHtmlAttributes(new {style = "text-align:center"})
                            .ClientTemplate("<strong><#= ProductCode #></strong>");
 
                     columns.Bound(f => f.ProductionRate).Width(70)
-                           .HeaderTemplate("Định mức SP</br>(pcs/cây)");
+                           .HeaderTemplate("Production</br>Rate(pcs/Unit)");
 
                     columns.Bound(f => f.ProductionWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>SX");
+                           .HeaderTemplate("Production</br>Weight");
+                    
                     columns.Bound(f => f.CncWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>CNC");
+                           .HeaderTemplate("Cnc</br>Weight");
+                    
                     columns.Bound(f => f.Production2Weight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>SX2");
+                           .HeaderTemplate("Production2</br>Weight");
+                    
                     columns.Bound(f => f.HeatTreatmentWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>nhiệt luyện");
-                    columns.Bound(f => f.SurfaceTreatmentWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>rung bóng");
+                           .HeaderTemplate("Heat Treatment</br>Weight");
+                    
+                    columns.Bound(f => f.SurfaceTreatmentWeight).Width(80)
+                           .HeaderTemplate("Surface Treatment</br>Weight");
+                    
                     columns.Bound(f => f.WaitingPlatingWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>trước xi");
+                           .HeaderTemplate("Before Plating</br>Weight");
+                    
                     columns.Bound(f => f.PlatingWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>sau xi");
+                           .HeaderTemplate("After Plating</br>Weight");
                     columns.Bound(f => f.QcWeight).Width(70)
-                           .HeaderTemplate("Trọng lượng</br>QC");
+                           .HeaderTemplate("Qc </br>Weight");
                 })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

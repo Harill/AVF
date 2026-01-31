@@ -5,7 +5,7 @@
 }
 
 
-<div class="title">Quản lý thông tin nhiên liệu</div>
+<div class="title">Fuel Management</div>                               @* Quản lý thông tin nhiên liệu *@
 
 <div class="cover-div">
 @{
@@ -14,7 +14,7 @@
         .DataKeys(key => key.Add(f => f.FuelId).RouteKey("FuelId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
         .DataBinding(
             dataBinding => dataBinding.Ajax()
                                       .Select("SelectAllFuel", "Material")
@@ -23,25 +23,25 @@
         .Columns(columns =>
             {
                 columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhập").InsertText("Thêm").CancelText("Hủy").Text("Sửa")
-                    ).Width(90).Title("").HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.FuelFullCode).Width(150).Title("Mã").ReadOnly(true)
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Fixing")
+                    ).Width(60).Title("").HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.FuelFullCode).Width(150).Title("Fuel Full Code").ReadOnly(true)                                        //Mã
                        .ClientTemplate("<strong><#= FuelFullCode #></strong>");
-                columns.Bound(f => f.FuelName).Width(75).Title("Tên nhiên liệu");
-                columns.Bound(f => f.FuelCode).Width(75).Title("Mã tên")
+                columns.Bound(f => f.FuelName).Width(95).Title("Fuel Name");                                                        // Ten nguyen lieu
+                columns.Bound(f => f.FuelCode).Width(105).Title("FuelCode")                                                              //Mã tên
                        .ClientTemplate("<strong><#= FuelCode #></strong>");
-                columns.Bound(f => f.FuelDesignNo).Width(150).Title("Quy cách")
+                columns.Bound(f => f.FuelDesignNo).Width(180).Title("Specifications")                                                   // Quy cách
                        .ClientTemplate("<strong><#= FuelDesignNo #></strong>");
-                columns.Bound(f => f.FuelDesctiption).Width(150).Title("Mô tả");
-                columns.Bound(f => f.UnitWeight).Width(75).Title("Trọng lượng");
-                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày chỉnh").ReadOnly(true)
+                columns.Bound(f => f.FuelDesctiption).Width(190).Title("Describe");                                                     //Mô tả
+                columns.Bound(f => f.UnitWeight).Width(50).Title("Weight");                                                             //Trọng lượng
+                columns.Bound(f => f.ModifiedDate).Width(90).Title("Modified Date").ReadOnly(true)                                     //Ngày chỉnh
                        .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người chỉnh").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(75).Title("Modified User").ReadOnly(true);                                    //Người chỉnh
                 columns.Bound(f => f.Active).Width(50)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
             })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         .Scrollable(f => f.Height(500))
         .Sortable()
         .Filterable()

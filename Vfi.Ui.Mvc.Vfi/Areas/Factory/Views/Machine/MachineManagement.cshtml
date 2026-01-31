@@ -37,8 +37,8 @@
                 .ClientTemplate("<strong><#= MachineCode #></strong>");
             columns.Bound(f => f.ProcessingTypeName).Width(175).Title("Loại GC")
                 .ClientTemplate("<#= ProcessingTypeName #>");
-            columns.Bound(f => f.MachineIdName).Width(175).Title("MachineIdName")
-                .ClientTemplate("<#= MachineIdName #>");
+            //columns.Bound(f => f.MachineIdName).Width(175).Title("MachineIdName")             // tam. tat 30/01/2026
+            //    .ClientTemplate("<#= MachineIdName #>");
             columns.Bound(f => f.DiagramTypeName).Width(175).Title("Sơ đồ")
                 .ClientTemplate("<#= DiagramTypeName #>");
             columns.Bound(f => f.ColumnIndex).Width(175);

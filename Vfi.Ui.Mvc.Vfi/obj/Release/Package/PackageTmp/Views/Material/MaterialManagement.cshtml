@@ -66,13 +66,13 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin nguyên liệu</div>
+<div class="title">Material Management</div>                                              @* Quản lý thông tin nguyên liệu*@
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-                <div class="grid_1">Sản phẩm</div>
+            <legend>Criteria Filtering</legend>                                            @* Tieu chi loc *@
+                <div class="grid_2">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -90,7 +90,7 @@
             </div>
               <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridMaterial'); ">
                     <span class='t-icon t-insert'></span>
-                   Làm mới
+                   Refresh
                 </button>
         </fieldset>
     </div>
@@ -102,7 +102,7 @@
         .DataKeys(key => key.Add(f => f.MaterialId).RouteKey("materialId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Nhập mới").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
         .DataBinding(
             dataBinding => dataBinding.Ajax()
                                       .Select("SelectMaterial", "Material", new {area="",productCode = ""})
@@ -111,45 +111,45 @@
         .Columns(columns =>
             {
                 columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Cập nhập").InsertText("Thêm").CancelText("Hủy").Text("Sửa")
-                    ).Width(90).Title("Lệnh").HtmlAttributes(new {style = "text-align:center"});
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Fixing")
+                    ).Width(90).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
                 //columns.Bound(f => f.VendorCodeName).Width(150)
                 //       .ClientTemplate("<strong><#= VendorCodeName #></strong>");
                 columns.Bound(f => f.MaterialTypeName).Width(100)
-                       .HeaderTemplate("Loại</br>nguyên liệu")
+                       .HeaderTemplate("Material Type")                                                  // Loại</br>nguyên liệu
                        .ClientTemplate("<strong><#= MaterialTypeName #></strong>");
                 columns.Bound(f => f.MaterialName).Width(100)
-                       .HeaderTemplate("Tên</br>nguyên liệu");
+                       .HeaderTemplate("Material Name");                                          //Tên</br>nguyên liệu
                 columns.Bound(f => f.MaterialCode)
                     //.Width(225)
                        .ReadOnly(true)
                        .ClientTemplate("<strong><#= MaterialCode #></strong>");
-                columns.Bound(f => f.OutDiameter).Width(50)
-                       .HeaderTemplate("OD</br>(mm)");
-                columns.Bound(f => f.InDiameter).Width(50)
-                       .HeaderTemplate("ID</br>(mm)");
-                columns.Bound(f => f.Shape).Width(50)
+                columns.Bound(f => f.OutDiameter).Width(80)
+                       .HeaderTemplate("OD(mm)");
+                columns.Bound(f => f.InDiameter).Width(80)
+                       .HeaderTemplate("ID(mm)");
+                columns.Bound(f => f.Shape).Width(65)
                        .HtmlAttributes(new {style = "text-align:center;"})
-                       .HeaderTemplate("Hình</br>dạng");
-                columns.Bound(f => f.DiameterType).Width(50)
+                       .HeaderTemplate("Shape");
+                columns.Bound(f => f.DiameterType).Width(85)
                        .HtmlAttributes(new {style = "text-align:center;"})
-                       .HeaderTemplate("Dung</br>sai");
+                       .HeaderTemplate("Tolerance");
                 //columns.Bound(f => f.Length).Width(70)
                 //       .HtmlAttributes(new {style = "text-align:right;"})
                 //       .HeaderTemplate("Chiều dài</br>(mm)")
                 //       .ClientTemplate("<#= Length == null ? 0 :$.telerik.formatString('{0:n0}', Length) #>");
                 columns.Bound(f => f.Weight).Width(80)
-                       .HeaderTemplate("Trọng lượng</br>(kg/cây)");
+                       .HeaderTemplate("Weight(kg/unit)");
                 columns.Bound(f => f.UnitPrice).Width(80)
-                       .HeaderTemplate("Đơn giá")
+                       .HeaderTemplate("Price")
                        .HtmlAttributes(new {style = "text-align:right;"})
                        .ClientTemplate("<#= UnitPrice == null ? 0 :$.telerik.formatString('{0:n0}', UnitPrice) #>");
-                columns.Bound(f => f.IsExpensive).Width(55)
-                       .HeaderTemplate("Mắc</br>tiền")
+                columns.Bound(f => f.IsExpensive).Width(80)
+                       .HeaderTemplate("Expensive")                                                                                     // mac tien
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsExpensive' <#=IsExpensive? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.Active).Width(55)
-                       .HeaderTemplate("Kích</br>hoạt")
+                columns.Bound(f => f.Active).Width(70)
+                       .HeaderTemplate("Active")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new {style = "text-align:center"});
             })
@@ -161,14 +161,14 @@
                 .SelectedIndex(0)
                 .Items(items =>
 
-                       items.Add().Text("Sản phẩm sử dụng").Content(
+                       items.Add().Text("Used Products").Content(
 
                            Html.Telerik().Grid<ProductionMaterialModel>()
                                .Name("gridProductionMaterial_<#= MaterialId #>")
                                .DataKeys(key => key.Add(f => f.RealMaterialId).RouteKey("realMaterialId"))
                                .ToolBar(
                                    toolbar =>
-                                   toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+                                   toolbar.Insert().Text("Add New").ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
                                .DataBinding(
                                    dataBinding => dataBinding.Ajax()
                                                              .Select("SelectProductionMaterialById", "Material", new {area = "", materialId = "<#= MaterialId #>"})
@@ -178,38 +178,38 @@
                                .Columns(columns =>
                                    {
                                        columns.Command(command =>
-                                                       command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                                       command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fixing").InsertText("Add New")
                                            ).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                       columns.Bound(f => f.CustomerCode).Width(50).Title("Mã KH").ReadOnly(true);
-                                       columns.Bound(f => f.ProductCode).Width(120).Title("Mã sản phẩm");
+                                       columns.Bound(f => f.CustomerCode).Width(65).Title("Customer</br>Code").ReadOnly(true);
+                                       columns.Bound(f => f.ProductCode).Width(120).Title("Product Code");
                                        columns.Bound(f => f.ForecastInYear).Width(85)
-                                              .HeaderTemplate("Dự báo</br>SX 1 năm(pcs)")
+                                              .HeaderTemplate("Forecast </br> 1 Year (pcs)")                                                                                       // Dự báo</br>SX 1 năm(pcs)
                                               .Format("{0:n0}");
                                        columns.Bound(f => f.ForecastIn3Month).Width(85).ReadOnly(true)
-                                              .HeaderTemplate("Dự báo</br>SX 1 quý(pcs)")
+                                              .HeaderTemplate("Forecast </br> 1 Quarter (pcs)")                                                                                  //Dự báo</br>SX 1 quý(pcs)
                                               .Format("{0:n0}");
                                        columns.Bound(f => f.UnitWeightByMaterial).Width(85).ReadOnly(true)
-                                              .HeaderTemplate("Trọng lượng</br>theo NL (g)")
+                                              .HeaderTemplate("Weight(g)")
                                               .ClientTemplate("<#= UnitWeightByMaterial == null ? 0 : $.telerik.formatString('{0:n3}', UnitWeightByMaterial) #>");
                                        //columns.Bound(f => f.ProductWeight).Width(85)
                                        //       .HeaderTemplate("Trọng lượng</br>thiết kế (g)").ReadOnly(true)
                                        //       .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>");
                                        //columns.Bound(f => f.Priority).Width(50).Title("Độ ưu tiên");
-                                       columns.Bound(f => f.Note).Title("Ghi chú");
+                                       columns.Bound(f => f.Note).Title("Note");
                                        columns.Bound(f => f.Active).Width(55)
-                                              .HeaderTemplate("Kích</br>hoạt")
+                                              .HeaderTemplate("Active")
                                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                               .HtmlAttributes(new {style = "text-align:center"});
                                        columns.Bound(f => f.ModifiedUser)
-                                              .Title("Người tạo").ReadOnly(true)
-                                              .Width(70);
+                                              .Title("Modified User").ReadOnly(true)
+                                              .Width(90);
                                        columns.Bound(f => f.ModifiedDate)
-                                              .Title("Ngày tạo").ReadOnly(true)
-                                              .Width(80)
+                                              .Title("Modified Date").ReadOnly(true)
+                                              .Width(90)
                                               .Format("{0:dd/MM/yyyy HH:mm:ss}");
                                        //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("");
                                    })
-                               .Editable(editing => editing.Mode(GridEditMode.InLine))
+                               .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                .ClientEvents(e => e.OnEdit("gridTabProduct_OnEdit")
                                                    .OnError("grid_OnError"))
                                .ToHtmlString()
@@ -218,7 +218,7 @@
                 .ToHtmlString()
                                    ))
         .Selectable()
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         .ClientEvents(events => events.OnEdit("gridMaterial_onEdit")
                                       .OnRowSelect("grid_OnRowSelect")
                                       .OnDataBinding("gridMaterial_OnDataBinding")

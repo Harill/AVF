@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Models
 @{
-    ViewBag.Title = "Công cụ";
+    ViewBag.Title = "Tools";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -213,14 +213,14 @@
 </script>
 }
 
-<div class="title">Quản lý thông tin công cụ</div>
+<div class="title">Tools Management</div>                                                           @* Quản lý thông tin công cụ *@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1120px;">
     <fieldset>
             <legend>Lưu ý</legend>
             <ul>
                 <li>
-                    <b>1.Nên quy về cách đặt tên chung cho bản vẽ: Đặt <span style="color: red">'Mã công cụ đầy đủ'</span> trước hình bản vẽ để lưu lại (Vd: <span style="color: red">BĐ-6000Z - 26 x 10 x 8 - NSK-THÉP.jpg</span>) </b>
+                    <b>1.Cách đặt tên chung cho bản vẽ: Đặt <span style="color: red">'Mã công cụ đầy đủ'</span> trước hình bản vẽ để lưu lại (Vd: <span style="color: red">BĐ-6000Z - 26 x 10 x 8 - NSK-THÉP.jpg</span>) </b>
                 </li>
                 <li>
                     <b>2.Tên file upload hình sản phẩm không được <span style="color: red">giống tên</span> với sản phẩm khác ( trừ khi nó cùng 1 SP )</b>
@@ -231,8 +231,8 @@
             </ul>
         </fieldset>
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
-        <div class="grid_2_5">Loại công cụ</div>
+        <legend>Criteria Filtering</legend>
+        <div class="grid_2_5">Tool Type</div>
         <div class="grid_6">
             @{
                 Html.Telerik().ComboBox()
@@ -241,11 +241,11 @@
                     .HtmlAttributes(new {style = "width: 100%"})
                     //.DropDownHtmlAttributes(new { style = "width: 100%" })
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
-        <div class="grid_2_5">Loại sử dụng</div>
+        <div class="grid_2_5">Tool Use</div>
         <div class="grid_6">
             @{
                 Html.Telerik().ComboBox()
@@ -254,11 +254,11 @@
                     .HtmlAttributes(new {style = "width: 100%"})
                     //.DropDownHtmlAttributes(new { style = "width: 100%" })
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
-        <div class="grid_2_5">Tên công cụ</div>
+        <div class="grid_2_5">Tool Name</div>
         <div class="grid_4">
             @{
                 Html.Telerik().AutoComplete()
@@ -270,7 +270,7 @@
         <div class="grid_2_5">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridTooll'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Refresh
             </button>
         </div>
     </fieldset>
@@ -283,7 +283,7 @@
         .DataKeys(key => key.Add(f => f.ToolId).RouteKey("ToolId"))
         .ToolBar(
             toolbar =>
-                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+                toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
         .DataBinding(
             dataBinding => dataBinding.Ajax()
                 .Select("SelectAllTool", "Material", new { toolTypeId = 0, useType = 0, toolName =""})
@@ -292,49 +292,49 @@
         .Columns(columns =>
         {
             columns.Command(command =>
-                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhập").InsertText("Thêm").CancelText("Hủy").Text("Sửa")
+                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Fixing")
                 ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
             //columns.Bound(f => f.VendorCodeName).Width(150)
             //       .ClientTemplate("<strong><#= VendorCodeName #></strong>");
             //columns.Bound(f => f.MaterialTypeName).Width(125)
             //       .ClientTemplate("<strong><#= MaterialTypeName #></strong>");
-            columns.Bound(f => f.Img).Width(40).Title("Hình")
+            columns.Bound(f => f.Img).Width(70).Title("Picture")
                 .ClientTemplate("<a id='<#=ToolId#>' href='" + Url.Content("~/Content/FileUpload/ToolImg/") + "<#=Img#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                 "<img src='" + Url.Content("~/Content/FileUpload/ToolImg/") + "<#=Img#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
                                 "</a><div class='highslide-caption'><#= ToolFullCode #></div>");
                     
             columns.Bound(f => f.MaterialTypeName).Width(150)
-                .HeaderTemplate("Loại</br>công cụ")
+                .HeaderTemplate("Material Type")
                 .ClientTemplate("<strong><#= MaterialTypeName #></strong>")
                 .Aggregate(agg => agg.Count())
                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
-            columns.Bound(f => f.ToolTypeName).Width(150)
-                .HeaderTemplate("Loại</br>công cụ")
+            columns.Bound(f => f.ToolTypeName).Width(90)
+                .HeaderTemplate("Tool Type")
                 .ClientTemplate("<strong><#= ToolTypeName #></strong>");
-            columns.Bound(f => f.ToolName).Width(120).Title("Tên công cụ");
-            columns.Bound(f => f.ToolCode).Width(100).Title("Mã công cụ")
+            columns.Bound(f => f.ToolName).Width(130).Title("Tool Name");
+            columns.Bound(f => f.ToolCode).Width(110).Title("Tool Code")
                 .HtmlAttributes(new { style = "font-weight:bold;" });
-            columns.Bound(f => f.ToolFullDesign).Width(225).Title("Mã thiết kế").ReadOnly(true)
+            columns.Bound(f => f.ToolFullDesign).Width(235).Title("Design Code").ReadOnly(true)
                 .HtmlAttributes(new {style = "font-weight:bold;"});
-            columns.Bound(f => f.ToolDesignNo).Width(150).Title("Quy cách")
+            columns.Bound(f => f.ToolDesignNo).Width(150).Title("Ppecifications")
                 .HtmlAttributes(new { style = "font-weight:bold;" });
-            columns.Bound(f => f.ToolMaterial).Width(100).Title("Nguyên liệu")
+            columns.Bound(f => f.ToolMaterial).Width(100).Title("Material")
                 .HtmlAttributes(new { style = "font-weight:bold;" });
-            columns.Bound(f => f.ToolProduction).Width(100).Title("Nhà SX")
+            columns.Bound(f => f.ToolProduction).Width(100).Title("Manufacturer")
                 .HtmlAttributes(new { style = "font-weight:bold;" });
-            columns.Bound(f => f.Description).Width(100).Title("Mô tả");
-            columns.Bound(f => f.Active).Width(50)
+            columns.Bound(f => f.Description).Width(100).Title("Descrip");
+            columns.Bound(f => f.Active).Width(70)
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.IsDeleted).Width(50)
+            columns.Bound(f => f.IsDeleted).Width(80)
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDeleted' <#=IsDeleted? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
 
-            columns.Bound(f => f.ModifiedUser).Width(75).Title("Người làm").ReadOnly(true);
-            columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true);
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("Modified User").ReadOnly(true);
+            columns.Bound(f => f.ModifiedDate).Width(120).Title("Modified Date").ReadOnly(true);
         })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         .ClientEvents(events => events.OnError("grid_OnError")
             .OnSave("grid_OnSave")
             .OnDataBinding("grid_OnDataBinding"))

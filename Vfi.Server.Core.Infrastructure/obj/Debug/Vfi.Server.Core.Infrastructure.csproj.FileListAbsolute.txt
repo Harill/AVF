@@ -40,3 +40,17 @@ C:\workspace\vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.SqlSer
 C:\workspace\vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
 C:\workspace\vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.dll
 C:\workspace\vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.pdb
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Infrastructure.dll.config
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Infrastructure.dll
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Infrastructure.pdb
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.dll
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.SqlServer.dll
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.DataModel.dll
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Repository.dll
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.DataModel.pdb
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\Vfi.Server.Core.Repository.pdb
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.xml
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\bin\Debug\EntityFramework.SqlServer.xml
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.csprojResolveAssemblyReference.cache
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.dll
+C:\Job\avf\Vfi\Vfi.Server.Core.Infrastructure\obj\Debug\Vfi.Server.Core.Infrastructure.pdb

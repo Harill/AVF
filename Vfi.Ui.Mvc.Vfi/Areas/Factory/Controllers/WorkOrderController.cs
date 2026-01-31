@@ -2477,8 +2477,15 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             entity.MaterialTypeName = routing.Product.Material.MaterialType.MaterialTypeName;
                         }
                     }
-                    var info = JsonConvert.DeserializeObject<WorkOrderProductionInfo>(routing.MoreInfo);
-                    if (info == null) { info = new WorkOrderProductionInfo(); }
+                    //var info = JsonConvert.DeserializeObject<WorkOrderProductionInfo>(routing.MoreInfo);
+                    //if (info == null) { info = new WorkOrderProductionInfo(); }
+
+                    var info = new WorkOrderProductionInfo();                                                 // 30/01/2026  
+                    if (!string.IsNullOrWhiteSpace(routing.MoreInfo)) {
+                        info = JsonConvert.DeserializeObject<WorkOrderProductionInfo>(routing.MoreInfo);
+                    }
+
+                    
                     var detail = new WorkOrderRoutingModel {
                         RoutingIndex = routing.RoutingIndex * 10,
                         RoutingName = routing.RoutingName,

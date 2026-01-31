@@ -14,7 +14,7 @@ namespace Vfi.Server.Core.DataModel.Models.Production
         public virtual string CustomerCode { get; set; }
         [DisplayName("Tên khách hàng")]
         public string CustomerName { get; set; }
-        [DisplayName("Khách hàng")]
+        [DisplayName("Customer")]                                               // khach hang
         public virtual string CustomerCodeName { get { return CustomerCode + " -- " + CustomerName; } set { CustomerCode = value; } }
 
         public virtual string CustomerCodeOnly { get { return CustomerCode + " -- " + CustomerName; } set { CustomerCode = value; } }
@@ -42,7 +42,7 @@ namespace Vfi.Server.Core.DataModel.Models.Production
         public new string ProductCode { get; set; }
 
         //[Required(ErrorMessage = "*")]
-        [DisplayName("Tên SP KH")]
+        [DisplayName("Product Name")]                         // Ten sp KH
         [StringLength(255, ErrorMessage = "* <= 255 ký tự.")]
         public new string ProductName { get; set; }
 
@@ -53,7 +53,7 @@ namespace Vfi.Server.Core.DataModel.Models.Production
         public virtual string ProductFullCodeName { get { return DesignNo + " -- "+ProductCode + " -- " + ProductName; } set { ProductCode = value; } }
 
         //[Required(ErrorMessage = "*")]
-        [DisplayName("Mã SP KH")]
+        [DisplayName("Product Code")]                       // Ma sp KH
         [StringLength(50, ErrorMessage = "* <= 50 ký tự.")]
         public virtual new string DesignNo { get; set; }
 

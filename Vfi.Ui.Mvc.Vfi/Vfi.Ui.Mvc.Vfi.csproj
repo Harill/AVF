@@ -4254,9 +4254,9 @@
           <AutoAssignPort>False</AutoAssignPort>
           <DevelopmentServerPort>1701</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost/vfi</IISUrl>
+          <IISUrl>http://localhost/avf</IISUrl>
           <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
-          <IISAppRootUrl>http://localhost/vfi</IISAppRootUrl>
+          <IISAppRootUrl>http://localhost/avf</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

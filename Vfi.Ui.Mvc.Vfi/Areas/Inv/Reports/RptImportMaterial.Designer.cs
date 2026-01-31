@@ -270,8 +270,7 @@
             this.textBox44,
             this.textBox43,
             this.textBox42,
-            this.textBox37,
-            this.signBox});
+            this.textBox37});
             this.labelsGroupFooter.Name = "labelsGroupFooter";
             this.labelsGroupFooter.Style.BorderStyle.Top = Telerik.Reporting.Drawing.BorderType.Dotted;
             this.labelsGroupFooter.Style.Font.Name = "Times New Roman";
@@ -471,10 +470,11 @@
             formattingRule1.Style.Visible = false;
             this.signBox.ConditionalFormatting.AddRange(new Telerik.Reporting.Drawing.FormattingRule[] {
             formattingRule1});
-            this.signBox.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(516.11328125D), Telerik.Reporting.Drawing.Unit.Pixel(50.27685546875D));
+            this.signBox.Location = new Telerik.Reporting.Drawing.PointU(Telerik.Reporting.Drawing.Unit.Pixel(0.0047485353425145149D), Telerik.Reporting.Drawing.Unit.Pixel(0.0047363280318677425D));
             this.signBox.Name = "signBox";
             this.signBox.Size = new Telerik.Reporting.Drawing.SizeU(Telerik.Reporting.Drawing.Unit.Pixel(107.93853759765625D), Telerik.Reporting.Drawing.Unit.Pixel(107.98580932617188D));
             this.signBox.Sizing = Telerik.Reporting.Drawing.ImageSizeMode.Stretch;
+            this.signBox.Style.Visible = false;
             // 
             // labelsGroup
             // 
@@ -727,7 +727,8 @@
             this.textBox11,
             this.textBox52,
             this.textBox53,
-            this.picLogo});
+            this.picLogo,
+            this.signBox});
             this.reportHeader.Name = "reportHeader";
             this.reportHeader.Style.Font.Name = "Times New Roman";
             // 

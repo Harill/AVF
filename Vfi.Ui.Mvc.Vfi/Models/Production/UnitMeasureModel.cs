@@ -9,24 +9,24 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
     public class UnitMeasureModel
     {
         public int UnitId { get; set; }
-        [DisplayName("Mã đơn vị tính")]
+        [DisplayName("Unit Measure Code")]                  // Mã đơn vị tính
         [Required(ErrorMessage = "*")]
         public virtual string UnitMeasureCode { get; set; }
 
-        [DisplayName("Đơn vị tính")]
+        [DisplayName("Unit Measure Name")]                           //Đơn vị tính
         [Required(ErrorMessage = "*")]
         public virtual string UnitMeasureName { get; set; }
 
-        [DisplayName("Đơn vị tính")]
+        [DisplayName("Unit Measure Full Name")]                      //Đơn vị tính day du
         public virtual string UnitMeasureCodeName { get { return UnitMeasureCode + " -- " + UnitMeasureName; } }
 
         //[DisplayName("Kích hoạt")]
         //public virtual new bool Active { get; set; }
-        [DisplayName("Người thay đổi")]
+        [DisplayName("Modified User")]                             //Người thay đổi
         public virtual string ModifiedUser { get; set; }
-        [DisplayName("Ngày thay đổi")]
+        [DisplayName("Modified Date")]                                //Ngày thay đổi
         public virtual DateTime ModifiedDate { get; set; }
-        [DisplayName("Xi mạ")]
+        [DisplayName("Plating")]                                     //Xi mạ
         public virtual bool IsPlatingUnit { get; set; }
     }
 }

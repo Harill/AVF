@@ -205,7 +205,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                                                   machineIds.Contains(id.MachineId.Value) &&
                                                   materialIds.Contains(id.MaterialInventory.MaterialId) &&
                                                   id.ImportFormSX1.MaterialUseDate > lastTrackDate
-                                            orderby id.ImportFormSX1.MaterialUseDate descending
+                                            orderby id.ImportFormSX1.MaterialUseDate                                    //30/01/2026
                                             select new {
                                                 id.MaterialInventory.MaterialId,
                                                 MachineId = id.MachineId ?? 0,

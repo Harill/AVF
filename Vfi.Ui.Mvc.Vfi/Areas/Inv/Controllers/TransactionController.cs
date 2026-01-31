@@ -1028,7 +1028,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Inv.Controllers {
                             pi =>
                                 productIds.Contains(pi.ProductId) &&
                                 transaction.WarehouseIssueId == pi.WarehouseId &&
-                                pi.TotalQty > 0);
+                                pi.TotalQty > 0).OrderBy(x => x.LotNumber).ToList();                // 30/01/2026
                     foreach (var transactionProduct in transactionProducts) {
                         var quantity = transactionProduct.Quantity;
                         var productInvsById = productInvs.Where(pi => pi.ProductId == transactionProduct.ProductId);

@@ -29,7 +29,7 @@
     </script>
 }
 
-<div class="title">Quản lý báo giá nguyên liệu</div>
+<div class="title">Material Price Management</div>                            @*Quản lý báo giá nguyên liệu *@
 @*<div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     
@@ -65,7 +65,7 @@
         .DataKeys(key => key.Add(f => f.BaseId).RouteKey("baseId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Nhập mới").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
         .DataBinding(
             dataBinding => dataBinding.Ajax()
                                       .Select("SelectMaterialQuoteBase", "Material", new { area = "" })
@@ -74,27 +74,26 @@
         .Columns(columns =>
             {
                 columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Cập nhập").InsertText("Thêm").CancelText("Hủy").Text("Sửa")
-                    ).Width(90).Title("Lệnh").HtmlAttributes(new {style = "text-align:center"});
+                                command.Edit().ButtonType(GridButtonType.ImageAndText).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Fixing")
+                    ).Width(90).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
                 //columns.Bound(f => f.VendorCodeName).Width(150)
                 //       .ClientTemplate("<strong><#= VendorCodeName #></strong>");
                 columns.Bound(f => f.MaterialTypeName).Width(100)
-                       .HeaderTemplate("Loại</br>nguyên liệu")
+                       .HeaderTemplate("Material</br>Type Name")                                                     // Loại</br>nguyên liệu
                        .ClientTemplate("<strong><#= MaterialTypeName #></strong>");
                 columns.Bound(f => f.MaterialName).Width(100)
-                       .HeaderTemplate("Tên</br>nguyên liệu");
-              
-                columns.Bound(f => f.MaterialShape).Width(50)
+                       .HeaderTemplate("Material Name");                                                                         // Tên</br>nguyên liệu
+                 columns.Bound(f => f.MaterialShape).Width(50)
                        .HtmlAttributes(new {style = "text-align:center;"})
-                       .HeaderTemplate("Hình</br>dạng");
+                       .HeaderTemplate("Shape");                                                                         // Hình</br>dạng
                 columns.Bound(f => f.MaterialDiameterType).Width(50)
                        .HtmlAttributes(new { style = "text-align:center;" })
-                       .HeaderTemplate("Dung</br>sai");
+                       .HeaderTemplate("Tolerance");                                                                            // Dung</br>sai
                 columns.Bound(f => f.BasePrice).Width(50)
                        .HtmlAttributes(new { style = "text-align:center;" })
-                       .HeaderTemplate("Giá trị");
-                columns.Bound(f => f.ModifiedUser).Title("Người tạo").ReadOnly(true).Width(70);
-                columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").ReadOnly(true).Width(80)
+                       .HeaderTemplate("Value");                                                                                //Giá trị
+                columns.Bound(f => f.ModifiedUser).Title("Modified User").ReadOnly(true).Width(70);                         //Người tạo
+                columns.Bound(f => f.ModifiedDate).Title("Modified Date").ReadOnly(true).Width(80)                          //Ngày tạo
                        .Format("{0:dd/MM/yyyy HH:mm}");
             })
 
@@ -105,14 +104,14 @@
                 .SelectedIndex(0)
                 .Items(items =>
 
-                       items.Add().Text("Chi tiết").Content(
+                       items.Add().Text("Detail").Content(                      // Chi tiet
 
                            Html.Telerik().Grid<MaterialQuoteBaseDetailModel>()
                                .Name("gridDetail_<#= BaseId #>")
                                .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
                                .ToolBar(
                                    toolbar =>
-                                   toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                   toolbar.Insert().Text("Add").ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
                                .DataBinding(
                                    dataBinding => dataBinding.Ajax()
                                                              .Select("SelectMaterialQuoteBaseDetail", "Material", new { area = "", baseId = "<#= BaseId #>" })
@@ -121,15 +120,15 @@
                                )
                                .Columns(columns => {
                                        columns.Command(command =>
-                                                       command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                                       command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fixing").InsertText("Add new")
                                            ).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                       columns.Bound(f => f.FromOutDiameter).Width(50).Title(">= Đường kính");
-                                       columns.Bound(f => f.ToOutDiameter).Width(50).Title("< Đường kính");
-                                       columns.Bound(f => f.InDiameter).Width(50).Title("Đường kính trong</br>(nếu có)");
-                                       columns.Bound(f => f.Value).Width(50).Title("Giá trị thêm");
-                                       columns.Bound(f => f.Price).Width(50).Title("Giá trị").ReadOnly(true);
+                                       columns.Bound(f => f.FromOutDiameter).Width(50).Title(">= Diameter");                                    //đường kính
+                                       columns.Bound(f => f.ToOutDiameter).Width(50).Title("< Diameter");                                       //đường kính
+                                       columns.Bound(f => f.InDiameter).Width(50).Title("Inner Diameter</br>(If)");                             //đường kính trong (Neu co)
+                                       columns.Bound(f => f.Value).Width(50).Title("Added value");                                              // gia tri them
+                                       columns.Bound(f => f.Price).Width(50).Title("Value").ReadOnly(true);                                     // gia tri
                                    })
-                               .Editable(editing => editing.Mode(GridEditMode.InLine))
+                               .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                .ClientEvents(e => e.OnError("grid_OnError"))
                                .ToHtmlString()
                            ))
@@ -137,7 +136,7 @@
                 .ToHtmlString()
                                    ))
         .Selectable()
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         .ClientEvents(events => events.OnEdit("gridMaterial_onEdit")
                                       .OnRowSelect("grid_OnRowSelect")
                                       //.OnDataBinding("gridMaterial_OnDataBinding")

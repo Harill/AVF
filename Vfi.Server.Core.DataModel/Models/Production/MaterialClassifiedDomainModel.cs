@@ -9,17 +9,17 @@ namespace Vfi.Server.Core.DataModel.Models.Production
     public class MaterialClassifiedDomainModel: MaterialClassified
     {
         public new int MaterialClassifiedId { get; set; }
-        
-        [DisplayName("Tên phân loại")]
+
+        [DisplayName("Classification")]                                  //Tên phân loại
         [Required(ErrorMessage = "*")]
         [StringLength(255, ErrorMessage = "* <= 255 ký tự.")]
         public new string MaterialClassifiedName { get; set; }
 
-        [DisplayName("Kích hoạt")]
+        [DisplayName("Active")]                                      //Kích hoạt
         public new bool Active { get; set; }
-        [DisplayName("Người thay đổi")]
+        [DisplayName("Modified User")]                                 //Người thay đổi
         public new string ModifiedUser { get; set; }
-        [DisplayName("Ngày thay đổi")]
+        [DisplayName("Modified Date")]                                                   //Ngày thay đổi
         public new DateTime? ModifiedDate { get; set; }
     }
 }

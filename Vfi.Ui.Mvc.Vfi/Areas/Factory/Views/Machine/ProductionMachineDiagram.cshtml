@@ -301,7 +301,7 @@
         </div>
         <div>
             <section id="options" class="clearfix">
-                <ul id="filters" class="option-set clearfix" data-option-key="filter">                   <!-- noi chinh sua loai may -->
+                <ul id="filters" class="option-set clearfix" data-option-key="filter">                   
                     @{
                         foreach (var type in Model.ListType) {
                         <li><a href="#" data-filter=".mt-@type.Code" class="t-button">(@type.Count) @type.Code</a></li>

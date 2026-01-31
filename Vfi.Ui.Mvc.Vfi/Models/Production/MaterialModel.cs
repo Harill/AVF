@@ -14,7 +14,7 @@ namespace Vfi.Ui.Mvc.Vfi.Models.Production
         [UIHint("_MaterialTypeEditTemplate")]
         public virtual string MaterialTypeName { get; set; }
 
-        [DisplayName("Mã nguyên liệu VF")]
+        [DisplayName("Material Code VF")]                                          //Mã nguyên liệu VF
         public virtual string MaterialCode { get; set; }
         
         [Required(ErrorMessage = "*")]

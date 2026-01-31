@@ -38,7 +38,7 @@
 </script>
 }
 
-<div class="title">Quản lý loại nguyên liệu</div>
+<div class="title">Types Management</div>                       <!-- Quản lý the loại -->
 
 Chọn màu: @Html.TextBox("ColorPick", null, new { @class = "ColorTool" })
 <div class="cover-div">
@@ -56,23 +56,23 @@ Chọn màu: @Html.TextBox("ColorPick", null, new { @class = "ColorTool" })
                 .Update("UpdateMaterialType", "Material"))
         .Columns(columns => {
             columns.Command(command =>
-                command.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.MaterialClassifiedName).Title("Phân loại").Width(200)
+                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.MaterialClassifiedName).Title("Classify").Width(250)                               @* Phân loại *@
                 .ClientTemplate("<strong><#= MaterialClassifiedName #></strong>");
-            columns.Bound(f => f.IdentityCode).Title("Mã loại").Width(45);
+            columns.Bound(f => f.IdentityCode).Title("Type code").Width(85);                                                  @* Mã loại *@
             //columns.Bound(f => f.DiagramColor).Title("Màu sơ đồ").Width(100);
-            columns.Bound(f => f.MaterialTypeName).Title("Tên loại");
-            columns.Bound(f => f.Factor).Title("Hệ số nguyên liệu").Format("{0:n2}");
-            columns.Bound(f => f.ProductionFactor).Title("Hệ số gia công").Format("{0:n2}");
-            columns.Bound(f => f.TaxFactor).Title("Hệ số thuế").Format("{0:n4}");
-            columns.Bound(f => f.Active).Width(45)
+            columns.Bound(f => f.MaterialTypeName).Title("Type Name");                                            @* Tên loại *@
+            columns.Bound(f => f.Factor).Title("Material Coefficient").Format("{0:n2}").Width(150);                                @* Hệ số nguyên liệu *@
+            columns.Bound(f => f.ProductionFactor).Title("Machining coefficient").Format("{0:n2}").Width(150);                         @* Hệ số gia công *@
+            columns.Bound(f => f.TaxFactor).Title("Tax Coefficient").Format("{0:n4}").Width(130);                                        @* Hệ số thuế *@
+            columns.Bound(f => f.Active).Width(70)
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày tạo").ReadOnly(true)
-                   .Format("{0:dd/MM/yyyy HH:mm:ss}");
-            columns.Bound(f => f.ModifiedUser).Width(85).Title("Người tạo").ReadOnly(true);
+            columns.Bound(f => f.ModifiedDate).Width(110).Title("Modified Date").ReadOnly(true)                                @* Ngày tạo *@
+                .Format("{0:dd/MM/yyyy HH:mm:ss}");
+            columns.Bound(f => f.ModifiedUser).Width(110).Title("Modified User").ReadOnly(true);                                  @* Người tạo *@
         })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         .ClientEvents(events => events
             .OnEdit("grid_OnEdit")
             .OnSave("grid_OnSave")

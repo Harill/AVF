@@ -450,8 +450,8 @@
                 <section id="options" class="clearfix">
                     <ul id="filters" class="option-set clearfix" data-option-key="filter">
 @{
-    foreach (var func in Model.ListFunction) {
-                        <li><a href="#" data-filter=".@func.Code" class="t-button">(@func.Count) @func.Code</a></li>
+    foreach (var func in Model.ListFunction) {      
+                        <li><a href="#" data-filter=".@func.Code" class="t-button">(@func.Count) @func.Code</a></li>                         
     }
 }
                         </div>
@@ -474,7 +474,7 @@
 <div class="clear"></div>
 @{
     int i = 0;
-    var columnWidth = 260;
+    var columnWidth = 320;
     var columnSpace = 10;
     var space = 100;
     var divWidth = ((columnWidth + columnSpace) * Model.ListMachineDiagram.Count + space) + "px";
@@ -484,62 +484,66 @@
         @{
             foreach (var list in Model.ListMachineDiagram) {
                 i++;
-            <div id='container-@i' class="clickable clearfix isotope container" style="width: @containerWidth;">
+            <div id='container-@i' class="clickable clearfix isotope container" style="width: @containerWidth;">        
             @{
                 foreach (var entity in list) {
-                    <div class='element-@i entity isotope-item ms-@entity.StateCode mf-@entity.MachineFunction mt-@entity.MachineType'
-                             style="width:@entityWidth; position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;">
+                    <div class='element-@i entity isotope-item @entity.StateCode @entity.MachineFunction @entity.MachineType'                                             @* 30/01/2026 xoa "mt- , mf- , ms- "*@                 
+                    style = "width:@entityWidth; position: relative; transform: translate3d(5px, 5px, 0px); text-align: left; background-color: white;" >
 
-                        <div class="line1">
-                            <div class="line-item" style='width: 60%; text-align: left; background-color: #@entity.WarrningColor;'>
-                                <span class="itemLeft highlight" style="margin-left: 10px">@entity.MachineName | @entity.MachineType | @entity.MachineFunction</span>
-                            </div>
-                            <div class="line-item" style='width: 40%; text-align: right; background-color: #ccc2d6; color: #3333cc;'>
-                                <span class="itemRight" style="padding-top: 5px; margin-right: 10px; font-weight: bold">@entity.ProductCode</span>
-                            </div>
+                    <div class="line1">
+                        <div class="line-item" style='width: 52%; text-align: left; background-color: #@entity.WarrningColor;'>
+                            <span class="itemLeft highlight" style="margin-left: 10px">@entity.MachineName | @entity.MachineType | @entity.MachineFunction</span>
                         </div>
-
-                        <div class="line2">
-                            <div class="line-item" style='width: 35%; text-align:center; font-weight:bold; background-color: #@entity.WarrningColor; color: #3333cc;'>
-                                <div class="machineTiming" id="machine-@entity.MachineId" machineid ="@entity.MachineId" seconds="@entity.Seconds">
-                                    <timing>
-                                    <day  class="totalDays"></day>
-                                    <time  class="timing">0</time>
-                                </timing>
-                                </div>
-                            </div>
-                            <div class="line-item" style="width: 65%; text-align: center; background-color: #996600; color: white;">
-                                <span class="itemLeft">@entity.MaterialCode</span>
-                            </div>
-                        </div>
-
-                        <div class="line3">
-                            <div style="height: 10px; float: left; padding-bottom: 2px;">
-                                <span class="itemLeft">Status: @entity.StateName</span>
-                            </div><br />
-                            <div style="height: 10px; float: left; padding-bottom: 2px;">
-                                <span class="itemLeft">Start date: @entity.StartDateString</span>
-                            </div><br />
-                            <div style="height: 10px; float: left; padding-bottom: 2px;">
-                                <span class="itemLeft">End date: @entity.EndDateString</span>
-                            </div><br />
-                            <div style="height: 10px; float: left; padding-bottom: 2px;">
-                                <span class="itemLeft">Productivity: @entity.ProductionPerDayStr</span>
-                            </div><br />
-                            <div style="height: 10px; float: left; padding-bottom: 2px;">
-                                <span class="itemLeft">Production Quantity: @entity.ProductionStr</span>
-                            </div>
-                        </div>
-
-                        <div class="line4">
-                            <div style="width: 100%; height: 10px; float: left; text-align: center;">
-                                <span class="itemRight">@{ @Html.ActionLink("More", "MachineLog", "Machine", new { id = entity.MachineId }, null)}</span>| 
-                            <span class="itemRight">@{ @Html.ActionLink("QC/QA", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
-                            </div>
+                        <div class="line-item" style='width: 48%; text-align: right; background-color: #ccc2d6; color: #3333cc;'>
+                            <span class="itemRight" style="padding-top: 5px; margin-right: 10px; font-weight: bold">@entity.ProductCode</span>
                         </div>
                     </div>
 
-                    if (list.Last().MachineId == entity.MachineId) {
+                    <div class="line2">
+                        <div class="line-item" style='width: 35%; text-align:center; font-weight:bold; background-color: #@entity.WarrningColor; color: #3333cc;'>
+                            <div class="machineTiming" id="machine-@entity.MachineId" machineid ="@entity.MachineId" seconds="@entity.Seconds">
+                                <timing>
+                                    <day  class="totalDays"></day>
+                                    <time  class="timing">0</time>
+                                </timing>
+                            </div>
+                        </div>
+                        <div class="line-item" style="width: 65%; text-align: center; background-color: #996600; color: white;">
+                            <span class="itemLeft">@entity.MaterialCode</span>
+                        </div>
+                    </div>
+
+                    <div class="line3">
+                        <div style="height: 10px; float: left; padding-bottom: 2px;">
+                            <span class="itemLeft">Status: @entity.StateName</span>
+                        </div>
+                        <br />
+                        <div style="height: 10px; float: left; padding-bottom: 2px;">
+                            <span class="itemLeft">Start date: @entity.StartDateString</span>
+                        </div>
+                        <br />
+                        <div style="height: 10px; float: left; padding-bottom: 2px;">
+                            <span class="itemLeft">End date: @entity.EndDateString</span>
+                        </div>
+                        <br />
+                        <div style="height: 10px; float: left; padding-bottom: 2px;">
+                            <span class="itemLeft">Productivity: @entity.ProductionPerDayStr</span>
+                        </div>
+                        <br />
+                        <div style="height: 10px; float: left; padding-bottom: 2px;">
+                            <span class="itemLeft">Production Quantity: @entity.ProductionStr</span>
+                        </div>
+                    </div>
+
+                    <div class="line4">
+                        <div style="width: 100%; height: 10px; float: left; text-align: center;">
+                            <span class="itemRight">@{ @Html.ActionLink("More", "MachineLog", "Machine", new { id = entity.MachineId }, null)}</span>| 
+                            <span class="itemRight">@{ @Html.ActionLink("QC/QA", "ProductionOnTesting", "Production", new { machineId = entity.MachineId, productId = entity.ProductId }, null)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                             if (list.Last().MachineId == entity.MachineId) {
                     <div style="overflow: hidden; height: 100px; width: 230px; padding-right: 5px; display: block; float: left">
                     </div>
                     }
