@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Kế hoạch";
+    ViewBag.Title = "Production Plan";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -71,15 +71,15 @@
     </script>
 }
 
-<div class="title">Kế hoạch sản xuất</div>
+<div class="title">Production Plan</div>
 <div class="clear"></div>
 <br />
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
     <fieldset>
 
-        <legend>Tiêu chí trích lọc</legend>
+        <legend>Criteria Filtering</legend>
         <div class="grid_2">
-            @Html.Label("Mã KH")
+            @Html.Label("Customer Code")
         </div>
         <div class="grid_4">
             @{
@@ -90,12 +90,13 @@
                     .DropDownHtmlAttributes(new { style = "width: 275px" })
                     //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
         <div class="grid_2">
-            @Html.LabelFor(f => f.ProductCodeName)
+            @Html.Label("Product Code")
+@*            @Html.LabelFor(f => f.ProductCodeName)*@
         </div>
         <div class="grid_4">
             @{
@@ -121,7 +122,7 @@
         <div class="grid_3">
             <button id="btnRefesh" class="t-button twoToneButton" onclick=" return GetData(); ">
                 <span class='t-icon t-refresh'></span>
-                Làm mới
+                Find
                 <span class="loadButton"></span>
             </button>
         </div>
@@ -132,7 +133,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Đơn hàng</legend>
+        <legend>Order</legend>               @*don hang`   *@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<OrderPlanReportModel>()
@@ -142,37 +143,37 @@
                                                          .Select("SelectOrderMasterPlanReport", "Reporting"))
                     .Columns(columns => {
                         columns.Bound(f => f.LastMonth).Width(65)
-                               .HeaderTemplate("<strong>Tháng Trước</strong>")
+                               .HeaderTemplate("<strong>Last Month</strong>")                         //Tháng Trước
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InMonth).Width(65)
-                               .HeaderTemplate("<strong>Trong Tháng</strong>")
+                               .HeaderTemplate("<strong>In Month</strong>")                                     //Trong Tháng
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.NextMonth).Width(65)
-                               .HeaderTemplate("<strong>Tháng Sau</strong>")
+                               .HeaderTemplate("<strong>Next Month</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.Total).Width(65)
-                               .HeaderTemplate("<strong>Tổng</strong>")
+                               .HeaderTemplate("<strong>Total</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")                                           //  Luy Ke Xuất
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.PlanRequired).Width(65)
-                               .HeaderTemplate("<strong>Còn lại</strong>")
+                               .HeaderTemplate("<strong>Remaining</strong>")                                                  //Còn lại
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -196,7 +197,7 @@
 <br />
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Dự báo</legend>
+        <legend>Forecast</legend>                   @*Dự báo*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<ForecastPlanReportModel>()
@@ -206,31 +207,31 @@
                                                          .Select("SelectForecastMasterPlanReport", "Reporting"))
                     .Columns(columns => {
                         columns.Bound(f => f.InMonth).Width(65)
-                               .HeaderTemplate("<strong>Trong Tháng</strong>")
+                               .HeaderTemplate("<strong>In Month</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.NextMonth).Width(65)
-                               .HeaderTemplate("<strong>Tháng Sau</strong>")
+                               .HeaderTemplate("<strong>Next Month</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.Total).Width(65)
-                               .HeaderTemplate("<strong>Tổng</strong>")
+                               .HeaderTemplate("<strong>Total</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")                                   //LK Xuất
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.PlanRequired).Width(65)
-                               .HeaderTemplate("<strong>Còn lại</strong>")
+                               .HeaderTemplate("<strong>Remaining</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -254,7 +255,7 @@
 <br />
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Các sản phẩm trễ đơn hàng</legend>
+        <legend>Products with delayed orders.</legend>
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<OrderLatePlanReportModel>()
@@ -263,26 +264,26 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectOrderLatedPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("<strong>Customer</strong>");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.OrderQuatity).Width(65)
-                               .HeaderTemplate("<strong>Đơn hàng trễ</strong>")
+                               .HeaderTemplate("<strong>Delayed Orders</strong>")                                 //Đơn hàng trễ
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ExportQuantity).Width(65)
-                               .HeaderTemplate("<strong>Đã giao</strong>")
+                               .HeaderTemplate("<strong>Delivered</strong>")                                             //Đã giao
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.PlanRequired).Width(65)
-                               .HeaderTemplate("<strong>Còn lại</strong>")
+                               .HeaderTemplate("<strong>Remaining</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -306,7 +307,7 @@
 <br />
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Sản xuất 1 - Đơn hàng</legend>
+        <legend>Production1 - Orders</legend>                               @*Sản xuất 1 - Đơn hàng*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<ProductionOrderPlanReportModel>()
@@ -315,44 +316,44 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectProductionOrderMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng ĐH</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tổng tồn</strong>")
+                               .HeaderTemplate("<strong>Total Inv</strong>")                             //Tổng tồn
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần SX</strong>")
+                               .HeaderTemplate("<strong>Required</strong>")                                         //Cần SX
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");                       //Tình trạng
                         columns.Bound(f => f.ProductivityInDay).Width(65)
-                            .HeaderTemplate("<strong>NS/Ngày</strong>")
+                            .HeaderTemplate("<strong>Productivity</br>/Day</strong>")                                //NS/Ngày
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionDay).Width(65)
-                            .HeaderTemplate("<strong>TG SX</strong>")
+                            .HeaderTemplate("<strong>Production</br>Time</strong>")                                       //TG SX
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                     })
@@ -374,7 +375,7 @@
 <br />
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Sản xuất 1 - Dự báo</legend>
+        <legend>Production1 - Forecast</legend>                       @*Sản xuất 1 - Dự báo*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<ProductionForecastPlanReportModel>()
@@ -383,44 +384,44 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectProductionForecastMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")                //Tổng DB
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")                                 //LK Xuất
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tổng tồn</strong>")
+                               .HeaderTemplate("<strong>Total Inv</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần SX</strong>")
+                               .HeaderTemplate("<strong>Required</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                         columns.Bound(f => f.ProductivityInDay).Width(65)
-                            .HeaderTemplate("<strong>NS/Ngày</strong>")
+                            .HeaderTemplate("<strong>Productivity</br>/Day</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionDay).Width(65)
-                            .HeaderTemplate("<strong>TG SX</strong>")
+                            .HeaderTemplate("<strong>Production</br>Time</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                     })
@@ -441,7 +442,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Phay CNC - Đơn hàng</legend>
+        <legend>CNC Milling - Order</legend>                                     @*  Phay CNC - Đơn hàng*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<CncOrderPlanReportModel>()
@@ -450,50 +451,50 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectCncOrderMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strongProduct Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tồn CNC</strong>")
+                               .HeaderTemplate("<strong>Cnc-Inv</strong>")                                         //Tồn CNC
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Sau CNC</strong>")
+                               .HeaderTemplate("<strong>After CnC</strong>")                             // Sau CNC
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần SX</strong>")
+                               .HeaderTemplate("<strong>Required</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                         columns.Bound(f => f.ProductivityInDay).Width(65)
-                            .HeaderTemplate("<strong>NS/Ngày</strong>")
+                            .HeaderTemplate("<strong>Productivity</br>/Day</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionDay).Width(65)
-                            .HeaderTemplate("<strong>TG SX</strong>")
+                            .HeaderTemplate("<strong>Production</br>Time</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                     })
@@ -514,7 +515,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Phay CNC - Dự báo</legend>
+        <legend>CNC Milling - Forecast</legend>                             @*      Phay CNC - Dự báo*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<CncForecastPlanReportModel>()
@@ -523,50 +524,50 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectCncForecastMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tồn CNC</strong>")
+                               .HeaderTemplate("<strong>Cnc-Inv</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Sau CNC</strong>")
+                               .HeaderTemplate("<strong>After CnC</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần SX</strong>")
+                               .HeaderTemplate("<strong>Required</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                         columns.Bound(f => f.ProductivityInDay).Width(65)
-                            .HeaderTemplate("<strong>NS/Ngày</strong>")
+                            .HeaderTemplate("<strong>Productivity</br>/Day</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionDay).Width(65)
-                            .HeaderTemplate("<strong>TG SX</strong>")
+                            .HeaderTemplate("<strong>Production</br>Time</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                     })
@@ -587,7 +588,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Sản xuất 2 - Đơn hàng</legend>
+        <legend>Production2 - Order</legend>                                   @*Sản xuất 2 - Đơn hàng*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<Production2OrderPlanReportModel>()
@@ -596,50 +597,50 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectProduction2OrderMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tồn SX2</strong>")
+                               .HeaderTemplate("<strong>Production2</br>Inv</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Sau SX2</strong>")
+                               .HeaderTemplate("<strong>After</br>Production2</strong>")                                         //Sau SX2
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần SX</strong>")
+                               .HeaderTemplate("<strong>Required</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                         columns.Bound(f => f.ProductivityInDay).Width(65)
-                            .HeaderTemplate("<strong>NS/Ngày</strong>")
+                            .HeaderTemplate("<strong>Productivity</br>/Day</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionDay).Width(65)
-                            .HeaderTemplate("<strong>TG SX</strong>")
+                            .HeaderTemplate("<strong>Production</br>Time</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                     })
@@ -660,7 +661,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Sản xuất 2 - Dự báo</legend>
+        <legend>Production2 - Forecast</legend>                       @* Sản xuất 2 - Dự báo*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<Production2ForecastPlanReportModel>()
@@ -669,50 +670,50 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectProduction2ForecastMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tồn SX2</strong>")
+                               .HeaderTemplate("<strong>Production2</br>Inv</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Sau SX2</strong>")
+                               .HeaderTemplate("<strong>After</br>Production2</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần SX</strong>")
+                               .HeaderTemplate("<strong>Required</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                         columns.Bound(f => f.ProductivityInDay).Width(65)
-                            .HeaderTemplate("<strong>NS/Ngày</strong>")
+                            .HeaderTemplate("<strong>Productivity</br>/Day</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionDay).Width(65)
-                            .HeaderTemplate("<strong>TG SX</strong>")
+                            .HeaderTemplate("<strong>Production</br>Time</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right; " });
                     })
@@ -733,7 +734,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>QC - Đơn hàng</legend>
+        <legend>QC - Order</legend>                                @*  QC - Đơn hàng*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<QcOrderPlanReportModel>()
@@ -742,44 +743,44 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectQcOrderMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tồn QC</strong>")
+                               .HeaderTemplate("<strong>QC-Inv</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Sau QC</strong>")
+                               .HeaderTemplate("<strong>After QC</strong>")                                 //After QC
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần kiểm</strong>")
+                               .HeaderTemplate("<strong>Check Again</strong>")                                      // Can kiem 
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                     })
                     .Scrollable(f => f.Height(310))
                     .Resizable(f => f.Columns(true))
@@ -798,7 +799,7 @@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>QC - Dự báo</legend>
+        <legend>QC - Forecast</legend>                            @*                QC - Dự báo*@
         <div class="cover-div">
             @{
                 Html.Telerik().Grid<QcForecastPlanReportModel>()
@@ -807,44 +808,44 @@
                     .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectQcForecastMasterPlanReport", "Reporting"))
                     .Columns(columns => {
-                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("KH");
+                        columns.Bound(f => f.Info.CustomerCode).Width(70).Title("Customer");
                         columns.Bound(f => f.Info.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product Code</strong>")
                             .Aggregate(agg => agg.Count())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.TotalOrder).Width(65)
-                               .HeaderTemplate("<strong>Tổng DB</strong>")
+                               .HeaderTemplate("<strong>Total</br>Forescast</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AccumulatedExport).Width(65)
-                               .HeaderTemplate("<strong>LK Xuất</strong>")
+                               .HeaderTemplate("<strong>Cumulative</br>Export</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.InvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Tồn QC</strong>")
+                               .HeaderTemplate("<strong>QC-Inv</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.AfterInvQuantity).Width(65)
-                               .HeaderTemplate("<strong>Sau QC</strong>")
+                               .HeaderTemplate("<strong>After QC</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.ProductionRequired).Width(65)
-                               .HeaderTemplate("<strong>Cần kiểm</strong>")
+                               .HeaderTemplate("<strong>Check Again</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right; " });
                         columns.Bound(f => f.State).Width(65)
-                            .HeaderTemplate("<strong>Tình trạng</strong>");
+                            .HeaderTemplate("<strong>Status</strong>");
                     })
                     .Scrollable(f => f.Height(310))
                     .Resizable(f => f.Columns(true))

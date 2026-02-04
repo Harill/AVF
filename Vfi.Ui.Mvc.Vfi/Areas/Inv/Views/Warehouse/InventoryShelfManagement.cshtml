@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Quản lý kệ";
+    ViewBag.Title = "Shelf Management";
+    //Quản lý kệ
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -85,7 +86,10 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin kho kệ</div>
+<div class="title">Warehouse shelving  Management
+ @*   Quản lý thông tin kho kệ*@
+
+</div>
 
 <div class="cover-div">
     @{
@@ -94,26 +98,26 @@
             .DataKeys(key => key.Add(f => f.ShelfId).RouteKey("shelfId"))
             .ToolBar(
                 toolbar =>
-                toolbar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới").ImageHtmlAttributes(new { style = "margin-left:0" }))
+                toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new { style = "margin-left:0" }))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
                                           .Select("SelectInventoryShelf", "Warehouse")
                                           .Insert("InsertInventoryShelf", "Warehouse")
                                           .Update("UpdateInventoryShelf", "Warehouse"))
             .Columns(columns => {
-                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.ClassifiedName).Title("Phân loại").Width(150);
-                columns.Bound(f => f.MaxColumn).Title("Số cột").Width(100);
-                columns.Bound(f => f.MaxRow).Title("Số dòng").Width(100);
-                columns.Bound(f => f.ShelfName).Title("Tên kệ");
+                columns.Command(c => c.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.ClassifiedName).Title("Classified").Width(150);        //Phân loại
+                columns.Bound(f => f.MaxColumn).Title("Column").Width(100);             //Số cột
+                columns.Bound(f => f.MaxRow).Title("Row").Width(100);           //Số dòng
+                columns.Bound(f => f.ShelfName).Title("Shelf Name");                // ten^ ke.
                 //columns.Bound(f => f.WarehouseName).Title("Kho").Width(100);
 
-                columns.Bound(f => f.Active).Title("Kích hoạt").Width(45)
+                columns.Bound(f => f.Active).Title("Active").Width(45)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(150).ReadOnly(true)
+                columns.Bound(f => f.ModifiedDate).Title("M-Date").Width(150).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Title("M-User").Width(100).ReadOnly(true);
             })
 
         .DetailView(details => details.ClientTemplate(
@@ -141,16 +145,16 @@
                                .Columns(columns => {
                                    //columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
 
-                                   columns.Bound(f => f.DrawerId).Title("In").Width(75)
-                                       .HeaderTemplate("<button class='t-button' onclick='PrintInventoryOnShelfCard()'>In</button>")
+                                   columns.Bound(f => f.DrawerId).Width(75)
+                                       .HeaderTemplate("<button class='t-button' onclick='PrintInventoryOnShelfCard()'>Print</button>")
                                        .ClientTemplate("<input type='checkbox' name='chkIds' class='chkId' value='<#= DrawerId #>' />")
                                        .HtmlAttributes(new { style = "text-align:center" });
 
-                                   columns.Bound(f => f.DrawerCode).Title("Mã").Width(100);
-                                   columns.Bound(f => f.ColumnName).Title("Tên cột").Width(50);
-                                   columns.Bound(f => f.RowName).Title("Tên dòng").Width(50);
-                                   columns.Bound(f => f.AdditionName).Title("").Width(20);
-                                   columns.Bound(f => f.ReferenceInvCode).Title("Đang có").ReadOnly(true);
+                                   columns.Bound(f => f.DrawerCode).Title("Code").Width(100);
+                                   columns.Bound(f => f.ColumnName).Title("Column</br>Name").Width(70);          //Tên cột
+                                   columns.Bound(f => f.RowName).Title("Row</br>Name").Width(70);            //Tên dòng
+                                   //columns.Bound(f => f.AdditionName).Title("").Width(20);
+                                   columns.Bound(f => f.ReferenceInvCode).Title("Currently Code").ReadOnly(true);
                                    //columns.Bound(f => f.ReferenceName).Title("Đang có").Width(100).ReadOnly(true);
                                    //columns.Bound(f => f.OwnerName).Title("NCC").Width(100).ReadOnly(true);
                                    //columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true)
@@ -175,7 +179,7 @@
                         .SelectedIndex(0)
                         .Items(items2 =>
 
-                               items2.Add().Text("Đang chứa").Content(
+                               items2.Add().Text("Currently containing").Content(
 
                                    Html.Telerik().Grid<OnShelfModel>()
                                        .Name("gridInventory_<#= DrawerId #>")
@@ -186,24 +190,24 @@
                                                                      .Delete("DeleteInventoryOnShelf", "Inv", new { area = "Inv", classifiedId = "<#= ClassifiedId #>", drawerId = "<#= DrawerId #>" })
                                        )
                                        .Columns(columns => {
-                                           columns.Bound(f => f.OnDate).Width(100).Title("Ngày")
+                                           columns.Bound(f => f.OnDate).Width(100).Title("Date")
                                                .ClientTemplate("<#= OnDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OnDate) #>");
-                                           columns.Bound(f => f.DrawerCode).Width(70).Title("Vị trí");
-                                           columns.Bound(f => f.ReferenceInvCode).Width(200).Title("Nguyên liệu");
-                                           columns.Bound(f => f.LotNumber).Title("Lô").Width(70).ReadOnly(true);
-                                           columns.Bound(f => f.OwnerName).Title("NCC").Width(70).ReadOnly(true);
-                                           columns.Bound(f => f.Quantity).Title("Số tồn").Format("{0:n}").Width(100).ReadOnly(true)
+                                           columns.Bound(f => f.DrawerCode).Width(70).Title("Location");            //Vị trí
+                                           columns.Bound(f => f.ReferenceInvCode).Width(200).Title("Material");         //Nguyên liệu
+                                           columns.Bound(f => f.LotNumber).Title("Lot").Width(70).ReadOnly(true);
+                                           columns.Bound(f => f.OwnerName).Title("Supplier").Width(70).ReadOnly(true);
+                                           columns.Bound(f => f.Quantity).Title("Inv Quantity").Format("{0:n}").Width(100).ReadOnly(true)           // so ton^`
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                           columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true);
-                                           columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true)
+                                           columns.Bound(f => f.Unit).Title("Unit</br>Measure").Width(70).ReadOnly(true);       //DVT
+                                           columns.Bound(f => f.UnitWeight).Title("Weight").Width(70).ReadOnly(true)                // TL
                                                     .Format("{0:n3}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                           columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(120).ReadOnly(true)
+                                           columns.Bound(f => f.ModifiedDate).Title("M-Date").Width(120).ReadOnly(true)
                                                .Format("{0:dd/MM/yyyy HH:mm}");
-                                           columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(80).ReadOnly(true);
-                                           columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Bỏ NL").Width(35);
+                                           columns.Bound(f => f.ModifiedUser).Title("M-User").Width(80).ReadOnly(true);
+                                           columns.Command(c => c.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Title("Delete</br>Material").Width(55);       //Bỏ NL
                                        })
-                                       .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                       .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                        .ClientEvents(e => e.OnError("grid_OnError"))
                                        .Pageable(page => page.PageSize(10))
                                        .ToHtmlString()
@@ -211,7 +215,7 @@
 
                 .ToHtmlString()
                                    ))
-                               .Editable(editing => editing.Mode(GridEditMode.InLine))
+                               .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                .ClientEvents(e => e.OnError("grid_OnError")
                                                     .OnRowDataBound("gridDrawer_OnRowDataBound"))
                                .Pageable(page => page.PageSize(10))
@@ -220,7 +224,7 @@
 
                 .ToHtmlString()
                                    ))
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             //.Pageable(page => page.PageSize(10))
             .Sortable()
             .ClientEvents(e => e.OnError("grid_OnError").OnEdit("grid_OnEdit"))

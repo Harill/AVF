@@ -93,7 +93,8 @@
     </script>
 }
 
-<div class="title">Báo cáo dự kiến đơn hàng</div><div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1065px;">
+<div class="title">Expected Sales Report</div>              @*Báo cáo dự kiến đơn hàng*@
+<div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1065px;">
 
 
         <div class="clear"></div>
@@ -111,10 +112,10 @@
         <br />*@
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
             
           <div class="grid_2">
-                @Html.Label("Nhân viên")
+                @Html.Label("Employee")
             </div>
         <div class="grid_3">
             @{
@@ -127,7 +128,7 @@
             }
         </div>
           <div class="grid_2">
-                @Html.Label("Mã KH")
+                @Html.Label("Customer Code")
             </div>
             <div class="grid_4">
                 @{
@@ -138,12 +139,13 @@
                         .DropDownHtmlAttributes(new { style = "width: 275px" })
                         //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
             <div class="grid_2">
-                @Html.LabelFor(f => f.ProductCodeName)
+                @Html.Label("Product Code")
+@*                @Html.LabelFor(f => f.ProductCodeName)*@
             </div>
             <div class="grid_3">
                 @{
@@ -160,7 +162,7 @@
             </div>
 
             <div class="grid_1">
-                @Html.Label("Tháng")
+                @Html.Label("Month")
             </div>
             <div class="grid_1">
                 @{
@@ -177,7 +179,7 @@
             </div>
 
             <div class="grid_1">
-                @Html.Label("Năm")
+                @Html.Label("Year")
             </div>
             <div class="grid_1">
 
@@ -192,7 +194,7 @@
             <div class="grid_3 prefix_1">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridExpectedSales'); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                    Find
                 </button>
             </div>
         </fieldset>
@@ -204,7 +206,7 @@
         @{
             Html.Telerik().Grid<ExpectedSalesModel>()
                 .Name("gridExpectedSales")
-                .ToolBar(bar => bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới"))
+                .ToolBar(bar => bar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New"))
                 .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
                 .DataBinding(dataBindings => dataBindings.Ajax()
                                                          .Select("SelectExpectedSales2", "Reporting", new { month = DateTime.Now.Month, year = DateTime.Now.Year })
@@ -212,24 +214,25 @@
                                                          .Update("UpdateExpectedSales2", "Reporting"))
                 .Columns(columns =>
                     {
-                        columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
-                               .Width(50).Title("")
+                        columns.Command(command => command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image))
+                               .Width(30).Title("")
                                .HtmlAttributes(new {style = "text-align:center"});
 
-                        columns.Bound(f => f.Index).Title("STT").Width(30).ReadOnly(true)
+                        columns.Bound(f => f.Index).Title("Index").Width(50).ReadOnly(true)
                                .HeaderHtmlAttributes(new {style = "font-weight: bold"})
                                .HtmlAttributes(new {style = "font-weight: center;"});
-                        columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(30).ReadOnly(true)
+                        columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(30).ReadOnly(true)
                                .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
                                .HtmlAttributes(new {style = "text-align: center;"});
-                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(70)
+                        columns.Bound(f => f.ProductCode).Title("Product</br>Code").Width(70)
                                .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
                                .HtmlAttributes(new {style = "text-align: left;"})
                                .Aggregate(agg => agg.Count())
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
                         columns.Bound(f => f.ExpectedSalesQuantity).Width(50)
-                               .HeaderTemplate("Dự kiến<br/>BH")
+                               .HeaderTemplate("Sales<br/>Expected")                //Dự kiến<br/>BH
+                               .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
@@ -237,11 +240,13 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.ForeCastDate).Width(90)
+                               .HeaderTemplate("Forecast<br/>Date")                //Dự kiến<br/>BH
+                               .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                                .Format("<#= ForeCastDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ForeCastDate) #>");
                     })
                 .Resizable(f => f.Columns(true))
                 .Reorderable(f => f.Columns(true))
-                .Editable(f => f.Mode(GridEditMode.InLine))
+                .Editable(f => f.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                 .Filterable()
                 .Sortable()
                 .ClientEvents(events => events

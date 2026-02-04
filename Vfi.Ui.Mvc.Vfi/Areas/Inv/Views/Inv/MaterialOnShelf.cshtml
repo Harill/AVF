@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Kệ NL";
+    ViewBag.Title = "Material On Shelf";
+    //Kệ NL
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -50,14 +51,15 @@
     </script>
 }
 
-<div class="title">Lên kệ nguyên liệu</div>
+<div class="title">Material On Shelf
+   @* Lên kệ nguyên liệu*@</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
             <div class="grid_1">
-                Ngày
+                Date
             </div>
             <div class="grid_3">
                 @{
@@ -79,7 +81,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridLock'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+               Find
             </button>
         </fieldset>
     </div>
@@ -91,7 +93,7 @@
             .DataKeys(key => key.Add(f => f.OnShelfId).RouteKey("onShelfId"))
             .ToolBar(
                 toolbar =>
-                toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                toolbar.Insert().Text("Add New").ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
                                           .Select("SelectInventoryOnShelf", "Inv", new { classifiedId = 1, fromDate = "", toDate = "", drawerId = 0 })
@@ -99,21 +101,21 @@
                                           .Update("UpdateInventoryOnShelf", "Inv", new { classifiedId = 1, fromDate = "", toDate = "" }))
             .Columns(columns => {
                 columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix")
                     ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
 
-                columns.Bound(f => f.OnDate).Width(100).Title("Ngày")
+                columns.Bound(f => f.OnDate).Width(100).Title("Date")
                     .ClientTemplate("<#= OnDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OnDate) #>");
-                columns.Bound(f => f.DrawerCode).Width(70).Title("Vị trí");
-                columns.Bound(f => f.ReferenceInvCode).Width(150).Title("Nguyên liệu");
-                columns.Bound(f => f.LotNumber).Title("Lô").Width(100).ReadOnly(true);
-                columns.Bound(f => f.OwnerName).Title("NCC").Width(100).ReadOnly(true);
-                columns.Bound(f => f.Quantity).Title("Số tồn").Format("{0:n}").Width(100).ReadOnly(true);
-                columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true);
-                columns.Bound(f => f.UnitWeight).Title("TL").Width(70).ReadOnly(true);
-                columns.Bound(f => f.ModifiedDate).Title("Ngày làm").Width(120).ReadOnly(true)
+                columns.Bound(f => f.DrawerCode).Width(70).Title("Location");
+                columns.Bound(f => f.ReferenceInvCode).Width(150).Title("Material");
+                columns.Bound(f => f.LotNumber).Title("Lot").Width(100).ReadOnly(true);
+                columns.Bound(f => f.OwnerName).Title("Supplier ").Width(100).ReadOnly(true);
+                columns.Bound(f => f.Quantity).Title("Quantity-Inv").Format("{0:n}").Width(100).ReadOnly(true);
+                columns.Bound(f => f.Unit).Title("Unit</br>Measure").Width(70).ReadOnly(true);
+                columns.Bound(f => f.UnitWeight).Title("Weight").Width(70).ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Title("M-Date").Width(120).ReadOnly(true)
                     .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(80).ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Title("M-User").Width(80).ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
                                           .OnError("grid_OnError"))

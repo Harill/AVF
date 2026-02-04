@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "All Products Report";
+    ViewBag.Title = "Employee Revenue Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -25,16 +25,19 @@
     </script>
 }
 
-    <div class="title">Báo cáo doanh thu nhân viên</div>
+    <div class="title">Employee Revenue Report
+        @*Báo cáo doanh thu nhân viên*@
+
+    </div>
     <div class="clear"></div>
     <br />
 
     <div id="pnlInvMonthly">
         <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
             <fieldset>
-                <legend>Tiêu chí trích lọc</legend>
+                <legend>Filters</legend>
                 <div class="grid_1">
-                    @Html.Label("Năm")
+                    @Html.Label("Year")
                 </div>
                 <div class="grid_1">
                     @{
@@ -48,7 +51,7 @@
                 <div class="grid_3 prefix_1">
                     <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                         <span class='t-icon t-insert'></span>
-                        Làm mới
+                       Find
                     </button>
                 </div>
             </fieldset>
@@ -64,7 +67,7 @@
                     //.Theme(Html.GetCurrentTheme())
                     .Title("Representative Sales vs. Total Sales")
                     .Legend(legend => legend
-                                          .Position(ChartLegendPosition.Bottom)
+                                          .Position(Telerik.Web.Mvc.UI.ChartLegendPosition.Bottom)
                     )
                     .SeriesDefaults(series =>
                                     series.Bar().Labels(labels => labels.Visible(true).Format("${0:#,##0}"))
@@ -74,7 +77,7 @@
                             //series.Bar("EmployeeName").Name("Nhân viên");
                             series.Bar(s => s.TotalSales).Name("Total Sales")
                                   .Labels(labels => labels
-                                                        .Position(ChartBarLabelsPosition.InsideEnd)
+                                                        .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.InsideEnd)
                                 );
                         })
                     .CategoryAxis(axis => axis

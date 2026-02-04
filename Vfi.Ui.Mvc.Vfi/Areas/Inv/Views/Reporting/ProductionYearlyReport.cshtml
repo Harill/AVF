@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model MaterialInventoryModel
 @{
-    ViewBag.Title = "Báo cáo kết quả sản xuất";
+    ViewBag.Title = "Production Results Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -87,12 +87,13 @@
     </script>
 }
 
-    <div class="title">Báo cáo kết quả sản xuất	</div>
+    <div class="title">Production Results Report
+        @*Báo cáo kết quả sản xuất*@	</div>
 
 <div id="pnlInv">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
             <div class="grid_3">
                 @{
                     Html.Telerik().DatePicker()
@@ -113,11 +114,12 @@
             <div class="grid_5">
                 <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2('grid'); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                    Find
                     <span class="loadButton"></span>
                 </button>
                 <br />
-                    (chỉ lấy tối đa 12 tháng trong thời gian chỉ định)
+                 (Maximum 12 months within the specified time)
+                   @* (chỉ lấy tối đa 12 tháng trong thời gian chỉ định)*@
             </div>
         </fieldset>
 
@@ -132,39 +134,39 @@
                     .Select("SelectProductionYearlyReport", "Reporting", new { fromDate = "", toDate = "" })
                 )
                 .Columns(columns => {
-                    columns.Bound(f => f.Month).Title("Tháng</br>Năm")
+                    columns.Bound(f => f.Month).Title("Month</br>Year")
                         .HtmlAttributes(new { style = "text-align: center;" });
                     //
                     columns.Bound(f => f.ProductionQuantity).Width(80)
-                        .HeaderTemplate("<strong>SX 1</br>OK</br>(pcs)</strong>")
+                        .HeaderTemplate("<strong>Production1</br>Finished</br>(pcs)</strong>")          // sx1 ok
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.ProductionQuantityLossRate).Width(60)
-                        .HeaderTemplate("<strong>Tỉ lệ</br>HH</br>(%)</strong>")
+                        .HeaderTemplate("<strong>Quantity</br>Loss</br>Rate(%)</strong>")                //Tỉ lệ</br>HH</br>(%)
                         .Format("{0:n2}")
                         .HtmlAttributes(new { style = "text-align: center;" })
                         //.Aggregate(agg => agg.Sum())
                         //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.NGDefectQuantity).Width(75)
-                        .HeaderTemplate("<strong>SX 1</br>NG</br>(pcs)</strong>")
+                        .HeaderTemplate("<strong>Production1</br>NG</br>(pcs)</strong>")                   //SX 1</br>NG</br>(pcs)</
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.NGPercent).Width(60)
-                        .HeaderTemplate("<strong>Tỉ lệ</br>NG</br>(%)</strong>")
+                        .HeaderTemplate("<strong>NG</br>Percent</br>(%)</strong>")                        //Tỉ lệ</br>NG</br>(%)
                         .Format("{0:n2}")
                         .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
                         //.Aggregate(agg => agg.Sum())
                         //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n3}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.NGDefectQuantityAfter).Width(75)
-                        .HeaderTemplate("<strong>Sau SX1</br>NG</br>(pcs)</strong>")
+                        .HeaderTemplate("<strong>NG After </br>Production1</br>(pcs)</strong>")                //Sau SX1</br>NG</br>(pcs)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
@@ -178,21 +180,21 @@
                     //    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     //    .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.NGAfterPercent).Width(70)
-                        .HeaderTemplate("<strong>Sau SX1</br>TL NG</br>(%)</strong>")
+                        .HeaderTemplate("<strongNG Percent</br>After Production1</br>(%)</strong>")               //Sau SX1</br>TL NG</br>(%)
                         .Format("{0:n2}")
                         .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
                         //.Aggregate(agg => agg.Sum())
                         //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n3}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.ExportQuantity).Width(80)
-                        .HeaderTemplate("<strong>Hàng SX</br>xuất bán</br>(pcs)</strong>")
+                        .HeaderTemplate("<strong>Products</br>Sales Export</br>(pcs)</strong>")              //Hàng SX</br>xuất bán</br>(pcs)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.ReturnQuantity).Width(70)
-                        .HeaderTemplate("<strong>Hàng SX</br>trả hàng</br>(pcs)</strong>")
+                        .HeaderTemplate("<strong>Products</br>Returned</br>(pcs)</strong>")                  //Hàng SX</br>trả hàng</br>(pcs)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
@@ -223,7 +225,7 @@
                     .DataBinding(dataBinding => dataBinding.Ajax()
                         .Select("SelectProductionYearlyChartReport", "Reporting", new { fromDate = "", toDate = "" })
                     )
-                    .Title("Báo cáo kết quả sản xuất")
+                    .Title("Production Results Report")
                     .Legend(legend => legend.Position(Telerik.Web.Mvc.UI.ChartLegendPosition.Bottom)
                     )
                     //.PlotArea(plotArea => plotArea.Margin(20))
@@ -233,12 +235,12 @@
                     //)
                     .Series(series => {
                         //series.Bar("EmployeeName").Name("Nhân viên");
-                        series.Column(s => s.ProductionQuantity).Name("SX1 OK").Stack(true)
+                        series.Column(s => s.ProductionQuantity).Name("P1 OK").Stack(true)
                               .Labels(labels => labels.Visible(true)
                                   .Format("{0:n0}")
                                   .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.Center)
                             );
-                        series.Column(s => s.NGDefectQuantity).Name("SX1 NG").Stack(true)
+                        series.Column(s => s.NGDefectQuantity).Name("P1 NG").Stack(true)
                               .Labels(labels => labels.Visible(true)
                                   .Format("{0:n0}")
                                   .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
@@ -257,8 +259,8 @@
                         //    );
 
                         //.Orientation(Telerik.Web.Mvc.UI.ChartSeriesOrientation.Vertical);
-                        series.Line(s => s.ExportQuantity).Name("Xuất bán").Stack(true);
-                        series.Line(s => s.NGDefectQuantityAfter).Name("NG sau SX").Stack(true);
+                        series.Line(s => s.ExportQuantity).Name("Sales Export").Stack(true);
+                        series.Line(s => s.NGDefectQuantityAfter).Name("NG After P").Stack(true);
                         //series.Line(s => s.NGPercent).Name("Tỉ lệ NG");
                     })
                     //.Series(series =>

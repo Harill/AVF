@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "QL SP SX2";
+    ViewBag.Title = "Product Management (Production2)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -31,15 +31,15 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin sản phẩm (Sx2)</div>
+<div class="title">Product Management (Production2)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Criteria Filtering</legend>
 
-            <div class="grid_1">
-                Mã KH
+            <div class="grid_1_5">
+                Customer Code
             </div>
             <div class="grid_4">
                 @{
@@ -50,12 +50,12 @@
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         .ClientEvents(events => events.OnChange("customer_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
 
-            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -72,7 +72,7 @@
                 }
             </div>
         
-            <div class="grid_1_5">BĐ Công đoạn</div>
+            <div class="grid_1_5">Process Index</div>             @* BD Cong Doan *@
             <div class="grid_1_5">
                 @{
                     Html.Telerik().IntegerTextBox()
@@ -84,7 +84,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </fieldset>
     </div>
@@ -109,36 +109,36 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("Index").Width(35).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                        .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
-                       .HeaderTemplate("<strong>Mã KH</strong>")
+                       .HeaderTemplate("<strong>Customer Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center;" })
                        .HtmlAttributes(new { style = "text-align:center;" })
                        .ClientTemplate("<strong><#= CustomerCode #></strong>");
 
                 columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Mã SP</strong>")
+                       .HeaderTemplate("<strong>Product</br>Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center" })
                        .ClientTemplate("<strong><#= ProductCode #></strong>");
 
                 columns.Bound(f => f.SectionName).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Tên Công Đoạn</strong>");
+                       .HeaderTemplate("<strong>Section Name</strong>");
                 columns.Bound(f => f.Index).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>STT CĐ</strong>");
+                       .HeaderTemplate("<strong>Process Index</strong>");
 
                 columns.Bound(f => f.Productivity).Width(100).ReadOnly(true)
-                        .HeaderTemplate("<strong>Năng suất (s/pc)</strong>")
+                        .HeaderTemplate("<strong>Productivity(s/pc)</strong>")
                         .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.Weight).Width(100).ReadOnly(true)
-                        .HeaderTemplate("<strong>Trọng lượng (g/pc)</strong>")
+                        .HeaderTemplate("<strong>Weight (g/pc)</strong>")
                         .Format("{0:n3}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.TotalQuantity).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Tổng tồn kho (pcs)</strong>")
+                       .HeaderTemplate("<strong>Total Inventory (pcs)</strong>")
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 //columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")

@@ -66,12 +66,14 @@
             var combobox = $('#Type').data('tDropDownList');
             var dataSource =
             [
-                { Text: "Phát NL", Value: "1" },
-                { Text: "Trả NL", Value: "2" }
+                { Text: "Assign Material", Value: "1" },
+                // phat NL
+                { Text: "Return Material", Value: "2" }         
+                //Tra NL
             ];
 
             combobox.dataBind(dataSource);
-            combobox.text("Sử dụng");
+            combobox.text("Use");
         }
 
         function gridDetail_OnRowDataBound(e) {
@@ -81,12 +83,13 @@
 
     </script>
 }
-<div class="title">Hồ sơ thông tin lệnh giao dịch nguyên liệu trên máy</div>
+<div class="title">Material Transaction On Machine Information
+    (Hồ sơ thông tin lệnh giao dịch nguyên liệu trên máy)</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filter</legend>
             <div class="grid_2">
-               Tình trạng giao dịch
+              Transaction Status
             </div>
             <div class="grid_4">
                 @{
@@ -95,7 +98,7 @@
                         .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTransactionStatus", "Transaction"))
                         .HtmlAttributes(new {style = "width: 150px"})
                         .DropDownHtmlAttributes(new {style = "width: 250px"})
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .HighlightFirstMatch(true)
                         .AutoFill(true)
                         .ClientEvents(events => events.OnChange("Status_onChange"))
@@ -137,7 +140,7 @@
               <div class="grid_4 prefix_1">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMaterialUse'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+               Find
             </button>
             </div>
         </fieldset>
@@ -160,13 +163,13 @@
         )
         .Columns(columns =>
             {
-                columns.Bound(f => f.UsedCode).Title("Mã sử dụng");
-                columns.Bound(f => f.UsedDate).Title("Ngày sử dụng")
+                columns.Bound(f => f.UsedCode).Title("Used Code");           //Mã sử dụng
+                columns.Bound(f => f.UsedDate).Title("Used Date")            //Ngày sử dụng
                        .ClientTemplate("<strong><#= UsedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', UsedDate) #></strong>");
-                columns.Bound(f => f.TypeName).Title("Loại");
-                columns.Bound(f => f.StatusName).Title("Tình trạng");
-                columns.Bound(f => f.ModifiedUser).Title("Người làm");
-                columns.Bound(f => f.ModifiedDate).Title("Ngày làm")
+                columns.Bound(f => f.TypeName).Title("Type");
+                columns.Bound(f => f.StatusName).Title("Status");
+                columns.Bound(f => f.ModifiedUser).Title("M-User");
+                columns.Bound(f => f.ModifiedDate).Title("M-Date")
                        .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
                 columns.Bound(f => f.UseId).Title("In").Width(75)
                        .ClientTemplate("<input type='button' id='<#= UseId #>' value='In' class='t-button' />")
@@ -177,7 +180,7 @@
                 .Name("TabStrip_<#= UseId #>")
                 .SelectedIndex(0)
                 .Items(items =>
-                       items.Add().Text("Thông tin chi tiết").Content(
+                       items.Add().Text("Detail Information").Content(
                            Html.Telerik().Grid<MaterialUseInShiftDetailModel>()
                                .Name("gridMaterialUseDetail_<#= UseId #>")
                                .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
@@ -187,27 +190,27 @@
                                                                         
                                )
                                .Columns(columns => {
-                                       columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
+                                       columns.Command(c => c.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(50).Title("")
                                            .HtmlAttributes(new { style = "text-align:center" });
-                                       columns.Bound(f => f.MachineName).Width(60).Title("Máy").ReadOnly(true);
-                                       columns.Bound(f => f.ProductCode).Width(100).Title("SP đang chạy").ReadOnly(true);
-                                       columns.Bound(f => f.MaterialCode).Width(250).Title("Mã NL").ReadOnly(true);
-                                       columns.Bound(f => f.WaitingNumber).Width(60).Title("SD tối đa").ReadOnly(true);
+                                       columns.Bound(f => f.MachineName).Width(60).Title("Machine").ReadOnly(true);
+                                       columns.Bound(f => f.ProductCode).Width(100).Title("Product").ReadOnly(true);            // Sp Dang chay
+                                       columns.Bound(f => f.MaterialCode).Width(250).Title("Material Code").ReadOnly(true);
+                                       columns.Bound(f => f.WaitingNumber).Width(60).Title("Max Use").ReadOnly(true);         //SD tối đa
                                        //columns.Bound(f => f.LotNumber).Width(40).Title("Lô").ReadOnly(true);
-                                       columns.Bound(f => f.AssignQuantity).Width(80).Title("Phát theo ngày").ReadOnly(true)
+                                       columns.Bound(f => f.AssignQuantity).Width(80).Title("Assign</br>by Day").ReadOnly(true)        //Phát theo ngày
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .ClientTemplate("<#= AssignQuantity == null ? 0 :$.telerik.formatString('{0:n2}', AssignQuantity) #>")
                                               .Aggregate(agg => agg.Sum())
                                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
                                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>");
-                                       columns.Bound(f => f.EditQuantity).Width(60).Title("Ca 1")
+                                       columns.Bound(f => f.EditQuantity).Width(60).Title("Shift1")
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .FooterHtmlAttributes(new { style = "text-align: right;" })
                                               .ClientTemplate("<span name='EditQuantity'><#= EditQuantity == null ? 0.0 : $.telerik.formatString('{0:n2}', EditQuantity) #></span>")
                                               .Aggregate(agg => agg.Sum())
                                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
                                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>");
-                                       columns.Bound(f => f.EditQuantity2).Width(60).Title("Ca 2")
+                                       columns.Bound(f => f.EditQuantity2).Width(60).Title("Shift2")
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .FooterHtmlAttributes(new { style = "text-align: right;" })
                                               .ClientTemplate("<span name='EditQuantity2'><#= EditQuantity2 == null ? 0.0 : $.telerik.formatString('{0:n2}', EditQuantity2) #></span>")
@@ -218,7 +221,7 @@
                                        //       .HtmlAttributes(new { style = "text-align: right;" })
                                        //       .ClientTemplate("<span name='BoxNumber'><#= BoxNumber == null ? 0 : $.telerik.formatString('{0:n0}', BoxNumber) #></span>")
                                        //       .FooterTemplate("<span id='TotalBoxNumber'></span>");
-                                       columns.Bound(f => f.Note).Title("Ghi chú");
+                                       columns.Bound(f => f.Note).Title("Note");
                                    })
         .ClientEvents(events => events.OnError("grid_OnError")
                 .OnRowDataBound("gridDetail_OnRowDataBound"))

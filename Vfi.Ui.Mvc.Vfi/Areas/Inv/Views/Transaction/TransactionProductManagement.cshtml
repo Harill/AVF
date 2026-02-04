@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "QL phiếu sản phẩm";
+    ViewBag.Title = "Product Transaction Management";
+    //QL phiếu sản phẩm
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -120,12 +121,13 @@
     </script>
 
 }
-<div class="title">Quản lý hồ sơ thông tin lệnh về sản phẩm</div>
+<div class="title">Product Transaction Management 
+   @* (Quản lý hồ sơ thông tin lệnh về sản phẩm)*@</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
+        <legend>Filters</legend>
         
-        <div class="grid_2">Kho:</div>
+        <div class="grid_2">Warehouse:</div>
         <div class="grid_4">
                 @{
                     Html.Telerik().ComboBox()
@@ -136,7 +138,7 @@
                         .Render();
                 }
         </div>
-        <div class="grid_2">Sản phẩm:</div>
+        <div class="grid_2">Product:</div>
         <div class="grid_4">
             @{
                 Html.Telerik().AutoComplete()
@@ -151,7 +153,8 @@
             }
         </div>
         <div class="grid_2">
-            Tình trạng giao dịch
+            Transaction Status
+          @*  Tình trạng giao dịch*@
         </div>
         <div class="grid_4">
             @{
@@ -160,7 +163,7 @@
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTransactionStatus", "Transaction"))
                     .HtmlAttributes(new { style = "width: 150px" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .ClientEvents(events => events.OnChange("transactionStatus_onChange"))
@@ -188,7 +191,7 @@
         <div class="grid_4 prefix_1">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridTransaction'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </div>
     </fieldset>
@@ -210,32 +213,32 @@
                                                           .Update("UpdateTransactions", "Transaction")
             )
             .Columns(columns => {
-                columns.Command(c => c.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
+                columns.Command(c => c.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(50).Title("")
                     .HtmlAttributes(new { style = "text-align:center" });
                 //columns.Bound(f => f.TransactionId).Title("Chọn").Width(50)
                 //          .ClientTemplate("<input type='radio' name='chkTransactionIds' value='<#= TransactionId #>' />")
                 //          .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.TransactionCode).Width(120).ReadOnly(true);
-                columns.Bound(f => f.CreatedDate).Title("Ngày báo cáo").Width(100)
+                columns.Bound(f => f.CreatedDate).Title("Report Date").Width(100)              //Ngày báo cáo
                            .ClientTemplate("<#= CreatedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', CreatedDate) #>");
                 //columns.Bound(f => f.StockOrderCode);
-                columns.Bound(f => f.WarehouseIssueName).Width(130).ReadOnly(true);
-                columns.Bound(f => f.WarehouseReceiptName).Width(130).ReadOnly(true);
-                columns.Bound(f => f.TotalQuality).Title("Tổng SL").ReadOnly(true).Width(90)
+                columns.Bound(f => f.WarehouseIssueName).Title("Warehouse</br>Export").Width(130).ReadOnly(true);
+                columns.Bound(f => f.WarehouseReceiptName).Title("Warehouse</br>Import").Width(130).ReadOnly(true);
+                columns.Bound(f => f.TotalQuality).Title("Total</br>Quality").ReadOnly(true).Width(90)           //Tổng SL
                        .HtmlAttributes(new { style = "text-align:right" })
                        .ClientTemplate("<#= TotalQuality == null ? 0 : $.telerik.formatString('{0:n0}', TotalQuality) #>");
                 //columns.Bound(f => f.EoI).ClientTemplate("<#= EoI ? 'Xuất' : 'Nhập' #>");
                 //columns.Bound(f => f.EoIName).ReadOnly(true);
                 columns.Bound(f => f.StatusName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.TransactionId).Title("In").Width(45).ReadOnly(true).Filterable(false)
+                columns.Bound(f => f.TransactionId).Title("Print").Width(45).ReadOnly(true).Filterable(false)
                        .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.WarehouseIssueId).Title("In (G)").Width(45).ReadOnly(true).Filterable(false)
+                columns.Bound(f => f.WarehouseIssueId).Title("Print (G)").Width(45).ReadOnly(true).Filterable(false)
                        .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' class='t-button' onclick=PrintFormGroup(<#= TransactionId #>) />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.SpecialNote).Width(150).Title("Ghi chú").ReadOnly(true);
-                columns.Bound(f => f.CreatedUser).Width(100).ReadOnly(true);
-                columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(100).ReadOnly(true)
+                columns.Bound(f => f.SpecialNote).Width(150).Title("Note").ReadOnly(true);
+                columns.Bound(f => f.CreatedUser).Title("M-User").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ModifiedDate).Title("M-Date").Width(100).ReadOnly(true)
                        .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
                 columns.Bound(f => f.TransactionId).Title("").Width(50).ReadOnly(true)
                        .ClientTemplate("<input type='button' id='rollback_<#= TransactionId #>' value='Rollback' class='t-button rollback_<#= TransactionId #>' onclick='RollbackTransaction(<#= TransactionId #>)' />")
@@ -255,24 +258,24 @@
                                                                             .Select("SelectTransactionDetailByTransactionId", "Transaction",
                                                                                     new { transactionId = "<#= TransactionId #>" }))
                                    .Columns(columns => {
-                                       columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(50);
-                                       columns.Bound(f => f.ProductCode).Title("Mã SP").Width(100);
-                                       columns.Bound(f => f.LotNumber).Title("Lô").Width(150);
-                                       columns.Bound(f => f.UnitWeight).Title("TL(g/pc)").Width(50);
-                                       columns.Bound(f => f.Quantity).Width(75).Title("SL (PCS)")
+                                       columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(50);
+                                       columns.Bound(f => f.ProductCode).Title("Product</br>Code").Width(100);
+                                       columns.Bound(f => f.LotNumber).Title("Lot").Width(150);
+                                       columns.Bound(f => f.UnitWeight).Title("Weight</br>(g/pc)").Width(70);
+                                       columns.Bound(f => f.Quantity).Width(75).Title("Quantity</br>(pcs)")
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .Format("{0:n0}").Aggregate(agg => agg.Sum())
                                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                                       columns.Bound(f => f.QuantityKg).Width(75).Title("SL (g)")
+                                       columns.Bound(f => f.QuantityKg).Width(75).Title("Quantity</br>(g)")
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .Format("{0:n0}")
                                               .Aggregate(agg => agg.Sum())
                                               .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                               .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                                       columns.Bound(f => f.Note).Title("Ghi chú");
-                                       columns.Bound(f => f.MaterialCode).Width(150).Title("Nguyên liệu");
-                                       columns.Bound(f => f.MaterialTypeName).Width(75).Title("Loại");
+                                       columns.Bound(f => f.Note).Title("Note");
+                                       columns.Bound(f => f.MaterialCode).Width(150).Title("Material");
+                                       columns.Bound(f => f.MaterialTypeName).Width(75).Title("Type");
                                        columns.Bound(f => f.Identity).Width(50).Title("Code");
                                    })
                                        .Groupable()

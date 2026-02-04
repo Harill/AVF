@@ -101,7 +101,7 @@
 
 }
 
-    <div class="title">Báo cáo nguyên liệu sử dụng</div>
+    <div class="title">Materials Use Report</div>
 
     <div id="pnlInv"> 
         <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
@@ -112,7 +112,7 @@
             <div class="clear"></div>
             <br />
             <fieldset>
-                <legend>Tiêu chí trích lọc</legend>
+                <legend>Criteria Filtering</legend>
                 <div class="grid_4">
                     @{
                         Html.Telerik().DropDownList()
@@ -127,7 +127,8 @@
                     }
                 </div>
                 <div class="grid_2">
-                    @Html.LabelFor(f => f.MaterialCodeName)
+                      @Html.Label("Product Code")
+@*                    @Html.LabelFor(f => f.MaterialCodeName)*@
                 </div>
                 <div class="grid_4">
                     @{
@@ -157,14 +158,14 @@
                 <div class="grid_3 prefix_1">
                     <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMaterialDaily'); ">
                         <span class='t-icon t-insert'></span>
-                        Làm mới
+                        Find
                     </button>
                 </div>
                 
                 <div class="grid_6">
                     <button id="btnMaterialInv" class="t-button" onclick=" return print(); ">
                         <span class='t-icon t-insert'></span>
-                        Xuất báo cáo tồn kho nguyên liệu
+                        Print Report
                     </button>
                 </div>
             </fieldset>
@@ -187,18 +188,18 @@
                     .Columns(columns =>
                         {
                             columns.Bound(f => f.VendorCode).Width(50)
-                                   .HeaderTemplate("Nhà Cung Cấp");
+                                   .HeaderTemplate("Supplier ");                                                     //Nhà Cung Cấp
                             columns.Bound(f => f.MaterialName).Width(100)
-                                   .HeaderTemplate("<strong>Mã NL</strong>")
+                                   .HeaderTemplate("<strong>Material</br>Name</strong>")
                                    .HtmlAttributes(new { style = "text-align: center;" })
                                    .Aggregate(agg => agg.Count())
                                    .ClientGroupFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                                    .ClientFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                                    .FooterTemplate("<span id='tongcot1'></span>")
                                    .HtmlAttributes(new { style = "text-align: left;" });
-                            columns.Bound(f => f.DesignNo).Title("Quy cách").Width(100);
-                            columns.Bound(f => f.MaterialLot).Title("Lô").Width(50);
-                            columns.Bound(f => f.MaterialWeight).Title("Trọng lượng NL").Width(70);
+                            columns.Bound(f => f.DesignNo).Title("Specifications").Width(110);                                //Quy cách
+                            columns.Bound(f => f.MaterialLot).Title("Lot").Width(50);
+                            columns.Bound(f => f.MaterialWeight).Title("Material</br>Weight").Width(70);
                             //columns.Bound(f => f.MaterialUse).Width(100)
                             //       .HeaderTemplate("<strong>NL sử dụng</br>(cây)</strong>")
                             //       .Aggregate(agg => agg.Sum())

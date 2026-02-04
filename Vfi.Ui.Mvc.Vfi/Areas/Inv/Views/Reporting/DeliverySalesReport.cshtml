@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Báo cáo giao hàng";
+    ViewBag.Title = "Delivery Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -73,7 +73,10 @@
     </script>
 }
 
-<div class="title">Báo cáo giao hàng</div>
+<div class="title">
+    Delivery Report
+    @*Báo cáo giao hàng*@
+</div>
 <div class="clear"></div>
 <br />
 
@@ -81,11 +84,11 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
         
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
 
             <div class="grid_7">
                 <div class="grid_2">
-                    @Html.Label("Mã KH")
+                    @Html.Label("Customer Code")
                 </div>
                 <div class="grid_4">
                     @{
@@ -96,13 +99,14 @@
                             .DropDownHtmlAttributes(new { style = "width: 275px" })
                             //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                             .AutoFill(true)
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .Render();
                     }
                 </div>
                 <div class="clear"></div><br />
-                <div class="grid_2">
-                    @Html.LabelFor(f => f.ProductCodeName)
+                <div class="grid_1_5">
+                    @Html.Label("Product Code")
+@*                    @Html.LabelFor(f => f.ProductCodeName)*@
                 </div>
                 <div class="grid_4">
                     @{
@@ -129,7 +133,7 @@
             <div class="grid_3">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                    Find
                     <span class="loadButton"></span>
                 </button>
             </div>
@@ -138,7 +142,7 @@
 
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printReport(); ">
                     <span class='t-icon t-insert'></span>
-                    Báo cáo (Print)
+                    Print Report
                     <span class="loadButton"></span>
                 </button>
             </div>

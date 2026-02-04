@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Thống kê NG";
+    ViewBag.Title = "No-Good Products Report (NG Report)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -86,27 +86,25 @@
     </script>
 }
 
-<div class="title">Báo cáo thống kê hàng NG</div>
+<div class="title">No-Good Products Report (NG Report)</div>
 <div class="clear"></div>
 <br />
 
 <div id="pnlInvMonthly">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: auto;">
-
-  
-        
+ 
             <div class="grid_4 prefix_15">
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printProductionDefect(); ">
                     <span class='t-icon t-insert'></span>
-                    Xuất báo cáo
+                    Print Report
                 </button>
             </div>
         
         <div class="clear"></div>
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Criteria Filtering</legend>
             <div class="grid_2">
-                @Html.Label("Mã KH")
+                @Html.Label("Customer Code");
             </div>
             <div class="grid_4">
                 @{
@@ -117,12 +115,12 @@
                         .DropDownHtmlAttributes(new { style = "width: 275px" })
                         //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
             <div class="grid_2">
-                Mã SP
+                Product Code
             </div>
             <div class="grid_4">
                 @{
@@ -157,7 +155,7 @@
             <div class="grid_4 prefix_1">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
             </div>
            
@@ -179,22 +177,22 @@
                 .Columns(columns => {
                     columns.Bound(f => f.ProductId)
                            .ClientTemplate("<#= ++index #>")
-                           .HeaderTemplate("<strong>STT</strong>").Width(45);
+                           .HeaderTemplate("<strong>Index</strong>").Width(45);
 
                     columns.Bound(f => f.ReportDateStr).Width(55)
-                           .HeaderTemplate("<strong>Ngày</strong>")
+                           .HeaderTemplate("<strong>Report</br>Date</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.GroupName).Width(55)
-                           .HeaderTemplate("<strong>Đơn vị</strong>")
+                           .HeaderTemplate("<strong>Group</br>Name</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.Shift).Width(55)
-                           .HeaderTemplate("<strong>Ca</strong>")
+                           .HeaderTemplate("<strong>Shift</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.MachineName).Width(55)
-                           .HeaderTemplate("<strong>Máy</strong>")
+                           .HeaderTemplate("<strong>Machine</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.ProductCode).Width(70)
-                           .HeaderTemplate("<strong>Mã SP</strong>")
+                           .HeaderTemplate("<strong>Product</br>Code</strong>")
                            .FooterTemplate("<span id='sum'></span>")
                            .HtmlAttributes(new { style = "text-align: center;" })
                            .Aggregate(agg => agg.Count())
@@ -204,7 +202,7 @@
                     // don hang
                     
                     columns.Bound(f => f.Quantity).Width(80)
-                           .HeaderTemplate("<strong>Số lượng (pcs)</strong>")
+                           .HeaderTemplate("<strong>Quantity</br>(pcs)</strong>")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
                            .Format("{0:n0}")
@@ -213,10 +211,10 @@
                            .FooterTemplate("<span id='tongcot1'></span>");
 
                     columns.Bound(f => f.IssueWarehouseName).Width(55)
-                           .HeaderTemplate("<strong>Kho xuất</strong>")
+                           .HeaderTemplate("<strong>Warehouse</br>Export</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.TransactionCode).Width(55)
-                           .HeaderTemplate("<strong>Mã GD</strong>")
+                           .HeaderTemplate("<strong>Transaction</br>Code</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                 })
                 .Scrollable(f => f.Height(510))

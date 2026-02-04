@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "Products Management";
+    ViewBag.Title = "Products Management (Sale)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -586,7 +586,7 @@
                     columns.Bound(f => f.Note).Width(195)
                            .HeaderTemplate("<strong>Note</strong>");
                     columns.Bound(f => f.UnitPrice).Width(75)
-                           .HeaderTemplate("Unit</br> Price")
+                           .HeaderTemplate("Price")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.Currency).Width(75)
                            .HeaderTemplate("Currency</br>Note")

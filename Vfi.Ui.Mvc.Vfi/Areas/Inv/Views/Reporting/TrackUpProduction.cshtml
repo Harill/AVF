@@ -2,7 +2,8 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Sản phẩm cần lên máy";
+    ViewBag.Title = "Products Quantity Needs Production";
+    //Sản phẩm cần lên máy
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -26,14 +27,14 @@
     </script>
 }
 
-<div class="title">Báo cáo sản phẩm</div>
+<div class="title">Product Report</div>
 <div class="clear"></div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
+        <legend>Filters</legend>
         <div class="grid_2">
-            @Html.Label("Mã  KH")
+            @Html.Label("Customer Code")
         </div>
         <div class="grid_4">
             @{
@@ -44,12 +45,13 @@
                     .DropDownHtmlAttributes(new { style = "width: 275px" })
                     //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
         <div class="grid_2">
-            @Html.LabelFor(f => f.ProductCodeName)
+            @Html.Label("Product Code")
+@*            @Html.LabelFor(f => f.ProductCodeName)*@
         </div>
         <div class="grid_4">
             @{
@@ -66,7 +68,7 @@
         <div class="grid_3">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid(gridTrackUpProduct); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </div>
     </fieldset>
@@ -90,26 +92,26 @@
                     //       .HeaderTemplate("<strong>STT</strong>").Width(50);
 
                     columns.Bound(f => f.CustomerCode).Width(75)
-                           .HeaderTemplate("<strong>Mã KH</strong>")
+                           .HeaderTemplate("<strong>Customer</br>Code</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.ProductCode)
-                           .HeaderTemplate("<strong>Mã SP</strong>")
+                           .HeaderTemplate("<strong>Product</br>Code</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" })
                            .Aggregate(agg => agg.Count())
                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                            .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>");
                     columns.Bound(f => f.MaterialCode)
-                           .HeaderTemplate("<strong>Nguyên liệu</strong>")
+                           .HeaderTemplate("<strong>Material</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.PlanQuantity)
-                           .HeaderTemplate("<strong>Tổng đơn hàng</strong>")
-                           .Format("{0:n0}")
+                           .HeaderTemplate("<strong>Total</br>Orders</strong>")            //Tổng đơn hàng
+                           .Format("{0:n0}")    
                            .Aggregate(agg => agg.Sum())
                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                            .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                            .HtmlAttributes(new {style = "text-align: right;"});
                     columns.Bound(f => f.UploadDate).Width(100)
-                           .HeaderTemplate("Ngày lên máy")
+                           .HeaderTemplate("Machine's</br>Up-load</br>Date")                          //Ngày lên máy
                            .Format("{0:dd/MM/yyyy}")
                            .HtmlAttributes(new {style = "text-align: right;"});
 
@@ -119,7 +121,7 @@
                     .Name("TabOrder_<#= ProductId #>")
                     .SelectedIndex(0)
                     .Items(items =>
-                           items.Add().Text("Thông tin chi tiết").Content(
+                           items.Add().Text("Detail Information").Content(
                                Html.Telerik().Grid<OrderDetailModel>()
                                    .Name("gridOrderDetail_<#= ProductId #>")
                                    .DataBinding(dataDindings => dataDindings.Ajax()
@@ -128,28 +130,28 @@
                                    .Columns(columns =>
                                        {
                                            columns.Bound(f => f.OrderNumber).Width(120)
-                                                  .HeaderTemplate("Số đơn hàng");
+                                                  .HeaderTemplate("Order Number");               //Số đơn hàng
                                            columns.Bound(f => f.OrderQty).Width(70)
-                                                  .HeaderTemplate("SL đặt")
+                                                  .HeaderTemplate("Order</br>Quantity")                       //SL đặt
                                                   .Format("{0:n0}")
                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                            columns.Bound(f => f.RequiredNumber).Width(70)
-                                                  .HeaderTemplate("SL còn lại")
+                                                  .HeaderTemplate("Remaining</br>Quantity")                 //SL còn lại
                                                   .Format("{0:n0}")
                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                            columns.Bound(f => f.CustomerDueDate).Width(70)
-                                                  .HeaderTemplate("KH yêu cầu")
+                                                  .HeaderTemplate("Customer's Order</br>Date")                    //KH yêu cầu
                                                   .Format("{0:dd/MM/yyyy}")
                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                            columns.Bound(f => f.VFIDueDate).Width(120)
-                                                  .HeaderTemplate("Kho duyệt")
+                                                  .HeaderTemplate("Warehouse's Confirm</br>Date")                  //Kho duyệt
                                                   .Format("{0:dd/MM/yyyy}");
-                                           columns.Bound(f => f.ProductionDate).Width(70)
-                                                  .HeaderTemplate("Ngày lên máy")
+                                           columns.Bound(f => f.ProductionDate).Width(80)
+                                                  .HeaderTemplate("Machine's Up-load</br>Date")                         //Ngày lên máy
                                                   .ClientTemplate("<#= ProductionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ProductionDate) #>")
                                                   .HtmlAttributes(new {style = "text-align: right;"});
-                                           columns.Bound(f => f.MachineRun).Width(50)
-                                                  .HeaderTemplate("Máy chạy")
+                                           columns.Bound(f => f.MachineRun).Width(70)
+                                                  .HeaderTemplate("Running</br>Machine")             //Máy chạy
                                                   .ClientTemplate("<#= MachineRun == 0 ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', MachineRun) #>")
                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                        })
