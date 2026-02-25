@@ -13,7 +13,7 @@
         .DataKeys(key => key.Add(f => f.MaterialClassifiedId).RouteKey("materialClassifiedId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new { style = "margin-left:0" }))
         .DataBinding(
             dataBinding => dataBinding.Ajax()
                 .Select("SelectMaterialClassified", "Material")

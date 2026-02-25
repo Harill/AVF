@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @model MaterialInventoryModel
 @{
-    ViewBag.Title = "Export/Import Tools";
+    ViewBag.Title = "Release/Entry Tools";
     //Công cụ xuất nhập
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -275,7 +275,7 @@
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     
     <div class="grid_7">
-        Tools Classify
+        Tools Classify:
             <ul>
                 <li>A - Cutting Tools</li>          @* Công cụ cắt gọt*@
                 <li>B - Machine Parts</li>            @* Chi tiết máy*@
@@ -324,8 +324,8 @@
     <br />
     <fieldset>
         <legend>Filter</legend>
-        <div class="grid_1">NCC:</div>
-        <div class="grid_5">
+        <div class="grid_1_5">Supplier</div>
+        <div class="grid_4">
             @{
                 Html.Telerik().ComboBox()
                     .Name("Vendor")
@@ -414,7 +414,7 @@
         <div class="grid_5">
             <button id="btnMaterialInv" class="t-button" onclick=" return printToolInvInMonth(); ">
                 <span class='t-icon t-insert'></span>
-                Print Inv Report
+                Print Inv-Report
 @*                Xuất báo cáo tồn kho*@
                 <span class="twoToneButton"></span>
             </button>
@@ -463,13 +463,13 @@
                 //    .HtmlAttributes(new { style = "font-weight:bold;" });
                 columns.Bound(f => f.VendorCode).Width(75).ReadOnly(true)
                     .HeaderTemplate("Supplier");
-                columns.Bound(f => f.LotNumber).Title("Lot").Width(70).ReadOnly(true);
+                columns.Bound(f => f.LotNumber).Title("Lot").Width(80).ReadOnly(true);
                 columns.Bound(f => f.UnitMeasure).Title("Unit</br>Measure").Width(70).ReadOnly(true);       // DVT
                 columns.Bound(f => f.UnitPrice).Title("Price").Width(80).ReadOnly(true)                  //Đơn giá
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Early).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Early</br>Inv</strong>")                            //Tồn<br/>đầu
+                    .HeaderTemplate("<strong>First</br>Inv</strong>")                            //Tồn<br/>đầu
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -477,7 +477,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;border-left:1px black solid;" });
                 columns.Bound(f => f.EarlyPrice).Width(90).ReadOnly(true)
-                    .HeaderTemplate("<strong>Early</br>Price</strong>")                     //Giá đầu
+                    .HeaderTemplate("<strong>First</br>Price</strong>")                     //Giá đầu
                     .HtmlAttributes(new { style = "text-align: right;border-right:1px black solid;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -486,7 +486,7 @@
                     .FooterHtmlAttributes(new { style = "text-align: right;border-right:1px black solid;" });
                 //
                 columns.Bound(f => f.Import).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Purchase<br/>Import</strong>")                //Nhập<br/>mua
+                    .HeaderTemplate("<strong>Purchase<br/>Entry</strong>")                //Nhập<br/>mua
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -494,7 +494,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Addition</br>Import</strong>")                            //Nhập<br/>thêm
+                    .HeaderTemplate("<strong>Addition</br>Entry</strong>")                            //Nhập<br/>thêm
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -502,7 +502,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ImportInternal).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Import</br>Internal</strong>")                     //Nhập<br/>NB
+                    .HeaderTemplate("<strong>Entry</br>Internal</strong>")                     //Nhập<br/>NB
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -510,7 +510,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Export).Width(60).ReadOnly(true)
-                    .HeaderTemplate("<strong>Use</strong>")                     //Sử<br/>dụng
+                    .HeaderTemplate("<strong>Used</strong>")                     //Sử<br/>dụng
                     .HtmlAttributes(new { style = "text-align: right;border-left:1px black solid;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -518,7 +518,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;border-left:1px black solid;" });
                 columns.Bound(f => f.ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Destroy</br>Export</strong>")                   //Xuất<br/>hủy
+                    .HeaderTemplate("<strong>Cancel</br>Release</strong>")                   //Xuất<br/>hủy
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -526,7 +526,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ExportInternal).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Internal</br>Export</strong>")                      //Xuất<br/>NB
+                    .HeaderTemplate("<strong>Internal</br>Release</strong>")                      //Xuất<br/>NB
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n0}")
                     .Aggregate(agg => agg.Sum())
@@ -552,16 +552,16 @@
                 columns.Bound(f => f.StoreCode).Width(150)
                     .Title("Warehouse</br>Code");           //Mã Kho
                 columns.Bound(f => f.ImportDateString).Width(90).ReadOnly(true)
-                    .Title("Date</br>Import");                     //Ngày nhập
+                    .Title("Date</br>Entry");                     //Ngày nhập
                 columns.Bound(f => f.FirstImportQuantity).Width(70).ReadOnly(true)
-                    .HeaderTemplate("Import</br>Quantity")                  //FirstImportQuantity
+                    .HeaderTemplate("Entry</br>Quantity")                  //FirstImportQuantity
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.FirstUseDateString).Width(90).ReadOnly(true)
                     .HeaderTemplate("First-Date</br>Used");                      //Ngày BĐ</br>sử dụng
                 columns.Bound(f => f.EndDateString).Width(90).ReadOnly(true)
                     .HeaderTemplate("Last-Date</br>Used");               //Ngày cuối</br>sử dụng
                 columns.Bound(f => f.Export3Month).Width(60).ReadOnly(true)
-                    .HeaderTemplate("3M</br>Export");                //Xuất</br>3 T
+                    .HeaderTemplate("3M</br>Release");                //Xuất</br>3 T
                 columns.Bound(f => f.ProductCodes).Width(70).ReadOnly(true)
                     .HeaderTemplate("Product</br>Used");                //Sản phẩm</br>sử dụng
 

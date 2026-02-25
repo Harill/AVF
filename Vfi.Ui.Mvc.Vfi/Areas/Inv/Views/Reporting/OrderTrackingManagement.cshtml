@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Order tracking";
+    ViewBag.Title = "Order Tracking";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -172,10 +172,10 @@
     <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <fieldset>
-            <legend>Filter condition</legend>
+            <legend>Filters</legend>
 
             <div style="float: left">
-                <div class="grid_2">
+                <div class="grid_1_5">
                     Customer
                 </div>
                 <div class="grid_7">
@@ -186,12 +186,12 @@
                             .HtmlAttributes(new {style = "width: 250px"})
                             .DropDownHtmlAttributes(new {style = "width: 325px;"})
                             .AutoFill(true)
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .Render();
                     }
                 </div>
                 <br/>
-                <div class="grid_2">
+                <div class="grid_1_5">
                    Product
                 </div>
                 <div class="grid_4">
@@ -208,7 +208,7 @@
                 </div>
             </div>
             <div style="float: left">
-                <div class="grid_4">
+                <div class="grid_3">
                     Order status
                 </div>
                 <div class="grid_3">
@@ -218,7 +218,7 @@
                             //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
                             .HtmlAttributes(new {style = "width: 100%"})
                             .DropDownHtmlAttributes(new {style = "width: 150%"})
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .HighlightFirstMatch(true)
                             .AutoFill(true)
                             .ClientEvents(events => events.OnChange("status_onChange").OnLoad("poStatus_onload"))
@@ -227,7 +227,7 @@
                     }
                 </div>
                 <div class="clear"></div>
-                <div class="grid_4">
+                <div class="grid_3">
                     Inventory status
                 </div>
                 <div class="grid_4">
@@ -237,7 +237,7 @@
                             //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
                             .HtmlAttributes(new {style = "width: 100%"})
                             .DropDownHtmlAttributes(new {style = "width: 150%"})
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .HighlightFirstMatch(true)
                             .AutoFill(true)
                             .ClientEvents(events => events.OnChange("status_onChange").OnLoad("productInvStatus_onload"))
@@ -246,7 +246,7 @@
                     }
                 </div>
                 <div class="clear"></div>
-                <div class="grid_4">
+                <div class="grid_3">
                     Delivery status
                 </div>
                 <div class="grid_4">
@@ -256,7 +256,7 @@
                             //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
                             .HtmlAttributes(new {style = "width: 100%"})
                             .DropDownHtmlAttributes(new {style = "width: 150%"})
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .HighlightFirstMatch(true)
                             .AutoFill(true)
                             .ClientEvents(events => events.OnChange("status_onChange").OnLoad("deliveryStatus_onload"))
@@ -316,41 +316,39 @@
                 )
                 .Columns(columns =>
                 {
-                    columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(45).Title("")
+                 columns.Command(command => command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(45).Title("")
                         .HtmlAttributes(new {style = "text-align:center"});
-                    columns.Bound(f => f.OrderDetailId).Width(40).Title("STT").ReadOnly(true)
+                 columns.Bound(f => f.OrderDetailId).Width(40).Title("No.").ReadOnly(true)
                         .ClientTemplate("<#= ++index #>");
-                    columns.Bound(f => f.OrderNumber).Width(90).ReadOnly(true)
+                 columns.Bound(f => f.OrderNumber).Width(90).ReadOnly(true)
                         .HeaderTemplate("<strong>PO VF</strong>")
                         .FooterTemplate("<span id='TotalNormal'></span>");
-                    columns.Bound(f => f.StatusName).Width(65).ReadOnly(true)
+                 columns.Bound(f => f.StatusName).Width(65).ReadOnly(true)
                         .HeaderTemplate("<strong>PO<br/>Status</strong>")
                         .FooterTemplate("<span id='TotalWarning'></span>");
                     //columns.Bound(f => f.AvailableStatus).Width(100)
                     //    .HeaderTemplate("<strong>Product<br/>Status</strong>");
-                    columns.Bound(f => f.AvailableStatus).Width(70).ReadOnly(true)
+                 columns.Bound(f => f.AvailableStatus).Width(70).ReadOnly(true)
                         .HeaderTemplate("<strong>Product<br/>Status</strong>")
-                        .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
-                                        "<#= AvailableStatus == 0 ? 'approve_icon.jpg' : AvailableStatus == 1 ? 'warning_icon.jpg' : 'notapprove_icon.jpg' #>' height='30' width='30'/>")
-                        ;
-                    columns.Bound(f => f.DayLate).Width(70).ReadOnly(true)
+                        .ClientTemplate("<img src='" + Url.Content("~/Resources/") + "<#= AvailableStatus == 0 ? 'approve_icon.jpg' : AvailableStatus == 1 ? 'warning_icon.jpg' : 'notapprove_icon.jpg' #>' height='30' width='30'/>");
+                 columns.Bound(f => f.DayLate).Width(70).ReadOnly(true)
                         .HeaderTemplate("<strong>Delivery<br/>Status</strong>");
-                    columns.Bound(f => f.ProductPoNo).Width(150).ReadOnly(true)
+                 columns.Bound(f => f.ProductPoNo).Width(150).ReadOnly(true)
                         .HeaderTemplate("<strong>Lot No</strong>")
                         .FooterTemplate("<span id='CountingAvailableStatus'></span>")
                         .FooterHtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.ProductCustomerCode).Width(100).ReadOnly(true)
+                 columns.Bound(f => f.ProductCustomerCode).Width(100).ReadOnly(true)
                         .HeaderTemplate("<strong>Part No</strong>")
                         .HtmlAttributes(new { style = "text-align: center;" })
                         .Aggregate(agg => agg.Count())
                         .ClientGroupFooterTemplate("<#= Count #>")
                         .ClientFooterTemplate("<#= Count #>");
-                    columns.Bound(f => f.ProductVfCode).Width(100).ReadOnly(true)
+                 columns.Bound(f => f.ProductVfCode).Width(100).ReadOnly(true)
                         .Title("VF Code")
                         .HeaderHtmlAttributes(new {style = "font-weight: bold;"})
                         .HtmlAttributes(new {style = "text-align: center;"});
                     //
-                    columns.Bound(f => f.OrderQuantity).Width(70).ReadOnly(true)
+                 columns.Bound(f => f.OrderQuantity).Width(70).ReadOnly(true)
                         .HeaderTemplate("<strong>Order<br/>Quantity</strong>")
                         .Format("{0:n0}")
                         .HtmlAttributes(new {style = "text-align: right;"})
@@ -358,10 +356,10 @@
                         .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.UnitPriceStr).Width(70).ReadOnly(true)
+                 columns.Bound(f => f.UnitPriceStr).Width(70).ReadOnly(true)
                         .HeaderTemplate("<strong>Unit<br/>Price</strong>")
                         .HtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.Amount).Width(80).ReadOnly(true)
+                 columns.Bound(f => f.Amount).Width(80).ReadOnly(true)
                         .HeaderTemplate("<strong>Amount</strong>")
                         .Format("{0:n2}")
                         .HtmlAttributes(new {style = "text-align: right;"})
@@ -369,15 +367,15 @@
                         .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                         .FooterHtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.ExportQuantity).Width(70).ReadOnly(true)
+                 columns.Bound(f => f.ExportQuantity).Width(70).ReadOnly(true)
                         .Format("{0:n0}")
-                        .HeaderTemplate("<strong>Export</br>Quantity</br></strong>")
+                        .HeaderTemplate("<strong>Release</br>Quantity</br></strong>")
                         .HtmlAttributes(new {style = "text-align: right;"})
                         .Aggregate(agg => agg.Sum())
                         .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.RequireQuantity).Width(70).ReadOnly(true)
+                 columns.Bound(f => f.RequireQuantity).Width(70).ReadOnly(true)
                         .Format("{0:n0}")
                         .HeaderTemplate("<strong>Remain</br>Quantity</br></strong>")
                         .HtmlAttributes(new {style = "text-align: right;"})
@@ -386,43 +384,42 @@
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     //
-                    columns.Bound(f => f.CustomerDeliveryDate).Width(90).ReadOnly(true)
-                        //.Column.
+                 columns.Bound(f => f.CustomerDeliveryDate).Width(90).ReadOnly(true)
                         .Format("{0:dd/MM/yyyy}")
                         .Title("Customer<br/>Request")
                         .FooterTemplate("<span id='CustomerLateCount'></span>")
                         .FooterHtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.VfDeliveryDate).Width(90).ReadOnly(true)
+                 columns.Bound(f => f.VfDeliveryDate).Width(90).ReadOnly(true)
                         .Format("{0:dd/MM/yyyy}")
                         .Title("VF<br/>Plan")
                         .FooterTemplate("<span id='VfLateCount'></span>")
                         .FooterHtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.PlanDeliveryDateStr).Width(90).ReadOnly(true)
+                 columns.Bound(f => f.PlanDeliveryDateStr).Width(90).ReadOnly(true)
                         .Title("Finish<br/>Plan")
                         //.Format("{0:dd/MM/yyyy}")
                         .FooterTemplate("<span id='PlanCount'></span>")
                         .FooterHtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.ExpectDate).Width(90)
+                 columns.Bound(f => f.ExpectDate).Width(90)
                         .Title("Expect<br/>Date")
                         //.Format("{0:dd/MM/yyyy}")
                         .ClientTemplate("<#= ExpectDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ExpectDate) #>")
                         .FooterHtmlAttributes(new { style = "text-align: center;" });
                     //
-                    columns.Bound(f => f.Note).Width(200).ReadOnly(true)
+                 columns.Bound(f => f.Note).Width(200).ReadOnly(true)
                         .HeaderTemplate("<strong>Note</strong>");
                     //columns.Bound(f => f.ExportDateString).Width(90)
                     //    .HeaderTemplate("<strong>Ngày</br>hết NL</strong>")
                     //    .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                     //
-                    columns.Bound(f => f.AvailableTotalInv).Width(80).ReadOnly(true)
+                 columns.Bound(f => f.AvailableTotalInv).Width(80).ReadOnly(true)
                         .HeaderTemplate("<strong>Available<br/>Total<br/>Inventory</strong>")
                         .Format("{0:n0}")
                         .HtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.AvailableFinishInv).Width(80).ReadOnly(true)
+                 columns.Bound(f => f.AvailableFinishInv).Width(80).ReadOnly(true)
                         .HeaderTemplate("<strong>Available<br/>Finish<br/>Inventory</strong>")
                         .Format("{0:n0}")
                         .HtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.PlanDay).Width(80).ReadOnly(true)
+                 columns.Bound(f => f.PlanDay).Width(80).ReadOnly(true)
                         .HeaderTemplate("<strong>Process<br/>Day</strong>")
                         .Format("{0:n0}")
                         .HtmlAttributes(new {style = "text-align: right;"});

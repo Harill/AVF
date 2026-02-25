@@ -3,7 +3,7 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model MaterialInventoryModel
 @{
-    ViewBag.Title = "Materials Export (Internal)";
+    ViewBag.Title = "Materials Delivery-Note (Internal)";
     //Xuất kho NL (nội bộ)
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -108,12 +108,12 @@
     </script>
 }
 
-<div class="title">Materials Export (Internal)</div>
+<div class="title">Materials Delivery-Note (Internal)</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     <fieldset>
-        <legend>Export Order Information</legend>
-        <div class="grid_2">
+        <legend>Delivery-Note Information</legend>
+        <div class="grid_2_5">
             Materials Type
         </div>
         <div class="grid_4">
@@ -127,8 +127,8 @@
                     .Render();
             }
         </div>
-        <div class="grid_2">
-            @Html.Label("Material Code")
+        <div class="grid_1_5">
+            @Html.Label("Material")
 @*            @Html.LabelFor(f => f.MaterialCodeName)*@
         </div>
         <div class="grid_4">
@@ -192,7 +192,7 @@
                     columns.Bound(f => f.TotalQtyKg).Title("Total Weight(Kg)")                  //Tổng trọng lượng(Kg)
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align:right;" });
-                    columns.Bound(f => f.MaterialInvOnMachine).Title("Inv(bar)")
+                    columns.Bound(f => f.MaterialInvOnMachine).Title("Machine-Inv(bar)")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align:right;" });
                     //columns.Bound(f => f.TotalQtyKg).Title("Tổng trọng lượng(kg)")
@@ -207,12 +207,12 @@
 </div>
 <div class="clear"></div>
 <br />
-<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Materials Export Order Detail</div>
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Materials Delivery-Note Detail</div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<MaterialInventoryModel>()
             .Name("gridMaterialInventoryDetail")
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save ").CancelText("Cancel"))
             .DataKeys(keys => keys.Add(f => f.MaterialInventoryId).RouteKey("materialInventoryId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectExportInputMaterialInventory", "Inv", new { materialInvIds = "" })
@@ -220,7 +220,7 @@
             .Columns(columns => {
                 columns.Bound(f => f.VendorCodeName).Width(150).ReadOnly(true).Title("Supplier");
                 columns.Bound(f => f.MaterialCode).Width(200).ReadOnly(true).Title("Material Code");
-                columns.Bound(f => f.Length).Title("Dài(mm)").Width(50).ReadOnly(true);
+                columns.Bound(f => f.Length).Title("Length</br>(mm)").Width(50).ReadOnly(true);
                 columns.Bound(f => f.LotNumber).Width(50).ReadOnly(true).Title("Lot");
                 columns.Bound(f => f.UnitWeight).Width(50).ReadOnly(true).Title("Weight");
                 columns.Bound(f => f.TotalQty).Width(70).ReadOnly(true)
@@ -230,21 +230,21 @@
                 columns.Bound(f => f.TotalQtyKg).Width(70).ReadOnly(true)
                     .HeaderTemplate("Inv</br>(kg)")
                     .HtmlAttributes(new { style = "text-align:right" })
-                      .ClientTemplate("<#= TotalQtyKg == null ? 0 : $.telerik.formatString('{0:n3}', TotalQtyKg) #>");
+                    .ClientTemplate("<#= TotalQtyKg == null ? 0 : $.telerik.formatString('{0:n3}', TotalQtyKg) #>");
                 columns.Bound(f => f.MaterialInvOnMachine).ReadOnly(true).Width(70)
-                        .HeaderTemplate("Machine</br>(bar)")
-                        .HtmlAttributes(new { style = "text-align:right" })
-                       .ClientTemplate("<span name='MaterialInvOnMachine'><#= MaterialInvOnMachine == null ? 0 : $.telerik.formatString('{0:n2}', MaterialInvOnMachine) #></span>");
+                    .HeaderTemplate("Machine-Inv</br>(bar)")
+                    .HtmlAttributes(new { style = "text-align:right" })
+                    .ClientTemplate("<span name='MaterialInvOnMachine'><#= MaterialInvOnMachine == null ? 0 : $.telerik.formatString('{0:n2}', MaterialInvOnMachine) #></span>");
                 columns.Bound(f => f.Quantity).Width(100)
-                        .HeaderTemplate("Import</br>Quantity(bar)")
-                        .HeaderHtmlAttributes(new { @class = "edit-column" })
-                        .HtmlAttributes(new { style = "text-align: right;" })
-                       .ClientTemplate("<span name='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n2}', Quantity) #></span>")
-                       .FooterTemplate("<span id='TotalQuantity'></span>");
+                    .HeaderTemplate("Release</br>Quantity(bar)")
+                    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                    .HtmlAttributes(new { style = "text-align: right;" })
+                    .ClientTemplate("<span name='Quantity'><#= Quantity == null ? 0 : $.telerik.formatString('{0:n2}', Quantity) #></span>")
+                    .FooterTemplate("<span id='TotalQuantity'></span>");
                 columns.Bound(f => f.IsDestroy).Width(80).Title("Out Of Inv")
-                        .HeaderHtmlAttributes(new { @class = "edit-column" })
-                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDestroy' <#=IsDestroy? checked='checked' : '' #> />")
-                        .HtmlAttributes(new { style = "text-align: center;" });
+                    .HeaderHtmlAttributes(new { @class = "edit-column" })
+                    .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDestroy' <#=IsDestroy? checked='checked' : '' #> />")
+                    .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Note).Title("Note");
                 columns.Command(commands => commands.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(40).Title("");
             })

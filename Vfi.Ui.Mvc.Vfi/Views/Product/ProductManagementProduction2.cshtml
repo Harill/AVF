@@ -36,10 +36,10 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -72,7 +72,7 @@
                 }
             </div>
         
-            <div class="grid_1_5">Process Index</div>             @* BD Cong Doan *@
+            <div class="grid_1_5">Section</div>             @* BD Cong Doan *@
             <div class="grid_1_5">
                 @{
                     Html.Telerik().IntegerTextBox()
@@ -109,37 +109,35 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("Index").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(35).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                        .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
+                columns.Bound(f => f.CustomerCode).Width(90).ReadOnly(true)
                        .HeaderTemplate("<strong>Customer Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center;" })
                        .HtmlAttributes(new { style = "text-align:center;" })
                        .ClientTemplate("<strong><#= CustomerCode #></strong>");
 
                 columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Product</br>Code</strong>")
+                       .HeaderTemplate("<strong>Product Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center" })
                        .ClientTemplate("<strong><#= ProductCode #></strong>");
-
                 columns.Bound(f => f.SectionName).Width(100).ReadOnly(true)
                        .HeaderTemplate("<strong>Section Name</strong>");
-                columns.Bound(f => f.Index).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Process Index</strong>");
-
-                columns.Bound(f => f.Productivity).Width(100).ReadOnly(true)
-                        .HeaderTemplate("<strong>Productivity(s/pc)</strong>")
-                        .Format("{0:n2}")
+                columns.Bound(f => f.Index).Width(80).ReadOnly(true)
+                       .HeaderTemplate("<strong>Section</strong>");
+                columns.Bound(f => f.Productivity).Width(120).ReadOnly(true)
+                       .HeaderTemplate("<strong>Productivity(s/pc)</strong>")
+                       .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.Weight).Width(100).ReadOnly(true)
-                        .HeaderTemplate("<strong>Weight (g/pc)</strong>")
-                        .Format("{0:n3}")
+                       .HeaderTemplate("<strong>Weight(g/pc)</strong>")
+                       .Format("{0:n3}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.TotalQuantity).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Total Inventory (pcs)</strong>")
-                        .Format("{0:n0}")
+                       .HeaderTemplate("<strong>Total-Inv(pcs)</strong>")
+                       .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 //columns.Bound(f => f.IsMainProcess).Width(40).Title("Công đoạn chính")
                 //       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")

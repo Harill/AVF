@@ -3,11 +3,12 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @{
-    ViewBag.Title = "Duyệt Chứng Từ ";
+    ViewBag.Title = "Approve Invoice ";
+    //Duyệt Chứng Từ 
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="title">Duyệt chứng từ</div>
+<div class="title">Approve Invoice </div>
 
 <div class="cover-div">
     @{
@@ -22,30 +23,29 @@
                                           .Delete("CancelPoTaxInvoice", "PurchaseOrder"))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.TaxInvoiceNumber).Title("Số HĐ").Width(125).ReadOnly(true);
-                    columns.Bound(f => f.PoDate).Title("Ngày lập HĐ").Width(70)
+                    columns.Bound(f => f.TaxInvoiceNumber).Title("Invoice Number").Width(125).ReadOnly(true);
+                    columns.Bound(f => f.PoDate).Title("Created Date").Width(70)
                            .Format("{0:dd/MM/yyyy}");
-                    columns.Bound(f => f.VendorName).Title("NCC").Width(150).ReadOnly(true);
-                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(50).ReadOnly(true)
+                    columns.Bound(f => f.VendorName).Title("Supplier").Width(150).ReadOnly(true);
+                    columns.Bound(f => f.CurrencyCode).Title("Currency").Width(50).ReadOnly(true)
                            .HtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.TaxPercent).Title("Thuế(%)").Width(50).ReadOnly(true)
+                    columns.Bound(f => f.TaxPercent).Title("Tax(%)").Width(50).ReadOnly(true)
                            .HtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(70).ReadOnly(true)
+                    columns.Bound(f => f.ExchangeRate).Title("Exchange Rate").Width(70).ReadOnly(true)
                            .HtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.TotalQuantity).Width(70).ReadOnly(true).Title("Tổng SL")
+                    columns.Bound(f => f.TotalQuantity).Width(70).ReadOnly(true).Title("Total Quantity")
                            .HtmlAttributes(new {style = "text-align: right;"})
                            .Format("{0:n0}");
-                    columns.Bound(f => f.TotalFormat).Width(100).ReadOnly(true).Title("Tổng tiền+(%)")
-                        //.HtmlAttributes("<#= TotalAmountFormat #>")
-                           .HtmlAttributes(new {style = "text-align: right;"})
-                           ;
-                    columns.Bound(f => f.TotalVnd).Width(100).ReadOnly(true).Title("Tổng tiền VNĐ+(%)")
+                    columns.Bound(f => f.TotalFormat).Width(100).ReadOnly(true).Title("Total Amount+(%)")
+                           //.HtmlAttributes("<#= TotalAmountFormat #>")
+                           .HtmlAttributes(new {style = "text-align: right;"});
+                    columns.Bound(f => f.TotalVnd).Width(100).ReadOnly(true).Title("Total Amount VND+(%)")
                            .HtmlAttributes(new {style = "text-align: right;"})
                            .Format("{0:n0}");
-                    columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true).Title("Ngày tạo")
+                    columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true).Title("M-Date")
                            .Format("{0:dd/MM/yyyy HH:mm}");
-                    columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
-                           .Width(50).Title("Hủy").HtmlAttributes(new {style = "text-align:center;color:red"});
+                    columns.Command(command => command.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image))
+                           .Width(50).Title("Delete").HtmlAttributes(new {style = "text-align:center;color:red"});
                 })
             .DetailView(details => details.ClientTemplate(
                 //Html.Telerik().TabStrip()
@@ -64,18 +64,18 @@
                                    )
                                    .Columns(columns =>
                                    {
-                                       columns.Bound(f => f.Code).Title("Mã");
+                                       columns.Bound(f => f.Code).Title("Code");
                                        columns.Bound(f => f.Unit).Title("").Width(50);
-                                       columns.Bound(f => f.Quantity).Title("Số lượng").Width(75)
+                                       columns.Bound(f => f.Quantity).Title("Quantity").Width(75)
                                               .Format("{0:n2}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.UnitPriceFormat)
-                                              .Title("Đơn giá").Width(75)
+                                              .Title("Unit Price").Width(75)
                                               .HtmlAttributes(new { style = "text-align: right;" });
-                                       columns.Bound(f => f.AmountFormat).Width(100).ReadOnly(true).Title("Thành tiền")
+                                       columns.Bound(f => f.AmountFormat).Width(100).ReadOnly(true).Title("Total Amount")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Command(command =>
-                                                       command.Delete().ButtonType(GridButtonType.Image)
+                                                       command.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)
                                            ).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
                                        })
                                    .DetailView(details2 => details2.ClientTemplate(
@@ -89,16 +89,15 @@
                                            .Columns(columns =>
                                            {
                                                //columns.Bound(f => f.Code).Title("Mã SP").Width(200).ReadOnly(true);
-                                               columns.Bound(f => f.ImportCode).Title("Số phiếu").Width(100).ReadOnly(true);
-                                               columns.Bound(f => f.ImportDate).Title("Ngày nhập").Width(85).ReadOnly(true)
-                                                      .Format("{0:dd/MM/yyyy}")
-                                                      ;
-                                               columns.Bound(f => f.Quantity).Width(75).Title("Số lượng").ReadOnly(true)
+                                               columns.Bound(f => f.ImportCode).Title("Code").Width(100).ReadOnly(true);
+                                               columns.Bound(f => f.ImportDate).Title("Entry Date").Width(85).ReadOnly(true)
+                                                      .Format("{0:dd/MM/yyyy}");
+                                               columns.Bound(f => f.Quantity).Width(75).Title("Quantity").ReadOnly(true)
                                                       .HtmlAttributes(new { style = "text-align: right;" })
                                                       .Format("{0:n0}");
-                                               columns.Bound(f => f.UnitPriceFormat).Width(75).Title("Đơn giá").ReadOnly(true)
+                                               columns.Bound(f => f.UnitPriceFormat).Width(75).Title("Unit Price").ReadOnly(true)
                                                       .HtmlAttributes(new { style = "text-align: right;" });
-                                               columns.Bound(f => f.AmountFormat).Width(100).Title("Tổng tiền").ReadOnly(true)
+                                               columns.Bound(f => f.AmountFormat).Width(100).Title("Total Amount").ReadOnly(true)
                                                       .HtmlAttributes(new { style = "text-align: right;" });
 
                                                //columns.Bound(f => f.Note).ReadOnly(true)
@@ -114,7 +113,7 @@
                                ))
                     //.ToHtmlString()))
             .Selectable()
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect")
                                           .OnError("grid_OnError"))
             .Scrollable(f => f.Height(500))

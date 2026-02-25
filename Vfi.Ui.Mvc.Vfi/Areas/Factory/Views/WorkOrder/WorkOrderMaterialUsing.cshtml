@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "WO NL SD";
+    ViewBag.Title = "WO Material Using";
+    //WO NL SD
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -41,21 +42,23 @@
     </script>
 }
 
-<div class="title">Phát nguyên liệu cho Work Order</div>
+<div class="title">Assign Material For Work Order
+    @*Phát nguyên liệu cho Work Order*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px;padding-right: 15px;">
     
         <button id="btnPrintUsing" class="t-button" onclick="printWOMaterialUse();">
             <span class='t-icon t-insert'></span>
-            In sử dụng nguyên liệu
+            @*In sử dụng nguyên liệu*@
+            Print Material Using
             <span class="loadButton"></span>
         </button>
         <div class="clear"></div><br />
 
     <fieldset>
-        <legend>Thông tin lọc</legend> 
-        <div class="grid_1">
-            Máy
+        <legend>Filters</legend> 
+        <div class="grid_1_5">
+            Machine
         </div>
         <div class="grid_3">
             @{
@@ -63,7 +66,7 @@
                     .Name("Machine")
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxMachine", "Machine", new { area = "Factory" }))
                     .DropDownHtmlAttributes(new { style = "width: 100%; " })
-                        .HtmlAttributes(new { style = "width: 100%; " })
+                    .HtmlAttributes(new { style = "width: 100%; " })
                     .Encode(false)
                     .AutoFill(true)
                     .HighlightFirstMatch(true)
@@ -71,7 +74,7 @@
             }
         </div>
         
-        <div class="grid_1">Ngày</div>
+        <div class="grid_1">Date</div>
         <div class="grid_3">
             @{
                 Html.Telerik().DatePicker()
@@ -84,7 +87,7 @@
         <div class="grid_3">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('grid'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+               Find
                 <span class="loadButton"></span>
             </button>
         </div>
@@ -102,42 +105,42 @@
                                           .Select("SelectWorkOrderMaterialUse", "WorkOrder", new { area = "Factory", date = "", machineId = 0 })
            )
             .Columns(columns => {
-                columns.Bound(f => f.MachineName).Title("Máy").Width(100).ReadOnly(true);
-                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(150).ReadOnly(true);
-                columns.Bound(f => f.MaterialDesign).Title("Nguyên liệu").Width(270).ReadOnly(true);
+                columns.Bound(f => f.MachineName).Title("Machine").Width(100).ReadOnly(true);
+                columns.Bound(f => f.ProductCode).Title("Product").Width(150).ReadOnly(true);
+                columns.Bound(f => f.MaterialDesign).Title("Material").Width(270).ReadOnly(true);
                 columns.Bound(f => f.Note).Title("Work Order").Width(100).ReadOnly(true);
-                columns.Bound(f => f.EarlyQuantity).Title("Tồn đầu</br>(cây)").Width(70).ReadOnly(true)
-                    .Aggregate(agg => agg.Sum())
-                    .Format("{0:n1}")
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px black solid" })
-                    .FooterHtmlAttributes(new { style = "text-align: right;border-right:1px black solid" });
-                columns.Bound(f => f.QuantityUse1).Title("Sử dụng</br>ca 1(cây)").Width(70).ReadOnly(true)
-                    .Aggregate(agg => agg.Sum())
-                    .Format("{0:n1}")
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.QuantityUse2).Title("Sử dụng</br>ca 2(cây)").Width(70).ReadOnly(true)
-                    .Aggregate(agg => agg.Sum())
-                    .Format("{0:n1}")
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.LastQuantity).Title("Tồn cuối</br>(cây)").Width(70).ReadOnly(true)
-                    .Aggregate(agg => agg.Sum())
-                    .Format("{0:n1}")
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
-                    .HtmlAttributes(new { style = "text-align: right;border-left:1px black solid" })
-                    .FooterHtmlAttributes(new { style = "text-align: right;border-left:1px black solid" });
+                columns.Bound(f => f.EarlyQuantity).Title("First-Inv</br>(bar)").Width(70).ReadOnly(true)
+                       .Aggregate(agg => agg.Sum())
+                       .Format("{0:n1}")
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px black solid" })
+                       .FooterHtmlAttributes(new { style = "text-align: right;border-right:1px black solid" });
+                columns.Bound(f => f.QuantityUse1).Title("Shift1</br>Using(bar)").Width(70).ReadOnly(true)
+                       .Aggregate(agg => agg.Sum())
+                       .Format("{0:n1}")
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.QuantityUse2).Title("Shift2</br>Using(bar)").Width(70).ReadOnly(true)
+                       .Aggregate(agg => agg.Sum())
+                       .Format("{0:n1}")
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.LastQuantity).Title("Last-Inv</br>(bar)").Width(70).ReadOnly(true)
+                       .Aggregate(agg => agg.Sum())
+                       .Format("{0:n1}")
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n1}', Sum) #>")
+                       .HtmlAttributes(new { style = "text-align: right;border-left:1px black solid" })
+                       .FooterHtmlAttributes(new { style = "text-align: right;border-left:1px black solid" });
 
             })
             .Selectable()
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             .ClientEvents(e => e.OnError("grid_OnError")
                                 .OnDataBinding("grid_OnDataBinding"))
             .Scrollable(f => f.Height("auto"))

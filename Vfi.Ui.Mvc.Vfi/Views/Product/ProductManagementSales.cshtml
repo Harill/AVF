@@ -450,7 +450,7 @@
     </fieldset>
 
     <br />
-    <div class="grid_3">
+    <div class="grid_1">
         Date
     </div>
     <div class="grid_3">
@@ -475,9 +475,9 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1020px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
-            <div class="grid_1">
-                Customer Code
+            <legend>Filters</legend>
+            <div class="grid_1_5">
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -492,7 +492,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
+            <div class="grid_2_5">
                 Product Status
             </div>
             <div class="grid_3">
@@ -509,13 +509,13 @@
                         .Render();
                 }
             </div>
-            <div class="grid_1">Product Code</div>
-            <div class="grid_4">
+            <div class="grid_2_5">Product Code</div>
+            <div class="grid_3_5">
                 @{
                     Html.Telerik().AutoComplete()
                         .Name("ProductCodeName")
                         .DataBinding(binding => binding.Ajax().Select("AutoCompletedProductInventoryByCode", "Inv", new { area = "Inv" }))
-                        .HtmlAttributes(new { style = "width: 150px; " })
+                        .HtmlAttributes(new { style = "width: 130px; " })
                         .DropDownHtmlAttributes(new { style = "width: 250px; " })
                         .Encode(false)
                         .AutoFill(true)
@@ -527,8 +527,8 @@
                         .Render();
                 }
             </div>
-            <div class="grid_1">Product Name</div>
-            <div class="grid_4">
+            <div class="grid_2_5">Product Name</div>
+            <div class="grid_3">
                 @{
                     Html.Telerik().AutoComplete()
                         .Name("ProductName")
@@ -560,7 +560,7 @@
             .Columns(columns => {
                     columns.Command(command =>
                                     command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)//.UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
-                        ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
+                                          ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.Upload2D).Width(40).Title("Img").Filterable(false)
                            .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                            "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=Upload2D#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
@@ -569,9 +569,8 @@
                            .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                                            "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
                                            "</a><div class='highslide-caption'><#= ProductCode #></div>");
-                    columns.Bound(f => f.CustomerCodeName).Width(200)
-                           .ClientTemplate("<strong><#= Customer</br>Code Name #></strong>");
-                    columns.Bound(f => f.DesignNo).Width(120);
+                    columns.Bound(f => f.CustomerCodeName).Width(200).Title("Customer's</br>Name");
+                    columns.Bound(f => f.DesignNo).Width(120).Title("Customer's</br>Product Code");
                     columns.Bound(f => f.ProductName).Width(120);
                     columns.Bound(f => f.ProductCode).Width(100)
                            .HeaderTemplate("<strong>Product</br>Code</strong>")
@@ -579,14 +578,13 @@
                            .ClientTemplate("<strong><#= ProductCode #></strong>")
                            .Aggregate(agg => agg.Count())
                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
-                           .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
-                        ;
+                           .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>");
                     columns.Bound(f => f.IdentityCode).Width(110)
                            .HeaderTemplate("<strong>Identity</br>Code</strong>");
                     columns.Bound(f => f.Note).Width(195)
                            .HeaderTemplate("<strong>Note</strong>");
                     columns.Bound(f => f.UnitPrice).Width(75)
-                           .HeaderTemplate("Price")
+                           .HeaderTemplate("Unit</br>Price")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.Currency).Width(75)
                            .HeaderTemplate("Currency</br>Note")
@@ -596,7 +594,7 @@
                            .Format("{0:n2}")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.Active).Width(60)
-                        .HeaderTemplate("Active")
+                           .HeaderTemplate("Active")
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                            .HtmlAttributes(new { style = "text-align:center" });
 
@@ -691,13 +689,13 @@
                                         .Columns(columns => {
 
                                             columns.Bound(f => f.SectionName).Width(100).Title("Section Name").ReadOnly(true);
-                                            columns.Bound(f => f.SectionIndex).Width(100).Title("Section Index").ReadOnly(true);
+                                            columns.Bound(f => f.SectionIndex).Width(100).Title("Section").ReadOnly(true);
                                             columns.Bound(f => f.Productivity).Width(100).Title("Productivity").ReadOnly(true);
                                             columns.Bound(f => f.Description).Width(100).Title("Describe").ReadOnly(true);
-                                            columns.Bound(f => f.SectionCost).Width(100).Title("SectionCost");
-                                            columns.Bound(f => f.UpdateDate).Width(60).Title("Upd-Date").ReadOnly(true)
+                                            columns.Bound(f => f.SectionCost).Width(100).Title("Section Cost");
+                                            columns.Bound(f => f.UpdateDate).Width(60).Title("M-Date").ReadOnly(true)
                                                    .ClientTemplate("<#= UpdateDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', UpdateDate) #>");
-                                            columns.Bound(f => f.UpdateUser).Width(60).Title("Upd-User").ReadOnly(true);
+                                            columns.Bound(f => f.UpdateUser).Width(60).Title("M-User").ReadOnly(true);
                                             columns.Bound(f => f.Active).Width(30).ReadOnly(true)
                                                    .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                    .HtmlAttributes(new { style = "text-align:center" });
@@ -721,14 +719,14 @@
                                         )
                                         .Columns(columns => {
                                             columns.Command(command =>
-                                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Canncel").Text("Edit").InsertText("Add New")
                                                 ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
-                                            columns.Bound(f => f.PlatingName).Width(100).Title("Outsourcing</br>Name").ReadOnly(true);
+                                            columns.Bound(f => f.PlatingName).Width(100).Title("Outsourcing Name").ReadOnly(true);
                                             columns.Bound(f => f.Description).Width(100).Title("Describe").ReadOnly(true);
                                             columns.Bound(f => f.PlatingCost).Width(100).Title("Cost");
-                                            columns.Bound(f => f.InsertDate).Width(50).Title("Insert</br>Date").ReadOnly(true)
+                                            columns.Bound(f => f.InsertDate).Width(50).Title("Insert Date").ReadOnly(true)
                                                 .ClientTemplate("<#= InsertDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', InsertDate) #>");
-                                            columns.Bound(f => f.InserUser).Width(50).Title("Inser</br>User").ReadOnly(true);
+                                            columns.Bound(f => f.InserUser).Width(50).Title("Inser User").ReadOnly(true);
                                             columns.Bound(f => f.ModifiedDate).Width(50).Title("M-Date").ReadOnly(true)
                                                 .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>");
                                             columns.Bound(f => f.ModifiedUser).Width(50).Title("M-User").ReadOnly(true);
@@ -766,7 +764,7 @@
                                                     ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
                                                 columns.Bound(f => f.Name).Width(120)
                                                        .Title("Name");
-                                                columns.Bound(f => f.Price).Width(100).Title("Price (usd/pc)")
+                                                columns.Bound(f => f.Price).Width(100).Title("Price(usd/pc)")
                                                     .Format("{0:n4}");
                                                 columns.Bound(f => f.Active).Width(100)
                                                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
@@ -792,8 +790,8 @@
                                                                       .Select("SelectProductionProcessById", "Product", new { area = "", productId = "<#= ProductId #>" })
                                         )
                                         .Columns(columns => {
-                                            columns.Bound(f => f.WarehouseName).Width(50).Title("Warehouse Name");
-                                            columns.Bound(f => f.ProcessIndex).Width(50).Title("Process Index")
+                                            columns.Bound(f => f.WarehouseName).Width(70).Title("Warehouse Name");
+                                            columns.Bound(f => f.ProcessIndex).Width(50).Title("Process")
                                                        .ClientTemplate("<#= ProcessIndex == null ? 0 : $.telerik.formatString('{0:n0}', ProcessIndex) #>");
                                             columns.Bound(f => f.IsAlert).Width(75).Title("Alert ?")
                                                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Alert' <#=IsAlert? checked='checked' : '' #> />")

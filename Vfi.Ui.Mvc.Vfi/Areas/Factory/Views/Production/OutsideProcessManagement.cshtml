@@ -23,11 +23,11 @@
         .Columns(columns => {
             columns.Command(cmd => cmd.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(100);
             columns.Bound(f => f.Name).Title("Name");
-            columns.Bound(f => f.Price).Width(110).Title("Price (USD/KG)");
+            columns.Bound(f => f.Price).Width(110).Title("Price(USD/KG)");
             columns.Bound(f => f.Active).Width(100).Title("Active");
-            columns.Bound(f => f.ModifiedDate).Width(120).Title("Modified Date").ReadOnly(true)
+            columns.Bound(f => f.ModifiedDate).Width(120).Title("M-Date").ReadOnly(true)
                    .Format("{0:dd/MM/yyyy HH:mm}");
-            columns.Bound(f => f.ModifiedUser).Width(110).Title("Modified User").ReadOnly(true)
+            columns.Bound(f => f.ModifiedUser).Width(90).Title("M-User").ReadOnly(true)
                    .Format("{0:dd/MM/yyyy HH:mm}");
         })
         .ClientEvents(events => events.OnError("grid_OnError"))

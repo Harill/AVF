@@ -3,7 +3,8 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "QL gia công SP Sx2";
+    ViewBag.Title = "Production2-Processing Managent";
+    //QL gia công SP Sx2";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -49,15 +50,17 @@
         }
     </script>
 }
-<div class="title">Quản lý thông tin sản phẩm</div>
+<div class="title">Product-Information Management
+@*    Quản lý thông tin sản phẩm*@
+</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
 
-            <div class="grid_1">
-                Mã KH
+            <div class="grid_1_5">
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -71,7 +74,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -88,7 +91,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </fieldset>
     </div>
@@ -106,46 +109,45 @@
             )
             .Columns(columns => {
                     columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true)
-                           .HeaderTemplate("<strong>Mã</br>KH</strong>")
+                           .HeaderTemplate("<strong>Customer Code</strong>")
                            .HeaderHtmlAttributes(new { style = "text-align:center;" })
                            .HtmlAttributes(new { style = "text-align:center;" })
                            .ClientTemplate("<strong><#= CustomerCode #></strong>");
                     columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
-                           .HeaderTemplate("<strong>Mã</br>SP</strong>")
+                           .HeaderTemplate("<strong>Product Code</strong>")
                            .HeaderHtmlAttributes(new { style = "text-align:center" })
                            .ClientTemplate("<strong><#= ProductCode #></strong>")
                            .Aggregate(agg => agg.Count())
-                               .FooterHtmlAttributes(new { style = "text-align: right;" })
-                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
-                        ;
+                           .FooterHtmlAttributes(new { style = "text-align: right;" })
+                           .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
                     columns.Bound(f => f.SectionCount).Width(70).ReadOnly(true)
-                           .HeaderTemplate("Tổng</br>công đoạn TK");
+                           .HeaderTemplate("Total Section");                // Tong Cong Doan TK
                 })
                 
              .DetailView(details => details.ClientTemplate(Html.Telerik().TabStrip()
                                             .Name("TabStrip_<#= ProductId #>")
                                             .SelectedIndex(0)
                                             .Items(items => {
-                                                   items.Add().Text("Công đoạn thực tế")
+                                                   items.Add().Text("Actual Section")
                                                        .Content(
                                                        Html.Telerik().Grid<SectionProcessModel>()
                                                       .Name("gridSectionProcess_<#= ProductId #>")
                                                       .DataKeys(key => key.Add(f => f.ProcessId).RouteKey("processId"))
                                                       .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
-                                                    .ToolBar(
+                                                      .ToolBar(
                                                         toolbar =>
-                                                        toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                                        toolbar.Insert().Text("Add New").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
                                                       .DataBinding(
-                                                          dataBinding => dataBinding.Ajax()
+                                                        dataBinding => dataBinding.Ajax()
                                                                                     .Select("SelectSectionProcessManagement", "Section", new { productId = "<#= ProductId #>" })
-                                                                                      .Insert("InsertSectionProcess", "Section", new { productId = "<#= ProductId #>" })
-                                                                                      .Update("UpdateSectionProcess", "Section")
+                                                                                    .Insert("InsertSectionProcess", "Section", new { productId = "<#= ProductId #>" })
+                                                                                    .Update("UpdateSectionProcess", "Section")
                                                       )
                                                       .Columns(columns => {
                                                           columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
                                                                 .HtmlAttributes(new { style = "text-align:center" });
                                                           columns.Bound(f => f.ProcessName).Width(120)
-                                                                 .Title("Tên công đoạn");
+                                                                 .Title("Section Name");
                                                           columns.Bound(f => f.StartProcess).Width(40)
                                                                  .ClientTemplate("<input type='checkbox' disabled='disabled' name='StartProcess' <#=StartProcess? checked='checked' : '' #> />")
                                                                  .HtmlAttributes(new { style = "text-align:center" });
@@ -155,83 +157,83 @@
                                                           columns.Bound(f => f.Active).Width(40)
                                                                  .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                                  .HtmlAttributes(new { style = "text-align:center" });
-                                                          columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày làm")
+                                                          columns.Bound(f => f.ModifiedDate).Width(70).Title("M-Date")
                                                                  .ReadOnly(true)
                                                                  .Format("{0:dd/MM/yyyy hh:mm}");
-                                                          columns.Bound(f => f.ModifiedUser).Width(60).Title("Người làm").ReadOnly(true);
+                                                          columns.Bound(f => f.ModifiedUser).Width(60).Title("M-User").ReadOnly(true);
                                                       })
 
              .DetailView(details2 => details2.ClientTemplate(Html.Telerik().TabStrip()
                                             .Name("TabStripDetail_<#= ProductId #>")
                                             .SelectedIndex(0)
                                             .Items(items2 => {
-                                                items2.Add().Text("Công đoạn gia công ")
-                                                    .Content(
-                                                    Html.Telerik().Grid<SectionProcessDetailModel>()
+                                                items2.Add().Text("Process Section")
+                                                   .Content(
+                                                Html.Telerik().Grid<SectionProcessDetailModel>()
                                                    .Name("gridSectionProcessDetail_<#= ProcessId #>_<#= ProductId #>")
                                                    .DataKeys(key => key.Add(f => f.DetailId).RouteKey("detailId"))
                                                    .HtmlAttributes(new { productId = "<#= ProductId #>" })
                                                  .ToolBar(
                                                      toolbar =>
-                                                     toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
-                                                   .DataBinding(
-                                                       dataBinding => dataBinding.Ajax()
+                                                     toolbar.Insert().Text("Add New").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                                 .DataBinding(
+                                                     dataBinding => dataBinding.Ajax()
                                                                                  .Select("SelectSectionProcessDetailManagement", "Section", new { processId = "<#= ProcessId #>" })
-                                                                                   .Insert("InsertSectionProcessDetail", "Section", new { processId = "<#= ProcessId #>", productId = "<#= ProductId #>" })
-                                                                                   .Update("UpdateSectionProcessDetail", "Section")
+                                                                                 .Insert("InsertSectionProcessDetail", "Section", new { processId = "<#= ProcessId #>", productId = "<#= ProductId #>" })
+                                                                                 .Update("UpdateSectionProcessDetail", "Section")
                                                    )
                                                    .Columns(columns => {
                                                        columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
                                                              .HtmlAttributes(new { style = "text-align:center" });
                                                        columns.Bound(f => f.SectionName).Width(120)
-                                                              .Title("Tên công đoạn");
+                                                              .Title("Section Name");
                                                        columns.Bound(f => f.DetailIndex).Width(120)
-                                                              .Title("Sắp xếp");
+                                                              .Title("Arrange");
                                                        columns.Bound(f => f.Active).Width(40)
                                                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                               .HtmlAttributes(new { style = "text-align:center" });
-                                                       columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày làm")
+                                                       columns.Bound(f => f.ModifiedDate).Width(70).Title("M-Date")
                                                               .ReadOnly(true)
                                                               .Format("{0:dd/MM/yyyy hh:mm}");
-                                                       columns.Bound(f => f.ModifiedUser).Width(60).Title("Người làm").ReadOnly(true);
+                                                       columns.Bound(f => f.ModifiedUser).Width(60).Title("M-User").ReadOnly(true);
                                                    })
                                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
                                                    .ClientEvents(e => e.OnError("grid_OnError").OnEdit("gridProcessDetail_OnEdit"))
                                                    .ToHtmlString());
 
-                                                items2.Add().Text("Công đoạn kế")
-                                                    .Content(
-                                                    Html.Telerik().Grid<ProductionSectionProcessModel>()
+                                                items2.Add().Text("Next Section")
+                                                   .Content(
+                                                Html.Telerik().Grid<ProductionSectionProcessModel>()
                                                    .Name("gridNextSectionProcess_<#= ProcessId #>_<#= ProductId #>")
                                                    .DataKeys(key => key.Add(f => f.PSPId).RouteKey("pspId"))
                                                    .HtmlAttributes(new { processId = "<#= ProcessId #>" })
                                                  .ToolBar(
                                                      toolbar =>
-                                                     toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
-                                                   .DataBinding(
-                                                       dataBinding => dataBinding.Ajax()
-                                                                                 .Select("SelectProductionSectionProcessManagement", "Section", new { processId = "<#= ProcessId #>" })
-                                                                                   .Insert("InsertProductionSectionProcess", "Section", new { processId = "<#= ProcessId #>", productId = "<#= ProductId #>" })
-                                                                                   .Update("UpdateProductionSectionProcess", "Section")
+                                                     toolbar.Insert().Text("Add New").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                                                 .DataBinding(
+                                                     dataBinding => dataBinding.Ajax()
+                                                                               .Select("SelectProductionSectionProcessManagement", "Section", new { processId = "<#= ProcessId #>" })
+                                                                               .Insert("InsertProductionSectionProcess", "Section", new { processId = "<#= ProcessId #>", productId = "<#= ProductId #>" })
+                                                                               .Update("UpdateProductionSectionProcess", "Section")
                                                    )
                                                    .Columns(columns => {
                                                        columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("")
-                                                             .HtmlAttributes(new { style = "text-align:center" });
+                                                              .HtmlAttributes(new { style = "text-align:center" });
                                                        columns.Bound(f => f.NextProcessName).Width(120)
-                                                              .Title("Công đoạn kế");
+                                                              .Title("Next Section");
                                                        columns.Bound(f => f.Productivity).Width(120)
-                                                              .Title("Năng suất");
+                                                              .Title("Productivity");
                                                        columns.Bound(f => f.UnitWeight).Width(120)
-                                                              .Title("Trọng lượng");
+                                                              .Title("Weight");
                                                        columns.Bound(f => f.UnitPrice).Width(120)
-                                                              .Title("Giá gia công");
+                                                              .Title("Processing Price");
                                                        columns.Bound(f => f.Active).Width(40)
                                                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                               .HtmlAttributes(new { style = "text-align:center" });
-                                                       columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày làm")
+                                                       columns.Bound(f => f.ModifiedDate).Width(70).Title("M-Date")
                                                               .ReadOnly(true)
                                                               .Format("{0:dd/MM/yyyy hh:mm}");
-                                                       columns.Bound(f => f.ModifiedUser).Width(60).Title("Người làm").ReadOnly(true);
+                                                       columns.Bound(f => f.ModifiedUser).Width(60).Title("M-User").ReadOnly(true);
                                                    })
                                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
                                                    .ClientEvents(e => e.OnError("grid_OnError").OnEdit("gridNextProcess_OnEdit"))
@@ -244,7 +246,7 @@
                                                       .ClientEvents(e => e.OnError("grid_OnError"))
                                                       .ToHtmlString());
 
-                                                   items.Add().Text("Công đoạn thiết kế")
+                                                   items.Add().Text("Design Section")
                                                        .Content(
                                                        Html.Telerik().Grid<ProductionSectionModel>()
                                                       .Name("gridProductionSection_<#= ProductId #>")
@@ -255,20 +257,19 @@
                                                       )
                                                       .Columns(columns => {
                                                           columns.Bound(f => f.SectionName).Width(120)
-                                                                 .Title("Tên công đoạn");
-                                                          columns.Bound(f => f.SectionIndex).Width(50).Title("Tiến trình")
+                                                                 .Title("Section Name");
+                                                          columns.Bound(f => f.SectionIndex).Width(50).Title("Phase")            //Tiến trình
                                                               .HtmlAttributes(new { style = "text-align:center;" });
-                                                          columns.Bound(f => f.Productivity).Width(50).Title("Năng suất")
-                                                                 .Title("Năng suất")
+                                                          columns.Bound(f => f.Productivity).Width(50).Title("Productivity")
                                                                  .Format("{0:n2}")
                                                                  .HtmlAttributes(new { style = "text-align:right;" });
-                                                          columns.Bound(f => f.Weight).Width(50).Title("TL đầu ra")
+                                                          columns.Bound(f => f.Weight).Width(50).Title("Output Weight")
                                                               .Format("{0:n3}").HtmlAttributes(new { style = "text-align:right;" });
-                                                          columns.Bound(f => f.Description).Width(100).Title("Mô tả");
-                                                          columns.Bound(f => f.UpdateDate).Width(70).Title("Ngày thêm")
+                                                          columns.Bound(f => f.Description).Width(100).Title("Descripbe");
+                                                          columns.Bound(f => f.UpdateDate).Width(70).Title("M-Date")
                                                                  .ReadOnly(true)
                                                                  .Format("{0:dd/MM/yyyy}");
-                                                          columns.Bound(f => f.UpdateUser).Width(60).Title("Người thêm").ReadOnly(true);
+                                                          columns.Bound(f => f.UpdateUser).Width(60).Title("M-User").ReadOnly(true);
                                                           columns.Bound(f => f.Active).Width(40)
                                                                  .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                                  .HtmlAttributes(new { style = "text-align:center" });

@@ -2,7 +2,8 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @model MaterialInventoryModel
 @{
-    ViewBag.Title = "Công cụ xuất kho";
+    ViewBag.Title = "Tools Release";
+    //Công cụ xuất kho
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -98,20 +99,21 @@
 
 }
 
-<div class="title">Tổng hợp xuất kho công cụ</div>
+<div class="title">Tools-Warehouse Release
+   @* Tổng hợp xuất kho công cụ*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1020px;">
     <div class="grid_7">
         <button id="btnMaterialInv" class="t-button" onclick=" return printAssignProductionTool(); ">
             <span class='t-icon t-insert'></span>
-            In phát công cụ sản xuất
+            Print
         </button>
     </div>
     <div class="clear"></div>
-    <br />
+    @*<br />*@
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
-        <div class="grid_3">Loại công cụ</div>
+        <legend>Filters</legend>
+        <div class="grid_2">Tool Type</div>
         <div class="grid_6">
             @{
                 Html.Telerik().ComboBox()
@@ -120,7 +122,7 @@
                     .HtmlAttributes(new { style = "width: 100%" })
                     //.DropDownHtmlAttributes(new { style = "width: 100%" })
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .ClientEvents(e => e.OnChange("ToolType_OnChange"))
                     .Render();
             }
@@ -143,7 +145,7 @@
                     .Render();
             }
         </div>
-        <div class="grid_2_5">Tên công cụ</div>
+        <div class="grid_2">Tool Name</div>
         <div class="grid_4">
             @{
                 Html.Telerik().AutoComplete()
@@ -155,7 +157,7 @@
         <div class="grid_3">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </div>
     </fieldset>
@@ -180,21 +182,20 @@
 
             .Columns(columns =>
             {
-                columns.Bound(f => f.ToolName).Width(50).ReadOnly(true).Title("STT")
+                columns.Bound(f => f.ToolName).Width(50).ReadOnly(true).Title("No.")
                     .ClientTemplate("<#= ++index #>");
-                
-                columns.Bound(f => f.ToolName).Width(100).Title("Tên công cụ")
+                columns.Bound(f => f.ToolName).Width(100).Title("Tool Name")
                     .HtmlAttributes(new {style = "font-weight:bold;"});
-                columns.Bound(f => f.ToolFullCodeName).Width(200).Title("Mã công cụ")
+                columns.Bound(f => f.ToolFullCodeName).Width(200).Title("Tool Code")
                     .HtmlAttributes(new { style = "font-weight:bold;" })
                     .Aggregate(agg => agg.Count())
                     .ClientGroupFooterTemplate("<#= Count #>")
                     .ClientFooterTemplate("<#= Count #>");
-                columns.Bound(f => f.VendorCode).Width(55).ReadOnly(true).Title("NCC");
-                columns.Bound(f => f.LotNumber).Title("Lô").Width(70).ReadOnly(true);
+                columns.Bound(f => f.VendorCode).Width(55).ReadOnly(true).Title("Supplier");
+                columns.Bound(f => f.LotNumber).Title("Lot").Width(70).ReadOnly(true);
                 //columns.Bound(f => f.UnitMeasure).Title("ĐVT").Width(50).ReadOnly(true);
-                columns.Bound(f => f.Quantity).Width(50).ReadOnly(true)
-                    .HeaderTemplate("<strong>SL</strong>")
+                columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Quantity")
+                    .HeaderTemplate("<strong>Quantity</strong>")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Format("{0:n1}")
                     .Aggregate(agg => agg.Sum())
@@ -203,26 +204,26 @@
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 //
                 columns.Bound(f => f.TransactionDate).Width(100)
-                    .Title("Ngày xuất")
+                    .Title("Release Date")
                     .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.MachineName).Width(75).Title("Máy")
+                columns.Bound(f => f.MachineName).Width(75).Title("Machine")
                     .HtmlAttributes(new { style = "font-weight:bold;" });
-                columns.Bound(f => f.ProductCode).Width(100).Title("SP")
+                columns.Bound(f => f.ProductCode).Width(100).Title("Product")
                     .HtmlAttributes(new { style = "font-weight:bold;" });
-                columns.Bound(f => f.QuotaQuantity).Width(70).Title("ĐM")
+                columns.Bound(f => f.QuotaQuantity).Width(70).Title("Quota")
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.RequiredQuantity).Width(70).Title("SL SX")
+                columns.Bound(f => f.RequiredQuantity).Width(70).Title("Required")
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.TransactionCode).Width(100).ReadOnly(true)
-                    .Title("Số phiếu");
+                    .Title("Code");                 // so phieu
                 columns.Bound(f => f.EoIName).Width(80).ReadOnly(true)
-                    .Title("Loại xuất");
+                    .Title("Release Type");
                 columns.Bound(f => f.Department).Width(120).ReadOnly(true)
-                    .Title("BP đề xuất");
+                    .Title("Department");           // bo phan de xuat
                 columns.Bound(f => f.Note).Width(120).ReadOnly(true)
-                    .HeaderTemplate("Ghi chú");
+                    .HeaderTemplate("Note");
             })
             .Scrollable(f => f.Height(510))
             //.HtmlAttributes(new { style = "width: 950px;" })
@@ -232,7 +233,7 @@
             .Sortable()
             .Groupable()
             .ClientEvents(events => events.OnError("grid_OnError")
-                .OnDataBinding("gridInventory_OnDataBinding"))
+            .OnDataBinding("gridInventory_OnDataBinding"))
             .Render();
     }
 </div>

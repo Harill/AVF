@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Plating Plan";
+    ViewBag.Title = "Outsourcing-Plan Report";
     //Kế hoạch xi mạ"
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -47,7 +47,7 @@
     </script>
 }
 
-<div class="title">Outsource Plan</div> @* Kế hoạch gia công ngoài*@
+<div class="title">Outsourcing-Plan Report</div> @* Kế hoạch gia công ngoài*@
 <div class="clear"></div>
 <br />
 
@@ -66,9 +66,9 @@
         <br />
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
           <div class="grid_2">
-                @Html.Label("Customer Code")
+                @Html.Label("Customer")
             </div>
             <div class="grid_4">
                 @{
@@ -83,7 +83,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_1_5">
+            <div class="grid_2_5">
                 @Html.Label("Product Code")
             </div>
             <div class="grid_4">
@@ -128,7 +128,7 @@
                                                          .Select("SelectExpectedPlating", "Reporting", new { customerId = 0, productCode = "", toDate = DateTime.Now.ToString("dd/MM/yyyy") }))
                 .Columns(columns =>
                     {
-                        columns.Bound(f => f.Index).Title("Index").Width(50)
+                        columns.Bound(f => f.Index).Title("No.").Width(50)
                                .HeaderHtmlAttributes(new {style = "font-weight: bold"})
                                .HtmlAttributes(new {style = "font-weight: center;"});
                         columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(70)
@@ -145,7 +145,7 @@
                                .ClientTemplate("<#= OrderQuantity == 0 ? '-' : $.telerik.formatString('{0:n0}', OrderQuantity) #>")
                                .HtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.OrderDate).Width(70)
-                               .HeaderTemplate("Nearest<br/>Delivery</br>Date")           //Ngày giao hàng<br/>gần nhất
+                               .HeaderTemplate("Nearest<br/>Delivery-Date")           //Ngày giao hàng<br/>gần nhất
                                .ClientTemplate("<#= OrderDate == null ? '-' : $.telerik.formatString('{0:dd/MM/yy}', OrderDate) #>")
                                .HtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.WaitingPlatingInv).Width(70)
@@ -165,7 +165,7 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.PlatingTestInv).Width(70)
-                               .HeaderTemplate("Testing")              //Kiểm tra
+                               .HeaderTemplate("QC")              //Kiểm tra
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .Format("{0:n0}")
                                .Aggregate(agg => agg.Sum())

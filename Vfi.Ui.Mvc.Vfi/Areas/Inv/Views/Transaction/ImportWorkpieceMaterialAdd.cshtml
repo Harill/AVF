@@ -1,7 +1,7 @@
 ﻿@using Telerik.Web.Mvc.UI
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Product's Workpiece Classify";
+    ViewBag.Title = "Product's Workpiece Addition";
     //Phân phôi sản phân
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -53,15 +53,15 @@
 
 }
 
-<div class="title">Product's Workpiece Classify
+<div class="title">Product's Workpiece Addition
 @*    Phân phôi sản phẩm*@
 </div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
     <fieldset>
-        <legend>Filter</legend>
-        <div class="grid_3">Order Number</div>
+        <legend>Filters</legend>
+        <div class="grid_3">Forms Number</div>
         <div class="grid_5">
             @{
                 Html.Telerik().ComboBox()
@@ -105,14 +105,14 @@
                     columns.Bound(f => f.MaterialTypeName).Width(100).Title("Material Type").ReadOnly(true);
                     columns.Bound(f => f.TypeName).Width(100).Title("Classify").ReadOnly(true);
                     columns.Bound(f => f.TotalQuantity).Width(100).Title("Total Inv").ReadOnly(true)
-                        .Format("{0:n2}")
-                        .HtmlAttributes(new { style = "text-align: right;" });
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.Import).Width(100).Title("Total Workpiece").ReadOnly(true)                //Tổng phoi
-                        .Format("{0:n2}")
-                        .HtmlAttributes(new { style = "text-align: right;" });
+                           .Format("{0:n2}")
+                           .HtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.Weight).Width(100).Title("Weight(kg)")
-                        .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #></span>")
-                        .FooterTemplate("<span id='TotalWeight'></span>");
+                           .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #></span>")
+                           .FooterTemplate("<span id='TotalWeight'></span>");
                     columns.Bound(f => f.Note).Title("Note");
                 })
             .ClientEvents(events => events

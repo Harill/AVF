@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Expected Sales Report";
+    ViewBag.Title = "Expected Sale-Order Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -93,7 +93,7 @@
     </script>
 }
 
-<div class="title">Expected Sales Report</div>              @*Báo cáo dự kiến đơn hàng*@
+<div class="title">Expected Sale-Order Report</div>              @*Báo cáo dự kiến đơn hàng*@
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1065px;">
 
 
@@ -114,7 +114,7 @@
         <fieldset>
             <legend>Filters</legend>
             
-          <div class="grid_2">
+          <div class="grid_1_5">
                 @Html.Label("Employee")
             </div>
         <div class="grid_3">
@@ -127,8 +127,8 @@
                     .Render();
             }
         </div>
-          <div class="grid_2">
-                @Html.Label("Customer Code")
+          <div class="grid_1_5">
+                @Html.Label("Customer")
             </div>
             <div class="grid_4">
                 @{
@@ -143,8 +143,8 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
-                @Html.Label("Product Code")
+            <div class="grid_1_5">
+                @Html.Label("Product")
 @*                @Html.LabelFor(f => f.ProductCodeName)*@
             </div>
             <div class="grid_3">
@@ -218,7 +218,7 @@
                                .Width(30).Title("")
                                .HtmlAttributes(new {style = "text-align:center"});
 
-                        columns.Bound(f => f.Index).Title("Index").Width(50).ReadOnly(true)
+                        columns.Bound(f => f.Index).Title("No.").Width(50).ReadOnly(true)
                                .HeaderHtmlAttributes(new {style = "font-weight: bold"})
                                .HtmlAttributes(new {style = "font-weight: center;"});
                         columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(30).ReadOnly(true)

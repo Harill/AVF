@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "Production Pricing";
+    ViewBag.Title = "Production Price";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -43,15 +43,15 @@
     </script>
 }
 
-<div class="title">Product Management(Production Pricing)</div>
+<div class="title">Product Management(Production Price)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -106,11 +106,11 @@
                                 command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix")
                     ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
 
-                columns.Bound(f => f.ProductId).Title("Index").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(35).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                     .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "font-weight: center;" });
-                columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
+                columns.Bound(f => f.CustomerCode).Width(90).ReadOnly(true)
                        .HeaderTemplate("<strong>Customer Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center;" })
                        .HtmlAttributes(new { style = "text-align:center;" })
@@ -122,15 +122,15 @@
                        .ClientTemplate("<strong><#= ProductCode #></strong>");
 
                 columns.Bound(f => f.ProductionCamesPricing).Width(100)
-                        .HeaderTemplate("<strong>Production Cames</strong>")
+                        .HeaderTemplate("<strong>Cames</strong>")
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.ProductionCncPricing).Width(100)
-                        .HeaderTemplate("<strong>Production CnC</strong>")
+                        .HeaderTemplate("<strong>CnC</strong>")
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.CncPricing).Width(100)
-                        .HeaderTemplate("<strong>Milling CNC</strong>")
+                        .HeaderTemplate("<strong>Milling-CNC</strong>")
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.Production2Pricing).Width(100)
@@ -142,13 +142,13 @@
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
                 columns.Bound(f => f.ProductionTechnicalPricing).Width(100)
-                        .HeaderTemplate("<strong>Production Technical</strong>")
+                        .HeaderTemplate("<strong>Technical</strong>")
                         .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right" });
 
-                columns.Bound(f => f.ModifiedDate).Width(50).Title("M-Date").ReadOnly(true)
+                columns.Bound(f => f.ModifiedDate).Width(60).Title("M-Date").ReadOnly(true)
                     .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy hh:mm}', ModifiedDate) #>");
-                columns.Bound(f => f.ModifiedUser).Width(50).Title("M-User").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(60).Title("M-User").ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnSave("grid_OnSave")

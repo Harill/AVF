@@ -51,10 +51,10 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer
             </div>
             <div class="grid_5">
                 @{
@@ -105,12 +105,12 @@
             .Columns(columns =>
                 {
                     columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true)
-                           .HeaderTemplate("<strong>Customer</br>Code</strong>")
+                           .HeaderTemplate("<strong>Customer Code</strong>")
                            .HeaderHtmlAttributes(new {style = "text-align:center;"})
                            .HtmlAttributes(new {style = "text-align:center;"})
                            .ClientTemplate("<strong><#= CustomerCode #></strong>");
                     columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
-                           .HeaderTemplate("<strong>Product</br>Code</strong>")
+                           .HeaderTemplate("<strong>Product Code</strong>")
                            .HeaderHtmlAttributes(new {style = "text-align:center"})
                            .ClientTemplate("<strong><#= ProductCode #></strong>")
                            .Aggregate(agg => agg.Count())
@@ -128,7 +128,7 @@
                     .Name("TabStrip_<#= ProductId #>")
                     .SelectedIndex(0)
                     .Items(items => {
-                        items.Add().Text("Testing").Content(
+                        items.Add().Text("QC").Content(
                             Html.Telerik().Grid<ProductionTestingModel>()
                                 .Name("gridProductionTesting_<#= ProductId #>")
                                 .DataKeys(key => key.Add(f => f.WarehouseId).RouteKey("warehouseId"))
@@ -141,9 +141,9 @@
                                     columns.Command(command =>
                                                     command.Edit().ButtonType(GridButtonType.Image)
                                         ).Width(45).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                    columns.Bound(f => f.Idx).Width(50).Title("Index").ReadOnly(true)
+                                    columns.Bound(f => f.Idx).Width(50).Title("Phase").ReadOnly(true)
                                            .Format("{0:n0}");
-                                    columns.Bound(f => f.WarehouseName).Width(150).Title("Stage</br>Name").ReadOnly(true)
+                                    columns.Bound(f => f.WarehouseName).Width(150).Title("Section</br>Name").ReadOnly(true)
                                                 .ClientTemplate("<strong><#= WarehouseName #></strong>");
                                     columns.Bound(f => f.Note).Title("Note");
                                     columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date").ReadOnly(true)
@@ -172,19 +172,19 @@
                                                       )
                                                      .Columns(columns => {
                                                          columns.Command(command =>
-                                                                         command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                                                         command.Edit().ButtonType(GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit").InsertText("Add New")
                                                              ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                                         columns.Bound(f => f.Idx).Width(50).Title("Index")
+                                                         columns.Bound(f => f.Idx).Width(50).Title("No.")
                                                                 .Format("{0:n0}");
                                                          columns.Bound(f => f.TestingCode).Width(50).Title("Code");
                                                          columns.Bound(f => f.TestingName).Width(200).Title("Name ▲ Ø ± ᴼ ⌖ ⌾ ⌯ // ⊥ </br> ∠ ⌭ ▱ ⦣ ◯ ─ ⌓ ⌒ ↗ ⌰");
                                                          columns.Bound(f => f.MinNumber).Width(80).Title("Min");
                                                          columns.Bound(f => f.MaxNumber).Width(80).Title("Max");
-                                                         columns.Bound(f => f.TestRate).Width(80).Title("Rate</br>(h/time)");
+                                                         columns.Bound(f => f.TestRate).Width(80).Title("Frequency</br>(h/times)");         // tan^` Suat^'
                                                          columns.Bound(f => f.Active).Width(50)
                                                                  .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                                                  .HtmlAttributes(new { style = "text-align:center" });
-                                                         columns.Bound(f => f.MachineTypeName).Title("Measuring</br>Tool").ReadOnly(true);
+                                                         columns.Bound(f => f.MachineTypeName).Title("Measure</br>Tool").ReadOnly(true);
                                                          columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date").ReadOnly(true)
                                                                 .Format("{0:dd/MM/yyyy HH:mm}");
                                                          columns.Bound(f => f.ModifiedUser).Width(80).Title("M-User").ReadOnly(true);
@@ -209,7 +209,7 @@
                                                                                 )
                                                                                 .Columns(columns => {
                                                                                     columns.Command(command =>
-                                                                                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix").InsertText("Add Neww")
+                                                                                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit").InsertText("Add New")
                                                                                         ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
                                                                                     columns.Bound(f => f.Idx).Width(70).Title("Index");
                                                                                     columns.Bound(f => f.MachineTypeName).Width(120).Title("Measuring Tool");
@@ -244,9 +244,9 @@
                                                       )
                                                      .Columns(columns => {
                                                          columns.Command(command =>
-                                                                         command.Edit().ButtonType(GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix").InsertText("Add Neww")
+                                                                         command.Edit().ButtonType(GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit").InsertText("Add New")
                                                              ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                                         columns.Bound(f => f.Idx).Width(100).Title("Index");
+                                                         columns.Bound(f => f.Idx).Width(100).Title("No.");
                                                          columns.Bound(f => f.Note).Title("Note");
                                                          columns.Bound(f => f.Active).Width(50)
                                                                  .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")

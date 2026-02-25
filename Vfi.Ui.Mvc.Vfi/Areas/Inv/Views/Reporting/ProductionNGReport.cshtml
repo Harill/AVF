@@ -53,7 +53,7 @@
 }
 
 <div class="title">
-    NG Production Report
+    Production Report
     @*Báo cáo sản xuất tổng hợp*@
 </div>
 <div class="clear"></div>
@@ -81,7 +81,7 @@
                 }
             </div>
             <div class="grid_1_5">
-                @Html.Label("Product Code")
+                @Html.Label("Product")
 @*                @Html.LabelFor(f => f.ProductCodeName)*@
             </div>
             <div class="grid_4">
@@ -160,14 +160,14 @@
                         // so lieu
                         columns.Bound(f => f.Production1Reprocess).Title("Production1</br>Reprocess").Width(70)              //SX1 CXL
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Production1Defect).Title("Production1</br>Scrap").Width(70)                   //SX1 PP
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
@@ -176,14 +176,14 @@
                         // so lieu
                         columns.Bound(f => f.CNCReprocess).Title("CNC</br>Reprocess").Width(70)                       //CNC CXL
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.CNCDefect).Title("CNC</br>Scrap").Width(70)                   //CNC PP
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
@@ -192,14 +192,14 @@
                         // so lieu
                         columns.Bound(f => f.Production2Reprocess).Title("Production2</br>Reprocess").Width(70)         //SX2 CXL
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Production2Defect).Title("Production2</br>Scrap").Width(70)            //SX2 PP
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
@@ -208,14 +208,14 @@
                         // so lieu
                         columns.Bound(f => f.Reprocess).Title("Other</br>Reprocess").Width(70)          //Khác CXL
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Defect).Title("Other</br>Scrap").Width(70)                 //Khác PP
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
@@ -224,14 +224,14 @@
                         // so lieu
                         columns.Bound(f => f.TotalReprocess).Title("Total</br>Reprocess").Width(70)     //Tổng CXL
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.TotalDefect).Title("Total</br>Scrap").Width(70)            //Tổng PP
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })

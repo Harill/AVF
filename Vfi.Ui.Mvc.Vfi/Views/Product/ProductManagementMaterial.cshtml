@@ -233,10 +233,10 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer 
             </div>
             <div class="grid_4">
                 @{
@@ -251,7 +251,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
+            <div class="grid_2_5">
                 Product Status
             </div>
             <div class="grid_4">
@@ -319,7 +319,7 @@
                     //       .ClientTemplate("<a id='<#=ProductId#>' href='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' class='highslide' onclick='return hs.expand(this)'>" +
                     //                       "<img src='" + Url.Content("~/Content/FileUpload/Drawing/") + "<#=UploadReal#>?<#=UploadDate#>' height='40' width='40' title='Mở lớn'/>" +
                     //                       "</a><div class='highslide-caption'><#= ProductCode #></div>");
-                    columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true)
+                    columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
                            .HeaderTemplate("<strong>Customer</br>Code</strong>")
                            .HeaderHtmlAttributes(new {style = "text-align:center;"})
                            .HtmlAttributes(new {style = "text-align:center;"})
@@ -351,10 +351,10 @@
                            .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n3}', Weight) #>")
                            .HtmlAttributes(new {style = "text-align:right;"});
                     columns.Bound(f => f.KnifeCut).Width(70)
-                           .HeaderTemplate("KnifeCut</br>(mm)")
+                           .HeaderTemplate("Knife Cut</br>(mm)")
                            .HtmlAttributes(new {style = "text-align:right;"});
                     columns.Bound(f => f.ProductionRate).Width(70)
-                           .HeaderTemplate("Production</br>Rate(pcs/pc)")
+                           .HeaderTemplate("Quota</br>(pcs/bar)")
                            .ClientTemplate("<#= ProductionRate == null ? 0 : $.telerik.formatString('{0:n0}', ProductionRate) #>")
                            .HtmlAttributes(new {style = "text-align:right;"});
                     columns.Bound(f => f.MaterialCodeDesign).Width(100).ReadOnly(true)
@@ -384,14 +384,14 @@
                             .Columns(columns =>
                                 {
                                     columns.Command(command =>
-                                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix").InsertText("Add New")
+                                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit").InsertText("Add New")
                                         ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
                                     columns.Bound(f => f.MaterialCode).Width(100).Title("Material</br>Code");
                                     columns.Bound(f => f.UnitWeightByMaterial).Width(50).ReadOnly(true)
-                                           .HeaderTemplate("Unit Weight</br>By Material(g)")
+                                           .HeaderTemplate("Material </br>Weight(g)")
                                            .ClientTemplate("<#= UnitWeightByMaterial == null ? 0 : $.telerik.formatString('{0:n3}', UnitWeightByMaterial) #>");
                                     columns.Bound(f => f.ProductWeight).Width(50).ReadOnly(true)
-                                           .HeaderTemplate("Product</br>Weight")
+                                           .HeaderTemplate("Saved</br>Weight")
                                            .ClientTemplate("<#= ProductWeight == null ? 0 : $.telerik.formatString('{0:n3}', ProductWeight) #>");
                                     columns.Bound(f => f.Priority).Width(50).Title("Priority");
                                     columns.Bound(f => f.Note).Width(100).Title("Note");

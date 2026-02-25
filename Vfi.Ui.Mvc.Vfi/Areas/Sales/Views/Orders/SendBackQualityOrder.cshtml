@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model ExportFormTP_KD
 @{
-    ViewBag.Title = "Trả Hàng";
+    ViewBag.Title = "Returned Goods";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -15,7 +15,7 @@
             var combobox = $('#Type').data('tDropDownList');
             var dataSource =
             [
-                { Text: "Trả hàng", Value: "1" },
+                { Text: "Returned", Value: "1" },
                 //{ Text: "Đổi hàng", Value: "2" }
             ];
 
@@ -151,11 +151,11 @@
 
 }
 
-<div class="title">Trả hàng</div>
+<div class="title">Returned Goods</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     <fieldset>
-        <div class="grid_2">Hình thức</div> 
+        <div class="grid_1">Type</div> 
         <div class="grid_3">
             @{
                 Html.Telerik().DropDownList()
@@ -167,7 +167,7 @@
                     .Render();                                              
             }
         </div>
-        <div class="grid_2">Invoice:</div>
+        <div class="grid_1_5">Invoice</div>
         <div class="grid_4">
             @{
                 Html.Telerik().ComboBox()
@@ -177,11 +177,11 @@
                     .DropDownHtmlAttributes(new { style = "width: 200px" })
                     .ClientEvents(events => events.OnChange("Invoice_OnChange"))
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
-        <div class="grid_2">Ngày tạo</div>
+        <div class="grid_2">Created Date</div>
             <div class="grid_4">
                 @{
                     Html.Telerik().DatePicker()
@@ -205,7 +205,7 @@
         <div class="grid_7">
             <button class="t-button" id="btnPickupProductId" name="btnPickupProductId" onclick="PickupProductId()">
                 <span class='t-icon t-insert'></span>
-                Chọn các sản phẩm vào lưới
+                Select Products
             </button>
         </div>
         <div class="clear"></div>
@@ -218,21 +218,21 @@
                 new { area = "Inv", invoiceId = 0 }))
             .Columns(columns =>
                          {
-                             columns.Bound(f => f.ProductId).Title("Chọn").Width(75)
-                                 .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductId #>' />")
-                                 .HtmlAttributes(new { style = "text-align:center" });
+                             columns.Bound(f => f.ProductId).Title("Select").Width(75)
+                                    .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductId #>' />")
+                                    .HtmlAttributes(new { style = "text-align:center" });
                              columns.Bound(f => f.ProductCode)
-                                    .HeaderTemplate("Mã Sản Phẩm").Width(250);
+                                    .HeaderTemplate("Product Code").Width(250);
                              columns.Bound(f => f.SentNumber)
-                                    .HeaderTemplate("Số lượng đã giao").Width(100)
-                                     .ClientTemplate("<span name='cot3'><#= SentNumber == null ? 0 : $.telerik.formatString('{0:n0}', SentNumber) #></span>")
+                                    .HeaderTemplate("Delivered Quantity").Width(100)
+                                    .ClientTemplate("<span name='cot3'><#= SentNumber == null ? 0 : $.telerik.formatString('{0:n0}', SentNumber) #></span>")
                                     .HtmlAttributes(new { style = "text-align: right;" });
                              columns.Bound(f => f.SentWeight)
-                                    .HeaderTemplate("Trọng lượng đã giao").Width(100)
-                                     .ClientTemplate("<span name='cot3'><#= SentWeight == null ? 0 : $.telerik.formatString('{0:n0}', SentWeight) #></span>")
+                                    .HeaderTemplate("Weight Quantity").Width(100)
+                                    .ClientTemplate("<span name='cot3'><#= SentWeight == null ? 0 : $.telerik.formatString('{0:n0}', SentWeight) #></span>")
                                     .HtmlAttributes(new { style = "text-align: right;" });
                              columns.Bound(f => f.StatusInvoice)
-                                    .HeaderTemplate("Xuất hóa đơn").Width(100)
+                                    .HeaderTemplate("Issue Invoices").Width(100)
                                     .HtmlAttributes(new { style = "text-align: center;" });
                              //columns.Bound(f => f.CustomerCode)
                              //       .HeaderTemplate("Mã Khách Hàng").Width(250);
@@ -252,12 +252,12 @@
 <div class="clear"></div>
 <br />
 
-<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh</div>
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Returned Detail</div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<ExportFormTP_KDDetailsModel>()
             .Name("gridProductInventoryDetail")
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Huỷ tất cả"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel"))
             .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("InputProductInInvoice", "Inv",
@@ -266,19 +266,19 @@
             .Columns(columns =>
                 {
                     columns.Bound(f => f.ProductCode)
-                           .HeaderTemplate("Sản phẩm").Width(100).ReadOnly(true);
+                           .HeaderTemplate("Product").Width(100).ReadOnly(true);
                     columns.Bound(f => f.LotNumber)
-                           .HeaderTemplate("Lô SP").Width(100).ReadOnly(true);
+                           .HeaderTemplate("Lot").Width(100).ReadOnly(true);
                     columns.Bound(f => f.TotalQuantity).ReadOnly(true)
-                           .HeaderTemplate("Tồn kho").Width(100)
+                           .HeaderTemplate("Inventory").Width(100)
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.SentNumber).ReadOnly(true)
-                           .HeaderTemplate("SL đã giao").Width(100)
+                           .HeaderTemplate("Delivered Quantity").Width(100)
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.Quality)
-                           .HeaderTemplate("Số lượng trả(*)").Width(100)
+                           .HeaderTemplate("Returned Quantity(*)").Width(100)
                            .ClientTemplate("<span name='Quality'><#= Quality == null ? 0 : $.telerik.formatString('{0:n0}', Quality) #></span>")
                            .FooterTemplate("<span id='TotalSendQuantity'></span>")
                            .HtmlAttributes(new { style = "text-align: right;" });
@@ -292,16 +292,16 @@
                     //       .FooterTemplate("<span id='TotalSendWeight'></span>")
                     //       .HtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.Note)
-                           .HeaderTemplate("Lý do(*)")
+                           .HeaderTemplate("Reason(*)")
                            .HtmlAttributes(new { style = "text-align: left;" });
-                    columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Title("").Width(30);
+                    columns.Command(commands => commands.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Title("").Width(30);
                 })
             .ClientEvents(events => events
                                         .OnSave("gridProductInventoryDetail_onSave")
                                         .OnSubmitChanges("gridProductInventoryDetail_onSubmitChanges")
                                         .OnError("grid_OnError")
             )
-            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Editable(f => f.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             // .Footer(false)
             .Resizable(f => f.Columns(true))
              .Render()

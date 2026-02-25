@@ -102,9 +102,9 @@
         
         <div class="clear"></div>
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
             <div class="grid_2">
-                @Html.Label("Customer Code");
+                @Html.Label("Customer")
             </div>
             <div class="grid_4">
                 @{
@@ -119,7 +119,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
+            <div class="grid_2_5">
                 Product Code
             </div>
             <div class="grid_4">
@@ -177,13 +177,12 @@
                 .Columns(columns => {
                     columns.Bound(f => f.ProductId)
                            .ClientTemplate("<#= ++index #>")
-                           .HeaderTemplate("<strong>Index</strong>").Width(45);
-
+                           .HeaderTemplate("<strong>No.</strong>").Width(45);
                     columns.Bound(f => f.ReportDateStr).Width(55)
-                           .HeaderTemplate("<strong>Report</br>Date</strong>")
+                           .HeaderTemplate("<strong>Date</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.GroupName).Width(55)
-                           .HeaderTemplate("<strong>Group</br>Name</strong>")
+                           .HeaderTemplate("<strong>Group</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.Shift).Width(55)
                            .HeaderTemplate("<strong>Shift</strong>")
@@ -200,7 +199,6 @@
                            .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                            .FooterTemplate("<span id='tongcot1'></span>");
                     // don hang
-                    
                     columns.Bound(f => f.Quantity).Width(80)
                            .HeaderTemplate("<strong>Quantity</br>(pcs)</strong>")
                            .HtmlAttributes(new { style = "text-align: right;" })
@@ -209,9 +207,8 @@
                            .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
                            .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
                            .FooterTemplate("<span id='tongcot1'></span>");
-
                     columns.Bound(f => f.IssueWarehouseName).Width(55)
-                           .HeaderTemplate("<strong>Warehouse</br>Export</strong>")
+                           .HeaderTemplate("<strong>Release</br>Warehouse</strong>")
                            .HtmlAttributes(new { style = "text-align: center;" });
                     columns.Bound(f => f.TransactionCode).Width(55)
                            .HeaderTemplate("<strong>Transaction</br>Code</strong>")

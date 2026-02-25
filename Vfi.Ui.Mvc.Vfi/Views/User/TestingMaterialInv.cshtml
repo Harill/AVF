@@ -3,7 +3,7 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "KT nguyên liệu";
+    ViewBag.Title = "Material Checking";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -33,11 +33,12 @@
         }
     </script>
 }
-<div class="title">Kiểm tra thông tin tồn kho nguyên liệu
+<div class="title">Checking Material Inventory 
+   @* Kiểm tra thông tin tồn kho nguyên liệu*@
     
 <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('grid'); ">
     <span class='t-icon t-insert'></span>
-    Làm mới
+    Find
 </button>
 </div>
 <div class="cover-div">
@@ -51,22 +52,22 @@
             .Columns(columns =>
                 {
                     //columns.Bound(f => f.MaterialTypeCode).Width(100).ReadOnly(true).Title("Loại NL");
-                    columns.Bound(f => f.MaterialCode).Width(150).ReadOnly(true).Title("Nguyên liệu");
-                    columns.Bound(f => f.LotNumber).Width(150).ReadOnly(true).Title("Lô");
-                    columns.Bound(f => f.VendorName).Width(150).ReadOnly(true).Title("NCC");
+                    columns.Bound(f => f.MaterialCode).Width(150).ReadOnly(true).Title("Material");
+                    columns.Bound(f => f.LotNumber).Width(150).ReadOnly(true).Title("Lot");
+                    columns.Bound(f => f.VendorName).Width(150).ReadOnly(true).Title("Supplier");
                     columns.Bound(f => f.TotalQty).Width(70)
-                           .HeaderTemplate("Tồn kho thực tế")
+                           .HeaderTemplate("Actual-Inv")
                            .Format("{0:n2}")
                            .HtmlAttributes(new { style = "text-align:right;" });
-                    columns.Bound(f => f.MaterialInventoryId).Title("Thay đổi tồn TT").Width(50)
+                    columns.Bound(f => f.MaterialInventoryId).Title("Adjust Actual-Inv").Width(50)       //Thay đổi tồn TT
                            .ClientTemplate("<input type='button' id='id_<#= MaterialInventoryId #>' value='Make' class='t-button' onclick='MakeMaterialChangeInventory( <#= MaterialInventoryId #> )' />")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.TotalInv).Width(70)
-                           .HeaderTemplate("Tồn kho (period)")
+                           .HeaderTemplate("Inv (Period)")
                            .Format("{0:n2}")
                            .HtmlAttributes(new { style = "text-align:right;" });
                     columns.Bound(f => f.Quantity).Width(70)
-                           .HeaderTemplate("Chênh lệch (TK - Period)")
+                           .HeaderTemplate("Diff (TK - Period)")
                            .Format("{0:n2}")
                            .HtmlAttributes(new { style = "text-align:right;" });
                 })

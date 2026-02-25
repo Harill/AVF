@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Duyệt nhập công đoạn 1";
+    ViewBag.Title = "Approve Section1-Input";
+    //Duyệt nhập công đoạn 1
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -64,9 +65,10 @@
 
 }
 
-<div class="title">Duyệt công đoạn 1</div>
+<div class="title">Approve Section1-Input
+   @* Duyệt công đoạn 1*@</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">Danh sách lệnh<span class="processButton"></span>	
+<div class="t-info-sha" style="padding-left: 15px; width: 550px; color: Maroon;">WO Sheet<span class="processButton"></span>	
 <div class="grid_5">
     @{
             Html.Telerik().DateTimePicker()
@@ -86,7 +88,7 @@
         <div class="grid_9">
             <button class="t-button" id="btnApproveTransaction" name="btnApproveTransaction" onclick=" ApproveTransaction() ">
                 <span class='t-icon t-insert'></span>
-                Duyệt các sổ lệnh
+                 Approved
                 <span class="processButton"></span>
             </button>
         </div>
@@ -99,64 +101,63 @@
                 .Delete("CancelWorkOrderProductionProcess", "WorkOrder", new { area = "Factory" })
     )
             .Columns(columns => {
-                columns.Bound(f => f.ProcessId).Title("Chọn").Width(50).ReadOnly(true)
-                    .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= ProcessId #>' />")
-                    .HtmlAttributes(new { style = "text-align:center" });
-                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)).Width(50).Title("Sửa")
-                    .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.WorkOrderSerial).Title("Số WO").Width(80).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.Date).Title("Ngày").Width(70).ReadOnly(true)
-                    .Format("{0:dd/MM/yyyy HH:mm}")
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.MachineName).Title("Máy").Width(70).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(150).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.MaterialInvCode).Title("Nguyên liệu").Width(150).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.Shift).Title("Ca").Width(40).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.UsingQuantityStr).Title("NL</br>SD</br>(cây)").ReadOnly(true).Width(50)
-                    //.Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" });
-                columns.Bound(f => f.GoodQuantity).Title("SL OK</br>(pcs)").Width(70)
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.GoodWeight).Title("TL OK</br>(g)").ReadOnly(true).Width(70)
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.NGQuantity).Title("SL CPL</br>(pcs)").Width(70)
-                    .HeaderHtmlAttributes(new { @class = "ng-column" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.NGWeight).Title("TL CPL</br>(g)").ReadOnly(true).Width(70)
-                    .HeaderHtmlAttributes(new { @class = "ng-column" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.DefectQuantity).Title("SL PP</br>(pcs)").Width(70)
-                    .HeaderHtmlAttributes(new { @class = "defect-column" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.DefectWeight).Title("TL PP</br>(g)").ReadOnly(true).Width(70)
-                    .HeaderHtmlAttributes(new { @class = "defect-column" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.DiffQuantity).Title("Chênh lệch</br>TT-ĐM</br>(pcs)").ReadOnly(true).Width(70)
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.DiffQuantityKg).Title("Chênh lệch</br>TT-ĐM</br>(cây)").ReadOnly(true).Width(70)
-                    .Format("{0:n1}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-
-                columns.Bound(f => f.EmployeeName).Title("Nhân viên").Width(80).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy").Width(50);
+                columns.Bound(f => f.ProcessId).Title("Select").Width(75).ReadOnly(true)
+                       .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= ProcessId #>' />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Command(command => command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(50).Title("Edit")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.WorkOrderSerial).Title("WO Code").Width(80).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.Date).Title("Date").Width(70).ReadOnly(true)
+                       .Format("{0:dd/MM/yyyy HH:mm}")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.MachineName).Title("Machine").Width(70).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.ProductCode).Title("Prodcut").Width(150).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.MaterialInvCode).Title("Material").Width(150).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.Shift).Title("Shift").Width(40).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.UsingQuantityStr).Title("Using</br>Material</br>(bar)").ReadOnly(true).Width(50)
+                       //.Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" });
+                columns.Bound(f => f.GoodQuantity).Title("OK </br>Quantity</br>(pcs)").Width(70)
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.GoodWeight).Title("OK </br>Weight</br>(g)").ReadOnly(true).Width(70)
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.NGQuantity).Title("NG </br>Quantity</br>(pcs)").Width(70)
+                       .HeaderHtmlAttributes(new { @class = "ng-column" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.NGWeight).Title("NG </br>Weight</br>(g)").ReadOnly(true).Width(70)
+                       .HeaderHtmlAttributes(new { @class = "ng-column" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.DefectQuantity).Title("Scrap </br>Quantity</br>(pcs)").Width(70)
+                       .HeaderHtmlAttributes(new { @class = "defect-column" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DefectWeight).Title("Scrap </br>Weight</br>(g)").ReadOnly(true).Width(70)
+                       .HeaderHtmlAttributes(new { @class = "defect-column" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.DiffQuantity).Title("Actual-Plan</br>Diff</br>(pcs)").ReadOnly(true).Width(70)
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DiffQuantityKg).Title("Actual-Plan</br>Diff</br>(bar)").ReadOnly(true).Width(70)
+                       .Format("{0:n1}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.EmployeeName).Title("Employee").Width(80).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Command(c => c.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Title("Cancel").Width(50);
                 //columns.Bound(f => f.EoIName).ReadOnly(true);
-                columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(100).ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.ModifiedUser).Title("M-User").Width(100).ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: center;" });
             })
             //.DetailView(details => details.ClientTemplate(
             //    Html.Telerik().Grid<TransactionDetailModel>()

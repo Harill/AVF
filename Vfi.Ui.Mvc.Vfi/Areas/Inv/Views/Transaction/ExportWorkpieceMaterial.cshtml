@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ExportGCN_NCUModel
 @{
-    ViewBag.Title = "Workpiece Export";
+    ViewBag.Title = "Workpiece Release";
     //Xuất Kho Phôi
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -43,12 +43,12 @@
     </script>
 }
 
-<div class="title">Workpiece Export</div>
+<div class="title">Workpiece Delivery-Note</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
     <fieldset>
-        <legend>Import Order Information</legend>
-        <div class="grid_3">Import Date</div>
+        <legend>Delivery-Note Information</legend>
+        <div class="grid_2_5">Release Date</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DatePicker()
@@ -82,14 +82,14 @@
                 columns.Bound(f => f.MaterialTypeName).Width(120).Title("Material Type").ReadOnly(true);
                 columns.Bound(f => f.TypeName).Width(100).Title("Classify").ReadOnly(true);
                 columns.Bound(f => f.TotalQuantity).Width(100).Title("Inv").ReadOnly(true)
-                        .Format("{0:n2}");
+                       .Format("{0:n2}");
                 columns.Bound(f => f.Weight).Width(100).Title("Weight(kg)")
                        .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #></span>")
                        .FooterTemplate("<span id='TotalWeight'></span>");
-                columns.Bound(f => f.IsDestroy).Width(80).Title("Destroy</br>Export")               // xuat huy
+                columns.Bound(f => f.IsDestroy).Width(80).Title("Release</br>Cancel")               // xuat huy
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDestroy' <#=IsDestroy? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsProcess).Width(80).Title("Processing</br>Export")                  //Xuất GC
+                columns.Bound(f => f.IsProcess).Width(80).Title("Release</br>Processing")                  //Xuất GC
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsDestroy' <#=IsProcess? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.Note).Title("Note");

@@ -3,7 +3,8 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model TransactionModel
 @{
-    ViewBag.Title = "Phiếu SX2";
+    ViewBag.Title = "Production2-Forms";
+    //Phiếu SX2
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
     <script type="text/javascript">
@@ -61,13 +62,15 @@
     </script>
 
 
-<div class="title">Tạo gia công sản xuất 2</div>
+<div class="title">Create Production2-Forms
+   @* Tạo gia công sản xuất 2*@</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
     <fieldset>
-        <legend>Thông tin phiếu</legend>
-        <div class="grid_2">
-            @Html.LabelFor(f => f.WarehouseIssueName)
+        <legend>Form Information</legend>
+        <div class="grid_3">
+            @Html.Label("Warehous-Release")
+@*            @Html.LabelFor(f => f.WarehouseIssueName)*@
         </div>
         <div class="grid_4">
             @{
@@ -98,8 +101,8 @@
             .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
             .ToolBar(bar =>
                 {
-                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
-                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy");
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Add New");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel");
                 })
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectExportProcessing", "Transaction")
@@ -107,15 +110,15 @@
             )
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.ProductCode).Width(150).Title("Mã SP")
+                    columns.Bound(f => f.ProductCode).Width(150).Title("Product Code")
                            .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
-                    columns.Bound(f => f.ErrorName).Width(200).Title("Lỗi")
+                    columns.Bound(f => f.ErrorName).Width(200).Title("Error")
                            .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
                     columns.Bound(f => f.Quantity).Width(65)
-                        .HeaderTemplate("Số lượng")
+                        .HeaderTemplate("Quantity")
                         .HtmlAttributes(new { style = "text-align:right;border-bottom:black 1px dotted;" })
                            .Format("{0:n3}");
-                    columns.Bound(f => f.Note).Title("Ghi chú")
+                    columns.Bound(f => f.Note).Title("Note")
                            .HtmlAttributes(new { style = "border-bottom:black 1px dotted;" });
 
                     columns.Command(commands => commands.Delete().Text("").ButtonType(GridButtonType.Image)).Width(50).Title("");

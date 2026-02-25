@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Cân đối ĐH chưa duyệt";
+    ViewBag.Title = "Balancing Order";
+    //Cân đối ĐH chưa duyệt
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -30,16 +31,16 @@
     </script>
 }
 
-<div class="title">Cân đối đơn hàng chưa duyệt</div>
+<div class="title">Balancing Not Approve Order</div>
 <div class="clear"></div>
 <br />
 
 <div id="pnlInvMonthly">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1180px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-            <div class="grid_2">
-                @Html.Label("Đơn hàng")
+            <legend>Filters</legend>
+            <div class="grid_1_5">
+                @Html.Label("Orders")
             </div>
             <div class="grid_3">
                 @{
@@ -50,14 +51,14 @@
                         .DropDownHtmlAttributes(new { style = "width: 250%" })
                         //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
             <div class="grid_3">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                   Find
                 </button>
             </div>
         </fieldset>
@@ -74,14 +75,14 @@
                                                          .Select("SelectWaitingOrderBalancingPlanModel", "Orders", new { orderId = 0 })
                                                          )
                 .Columns(columns => {
-                    columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                    columns.Bound(f => f.ProductId).Title("No.").Width(35).ReadOnly(true)
                            .HeaderHtmlAttributes(new { style = "font-weight: bold" })
-                        .ClientTemplate("<#= ++index #>")
+                           .ClientTemplate("<#= ++index #>")
                            .HtmlAttributes(new { style = "font-weight: center;" });
-                    columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true)
+                    columns.Bound(f => f.CustomerCode).Title("Customer Code").Width(60).ReadOnly(true)
                            .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                            .HtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.ProductCode).Title("Mã SP").Width(120).ReadOnly(true)
+                    columns.Bound(f => f.ProductCode).Title("Product Code").Width(120).ReadOnly(true)
                            .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                            .Aggregate(agg => agg.Count())
                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")

@@ -3,7 +3,8 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "KT nhiên liệu";
+    ViewBag.Title = "Checking Fuel";
+    //KT nhiên liệu
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -33,11 +34,12 @@
         }
     </script>
 }
-<div class="title">Kiểm tra thông tin tồn kho nhiên liệu
+<div class="title">Checking Fuel Inventory
+    @*Kiểm tra thông tin tồn kho nhiên liệu*@
     
 <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('grid'); ">
     <span class='t-icon t-insert'></span>
-    Làm mới
+    Find
 </button>
 </div>
 <div class="cover-div">
@@ -51,22 +53,22 @@
             .Columns(columns =>
                 {
                     //columns.Bound(f => f.MaterialTypeCode).Width(100).ReadOnly(true).Title("Loại NL");
-                    columns.Bound(f => f.FuelCode).Width(150).ReadOnly(true).Title("Nhiên liệu");
-                    columns.Bound(f => f.LotNumber).Width(150).ReadOnly(true).Title("Lô");
-                    columns.Bound(f => f.VendorCode).Width(150).ReadOnly(true).Title("NCC");
+                    columns.Bound(f => f.FuelCode).Width(150).ReadOnly(true).Title("Fuel");
+                    columns.Bound(f => f.LotNumber).Width(150).ReadOnly(true).Title("Lot");
+                    columns.Bound(f => f.VendorCode).Width(150).ReadOnly(true).Title("Supplier");
                     columns.Bound(f => f.TotalQuantity).Width(70)
-                           .HeaderTemplate("Tồn kho thực tế")
+                           .HeaderTemplate("Actual-Inv")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" });
-                    columns.Bound(f => f.FuelInvId).Title("Thay đổi tồn TT").Width(50)
+                    columns.Bound(f => f.FuelInvId).Title("Adjust Actual-Inv").Width(70)
                            .ClientTemplate("<input type='button' id='id_<#= FuelInvId #>' value='Make' class='t-button' onclick='MakeFuelChangeInventory( <#= FuelInvId #> )' />")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.FirstImportQuantity).Width(70)
-                           .HeaderTemplate("Tồn kho (period)")
+                           .HeaderTemplate("Inv (Period)")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" });
                     columns.Bound(f => f.Quantity).Width(70)
-                           .HeaderTemplate("Chênh lệch (TK - Period)")
+                           .HeaderTemplate("Diff (TK - Period)")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" });
                 })

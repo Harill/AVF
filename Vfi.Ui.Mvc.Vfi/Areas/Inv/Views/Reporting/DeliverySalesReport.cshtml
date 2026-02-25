@@ -88,7 +88,7 @@
 
             <div class="grid_7">
                 <div class="grid_2">
-                    @Html.Label("Customer Code")
+                    @Html.Label("Customer")
                 </div>
                 <div class="grid_4">
                     @{
@@ -104,8 +104,8 @@
                     }
                 </div>
                 <div class="clear"></div><br />
-                <div class="grid_1_5">
-                    @Html.Label("Product Code")
+                <div class="grid_2">
+                    @Html.Label("Product")
 @*                    @Html.LabelFor(f => f.ProductCodeName)*@
                 </div>
                 <div class="grid_4">
@@ -162,7 +162,6 @@
                                .ClientTemplate("<#= ++index #>")
                                .HeaderTemplate("<strong>NO.</strong>")
                                .HtmlAttributes(new { style = "text-align: center;" });
-
                         columns.Bound(f => f.OrderDate).Width(85)
                                .HeaderTemplate("<strong>PO</br>Date</strong>")
                                .Format("{0:dd/MM/yyyy}")
@@ -252,7 +251,7 @@
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.FinishInv).Width(80)
-                               .HeaderTemplate("<strong>Finish</br>Inventory</strong>")
+                               .HeaderTemplate("<strong>Finished</br>Inventory</strong>")
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" })
                                .Aggregate(agg => agg.Sum())

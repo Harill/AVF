@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ImportSX1Model
 @{
-    ViewBag.Title = "Assign Material";
+    ViewBag.Title = "Materials Assign-Forms ";
     //Phiếu Phát Nguyên Liệu
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -135,18 +135,18 @@
     </script>
 }
 
-    <div class="title">Create Assign Material
+    <div class="title">Create Materials Assign-Forms
 @*        Tao phieu phat nguyen lieu*@
     </div>
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
         <fieldset>
-            <legend>Order Detail</legend> 
+            <legend>Assign-Forms Information</legend> 
 @*            Thong tin phieu*@
             <div class="grid_7">
                
             </div>
-            <div class="grid_4">Date Of Product Use
+            <div class="grid_2">Used-Date 
                @* Ngày sử dụng sản phẩm*@</div>
             <div class="grid_4">
                 @{
@@ -181,7 +181,7 @@
                 }
             </div>
             <div class="clear"></div><br />
-            <div class="grid_2">Factory: </div>
+            <div class="grid_2">Factory </div>
             <div class="grid_2">
                 @{
                     Html.Telerik().ComboBox()
@@ -200,7 +200,7 @@
             .DataKeys(keys => keys.Add(f => f.SmartId).RouteKey("smartId"))
             .ToolBar(bar => {
                     //bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm dòng mới");
-                    bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save All").CancelText("Cancel All");
+                    bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel");
                 })
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectAssignMaterials", "Machine", new { area = "Factory" })
@@ -210,16 +210,14 @@
                 columns.Bound(f => f.MachineName).Width(100).Title("Machine").ReadOnly(true);
                 columns.Bound(f => f.ProductCode).Width(150).Title("Product").ReadOnly(true);
                 columns.Bound(f => f.MaterialInventoryCode).Width(200).Title("Material - Lot").ReadOnly(true);
-                columns.Bound(f => f.MaterialInvTotal).Width(75).ReadOnly(true)
-                    .HeaderTemplate("Inv</br(bar)")                     //Tồn kho</br>(cây)
+                columns.Bound(f => f.MaterialInvTotal).Width(75).ReadOnly(true).Title("Inv</br(bar)")            //Tồn kho</br>(cây)
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
-                columns.Bound(f => f.MaterialInvOnMachine).Width(70).ReadOnly(true)
-                    .HeaderTemplate("Machine</br>Inv</br(bar)")                    //Tồn máy</br>(cây)
+                columns.Bound(f => f.MaterialInvOnMachine).Width(70).ReadOnly(true).Title("Machine</br>Inv</br(bar")        //Tồn máy</br>(cây)
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.DiffMaterial).Width(100).ReadOnly(true)
-                    .HeaderTemplate("Machine Inv</br>Actual</br(bar)")                  //Tồn máy</br> TT(cây)
+                       .HeaderTemplate("Machine Inv</br>Actual</br>(bar)")                  //Tồn máy</br> TT(cây)
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.MaterialUse1).Width(70)
@@ -230,27 +228,27 @@
                        .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
                 columns.Bound(f => f.Note).Title("Note");
                 columns.Bound(f => f.TotalMaterialInv).Width(90).ReadOnly(true)
-                    .HeaderTemplate("Σ Material</br>Inv(kg)")                     //Σ tồn</br>NL(kg)
+                       .HeaderTemplate("Σ Material</br>Inv(kg)")                     //Σ tồn</br>NL(kg)
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                 columns.Bound(f => f.MaterialLimitQuantity).Width(90).ReadOnly(true)
-                    .HeaderTemplate("Material</br>Quantity</br>Limited(kg)")                       //Hạn mức</br>NL(kg)
+                       .HeaderTemplate("Material</br>Limited(kg)")                       //Hạn mức</br>NL(kg)
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ProductLimitQuantity).Width(95).ReadOnly(true)
-                    .HeaderTemplate("Product</br>Quantity</br>Limited(pcs)")                      //Hạn mức</br>SP(pcs)
+                       .HeaderTemplate("Product</br>Limited(pcs)")                      //Hạn mức</br>SP(pcs)
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.MaterialUsedQuantity).Width(90).ReadOnly(true)
-                    .HeaderTemplate("Material</br>Used")                 //NL</br>đã SD
+                       .HeaderTemplate("Used</br>Material")                 //NL</br>đã SD
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.MaterialLimitLeft).Width(90).ReadOnly(true)
-                    .HeaderTemplate("Material</br>Limited</br>Remaining")                        //HM NL</br>còn lại
+                       .HeaderTemplate("Material</br>Limited</br>Remaining")                        //HM NL</br>còn lại
                        .Format("{0:n2}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ProductionQuantity).Width(70).ReadOnly(true)
-                    .HeaderTemplate("Product</br>Used")                             //SP</br>đã SX
+                       .HeaderTemplate("Product</br>Created")                             //SP</br>đã SX
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
             })

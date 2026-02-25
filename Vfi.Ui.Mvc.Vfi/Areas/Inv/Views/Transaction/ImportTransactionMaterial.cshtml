@@ -3,7 +3,7 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model TransactionModel
 @{
-    ViewBag.Title = "Purchasing Materials";
+    ViewBag.Title = "Materials Entry-Purchase";
     //Nhập mua NL
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -155,8 +155,8 @@
         var combobox = $('#Type').data('tDropDownList');
         var dataSource =
         [
-            { Text: "Import Material", Value: "1" },
-            { Text: "Change Material", Value: "2" }
+            { Text: "Entry ", Value: "1" },
+            { Text: "Change ", Value: "2" }
         ];
 
         combobox.dataBind(dataSource);
@@ -236,15 +236,15 @@
 </script>
 }
 
-<div class="title">Material Receipt
+<div class="title">Materials Received-Note
    @* Phiếu nhập nguyên liệu*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:1000px;">
     <fieldset>
-        <legend>Receipt Information
-            @*Thông tin phiếu lệnh nhập*@</legend>
+        <legend>Received-Note Information
+            @*Thông tin phiếu nhập*@</legend>
         <div class="grid_13">
-        <div class="grid_2">Formality:
+        <div class="grid_2">Type
            @* Hình thức:*@</div>
         <div class="grid_4">
             @{
@@ -266,7 +266,7 @@
        
      
         
-        <div class="grid_1_5">Exchange Rate</div>
+        <div class="grid_2_5">Exchange Rate</div>
 @*        <div class="grid_1_5">(@Html.Label("Discribe", new {style = "width: 70px;font-weight:bold",val=" "}))</div>*@
         <div class="grid_1_5">
             @{
@@ -296,7 +296,7 @@
                     .Render();
             }
         </div>
-           <div class="grid_2">Import Date</div>
+           <div class="grid_2_5">Entry Date</div>
             <div class="grid_3">
                 @{
                     Html.Telerik().DatePicker()
@@ -348,7 +348,7 @@
                            .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
                     columns.Bound(f => f.RequireQty).Title("Remaining</br>Quantity").Width(100)                   //Số lượng còn lại
                            .HtmlAttributes(new { style = "text-align:right" })
-                          .ClientTemplate("<#= RequireQty == null ? 0 : $.telerik.formatString('{0:n2}', RequireQty) #>");
+                           .ClientTemplate("<#= RequireQty == null ? 0 : $.telerik.formatString('{0:n2}', RequireQty) #>");
                     columns.Bound(f => f.Note).Title("Note");
                 })
             .Scrollable(f => f.Height(200))
@@ -359,12 +359,12 @@
     }
 </div>
 <div class="clear"></div><br/>
-<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Import Material Detail Order</div>          @*Chi tiết lệnh nhập nguyên liệu*@
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Material Received-Note Detail</div>          @*Chi tiết lệnh nhập nguyên liệu*@
 <div class="cover-div">
 @{
     Html.Telerik().Grid<MaterialInventoryModel>()
         .Name("gridMaterialInventoryDetail")
-        .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save All").CancelText("Cancel All"))
+        .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save ").CancelText("Cancel"))
         .DataKeys(keys => keys.Add(f => f.MaterialId).RouteKey("materialId"))
         .DataBinding(dataBindings => dataBindings.Ajax()
                                                  .Select("SelectMaterialInPO", "Inv", new {materialIds = "", poId = 0})
@@ -384,19 +384,19 @@
                 columns.Bound(f => f.Unit).Width(70).ReadOnly(true).Title("Unit</br>Measure")
                        .HtmlAttributes(new {style = "text-align:center"});
                 columns.Bound(f => f.Length).Width(60)
-                        .HeaderTemplate("Length</br>(mm)")
-                        .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .HeaderTemplate("Length</br>(mm)")
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
                        .HtmlAttributes(new {style = "text-align:center"});
                 columns.Bound(f => f.QuantityKg).Width(70)
-                       .HeaderTemplate("Import</br>Quantity")
-                        .HeaderHtmlAttributes(new { @class = "edit-column" })
-                        .HtmlAttributes(new { style = "text-align: right;" })
+                       .HeaderTemplate("Quantity </br>Entry")
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .HtmlAttributes(new { style = "text-align: right;" })
                        .ClientTemplate("<span name='QuantityKg'><#= QuantityKg == null ? 0 : $.telerik.formatString('{0:n3}', QuantityKg) #></span>")
                        .FooterTemplate("<span id='TotalQuantityKg'></span>");
                 columns.Bound(f => f.UnitWeight).Width(60)
                        .HeaderTemplate("Weight</br>(kg/bar)")
-                        .HeaderHtmlAttributes(new { @class = "edit-column" })
-                        .HtmlAttributes(new { style = "text-align: right;" })
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .HtmlAttributes(new { style = "text-align: right;" })
                        .ClientTemplate("<span name='UnitWeight'><#= UnitWeight == null ? 0 : $.telerik.formatString('{0:n4}', UnitWeight) #></span>")
 
                     ;
@@ -404,7 +404,7 @@
                 //       .HtmlAttributes(new {style = "text-align:right"});
                 //columns.Bound(f => f.StoreCode).Width(100).Title("Sơ đồ");
                 columns.Bound(f => f.DrawerCode).Width(100).Title("On Shelf");              //len ke.
-                columns.Bound(f => f.Note);
+                columns.Bound(f => f.Note).Title("Note");
                 columns.Command(commands => commands.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(40).Title("");
             })
         .ClientEvents(events => events

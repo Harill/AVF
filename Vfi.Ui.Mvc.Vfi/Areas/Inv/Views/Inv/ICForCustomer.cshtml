@@ -213,12 +213,12 @@
     </script>
 }
 
-<div class="title">Product Inventory Card (Customer)</div>
+<div class="title">Product Inventory-Card (Customer)</div>
 <div class="clear"></div>
 <br/>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     <fieldset>
-        <legend>Criteria Filtering</legend>
+        <legend>Filters</legend>
         <div class="grid_2">
             Product
         </div>
@@ -259,10 +259,10 @@
             .Columns(columns =>
             {
                 columns.Bound(f => f.ProductCode).Width(85)
-                    .HeaderTemplate("<strong>Current</br>Inventory</strong>")
+                    .HeaderTemplate("<strong>Current</br>Inv</strong>")
                     .Title("");
                 columns.Bound(f => f.TonTong).Width(60)
-                    .HeaderTemplate("Total</br>Inventory")
+                    .HeaderTemplate("Total</br>Inv")
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? '' : $.telerik.formatString('{0:n0}', TonTong) #>")
                     .HtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.TonKhoSX2CNC).Width(60)
@@ -286,7 +286,7 @@
                     .HtmlAttributes(new {style = "text-align: right;"})
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoRungBong) : $.telerik.formatString('{0:n0}', TonKhoRungBong) #>");
                 columns.Bound(f => f.TonKhoGCN).Width(60)
-                    .HeaderTemplate("Waiting</br>Outsource")
+                    .HeaderTemplate("Outsourcing</br>Pending")
                     .HtmlAttributes(new {style = "text-align: right;"})
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoGCN) : $.telerik.formatString('{0:n0}', TonKhoGCN) #>");
                 columns.Bound(f => f.TonKhoNCU).Width(60)
@@ -294,7 +294,7 @@
                     .HtmlAttributes(new {style = "text-align: right;"})
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCU) : $.telerik.formatString('{0:n0}', TonKhoNCU) #>");
                 columns.Bound(f => f.TonKhoNCUKiemTra).Width(60)
-                    .HeaderTemplate("Outsite</br>Checking")
+                    .HeaderTemplate("Outsite</br>Testing")
                     .HtmlAttributes(new {style = "text-align: right;"})
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCUKiemTra) : $.telerik.formatString('{0:n0}', TonKhoNCUKiemTra) #>");
                 columns.Bound(f => f.TonKhoQCA).Width(60)
@@ -315,16 +315,16 @@
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', Packing) : $.telerik.formatString('{0:n0}', Packing) #>");
                            
                 columns.Bound(f => f.TonKhoTPA).Width(60)
-                    .HeaderTemplate("Finished</br>Product")
+                    .HeaderTemplate("Finished")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoTPA) : $.telerik.formatString('{0:n0}', TonKhoTPA) #>");
                         
                 columns.Bound(f => f.TonKhoCXL).Width(60)
-                    .HeaderTemplate("Sorting")
+                    .HeaderTemplate("Classify")
                     .HtmlAttributes(new {style = "text-align: right;"})
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoCXL) : $.telerik.formatString('{0:n0}', TonKhoCXL) #>");
                 columns.Bound(f => f.ReProcessing).Width(60)
-                    .HeaderTemplate("GC")
+                    .HeaderTemplate("ReProcess")
                     .HtmlAttributes(new {style = "text-align: right;"})
                     .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', ReProcessing) : $.telerik.formatString('{0:n0}', ReProcessing) #>");
             })

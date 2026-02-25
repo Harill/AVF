@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Lock Production";
+    ViewBag.Title = "Production Lock";
     //Khoá Sx
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -27,7 +27,7 @@
     </script>
 }
 
-<div class="title"> Lock Production Management
+<div class="title">Production-Lock Management
     @*Quản lý khoá SX*@</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
@@ -78,7 +78,7 @@
             .Columns(columns =>
                 {
                     columns.Command(command =>
-                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix")
+                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit")
                         ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
                     columns.Bound(f => f.LockDate).Width(50).Title("Date")

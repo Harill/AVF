@@ -3,7 +3,8 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @model TransactionModel
 @{
-    ViewBag.Title = "Hủy chi tiết PO";
+    ViewBag.Title = "Cancel PO";
+    //Hủy chi tiết PO
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -36,13 +37,15 @@
     </script>
 }
 
-<div class="title">Phiếu nhập</div>
+<div class="title">Cancel PO
+@*    Phiếu nhập*@
+</div>
 
 <div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:1000px;">
    
    <fieldset>
-        <legend>Thông tin phiếu lệnh nhập</legend>
-        <div class="grid_2">Số phiếu</div>
+        <legend>PO-Information</legend>
+        <div class="grid_2">PO Number</div>
         <div class="grid_5">
             @{
                 Html.Telerik().ComboBox()
@@ -66,7 +69,7 @@
         Html.Telerik().Grid<PurchaseOrderDetailModel>()
             .Name("gridPoDetail")
 
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu").CancelText("Trở lại"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel"))
             .DataKeys(keys => keys.Add(f => f.PurchaseOrderDetailId).RouteKey("purchaseOrderDetailId"))
             .DataBinding(dataDindings => dataDindings.Ajax()
                                                      .Select("SelectPurchaseOrderDetailByPOId", "PurchaseOrder",
@@ -77,34 +80,34 @@
                     //columns.Bound(f => f.PurchaseOrderDetailId).Title("Chọn").Width(75)
                     //       .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= PurchaseOrderDetailId #>' />")
                     //       .HtmlAttributes(new {style = "text-align:center"});
-                    columns.Bound(f => f.VendorCodeName).ReadOnly(true).Title("Nhà cung cấp").Width(200);
-                    columns.Bound(f => f.Code).ReadOnly(true).Title("Mã");
-                    columns.Bound(f => f.Unit).ReadOnly(true).Title("ĐVT").Width(70)
+                    columns.Bound(f => f.VendorCodeName).ReadOnly(true).Title("Supplier").Width(200);
+                    columns.Bound(f => f.Code).ReadOnly(true).Title("Code").Width(100);
+                    columns.Bound(f => f.Unit).ReadOnly(true).Title("Unit Measure").Width(100)
                            .HtmlAttributes(new {style = "text-align:center"});
                     //columns.Bound(f => f.LotNumber);
-                    columns.Bound(f => f.OrderQty).Title("SL yêu cầu").ReadOnly(true).Width(100)
+                    columns.Bound(f => f.OrderQty).Title("Required Quantity").ReadOnly(true).Width(130)
                            .HtmlAttributes(new { style = "text-align:right" })
                            .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
-                    columns.Bound(f => f.ReceivedQty).Title("SL đã nhận").ReadOnly(true).Width(100)
+                    columns.Bound(f => f.ReceivedQty).Title("Received Quantity").ReadOnly(true).Width(130)
                            .HtmlAttributes(new { style = "text-align:right" })
                            .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
-                    columns.Bound(f => f.RejectedQty).Title("SL đã trả").ReadOnly(true).Width(100)
+                    columns.Bound(f => f.RejectedQty).Title("Returned Quantity").ReadOnly(true).Width(130)
                            .HtmlAttributes(new { style = "text-align:right" })
                            .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n2}', OrderQty) #>");
-                    columns.Bound(f => f.RequireQty).Title("SL còn lại").ReadOnly(true).Width(100)
+                    columns.Bound(f => f.RequireQty).Title("Remaining Quantity").ReadOnly(true).Width(135)
                            .HtmlAttributes(new {style = "text-align:right"})
                            .ClientTemplate("<#= RequireQty == null ? 0 : $.telerik.formatString('{0:n2}', RequireQty) #>");
-                    columns.Bound(f => f.Quantity).Title("SL giảm trừ").Width(100)
+                    columns.Bound(f => f.Quantity).Title("Deduct Quantity").Width(130)              //SL giảm trừ
                            .HtmlAttributes(new {style = "text-align:right"});
 
                 })
-            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Editable(f => f.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             //.Scrollable(f => f.Height(200))
             .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
                                           .OnError("grid_OnError")
                                           .OnSubmitChanges("grid_OnSubmitChanges"))
             //.Filterable()
-            .Pageable(f => f.PageOnScroll(true).Style(GridPagerStyles.Status))
+            .Pageable(f => f.PageOnScroll(true).Style(Telerik.Web.Mvc.UI.GridPagerStyles.Status))
             .Render();
     }
 </div>

@@ -1,7 +1,7 @@
 ﻿@model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.MaterialInvShelfDiagramViewModel
 
 @{
-    ViewBag.Title = "MaterialInventoryShelfDiagram";
+    ViewBag.Title = "Material On Shelf Diagram";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -156,12 +156,13 @@
         margin: auto;
     }
 </style>
-<div class="title">Sơ đồ kho nguyên liệu</div>
+<div class="title">Material Inv Diagram
+    @*Sơ đồ kho nguyên liệu*@</div>
 
 <div class="clear"></div>
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width:50%;float:left">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
             <div class="grid_2">
                 &nbsp;
             </div>
@@ -172,7 +173,7 @@
 
                 </section>
             <div class="grid_2">
-                Loại
+                Type
             </div>
 
             <div>
@@ -191,7 +192,7 @@
             </div>
             <div class="clear"></div>
             <div class="grid_2">
-                Nhà CC
+                Supplier 
             </div>
 
             <div>
@@ -209,7 +210,7 @@
 
             <div>
             <div class="grid_2">
-                Thời gian
+                Time
             </div>
                 <section id="options" class="clearfix">
                     <ul id="filters" class="option-set clearfix" data-option-key="filter">

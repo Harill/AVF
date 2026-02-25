@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Đơn hàng";
+    ViewBag.Title = "Sale-Order Phase";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script type="text/javascript">
@@ -16,8 +16,9 @@
     }
 </script>
 
-<div class="title">Tiến độ đơn hàng</div>
-<div class="grid_1">KH</div>
+<div class="title">Sale-Order Phase
+   @* Tiến độ đơn hàng*@</div>
+<div class="grid_1_5">Customer:</div>
             <div class="grid_8">
                 @{
                     Html.Telerik().ComboBox()
@@ -26,12 +27,12 @@
                         .HtmlAttributes(new {style = "width: 250px"})
                         .DropDownHtmlAttributes(new {style = "width: 325px;"})
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
     <button id="btnRefesh2" class="t-button" onclick=" DisplaySalesOrderProgress()">
         <span class='t-icon t-refresh'></span>
-        Làm mới
+        Find
     </button>
 <div id="result"></div>

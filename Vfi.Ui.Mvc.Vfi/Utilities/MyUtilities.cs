@@ -1587,16 +1587,16 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
 
                     switch (status) {
                         case (int)Status.Open:
-                            rs = "Đợi duyệt";
+                            rs = "Waiting";            //Đợi duyệt
                             break;
                         case (int)Status.Approved:
-                            rs = "Đã duyệt";
+                            rs = "Approved";
                             break;
                         case (int)Status.Cancel:
-                            rs = "Huỷ bỏ";
+                            rs = "Cancel";
                             break;
                         case (int)Status.Processing:
-                            rs = "Đang xử lý";
+                            rs = "Processing";                    //Đang xử lý
                             break;
                         default:
                             rs = "";

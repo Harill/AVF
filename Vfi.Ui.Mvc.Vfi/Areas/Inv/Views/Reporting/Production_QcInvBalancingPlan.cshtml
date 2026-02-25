@@ -74,9 +74,9 @@
             var combobox = $('#Type').data('tDropDownList');
             var dataSource =
             [
-                { Text: "Business Order", Value: "1" },
+                { Text: "Sale Orders", Value: "1" },
                 //Đơn hàng KD
-                { Text: "Business Forecast", Value: "2" }
+                { Text: "Sale Forecast", Value: "2" }
                 //Dự báo KD
 
             ];
@@ -95,7 +95,7 @@
 <div id="pnlInvMonthly">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1180px;">
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
             <div class="grid_2">
                 @Html.Label("Customer")
             </div>
@@ -178,7 +178,7 @@
             <div class="grid_2_5">
                 <label>
                     <input type="checkbox" id="chkAllOrder" name="chkAllOrder" />
-                    Take All
+                    Select All
                 </label>
                 <br />
             </div>
@@ -205,11 +205,11 @@
                                                                  new { customerId = 0, productCode = "", fromPoDate = "", toPoDate = "", invDate = "", type = 1, isAllOrder = false })
                                                          )
                 .Columns(columns => {
-                        columns.Bound(f => f.ProductId).Title("Index").Width(35).ReadOnly(true)
+                        columns.Bound(f => f.ProductId).Title("No.").Width(35).ReadOnly(true)
                                .HeaderHtmlAttributes(new { style = "font-weight: bold" })
-                            .ClientTemplate("<#= ++index #>")
+                               .ClientTemplate("<#= ++index #>")
                                .HtmlAttributes(new { style = "font-weight: center;" });
-                        columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(60).ReadOnly(true)
+                        columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(70).ReadOnly(true)
                                .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                                .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.ProductCode).Title("Product</br>Code").Width(120).ReadOnly(true)
@@ -242,8 +242,8 @@
                                .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
 
                         // sx1
-                        columns.Bound(f => f.Production1.TotalProductionQuantity).Width(65)
-                               .HeaderTemplate("Reality</br>Quantity").ReadOnly(true)              //SL TT
+                        columns.Bound(f => f.Production1.TotalProductionQuantity).Width(85)
+                               .HeaderTemplate("Actual</br>Quantity").ReadOnly(true)              //SL TT
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
@@ -251,7 +251,7 @@
                                .HeaderTemplate("After</br>Inv").ReadOnly(true)                 //TK Sau
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Production1.ProductionRatePerDay).Width(65)
+                        columns.Bound(f => f.Production1.ProductionRatePerDay).Width(95)
                                .HeaderTemplate("Productivity</br>/Day").ReadOnly(true)                      //ĐM/n
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
@@ -269,13 +269,13 @@
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Production1.RequireProduction).Width(75)
-                               .HeaderTemplate("Reality </br>- Plan").ReadOnly(true)
+                               .HeaderTemplate("Actual</br>- Plan").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
 
                         //// cnc
-                        columns.Bound(f => f.Cnc.TotalProductionQuantity).Width(65)
-                               .HeaderTemplate("Reality</br>Quantity").ReadOnly(true)
+                        columns.Bound(f => f.Cnc.TotalProductionQuantity).Width(85)
+                               .HeaderTemplate("Actual</br>Quantity").ReadOnly(true)
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
@@ -288,7 +288,7 @@
                                .HeaderTemplate("After</br>Inv").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Cnc.ProductionRatePerDay).Width(65)
+                        columns.Bound(f => f.Cnc.ProductionRatePerDay).Width(95)
                                .HeaderTemplate("Productivity</br>/Day").ReadOnly(true)
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
@@ -306,13 +306,13 @@
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Cnc.RequireProduction).Width(75)
-                               .HeaderTemplate("Reality <br>- Plan").ReadOnly(true)
+                               .HeaderTemplate("Actual <br>- Plan").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
 
                         //// sx2
-                        columns.Bound(f => f.Production2.TotalProductionQuantity).Width(65)
-                               .HeaderTemplate("Reality</br>Quantity").ReadOnly(true)
+                        columns.Bound(f => f.Production2.TotalProductionQuantity).Width(85)
+                               .HeaderTemplate("Actual</br>Quantity").ReadOnly(true)
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
@@ -325,7 +325,7 @@
                                .HeaderTemplate("After</br>Inv").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Production2.ProductionRatePerDay).Width(65)
+                        columns.Bound(f => f.Production2.ProductionRatePerDay).Width(95)
                                .HeaderTemplate("Productivity</br>/Day").ReadOnly(true)
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
@@ -343,17 +343,17 @@
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Production2.RequireProduction).Width(75)
-                               .HeaderTemplate("Reality </br>- Plan").ReadOnly(true)
+                               .HeaderTemplate("Actual </br>- Plan").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;border-right:black 3px double;" });
 
                         // 
 
 
-                        columns.Bound(f => f.PlanImportQcDateString).Width(90).Title("Ngày TT")
+                        columns.Bound(f => f.PlanImportQcDateString).Width(90).Title("Actual</br>Date")
                                .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.RequireImportQcDate).Width(85).Title("Ngày YC")
-                               .HeaderTemplate("QC</br>Import").ReadOnly(true)
+                        columns.Bound(f => f.RequireImportQcDate).Width(85).Title("Required</br>Date")
+                               .HeaderTemplate("QC</br>Entry").ReadOnly(true)
                                .Format("{0:dd/MM/yyyy}")
                                .HtmlAttributes(new { style = "text-align: center;border-right:black 3px double;" });
                         columns.Bound(f => f.FinishInv).Width(100)
@@ -369,38 +369,38 @@
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.PlatingInv).Width(100)
-                               .HeaderTemplate("Outsource </br> Inv").ReadOnly(true)
+                               .HeaderTemplate("Outsourcing </br> Inv").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.PenaltyDay).Width(150)
-                               .HeaderTemplate("Production2</br>Day</br>After").ReadOnly(true)                //Số ngày</br>sau SX2
+                        columns.Bound(f => f.PenaltyDay).Width(100)
+                               .HeaderTemplate("Days After</br>Production2").ReadOnly(true)                //Số ngày</br>sau SX2
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                     //
-                        columns.Bound(f => f.Production1.TotalRequireQuantity).Width(150)
+                        columns.Bound(f => f.Production1.TotalRequireQuantity).Width(110)
                                .HeaderTemplate("PO Increasing</br>Production1").ReadOnly(true)                //PO tăng</br>dần SX
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Production1.ProductionDay).Width(150)
-                               .HeaderTemplate("Production1 PLan</br>Days Need</br>").ReadOnly(true)                 //Số ngày</br>KH SX1
+                        columns.Bound(f => f.Production1.ProductionDay).Width(100)
+                               .HeaderTemplate("Production1</br>Days PLan </br>").ReadOnly(true)                 //Số ngày</br>KH SX1
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                     //
-                        columns.Bound(f => f.Cnc.TotalRequireQuantity).Width(150)
+                        columns.Bound(f => f.Cnc.TotalRequireQuantity).Width(110)
                                .HeaderTemplate("PO Increasing</br>CNC").ReadOnly(true)                      ////PO tăng</br>dần CNC
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Cnc.ProductionDay).Width(150)
-                               .HeaderTemplate("CNC PLan</br>Days Need").ReadOnly(true)                         //Số ngày</br>KH CNC
+                        columns.Bound(f => f.Cnc.ProductionDay).Width(100)
+                               .HeaderTemplate("CNC Days</br>PLan").ReadOnly(true)                         //Số ngày</br>KH CNC
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         //
-                        columns.Bound(f => f.Production2.TotalRequireQuantity).Width(150)
+                        columns.Bound(f => f.Production2.TotalRequireQuantity).Width(110)
                                .HeaderTemplate("PO Increasing</br>Production2").ReadOnly(true)                        //PO tăng</br>dần SX2
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Production2.ProductionDay).Width(150)
-                               .HeaderTemplate("Production2 Plan</br>Days Need").ReadOnly(true)                             //Số ngày</br>KH SX2
+                        columns.Bound(f => f.Production2.ProductionDay).Width(100)
+                               .HeaderTemplate("Production2 </br>Days Plan ").ReadOnly(true)                             //Số ngày</br>KH SX2
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         //
@@ -408,12 +408,12 @@
                                .HeaderTemplate("Cumulative</br>Date").ReadOnly(true)                    //Ngày LK
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.AvgProduction1).Width(70)
-                               .HeaderTemplate("SX1</br>Avg").ReadOnly(true)                     //BQ SX1
+                        columns.Bound(f => f.AvgProduction1).Width(100)
+                               .HeaderTemplate("Production1</br>Avg").ReadOnly(true)                     //BQ SX1
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.AvgProduction2).Width(70)
-                               .HeaderTemplate("SX2</br>Avg").ReadOnly(true)                     //BQ SX2
+                        columns.Bound(f => f.AvgProduction2).Width(100)
+                               .HeaderTemplate("Production2</br>Avg").ReadOnly(true)                     //BQ SX2
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.AvgCnc).Width(70)

@@ -32,10 +32,10 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -92,17 +92,18 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("Index").Width(45).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(45).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                        .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.CustomerCode).Width(90)
                        .HeaderTemplate("Customer</br>Code");
-                columns.Bound(f => f.ProductCode).Width(110)
+                columns.Bound(f => f.ProductCode).Width(120)
                        .HeaderTemplate("Product</br>Code");
 
-                columns.Bound(f => f.PlatingIndex).Width(70)
-                       .HeaderTemplate("Outsource</br>Index");
+                columns.Bound(f => f.PlatingIndex).Width(90)
+                       .HeaderTemplate("Outsource</br>Index")                   
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.PlatingName).Width(200)
                        .HeaderTemplate("Processing");
                 columns.Bound(f => f.SaltSprayTime).Width(100)
@@ -110,23 +111,23 @@
                 columns.Bound(f => f.Thickness).Width(100)
                        .HeaderTemplate("Thickness");
                 columns.Bound(f => f.PlatingDay).Width(100)
-                       .HeaderTemplate("Times</br>(d)")
+                       .HeaderTemplate("Time</br>(d)")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.PlatingCost).Width(100)
                        .HeaderTemplate("Cost")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Description)
-                       .HeaderTemplate("Describe");
+                       .HeaderTemplate("Note");
                 columns.Bound(f => f.Active).Width(60).Title("Active")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.IsMainProcess).Width(70).Title("Main</br>Process")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date").ReadOnly(true)
+                columns.Bound(f => f.ModifiedDate).Width(80).Title("M-Date").ReadOnly(true)
                        .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.ModifiedUser).Width(100).Title("M-User").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(80).Title("M-User").ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

@@ -65,11 +65,11 @@
     </script>
 }
 
-<div class="title">Material Order Expected</div> @*Dự kiến đặt hàng nguyên liệu*@
+<div class="title">Material-Order Expected</div> @*Dự kiến đặt hàng nguyên liệu*@
 <div class="clear"></div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
     <fieldset>
-        <legend>Criteria Filtering</legend>
+        <legend>Filters</legend>
 
         <div class="grid_2">
            Material
@@ -161,7 +161,7 @@
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectExpectedMaterialPlan", "Reporting"))
             .Columns(columns => {
-                columns.Bound(f => f.Index).Title("Index").Width(45)
+                columns.Bound(f => f.Index).Title("No.").Width(45)
                        .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "font-weight: center" });
                 columns.Bound(f => f.MaterialTypeName).Title("Type").Width(60)
@@ -180,20 +180,20 @@
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
                 // so lieu
-                columns.Bound(f => f.OrderLastYearKg).Width(100)
+                columns.Bound(f => f.OrderLastYearKg).Width(80)
                        .HeaderTemplate("Last Year<br/>Order</br>(kg)")               //Đơn hàng<br/>năm trước</br>(kg)
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ForecastInYearKg).Width(100)
+                columns.Bound(f => f.ForecastInYearKg).Width(80)
                        .HeaderTemplate("In Year<br/>Forecast</br>(kg)")                 //Dự báo<br/>trong năm</br>(kg
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ForecastByMonthKg).Width(50)
-                       .HeaderTemplate("<span id='ForecastByMonthHeader'></span></br>Forecast</br>(kg)")            //Dự báo</br><span id='ForecastByMonthHeader'>theo tháng</span></br>(kg)
+                       .HeaderTemplate("<span id='ForecastByMonthHeader'></span>s</br>Forecast</br>(kg)")            //Dự báo</br><span id='ForecastByMonthHeader'>theo tháng</span></br>(kg)
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
@@ -213,14 +213,14 @@
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ForecastNextMonthKg).Width(50)
-                       .HeaderTemplate("Next Month<br/>Forecast</br>(kg)")              //Dự báo<br/>tháng kế</br>(kg)"
+                       .HeaderTemplate("N-Month<br/>Forecast</br>(kg)")              //Dự báo<br/>tháng kế</br>(kg)"
                        .Aggregate(agg => agg.Sum())
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.RequireByMonthKg).Width(50)
-                       .HeaderTemplate("<span id='RequireByMonthHeader'></span></br>Order</br>(kg)")                //Yêu cầu</br><span id='RequireByMonthHeader'>theo tháng</span></br>(kg)
+                       .HeaderTemplate("<span id='RequireByMonthHeader'></span>s</br>Order</br>(kg)")                //Yêu cầu</br><span id='RequireByMonthHeader'>theo tháng</span></br>(kg)
                        .Aggregate(agg => agg.Sum())
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -234,14 +234,14 @@
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.UseInMonthKg).Width(50)
-                       .HeaderTemplate("Use<br/>In Month</br>(kg/Month)")                //Sử dụng<br/>trong tháng</br>(kg/tháng)
+                       .HeaderTemplate("Used<br/>In Month</br>(kg/Month)")                //Sử dụng<br/>trong tháng</br>(kg/tháng)
                        .Aggregate(agg => agg.Sum())
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.UseAvgInYearKg).Width(50)
-                       .HeaderTemplate("Avg Use<br/>In Year</br>(kg/Year)")           //TB sử dụng<br/>trong năm</br>(kg/tháng)
+                       .HeaderTemplate("Avg-Used<br/>In Year</br>(kg/Year)")           //TB sử dụng<br/>trong năm</br>(kg/tháng)
                        .Aggregate(agg => agg.Sum())
                        .Format("{0:n2}")
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -309,7 +309,7 @@
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.ForecastByMonth).Width(70)
                                            //.HeaderTemplate("Dự báo</br>theo tháng (pcs)")
-                                              .HeaderTemplate("<span class='ForecastByMonthHeaderDetail'></span></br>Forecast</br>(pcs)")      //Dự báo</br><span class='ForecastByMonthHeaderDetail'>theo tháng</span></br>(pcs)
+                                              .HeaderTemplate("<span class='ForecastByMonthHeaderDetail'></span>s</br>Forecast</br>(pcs)")      //Dự báo</br><span class='ForecastByMonthHeaderDetail'>theo tháng</span></br>(pcs)
                                               .Format("{0:n0}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.OrderRemaining).Width(70)
@@ -321,7 +321,7 @@
                                               .Format("{0:n0}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.ForecastNextMonth).Width(70)
-                                              .HeaderTemplate("Next Month<br/>Forecast</br>(pcs)")          //Dự báo<br/>tháng kế</br>(pcs)
+                                              .HeaderTemplate("N-Month<br/>Forecast</br>(pcs)")          //Dự báo<br/>tháng kế</br>(pcs)
                                               .Format("{0:n0}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.RequireByMonthKg).Width(70)
@@ -329,15 +329,15 @@
                                               .Format("{0:n2}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.UseInMonthKg).Width(70)
-                                              .HeaderTemplate("Material Use</br>(kg/Month)")      //NL Sử dụng<br/>trong tháng</br>(kg/tháng)
+                                              .HeaderTemplate("Material-Used</br>In Month</br>(kg/Month)")      //NL Sử dụng<br/>trong tháng</br>(kg/tháng)
                                               .Format("{0:n2}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
-                                       columns.Bound(f => f.UseAvgInYearKg).Width(70)
-                                              .HeaderTemplate("AVG </br>Material Use<br/>(kg/Month)")          //TB SD NL<br/>trong năm</br>(kg/tháng)
+                                       columns.Bound(f => f.UseAvgInYearKg).Width(100)
+                                              .HeaderTemplate("AVG Material-Used</br>In Year<br/>(kg/Month)")          //TB SD NL<br/>trong năm</br>(kg/tháng)
                                               .Format("{0:n2}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        columns.Bound(f => f.MaxUseInMonthKg).Width(70)
-                                              .HeaderTemplate("MAX </br>Material Use</br>(kg/Day)")            //"MAX SD NL<br/>trong tháng</br>(kg/ngày)
+                                              .HeaderTemplate("MAX Material-Used</br>In Month</br>(kg/Day)")            //"MAX SD NL<br/>trong tháng</br>(kg/ngày)
                                               .Format("{0:n2}")
                                               .HtmlAttributes(new { style = "text-align: right;" });
                                        //columns.Bound(f => f.RequireNextMonth).Width(70)

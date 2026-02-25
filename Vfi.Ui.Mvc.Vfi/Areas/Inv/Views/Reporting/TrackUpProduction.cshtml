@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Products Quantity Needs Production";
+    ViewBag.Title = "Product Production";
     //Sản phẩm cần lên máy
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -34,7 +34,7 @@
     <fieldset>
         <legend>Filters</legend>
         <div class="grid_2">
-            @Html.Label("Customer Code")
+            @Html.Label("Customer")
         </div>
         <div class="grid_4">
             @{
@@ -50,7 +50,7 @@
             }
         </div>
         <div class="grid_2">
-            @Html.Label("Product Code")
+            @Html.Label("Product")
 @*            @Html.LabelFor(f => f.ProductCodeName)*@
         </div>
         <div class="grid_4">
@@ -132,7 +132,7 @@
                                            columns.Bound(f => f.OrderNumber).Width(120)
                                                   .HeaderTemplate("Order Number");               //Số đơn hàng
                                            columns.Bound(f => f.OrderQty).Width(70)
-                                                  .HeaderTemplate("Order</br>Quantity")                       //SL đặt
+                                                  .HeaderTemplate("Ordered</br>Quantity")                       //SL đặt
                                                   .Format("{0:n0}")
                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                            columns.Bound(f => f.RequiredNumber).Width(70)

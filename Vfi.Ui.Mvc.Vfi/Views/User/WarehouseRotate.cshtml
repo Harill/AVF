@@ -118,7 +118,7 @@
                                          .ClientTemplate("<input type='radio' name='rdioUser'value='<#= WarehouseId #>' onclick='displayCheckedUsers();'/>")
                                          .Title("Check").Width(35)
                                          .HtmlAttributes(new {style = "text-align:center"});
-                                     columns.Bound(u => u.WarehouseName).Width(100);
+                                     columns.Bound(u => u.WarehouseName).Width(100).Title("Warehouse Name");
                                  });
             grid.Sortable();
             grid.Footer(false);

@@ -46,10 +46,10 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
             
            <div class="grid_1_5">
-                    Customer Code
+                    Customer
                 </div>
                 <div class="grid_5">
                      @{
@@ -105,7 +105,7 @@
             .Columns(columns =>
                 {
                     columns.Command(command =>
-                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Delete").Text("Fix")
+                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit")
                         ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
                     columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
@@ -120,16 +120,16 @@
                            .ClientTemplate("<strong><#= ProductCode #></strong>");
 
                     columns.Bound(f => f.ProductionRate).Width(70)
-                           .HeaderTemplate("Production</br>Rate(pcs/Pcs)");
+                           .HeaderTemplate("Productivity</br>(pcs/bar)");
 
                     columns.Bound(f => f.ProductionWeight).Width(70)
-                           .HeaderTemplate("Production</br>Weight");
+                           .HeaderTemplate("PDT</br>Weight");
                     
                     columns.Bound(f => f.CncWeight).Width(70)
-                           .HeaderTemplate("Cnc</br>Weight");
+                           .HeaderTemplate("CNC</br>Weight");
                     
                     columns.Bound(f => f.Production2Weight).Width(70)
-                           .HeaderTemplate("Production2</br>Weight");
+                           .HeaderTemplate("PDT2</br>Weight");
                     
                     columns.Bound(f => f.HeatTreatmentWeight).Width(70)
                            .HeaderTemplate("Heat Treatment</br>Weight");
@@ -143,7 +143,7 @@
                     columns.Bound(f => f.PlatingWeight).Width(70)
                            .HeaderTemplate("After Plating</br>Weight");
                     columns.Bound(f => f.QcWeight).Width(70)
-                           .HeaderTemplate("Qc </br>Weight");
+                           .HeaderTemplate("QC</br>Weight");
                 })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

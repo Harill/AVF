@@ -105,7 +105,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
+            <div class="grid_1_5">
                 @Html.Label("Product")
             </div>
             <div class="grid_4">
@@ -215,9 +215,9 @@
                                                                  })
                                                          )
                 .Columns(columns => {
-                        columns.Bound(f => f.ProductId).Title("Index").Width(45).ReadOnly(true)
+                        columns.Bound(f => f.ProductId).Title("No.").Width(45).ReadOnly(true)
                                .HeaderHtmlAttributes(new { style = "font-weight: bold" })
-                            .ClientTemplate("<#= ++index #>")
+                               .ClientTemplate("<#= ++index #>")
                                .HtmlAttributes(new { style = "font-weight: center;" });
                         columns.Bound(f => f.CustomerCode).Title("Customer</br>Code").Width(70).ReadOnly(true)
                                .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
@@ -243,15 +243,15 @@
                                .HeaderTemplate("Forecast").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.RequireNumber).Width(70)
-                               .HeaderTemplate("Production</br>Require").ReadOnly(true)           //Yêu cầu SX
+                        columns.Bound(f => f.RequireNumber).Width(90)
+                               .HeaderTemplate("Production</br>Required").ReadOnly(true)           //Yêu cầu SX
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.RequireDate).Width(85)
-                               .HeaderTemplate("Require</br>Date").ReadOnly(true)                    //Ngày YC
+                               .HeaderTemplate("Required</br>Date").ReadOnly(true)                    //Ngày YC
                                .Format("{0:dd/MM/yyyy}")
                                .HtmlAttributes(new { style = "text-align: center;" });
-                        columns.Bound(f => f.State).Width(50)
+                        columns.Bound(f => f.State).Width(60)
                                .HeaderTemplate("Status");                     //Tình</br>trạng
                         columns.Bound(f => f.SetupDate).Width(85)
                                .HeaderTemplate("Set-up</br>Date").ReadOnly(true)           //Thời hạn</br>lên máy
@@ -261,21 +261,20 @@
                                .HeaderTemplate("Material").ReadOnly(true)
                                .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.MaterialInv).Width(70)
-                               .HeaderTemplate("Material</br>Inv(Bar)").ReadOnly(true)
+                               .HeaderTemplate("Material</br>Inv(bar)").ReadOnly(true)
                                .Format("{0:n0}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.MaterialInvKg).Width(70)
                                .HeaderTemplate("Material</br>Inv(kg)").ReadOnly(true)
                                .Format("{0:n2}")
                                .HtmlAttributes(new { style = "text-align: right;" });
-
                         columns.Bound(f => f.ProductionHistory).Width(100)
                                .Format("{0}")
                                .HeaderTemplate("Production</br>Machine</br>History");                   //Lịch sử máy SX
-                        columns.Bound(f => f.ProductionOnRun).Width(100)
+                        columns.Bound(f => f.ProductionOnRun).Width(140)
                                .Format("{0}")
                                .HeaderTemplate("Running Machine</br>(Machine Diagram)");               //Máy đang chạy</br>(theo sơ đồ máy)
-                        columns.Bound(f => f.AvailableMachine).Width(100)
+                        columns.Bound(f => f.AvailableMachine).Width(130)
                                .Format("{0}")
                                .HeaderTemplate("Empty Machine</br>Follow</br>Product Function");                      //Máy trống theo</br>chức năng SP
 

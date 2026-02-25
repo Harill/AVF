@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Dự báo";
+    ViewBag.Title = "Forecast Process";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <script type="text/javascript">
@@ -30,10 +30,10 @@
     function cboStatus_OnLoad() {
         var dataSource =
         [
-            { Text: "Sẽ trễ", Value: "1" },
-            { Text: "Đã trễ", Value: "2" },
-            { Text: "Đủ SL", Value: "-1" },
-            { Text: "Bình thường", Value: "0" }
+            { Text: "Will Late", Value: "1" },
+            { Text: "Lated", Value: "2" },
+            { Text: "Enought Quantity", Value: "-1" },
+            { Text: "Normal", Value: "0" }
         ];
 
         var combobox = $('#cboStatus').data('tComboBox');
@@ -68,8 +68,8 @@
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-            <div class="grid_1">KH</div>
+            <legend>Filters</legend>
+            <div class="grid_1_5">Customer</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().ComboBox()
@@ -78,11 +78,11 @@
                         .HtmlAttributes(new {style = "width: 190px"})
                         .DropDownHtmlAttributes(new {style = "width: 275px;"})
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
-            <div class="grid_2">Tình trạng</div>
+            <div class="grid_1">Status</div>
             <div class="grid_3">
                 @{
                     Html.Telerik().ComboBox()
@@ -91,13 +91,13 @@
                         .HtmlAttributes(new {style = "width: 100px"})
                         .DropDownHtmlAttributes(new {style = "width: 100px;"})
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .ClientEvents(e => e.OnLoad("cboStatus_OnLoad"))
                         .Render();
                 }
             </div>
             <div class="grid_1">
-                @Html.Label("Tháng")
+                @Html.Label("Month")
             </div>
             <div class="grid_2">
                 @{
@@ -114,7 +114,7 @@
             </div>
 
             <div class="grid_1">
-                @Html.Label("Năm")
+                @Html.Label("Year")
             </div>
             <div class="grid_2">
 
@@ -128,7 +128,7 @@
             </div>
             <button id="btnRefesh2" class="t-button" onclick=" DisplayForecastOrderProgress()">
                 <span class='t-icon t-refresh'></span>
-                Làm mới
+                Find
             </button>
         </fieldset>
     </div>

@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "Product Mangagement (CnC)";
+    ViewBag.Title = "Product Mangagement (CNC)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -27,15 +27,15 @@
     </script>
 }
 
-<div class="title">Product Mangagement (CnC)</div>
+<div class="title">Product Mangagement (CNC)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -94,18 +94,18 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("Index").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(35).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                     .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "font-weight: center;" });
                 columns.Bound(f => f.CustomerCode).Width(70).ReadOnly(true)
-                       .HeaderTemplate("<strong>Customer</br>Code</strong>")
+                       .HeaderTemplate("<strong>Customer Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center;" })
                        .HtmlAttributes(new { style = "text-align:center;" })
                        .ClientTemplate("<strong><#= CustomerCode #></strong>");
 
                 columns.Bound(f => f.ProductCode).Width(100).ReadOnly(true)
-                       .HeaderTemplate("<strong>Product</br>Code</strong>")
+                       .HeaderTemplate("<strong>Product Code</strong>")
                        .HeaderHtmlAttributes(new { style = "text-align:center" })
                        .ClientTemplate("<strong><#= ProductCode #></strong>");
 

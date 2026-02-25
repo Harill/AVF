@@ -32,10 +32,10 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend>Filters</legend>
 
             <div class="grid_1_5">
-                Customer Code
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -92,34 +92,33 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("Index").Width(45).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(45).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
-                    .ClientTemplate("<#= ++index #>")
+                       .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.CustomerCode).Width(100)
-                       .HeaderTemplate("Customer</br>Code");
+                       .HeaderTemplate("Customer Code");
                 columns.Bound(f => f.ProductCode).Width(100)
-                       .HeaderTemplate("Product</br>Code");
-
+                       .HeaderTemplate("Product Code");
                 columns.Bound(f => f.Section).Width(70)
                        .HeaderTemplate("Section")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Name).Width(100)
                        .HeaderTemplate("Name");
-                columns.Bound(f => f.Rate).Width(75)
-                       .HeaderTemplate("Rate")
+                columns.Bound(f => f.Rate).Width(85)
+                       .HeaderTemplate("Quantity /Times")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Timing).Width(75)
-                       .HeaderTemplate("Times(s)")
+                       .HeaderTemplate("Time(s)")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Rock).Width(75)
-                       .HeaderTemplate("Rock");
+                       .HeaderTemplate("Rock Type");
                 columns.Bound(f => f.Using).Width(150)
-                       .HeaderTemplate("Using");
+                       .HeaderTemplate("Use").Width(50);
                 columns.Bound(f => f.Note)
-                       .HeaderTemplate("Note");
+                       .HeaderTemplate("Note").Width(50);
                 columns.Bound(f => f.Active).Width(60)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });

@@ -1,7 +1,8 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Kho Xi mạ";
+    ViewBag.Title = "Plating-Inv";
+    //Kho Xi mạ
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -53,7 +54,8 @@
     </script>
 }
 
-<div class="title">Báo cáo xuất nhập tồn kho NCU</div>
+<div class="title">Plating Inventory Report
+    @*Báo cáo xuất nhập tồn kho NCU*@</div>
 <div class="clear"></div>
 <br />
 
@@ -61,10 +63,10 @@
     <div class="t-info-sha" style="padding-left: 5px; padding-right: 5px; width: 1090px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
            
             <div class="grid_2">
-                @Html.Label("Mã KH")
+                @Html.Label("Customer")
             </div>
             <div class="grid_4">
                 @{
@@ -75,12 +77,12 @@
                         .DropDownHtmlAttributes(new { style = "width: 275px" })
                         //.ClientEvents(events => events.OnChange("customerForPeriod_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
-            <div class="grid_2">
-                @Html.LabelFor(f => f.ProductCodeName)
+            <div class="grid_1_5">
+                @Html.Label("Product")
             </div>
             <div class="grid_4">
                 @{
@@ -125,7 +127,7 @@
             <div class="grid_3">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridProductionMonthly'); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                   Find
                 </button>
             </div>
         </fieldset>
@@ -145,58 +147,57 @@
                     {
                         columns.Bound(f => f.GlobalIndex)
                                .ClientTemplate("<#= GlobalIndex #>")
-                               .HeaderTemplate("<strong>STT</strong>").Width(50);
+                               .HeaderTemplate("<strong>No.</strong>").Width(50);
                         columns.Bound(f => f.CustomerCode)
-                               .HeaderTemplate("<strong>Mã KH</strong>").Width(65)
+                               .HeaderTemplate("<strong>Customer</br>Code</strong>").Width(85)
                                .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.ProductCode).Width(100)
-                               .HeaderTemplate("<strong>Mã SP</strong>")
+                               .HeaderTemplate("<strong>Product</br>Code</strong>")
                                .HtmlAttributes(new { style = "text-align: center;" })
                                .Aggregate(agg => agg.Count())
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
-                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
-                               ;
-                        columns.Bound(f => f.Weight).Title("Trọng lượng").Width(90)
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>");
+                        columns.Bound(f => f.Weight).Title("Weight").Width(90)
                                .Format("{0:n3}")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         // so lieu
-                        columns.Bound(f => f.EarlyInventory).Width(80)
-                               .HeaderTemplate("Tồn đầu</br>(pcs)")
+                        columns.Bound(f => f.EarlyInventory).Width(90)
+                               .HeaderTemplate("First-Inv</br>(pcs)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
                         columns.Bound(f => f.EarlyInventoryKg).Width(80)
-                               .HeaderTemplate("Tồn đầu</br>(g)")
+                               .HeaderTemplate("First-Inv</br>(g)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .HtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.ImportWaiting).Width(80)
-                               .HeaderTemplate("Nhập GCN</br>(pcs)")
+                        columns.Bound(f => f.ImportWaiting).Width(100)
+                               .HeaderTemplate("Outsourcing</br>Entry(pcs))")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
                         columns.Bound(f => f.ExportQcB).Width(80)
-                               .HeaderTemplate("Xuất QC/B</br>(pcs)")
+                               .HeaderTemplate("QC/B</br>Release(pcs)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
                         columns.Bound(f => f.LastInventory).Width(75)
-                               .HeaderTemplate("Tồn cuối</br>(pcs)")
+                               .HeaderTemplate("Last-Inv</br>(pcs)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .HtmlAttributes(new { style = "text-align: right;border-left:black 3px double;" });
                         columns.Bound(f => f.LastInventoryKg).Width(75)
-                              .HeaderTemplate("Tồn cuối</br>(g)")
+                              .HeaderTemplate("Last-Inv</br>(g)")
                               .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")

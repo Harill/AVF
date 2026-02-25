@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Đo kiểm WO";
+    ViewBag.Title = "Input QC";
+    //Đo kiểm WO
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <style>
@@ -389,15 +390,15 @@
     </script>
 }
 
-<div class="title">Nhập đo kiểm</div>
+<div class="title">Input QC</div>
 <div class="clear"></div>
 <br />
 
 <div class="t-info-sha fieldheader fieldheader1">
     <fieldset>
-        <legend>Thông tin Work Order</legend>
+        <legend>Work Order Information</legend>
         <div class="grid_1_5">
-            Chọn
+            Select
         </div>
         <div class="grid_6">
             @{
@@ -406,7 +407,7 @@
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWorkOrderQCRouting", "WorkOrder", new { area = "Factory" }).Delay(350))
                     .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .ClientEvents(events => events.OnChange("workOrder_OnChange"))
@@ -422,13 +423,13 @@
         <div class="clear"></div>
         <div class="grid_12">
             <div class="grid_2">
-                Số Serial
+               Serial:
             </div>
             <div class="grid_3" style="font-size: large;">
                 <span id="SerialNumber">~~</span>
             </div>
             <div class="grid_2">
-                Sản phẩm
+                Product:
             </div>
             <div class="grid_4" style="font-size: large;">
                 <span id="ProductCode">~~</span>
@@ -437,13 +438,13 @@
             <br />
 
             <div class="grid_2">
-                Công đoạn
+                Section:
             </div>
             <div class="grid_3">
                 <span id="RoutingName">~~</span>
             </div>
             <div class="grid_2">
-                CĐ kế
+                Next Section:
             </div>
             <div class="grid_3">
                 <span id="NextRouteName">~~</span>
@@ -452,13 +453,13 @@
             <br />
 
             <div class="grid_2">
-                Kế hoạch:
+                Plan:
             </div>
             <div class="grid_3">
                 <span id="WorkOrderQuantity">0</span> (pcs)
             </div>
             <div class="grid_2">
-                Thực hiện:
+               Actual:
             </div>
             <div class="grid_3">
                 <span id="ProductionQuantity">0</span> (pcs)
@@ -467,7 +468,7 @@
             <br />
 
             <div class="grid_2">
-                TL SP
+               Product Weight:
             </div>
             <div class="grid_1_5">
                 @{
@@ -486,7 +487,7 @@
             <div class="grid_1_5">(g/pc)</div>
 
             <div class="grid_2">
-                TL BB
+                Package Weight:
             </div>
             <div class="grid_1_5">
                 @{
@@ -511,27 +512,27 @@
 
 <div class="t-info-sha fieldheader fieldheader2">
     <fieldset>
-        <legend>Cân hàng OK</legend>
+        <legend>Weighing OK </legend>
         
         <div class="grid_3">
             <button class="t-button" id="btnConnect" name="btnConnect" onclick=" Connect() ">
                 <span class='t-icon t-insert'></span>
-                Kết nối cân
+                Connect
             </button> | 
         </div>
         <div class="grid_3">
             <button class="t-button" id="btnDisConnect" name="btnDisConnect" onclick=" DisConnect() ">
                 <span class='t-icon t-delete'></span>
-                Ngắt kết nối
+                Disconnect
             </button>
         </div>
         <div class="clear"></div>
         <br />
-        <div style="text-align: center; width: 100%;  font-size: xxx-large;">
+        <div style="text-align: center; width: 100%;  font-size: xx-large;">
             <span id="WeighValue">~</span>
             kg
         </div>
-        <div style="text-align: center; width: 100%;  font-size: xxx-large;">
+        <div style="text-align: center; width: 100%;  font-size: xx-large;">
             <span id="QuantityValue">~</span>
             pcs
             <span class="processButton"></span>
@@ -542,8 +543,8 @@
 
 <div class="t-info-sha fieldheader fieldheader3">
     <fieldset>
-        <legend>Thông tin</legend>
-        <div class="grid_2">Nhân viên</div>
+        <legend>Information</legend>
+        <div class="grid_2">Employee</div>
         <div class="grid_4">
             @{
                     Html.Telerik().ComboBox()
@@ -551,7 +552,7 @@
                         //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         //.DropDownHtmlAttributes(new { style = "width: 150px" })
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .HighlightFirstMatch(true)
                         .AutoFill(true)
                         .Render();
@@ -561,7 +562,7 @@
         <div class="clear"></div>
         <br />
         <div class="grid_2">
-            Nguyên liệu
+            Material
         </div>
         <div class="grid_8" style="font-size: large;">
             <span id="MaterialInvCode">~~</span>
@@ -569,7 +570,7 @@
         
         <div class="clear"></div>
         <div class="grid_8">
-            Danh sách nhân viên đo kiểm
+           List QC-Employee
         <button class="demo" onClick="empty('brandsMulti')">X</button>
         </div>
         <div class="clear"></div>
@@ -590,65 +591,63 @@
     @{
         Html.Telerik().Grid<WorkOrderRoutingModel>()
             .Name("grid")
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel"))
             .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectWorkOrderProcess", "WorkOrder", new { area = "Factory", routingId = 0, productWeight = 0, weight = 0 })
                 .Update("ImportWorkOrderProcess", "WorkOrder", new { area = "Factory", productWeight = 0 })
                 )
             .Columns(columns => {
-                columns.Bound(f => f.ProductWeight).Width(90).HeaderTemplate("Trọng lượng</br>Sản phẩm</br>(g/pc)").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .Format("{0:n4}")
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.PlannedCost).Width(90).HeaderTemplate("Số lượng</br>nhận</br>xử lý").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.PreviousRouteQuantity).Width(90).HeaderTemplate("Số lượng</br>cần</br>xử lý").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='ProductionQuantity'><#=  $.telerik.formatString('{0:n0}', PreviousRouteQuantity) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.GoodQuantity).Width(90).HeaderTemplate("Hàng</br>OK</br>(pcs)")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .ClientTemplate("<span class='GoodQuantity'><#=  $.telerik.formatString('{0:n0}', GoodQuantity) #></span>")
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.GoodWeight).Width(90).HeaderTemplate("Hàng</br>OK</br>(g)")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='GoodWeight'><#=  $.telerik.formatString('{0:n0}', GoodWeight) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                
-                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("Hàng</br>CPL</br>(pcs)")
-                    .HeaderHtmlAttributes(new { @class = "ng-column" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='NGQuantity'><#=  $.telerik.formatString('{0:n0}', NGQuantity) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("Hàng</br>CPL</br>(g)")
-                    .HeaderHtmlAttributes(new { @class = "ng-column" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='NGWeight'><#=  $.telerik.formatString('{0:n0}', NGWeight) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-
-                columns.Bound(f => f.DefectQuantity).Width(90).HeaderTemplate("Phế phẩm</br>(pcs)")
-                    .HeaderHtmlAttributes(new { @class = "defect-column" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='DefectQuantity'><#=  $.telerik.formatString('{0:n0}', DefectQuantity) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.DefectWeight).Width(90).HeaderTemplate("Phế phẩm</br>(g)")
-                    .HeaderHtmlAttributes(new { @class = "defect-column" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='DefectWeight'><#=  $.telerik.formatString('{0:n0}', DefectWeight) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.DiffQuantity).Width(90).HeaderTemplate("Còn lại</br>YC - TT (pcs)").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='DiffQuantity'><#= DiffQuantity #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.ProductWeight).Width(90).HeaderTemplate("Product</br>Weight</br>(g/pc)").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .Format("{0:n4}")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.PlannedCost).Width(90).HeaderTemplate("Received</br>Quantity").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.PreviousRouteQuantity).Width(90).HeaderTemplate("Processing</br>Quantity").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='ProductionQuantity'><#=  $.telerik.formatString('{0:n0}', PreviousRouteQuantity) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.GoodQuantity).Width(90).HeaderTemplate("OK</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .ClientTemplate("<span class='GoodQuantity'><#=  $.telerik.formatString('{0:n0}', GoodQuantity) #></span>")
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.GoodWeight).Width(90).HeaderTemplate("OK</br>(g)")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='GoodWeight'><#=  $.telerik.formatString('{0:n0}', GoodWeight) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("NG</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "ng-column" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='NGQuantity'><#=  $.telerik.formatString('{0:n0}', NGQuantity) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("NG</br>(g)")
+                       .HeaderHtmlAttributes(new { @class = "ng-column" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='NGWeight'><#=  $.telerik.formatString('{0:n0}', NGWeight) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.DefectQuantity).Width(90).HeaderTemplate("Scrap</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "defect-column" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='DefectQuantity'><#=  $.telerik.formatString('{0:n0}', DefectQuantity) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DefectWeight).Width(90).HeaderTemplate("Scrap</br>(g)")
+                       .HeaderHtmlAttributes(new { @class = "defect-column" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='DefectWeight'><#=  $.telerik.formatString('{0:n0}', DefectWeight) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
+                columns.Bound(f => f.DiffQuantity).Width(90).HeaderTemplate("Required-Actual</br> Remaining(pcs)").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='DiffQuantity'><#= DiffQuantity #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
             })
-            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             .ClientEvents(events => events
                 .OnDataBinding("grid_OnDataBinding")
                 .OnSave("grid_OnSave")

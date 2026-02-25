@@ -2,7 +2,8 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model ExportFormTP_KD
 @{
-    ViewBag.Title = "Lập Phiếu Xuất Kho";
+    ViewBag.Title = "Create Warehouse-Delivery-Note";
+    //Lập Phiếu Xuất Kho
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -146,13 +147,14 @@
     </script>
 }
 
-<div class="title">Phiếu xuất kho thành phẩm</div>
+<div class="title">Finished-Warehouse Delivery-Note
+   @* Phiếu xuất kho thành phẩm*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
     
     <fieldset>
-        <legend>Thông tin phiếu xuất</legend>
-          <div class="grid_3">Khách hàng</div>
+        <legend>Delivery-Note Information</legend>
+          <div class="grid_2">Customer</div>
             <div class="grid_8">
             @{
                 Html.Telerik().ComboBox()
@@ -162,11 +164,11 @@
                     .DropDownHtmlAttributes(new {style = "width: 325px;"})
                     //.ClientEvents(events => events.OnChange("customer_onChange"))
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
-        <div class="grid_3">Ngày chuyển</div>
+        <div class="grid_2_5">Transport Date</div>
             <div class="grid_4">
                 @{
                     Html.Telerik().DatePicker()
@@ -177,20 +179,23 @@
                 }
             </div>
         <div class="clear"></div><br />
-        <div class="grid_3">Người vận chuyển</div>
+        <div class="grid_2">Transporter
+           @* Người vận chuyển*@</div>
         <div class="grid_4">
             @Html.TextBoxFor(f=>f.Transporter, new {style ="color: maroon;", @onchange = "TextBoxChange();"})
         </div>
-        <div class="grid_3">Công ty vận chuyển</div>
+        <div class="grid_2">Company Transporter      
+@*             Công ty vận chuyển*@
+        </div>
         <div class="grid_4">
             @Html.TextBoxFor(f=>f.CompanyTransporter, new {style ="color: maroon;"})
         </div>
     <div class="clear"></div><br />
-        <div class="grid_3">Biển số xe</div>
+        <div class="grid_2">Car Number</div>
         <div class="grid_4">
             @Html.TextBoxFor(f=>f.CarNumber, new {style ="color: maroon;"})
         </div>
-         <div class="grid_3">Tổng số thùng</div>
+         <div class="grid_2">Total Box</div>
         <div class="grid_4">
             @Html.TextBoxFor(f=>f.TotalBox, new {style ="color: maroon;"})
         </div>
@@ -205,55 +210,55 @@
             .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
             .ToolBar(bar =>
                 {
-                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm SP mới");
-                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy");
+                    bar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New");
+                    bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel");
                 })
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("InputProductInOrder", "Inv", new { productIds = "", id = 0, type = 0 })
                                                    .Update("ProductExportTP_NewType3", "Transaction"))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.ProductCode).Width(250).Title("Mã SP")
-                               .HeaderHtmlAttributes(new { @class = "edit-column" });
+                    columns.Bound(f => f.ProductCode).Width(250).Title("Product Code")
+                           .HeaderHtmlAttributes(new { @class = "edit-column" });
                     columns.Bound(f => f.ProductWeight).Width(75).ReadOnly(true)
-                           .HeaderTemplate("Trọng lượng(g/pcs)")
+                           .HeaderTemplate("Weight(g/pcs)")
                            .ClientTemplate("<span class='ProductWeight'></span>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.TotalQuantity).Width(75).ReadOnly(true)
-                           .HeaderTemplate("Tồn kho(pcs)")
+                           .HeaderTemplate("Inv(pcs)")
                            .ClientTemplate("<span class='TotalQuantity'></span>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.Quality).Width(150)
-                           .HeaderTemplate("Số lượng chuyển(pcs)")
-                               .HeaderHtmlAttributes(new { @class = "edit-column" })
+                           .HeaderTemplate("Quantity Rotate(pcs)")                         //Số lượng chuyển(pcs)
+                           .HeaderHtmlAttributes(new { @class = "edit-column" })
                            .ClientTemplate("<span name='Quality'><#= Quality == null ? 0 : $.telerik.formatString('{0:n0}', Quality) #></span>")
                            .FooterTemplate("<span id='TotalQuantity'></span>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" })
-                            .HtmlAttributes(new { style = "text-align: right;" });
+                           .HtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.Weight).Width(150)
-                           .HeaderTemplate("Trọng lượng chuyển(g)")
-                               .HeaderHtmlAttributes(new { @class = "edit-column" })
+                           .HeaderTemplate("Weight Rotate(g)")                  //Trọng lượng chuyển
+                           .HeaderHtmlAttributes(new { @class = "edit-column" })
                            .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n0}', Weight) #></span>")
                            .FooterTemplate("<span id='TotalWeight'></span>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" })
-                            .HtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.SentWeight).Width(150).ReadOnly(true)
-                           .HeaderTemplate("Trọng lượng tương ứng SL(g)")
+                           .HtmlAttributes(new { style = "text-align: right;" });
+                    columns.Bound(f => f.SentWeight).Width(200).ReadOnly(true)
+                           .HeaderTemplate("Weight Corresponding Quantity(g)")               //Trọng lượng tương ứng SL(g)
                            .ClientTemplate("<span class='SentWeight'><#= SentWeight == null ? 0 : $.telerik.formatString('{0:n0}', SentWeight) #></span>")
                            .FooterTemplate("<span id='TotalSentWeight'></span>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" })
                            .HtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.Note).Title("Ghi chú");
-                    columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
+                    columns.Bound(f => f.Note).Title("Note");
+                    columns.Command(commands => commands.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(50).Title("");
                 })
             .ClientEvents(events => events
                                         //.OnDataBinding("gridPurchaseOrderDetailPartial_onDataBinding")
                 //.OnEdit("gridOrderDetailPartial_onEdit")
-                                    .OnSave("gridProductInventoryDetail_onSave")
+                                        .OnSave("gridProductInventoryDetail_onSave")
                                         .OnSubmitChanges("gridProductInventoryDetail_onSubmitChanges")
                                         .OnError("grid_OnError")
             )
-            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             .KeyboardNavigation()
             //.Footer(false)
             .Render();

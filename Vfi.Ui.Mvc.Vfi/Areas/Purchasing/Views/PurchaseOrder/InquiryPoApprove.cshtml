@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model PurchaseOrderModel
 @{
-    ViewBag.Title = "Duyệt yêu cầu";
+    ViewBag.Title = "Approve Purchase-Inquiry ";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -164,14 +164,18 @@
 }
 
 
-<div class="title">Duyệt phiếu yêu cầu</div>
+<div class="title">Approve Purchase-Inquiry
+    @*Duyệt phiếu yêu cầu*@</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
     <fieldset>
-        <legend>Thông tin phiếu yêu cầu</legend>
+        <legend>Purchase-Inquiry Information</legend>
 
-        <div class="grid_5">@Html.LabelFor(f => f.MaterialClasstifiedName)</div>
-        <div class="grid_6">@Html.LabelFor(f => f.VendorCodeName)
+        <div class="grid_5">@Html.Label("Supply Classify")</div>
+       @* <div class="grid_5">@Html.LabelFor(f => f.MaterialClasstifiedName)</div>*@
+
+        <div class="grid_6">@Html.Label("Supplier")
+@*        <div class="grid_6">@Html.LabelFor(f => f.VendorCodeName)*@
            @* <button class="t-button" id="btnTypeRefresh" name="btnPickupMaterialId" onclick=" TypeRefresh() ">
                 <span class='t-icon t-refresh'></span>
             </button>*@
@@ -212,8 +216,8 @@
             }
         </div>*@
         
-       <div class="grid_2">
-            Tình trạng
+       <div class="grid_1">
+          Status
         </div>
         <div class="grid_4">
             @{
@@ -223,7 +227,7 @@
                     .HtmlAttributes(new { style = "width: 150px" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
                     .ClientEvents(e => e.OnChange("status_OnChange"))
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .Render();
@@ -231,13 +235,13 @@
         </div>
         <div class="grid_1">
             <button class="t-button" id="btnGridRefresh" name="btnPickupMaterialId" onclick=" RefreshGrid('grid') ">
-                <span class='t-icon t-refresh'>Làm mới</span>
+                <span class='t-icon t-refresh'>Find</span>
             </button>
         </div>
         <div class="grid_6">
             <button class="t-button" id="btnPrintForm" name="btnPickupId" onclick=" printInquiryForm() ">
                 <span class='t-icon t-insert'></span>
-                In Phiếu Yêu Cầu
+                Print
                 <span class="processButton"></span>
             </button>
 
@@ -258,7 +262,7 @@
         <div class="grid_9">
             <button class="t-button" id="btnTransform" name="btnPickupId" onclick=" transformToPO() ">
                 <span class='t-icon t-insert'></span>
-                Chuyển thành mua hàng
+                Convert To Purchase
                 <span class="processButton"></span>
             </button>
         </div>
@@ -288,51 +292,49 @@
                 })
             )
             .Columns(columns => {
-                columns.Bound(f => f.InquiryId).Title("Chọn").Width(50).ReadOnly(true)
-                    .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= InquiryId #>' />")
-                    .HtmlAttributes(new { style = "text-align:center" });
-                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image))
-                    .Width(50).Title("Sửa")
-                    .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.InquiryNumber).Width(100).Title("Số yêu cầu");
-                columns.Bound(f => f.ClassifiedName).Width(100).Title("Phân loại").ReadOnly(true);
-                columns.Bound(f => f.TypeName).Width(100).Title("Loại").ReadOnly(true);
-                columns.Bound(f => f.VendorCode).Width(120).Title("NCC");
-                columns.Bound(f => f.ReferenceName).Width(100).Title("Tên").ReadOnly(true);
-                columns.Bound(f => f.ReferenceCode).Width(170).Title("Mã").ReadOnly(true);
-                columns.Bound(f => f.Unit).Width(50).Title("ĐVT");
+                columns.Bound(f => f.InquiryId).Title("Select").Width(65).ReadOnly(true)
+                       .ClientTemplate("<input type='checkbox' name='chkIds' value='<#= InquiryId #>' />")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Command(command => command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image))
+                       .Width(50).Title("Edit")
+                       .HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(f => f.InquiryNumber).Width(110).Title("Required's Number");
+                columns.Bound(f => f.ClassifiedName).Width(100).Title("Classify").ReadOnly(true);
+                columns.Bound(f => f.TypeName).Width(100).Title("Type").ReadOnly(true);
+                columns.Bound(f => f.VendorCode).Width(120).Title("Supplier");
+                columns.Bound(f => f.ReferenceName).Width(100).Title("Name").ReadOnly(true);
+                columns.Bound(f => f.ReferenceCode).Width(170).Title("Code").ReadOnly(true);
+                columns.Bound(f => f.Unit).Width(90).Title("Unit Measure");
 
-                columns.Bound(f => f.Currency).Width(70).Title("Tiền tệ");
-                columns.Bound(f => f.OrderQty).Width(70).Title("SL")
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .Format("{0:n0}")
-                    .Aggregate(agg => agg.Sum())
-                    .FooterHtmlAttributes(new { style = "text-align: right;" })
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                columns.Bound(f => f.UnitPrice).Width(100).Title("ĐG")
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .ClientTemplate("<#= UnitPriceStr #>");
+                columns.Bound(f => f.Currency).Width(70).Title("Currency");
+                columns.Bound(f => f.OrderQty).Width(70).Title("Quantity")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .Format("{0:n0}")
+                       .Aggregate(agg => agg.Sum())
+                       .FooterHtmlAttributes(new { style = "text-align: right;" })
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                columns.Bound(f => f.UnitPrice).Width(100).Title("Unit Price")
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .ClientTemplate("<#= UnitPriceStr #>");
+                columns.Bound(f => f.Price).Width(100).Title("Total Amount").ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .Format("{0:n0}")
+                       .Aggregate(agg => agg.Sum())
+                       .FooterHtmlAttributes(new { style = "text-align: right;" })
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
 
-
-                columns.Bound(f => f.Price).Width(100).Title("TT").ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .Format("{0:n0}")
-                    .Aggregate(agg => agg.Sum())
-                    .FooterHtmlAttributes(new { style = "text-align: right;" })
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-
-                columns.Bound(f => f.DueDate).Width(100).Title("Ngày YC")
+                columns.Bound(f => f.DueDate).Width(100).Title("Required Date")
                        .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
-                columns.Bound(f => f.TotalInv).Width(70).Title("Tồn kho").ReadOnly(true)
-                    .HtmlAttributes(new { style = "text-align: right;" })
-                    .Format("{0:n2}");
+                columns.Bound(f => f.TotalInv).Width(50).Title("Inv").ReadOnly(true)
+                       .HtmlAttributes(new { style = "text-align: right;" })
+                       .Format("{0:n2}");
                 columns.Bound(f => f.Note).Width(150);
-                columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(50).Title("");
-                columns.Bound(f => f.ModifiedDate).Width(90).Title("Ngày làm").ReadOnly(true)
+                columns.Command(commands => commands.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(50).Title("");
+                columns.Bound(f => f.ModifiedDate).Width(90).Title("M-Date").ReadOnly(true)
                        .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm}', ModifiedDate) #>");
-                columns.Bound(f => f.ModifiedUser).Width(90).Title("Người làm").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(90).Title("M-User").ReadOnly(true);
             })
             .ClientEvents(events => events
                 .OnDataBinding("grid_OnDataBinding")

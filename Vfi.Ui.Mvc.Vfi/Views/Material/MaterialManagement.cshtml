@@ -71,8 +71,8 @@
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     
         <fieldset>
-            <legend>Criteria Filtering</legend>                                            @* Tieu chi loc *@
-                <div class="grid_2">Product</div>
+            <legend>Filters</legend>                                            @* Tieu chi loc *@
+                <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -90,7 +90,7 @@
             </div>
               <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridMaterial'); ">
                     <span class='t-icon t-insert'></span>
-                   Refresh
+                  Find
                 </button>
         </fieldset>
     </div>
@@ -111,27 +111,28 @@
         .Columns(columns =>
             {
                 columns.Command(command =>
-                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Fixing")
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Edit")
                     ).Width(90).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
                 //columns.Bound(f => f.VendorCodeName).Width(150)
                 //       .ClientTemplate("<strong><#= VendorCodeName #></strong>");
-                columns.Bound(f => f.MaterialTypeName).Width(100)
-                       .HeaderTemplate("Material Type")                                                  // Loại</br>nguyên liệu
+                columns.Bound(f => f.MaterialTypeName).Width(120)
+                       .HeaderTemplate("Material</br>Type")                                                  // Loại</br>nguyên liệu
                        .ClientTemplate("<strong><#= MaterialTypeName #></strong>");
-                columns.Bound(f => f.MaterialName).Width(100)
-                       .HeaderTemplate("Material Name");                                          //Tên</br>nguyên liệu
+                columns.Bound(f => f.MaterialName).Width(130)
+                       .HeaderTemplate("Material</br> Name");                                          //Tên</br>nguyên liệu
                 columns.Bound(f => f.MaterialCode)
                     //.Width(225)
                        .ReadOnly(true)
+                       .HeaderTemplate("Material VF-Code") 
                        .ClientTemplate("<strong><#= MaterialCode #></strong>");
                 columns.Bound(f => f.OutDiameter).Width(80)
-                       .HeaderTemplate("OD(mm)");
+                       .HeaderTemplate("OD</br>(mm)");
                 columns.Bound(f => f.InDiameter).Width(80)
-                       .HeaderTemplate("ID(mm)");
-                columns.Bound(f => f.Shape).Width(65)
+                       .HeaderTemplate("ID</br>(mm)");
+                columns.Bound(f => f.Shape).Width(70)
                        .HtmlAttributes(new {style = "text-align:center;"})
                        .HeaderTemplate("Shape");
-                columns.Bound(f => f.DiameterType).Width(85)
+                columns.Bound(f => f.DiameterType).Width(95)
                        .HtmlAttributes(new {style = "text-align:center;"})
                        .HeaderTemplate("Tolerance");
                 //columns.Bound(f => f.Length).Width(70)
@@ -139,7 +140,7 @@
                 //       .HeaderTemplate("Chiều dài</br>(mm)")
                 //       .ClientTemplate("<#= Length == null ? 0 :$.telerik.formatString('{0:n0}', Length) #>");
                 columns.Bound(f => f.Weight).Width(80)
-                       .HeaderTemplate("Weight(kg/unit)");
+                       .HeaderTemplate("Weight</br>(kg/unit)");
                 columns.Bound(f => f.UnitPrice).Width(80)
                        .HeaderTemplate("Price")
                        .HtmlAttributes(new {style = "text-align:right;"})
@@ -182,10 +183,10 @@
                                            ).Width(40).Title("").HtmlAttributes(new { style = "text-align:center" });
                                        columns.Bound(f => f.CustomerCode).Width(65).Title("Customer</br>Code").ReadOnly(true);
                                        columns.Bound(f => f.ProductCode).Width(120).Title("Product Code");
-                                       columns.Bound(f => f.ForecastInYear).Width(85)
+                                       columns.Bound(f => f.ForecastInYear).Width(105)
                                               .HeaderTemplate("Forecast </br> 1 Year (pcs)")                                                                                       // Dự báo</br>SX 1 năm(pcs)
                                               .Format("{0:n0}");
-                                       columns.Bound(f => f.ForecastIn3Month).Width(85).ReadOnly(true)
+                                       columns.Bound(f => f.ForecastIn3Month).Width(105).ReadOnly(true)
                                               .HeaderTemplate("Forecast </br> 1 Quarter (pcs)")                                                                                  //Dự báo</br>SX 1 quý(pcs)
                                               .Format("{0:n0}");
                                        columns.Bound(f => f.UnitWeightByMaterial).Width(85).ReadOnly(true)
@@ -201,10 +202,10 @@
                                               .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                                               .HtmlAttributes(new {style = "text-align:center"});
                                        columns.Bound(f => f.ModifiedUser)
-                                              .Title("Modified User").ReadOnly(true)
+                                              .Title("M-User").ReadOnly(true)
                                               .Width(90);
                                        columns.Bound(f => f.ModifiedDate)
-                                              .Title("Modified Date").ReadOnly(true)
+                                              .Title("M-Date").ReadOnly(true)
                                               .Width(90)
                                               .Format("{0:dd/MM/yyyy HH:mm:ss}");
                                        //columns.Command(commands => commands.Delete().ButtonType(GridButtonType.Image)).Width(30).Title("");

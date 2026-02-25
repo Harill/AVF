@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @{
-    ViewBag.Title = "Material Use Form Management";
+    ViewBag.Title = "Material-Using Forms Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -68,7 +68,7 @@
             [
                 { Text: "Assign Material", Value: "1" },
                 // phat NL
-                { Text: "Return Material", Value: "2" }         
+                { Text: "Recall Material", Value: "2" }         
                 //Tra NL
             ];
 
@@ -83,12 +83,12 @@
 
     </script>
 }
-<div class="title">Material Transaction On Machine Information
-    (Hồ sơ thông tin lệnh giao dịch nguyên liệu trên máy)</div>
+<div class="title">On-Machine Materials-Transaction Information
+   @* (Hồ sơ thông tin lệnh giao dịch nguyên liệu trên máy)*@</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <fieldset>
-            <legend>Filter</legend>
-            <div class="grid_2">
+            <legend>Filters</legend>
+            <div class="grid_3">
               Transaction Status
             </div>
             <div class="grid_4">

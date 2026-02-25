@@ -144,14 +144,14 @@
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.ToolExport).Width(70)
-                        .HeaderTemplate("<strong>Tools</br>Export</strong>")                //Xuất</br>công</br>cụ
+                        .HeaderTemplate("<strong>Tools</br>Release</strong>")                //Xuất</br>công</br>cụ
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.FuelExport).Width(70)
-                        .HeaderTemplate("<strong>Fuel</br>Export</strong>")                  //Xuất</br>nhiên</br>liệ
+                        .HeaderTemplate("<strong>Fuel</br>Release</strong>")                  //Xuất</br>nhiên</br>liệ
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
@@ -179,21 +179,21 @@
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.MaterialUsePrice).Width(70)
-                        .HeaderTemplate("<strong>Materials Used</br>Price(VND)</strong>")                 //Giá trị</br>NL SD</br>(VND)
+                        .HeaderTemplate("<strong>MaterialsUsed</br>Price(VND)</strong>")                 //Giá trị</br>NL SD</br>(VND)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.ToolExportPrice).Width(70)
-                        .HeaderTemplate("<strong>Tools Export</br>Price(VND)</strong>")            //Giá trị</br>xuất CC</br>(VND)
+                        .HeaderTemplate("<strong>Tools Release</br>Price(VND)</strong>")            //Giá trị</br>xuất CC</br>(VND)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.FuelExportPrice).Width(70)
-                        .HeaderTemplate("<strong>Fuel Export</br>Price</br>(VND)</strong>")           //Giá trị</br>xuất NL</br>(VND)
+                        .HeaderTemplate("<strong>Fuel Release</br>Price</br>(VND)</strong>")           //Giá trị</br>xuất NL</br>(VND)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
@@ -207,7 +207,7 @@
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.ProductionCNCPrice).Width(70)
-                        .HeaderTemplate("<strong>CnC-Milling</br>Price</br>(VND|15%)</strong>")              //Giá trị</br>phay CNC</br>(VND|15%)
+                        .HeaderTemplate("<strong>CNC-Milling</br>Price</br>(VND|15%)</strong>")              //Giá trị</br>phay CNC</br>(VND|15%)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
@@ -221,7 +221,7 @@
                         .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                         .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.TotalUsePrice).Width(90)
-                        .HeaderTemplate("<strong>Total Used</br>Price(VND)</strong>")          //Tổng giá trị</br>sử dụng</br>(VND)
+                        .HeaderTemplate("<strong>Total-Used</br>Price(VND)</strong>")          //Tổng giá trị</br>sử dụng</br>(VND)
                         .Format("{0:n0}")
                         .HtmlAttributes(new { style = "text-align: right;" })
                         .Aggregate(agg => agg.Sum())
@@ -278,7 +278,7 @@
                                   .Format("{0:n0}")
                                   .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
                             );
-                        series.Column(s => s.ProductionCNCPrice).Name("CnC Milling").Stack(true)
+                        series.Column(s => s.ProductionCNCPrice).Name("CNC-Milling").Stack(true)
                               .Labels(labels => labels.Visible(true)
                                   .Format("{0:n0}")
                                   .Position(Telerik.Web.Mvc.UI.ChartBarLabelsPosition.OutsideEnd)
@@ -291,8 +291,8 @@
                     })
                     .Series(series => {
                         series.Line(s => s.MaterialUsePrice).Name("Material Used").Stack(true);
-                        series.Line(s => s.ToolExportPrice).Name("Tools Export").Stack(true);
-                        series.Line(s => s.FuelExportPrice).Name("Fuel Export").Stack(true);
+                        series.Line(s => s.ToolExportPrice).Name("Tools Release").Stack(true);
+                        series.Line(s => s.FuelExportPrice).Name("Fuel Release").Stack(true);
                     })
                     //.Series(series => {
                     //    series.Line(s => s.MaterialUsePrice).Name("NLSD");

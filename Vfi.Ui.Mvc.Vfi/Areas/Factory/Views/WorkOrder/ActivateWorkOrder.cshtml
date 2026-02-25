@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Kích hoạt WO";
+    ViewBag.Title = "Active WO";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -110,12 +110,13 @@
     }
 </script>
 
-<div class="title">Kích hoạt và Điều chỉnh Work Order</div>
+<div class="title">Active and Adjust Work Order
+   @* Kích hoạt và Điều chỉnh Work Order*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-            <div class="grid_2_5">Khách hàng:</div>
+            <legend>Filters</legend>
+            <div class="grid_1_5">Customer</div>
             <div class="grid_4">
                 @{
                     Html.Telerik().ComboBox()
@@ -124,11 +125,11 @@
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "min-width: 375px" })
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
-            <div class="grid_2">Sản phẩm:</div>
+            <div class="grid_1_5">Prodcut</div>
             <div class="grid_4">
                 @{
                     Html.Telerik().AutoComplete()
@@ -142,8 +143,8 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
-                Tình trạng
+            <div class="grid_1">
+                Status
             </div>
             <div class="grid_4">
                 @{
@@ -152,7 +153,7 @@
                         .DataBinding(binding => binding.Ajax().Select("SelectComboBoxWorkOrderActiveStatus", "WorkOrder"))
                         .HtmlAttributes(new { style = "width: 150px" })
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .HighlightFirstMatch(true)
                         .AutoFill(true)
                         .Render();
@@ -161,7 +162,7 @@
             <div class="grid_3">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('grid'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
                 <span class="loadButton"></span>
                 </button>
             </div>
@@ -179,21 +180,21 @@
                                           .Select("SelectActivateWorkOrder", "WorkOrder", new { area = "Factory",customerId = 0, productCode = "",  status = 0 })
             )
             .Columns(columns => {
-                columns.Bound(f => f.OrderNumber).Width(80).ReadOnly(true).Title("Số đơn hàng")
-                           .HtmlAttributes(new { style = "text-align:center;" });
-                columns.Bound(f => f.DueDate).Width(70).ReadOnly(true).Title("Ngày giao hàng")
+                columns.Bound(f => f.OrderNumber).Width(80).ReadOnly(true).Title("Order's Code")
+                        .HtmlAttributes(new { style = "text-align:center;" });
+                columns.Bound(f => f.DueDate).Width(70).ReadOnly(true).Title("Delivery Date")
                        .Format("{0:dd/MM/yyyy}")
                        .HtmlAttributes(new { style = "text-align:center;" });
-                columns.Bound(f => f.OrderQuantity).Width(70).Title("Số lượng ĐH")
+                columns.Bound(f => f.OrderQuantity).Width(70).Title("Order's Quantity")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right;" });
-                columns.Bound(f => f.WorkOrderCount).Width(70).Title("Số lượng WO")
+                columns.Bound(f => f.WorkOrderCount).Width(70).Title("WO Count")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right;" });
-                columns.Bound(f => f.WorkOrderQuantity).Width(70).Title("Số lượng WO")
+                columns.Bound(f => f.WorkOrderQuantity).Width(70).Title("WO's Quantity")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right;" });
-                columns.Bound(f => f.TotalInv).Width(70).Title("Tổng tồn kho")
+                columns.Bound(f => f.TotalInv).Width(70).Title("Total-Inv")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align:right;" });
                 columns.Bound(f => f.ProductCode).Width(1).Filterable(false).ReadOnly(true).Title("").ClientTemplate(" ");
@@ -212,7 +213,7 @@
                                 <div class="grid_9">
                                     <button class="t-button" onclick="AddWorkOrder(<#= OrderDetailId #>) ">
                                         <span class='t-icon t-insert'></span>
-                                        Tạo thêm
+                                       Add New
                                     </button>
                                 </div>
                                 <div class="clear"></div>
@@ -224,29 +225,29 @@
                                 .Delete("DeleteWorkOrder", "WorkOrder", new { area = "Factory", isActive = true })
                         )
                         .Columns(columns => {
-                            columns.Bound(f => f.WorkOrderId).Title("Chọn").Width(75)
-                                .HeaderTemplate("<button class='t-button' onclick='EditWorkOrders(<#= OrderDetailId #>)'>Kích</br>hoạt</button>")
+                            columns.Bound(f => f.WorkOrderId).Title("Select").Width(75)
+                                .HeaderTemplate("<button class='t-button' onclick='EditWorkOrders(<#= OrderDetailId #>)'>Active</button>")
                                 .ClientTemplate("<input type='checkbox' name='chkIds<#= OrderDetailId #>' class='chkId' value='<#= WorkOrderId #>' />")
                                 .HtmlAttributes(new { style = "text-align:center" });
 
-                            columns.Bound(f => f.SerialNumber).Title("Số Serial").Width(80);
-                            columns.Bound(f => f.StatusName).Title("Tình trạng").Width(80);
-                            columns.Bound(f => f.RoutingCount).Title("Số tiến</br>trình").Width(50);
-                            columns.Bound(f => f.OrderQty).Title("SL</br>chạy").Width(70)
+                            columns.Bound(f => f.SerialNumber).Title("Serial").Width(80);
+                            columns.Bound(f => f.StatusName).Title("Status").Width(80);
+                            columns.Bound(f => f.RoutingCount).Title("Phase").Width(70);
+                            columns.Bound(f => f.OrderQty).Title("Order's</br>Quantity").Width(70)
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align:right;" });
-                            columns.Bound(f => f.PlannedTime).Title("Thời gian</br>dự kiến(h)").Width(70)
+                            columns.Bound(f => f.PlannedTime).Title("Estimated</br>Time(h)").Width(70)
                                 .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" });
                             columns.Bound(f => f.StartDate).Width(80)
-                                .HeaderTemplate("Dự kiến</br>bắt đầu")
+                                .HeaderTemplate("Estimated</br>Start Date")
                                 .Format("{0:dd/MM/yy HH:mm}")
                                 .HtmlAttributes(new { style = "text-align: center;" });
                             columns.Bound(f => f.DueDate).Width(80)
-                                .HeaderTemplate("Dự kiến</br>hoàn thành")
+                                .HeaderTemplate("Estimated</br>End Date")
                                 .Format("{0:dd/MM/yy HH:mm}")
                                 .HtmlAttributes(new { style = "text-align: center;" });
                             columns.Bound(f => f.EndDate).Width(80)
-                                .HeaderTemplate("Thực tế</br>hoàn thành")
+                                .HeaderTemplate("Actual</br>End Date")
                                 .ClientTemplate("<#= EndDate == null ? '' : $.telerik.formatString('{0:dd/MM/yy HH:mm}', EndDate) #>")
                                 .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" });
                             columns.Bound(f => f.GoodQuantity).Title("OK</br>(pcs)").Width(70).ReadOnly(true)
@@ -257,18 +258,18 @@
                                 .HeaderHtmlAttributes(new { @class = "ng-column" })
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align:right;" });
-                            columns.Bound(f => f.DefectQuantity).Title("PP</br>(pcs)").Width(70).ReadOnly(true)
+                            columns.Bound(f => f.DefectQuantity).Title("Scrap</br>(pcs)").Width(70).ReadOnly(true)
                                 .HeaderHtmlAttributes(new { @class = "defect-column" })
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
-                            columns.Bound(f => f.RoutingName).Title("Công đoạn</br>đang XL");
-                            columns.Bound(f => f.WorkOrderId).Title("1").Width(55).ReadOnly(true).Filterable(false)
+                            columns.Bound(f => f.RoutingName).Title("Section");
+                            columns.Bound(f => f.WorkOrderId).Title("1").Width(65).ReadOnly(true).Filterable(false)
                                 .ClientTemplate("<input type='button' value='In' class='t-button' onclick=Print(<#= WorkOrderId #>) />")
                                 .HtmlAttributes(new { style = "text-align:center" });
-                            columns.Bound(f => f.WorkOrderId).Title("2").Width(55).ReadOnly(true).Filterable(false)
+                            columns.Bound(f => f.WorkOrderId).Title("2").Width(65).ReadOnly(true).Filterable(false)
                                 .ClientTemplate("<input type='button' value='In' class='t-button' onclick=Print2(<#= WorkOrderId #>) />")
                                 .HtmlAttributes(new { style = "text-align:center" });
-                            columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy</br>WO").Width(35);
+                            columns.Command(c => c.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Title("Cancel</br>WO").Width(55);
                         })
                         
                         .DetailView(details2 => details2.ClientTemplate(
@@ -276,11 +277,11 @@
                                 .Name("TabStrip_<#= WorkOrderId #>")
                                 .SelectedIndex(0)
                                 .Items(items2 =>
-                                    items2.Add().Text("Công đoạn").Content(
+                                    items2.Add().Text("Section").Content(
                                         Html.Telerik().Grid<WorkOrderRoutingModel>()
                                             .Name("gridRoutings_<#= WorkOrderId #>")
                                             .DataKeys(key => key.Add(f => f.RoutingId).RouteKey("routingId"))
-                                            .ToolBar(toolbar => toolbar.Insert().ButtonType(GridButtonType.ImageAndText)
+                                            .ToolBar(toolbar => toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText)
                                                                         .HtmlAttributes(new { style = "<#= CanAddDisplay #>" })
                                                                        .ImageHtmlAttributes(new { style = "margin-left:0px;" }))
                                             .DataBinding(
@@ -291,21 +292,21 @@
                                                     .Delete("CancelWorkOrderRouting", "WorkOrder", new { area = "Factory", workOrderId = "<#= WorkOrderId #>", isActive = true })
                                             )
                                             .Columns(columns => {
-                                                columns.Command(x => x.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhập")
-                                                                       .InsertText("Thêm").CancelText("Hủy").Text("Sửa"))
+                                                columns.Command(x => x.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update")
+                                                                       .InsertText("Add").CancelText("Cancel").Text("Fix"))
                                                         .Width(90).Title("")
                                                         .HtmlAttributes(new { style = "text-align:center" });
-                                                columns.Bound(f => f.RoutingIndex).Width(40).Title("STT");
-                                                columns.Bound(f => f.RoutingName).Width(100).Title("Công đoạn");
-                                                columns.Bound(f => f.StatusName).Width(70).Title("Tình trạng").ReadOnly(true)
+                                                columns.Bound(f => f.RoutingIndex).Width(40).Title("No.");
+                                                columns.Bound(f => f.RoutingName).Width(100).Title("Section");
+                                                columns.Bound(f => f.StatusName).Width(70).Title("Status").ReadOnly(true)
                                                     .HtmlAttributes(new { style = "border-right:1px solid black;" });
-                                                columns.Bound(f => f.PlannedCost).Width(65).Title("Kế</br>hoạch").ReadOnly(true)
+                                                columns.Bound(f => f.PlannedCost).Width(65).Title("Plan").ReadOnly(true)
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                                columns.Bound(f => f.ActualCost).Width(65).Title("Thực</br>tế").ReadOnly(true)
+                                                columns.Bound(f => f.ActualCost).Width(65).Title("Actual").ReadOnly(true)
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                                columns.Bound(f => f.UsingQuantity).Width(65).Title("Sử</br>dụng").ReadOnly(true)
+                                                columns.Bound(f => f.UsingQuantity).Width(65).Title("Using").ReadOnly(true)
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
                                                 columns.Bound(f => f.GoodQuantity).Width(65).Title("OK</br>(pcs)").ReadOnly(true)
@@ -324,17 +325,17 @@
                                                     .HeaderHtmlAttributes(new { @class = "ng-column" })
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                                columns.Bound(f => f.DefectQuantity).Width(65).Title("PP</br>(pcs)").ReadOnly(true)
+                                                columns.Bound(f => f.DefectQuantity).Width(65).Title("Scrap</br>(pcs)").ReadOnly(true)
                                                     .HeaderHtmlAttributes(new { @class = "defect-column" })
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;" });
-                                                columns.Bound(f => f.DefectWeight).Width(65).Title("PP</br>(g)").ReadOnly(true)
+                                                columns.Bound(f => f.DefectWeight).Width(65).Title("Scrap</br>(g)").ReadOnly(true)
                                                     .HeaderHtmlAttributes(new { @class = "defect-column" })
                                                     .Format("{0:n0}")
                                                     .HtmlAttributes(new { style = "text-align:right;border-right:1px solid black;" });
-                                                columns.Bound(f => f.MoreInfo).Title("Mô tả").ReadOnly(true)
+                                                columns.Bound(f => f.MoreInfo).Title("Describe").ReadOnly(true)
                                                     .ClientTemplate("<span class='wraptext'><#= MoreInfo #></span>");
-                                                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Title("Hủy</br>CĐ").Width(35);
+                                                columns.Command(c => c.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Title("Hủy</br>CĐ").Width(35);
                                             })
 
                                .DetailView(details3 => details3.ClientTemplate(
@@ -342,7 +343,7 @@
                                         .Name("TabStrip_<#= RoutingId #>")
                                         .SelectedIndex(0)
                                         .Items(items3 =>
-                                            items3.Add().Text("Nhập liệu").Content(
+                                            items3.Add().Text("Input").Content(
                                                 Html.Telerik().Grid<WorkOrderProcessModel>()
                                                     .Name("gridProcesses_<#= RoutingId #>")
                                                     .DataKeys(key => key.Add(f => f.ProcessId).RouteKey("processId"))
@@ -355,54 +356,54 @@
                                                             })
                                                     )
                                                     .Columns(columns => {
-                                                        columns.Bound(f => f.Date).Title("Ngày").Width(150).ReadOnly(true)
+                                                        columns.Bound(f => f.Date).Title("Date").Width(150).ReadOnly(true)
                                                             .Format("{0:dd/MM/yyyy HH:mm}")
                                                             .HtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.StatusName).Width(70).Title("Tình trạng");
+                                                        columns.Bound(f => f.StatusName).Width(70).Title("Status");
                                                         //columns.Bound(f => f.Shift).Title("Ca").Width(40).ReadOnly(true);
-                                                        columns.Bound(f => f.UsingQuantity).Title("Sử dụng</br><#= WarehouseId > 1 ? '(pcs)' : '(cây)' #> ").ReadOnly(true).Width(50)
+                                                        columns.Bound(f => f.UsingQuantity).Title("Using</br><#= WarehouseId > 1 ? '(pcs)' : '(bar)' #> ").ReadOnly(true).Width(50)
                                                             //.Format("{0:n0}")
                                                             .ClientTemplate("<#= UsingQuantityStr #>")
                                                             .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
                                                             .Aggregate(agg => agg.Sum())
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.GoodQuantity).Title("SL OK</br>(pcs)").Width(70)
+                                                        columns.Bound(f => f.GoodQuantity).Title("OK Quantity</br>(pcs)").Width(70)
                                                             .HeaderHtmlAttributes(new { @class = "good-column" })
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: center;" })
                                                             .Aggregate(agg => agg.Sum())
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.GoodWeight).Title("TL OK</br>(g)").ReadOnly(true).Width(70)
+                                                        columns.Bound(f => f.GoodWeight).Title("OK Weight</br>(g)").ReadOnly(true).Width(70)
                                                             .HeaderHtmlAttributes(new { @class = "good-column" })
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
                                                             .Aggregate(agg => agg.Sum())
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.NGQuantity).Title("SL CPL</br>(pcs)").Width(70)
+                                                        columns.Bound(f => f.NGQuantity).Title("NG Quantity</br>(pcs)").Width(70)
                                                             .HeaderHtmlAttributes(new { @class = "ng-column" })
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: center;" })
                                                             .Aggregate(agg => agg.Sum())
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.NGWeight).Title("TL CPL</br>(g)").ReadOnly(true).Width(70)
+                                                        columns.Bound(f => f.NGWeight).Title("NG Weight</br>(g)").ReadOnly(true).Width(70)
                                                             .HeaderHtmlAttributes(new { @class = "ng-column" })
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
                                                             .Aggregate(agg => agg.Sum())
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.DefectQuantity).Title("SL PP</br>(pcs)").Width(70)
+                                                        columns.Bound(f => f.DefectQuantity).Title("Scap Quantity</br>(pcs)").Width(70)
                                                             .HeaderHtmlAttributes(new { @class = "defect-column" })
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: center;" })
                                                             .Aggregate(agg => agg.Sum())
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
-                                                        columns.Bound(f => f.DefectWeight).Title("TL PP</br>(g)").ReadOnly(true).Width(70)
+                                                        columns.Bound(f => f.DefectWeight).Title("Scrap Weight</br>(g)").ReadOnly(true).Width(70)
                                                             .HeaderHtmlAttributes(new { @class = "defect-column" })
                                                             .Format("{0:n0}")
                                                             .HtmlAttributes(new { style = "text-align: center;border-right:1px solid black;" })
@@ -410,17 +411,17 @@
                                                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                                             .FooterHtmlAttributes(new { style = "text-align: center;" });
 
-                                                        columns.Bound(f => f.EmployeeName).Title("Nhân viên").Width(100).ReadOnly(true)
+                                                        columns.Bound(f => f.EmployeeName).Title("Employee").Width(100).ReadOnly(true)
                                                             .HtmlAttributes(new { style = "text-align: center;" });
                                                     })
 
-                                                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                                    .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                                     .ClientEvents(e => e.OnError("grid_OnError"))
                                                     //.Pageable(page => page.PageSize(10))
                                                     .ToHtmlString()
                                                 )).ToHtmlString()))
                                                           
-                                            .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                             .ClientEvents(e => e.OnError("grid_OnError")
                                                 .OnEdit("gridRouting_OnEdit")
                                                 .OnRowDataBound("gridRouting_OnRowDataBound")
@@ -429,7 +430,7 @@
                                             .ToHtmlString()
                                         )).ToHtmlString()))
                                                           
-                               .Editable(editing => editing.Mode(GridEditMode.InLine))
+                               .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                .ClientEvents(e => e.OnError("grid_OnError")
                                                     .OnRowDataBound("gridDetail_OnRowDataBound"))
                                .Pageable(page => page.PageSize(10))
@@ -439,7 +440,7 @@
             .ClientEvents(events => events.OnError("grid_OnError")
                                           .OnRowSelect("grid_OnRowSelect")
                                           .OnDataBinding("grid_OnDataBinding"))
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             .Selectable()
             .Scrollable(f => f.Height(510))
             .Resizable(f => f.Columns(true))

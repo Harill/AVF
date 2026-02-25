@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Xuất gia công ngoài";
+    ViewBag.Title = "Outsourcing-Release";
+    //Xuất gia công ngoài
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <style>
@@ -147,14 +148,15 @@
 
 }
 
-<div class="title">Xuất gia công ngoài</div>
+<div class="title">Outsourcing-Release
+    @*Xuất gia công ngoài*@</div>
 <div class="clear"></div>
 <br />
 
 <div class="t-info-sha fieldheader fieldheader1">
     <fieldset>
-        <legend>Thông tin Work Order</legend>
-        <div class="grid_3">Chọn NCC</div>
+        <legend>Work Order Information</legend>
+        <div class="grid_2_5">Supplier</div>
         <div class="grid_4">
             @{
                 Html.Telerik().ComboBox()
@@ -163,7 +165,7 @@
                     .Delay(350))
                     .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .Render();
@@ -177,7 +179,7 @@
         </div>
         <div class="clear"></div>
             
-        <div class="grid_3">Loại gia công</div>
+        <div class="grid_2_5">Process Type</div>
            <div class="grid_4">
             @{
                 Html.Telerik().DropDownList()
@@ -188,7 +190,7 @@
             }
         </div> 
         <div class="clear"></div>
-        <div class="grid_3">Ngày xuất kho</div>
+        <div class="grid_2_5">Release Date</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DateTimePicker()
@@ -203,15 +205,15 @@
 
 <div class="t-info-sha fieldheader fieldheader2">
     <fieldset>
-        <legend>Ghi chú</legend>
+        <legend>Note</legend>
         <div>@Html.TextArea("Note", new  { style="min-width: 265px; min-height: 56px;" })</div>
     </fieldset>
 </div>
 
 <div class="t-info-sha fieldheader fieldheader3">
     <fieldset>
-        <legend>Thông tin</legend>
-        <div class="grid_2">Nhân viên</div>
+        <legend>Information</legend>
+        <div class="grid_2">Employee</div>
         <div class="grid_4">
             @{
                     Html.Telerik().ComboBox()
@@ -219,7 +221,7 @@
                         //.DataBinding(binding => binding.Ajax().Select("SelectComboBoxEmployee", "Employee", new { area = "Sales" }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         //.DropDownHtmlAttributes(new { style = "width: 150px" })
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .HighlightFirstMatch(true)
                         .AutoFill(true)
                         .Render();
@@ -227,7 +229,7 @@
         </div>
         <div class="clear"></div>
         
-        <div class="grid_2">Tiền tệ</div>
+        <div class="grid_2">Currency</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DropDownList()
@@ -239,7 +241,7 @@
             }
         </div> 
         <div class="clear"></div>
-        <div class="grid_2">Tỉ giá</div>
+        <div class="grid_2">Exchange Rate</div>
         <div class="grid_2">
              @{
                     Html.Telerik().NumericTextBox()
@@ -262,93 +264,89 @@
     @{
         Html.Telerik().Grid<WorkOrderRoutingModel>()
             .Name("grid")
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Huỷ bỏ"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel"))
             .DataKeys(keys => keys.Add(f => f.RoutingId).RouteKey("routingId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                 .Select("SelectWorkOrderPlatingProcess", "WorkOrder", new { area = "Factory" })
                 .Update("CreateWorkOrderPlatingExport", "WorkOrder", new { area = "Factory" })
                 )
             .Columns(columns => {
-
-                columns.Bound(f => f.CanAdd).Width(50).Title("Chọn")
-                    .HeaderHtmlAttributes(new { @class = "edit-column" })
-                    .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= RoutingId #>' class='IsRotateAll_<#= RoutingId #>' <#=CanAdd? checked='checked' : '' #> />")
-                    .HtmlAttributes(new { style = "text-align: center;" });
-
-                columns.Bound(f => f.SerialNumber).Width(80).HeaderTemplate("Số</br>WO").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.ProductCode).Width(100).HeaderTemplate("Mã</br>SP").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .HtmlAttributes(new { style = "text-align: center;border-right: 1px solid black;" });
-
-                columns.Bound(f => f.PlatingCode).Width(90).HeaderTemplate("Mã</br>gia công")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.Thickness).Width(75).HeaderTemplate("Độ dày</br>(µm)")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.SaltSprayTime).Width(75).HeaderTemplate("Phun muối</br>(h)")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.SpecialRequest).Width(75).Title("Yêu cầu")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.Sample).Width(75).Title("Mẫu SP")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.TestingEquipment).Width(75).Title("Thiết bị KT")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .HtmlAttributes(new { style = "border-right: 1px solid black;" });
-                
-                columns.Bound(f => f.ProductWeight).Width(70).HeaderTemplate("TL</br>SP</br>(g/pc)").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .Format("{0:n4}")
-                    .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.PlannedCost).Width(70).HeaderTemplate("SL</br>tồn</br>(pcs)").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.PlannedWeight).Width(70).HeaderTemplate("TL</br>tồn</br>(g)").ReadOnly(true)
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
-                columns.Bound(f => f.GoodQuantity).Width(80).HeaderTemplate("Số lượng</br>xuất</br>(pcs)")
-                    .HeaderHtmlAttributes(new { @class = "good-column", style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='GoodQuantity'><#=  $.telerik.formatString('{0:n0}', GoodQuantity) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.GoodWeight).Width(80).HeaderTemplate("Trọng lượng</br>xuất</br>(g)")
-                    .HeaderHtmlAttributes(new { @class = "good-column", style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='GoodWeight'><#=  $.telerik.formatString('{0:n0}', GoodWeight) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.NGQuantity).Width(80).HeaderTemplate("Hàng</br>CPL</br>(pcs)")
-                    .HeaderHtmlAttributes(new { @class = "ng-column", style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='NGQuantity'><#=  $.telerik.formatString('{0:n0}', NGQuantity) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.DefectQuantity).Width(80).HeaderTemplate("Phế phẩm</br>(pcs)")
-                    .HeaderHtmlAttributes(new { @class = "defect-column", style = "text-align: center;" })
-                    .Format("{0:n0}")
-                    .ClientTemplate("<span class='DefectQuantity'><#=  $.telerik.formatString('{0:n0}', DefectQuantity) #></span>")
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.Unit).Width(50).Title("ĐVT")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.UnitPrice).Width(80).Title("Đơn</br>giá")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .Format("{0:n0}")
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" })
-                    .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.Note).Title("Ghi</br>chú")
-                    .HeaderHtmlAttributes(new { @class = "good-column" })
-                    .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.CanAdd).Width(50).Title("Select")
+                       .HeaderHtmlAttributes(new { @class = "edit-column" })
+                       .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsRotateAll_<#= RoutingId #>' class='IsRotateAll_<#= RoutingId #>' <#=CanAdd? checked='checked' : '' #> />")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.SerialNumber).Width(80).HeaderTemplate("WO").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.ProductCode).Width(100).HeaderTemplate("Product</br>Code").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .HtmlAttributes(new { style = "text-align: center;border-right: 1px solid black;" });
+                columns.Bound(f => f.PlatingCode).Width(90).HeaderTemplate("Outsourcing</br>Section")              //Mã</br>gia công
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.Thickness).Width(75).HeaderTemplate("Thickness</br>(µm)")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.SaltSprayTime).Width(75).HeaderTemplate("Salt</br>Spray(h)")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.SpecialRequest).Width(75).Title("Request")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.Sample).Width(75).Title("Product Sample")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.TestingEquipment).Width(75).Title("Testing</br>Equipment")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .HtmlAttributes(new { style = "border-right: 1px solid black;" });
+                columns.Bound(f => f.ProductWeight).Width(70).HeaderTemplate("Product</br>Weight</br>(g/pc)").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .Format("{0:n4}")
+                       .HtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.PlannedCost).Width(70).HeaderTemplate("Inventory</br>Quantity</br>(pcs)").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.PlannedWeight).Width(70).HeaderTemplate("Inventory</br>Weight</br>(g)").ReadOnly(true)
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
+                columns.Bound(f => f.GoodQuantity).Width(80).HeaderTemplate("Release-Quanitty</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "good-column", style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='GoodQuantity'><#=  $.telerik.formatString('{0:n0}', GoodQuantity) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.GoodWeight).Width(80).HeaderTemplate("Release-Weight</br>(g)")
+                       .HeaderHtmlAttributes(new { @class = "good-column", style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='GoodWeight'><#=  $.telerik.formatString('{0:n0}', GoodWeight) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.NGQuantity).Width(80).HeaderTemplate("NG</br>Quantity</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "ng-column", style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='NGQuantity'><#=  $.telerik.formatString('{0:n0}', NGQuantity) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.DefectQuantity).Width(80).HeaderTemplate("Scrap</br>(pcs)")
+                       .HeaderHtmlAttributes(new { @class = "defect-column", style = "text-align: center;" })
+                       .Format("{0:n0}")
+                       .ClientTemplate("<span class='DefectQuantity'><#=  $.telerik.formatString('{0:n0}', DefectQuantity) #></span>")
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Unit).Width(50).Title("Unit</br>Measure")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
+                columns.Bound(f => f.UnitPrice).Width(80).Title("Unit</br>Price")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .Format("{0:n0}")
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" })
+                       .HtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.Note).Title("Note")
+                       .HeaderHtmlAttributes(new { @class = "good-column" })
+                       .HeaderHtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.ProductInvId).Hidden(true);
                 
             })
-            .Editable(editing => editing.Mode(GridEditMode.InCell))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             .ClientEvents(events => events
                 .OnSave("grid_OnSave")
                 .OnEdit("grid_OnEdit")

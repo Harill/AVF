@@ -167,7 +167,7 @@
                         }
                     </div>
                 
-                    <div class="grid_3"> Product Code Column </div>
+                    <div class="grid_3_5"> Product Code Column </div>
                     @*Cột mã sản phẩm*@
                     <div class="grid_1">
                         @{
@@ -178,7 +178,7 @@
                                 .Render();
                         }
                     </div>
-                    <div class="grid_3">Column Position To Retrieve </div>
+                    <div class="grid_4">Target Column Position</div>
                     @*Vị trí cột cần lấy *@
                     <div class="grid_1">
                         @{
@@ -240,7 +240,7 @@
                     .Columns(columns =>
                         {
                             columns.Bound(f => f.Index).ReadOnly(true)
-                                   .HeaderTemplate("Index").Width(60);
+                                   .HeaderTemplate("No.").Width(50);
                             columns.Bound(f => f.CustomerCode).ReadOnly(true)
                                    .HeaderTemplate("Customer</br>Code").Width(80)
                                    .HtmlAttributes(new {style = "text-align: left;"});
@@ -268,12 +268,12 @@
                                    .FooterTemplate("<span id='tongcot1'></span>").Width(100)
                                    .HtmlAttributes(new {style = "text-align: right;"});
                             columns.Bound(f => f.FinishInventory).Title("Finished</br>Inv").ReadOnly(true)              //Tồn kho TP
-                                  .Aggregate(agg => agg.Sum())
-                                  .ClientTemplate("<#= FinishInventory == null ? 0 : $.telerik.formatString('{0:n0}', FinishInventory) #>")
-                                  .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
-                                  .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
-                                  .FooterTemplate("<span id='tongcot1'></span>").Width(100)
-                                  .HtmlAttributes(new { style = "text-align: right;" });
+                                   .Aggregate(agg => agg.Sum())
+                                   .ClientTemplate("<#= FinishInventory == null ? 0 : $.telerik.formatString('{0:n0}', FinishInventory) #>")
+                                   .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                                   .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                                   .FooterTemplate("<span id='tongcot1'></span>").Width(100)
+                                   .HtmlAttributes(new { style = "text-align: right;" });
                             columns.Bound(f => f.TotalInventory).Title("Total</br>Inv").ReadOnly(true)               //Tồn kho tổng
                                    .Aggregate(agg => agg.Sum())
                                    .ClientTemplate("<#= TotalInventory == null ? 0 : $.telerik.formatString('{0:n0}', TotalInventory) #>")
@@ -284,7 +284,7 @@
                             columns.Bound(f => f.Note)
                                    .HeaderTemplate("Note").Width(150)
                                    .HtmlAttributes(new {style = "text-align: left;"});
-                            columns.Command(commands => commands.Delete().Text("Xoá")).Title("");
+                            columns.Command(commands => commands.Delete().Text("Delete")).Title("");
                         })
                     .ClientEvents(events => events
                                                 .OnSubmitChanges("grid_onSubmitChanges")

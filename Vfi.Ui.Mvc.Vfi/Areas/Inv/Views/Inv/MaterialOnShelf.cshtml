@@ -101,7 +101,7 @@
                                           .Update("UpdateInventoryOnShelf", "Inv", new { classifiedId = 1, fromDate = "", toDate = "" }))
             .Columns(columns => {
                 columns.Command(command =>
-                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix")
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit")
                     ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
 
                 columns.Bound(f => f.OnDate).Width(100).Title("Date")

@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @{
-    ViewBag.Title = "Vendor Management";
+    ViewBag.Title = "Supplier Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -27,7 +27,7 @@
         }
 </script>
 }
-<div class="title">Quản lý thông tin nhà cung cấp</div>
+<div class="title">Supplier-Information Management</div>
 
 <div class="cover-div">
 @{
@@ -36,7 +36,7 @@
         .DataKeys(keys=>keys.Add(f=>f.VendorId).RouteKey("vendorId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
         .DataBinding(dataBindings=>dataBindings.Ajax()
             .Select("SelectAllVendor","Vendor")
             .Insert("InsertVendor","Vendor")
@@ -44,34 +44,31 @@
         )
         .Columns(columns=>
         {
-            columns.Command(command =>
-                command.Edit().ButtonType(GridButtonType.ImageAndText)
-            ).Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
-
-            columns.Bound(f => f.MaterialClassifiedName).Width(125);
-            columns.Bound(f => f.VendorCode).Width(125);
-            columns.Bound(f => f.VendorName).Width(225);
-            columns.Bound(f => f.ShortName).Width(225);
-            columns.Bound(f => f.CompanyName).Width(225);
-            columns.Bound(f => f.ContactName).Width(225);
-            columns.Bound(f => f.Address).Width(225);
-            columns.Bound(f => f.Eaddress).Width(225);
-            columns.Bound(f => f.Phone).Width(225);
-            columns.Bound(f => f.Fax).Width(225);
-            columns.Bound(f => f.Email).Width(225);
-            columns.Bound(f => f.TaxCode).Width(225);
-            columns.Bound(f => f.BankAccount).Width(275);
-            columns.Bound(f => f.MaxCredit).Width(225);
-            columns.Bound(f => f.SpecialInfo).Width(275);
-            columns.Bound(f => f.Note).Width(275);
-            
-            columns.Bound(f => f.Active).Width(75)
+            columns.Command(command =>command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText))
+                .Width(98).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.MaterialClassifiedName).Width(125).Title("Supply");
+            columns.Bound(f => f.VendorCode).Width(125).Title("Supplier Code");
+            columns.Bound(f => f.VendorName).Width(225).Title("Supplier Name");
+            columns.Bound(f => f.ShortName).Width(225).Title("Short Name");
+            columns.Bound(f => f.CompanyName).Width(225).Title("Company Name");
+            columns.Bound(f => f.ContactName).Width(225).Title("Contact Name");
+            columns.Bound(f => f.Address).Width(225).Title("Address");
+            columns.Bound(f => f.Eaddress).Width(225).Title("Online-Address");
+            columns.Bound(f => f.Phone).Width(225).Title("Phone Number");
+            columns.Bound(f => f.Fax).Width(225).Title("Fax");
+            columns.Bound(f => f.Email).Width(225).Title("Email");
+            columns.Bound(f => f.TaxCode).Width(225).Title("Tax Code");
+            columns.Bound(f => f.BankAccount).Width(275).Title("Bank Account");
+            columns.Bound(f => f.MaxCredit).Width(225).Title("Max Credit");
+            columns.Bound(f => f.SpecialInfo).Width(275).Title("Special Info");
+            columns.Bound(f => f.Note).Width(275).Title("Note");
+            columns.Bound(f => f.Active).Width(75).Title("Active")
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
             
         })
         .ClientEvents(events => events.OnEdit("gridVendor_onEdit").OnError("grid_OnError"))
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         //.Pageable(page => page.PageSize(10))
         .Sortable()
         .Scrollable(f=>f.Height(510))

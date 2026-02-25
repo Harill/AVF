@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model Vfi.Ui.Mvc.Vfi.Areas.Inv.Models.ExportGCN_NCUModel
 @{
-    ViewBag.Title = "Workpiece Import";
+    ViewBag.Title = "Workpiece Entry";
     //Nhập Kho Phôi
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -43,12 +43,12 @@
     </script>
 }
 
-<div class="title">Workpiece Addtion</div>
+<div class="title">Workpiece Received-Note</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
     <fieldset>
-        <legend>Import Order Detail</legend>
-        <div class="grid_3">Import Date</div>
+        <legend>Received-Note Information</legend>
+        <div class="grid_2_5">Entry Date</div>
         <div class="grid_4">
             @{
                 Html.Telerik().DatePicker()

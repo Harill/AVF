@@ -168,10 +168,10 @@
     @*Quản lý hồ sơ thông tin lệnh về nguyên liệu*@</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     <fieldset>
-        <legend>Filter</legend>
+        <legend>Filters</legend>
 
-        <div class="grid_2">
-            Transaction status
+        <div class="grid_3_5">
+            Transaction Status
            @* Tình trạng giao dịch*@
         </div>
         <div class="grid_4">
@@ -232,10 +232,10 @@
                 columns.Bound(f => f.TransactionCode).Width(100)
                        .HeaderTemplate("Transaction</br>Code");
                 columns.Bound(f => f.CreatedDate).Width(90)
-                       .HeaderTemplate("Created</br>Date")
+                       .HeaderTemplate("Date")
                        .Format("{0:dd/MM/yyyy}");
                 columns.Bound(f => f.EoIName).Width(100)
-                       .HeaderTemplate("Export</br>Import");
+                       .HeaderTemplate("Entry</br>Release");
                 columns.Bound(f => f.TotalQuality).Width(100)
                        .HeaderTemplate("Total Quality</br>(bar)")             //Tổng SL</br>(cây)
                        .Format("{0:n2}")
@@ -258,7 +258,7 @@
                 columns.Bound(f => f.TransactionId).Title("Purchasing</br>Manager").Width(80)           //QL mua
                        .ClientTemplate("<button class='t-button purchasing' id='QLM_<#= TransactionId #>' onclick=Signature(<#= TransactionId #>) ><span class='t-icon t-insert'></span></button>")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.TransactionId).Title("Rollback").Width(70).ReadOnly(true)
+                columns.Bound(f => f.TransactionId).Title("Rollback").Width(80).ReadOnly(true)
                        .ClientTemplate("<input type='button' id='rollback_<#= TransactionId #>' value='Rollback' class='t-button rollback_<#= TransactionId #>' onclick='RollbackTransaction(<#= TransactionId #>)' />")
                        .HtmlAttributes(new { style = "text-align:center" });
             })
@@ -267,7 +267,7 @@
                     .Name("TabStrip_<#= TransactionId #>")
                     .SelectedIndex(0)
                     .Items(items =>
-                           items.Add().Text("Detail Information").Content(
+                           items.Add().Text("Detail").Content(
                                Html.Telerik().Grid<TransactionDetailModel>()
                                    .Name("gridTransactionDetail_<#= TransactionId #>")
                                    .DataKeys(keys => keys.Add(f => f.TransactionDetailId).RouteKey("transactionDetailId"))
@@ -284,7 +284,7 @@
                                               .FooterHtmlAttributes(new { style = "text-align: right;" })
                                               .Aggregate(agg => agg.Count())
                                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>");
-                                       columns.Bound(f => f.DesignCode).Title("Specifications").Width(150).ReadOnly(true);      //Quy cách
+                                       columns.Bound(f => f.DesignCode).Title("Specification").Width(150).ReadOnly(true);      //Quy cách
                                        columns.Bound(f => f.Length).Width(75)
                                               .HeaderTemplate("Length</br>(mm)");
                                        columns.Bound(f => f.VendorName).Title("Supplier ").Width(100).ReadOnly(true)
@@ -297,11 +297,11 @@
                                               .HeaderTemplate("Lot")
                                               .HtmlAttributes(new { style = "text-align: center;" });
                                        columns.Bound(f => f.Quantity).Width(100)
-                                              .HeaderTemplate("Quantity</br>(bar)")           //SL chuyển</br>(cây)
+                                              .HeaderTemplate("Moved</br>Quantity</br>(bar)")           //SL chuyển</br>(cây)
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .Format("{0:n2}");
                                        columns.Bound(f => f.QuantityKg).Width(100).ReadOnly(true)
-                                              .HeaderTemplate("Quantity</br>(Kg)")     //SL chuyển</br>(Kg)
+                                              .HeaderTemplate("Moved</br>Weight</br>(Kg)")     //SL chuyển</br>(Kg)
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .Format("{0:n2}");
                                        columns.Bound(f => f.Note);

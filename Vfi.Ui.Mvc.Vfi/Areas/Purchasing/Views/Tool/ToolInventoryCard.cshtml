@@ -36,7 +36,7 @@
 <br/>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
     <fieldset>
-        <legend>Criteria Filtering</legend>
+        <legend>Filters</legend>
         <div class="grid_12">
         <div class="grid_2">
             Product
@@ -74,11 +74,11 @@
                     )
                     .Columns(columns =>
                         {
-                            columns.Bound(f => f.VendorName).Width(150).Title("Vendor Name");
+                            columns.Bound(f => f.VendorName).Width(150).Title("Supplier");
                             columns.Bound(f => f.LotNumber).Width(40).ReadOnly(true).Title("Lot");
                             columns.Bound(f => f.UnitMeasure).Width(70).Title("Unit Measure").ReadOnly(true);
                             columns.Bound(f => f.TotalInv).Width(70)
-                                .HeaderTemplate("Total Inv")
+                                .HeaderTemplate("Inv")
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align:right" });
                         })

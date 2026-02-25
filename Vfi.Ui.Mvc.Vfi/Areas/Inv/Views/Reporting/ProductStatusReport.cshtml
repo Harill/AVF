@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Product Report (Product Status)";
+    ViewBag.Title = "Product Status";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -35,14 +35,14 @@
     </script>
 }
 
-<div class="title">Product Report (Product Status)</div>
+<div class="title">Product Status Report </div>
 <div class="clear"></div>
 <div id="pnlInvMonthly">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
         <fieldset>
-            <legend>Criteria Filtering</legend>
+            <legend> Filters</legend>
             <div class="grid_2">
-                @Html.Label("Customer Code")
+                @Html.Label("Customer")
             </div>
             <div class="grid_4">
                 @{
@@ -57,7 +57,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
+            <div class="grid_2_5">
                 @Html.Label("Product Code")
 @*                @Html.LabelFor(f => f.ProductCodeName)*@
             </div>
@@ -99,7 +99,7 @@
                 .Columns(columns => {
                         columns.Bound(f => f.ProductId).Width(40)
                                .ClientTemplate("<#= ++index #>")
-                               .HeaderTemplate("<strong>Index</strong>");
+                               .HeaderTemplate("<strong>No.</strong>");
                         columns.Bound(f => f.CustomerCode).Width(80)
                                .HeaderTemplate("<strong>Customer</br>Code</strong>")
                                .HtmlAttributes(new { style = "text-align: center;" });
@@ -126,14 +126,14 @@
                                .HeaderTemplate("<strong>Material</strong>")
                                .HtmlAttributes(new { style = "text-align: center;" });
                         // so lieu
-                        columns.Bound(f => f.TotalInv).Title("Total</br>Inventory").Width(80)
+                        columns.Bound(f => f.TotalInv).Title("Total</br>Inv").Width(80)
                                .Aggregate(agg => agg.Sum())
                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" })
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.FinishInv).Title("Finished</br>Inventory").Width(80)
+                        columns.Bound(f => f.FinishInv).Title("Finished</br>Inv").Width(80)
                                .Aggregate(agg => agg.Sum())
                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -142,23 +142,23 @@
                                .FooterHtmlAttributes(new { style = "text-align: right;" });
 
                         columns.Bound(f => f.LastProductionDate)
-                            .HeaderTemplate("Production</br>Last Date ").Width(100)
+                            .HeaderTemplate("Last-Production</br>Date ").Width(130)
                                .ClientTemplate("<#= LastProductionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastProductionDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.LastExportDate)
-                            .HeaderTemplate("Last Export</br>Date").Width(100)
+                            .HeaderTemplate("Last Delivery</br>Date").Width(100)
                                .ClientTemplate("<#= LastExportDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastExportDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.LastFinishInvDate)
-                            .HeaderTemplate("Finished<br/> Inv Date").Width(100)
+                            .HeaderTemplate("Last-Finished<br/>Rotate Date").Width(100)
                                .ClientTemplate("<#= LastFinishInvDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastFinishInvDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.LastRotateDate)
-                            .HeaderTemplate("Last Warehouse</br>Rotate Date").Width(100)
+                            .HeaderTemplate("Last-Warehouse</br>Rotate Date").Width(130)
                                .ClientTemplate("<#= LastRotateDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LastRotateDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.ModifiedDate)
-                            .HeaderTemplate("M-Date").Width(100)
+                            .HeaderTemplate("Last</br>M-Date").Width(100)
                                .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });
 

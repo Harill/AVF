@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "NG Production";
+    ViewBag.Title = "Scrap-Production Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -68,7 +68,7 @@
     </script>
 }
 
-<div class="title">Daily Report
+<div class="title">Daily Scrap Report
 @*    Báo cáo sản xuất hàng ngày*@
 </div>
 <div class="clear"></div>
@@ -91,7 +91,7 @@
         <fieldset>
             <legend>Filters</legend>
             <div class="grid_1_5">
-                @Html.Label("Product Code")
+                @Html.Label("Product")
 @*                @Html.LabelFor(f => f.ProductCodeName)*@
             </div>
             <div class="grid_4">
@@ -172,8 +172,8 @@
                                .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         //ca  1
-                        columns.Bound(f => f.Shifts[0].MaterialUse).Width(100)
-                               .HeaderTemplate("<strong>Material Use</br>Shifts1</br>(bar)</strong>")        //NL</br>sử dụng</br>ca 1 (cây)
+                        columns.Bound(f => f.Shifts[0].MaterialUse).Width(110)
+                               .HeaderTemplate("<strong>Material-Used</br>Shift1</br>(bar)</strong>")        //NL</br>sử dụng</br>ca 1 (cây)
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[0].MaterialUse == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[0].MaterialUse) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
@@ -189,23 +189,23 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[0].ProcessingQuantity).Width(100)
-                                 .HeaderTemplate("<strong>Reprocessing</br>Shifts1</br>(pcs)</strong>")                  //CXL</br>ca 1(pcs)
-                                 .Aggregate(agg => agg.Sum())
-                                 .ClientTemplate("<#= Shifts[1].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].Quantity) #>")
-                                 .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
-                                 .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
-                                 .FooterTemplate("<span id='tongcot1'></span>")
-                                 .HtmlAttributes(new { style = "text-align: right;" });
+                               .HeaderTemplate("<strong>Reprocess</br>Shift1</br>(pcs)</strong>")                  //CXL</br>ca 1(pcs)
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Shifts[1].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].Quantity) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[0].DefectQuantity).Width(80)
-                                  .HeaderTemplate("<strong>Scrap</br>Shifts1</br>(pcs)</strong>")          //Phế phẩm </br>ca 1 (pcs)
-                                  .Aggregate(agg => agg.Sum())
-                                  .ClientTemplate("<#= Shifts[0].DefectQuantity == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[0].DefectQuantity) #>")
-                                  .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                                  .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                                  .FooterTemplate("<span id='tongcot1'></span>")
-                                  .HtmlAttributes(new { style = "text-align: right;" });
+                               .HeaderTemplate("<strong>Scrap</br>Shift1</br>(pcs)</strong>")          //Phế phẩm </br>ca 1 (pcs)
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Shifts[0].DefectQuantity == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[0].DefectQuantity) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[0].DifferenceRate).Width(90)
-                               .HeaderTemplate("<strong>Difference</br>Shifts1</br>(pcs)</strong>")                //Chênh lệch</br>định mức</br>ca 1(pcs)
+                               .HeaderTemplate("<strong>Diff</br>Shift1</br>(pcs)</strong>")                //Chênh lệch</br>định mức</br>ca 1(pcs)
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[0].DifferenceRate == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[0].DifferenceRate) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
@@ -213,8 +213,8 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         //ca 2 
-                        columns.Bound(f => f.Shifts[1].MaterialUse).Width(100)
-                               .HeaderTemplate("<strong>Material Use</br>Shifts2</br>(bar)</strong>")
+                        columns.Bound(f => f.Shifts[1].MaterialUse).Width(110)
+                               .HeaderTemplate("<strong>Material-Used</br>Shift2</br>(bar)</strong>")
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[1].MaterialUse == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[1].MaterialUse) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
@@ -222,7 +222,7 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[1].Quantity).Width(80)
-                               .HeaderTemplate("<strong>Quantity</br>Shifts2</br>(pcs)</strong>")
+                               .HeaderTemplate("<strong>Quantity</br>Shift2</br>(pcs)</strong>")
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[1].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].Quantity) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
@@ -230,7 +230,7 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[1].ProcessingQuantity).Width(100)
-                               .HeaderTemplate("<strong>Reprocessing</br>Shifts2</br>(pcs)</strong>")
+                               .HeaderTemplate("<strong>Reprocess</br>Shift2</br>(pcs)</strong>")
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[1].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].Quantity) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
@@ -238,15 +238,15 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[1].DefectQuantity).Width(80)
-                                  .HeaderTemplate("<strong>Scrap</br>Shifts2</br>(pcs)</strong>")
-                                  .Aggregate(agg => agg.Sum())
-                                  .ClientTemplate("<#= Shifts[1].DefectQuantity == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[1].DefectQuantity) #>")
-                                  .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                                  .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                                  .FooterTemplate("<span id='tongcot1'></span>")
-                                  .HtmlAttributes(new { style = "text-align: right;" });
+                               .HeaderTemplate("<strong>Scrap</br>Shifts2</br>(pcs)</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Shifts[1].DefectQuantity == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[1].DefectQuantity) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[1].DifferenceRate).Width(90)
-                               .HeaderTemplate("<strong>Difference</br>Shifts2</br>(pcs)</strong>")
+                               .HeaderTemplate("<strong>Diff</br>Shifts2</br>(pcs)</strong>")
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[1].DifferenceRate == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].DifferenceRate) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
@@ -254,16 +254,16 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         //tong 2 ca
-                        columns.Bound(f => f.Shifts[2].MaterialUse).Width(100)
-                             .HeaderTemplate("<strong>Material Use</br>2Shifts</br>(bar)</strong>")
-                             .Aggregate(agg => agg.Sum())
-                             .ClientTemplate("<#= Shifts[2].MaterialUse == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[2].MaterialUse) #>")
-                             .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                             .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                             .FooterTemplate("<span id='tongcot1'></span>")
-                             .HtmlAttributes(new { style = "text-align: right;" });
+                        columns.Bound(f => f.Shifts[2].MaterialUse).Width(110)
+                               .HeaderTemplate("<strong>Material-Used</br>2 Shifts</br>(bar)</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Shifts[2].MaterialUse == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[2].MaterialUse) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[2].Quantity).Width(80)
-                               .HeaderTemplate("<strong>Quantity</br>2Shifts</br>(pcs)</strong>")
+                               .HeaderTemplate("<strong>Quantity</br>2 Shifts</br>(pcs)</strong>")
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[2].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[2].Quantity) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
@@ -271,23 +271,23 @@
                                .FooterTemplate("<span id='tongcot1'></span>")
                                .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[2].ProcessingQuantity).Width(100)
-                              .HeaderTemplate("<strong>Reprocessing</br>2Shifts</br>(pcs)</strong>")
-                              .Aggregate(agg => agg.Sum())
-                              .ClientTemplate("<#= Shifts[1].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].Quantity) #>")
-                              .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
-                              .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
-                              .FooterTemplate("<span id='tongcot1'></span>")
-                              .HtmlAttributes(new { style = "text-align: right;" });
+                               .HeaderTemplate("<strong>Reprocess</br>2 Shifts</br>(pcs)</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Shifts[1].Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[1].Quantity) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[2].DefectQuantity).Width(80)
-                                 .HeaderTemplate("<strong>Scrap</br>2Shifts</br>(pcs)</strong>")
-                                 .Aggregate(agg => agg.Sum())
-                                 .ClientTemplate("<#= Shifts[2].DefectQuantity == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[2].DefectQuantity) #>")
-                                 .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                                 .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
-                                 .FooterTemplate("<span id='tongcot1'></span>")
-                                 .HtmlAttributes(new { style = "text-align: right;" });
+                               .HeaderTemplate("<strong>Scrap</br>2 Shifts</br>(pcs)</strong>")
+                               .Aggregate(agg => agg.Sum())
+                               .ClientTemplate("<#= Shifts[2].DefectQuantity == null ? 0 : $.telerik.formatString('{0:n2}', Shifts[2].DefectQuantity) #>")
+                               .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>")
+                               .FooterTemplate("<span id='tongcot1'></span>")
+                               .HtmlAttributes(new { style = "text-align: right;" });
                         columns.Bound(f => f.Shifts[2].DifferenceRate).Width(90)
-                               .HeaderTemplate("<strong>Difference</br>2Shifts</br>(pcs)</strong>")               //Chênh lệch</br>định mức</br>2 ca (pcs)
+                               .HeaderTemplate("<strong>Diff</br>2 Shifts</br>(pcs)</strong>")               //Chênh lệch</br>định mức</br>2 ca (pcs)
                                .Aggregate(agg => agg.Sum())
                                .ClientTemplate("<#= Shifts[2].DifferenceRate == null ? 0 : $.telerik.formatString('{0:n0}', Shifts[2].DifferenceRate) #>")
                                .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n0}', Sum) #></div>")

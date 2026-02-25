@@ -28,7 +28,8 @@
     }
     </script>
 }
-<div class="title">Quản lý phương thức</div>
+<div class="title">Method Management
+    @*Quản lý phương thức*@</div>
 <div class="cover-div">
 @{
     Html.Telerik().Grid<MethodModel>()
@@ -36,7 +37,7 @@
         .DataKeys(keys => keys.Add(f => f.MethodId).RouteKey("methodId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().Text("Thêm PT mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
+            toolbar.Insert().Text("New Method").ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0"}))
         .DataBinding(dataBindings => dataBindings.Ajax()
                                                  .Select("SelectAllMethod", "Method")
                                                  .Insert("InsertMethod", "Method")
@@ -44,24 +45,25 @@
         )
         .Columns(columns =>
             {
-                columns.Bound(f => f.TypeName).Width(200).Title("Loại PT");
-                columns.Bound(f => f.MethodName).Title("Tên PT");
-                columns.Bound(f => f.MethodName_EN).Width(110).Title("Tên PT(EN)");
-                columns.Bound(f => f.SaleMethod).Width(45).Title("PT Bán")
+                columns.Bound(f => f.TypeName).Width(200).Title("Method Type");
+                columns.Bound(f => f.MethodName).Title("Method Name");
+                columns.Bound(f => f.MethodName_EN).Width(150).Title("Method Name(EN)");
+                columns.Bound(f => f.SaleMethod).Width(105).Title("Sale Method")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=SaleMethod? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.BuyMethod).Width(45).Title("PT Mua")
+                columns.Bound(f => f.BuyMethod).Width(120).Title("Purchase Method")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=BuyMethod? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.Active).Width(45)
+                columns.Bound(f => f.Active).Width(55)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.ImageAndText)
-                    ).Width(98).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
+                columns.Command(command =>command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText))
+                       .Width(98).Title("Commands").HtmlAttributes(new {style = "text-align:center"});
             })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
-        .ClientEvents(e => e.OnEdit("grid_OnEdit").OnError("grid_Error"))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
+        .ClientEvents(e => e.OnEdit("grid_OnEdit")
+                            //.OnError("grid_Error")
+                            )
         //.Pageable(page => page.PageSize(10))
         .Scrollable(f => f.Height(510))
         .Sortable()
