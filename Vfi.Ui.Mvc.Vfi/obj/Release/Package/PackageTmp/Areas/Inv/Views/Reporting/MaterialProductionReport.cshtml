@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Theo dõi nguyên liệu sản xuất";
+    ViewBag.Title = "Production-Material Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -48,14 +48,14 @@
     </script>
 }
 
-    <div class="title">Báo cáo theo dõi nguyên liệu sản xuất</div>
+    <div class="title">Production-Material Report</div>   @*Báo cáo theo dõi nguyên liệu sản xuất*@
 
     <div id="pnlInv">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-            <div class="grid_2">
-                Loại Nguyên Liệu
+            <legend>Filters</legend>
+            <div class="grid_2_5">
+                Material Type
             </div>
             <div class="grid_4">
                 @{
@@ -68,8 +68,8 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
-                Nguyên Liệu
+            <div class="grid_1_5">
+                Material
             </div>
             <div class="grid_4">
                 @{
@@ -84,8 +84,8 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
-                Ngày
+            <div class="grid_1">
+                Date
             </div>
             <div class="grid_3">
                 @{
@@ -105,10 +105,10 @@
                         .Render();
                 }
             </div>
-            <div class="grid_3">
+            <div class="grid_2">
                 <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2(); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                    Find
                 </button>
             </div>
         </fieldset>
@@ -132,18 +132,18 @@
             )
             .Columns(columns =>
             {
-                columns.Bound(f => f.MaterialId).Width(40).ReadOnly(true).Title("STT")
+                columns.Bound(f => f.MaterialId).Width(55).ReadOnly(true).Title("No.")
                     .ClientTemplate("<#= ++index #>");
-                columns.Bound(f => f.MaterialTypeCode).Width(40).ReadOnly(true)
-                    .HeaderTemplate("Loại");
-                columns.Bound(f => f.MaterialName).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tên</br>nguyên</br>liệu</strong>")
+                columns.Bound(f => f.MaterialTypeCode).Width(50).ReadOnly(true)
+                    .HeaderTemplate("Type");
+                columns.Bound(f => f.MaterialName).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Material</br>Name</strong>")
                     .Aggregate(agg => agg.Count())
                     .ClientGroupFooterTemplate("<#= Count #>")
                     .ClientFooterTemplate("<#= Count #>")
                     .HtmlAttributes(new {style = "text-align: left;"});
-                columns.Bound(f => f.Shape).Width(40).ReadOnly(true)
-                    .HeaderTemplate("<strong>Hình</br>dạng</strong>")
+                columns.Bound(f => f.Shape).Width(55).ReadOnly(true)
+                    .HeaderTemplate("<strong>Shape</strong>")
                     .HtmlAttributes(new {style = "text-align: center;"});
                 columns.Bound(f => f.OutDiameter).Width(50).ReadOnly(true)
                     .HeaderTemplate("<strong>OD</strong>")
@@ -151,114 +151,114 @@
                 columns.Bound(f => f.InDiameter).Width(50).ReadOnly(true)
                     .HeaderTemplate("<strong>ID</strong>")
                     .HtmlAttributes(new {style = "text-align: center;"});
-                columns.Bound(f => f.DiameterType).Width(50).ReadOnly(true)
-                    .HeaderTemplate("<strong>Dung</br>sai</strong>")
+                columns.Bound(f => f.DiameterType).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Tolerance</strong>")                   // Dung</br>sai
                     .HtmlAttributes(new {style = "text-align: center;border-right: 1px solid black;"});
                 //
                 columns.Bound(f => f.EarlyQuantity).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tồn</br>đầu</br>(kg)</strong>")
+                    .HeaderTemplate("<strong>First</br>Inv</br>(kg)</strong>")               //Tồn</br>đầu
                     .Format("{0:n2}")
                     .HtmlAttributes(new {style = "text-align: right;"});
-                columns.Bound(f => f.Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Nhập</br>mua</br>(kg)</strong>")
+                columns.Bound(f => f.Import).Width(80).ReadOnly(true)
+                    .HeaderTemplate("<strong>Purchase</br>Entry</br>(kg)</strong>")               //Nhập</br>mua
                     .Format("{0:n2}")
                     .HtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.Export).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>Sử</br>dụng</br>(kg)</strong>")
+                    .HeaderTemplate("<strong>Used</br>(kg)</strong>")                       //Sử</br>dụng
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.LastQuantity).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tồn</br>cuối</br>(kg)</strong>")
+                    .HeaderTemplate("<strong>Last</br>Inv</br>(kg)</strong>")                       //Tồn</br>cuối
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.ProductCode).Width(120).ReadOnly(true)
-                    .HeaderTemplate("<strong>Sản phẩm</strong>");
+                    .HeaderTemplate("<strong>Product</strong>");
                 columns.Bound(f => f.MachineName).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Máy</br>SX</strong>")
+                    .HeaderTemplate("<strong>Machine</strong>")                //Máy</br>SX
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ProductionWeight).Width(80).ReadOnly(true)
+                columns.Bound(f => f.ProductionWeight).Width(90).ReadOnly(true)
                     .Format("{0:n3}")
-                    .HeaderTemplate("<strong>TL phoi</strong>");
+                    .HeaderTemplate("<strong>Workpiece</br>Weight</strong>");              //TL phoi
                 columns.Bound(f => f.ProductInv).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tồn kho</br>SP (pcs)</strong>")
+                    .HeaderTemplate("<strong>Product</br>Inv(pcs)</strong>")        //Tồn kho</br>SP
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ProductForecast).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Dự báo</br>sản xuất</br>theo PLM</strong>")
+                columns.Bound(f => f.ProductForecast).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Production</br>Forecast</br>Follow WO</strong>")            //Dự báo</br>sản xuất</br>theo PLM
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.OrderForecast).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Dự báo</br>đơn hàng</br>tồn (pcs)</strong>")
+                columns.Bound(f => f.OrderForecast).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Order-Inv</br>Forecast</br>(pcs)</strong>")           //Dự báo</br>đơn hàng</br>tồn (pcs)
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.AvgOrder).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>TB ĐH</br>từ</br>đầu năm</strong>")
+                columns.Bound(f => f.AvgOrder).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Avg Order</br>From</br>M1</strong>")                //TB ĐH</br>từ</br>đầu năm
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.OrderQuantity).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Đơn hàng</br>còn lại</br>(pcs)</strong>")
+                columns.Bound(f => f.OrderQuantity).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Remaining</br>Order</br>(pcs)</strong>")              //Đơn hàng</br>còn lại</br>(pcs)
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.RequireInv).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Yêu cầu</br>tồn (pcs)</strong>")
+                columns.Bound(f => f.RequireInv).Width(120).ReadOnly(true)
+                    .HeaderTemplate("<strong>Inv</br>Required(pcs)</strong>")               //Yêu cầu</br>tồn (pcs)
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ProductionPlan).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Năng suất</br>(pcs/day)</strong>")
+                columns.Bound(f => f.ProductionPlan).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Productivity</br>(pcs/day)</strong>")             //Năng suất</br>(pcs/day)
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ProductionQuantity).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Sản lượng</br>(pcs)</strong>")
+                columns.Bound(f => f.ProductionQuantity).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Production</br>Quantity</br>(pcs)</strong>")             //Sản lượng</br>(pcs)
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
-                columns.Bound(f => f.ProductionPlanDateString).Width(90).ReadOnly(true)
-                    .HeaderTemplate("<strong>Ngày</br>ngưng SX</br>(KH)</strong>")
+                columns.Bound(f => f.ProductionPlanDateString).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Production</br>Delay</br>(Plan)</strong>")          //    Ngày</br>ngưng SX</br>(KH)
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.ProductionDateString).Width(90).ReadOnly(true)
-                    .HeaderTemplate("<strong>Ngày</br>ngưng SX</br>(TT)</strong>")
+                    .HeaderTemplate("<strong>Production</br>Delay</br>(Actual)</strong>")              //Ngày</br>ngưng SX</br>(TT)
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
-                columns.Bound(f => f.AvgExport).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>TB</br>xuất NL</br>(kg/ngày)</strong>")
+                columns.Bound(f => f.AvgExport).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Avg Material</br>Release</br>(kg/day)</strong>")            //TB</br>xuất NL</br>(kg/ngày)
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ExportDateString).Width(90).ReadOnly(true)
-                    .HeaderTemplate("<strong>Ngày</br>hết NL</strong>")
+                columns.Bound(f => f.ExportDateString).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Out Of</br>Material</br>Date</strong>")                     //Ngày</br>hết NL
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
-                columns.Bound(f => f.RequireInvKg).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Kế hoạch</br>tồn kho</br>SP (kg)</strong>")
+                columns.Bound(f => f.RequireInvKg).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Product-Inv</br>Plan(kg)</strong>")                // Kế hoạch</br>tồn kho</br>SP (kg
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.AvgExport).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Dự phòng</br>nguyên liệu</br>(kg)</strong>")
+                columns.Bound(f => f.AvgExport).Width(130).ReadOnly(true)
+                    .HeaderTemplate("<strong>Material</br>Back-up Plan</br>(kg)</strong>")       //Dự phòng</br>nguyên liệu</br>(kg)
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.PoQuantity).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>PO</br>nguyên liệu</br>(kg)</strong>")
+                    .HeaderTemplate("<strong>PO</br>Material</br>(kg)</strong>")             //PO</br>nguyên liệu
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.PoDate).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Ngày PO</br>(gần nhất)</strong>")
+                    .HeaderTemplate("<strong>PO Date</br>(Nearest)</strong>")              //Ngày PO</br>(gần nhất)<
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.MaterialUse).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>NLSX</br>(theo máy)</strong>")
+                columns.Bound(f => f.MaterialUse).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Production</br>Material</br>(Machine)</strong>")                 //NLSX</br>(theo máy)
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ProductionQuantityByTrack).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Luỹ kế</br>sản xuất</strong>")
+                columns.Bound(f => f.ProductionQuantityByTrack).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Production</br>Cumulative</strong>")                 //Luỹ kế</br>sản xuất
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.MaterialUseKgByTrack).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Luỹ kế</br>NLSD</strong>")
+                columns.Bound(f => f.MaterialUseKgByTrack).Width(115).ReadOnly(true)
+                    .HeaderTemplate("<strong>Material-Used</br>Cumulative</strong>")          //Luỹ kế</br>NLSD
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.ProductExport).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Luỹ kế</br>xuất</strong>")
+                columns.Bound(f => f.ProductExport).Width(100).ReadOnly(true)
+                    .HeaderTemplate("<strong>Release</br>Cumulative</strong>")                         //Luỹ kế</br>xuất
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align: right;" });
                 //

@@ -14,7 +14,7 @@
         .DataKeys(key => key.Add(f => f.FuelId).RouteKey("FuelId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new {style = "margin-left:0px;"}))
+            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new {style = "margin-left:0px;"}))
         .DataBinding(
             dataBinding => dataBinding.Ajax()
                                       .Select("SelectAllFuel", "Material")
@@ -23,20 +23,20 @@
         .Columns(columns =>
             {
                 columns.Command(command =>
-                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Fixing")
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").InsertText("Add").CancelText("Cancel").Text("Edit")
                     ).Width(60).Title("").HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.FuelFullCode).Width(150).Title("Fuel Full Code").ReadOnly(true)                                        //Mã
+                columns.Bound(f => f.FuelFullCode).Width(155).Title("Fuel Full Code").ReadOnly(true)                                        //Mã
                        .ClientTemplate("<strong><#= FuelFullCode #></strong>");
                 columns.Bound(f => f.FuelName).Width(95).Title("Fuel Name");                                                        // Ten nguyen lieu
-                columns.Bound(f => f.FuelCode).Width(105).Title("FuelCode")                                                              //Mã tên
+                columns.Bound(f => f.FuelCode).Width(105).Title("Fuel Code")                                                              //Mã tên
                        .ClientTemplate("<strong><#= FuelCode #></strong>");
-                columns.Bound(f => f.FuelDesignNo).Width(180).Title("Specifications")                                                   // Quy cách
+                columns.Bound(f => f.FuelDesignNo).Width(180).Title("Specification")                                                   // Quy cách
                        .ClientTemplate("<strong><#= FuelDesignNo #></strong>");
-                columns.Bound(f => f.FuelDesctiption).Width(190).Title("Describe");                                                     //Mô tả
+                columns.Bound(f => f.FuelDesctiption).Width(195).Title("Describe");                                                     //Mô tả
                 columns.Bound(f => f.UnitWeight).Width(50).Title("Weight");                                                             //Trọng lượng
-                columns.Bound(f => f.ModifiedDate).Width(90).Title("Modified Date").ReadOnly(true)                                     //Ngày chỉnh
+                columns.Bound(f => f.ModifiedDate).Width(80).Title("M-Date").ReadOnly(true)                                     //Ngày chỉnh
                        .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.ModifiedUser).Width(75).Title("Modified User").ReadOnly(true);                                    //Người chỉnh
+                columns.Bound(f => f.ModifiedUser).Width(75).Title("M-User").ReadOnly(true);                                    //Người chỉnh
                 columns.Bound(f => f.Active).Width(50)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });

@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Đóng gói";
+    ViewBag.Title = "Packing";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <style>
@@ -156,7 +156,8 @@
 }
 
 <div class="title" style="float:left;">
-    <div class="grid_2_5">Cân hàng</div>
+    <div class="grid_2_5">Weighing</div>
+    @*Can^ hang`*@
     <div class="grid_3">
         @{
             Html.Telerik().NumericTextBox()
@@ -180,10 +181,10 @@
 
 <div class="t-info-sha fieldheader fieldheader1">
     <fieldset>
-        <legend>Thông tin sản phẩm</legend>
+        <legend>Product Information</legend>
         <div class="grid_6">
-            <div class="grid_1_5">
-                Kho
+            <div class="grid_3">
+               Warehouse
             </div>
             <div class="grid_4">
                 @{
@@ -192,7 +193,7 @@
                         .DataBinding(binding => binding.Ajax().Select("SelectComboBoxImportWarehouse", "Warehouse", new { area = "Inv" }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .HighlightFirstMatch(true)
                         .AutoFill(true)
                         //.ClientEvents(events => events.OnChange("warehouse_OnChange"))
@@ -203,7 +204,7 @@
             <br />
 
             <div class="grid_1_5">
-                Sản phẩm
+                Product
             </div>
             <div class="grid_4">
                 @{
@@ -213,7 +214,7 @@
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "width: 275px" })
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .ClientEvents(events => { events.OnChange("product_OnChange"); })
                         .Render();
                 }
@@ -222,7 +223,7 @@
             <div class="clear"></div>
             <br />
             <div class="grid_1_5">
-                TL SP
+               Product Weight
             </div>
             <div class="grid_2">
                 @{
@@ -240,10 +241,11 @@
             </div>
             <div class="grid_2">(g/pc)</div>
         </div>
-        <div class="grid_3">
+        <div class="grid_4">
             <button class="t-button" id="btnAddData" name="btnAddData" onclick=" AddData() ">
                 <span class='t-icon t-insert'></span>
-                Nạp liệu
+                Ok
+            @*    Nạp liệu*@
             </button>
             <span class="twoToneButton"></span>
             <div class="clear"></div>
@@ -267,10 +269,10 @@
 
 <div class="t-info-sha fieldheader fieldheader2">
     <fieldset>
-        <legend>Thông tin đóng gói</legend>
+        <legend>Packing Information</legend>
 
         <div class="grid_1_5">
-            Loại gói
+            Package Type
         </div>
         <div class="grid_4">
             @{
@@ -279,7 +281,7 @@
                     .DataBinding(binding => binding.Ajax().Select("SelectComboboxProductionFuel", "Production", new { area = "Factory", productId = 0 }).Delay(350))
                     .HtmlAttributes(new { style = "width: 100%" })
                     .DropDownHtmlAttributes(new { style = "width: 250px" })
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .ClientEvents(events => events.OnDataBinding("package_OnDataBinding")
@@ -297,7 +299,8 @@
         <br />
 
         <div class="grid_1_5">
-            Số lượng
+           Number
+@*            So luong*@
         </div>
         <div class="grid_1_5">
             @{
@@ -317,8 +320,8 @@
             (pcs)
         </div>
         
-        <div class="grid_2">
-            TL bao bì
+        <div class="grid_2_5">
+            Package Weight
         </div>
         <div class="grid_1_5" style="text-align:right;">
             <span id="PackageWeight">0</span>
@@ -330,7 +333,7 @@
         <div class="clear"></div>
         <br />
         
-        <div class="grid_1_5">
+        <div class="grid_2">
             Net Weight
         </div>
         <div class="grid_1_5">
@@ -350,7 +353,7 @@
         <div class="grid_1">
             (g)
         </div>
-        <div class="grid_2">
+        <div class="grid_2_5">
             Cross Weight
         </div>
         <div class="grid_1_5">
@@ -377,9 +380,11 @@
 
 <div class="t-info-sha fieldheader fieldheader3">
     <fieldset>
-        <legend>Cấu hình đóng gói</legend>
+        <legend>Packaging Configuration
+           @* Cấu hình đóng gói*@</legend>
         <div class="grid_2_5">
-            Tự động nạp
+            Auto Reload
+         @*   Tự động nạp*@
         </div>
         <div class="grid_1">
             <label>
@@ -402,8 +407,9 @@
         giây
         <div class="clear"></div>
         <br />
-        <div class="grid_2_5">
-            Dung sai cân
+        <div class="grid_3_5">
+            Weighing Tolerance
+            @*Dung sai cân*@
         </div>
         <div class="grid_1">
             @{
@@ -451,41 +457,41 @@
         .Columns(columns => {
             columns.Bound(f => f.ProductId).Width(30)
                 .ClientTemplate("<#= ++index #>")
-                .HeaderTemplate("<strong>STT</strong>");
-            columns.Bound(f => f.CustomerCode).Width(70).HeaderTemplate("Khách</br>hàng");
+                .HeaderTemplate("<strong>No.</strong>");
+            columns.Bound(f => f.CustomerCode).Width(70).HeaderTemplate("Customer");
             columns.Bound(f => f.ProductCode).Width(120)
                 .Aggregate(agg => agg.Count())
                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                 ;
-            columns.Bound(f => f.LotNumber).Width(100).Title("Lô");
+            columns.Bound(f => f.LotNumber).Width(100).Title("Lot");
             columns.Bound(f => f.ProductWeight).Width(70)
-                .HeaderTemplate("TL sản phẩm</br>(g/pc)")
+                .HeaderTemplate("Product</br>Weight(g/pc)")
                 .Format("{0:n3}")
                 .HtmlAttributes(new { style = "text-align: right;" });
             columns.Bound(f => f.TotalQtyExport).Width(70)
-                .HeaderTemplate("Tồn kho</br>(pcs)")
+                .HeaderTemplate("Inv</br>(pcs)")
                 .Format("{0:n0}")
                 .HtmlAttributes(new { style = "text-align: right;" });
             columns.Bound(f => f.TotalQtyExportKg).Width(70)
-                .HeaderTemplate("Tồn kho</br>(g)")
+                .HeaderTemplate("Inv</br>(g)")
                 .Format("{0:n0}")
                 .HtmlAttributes(new { style = "text-align: right;" });
-            columns.Bound(f => f.QuantityKg).Width(100).HeaderTemplate("TL xuất</br>(g)")
+            columns.Bound(f => f.QuantityKg).Width(100).HeaderTemplate("Release</br>Weight(g)")
                 .Format("{0:n2}")
                 .HtmlAttributes(new { style = "text-align: right;" })
                 .Aggregate(agg => agg.Sum())
                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                 .FooterHtmlAttributes(new { style = "text-align: right;" });
-            columns.Bound(f => f.Quantity).Width(100).HeaderTemplate("SL xuất</br>(pcs)")
+            columns.Bound(f => f.Quantity).Width(100).HeaderTemplate("Release</br>Quantity(pcs)")
                 .Format("{0:n0}")
                 .HtmlAttributes(new { style = "text-align: right;" })
                 .Aggregate(agg => agg.Sum())
                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                 .FooterHtmlAttributes(new { style = "text-align: right;" });
-            columns.Bound(f => f.ModifiedDate).Width(100).HeaderTemplate("Thời gian")
+            columns.Bound(f => f.ModifiedDate).Width(100).HeaderTemplate("Time")
                 .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ModifiedDate) #>")
                 .HtmlAttributes(new { style = "text-align: right;" });
 
@@ -496,7 +502,7 @@
             .OnError("grid_OnError")
         )
         .Scrollable(f => f.Height(510))
-        .Editable(f => f.Mode(GridEditMode.InCell))
+        .Editable(f => f.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
         // .Footer(false)
         .Groupable()
         .Resizable(f => f.Columns(true))

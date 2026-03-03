@@ -40,7 +40,7 @@
                                       .Update("UpdateUnitMeasure", "UnitMeasure"))
         .Columns(columns =>
             {
-                columns.Command(command => command.Edit().ButtonType(GridButtonType.Image)
+                columns.Command(command => command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)
                     ).Width(98).Title("").HtmlAttributes(new {style = "text-align:center"});
                 columns.Bound(f => f.UnitMeasureCode).Width(150);
                 columns.Bound(f => f.UnitMeasureName);

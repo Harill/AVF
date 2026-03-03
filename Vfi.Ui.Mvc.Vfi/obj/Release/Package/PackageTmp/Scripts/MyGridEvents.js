@@ -22,9 +22,10 @@ Date.prototype.ddmm = function () {
             this.getFullYear()
     ].join('/');
 };
-function RefreshGrid(gridName) {
+function RefreshGrid(gridName) {                          
     $('#' + gridName).data("tGrid").ajaxRequest();
 }
+
 function RefreshCombobox(name) {
     var cbo = $('#' + name).data("tComboBox");
     cbo.reload();

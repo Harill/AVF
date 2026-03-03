@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "Sản phẩm gia công ngoài";
+    ViewBag.Title = "Product Management (Outsourcing)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -27,15 +27,15 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin sản phẩm (gia công ngoài)</div>
+<div class="title">Product Management (Outsourcing)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
 
-            <div class="grid_1">
-                Mã KH
+            <div class="grid_1_5">
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -46,12 +46,12 @@
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         .ClientEvents(events => events.OnChange("customer_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
 
-            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -69,7 +69,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </fieldset>
     </div>
@@ -92,41 +92,42 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(45).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                        .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.CustomerCode).Width(70)
-                       .HeaderTemplate("Mã KH");
-                columns.Bound(f => f.ProductCode).Width(100)
-                       .HeaderTemplate("Mã SP");
+                columns.Bound(f => f.CustomerCode).Width(90)
+                       .HeaderTemplate("Customer</br>Code");
+                columns.Bound(f => f.ProductCode).Width(120)
+                       .HeaderTemplate("Product</br>Code");
 
-                columns.Bound(f => f.PlatingIndex).Width(50)
-                       .HeaderTemplate("STT</br>GCN");
+                columns.Bound(f => f.PlatingIndex).Width(90)
+                       .HeaderTemplate("Outsource</br>Index")                   
+                       .HtmlAttributes(new { style = "text-align:center" });
                 columns.Bound(f => f.PlatingName).Width(200)
-                       .HeaderTemplate("Gia công");
+                       .HeaderTemplate("Processing");
                 columns.Bound(f => f.SaltSprayTime).Width(100)
-                       .HeaderTemplate("Phun muối");
+                       .HeaderTemplate("Salt</br>Spray");
                 columns.Bound(f => f.Thickness).Width(100)
-                       .HeaderTemplate("Độ dày");
+                       .HeaderTemplate("Thickness");
                 columns.Bound(f => f.PlatingDay).Width(100)
-                       .HeaderTemplate("Thời gian</br>(d)")
+                       .HeaderTemplate("Time</br>(d)")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.PlatingCost).Width(100)
-                       .HeaderTemplate("Chi phí")
+                       .HeaderTemplate("Cost")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Description)
-                       .HeaderTemplate("Ghi chú");
-                columns.Bound(f => f.Active).Width(40).Title("Kích</br>hoạt")
+                       .HeaderTemplate("Note");
+                columns.Bound(f => f.Active).Width(60).Title("Active")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.IsMainProcess).Width(40).Title("CĐ</br>chính")
+                columns.Bound(f => f.IsMainProcess).Width(70).Title("Main</br>Process")
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsMainProcess' <#=IsMainProcess? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày làm").ReadOnly(true)
+                columns.Bound(f => f.ModifiedDate).Width(80).Title("M-Date").ReadOnly(true)
                        .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(80).Title("M-User").ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

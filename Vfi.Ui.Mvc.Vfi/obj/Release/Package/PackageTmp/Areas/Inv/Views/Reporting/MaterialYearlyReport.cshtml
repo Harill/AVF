@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model MaterialInventoryModel
 @{
-    ViewBag.Title = "Nguyên liệu năm";
+    ViewBag.Title = "Annual Materials Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -38,13 +38,13 @@
 
 }
 
-    <div class="title">Báo cáo tổng hợp nguyên liệu</div>
+    <div class="title">Annual Materials Report</div>
 
     <div id="pnlInv">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-            <div class="grid_2"> Loại NL </div>
+            <legend>Annual Materials Report</legend>
+            <div class="grid_2_5"> Material Type </div>
             <div class="grid_4">
                 @{
                     Html.Telerik().ComboBox()
@@ -56,7 +56,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2"> Nguyên Liệu </div>
+            <div class="grid_1_5"> Material </div>
             <div class="grid_4">
                 @{
                     Html.Telerik().AutoComplete()
@@ -70,7 +70,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2"> Năm </div>
+            <div class="grid_1"> Year </div>
             <div class="grid_2">
                     @{
                         Html.Telerik().AutoComplete()
@@ -83,7 +83,7 @@
             <div class="grid_3">
                 <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2(); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                    Find
                 </button>
             </div>
         </fieldset>
@@ -107,17 +107,16 @@
 
             .Columns(columns =>
             {
-                columns.Bound(f => f.MaterialId).Width(40).ReadOnly(true).Title("STT")
-
+                columns.Bound(f => f.MaterialId).Width(40).ReadOnly(true).Title("No.")
                     .ClientTemplate("<#= ++index #>");
-                columns.Bound(f => f.MaterialTypeName).Width(85).ReadOnly(true).Title("Loại");
-                columns.Bound(f => f.MaterialCode).Width(150).ReadOnly(true).Title("Tên NL")
+                columns.Bound(f => f.MaterialTypeName).Width(85).ReadOnly(true).Title("Type</br>Material");
+                columns.Bound(f => f.MaterialCode).Width(150).ReadOnly(true).Title("Material</br>Name")
                     .Aggregate(agg => agg.Count())
                     .ClientGroupFooterTemplate("<#= Count #>")
                     .ClientFooterTemplate("<#= Count #>")
                     .HtmlAttributes(new { style = "text-align: left;border-right: 1px solid black;" });
                 columns.Bound(f => f.TotalInv).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tổng</br>tồn</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>Total</br>Inv</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -125,7 +124,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Avg).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>TB</br>Sd</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>Avg-Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -134,7 +133,7 @@
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 //
                 columns.Bound(f => f.Months[0].Import).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tổng</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>Total</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -142,7 +141,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[0].ImportMore).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tổng</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>Total</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -150,7 +149,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[0].ExportUse).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tổng</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>Total</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -158,7 +157,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[0].ExportDestroy).Width(80).ReadOnly(true)
-                    .HeaderTemplate("<strong>Tổng</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>Total</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -167,7 +166,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[1].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T1</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[1]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -175,7 +174,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[1].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T1</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[1]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -183,7 +182,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[1].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T1</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[1]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -191,7 +190,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[1].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T1</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[1]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -200,7 +199,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[2].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T2</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[2]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -208,7 +207,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[2].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T2</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[2]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -216,7 +215,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[2].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T2</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[2]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -224,7 +223,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[2].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T2</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[2]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -233,7 +232,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[3].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T3</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[3]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -241,7 +240,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[3].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T3</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[3]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -249,7 +248,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[3].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T3</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[3]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -257,7 +256,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[3].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T3</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[3]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -266,7 +265,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[4].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T4</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[4]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -274,7 +273,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[4].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T4</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[4]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -282,7 +281,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[4].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T4</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[4]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -290,7 +289,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[4].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T4</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[4]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -299,7 +298,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[5].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T5</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[5]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -307,7 +306,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[5].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T5</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[5]</br>Addition </br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -315,7 +314,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[5].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T5</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[5]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -323,7 +322,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[5].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T5</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[5]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -332,7 +331,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[6].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T6</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[6]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -340,7 +339,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[6].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T6</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[6]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -348,7 +347,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[6].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T6</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[6]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -356,7 +355,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[6].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T6</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[6]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -365,7 +364,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[7].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T7</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[7]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -373,7 +372,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[7].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T7</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[7]</br>Addition </br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -381,7 +380,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[7].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T7</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[7]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -389,7 +388,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[7].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T7</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[7]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -398,7 +397,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[8].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T8</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[8]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -406,7 +405,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[8].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T8</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[8]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -414,7 +413,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[8].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T8</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[8]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -422,7 +421,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[8].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T8</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[8]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -431,7 +430,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[9].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T9</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[9]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -439,7 +438,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[9].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T9</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[9]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -447,7 +446,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[9].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T9</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[9]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -455,7 +454,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[9].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T9</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[9]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -464,7 +463,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[10].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T10</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[10]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -472,7 +471,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[10].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T10</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[10]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -480,7 +479,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[10].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T10</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[10]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -488,7 +487,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[10].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T10</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[10]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -497,7 +496,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[11].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T11</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[11]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -505,7 +504,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[11].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T11</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[11]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -513,7 +512,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[11].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T11</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[11]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -521,7 +520,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[11].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T11</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[11]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -530,7 +529,7 @@
                     .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                 //
                 columns.Bound(f => f.Months[12].Import).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T12</br>nhập</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[12]</br>Entry</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -538,7 +537,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[12].ImportMore).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T12</br>+ thêm</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[12]</br>Addition</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -546,7 +545,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[12].ExportUse).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T12</br>SD</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[12]</br>Used</br>(Kg)</strong>")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align: right;" })
                     .Aggregate(agg => agg.Sum())
@@ -554,7 +553,7 @@
                     .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                     .FooterHtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.Months[12].ExportDestroy).Width(70).ReadOnly(true)
-                    .HeaderTemplate("<strong>T12</br>huỷ</br>(Kg)</strong>")
+                    .HeaderTemplate("<strong>M[12]</br>Cancel</br>(Kg)</strong>")
                     .Aggregate(agg => agg.Sum())
                     .Format("{0:n2}")
                     .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -573,72 +572,72 @@
                                 year = "<#= Year #>"
                             }))
                     .Columns(columns => {
-                        columns.Bound(f => f.ProductCode).Width(100).Title("Mã giao dịch");
-                        columns.Bound(f => f.ProductWeight).Width(70).Title("TL SP")
+                        columns.Bound(f => f.ProductCode).Width(100).Title("Transaction</br>Code");
+                        columns.Bound(f => f.ProductWeight).Width(70).Title("Weight")
                             .Format("{0:n2}");
-                        columns.Bound(f => f.MaterialUse).Width(70).Title("NL SD")
+                        columns.Bound(f => f.MaterialUse).Width(70).Title("Materia</br>Used")
                             .Format("{0:n2}")
                             .Aggregate(agg => agg.Sum())
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Production).Width(100).Title("Sản lượng")
+                        columns.Bound(f => f.Production).Width(100).Title("Productivity")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Processing).Width(100).Title("Chờ phân loại")
+                        columns.Bound(f => f.Processing).Width(100).Title("Classify")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Defect).Width(70).Title("Phế phẩm")
+                        columns.Bound(f => f.Defect).Width(70).Title("Scrap")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.AvgMaterialUse).Width(100).Title("TB NLSD")
+                        columns.Bound(f => f.AvgMaterialUse).Width(100).Title("Avg-Material</br>Used")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.AvgMaterialUse3).Width(100).Title("TB x 3")
+                        columns.Bound(f => f.AvgMaterialUse3).Width(100).Title("Avg x 3")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 1
-                        columns.Bound(f => f.Productions[0].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T01</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[0].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[1]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[0].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T01</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[0].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[1]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[0].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T01</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[0].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[1]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[0].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T01</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[0].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[1]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -646,32 +645,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 2
-                        columns.Bound(f => f.Productions[1].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T02</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[1].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[2]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[1].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T02</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[1].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[2]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[1].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T02</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[1].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[2]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[1].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T02</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[1].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[2]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -679,32 +678,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 3
-                        columns.Bound(f => f.Productions[2].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T03</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[2].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[3]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[2].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T03</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[2].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[3]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[2].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T03</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[2].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[3]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[2].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T03</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[2].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[3]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -712,32 +711,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 4
-                        columns.Bound(f => f.Productions[3].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T04</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[3].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[4]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[3].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T04</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[3].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[4]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[3].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T04</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[3].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[4]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[3].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T04</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[3].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[4]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -745,32 +744,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 5
-                        columns.Bound(f => f.Productions[4].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T05</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[4].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[5]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[4].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T05</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[4].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[5]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[4].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T05</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[4].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[5]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[4].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T05</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[4].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[5]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -778,32 +777,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 6
-                        columns.Bound(f => f.Productions[5].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T06</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[5].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[6]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[5].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T06</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[5].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[6]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[5].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T06</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[5].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[6]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[5].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T06</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[5].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[6]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -811,32 +810,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 7
-                        columns.Bound(f => f.Productions[6].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T07</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[6].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[7]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[6].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T07</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[6].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[7]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[6].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T07</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[6].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[7]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[6].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T07</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[6].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[7]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -844,32 +843,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 8
-                        columns.Bound(f => f.Productions[7].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T08</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[7].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[8]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[7].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T08</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[7].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[8]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[7].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T08</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[7].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[8]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[7].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T08</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[7].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[8]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -877,32 +876,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 9
-                        columns.Bound(f => f.Productions[8].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T09</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[8].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[9]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[8].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T09</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[8].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[9]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[8].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T09</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[8].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[9]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[8].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T09</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[8].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[9]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -910,32 +909,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 10
-                        columns.Bound(f => f.Productions[9].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T10</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[9].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[10]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[9].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T10</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[9].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[10]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[9].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T10</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[9].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[10]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[9].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T10</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[9].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[10]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -943,32 +942,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 11
-                        columns.Bound(f => f.Productions[10].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T11</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[10].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[11]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[10].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T11</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[10].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[11]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[10].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T11</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[10].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[11]</br>Classify</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[10].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T11</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[10].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[11]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -976,32 +975,32 @@
                             .FooterHtmlAttributes(new { style = "text-align: right;" })
                             .HtmlAttributes(new { style = "text-align: right;border-right: 1px solid black;" });
                         // 12
-                        columns.Bound(f => f.Productions[11].MaterialUse).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T12</br>NLSD</strong>")
+                        columns.Bound(f => f.Productions[11].MaterialUse).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[12]</br>Material</br>Used</strong>")
                             .Format("{0:n2}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[11].Production).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T12</br>Sản lượng</strong>")
+                        columns.Bound(f => f.Productions[11].Production).Width(100).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[12]</br>Productivity</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[11].Processing).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T12</br>Chờ PL</strong>")
+                        columns.Bound(f => f.Productions[11].Processing).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[12]</br>Classify</br>Pending</strong>")
                             .Format("{0:n0}")
                             .HtmlAttributes(new { style = "text-align: right;" })
                             .Aggregate(agg => agg.Sum())
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                             .FooterHtmlAttributes(new { style = "text-align: right;" });
-                        columns.Bound(f => f.Productions[11].Defect).Width(70).ReadOnly(true)
-                            .HeaderTemplate("<strong>T12</br>Phế phẩm</strong>")
+                        columns.Bound(f => f.Productions[11].Defect).Width(90).ReadOnly(true)
+                            .HeaderTemplate("<strong>M[12]</br>Scrap</strong>")
                             .Aggregate(agg => agg.Sum())
                             .Format("{0:n0}")
                             .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")

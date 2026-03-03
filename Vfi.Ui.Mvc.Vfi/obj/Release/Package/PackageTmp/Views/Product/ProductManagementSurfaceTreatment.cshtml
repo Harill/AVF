@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Tiêu chuẩn rung bóng";
+    ViewBag.Title = "Product Management (SurfaceTreatment)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -27,15 +27,15 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin sản phẩm (rung bóng)</div>
+<div class="title">Product Management (SurfaceTreatment)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
 
-            <div class="grid_1">
-                Mã KH
+            <div class="grid_1_5">
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -46,12 +46,12 @@
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         .ClientEvents(events => events.OnChange("customer_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
 
-            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -69,7 +69,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+               Find
             </button>
         </fieldset>
     </div>
@@ -92,40 +92,39 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(45).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
-                    .ClientTemplate("<#= ++index #>")
+                       .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.CustomerCode).Width(70)
-                       .HeaderTemplate("Mã KH");
+                columns.Bound(f => f.CustomerCode).Width(100)
+                       .HeaderTemplate("Customer Code");
                 columns.Bound(f => f.ProductCode).Width(100)
-                       .HeaderTemplate("Mã SP");
-
-                columns.Bound(f => f.Section).Width(50)
-                       .HeaderTemplate("CĐ")
+                       .HeaderTemplate("Product Code");
+                columns.Bound(f => f.Section).Width(70)
+                       .HeaderTemplate("Section")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Name).Width(100)
-                       .HeaderTemplate("Tên");
-                columns.Bound(f => f.Rate).Width(75)
-                       .HeaderTemplate("SL/Lần")
+                       .HeaderTemplate("Name");
+                columns.Bound(f => f.Rate).Width(85)
+                       .HeaderTemplate("Quantity /Times")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Timing).Width(75)
-                       .HeaderTemplate("Thời gian (s)")
+                       .HeaderTemplate("Time(s)")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: center;" });
                 columns.Bound(f => f.Rock).Width(75)
-                       .HeaderTemplate("Loại đá");
+                       .HeaderTemplate("Rock Type");
                 columns.Bound(f => f.Using).Width(150)
-                       .HeaderTemplate("Công dụng");
+                       .HeaderTemplate("Use").Width(50);
                 columns.Bound(f => f.Note)
-                       .HeaderTemplate("Ghi chú");
-                columns.Bound(f => f.Active).Width(40)
+                       .HeaderTemplate("Note").Width(50);
+                columns.Bound(f => f.Active).Width(60)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date").ReadOnly(true)
                        .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(100).Title("M-User").ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

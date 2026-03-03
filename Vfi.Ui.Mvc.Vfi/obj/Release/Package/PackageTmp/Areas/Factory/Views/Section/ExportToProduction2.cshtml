@@ -5,7 +5,8 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @model TransactionModel
 @{
-    ViewBag.Title = "Xuất gia công SX 2";
+    ViewBag.Title = "Production2-Release";
+    //"Xuất gia công SX 2
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -77,14 +78,15 @@
     </script>
 }
 
-<div class="title">Xuất gia công sản xuất 2</div>
+<div class="title">Production2-Processing-Release
+    @*Xuất gia công sản xuất 2*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px;padding-right: 15px; width:920px;">
     
     <fieldset>
-        <legend>Thông tin</legend>
+        <legend>Release Information</legend>
        
-    <div class="grid_2">Sản phẩm:</div>
+    <div class="grid_1_5">Product</div>
     <div class="grid_6">
         @{
             Html.Telerik().AutoComplete()
@@ -123,7 +125,7 @@
                  <div class="grid_7">
                      <button class="t-button" id="btnPickupProductId" name="btnPickupId" onclick=" PickupId() ">
                          <span class='t-icon t-insert'></span>
-                         Chọn các sản phẩm vào lưới
+                         Select Product
                      </button>
                  </div>
                  <div class="clear"></div>
@@ -135,20 +137,20 @@
                                                          new { eoi = MyUtilities.Transaction.EoIEnum.Import, productCode = "" }))
         .Columns(columns =>
             {
-                columns.Bound(f => f.ProductId).Title("Chọn").Width(75)
+                columns.Bound(f => f.ProductId).Title("Select").Width(75)
                        .ClientTemplate("<input type='checkbox' name='chkProductIds' value='<#= ProductId #>' />")
                        .HtmlAttributes(new {style = "text-align:center"});
-                columns.Bound(f => f.ProductCode).Width(200).Title("Mã SP");
-                columns.Bound(f => f.SectionName).Width(200).Title("Tên công đoạn");
+                columns.Bound(f => f.ProductCode).Width(200).Title("Product Code");
+                columns.Bound(f => f.SectionName).Width(200).Title("Section Name");         // Ten Cong Doan
                 columns.Bound(f => f.TotalInventory).Width(150)
-                       .Title("Tồn kho SX 2 (kg)")
+                       .Title("Production2 Inv(kg)")                  //Tồn kho SX 2 (kg)
                        .HtmlAttributes(new {style = "text-align:right;"})
                        .Format("{0:n3}");
                 columns.Bound(f => f.Weight).Width(150)
-                       .Title("Trọng lượng (g/pc)")
+                       .Title("Weight(g/pc)")
                        .HtmlAttributes(new {style = "text-align:right;"})
                        .Format("{0:n3}");
-                columns.Bound(f => f.Unit).Title("ĐVT").Width(50);
+                columns.Bound(f => f.Unit).Title("Unit Measure").Width(90);
             })
         .Scrollable(f => f.Height("auto"))
         .ClientEvents(events => events.OnDataBinding("gridProduction2Inventory_onDataBinding")
@@ -160,12 +162,12 @@
 </div>
 <div class="clear"></div><br/>
 
-<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Chi tiết lệnh nhập sản phẩm</div>
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Release Detail</div>
 <div class="cover-div">
 @{
     Html.Telerik().Grid<Production2Model>()
         .Name("gridProduction2")
-        .ToolBar(bar=>bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu tất cả").CancelText("Hủy"))
+        .ToolBar(bar=>bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel"))
         .DataKeys(keys => keys.Add(f => f.ProductId).RouteKey("productId"))
         .DataBinding(dataBindings => dataBindings.Ajax()
             .Select("SelectProduction2InventoryByIds", "Section", new { eoi = MyUtilities.Transaction.EoIEnum.Import, ids = "" })
@@ -173,22 +175,22 @@
         .Columns(columns =>
         {
 
-            columns.Bound(f => f.ProductCode).Width(150).Title("Mã SP").ReadOnly(true);
+            columns.Bound(f => f.ProductCode).Width(150).Title("Product Code").ReadOnly(true);
             columns.Bound(f => f.Production2Inventory).Width(100).ReadOnly(true)
-                .Title("Tồn kho SX 2")
+                .Title("Production2 Inv")
                 .HtmlAttributes(new {style="text-align:right;"})
                    .Format("{0:n3}");
-            columns.Bound(f => f.SectionName).Width(150).Title("Tên công đoạn").ReadOnly(true);
+            columns.Bound(f => f.SectionName).Width(150).Title("Section Name").ReadOnly(true);
             columns.Bound(f => f.TotalInventory).Width(100).ReadOnly(true)
-                .Title("Tồn kho công đoạn")
+                .Title("Section Inv")
                    .Format("{0:n3}");
-            columns.Bound(f => f.Unit).Title("ĐVT").Width(50).ReadOnly(true);
-            columns.Bound(f => f.Quantity).Title("Số lượng").Width(50)
+            columns.Bound(f => f.Unit).Title("Unit Measure").Width(80).ReadOnly(true);
+            columns.Bound(f => f.Quantity).Title("Quantity").Width(50)
                 .HtmlAttributes(new { style = "text-align:right;" })
                    .Format("{0:n3}");
-            columns.Bound(f => f.Note).Title("Ghi chú");
-            
-            columns.Command(commands => commands.Delete().Text("Bỏ")).Width(98).Title("");
+            columns.Bound(f => f.Note).Title("Note");
+
+            columns.Command(commands => commands.Delete().Text("Delete")).Width(98).Title("");
         })
         .ClientEvents(events => events
             .OnSubmitChanges("gridProduction2_onSubmitChanges")

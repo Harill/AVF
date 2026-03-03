@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Factory.Models
 @{
-    ViewBag.Title = "Tiêu chuẩn đóng gói";
+    ViewBag.Title = "Product Management (Packing)";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -27,15 +27,15 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin sản phẩm (đóng gói)</div>
+<div class="title">Product Management (Packing)</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
 
-            <div class="grid_1">
-                Mã KH
+            <div class="grid_1_5">
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -46,12 +46,12 @@
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         .ClientEvents(events => events.OnChange("customer_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
 
-            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -69,7 +69,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </fieldset>
     </div>
@@ -92,47 +92,45 @@
                 //                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
                 //    ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.ProductId).Title("STT").Width(35).ReadOnly(true)
+                columns.Bound(f => f.ProductId).Title("No.").Width(45).ReadOnly(true)
                        .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                        .ClientTemplate("<#= ++index #>")
                        .HtmlAttributes(new { style = "text-align: center;" });
-                columns.Bound(f => f.CustomerCode).Width(70)
-                       .HeaderTemplate("Mã KH");
-                columns.Bound(f => f.ProductCode).Width(100)
-                       .HeaderTemplate("Mã SP");
-                
-                columns.Bound(f => f.Priority).Width(50)
-                    .HeaderTemplate("Ưu</br>tiên");
+                columns.Bound(f => f.CustomerCode).Width(90)
+                       .HeaderTemplate("Customer</br>Code");
+                columns.Bound(f => f.ProductCode).Width(110)
+                       .HeaderTemplate("Product</br>Code");
+                columns.Bound(f => f.Priority).Width(70)
+                       .HeaderTemplate("Priority");
                 columns.Bound(f => f.FuelFullCodeName).Width(150)
-                       .HeaderTemplate("Thùng")
+                       .HeaderTemplate("Box")
                        .HtmlAttributes(new { style = "border-left: 1px solid black;" });
-                columns.Bound(f => f.Quota).Width(75)
-                       .HeaderTemplate("SL/</br>Thùng")
+                columns.Bound(f => f.Quota).Width(85)
+                       .HeaderTemplate("Quantity</br>/Box")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.CrossWeight).Width(75)
-                       .HeaderTemplate("Trọng lượng</br>(g)")
+                       .HeaderTemplate("Weight</br>(g)")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
-
-                columns.Bound(f => f.FuelFullCodeName2).Width(150)
-                       .HeaderTemplate("Túi")
+                columns.Bound(f => f.FuelFullCodeName2).Width(170)
+                       .HeaderTemplate("Bag")
                        .HtmlAttributes(new { style = "border-left: 1px solid black;" });
                 columns.Bound(f => f.Quota2).Width(75)
-                       .HeaderTemplate("SL/</br>Túi")
+                       .HeaderTemplate("Quantity</br>/Bag")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
                 columns.Bound(f => f.CrossWeight2).Width(75)
-                       .HeaderTemplate("Trọng lượng</br>(g)")
+                       .HeaderTemplate("Weight</br>(g)")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.Active).Width(40)
+                columns.Bound(f => f.Active).Width(50)
                        .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Bound(f => f.Note).Title("Ghi chú");
-                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày thêm").ReadOnly(true)
+                columns.Bound(f => f.Note).Title("Note").Width(250);
+                columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date").ReadOnly(true)
                        .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+                columns.Bound(f => f.ModifiedUser).Width(100).Title("M-User").ReadOnly(true);
             })
             .ClientEvents(events => events.OnDataBinding("gridProduct_OnDataBinding")
                                           .OnError("grid_OnError"))

@@ -621,12 +621,12 @@
                        .Format("{0:n0}")
                        .ClientTemplate("<span class='GoodWeight'><#=  $.telerik.formatString('{0:n0}', GoodWeight) #></span>")
                        .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("NG</br>(pcs)")
+                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("Pending-Classify</br>(pcs)")
                        .HeaderHtmlAttributes(new { @class = "ng-column" })
                        .Format("{0:n0}")
                        .ClientTemplate("<span class='NGQuantity'><#=  $.telerik.formatString('{0:n0}', NGQuantity) #></span>")
                        .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("NG</br>(g)")
+                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("Pending-Classify</br>(g)")
                        .HeaderHtmlAttributes(new { @class = "ng-column" })
                        .Format("{0:n0}")
                        .ClientTemplate("<span class='NGWeight'><#=  $.telerik.formatString('{0:n0}', NGWeight) #></span>")

@@ -5,7 +5,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="title">Tham số hệ thống</div>
+<div class="title">System Parameters
+    @*Tham số hệ thống*@</div>
 
 <div class="cover-div">
 @{
@@ -17,11 +18,11 @@
             .Update("UpdateParam", "Parameter")
         )
         .Columns(columns=> {
-                         columns.Command(cmd => cmd.Edit().ButtonType(GridButtonType.Image)).Width(100);
+                         columns.Command(cmd => cmd.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(100);
                          columns.Bound(f => f.ParamCode).ReadOnly(true);
                          columns.Bound(f => f.Name);
                          columns.Bound(f => f.Value).Width(100);
-                         columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày chỉnh").ReadOnly(true)
+                         columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date").ReadOnly(true)
                                 .Format("{0:dd/MM/yyyy HH:mm}");
                      })
         .ClientEvents(events => events.OnError("grid_OnError"))

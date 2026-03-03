@@ -3,7 +3,7 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @using Vfi.Ui.Mvc.Vfi.Models.Production
 @{
-    ViewBag.Title = "KT SP";
+    ViewBag.Title = "Testing Product";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -44,15 +44,15 @@
         }
     </script>
 }
-<div class="title">Quản lý thông tin sản phẩm</div>
+<div class="title">Product Management</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
 
-            <div class="grid_1">
-                Mã KH
+            <div class="grid_1_5">
+                Customer
             </div>
             <div class="grid_4">
                 @{
@@ -63,11 +63,11 @@
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
                         //.ClientEvents(events => events.OnChange("customer_onChange"))
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .Render();
                 }
             </div>
-            <div class="grid_1">Sản phẩm</div>
+            <div class="grid_1_5">Product</div>
             <div class="grid_5">
                 @{
                     Html.Telerik().AutoComplete()
@@ -85,7 +85,7 @@
             </div>
             <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridProduct'); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </fieldset>
     </div>
@@ -101,22 +101,22 @@
                                           .Select("SelectTestingProductInv", "User", new { area = "", customerId = -1, productCode = "" }))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.CustomerCode).Width(100).ReadOnly(true).Title("Khách hàng");
-                    columns.Bound(f => f.ProductCode).Width(150).ReadOnly(true).Title("Sản phẩm");
-                    columns.Bound(f => f.WarehouseName).Width(150).ReadOnly(true).Title("Kho");
+                    columns.Bound(f => f.CustomerCode).Width(100).ReadOnly(true).Title("Customer");
+                    columns.Bound(f => f.ProductCode).Width(150).ReadOnly(true).Title("Product");
+                    columns.Bound(f => f.WarehouseName).Width(150).ReadOnly(true).Title("Warehouse");
                     columns.Bound(f => f.TotalQty).Width(70)
-                           .HeaderTemplate("Tồn kho thực tế")
+                           .HeaderTemplate("Actual-Inv")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" });
-                    columns.Bound(f => f.ProductId).Title("Thay đổi tồn TT").Width(50)
+                    columns.Bound(f => f.ProductId).Title("Adjust Actual-Inv").Width(100)         //Thay đổi tồn TT
                            .ClientTemplate("<input type='button' id='id_<#= ProductId #>_<#= WarehouseId #>' value='Make' class='t-button' onclick='MakeChangeInventory( <#= ProductId #> , <#= WarehouseId #> )' />")
                            .HtmlAttributes(new { style = "text-align:center" });
                     columns.Bound(f => f.AvailableQty).Width(70)
-                           .HeaderTemplate("Tồn kho (period)")
+                           .HeaderTemplate("Inv (period)")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" });
                     columns.Bound(f => f.Quantity).Width(70)
-                           .HeaderTemplate("Chênh lệch (TK - Period)")
+                           .HeaderTemplate("Diff (TK - Period)")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align:right;" });
                 })
@@ -130,13 +130,13 @@
                                           .Delete("DeleteDuplicatePeriod", "User", new { area = "" }))
                         .Columns(columns => {
                             columns.Bound(f => f.ProductInventoryPeriodId).Title("Id").Width(50);
-                            columns.Bound(f => f.Date).Title("Ngày").Width(80)
-                                    .Format("{0:dd/MM/yyyy}");
-                            columns.Bound(f => f.TransactionNumber).Title("Mã giao dịch").Width(100);
-                            columns.Bound(f => f.Early).Width(75).Title("Số đầu");
-                            columns.Bound(f => f.Period).Width(75).Title("Số lượng chuyển");
-                            columns.Bound(f => f.Last).Width(75).Title("Số cuối");
-                            columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
+                            columns.Bound(f => f.Date).Title("Date").Width(80)
+                                   .Format("{0:dd/MM/yyyy}");
+                            columns.Bound(f => f.TransactionNumber).Title("Transaction Code").Width(100);
+                            columns.Bound(f => f.Early).Width(75).Title("First Number");            // so dau`
+                            columns.Bound(f => f.Period).Width(75).Title("Transport Quantity");           //Số lượng chuyển
+                            columns.Bound(f => f.Last).Width(75).Title("Last Number");
+                            columns.Command(command => command.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image))
                                    .Width(50).Title("Xoá").HtmlAttributes(new { style = "text-align:center;color:red" });
                         })
                         .ClientEvents(events => events.OnError("grid_OnError"))

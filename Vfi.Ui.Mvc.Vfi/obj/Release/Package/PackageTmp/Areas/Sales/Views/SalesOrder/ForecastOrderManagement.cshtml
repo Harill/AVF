@@ -1,7 +1,8 @@
 ﻿@using Telerik.Web.Mvc.UI
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Quản lý dự báo";
+    ViewBag.Title = "Forecast Management";
+    //Quản lý dự báo
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -119,7 +120,7 @@
     </script>
 }
 
-<div class="title">Quản lý dự báo đơn hàng</div>
+<div class="title">Forecast-Order Management</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1065px;">
     @*<div class="grid_1">
         Kho
@@ -145,9 +146,9 @@
     </div>
     <div class="clear"></div>*@
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
-        <div class="grid_2">
-            @Html.Label("Tình trạng")
+        <legend>Filters</legend>
+        <div class="grid_1">
+            @Html.Label("Status")
         </div>
         <div class="grid_4">
             @{
@@ -162,8 +163,8 @@
                     .Render();
             }
         </div>
-        <div class="grid_2">
-            @Html.Label("Nhân viên")
+        <div class="grid_1_5">
+            @Html.Label("Employee")
         </div>
         <div class="grid_3">
             @{
@@ -175,8 +176,8 @@
                     .Render();
             }
         </div>
-        <div class="grid_1_5">
-            @Html.Label("Mã KH")
+        <div class="grid_2_5">
+            @Html.Label("Customer Code")
         </div>
         <div class="grid_4">
             @{
@@ -212,7 +213,7 @@
         <div class="grid_2_5">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-insert'></span>
-                Làm mới
+                Find
             </button>
         </div>
     </fieldset>
@@ -237,32 +238,31 @@
                     //       .Width(50).Title("")
                     //       .HtmlAttributes(new { style = "text-align:center" });
 
-                    columns.Bound(f => f.ProductId).Title("STT").Width(30).ReadOnly(true)
-                        .ClientTemplate("<#= ++index #>")
+                    columns.Bound(f => f.ProductId).Title("No.").Width(30).ReadOnly(true)
+                           .ClientTemplate("<#= ++index #>")
                            .HeaderHtmlAttributes(new { style = "font-weight: bold" })
                            .HtmlAttributes(new { style = "font-weight: center;" });
-                    columns.Bound(f => f.CustomerCode).Title("Khách hàng").Width(50).ReadOnly(true)
+                    columns.Bound(f => f.CustomerCode).Title("Customer").Width(50).ReadOnly(true)
                            .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                            .HtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.ProductCode).Title("Sản phẩm").Width(70).ReadOnly(true)
+                    columns.Bound(f => f.ProductCode).Title("Product").Width(70).ReadOnly(true)
                            .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                            .HtmlAttributes(new { style = "text-align: left;" })
                            .Aggregate(agg => agg.Count())
                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
                     columns.Bound(f => f.Quantity).Width(70).ReadOnly(true)
-                           .HeaderTemplate("Số lượng")
+                           .HeaderTemplate("Quantity")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
                            .Format("{0:n0}")
                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.ForecastDate).Width(90).Title("Ngày hoàn thành").ReadOnly(true)
+                    columns.Bound(f => f.ForecastDate).Width(90).Title("Completed</br>Date").ReadOnly(true)
                            .Format("{0:dd/MM/yyyy}");
-
                     columns.Bound(f => f.LastYearTotalQuantity).Width(70).ReadOnly(true)
-                           .Title("Tổng xuất</br>năm trước")
+                           .Title("Total Releast</br>Last Year")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
@@ -270,7 +270,7 @@
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.LastYearAvgQuantity).Width(70).ReadOnly(true)
-                           .Title("TB xuất</br>năm trước")
+                           .Title("Avg Release</br>Last Year")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
@@ -278,7 +278,7 @@
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.LastYearQuantity).Width(70).ReadOnly(true)
-                           .Title("Cùng kỳ</br>năm trước")
+                           .Title("Same Period</br>Last Year")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
@@ -286,7 +286,7 @@
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.LastMonthAvgQuantity).Width(70).ReadOnly(true)
-                           .Title("TB xuất</br>3 tháng")
+                           .Title("3M</br>Avg Release")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
@@ -294,21 +294,21 @@
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
                     columns.Bound(f => f.LastMonthOrderQuantity).Width(70).ReadOnly(true)
-                           .Title("Đơn hàng</br>tháng trước")
+                           .Title("Last Month</br>Orders")
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" })
                            .Aggregate(agg => agg.Sum())
                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                            .FooterHtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.EmployeeName).Title("Nhân viên").Width(50).ReadOnly(true)
+                    columns.Bound(f => f.EmployeeName).Title("Employee").Width(50).ReadOnly(true)
                            .HeaderHtmlAttributes(new { style = "font-weight: bold;" })
                            .HtmlAttributes(new { style = "text-align: center;" });
-                    columns.Bound(f => f.ModifiedDate).Width(90).Title("Ngày tạo").ReadOnly(true)
+                    columns.Bound(f => f.ModifiedDate).Width(90).Title("M-Date").ReadOnly(true)
                            .Format("{0:dd/MM/yyyy HH:mm}");
-                    columns.Bound(f => f.ModifiedUser).Title("Người tạo").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.ModifiedUser).Title("M-User").Width(50).ReadOnly(true);
                     columns.Command(command => command.Delete().ButtonType(GridButtonType.Image))
-                           .Width(50).Title("Hủy").HtmlAttributes(new { style = "text-align:center;color:red" });
+                           .Width(50).Title("Delete").HtmlAttributes(new { style = "text-align:center;color:red" });
                 })
             //.DetailView(details => details.ClientTemplate(
             //Html.Telerik().TabStrip()

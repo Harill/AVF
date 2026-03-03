@@ -1758,13 +1758,17 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                             OrderQty = orderQty,
                             Status = (byte)MyUtilities.WorkOrder.Status.Pending,
                         };
+
+                        var st = workOrder.SerialNumber;
+
                         var routings = CalculateWorkOrderRouting(new WorkOrderModel { 
                             ProductId = workOrder.ProductId,
                             OrderQty = workOrder.OrderQty,
                             ModifiedDate = workOrder.ModifiedDate,
                             ModifiedUser = workOrder.ModifiedUser,
-                             StartDate = workOrder.StartDate,
+                            StartDate = workOrder.StartDate,
                         });
+                        
                         foreach (var routing in routings) {
                             workOrder.WorkOrderRoutings.Add(routing);
                         }
@@ -1774,6 +1778,7 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
                         qty += orderQty;
                         i++;
                     }
+                    
                     saved += vfi.SaveChanges();
                 }
                 return Json(new MyUtilities.Monitor.MyJsonResult((int)MyUtilities.Monitor.ErrorCode.NoError, "", saved));

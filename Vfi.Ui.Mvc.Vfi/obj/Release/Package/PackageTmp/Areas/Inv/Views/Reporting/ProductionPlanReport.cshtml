@@ -1,7 +1,8 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "Kế hoạch sản xuất";
+    ViewBag.Title = "Production Plan Report";
+    //Kế hoạch sản xuất
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -46,16 +47,17 @@
     </script>
     }
 
-    <div class="title">Kế hoạch sản xuất</div>
+    <div class="title">Production Plan Report</div>
     <div class="clear"></div>
     <br />
 
     <div id="pnlInvMonthly">
         <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
             <fieldset>
-                <legend>Tiêu chí trích lọc</legend>
+                <legend>Filters</legend>
                 <div class="grid_2">
-                    @Html.LabelFor(f => f.ProductCodeName)
+                    @Html.Label("Product")
+                    @*@Html.LabelFor(f => f.ProductCodeName)*@
                 </div>
                 <div class="grid_4">
                     @{
@@ -81,7 +83,7 @@
                 <div class="grid_3">
                     <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridProductionSX1Report'); ">
                         <span class='t-icon t-refresh'></span>
-                        Làm mới
+                        Find
                     </button>
                 </div>  
                 <div class="grid_2">
@@ -115,48 +117,47 @@
                                                                      }))
                     .Columns(columns =>
                         {
-                            columns.Bound(f => f.ProductId).Width(30)
+                            columns.Bound(f => f.ProductId).Width(40)
                                    .ClientTemplate("<#= ++index #>")
-                                   .HeaderTemplate("<strong>S</br>T</br>T</strong>");
-
+                                   .HeaderTemplate("<strong>No.</strong>");
                             columns.Bound(f => f.MachineName).Width(70)
-                                   .HeaderTemplate("<strong>Máy</strong>")
+                                   .HeaderTemplate("<strong>Machine</strong>")
                                    .HtmlAttributes(new { style = "text-align: center;" })
                                    .Aggregate(agg => agg.Count())
                                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
                             columns.Bound(f => f.ProductCode).Width(120)
-                                   .HeaderTemplate("<strong>Mã SP</strong>")
+                                   .HeaderTemplate("<strong>Product</br>Code</strong>")
                                    .HtmlAttributes(new { style = "text-align: center;" });
-                            columns.Bound(f => f.Productivity).Width(60)
-                                   .HeaderTemplate("<strong>NS</br>(s/pc)</strong>")
+                            columns.Bound(f => f.Productivity).Width(100)
+                                   .HeaderTemplate("<strong>Productivity</br>(s/pc)</strong>")            //NS</br>(s/pc)
                                    .Format("{0:n1}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
-                            columns.Bound(f => f.ProductivityInDay).Width(65)
-                                   .HeaderTemplate("<strong>NS TK</br>(<u>pcs</u></br>ngày)</strong>")
+                            columns.Bound(f => f.ProductivityInDay).Width(100)
+                                   .HeaderTemplate("<strong>Productivity</br>Design</br>(pcs/day)</strong>")      //NS TK</br>(<u>pcs</u></br>ngày)
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right; border-right: double 3px" });
                             //sản xuất
-                            columns.Bound(f => f.ProductionRate).Width(65)
-                                   .HeaderTemplate("<strong>ĐM</br>(<u>pc</u></br>cây)</strong>")
+                            columns.Bound(f => f.ProductionRate).Width(100)
+                                   .HeaderTemplate("<strong>Productivity</br>(pc/bar)</strong>")           //ĐM</br>(<u>pc</u></br>cây)
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
-                            columns.Bound(f => f.MaterialUse).Width(60)
-                                   .HeaderTemplate("<strong>NL</br>SD</strong>")
+                            columns.Bound(f => f.MaterialUse).Width(70)
+                                   .HeaderTemplate("<strong>Material</br>Used</strong>")                //NL</br>SD
                                    .Aggregate(agg => agg.Sum())
                                    .Format("{0:n2}")
                                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                                    .HtmlAttributes(new { style = "text-align: right;" });
                             columns.Bound(f => f.ProductionOrder.RequirePerDay).Width(65)
-                                   .HeaderTemplate("<strong><u>SL YC</u></br>ngày</strong>")
+                                   .HeaderTemplate("<strong>Quantity</br>Require</br>/Day</strong>")            //SL YC</u></br>ngày</strong>
                                    .Aggregate(agg => agg.Sum())
                                    .Format("{0:n0}")
                                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                    .HtmlAttributes(new { style = "text-align: right;" });
                             columns.Bound(f => f.Quantity).Width(65)
-                                   .HeaderTemplate("<strong>SL TT</strong>")
+                                   .HeaderTemplate("<strong>Actual</br>Quantity</strong>")                //SL TT
                                    .Aggregate(agg => agg.Sum())
                                    .Format("{0:n0}")
                                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -164,49 +165,49 @@
                                    .HtmlAttributes(new { style = "text-align: right; border-right: double 3px" });
                             //
                             columns.Bound(f => f.ProductionOrder.TotalInv).Width(70)
-                                   .HeaderTemplate("<strong>Tổng</br>tồn</strong>")
+                                   .HeaderTemplate("<strong>Total</br>Inv</strong>")             //Tổng</br>tồn
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
-                            columns.Bound(f => f.ProductionOrder.Order).Width(70)
-                                   .HeaderTemplate("<strong>ĐH</br>còn</br>lại</strong>")
+                            columns.Bound(f => f.ProductionOrder.Order).Width(80)
+                                   .HeaderTemplate("<strong>Remaining</br>Order</strong>")           //ĐH</br>còn</br>lại
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
                             columns.Bound(f => f.ProductionOrder.ExportSales).Width(70)
-                                   .HeaderTemplate("<strong>Xuất</br>bán</strong>")
+                                   .HeaderTemplate("<strong>Sales</br>Release</strong>")             //Xuất</br>bán<
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right; border-right: double 3px" });
                             //
                             columns.Bound(f => f.ProductionOrder.ForecastInMonth).Width(70)
-                                   .HeaderTemplate("<strong>PO</br>trong</br>tháng</strong>")
+                                   .HeaderTemplate("<strong>PO</br>In Month</strong>")           //PO</br>trong</br>tháng
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
-                            columns.Bound(f => f.ProductionOrder.ForecastDateStr).Width(90)
-                                   .HeaderTemplate("<strong>Ngày</strong>")
+                            columns.Bound(f => f.ProductionOrder.ForecastDateStr).Width(80)
+                                   .HeaderTemplate("<strong>Date</strong>")
                                    .HtmlAttributes(new { style = "text-align: right; border-right: double 3px" });
                             //
                             columns.Bound(f => f.ProductionOrder.ForecastNextMonth).Width(70)
-                                   .HeaderTemplate("<strong>PO</br>tháng</br>kế</strong>")
+                                   .HeaderTemplate("<strong>PO</br>N-Month</strong>")              //PO</br>tháng</br>kế
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
-                            columns.Bound(f => f.ProductionOrder.ForecastNextDateStr).Width(90)
-                                   .HeaderTemplate("<strong>Ngày</strong>")
+                            columns.Bound(f => f.ProductionOrder.ForecastNextDateStr).Width(80)
+                                   .HeaderTemplate("<strong>Date</strong>")
                                    .HtmlAttributes(new { style = "text-align: right; border-right: double 3px" });
                             //
                             columns.Bound(f => f.ProductionOrder.RequireDateStr).Width(90)
-                                   .HeaderTemplate("<strong>Ngày</br>YC</br>HT</strong>")
+                                   .HeaderTemplate("<strong>Finish</br>Date</br>Required</strong>")               //Ngày</br>YC</br>HT
                                    .HtmlAttributes(new { style = "text-align: center;" });
-                            columns.Bound(f => f.ProductionOrder.TotalRequire).Width(60)
-                                   .HeaderTemplate("<strong>Tổng</br>YC</strong>")
+                            columns.Bound(f => f.ProductionOrder.TotalRequire).Width(80)
+                                   .HeaderTemplate("<strong>Total</br>Required</strong>")                  //Tổng</br>YC
                                    .Format("{0:n0}")
                                    .HtmlAttributes(new { style = "text-align: right;" });
-                            columns.Bound(f => f.ProductionOrder.MachineCount).Width(50)
-                                   .HeaderTemplate("<strong>Số</br>máy</strong>")
+                            columns.Bound(f => f.ProductionOrder.MachineCount).Width(70)
+                                   .HeaderTemplate("<strong>Machine</br>Number</strong>")               //Số</br>máy
                                    .HtmlAttributes(new { style = "text-align: center;" });
-                            columns.Bound(f => f.ProductionDay).Width(50)
-                                   .Title("<strong>Số</br>ngày</br>SX</strong>")
+                            columns.Bound(f => f.ProductionDay).Width(75)
+                                   .Title("<strong>Production</br>Days</strong>")                //Số</br>ngày</br>SX
                                    .HtmlAttributes(new { style = "text-align: center;" });
                             columns.Bound(f => f.LastActiveStr).Width(90)
-                                   .HeaderTemplate("<strong>Hoạt</br>động</br>cuối</strong>")
+                                   .HeaderTemplate("<strong>Last</br>Active</strong>")           //Hoạt</br>động</br>cuối
                                    .HtmlAttributes(new { style = "text-align: center;" });
 
                         })

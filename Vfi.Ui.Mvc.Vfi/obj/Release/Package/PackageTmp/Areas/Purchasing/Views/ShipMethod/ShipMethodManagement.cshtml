@@ -1,10 +1,11 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @{
-    ViewBag.Title = "ShipMethod Management";
+    ViewBag.Title = "Shiping Method Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="title">Phương thức thanh toán</div>
+<div class="title">Shipping-Information
+  @*  Phương thức thanh toán*@</div>
 <div class="cover-div">
 @{
     Html.Telerik().Grid<ShipMethodModel>()
@@ -12,25 +13,24 @@
         .DataKeys(keys => keys.Add(f => f.ShipMethodId).RouteKey("shipMethodId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            toolbar.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new { style = "margin-left:0" }))
         .DataBinding(dataBindings=>dataBindings.Ajax()
             .Select("SelectShipMethod","ShipMethod").Insert("InsertShipMethod","ShipMethod").Update("UpdateShipMethod","ShipMethod")
         )
         .Columns(columns=> {
-            columns.Command(command =>
-                command.Edit().ButtonType(GridButtonType.Image)
-            ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.Name);
-            columns.Bound(f => f.ShipBase).Width(150).Title("Giá (USD/kg)");
+            columns.Command(command =>command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image))
+                .Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.Name).Title("Shipping Method Name");
+            columns.Bound(f => f.ShipBase).Width(150).Title("Price(USD/kg)");
             //columns.Bound(f => f.ShipRate).Width(110);
-            columns.Bound(f => f.Active).Width(45)
+            columns.Bound(f => f.Active).Width(45).Title("Active")
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.ModifiedDate).Width(150).Title("Ngày cập nhật").ReadOnly(true)
+            columns.Bound(f => f.ModifiedDate).Width(150).Title("M-Date").ReadOnly(true)
                 .Format("{0:dd/MM/yyyy HH:mm}");
-            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người cập nhật").ReadOnly(true);
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("M-User").ReadOnly(true);
         })
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         .ClientEvents(e=> e.OnError("grid_OnError"))
         .Pageable(page => page.PageSize(10))
         .Sortable()

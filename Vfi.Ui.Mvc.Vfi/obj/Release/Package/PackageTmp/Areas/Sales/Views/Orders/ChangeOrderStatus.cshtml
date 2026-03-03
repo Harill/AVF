@@ -1,6 +1,6 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Đổi trạng thái đơn hàng ";
+    ViewBag.Title = "Change Orders-Status";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -9,7 +9,7 @@
     </script>
 }
 
-<div class="title">Đổi trạng thái đơn hàng</div>
+<div class="title">Change Orders-Status</div>
 
 <div class="cover-div">
     @{
@@ -24,36 +24,36 @@
             .Columns(columns =>
             {
                 columns.Command(command =>
-                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Duyệt").CancelText("Trở lại")
-                    ).Width(50).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Approve").CancelText("Cancel")
+                    ).Width(50).Title("Approve").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.DueDate).Title("Ngày giao").Width(100)
-                        .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
-                columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(100).ReadOnly(true);
-                columns.Bound(f => f.StatusName).Title("Tình trạng").Width(70);
-                columns.Bound(f => f.SalesPersonName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(75).ReadOnly(true);
+                columns.Bound(f => f.DueDate).Title("Delivery Date").Width(100)
+                       .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                columns.Bound(f => f.OrderNumber).Title("Sale Order").Width(100).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Title("Status").Width(70);
+                columns.Bound(f => f.SalesPersonName).Title("Sale Eployee").Width(100).ReadOnly(true);
+                columns.Bound(f => f.CustomerCode).Title("Customer Code").Width(75).ReadOnly(true);
                 //columns.Bound(f => f.Area).Title("Khu Vực").Width(75).ReadOnly(true);
-                columns.Bound(f => f.TotalQuality).Width(100).ReadOnly(true)
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new {style = "text-align: right;"})
-                    .Aggregate(agg => agg.Sum())
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                columns.Bound(f => f.TotalRequired).Width(100).ReadOnly(true)
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new {style = "text-align: right;"})
-                    .Aggregate(agg => agg.Sum())
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
-                columns.Bound(f => f.Note).Title("Ghi chú ĐH").ReadOnly(true);
+                columns.Bound(f => f.TotalQuality).Width(100).ReadOnly(true).Title("Total Quantity")
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new {style = "text-align: right;"})
+                       .Aggregate(agg => agg.Sum())
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                columns.Bound(f => f.TotalRequired).Width(100).ReadOnly(true).Title("Total Remaining ")
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new {style = "text-align: right;"})
+                       .Aggregate(agg => agg.Sum())
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>");
+                columns.Bound(f => f.Note).Title("Order Note").ReadOnly(true);
             })
             .DetailView(details => details.ClientTemplate(
                 Html.Telerik().TabStrip()
                     .Name("TabStrip_<#= OrderId #>")
                     .SelectedIndex(0)
                     .Items(items =>
-                        items.Add().Text("Thông tin chi tiết").Content(
+                        items.Add().Text("Detail").Content(
                             Html.Telerik().Grid<OrderDetailModel>()
                                 .Name("gridTransactionDetail_<#= OrderId #>")
                                 .DataBinding(dataDindings => dataDindings.Ajax()
@@ -61,16 +61,16 @@
                                         new {orderId = "<#= OrderId #>"}))
                                 .Columns(columns =>
                                 {
-                                    columns.Bound(f => f.ProductCode);
-                                    columns.Bound(f => f.PONumber).Title("Lệnh mua");
-                                    columns.Bound(f => f.OrderQty).Width(98).Title("Đơn hàng")
-                                        .HtmlAttributes(new {style = "text-align: right;"})
-                                        .Format("{0:n0}");
-                                    columns.Bound(f => f.RequiredNumber).Width(98).Title("Còn lại")
-                                        .HtmlAttributes(new {style = "text-align: right;"})
-                                        .Format("{0:n0}");
-                                    columns.Bound(f => f.UnitPrice);
-                                    columns.Bound(f => f.CustomerDueDate).Width(150).Format("{0:dd/MM/yyyy}");
+                                    columns.Bound(f => f.ProductCode).Title("Product Code");
+                                    columns.Bound(f => f.PONumber).Title("PO");
+                                    columns.Bound(f => f.OrderQty).Width(98).Title("Quantity")
+                                           .HtmlAttributes(new {style = "text-align: right;"})
+                                           .Format("{0:n0}");
+                                    columns.Bound(f => f.RequiredNumber).Width(98).Title("Remaining")
+                                           .HtmlAttributes(new { style = "text-align: right;" })
+                                           .Format("{0:n0}");
+                                    columns.Bound(f => f.UnitPrice).Title("Unit Price");
+                                    columns.Bound(f => f.CustomerDueDate).Width(150).Format("{0:dd/MM/yyyy}").Title("Customer's Required Date");
                                 })
                                 .ClientEvents(events => events.OnError("grid_OnError"))
                                 .ToHtmlString())
@@ -78,7 +78,7 @@
                     .ToHtmlString())
             )
             .Selectable()
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             .ClientEvents(events => events.OnError("grid_OnError"))
             .Sortable()
             .Filterable()

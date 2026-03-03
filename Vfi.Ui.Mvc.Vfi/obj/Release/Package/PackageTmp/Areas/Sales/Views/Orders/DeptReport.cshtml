@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Báo cáo doanh thu";
+    ViewBag.Title = "Revenue Report";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -84,7 +84,7 @@
     </script>
 }
 
-<div class="title">Báo cáo doanh thu</div>
+<div class="title">Revenue Report</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
             
@@ -92,15 +92,15 @@
         <div class="grid_6">
             <button id="btnDeptReport" class='t-button' onclick="return PrintDeptReport();">
                 <span class='t-icon t-insert'></span>
-                Bảng theo dõi công nợ
+               Print
             </button>
         </div>
         <div class="clear"></div>
         <br />
 
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
-             <div class="grid_3">Khách hàng</div>
+            <legend>Filters</legend>
+             <div class="grid_1_5">Customer</div>
          <div class="grid_8">
             @{
                 Html.Telerik().ComboBox()
@@ -109,12 +109,12 @@
                     .HtmlAttributes(new {style = "width: 250px"})
                     .DropDownHtmlAttributes(new {style = "width: 325px;"})
                     .AutoFill(true)
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .Render();
             }
         </div>
               <div class="grid_1">
-                @Html.Label("Tháng")
+                @Html.Label("Month")
             </div>
             <div class="grid_2">
                 @{
@@ -127,7 +127,7 @@
                 }
             </div>
          <div class="grid_1">
-                @Html.Label("Năm")
+                @Html.Label("Year")
             </div>
             <div class="grid_2">
 
@@ -142,7 +142,7 @@
              <div class="grid_3">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-refresh'></span>
-                Làm mới
+               Find
             </button>
             </div>
         </fieldset>
@@ -163,22 +163,22 @@
                         //       .ClientTemplate("<#= GlobalIndex #>")
                         //       .HeaderTemplate("<strong>STT</strong>");
                         columns.Bound(f => f.PayType).Width(100)
-                               .HeaderTemplate("<strong>Nhóm</strong>")
+                               .HeaderTemplate("<strong>Group</strong>")
                                .HtmlAttributes(new { style = "font-weight: bold;" });
                         columns.Bound(f => f.CustomerName).Width(100)
-                               .HeaderTemplate("<strong>KH</strong>")
+                               .HeaderTemplate("<strong>Customer</strong>")
                                .FooterTemplate("<span id='sum'></span>")
                                .HtmlAttributes(new { style = "font-weight: bold;" });
                         //1
                         columns.Bound(f => f.LastMonthInvoiceNoTaxInvoiceVND).Width(90)
-                               .HeaderTemplate("Đầu tháng</br>CXHĐ(VND)")
+                               .HeaderTemplate("1st Month</br>No Invoice</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;background"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.LastMonthInvoiceNoTaxInvoiceUSD).Width(80)
-                               .HeaderTemplate("Đầu tháng</br>CXHĐ(USD)")
+                               .HeaderTemplate("1st Month</br>No Invoice</br>(USD)")           //Đầu tháng</br>CXHĐ(USD)
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -186,14 +186,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //2
                         columns.Bound(f => f.LastMonthRequireVND).Width(90)
-                               .HeaderTemplate("Đầu tháng</br>Nợ(VND)")
+                               .HeaderTemplate("1st Month</br>Debt</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.LastMonthRequireUSD).Width(80)
-                               .HeaderTemplate("Đầu tháng</br>Nợ(USD)")
+                               .HeaderTemplate("1st Month</br>Debt</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -201,14 +201,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //3
                         columns.Bound(f => f.LastMonthTotalVND).Width(90)
-                               .HeaderTemplate("Đầu tháng</br>Tổng(VND)")
+                               .HeaderTemplate("1st Month</br>Total</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.LastMonthTotalUSD).Width(80)
-                               .HeaderTemplate("Đầu tháng</br>Tổng(USD)")
+                               .HeaderTemplate("1st Month</br>Total</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -216,7 +216,7 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
 
                         columns.Bound(f => f.TotalExportQuantity).Width(80)
-                               .HeaderTemplate("Trong tháng</br>SL xuất")
+                               .HeaderTemplate("In Month</br>Release</br>Quantity")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
@@ -224,21 +224,21 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //4
                         columns.Bound(f => f.InMonthInvoiceVND).Width(90)
-                               .HeaderTemplate("Trong tháng</br>XB(VND)")
+                               .HeaderTemplate("In Month</br>Sale Release</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.Tax).Width(80)
-                               .HeaderTemplate("Trong tháng</br>VAT(VND)")
+                               .HeaderTemplate("In Month</br>VAT</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.InMonthInvoiceUSD).Width(80)
-                               .HeaderTemplate("Trong tháng</br>XB(USD)")
+                               .HeaderTemplate("In Month</br>Sale Release</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -246,14 +246,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //5
                         columns.Bound(f => f.InMonthTaxInvoiceVND).Width(90)
-                               .HeaderTemplate("Trong tháng</br>XHD(VND)")
+                               .HeaderTemplate("In Month</br>Invoice</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.InMonthTaxInvoiceUSD).Width(80)
-                               .HeaderTemplate("Trong tháng</br>XHD(USD)")
+                               .HeaderTemplate("In Month</br>Invoice</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -261,14 +261,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //6
                         columns.Bound(f => f.ReceiveInMonthVND).Width(90)
-                               .HeaderTemplate("Trong tháng</br>Thu(VND)")
+                               .HeaderTemplate("In Month</br>Receive</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.ReceiveInMonthUSD).Width(80)
-                               .HeaderTemplate("Trong tháng</br>Thu(USD)")
+                               .HeaderTemplate("In Month</br>Receive</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -276,14 +276,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //7
                         columns.Bound(f => f.InMonthReduceVND).Width(90)
-                               .HeaderTemplate("Trong tháng</br>Giảm(VND)")
+                               .HeaderTemplate("In Month</br>Reduce</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.InMonthReduceUSD).Width(80)
-                               .HeaderTemplate("Trong tháng</br>Giảm(USD)")
+                               .HeaderTemplate("In Month</br>Reduce</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -291,14 +291,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //8
                         columns.Bound(f => f.SumInvoiceNoTaxInvoiceVND).Width(90)
-                               .HeaderTemplate("Cuối tháng</br>CXHD(VND)")
+                               .HeaderTemplate("31st Month</br>No Invoice</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.SumInvoiceNoTaxInvoiceUSD).Width(80)
-                               .HeaderTemplate("Cuối tháng</br>CXHD(USD)")
+                               .HeaderTemplate("31st Month</br>No Invoice</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -306,14 +306,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //9
                         columns.Bound(f => f.SumRequireVND).Width(90)
-                               .HeaderTemplate("Cuối tháng</br>Nợ(VND)")
+                               .HeaderTemplate("31st Month</br>Debt</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.SumRequireUSD).Width(80)
-                               .HeaderTemplate("Cuối tháng</br>Nợ(USD)")
+                               .HeaderTemplate("31st Month</br>Debt</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -321,14 +321,14 @@
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         //9
                         columns.Bound(f => f.SumTotalVND).Width(90)
-                               .HeaderTemplate("Cuối tháng</br>Tổng(VND)")
+                               .HeaderTemplate("31st Month</br>Total</br>(VND)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n0}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new {style = "text-align: right;"})
                                .FooterHtmlAttributes(new {style = "text-align: right;"});
                         columns.Bound(f => f.SumTotalUSD).Width(80)
-                               .HeaderTemplate("Cuối tháng</br>Tổng(USD)")
+                               .HeaderTemplate("31st Month</br>Total</br>(USD)")
                                .Aggregate(agg => agg.Sum())
                                .Format("{0:n2}")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
@@ -342,7 +342,7 @@
                         .SelectedIndex(0)
                         .Items(items =>
                             {
-                                items.Add().Text("Xuất bán trong tháng").Content(
+                                items.Add().Text("Sale-Release In Month").Content(
                                     Html.Telerik().Grid<InvoiceDetailTempModel>()
                                         .Name("gridExportDetailInMonth_<#= CustomerId #>")
                                         .DataBinding(dataDindings => dataDindings.Ajax()
@@ -350,26 +350,26 @@
                                                                                          new {month = "<#= Month #>", year = "<#= Year #>", customerId = "<#= CustomerId #>"}))
                                         .Columns(columns =>
                                             {
-                                                columns.Bound(f => f.ExportedDate).Width(100).Title("Ngày")
+                                                columns.Bound(f => f.ExportedDate).Width(100).Title("Date")
                                                        .Format("{0:dd/MM/yyyy}");
-                                                columns.Bound(f => f.ProductCode).Width(100).Title("Sản phẩm");
-                                                columns.Bound(f => f.Quantity).Width(100).Title("Số lượng")
+                                                columns.Bound(f => f.ProductCode).Width(100).Title("Product");
+                                                columns.Bound(f => f.Quantity).Width(100).Title("Quantity")
                                                        .Format("{0:n0}")
                                                        .HtmlAttributes(new {style = "text-align: right;"});
-                                                columns.Bound(f => f.UnitPriceFormat).Width(100).Title("Đơn giá")
+                                                columns.Bound(f => f.UnitPriceFormat).Width(100).Title("UnitPrice")
                                                        .HtmlAttributes(new {style = "text-align: right;"});
-                                                columns.Bound(f => f.AmountFormat).Width(100).Title("Thành tiền")
+                                                columns.Bound(f => f.AmountFormat).Width(100).Title("Total Amount")
                                                        .HtmlAttributes(new {style = "text-align: right;"});
 
                                                 columns.Bound(f => f.TaxPercent).Width(50).Title("VAT");
-                                                columns.Bound(f => f.CurrencyCode).Width(50).Title("Tiền tệ");
-                                                columns.Bound(f => f.ExchangeRate).Width(50).Title("Tỉ giá");
-                                                columns.Bound(f => f.Note).Width(500).Title("Ghi chú");
+                                                columns.Bound(f => f.CurrencyCode).Width(50).Title("Currency");
+                                                columns.Bound(f => f.ExchangeRate).Width(50).Title("Rate");
+                                                columns.Bound(f => f.Note).Width(500).Title("Note");
                                             })
                                         .Resizable(f => f.Columns(true))
                                         .ClientEvents(e => e.OnError("grid_OnError"))
                                         .ToHtmlString());
-                                items.Add().Text("Hóa đơn").Content(
+                                items.Add().Text("Invoice").Content(
                                     Html.Telerik().Grid<TaxInvoiceModel>()
                                         .Name("gridTaxInvoice_<#= CustomerId #>")
                                         .DataBinding(dataDindings => dataDindings.Ajax()
@@ -377,35 +377,35 @@
                                                                                          new {month = "<#= Month #>", year = "<#= Year #>", customerId = "<#= CustomerId #>"}))
                                         .Columns(columns =>
                                             {
-                                                columns.Bound(f => f.TaxInvoiceList).Title("Số HĐ").Width(100);
+                                                columns.Bound(f => f.TaxInvoiceList).Title("Invoice Code").Width(100);
                                                 columns.Bound(f => f.SetupDate).Width(100)
                                                        .Format("{0:dd/MM/yyyy}");
-                                                columns.Bound(f => f.StatusName).Width(100);
-                                                columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(60).ReadOnly(true);
-                                                columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(60).ReadOnly(true);
-                                                columns.Bound(f => f.Tax).Title("Thuế").Width(50).ReadOnly(true);
-                                                columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(60).ReadOnly(true)
+                                                columns.Bound(f => f.StatusName).Width(100).Title("Status");
+                                                columns.Bound(f => f.CustomerCode).Title("Customer Code").Width(60).ReadOnly(true);
+                                                columns.Bound(f => f.CurrencyCode).Title("Currency").Width(60).ReadOnly(true);
+                                                columns.Bound(f => f.Tax).Title("Tax").Width(50).ReadOnly(true);
+                                                columns.Bound(f => f.ExchangeRate).Title("Rate").Width(60).ReadOnly(true)
                                                        .HtmlAttributes(new {style = "text-align: right;"})
                                                        .Format("{0:n0}");
-                                                columns.Bound(f => f.TotalQuantity).Title("Tổng SL").Width(80).ReadOnly(true)
+                                                columns.Bound(f => f.TotalQuantity).Title("Total Quantity").Width(80).ReadOnly(true)
                                                        .HtmlAttributes(new {style = "text-align: right;"})
                                                        .Format("{0:n0}");
-                                                columns.Bound(f => f.TotalAmount).Width(100).ReadOnly(true)
+                                                columns.Bound(f => f.TotalAmount).Width(100).ReadOnly(true).Title("Total Quantity")
                                                        .HtmlAttributes(new {style = "text-align: right;"})
                                                        .ClientTemplate("<#= TotalAmountFormat #>");
                                                 columns.Bound(f => f.RequiredAmount).Width(100).ReadOnly(true)
                                                        .HtmlAttributes(new {style = "text-align: right;"})
-                                                       .HeaderTemplate("<strong>Còn lại</br>(tiền tệ)</strong>")
+                                                       .HeaderTemplate("<strong>Remaining</br>(Currency)</strong>")
                                                        .ClientTemplate("<#= RequiredAmountFormat #>");
                                                 columns.Bound(f => f.TotalAmountVND).Width(100).ReadOnly(true)
                                                        .HtmlAttributes(new {style = "text-align: right;"})
-                                                       .HeaderTemplate("<strong>Tổng tiền</br>(VNĐ)</strong>")
+                                                       .HeaderTemplate("<strong>Total Amount</br>(VND)</strong>")
                                                        .Format("{0:n0}");
                                                 columns.Bound(f => f.RequiredAmountVND).Width(100).ReadOnly(true)
                                                        .HtmlAttributes(new {style = "text-align: right;"})
-                                                       .HeaderTemplate("<strong>Còn lại</br>(VNĐ)</strong>")
+                                                       .HeaderTemplate("<strong>Remaining</br>(VND)</strong>")
                                                        .Format("{0:n0}");
-                                                columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true).Title("Ngày tạo")
+                                                columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true).Title("M-Date")
                                                        .Format("{0:dd/MM/yyyy HH:mm:ss}");
                                             })
                                         .DetailView(details2 => details2.ClientTemplate(
@@ -418,16 +418,16 @@
                                                 )
                                                 .Columns(columns =>
                                                     {
-                                                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
-                                                        columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Số lượng")
+                                                        columns.Bound(f => f.ProductCode).Title("Product Code").Width(50).ReadOnly(true);
+                                                        columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Quantity")
                                                                .HtmlAttributes(new {style = "text-align: right;"})
                                                                .Format("{0:n0}");
-                                                        columns.Bound(f => f.Receive).Width(70).ReadOnly(true).Title("Đã phân")
+                                                        columns.Bound(f => f.Receive).Width(70).ReadOnly(true).Title("Imported")
                                                                .HtmlAttributes(new {style = "text-align: right;"})
                                                                .Format("{0:n0}");
-                                                        columns.Bound(f => f.UnitPriceFormat).ReadOnly(true).Width(50).Title("Đơn giá")
+                                                        columns.Bound(f => f.UnitPriceFormat).ReadOnly(true).Width(50).Title("Unit Price")
                                                                .HtmlAttributes(new {style = "text-align: right;"});
-                                                        columns.Bound(f => f.AmountFormat).Width(70).Title("Tổng tiền").ReadOnly(true)
+                                                        columns.Bound(f => f.AmountFormat).Width(70).Title("Total Amount").ReadOnly(true)
                                                                .HtmlAttributes(new {style = "text-align: right;"});
                                                     }).DetailView(details3 => details3.ClientTemplate(
                                                         Html.Telerik().Grid<InvoiceDetailTempModel>()
@@ -439,16 +439,16 @@
                                                             )
                                                             .Columns(columns =>
                                                                 {
-                                                                    columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
-                                                                    columns.Bound(f => f.InvoiceNumber).Title("Số Invoice").Width(50).ReadOnly(true);
-                                                                    columns.Bound(f => f.ExportedDate).Title("Ngày xuất").Width(50).ReadOnly(true)
+                                                                    columns.Bound(f => f.ProductCode).Title("Product Code").Width(50).ReadOnly(true);
+                                                                    columns.Bound(f => f.InvoiceNumber).Title("Invoice Code").Width(50).ReadOnly(true);
+                                                                    columns.Bound(f => f.ExportedDate).Title("Released Date").Width(50).ReadOnly(true)
                                                                            .Format("{0:dd/MM/yyyy}");
-                                                                    columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Số lượng")
+                                                                    columns.Bound(f => f.Quantity).Width(70).ReadOnly(true).Title("Quantity")
                                                                            .HtmlAttributes(new {style = "text-align: right;"})
                                                                            .Format("{0:n0}");
-                                                                    columns.Bound(f => f.UnitPriceFormat).ReadOnly(true).Width(50).Title("Đơn giá")
+                                                                    columns.Bound(f => f.UnitPriceFormat).ReadOnly(true).Width(50).Title("Unit Price")
                                                                            .HtmlAttributes(new {style = "text-align: right;"});
-                                                                    columns.Bound(f => f.AmountFormat).Width(70).Title("Tổng tiền").ReadOnly(true)
+                                                                    columns.Bound(f => f.AmountFormat).Width(70).Title("Total Amount").ReadOnly(true)
                                                                            .HtmlAttributes(new {style = "text-align: right;"});
                                                                 })
                                                             .ClientEvents(e => e.OnError("grid_OnError"))
@@ -464,7 +464,7 @@
                                         .ClientEvents(e => e.OnError("grid_OnError")
                                                             .OnRowSelect("grid_OnRowSelect"))
                                         .ToHtmlString());
-                                items.Add().Text("Thanh toán").Content(
+                                items.Add().Text("Payment").Content(
                                     Html.Telerik().Grid<TaxInvoiceDetailModel>()
                                         .Name("gridTaxInvoiceDetail_<#= CustomerId #>")
                                         .DataBinding(dataDindings => dataDindings.Ajax()
@@ -472,21 +472,21 @@
                                                                                          new {month = "<#= Month #>", year = "<#= Year #>", customerId = "<#= CustomerId #>"}))
                                         .Columns(columns =>
                                             {
-                                                columns.Bound(f => f.TaxInvoiceList).Width(100).Title("Hóa đơn");
-                                                columns.Bound(f => f.ImportDate).Width(100).Title("Ngày")
+                                                columns.Bound(f => f.TaxInvoiceList).Width(100).Title("Invoice");
+                                                columns.Bound(f => f.ImportDate).Width(100).Title("Date")
                                                        .Format("{0:dd/MM/yyyy}");
-                                                columns.Bound(f => f.TypeDetail).Width(98).Title("Loại")
+                                                columns.Bound(f => f.TypeDetail).Width(98).Title("Type")
                                                        .HtmlAttributes(new {style = "text-align: left;"});
-                                                columns.Bound(f => f.Money).Width(98).Title("Số tiền")
+                                                columns.Bound(f => f.Money).Width(98).Title("Money")
                                                        .HtmlAttributes(new {style = "text-align: right;"})
                                                        .ClientTemplate("<#= MoneyFormat #>");
-                                                columns.Bound(f => f.StatusName).Width(98).Title("Tình trạng")
+                                                columns.Bound(f => f.StatusName).Width(98).Title("Status")
                                                        .HtmlAttributes(new {style = "text-align: left;"});
-                                                columns.Bound(f => f.Times).Width(150).Title("Số lần");
+                                                columns.Bound(f => f.Times).Width(150).Title("Times");
                                                 columns.Bound(f => f.Note).Title("Note");
-                                                columns.Bound(f => f.ModifiedDate).Width(100).Title("Ngày tạo")
+                                                columns.Bound(f => f.ModifiedDate).Width(100).Title("M-Date")
                                                        .Format("{0:dd/MM/yyyy HH:mm:ss}");
-                                                columns.Bound(f => f.ModifiedUser).Width(100).Title("Người tạo");
+                                                columns.Bound(f => f.ModifiedUser).Width(100).Title("M-User");
                                             })
                                         .Resizable(f => f.Columns(true))
                                         .ClientEvents(e => e.OnError("grid_OnError"))

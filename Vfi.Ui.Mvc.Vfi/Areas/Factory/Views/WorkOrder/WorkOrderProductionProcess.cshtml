@@ -780,12 +780,12 @@
                        .Format("{0:n0}")
                        .ClientTemplate("<span class='GoodWeight'><#= GoodWeight #></span>")
                        .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("NG </br>(pcs)")
+                columns.Bound(f => f.NGQuantity).Width(90).HeaderTemplate("Pending-Classify</br>(pcs)")
                        .HeaderHtmlAttributes(new { @class = "ng-column" })
                        .ClientTemplate("<span class='NGQuantity'><#= NGQuantity #></span>")
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("NG </br>(g)")
+                columns.Bound(f => f.NGWeight).Width(90).HeaderTemplate("Pending-Classify</br>(g)")
                        .HeaderHtmlAttributes(new { @class = "ng-column" })
                        .Format("{0:n0}")
                        .ClientTemplate("<span class='NGWeight'><#= NGWeight #></span>")

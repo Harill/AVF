@@ -2,7 +2,8 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model ExportFormTP_KD
 @{
-    ViewBag.Title = "Phân phiếu xuất kho";
+    ViewBag.Title = "Warehouse-Delivery-Note Classify";
+    //Phân phiếu xuất kho
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -108,13 +109,14 @@
 
 }
 
-<div class="title">Phân đơn hàng xuất kho</div>
+<div class="title">Warehouse-Delivery-Note Classify
+    @*Phân đơn hàng xuất kho*@</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
     <fieldset>
-        <legend>Thông tin phiếu xuất</legend>
-        <div class="grid_3">Số phiếu</div>
+        <legend>Delivery-Note Information</legend>
+        <div class="grid_3_5">Transaction Number</div>
         <div class="grid_6">
             @{
                 Html.Telerik().ComboBox()
@@ -139,9 +141,9 @@
             .Name("grid")
             .ToolBar(bar =>
                 {
-                    bar.Custom().ButtonType(GridButtonType.Text).Text("Lưu mặc định").Name("A")
+                    bar.Custom().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Text).Text("Keep Default").Name("A")
                        .HtmlAttributes(new { onclick = "AddDefault()", href = "#" });
-                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu thay đổi").CancelText("Huỷ tất cả");
+                    bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save Changes").CancelText("Cancel");
                 })
             .DataKeys(keys => keys.Add(f => f.ProductInvId).RouteKey("productInvId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
@@ -150,46 +152,44 @@
             .Columns(columns =>
             {
                 columns.Bound(f => f.ProductId).Width(30)
-                    .ClientTemplate("<#= ++index #>")
-                    .HeaderTemplate("<strong>STT</strong>");
+                       .ClientTemplate("<#= ++index #>")
+                       .HeaderTemplate("<strong>No.</strong>");
                 columns.Bound(f => f.ProductCode).Width(120).ReadOnly(true)
-                    .Aggregate(agg => agg.Count())
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
-                columns.Bound(f => f.ProductInvLot).Width(100).Title("Lô").ReadOnly(true);
+                       .Aggregate(agg => agg.Count())
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                columns.Bound(f => f.ProductInvLot).Width(100).Title("Lot").ReadOnly(true);
                 columns.Bound(f => f.ProductWeight).Width(70).ReadOnly(true)
-                    .HeaderTemplate("TL sản phẩm</br>(g/pc)")
-                    .Format("{0:n3}")
-                    .HtmlAttributes(new {style = "text-align: right;"});
+                       .HeaderTemplate("Product</br>Weight(g/pc)")
+                       .Format("{0:n3}")
+                       .HtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.ProductInvQuantity).ReadOnly(true).Width(70)
-                    .HeaderTemplate("Tồn kho</br>(pcs)")
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new {style = "text-align: right;"});
+                       .HeaderTemplate("Inv</br>(pcs)")
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.TransactionProductQuantity).ReadOnly(true).Width(70)
-                    .HeaderTemplate("SL cần</br>(pcs)")
-                    .ClientTemplate("<#= TransactionProductQuantity == 0 ? '' : $.telerik.formatString('{0:n0}', TransactionProductQuantity) #>")
-                    .Aggregate(agg => agg.Sum())
-                    .HtmlAttributes(new {style = "text-align: right;"})
-                    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .FooterHtmlAttributes(new {style = "text-align: right;"});
+                       .HeaderTemplate("Quantity</br>Required(pcs)")
+                       .ClientTemplate("<#= TransactionProductQuantity == 0 ? '' : $.telerik.formatString('{0:n0}', TransactionProductQuantity) #>")
+                       .Aggregate(agg => agg.Sum())
+                       .HtmlAttributes(new {style = "text-align: right;"})
+                       .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .FooterHtmlAttributes(new {style = "text-align: right;"});
                 columns.Bound(f => f.ProductInvAvailable).ReadOnly(true).Width(70)
-                    .HeaderTemplate("Có thể</br>chuyển (pcs)")
-                    .Format("{0:n0}")
-                    .HtmlAttributes(new {style = "text-align: right;"});
-                columns.Bound(f => f.Quantity).Width(70).HeaderTemplate("SL xuất</br>(pcs)")
-                    //.Format("{0:n0}")
-                    .HtmlAttributes(new {style = "text-align: right;"})
-                    .ClientTemplate("<span name='Quantity' class='Quantity'><#= $.telerik.formatString('{0:n0}', Quantity) #></span>")
-                    
-                    .Aggregate(agg => agg.Sum())
-                    //.ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantity_<#= ++groupIndex #>'><#= $.telerik.formatString('{0:n0}', Sum) #></span></div>")
-                    
-                    //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .ClientFooterTemplate("<span id='TotalQuantity'><#= $.telerik.formatString('{0:n0}', Sum) #></span>")
-                    .FooterHtmlAttributes(new {style = "text-align: right;"});
-                columns.Bound(f => f.Note).Title("Ghi chú");
+                       .HeaderTemplate("Rotate</br>Available(pcs)")               // co the chuyen
+                       .Format("{0:n0}")
+                       .HtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.Quantity).Width(70).HeaderTemplate("Release</br>Quantity(pcs)")
+                     //.Format("{0:n0}")
+                       .HtmlAttributes(new {style = "text-align: right;"})
+                       .ClientTemplate("<span name='Quantity' class='Quantity'><#= $.telerik.formatString('{0:n0}', Quantity) #></span>")
+                       .Aggregate(agg => agg.Sum())
+                     //.ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientGroupFooterTemplate("<div style='text-align: right; width: 100%;'><span id='GroupQuantity_<#= ++groupIndex #>'><#= $.telerik.formatString('{0:n0}', Sum) #></span></div>")
+                     //.ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .ClientFooterTemplate("<span id='TotalQuantity'><#= $.telerik.formatString('{0:n0}', Sum) #></span>")
+                       .FooterHtmlAttributes(new {style = "text-align: right;"});
+                columns.Bound(f => f.Note).Title("Note");
             })
             .Resizable(f => f.Columns(true))
             .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
@@ -197,7 +197,7 @@
                 .OnSave("grid_OnSave")
                 .OnError("grid_OnError"))
             .Groupable(group => group.Groups(g => g.Add(model => model.ProductCode)).Visible(false))
-            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Editable(f => f.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             .Render();
     }
 </div>

@@ -2,7 +2,8 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model ProductInventoryModel
 @{
-    ViewBag.Title = "All Products Report";
+    ViewBag.Title = "Employee Salary Report";
+        //All Products Report"
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -83,7 +84,8 @@
     </script>
 }
 
-<div class="title">Báo cáo xuất nhập tồn thành phẩm</div>
+<div class="title">Employee Salary Report
+    @*Báo cáo xuất nhập tồn thành phẩm*@</div>
 <div class="clear"></div>
 <br />
 
@@ -105,7 +107,7 @@
                         .Render();
                 }
             </div>
-            <div class="grid_4"> Nhập chính xác tên sheet </div>
+            <div class="grid_2_5"> Sheet's Name </div>
         <div class="grid_4">
             @{
                 Html.Telerik().AutoComplete()
@@ -113,12 +115,12 @@
                     .HtmlAttributes(new {style = "width: 100px"})
                     .Render();
             }
-            <br />(Vd: Sheet1 hoặc Sheet2)
+            <br />(Ex: Sheet1 or Sheet2)
         </div>
             <div class="grid_8">
              <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridTaxInvoiceDetail'); ">
                 <span class='t-icon t-insert'></span>
-                Lấy dữ liệu
+                Print Data
             </button>
         </div>
     <div class="clear"></div>

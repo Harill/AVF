@@ -1,7 +1,8 @@
 ﻿@using Telerik.Web.Mvc.UI
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Phân phôi sản phân";
+    ViewBag.Title = "Product's Workpiece Addition";
+    //Phân phôi sản phân
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -52,13 +53,15 @@
 
 }
 
-<div class="title">Phân phôi sản phẩm</div>
+<div class="title">Product's Workpiece Addition
+@*    Phân phôi sản phẩm*@
+</div>
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
 
     <fieldset>
-        <legend>Thông tin lọc</legend>
-        <div class="grid_3">Phiếu</div>
+        <legend>Filters</legend>
+        <div class="grid_3">Forms Number</div>
         <div class="grid_5">
             @{
                 Html.Telerik().ComboBox()
@@ -89,8 +92,8 @@
             .DataKeys(keys => keys.Add(f => f.PeriodId).RouteKey("periodId"))
             .ToolBar(bar =>
                 {
-                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Thêm mới");
-                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu lại").CancelText("Hủy bỏ");
+                    bar.Insert().ButtonType(GridButtonType.ImageAndText).Text("Add New");
+                    bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel");
                 })
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectImportWorkpieceDetail", "Transaction",new {importId = -1})
@@ -99,18 +102,18 @@
             .Columns(columns =>
                 {
                     columns.Bound(f => f.IdentityCode).Width(50).Title("Code").ReadOnly(true);
-                    columns.Bound(f => f.MaterialTypeName).Width(100).Title("Loại nguyên liệu").ReadOnly(true);
-                    columns.Bound(f => f.TypeName).Width(100).Title("Phân loại").ReadOnly(true);
-                    columns.Bound(f => f.TotalQuantity).Width(100).Title("Tồn kho").ReadOnly(true)
-                        .Format("{0:n2}")
+                    columns.Bound(f => f.MaterialTypeName).Width(100).Title("Material Type").ReadOnly(true);
+                    columns.Bound(f => f.TypeName).Width(100).Title("Classify").ReadOnly(true);
+                    columns.Bound(f => f.TotalQuantity).Width(100).Title("Total Inv").ReadOnly(true)
+                           .Format("{0:n2}")
                            .HtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.Import).Width(100).Title("Tổng phoi").ReadOnly(true)
-                        .Format("{0:n2}")
+                    columns.Bound(f => f.Import).Width(100).Title("Total Workpiece").ReadOnly(true)                //Tổng phoi
+                           .Format("{0:n2}")
                            .HtmlAttributes(new { style = "text-align: right;" });
-                    columns.Bound(f => f.Weight).Width(100).Title("Trọng lượng(kg)")
+                    columns.Bound(f => f.Weight).Width(100).Title("Weight(kg)")
                            .ClientTemplate("<span name='Weight'><#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #></span>")
                            .FooterTemplate("<span id='TotalWeight'></span>");
-                    columns.Bound(f => f.Note).Title("Ghi chú");
+                    columns.Bound(f => f.Note).Title("Note");
                 })
             .ClientEvents(events => events
                                         .OnSave("grid_OnSave")

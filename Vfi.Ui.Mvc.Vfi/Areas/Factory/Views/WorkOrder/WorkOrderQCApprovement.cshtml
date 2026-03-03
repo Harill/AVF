@@ -106,11 +106,11 @@
                        .HeaderHtmlAttributes(new { @class = "good-column" })
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });
-                columns.Bound(f => f.NGQuantity).Title("NG Quantity</br>(pcs)").Width(70)
+                columns.Bound(f => f.NGQuantity).Title("Pending-Classify</br> Quantity(pcs)").Width(70)
                        .HeaderHtmlAttributes(new { @class = "ng-column" })
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.NGWeight).Title("NG Weight</br>(g)").ReadOnly(true).Width(70)
+                columns.Bound(f => f.NGWeight).Title("Pending-Classify </br>Weight(g)").ReadOnly(true).Width(70)
                        .HeaderHtmlAttributes(new { @class = "ng-column" })
                        .Format("{0:n0}")
                        .HtmlAttributes(new { style = "text-align: right;border-right:1px solid black;" });

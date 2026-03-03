@@ -16,4 +16,3 @@ C:\Job\avf\Vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.dll
 C:\Job\avf\Vfi\Vfi.Client.Core.Common\bin\Debug\Vfi.Client.Core.Common.pdb
 C:\Job\avf\Vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.dll
 C:\Job\avf\Vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.pdb
-C:\Job\avf\Vfi\Vfi.Client.Core.Common\obj\Debug\Vfi.Client.Core.Common.csprojResolveAssemblyReference.cache

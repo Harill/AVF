@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 
 @{
-    ViewBag.Title = "Quản lý nhân viên";
+    ViewBag.Title = "Employee Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -23,7 +23,7 @@
 
 </script>
 }
-<div class="title">Thông tin nhân viên</div>
+<div class="title">Employee Information</div>
 
 <div class="cover-div">
 @{
@@ -32,7 +32,7 @@
         .DataKeys(keys => keys.Add(f => f.EmployeeId).RouteKey("employeeId"))
         .ToolBar(
             toolbar =>
-            toolbar.Insert().Text("Thêm NV mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }))
+            toolbar.Insert().Text("Add new Employee").ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).Text("Add New").ImageHtmlAttributes(new { style = "margin-left:0" }))
         .DataBinding(dataBindings=>dataBindings.Ajax()
             .Select("SelectEmployee","Employee")
             .Insert("InsertEmployee","Employee")
@@ -41,32 +41,32 @@
         .Columns(columns=>
         {
             columns.Command(command =>
-                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Sửa").CancelText("Hủy")
-            ).Width(98).Title("").HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.EmployeeCode).Width(125);
+                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel")
+            ).Width(70).Title("Commands").HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(f => f.EmployeeCode).Width(110);
             columns.Bound(f => f.EmployeeName).Width(200);
-            columns.Bound(f => f.Active).Width(75).Title("Kinh doanh")
+            columns.Bound(f => f.Active).Width(100).Title("Business")                                                                // Kinh doanh
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Active' <#=Active? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.Production2).Width(75).Title("NV SX2")
+            columns.Bound(f => f.Production2).Width(100).Title("Production2")                                                                               //NV SX2
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production2' <#=Production2? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.Production2B).Width(75).Title("NV SX2B")
+            columns.Bound(f => f.Production2B).Width(100).Title("Production2B")                                                //NV SX2B
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production2B' <#=Production2B? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.Repair).Width(75).Title("Sửa máy")
+            columns.Bound(f => f.Repair).Width(110).Title("Machine-Repair")                                                              //Sửa máy
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Repair' <#=Repair? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.QcLine).Width(75)
+            columns.Bound(f => f.QcLine).Width(100).Title("Qc Line") 
                 .ClientTemplate("<input type='checkbox' disabled='disabled' name='Repair' <#=QcLine? checked='checked' : '' #> />")
                 .HtmlAttributes(new { style = "text-align:center" });
-            columns.Bound(f => f.GroupName).Title("Nhóm");
-            columns.Bound(f => f.UserName).Title("LK ACC");
-            columns.Bound(f => f.ModifiedDate).Width(125).Title("Ngày làm").Format("{0:dd/MM/yyyy HH:mm}").ReadOnly(true);
-            columns.Bound(f => f.ModifiedUser).Width(100).Title("Người làm").ReadOnly(true);
+            columns.Bound(f => f.GroupName).Title("Team");
+            columns.Bound(f => f.UserName).Title("User Name");              //LK ACC
+            columns.Bound(f => f.ModifiedDate).Width(125).Title("M-Date").Format("{0:dd/MM/yyyy HH:mm}").ReadOnly(true);
+            columns.Bound(f => f.ModifiedUser).Width(100).Title("M-User").ReadOnly(true);
         })
         .ClientEvents(events => events.OnEdit("gridEmploye_onEdit").OnError("grid_OnError"))
-        .Editable(editing => editing.Mode(GridEditMode.InLine))
+        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
         //.Pageable(page => page.PageSize(10))
                 .Scrollable(f => f.Height(510))
         .Sortable()

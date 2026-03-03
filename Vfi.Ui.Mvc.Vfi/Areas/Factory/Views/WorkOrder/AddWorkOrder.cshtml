@@ -225,37 +225,37 @@
     </script>
 }
 
-<div class="title">Tạo thêm Work Order
+<div class="title">Addition Work Order
 <button class="t-button" id="btnSave" name="btnSave" onclick=" SaveData(0) ">
                 <span class='t-icon t-insert' disable ="true"></span>
-                Lưu lại
+               Save
             </button>
 <button class="t-button" id="btnSave_Active" name="btnSave_Active" onclick=" SaveData(1) ">
                 <span class='t-icon t-insert'></span>
-               Lưu và kích hoạt
+              Save & Active
 </button>
 </div>
 <div class="t-info-sha fieldheader grid_6">
     <fieldset>
-        <legend>Thông tin Work Order</legend>
-            <div class="grid_5">Mã SP: @Model.ProductCode</div>
+        <legend>Work Order Information</legend>
+            <div class="grid_5">Product: @Model.ProductCode</div>
             <div class="clear"></div>
             <br />
-            <div class="grid_5">Đơn hàng: @Model.OrderNumber </div>
+            <div class="grid_5">Orders: @Model.OrderNumber </div>
             <div class="clear"></div>
             <br />
-            <div class="grid_5">Khách hàng: @Model.CustomerCode</div>
+            <div class="grid_5">Customer: @Model.CustomerCode</div>
             <div class="clear"></div>
             <br />
-            <div class="grid_5">Số lượng tối đa: @Model.Quantity</div>
+            <div class="grid_5">Max Quantity: @Model.Quantity</div>
             <div class="clear"></div>
             <br />
     </fieldset>
 </div>
 <div class="t-info-sha fieldheader grid_7">    
     <fieldset>
-        <legend>Danh sách Work Order</legend>
-            <div class="grid_2_5">Số lượng chạy:</div>
+        <legend>Work Order List</legend>
+            <div class="grid_2_5">Running Machine:</div>
             <div class="grid_1_5">
                 @{
                     Html.Telerik().NumericTextBox()
@@ -272,7 +272,7 @@
             <div class="grid_2">
                 <button class="t-button" onclick=" RefreshGrid('gridRouting') ">
                     <span class='t-icon t-insert'></span>
-                    Tính
+                    Calculate
                 </button>
             </div>
             <div class="clear"></div>
@@ -282,9 +282,9 @@
 </div>
 <div class="t-info-sha fieldheader grid_21">
     <fieldset>
-        <legend>Thiết lập</legend>
+        <legend>Setting</legend>
             <div class="grid_2">
-                Nguyên liệu
+                Material
             </div>
             <div class="grid_4">
                 @{
@@ -293,7 +293,7 @@
                         .DataBinding(binding => binding.Ajax().Select("SelectComboBoxProductionMaterial", "Material", new { area = "", productId = Model.ProductId }).Delay(350))
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "width: 250px" })
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .HighlightFirstMatch(true)
                         .AutoFill(true)
                         .ClientEvents(events => events.OnChange("materialInv_OnChange"))
@@ -306,19 +306,19 @@
                 </button>
             </div>
             <div class="grid_3"> 
-                Dài: <span id="MaterialLength">~</span> (mm)
+                Length: <span id="MaterialLength">~</span> (mm)
             </div>
             <div class="grid_4"> 
-                Tồn kho: <span id="MaterialInventory">~</span> (cây)
+                Inv: <span id="MaterialInventory">~</span> (bar)
             </div>
             <div class="grid_4"> 
-                Có thể: <span id="MaterialAvailable">~</span> (cây)
+                Available: <span id="MaterialAvailable">~</span> (bar)
             </div>
             <div class="clear"></div>
             <br />
 
             <div class="grid_2">
-                Máy
+                Machine
             </div>
             <div class="grid_4">
                 @{
@@ -328,19 +328,19 @@
                         .HtmlAttributes(new { style = "width: 100%" })
                         .DropDownHtmlAttributes(new { style = "width: 275px" })
                         .AutoFill(true)
-                        .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                        .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                         .ClientEvents(events => { events.OnChange("machine_OnChange"); })
                         .Render();
                 }
             </div>
-            <div class="grid_2_5"">
-                Năng suất TK:
+            <div class="grid_3_5"">
+               Productivity Design:
             </div>
             <div class="grid_2_5">
                 <span id="ProductivityDesign">0</span> (s/pc)
             </div>
-            <div class="grid_2_5" style="text-align:right;">
-                Năng suất TT:
+            <div class="grid_3_5" style="text-align:right;">
+               Productivity Actual:
             </div>
             <div class="grid_1_5">
                 @{
@@ -359,14 +359,14 @@
             <div class="grid_1">(s/pc)</div>
             <div class="clear"></div>
             <br />
-            <div class="grid_2_5">
-                Chiều dài SP:
+            <div class="grid_3">
+               Product Length:
             </div>
             <div class="grid_2_5">
                  <span id="ProductLenght">~</span> (mm)
             </div>
             <div class="grid_2" style="text-align:right;">
-                Dao cắt :
+               Knife Cut:
             </div>
             <div class="grid_1_5">
                 @{
@@ -383,8 +383,8 @@
                 }
             </div>
             <div class="grid_1">(mm)</div>
-            <div class="grid_2" style="text-align:right;">
-                Phoi dư :
+            <div class="grid_3_5" style="text-align:right;">
+                Excess Workpiece :
             </div>
             <div class="grid_1_5">
                 @{
@@ -404,32 +404,32 @@
             <div class="clear"></div>
             <br />
         
-            <div class="grid_2_5">
-                Định mức TK:
+            <div class="grid_3">
+               Quota Design:
             </div>
             <div class="grid_3">
-                 <span id="ProductionRateDesign">0 </span> (pcs/cây)
+                 <span id="ProductionRateDesign">0 </span> (pcs/bar)
             </div>
             <div class="grid_2_5">
-                Định mức TT:
+                Quota Actual:
             </div>
             <div class="grid_3">
-                 <span id="ProductionRate">~</span> (pcs/cây)
+                 <span id="ProductionRate">~</span> (pcs/bar)
             </div>
         
             <div class="clear"></div>
             <br />
-            <div class="grid_2_5">
-               Yêu cầu NL TK:
+            <div class="grid_3">
+              Required Design:
             </div>
             <div class="grid_3">
-                 <span id="MaterialRequirementDesign">~</span> (cây)
+                 <span id="MaterialRequirementDesign">~</span> (bar)
             </div>
-            <div class="grid_2_5">
-               Yêu cầu NL TT:
+            <div class="grid_3_5">
+               Required Actual:
             </div>
             <div class="grid_3">
-                 <span id="MaterialRequirement">~</span> (cây)
+                 <span id="MaterialRequirement">~</span> (bar)
             </div>
     </fieldset>
 </div>
@@ -451,15 +451,15 @@
                                         .Select("SelectWorkOrderRoutingByOrderDetail", "WorkOrder", new { area = "Factory", orderDetailId = @Model.OrderDetailId, quantity = 0 })
             )
             .Columns(columns => {
-                columns.Bound(f => f.RoutingIndex).Width(70).Title("STT");
-                columns.Bound(f => f.RoutingName).Width(200).Title("Công đoạn");
-                columns.Bound(f => f.PlannedCost).Width(100).Title("Số lượng")
+                columns.Bound(f => f.RoutingIndex).Width(70).Title("No.");
+                columns.Bound(f => f.RoutingName).Width(200).Title("Section");
+                columns.Bound(f => f.PlannedCost).Width(100).Title("Quantity")
                     .Format("{0:n0}")
                     .HtmlAttributes(new { style = "text-align:right;" });
-                columns.Bound(f => f.ActualResourceHrs).Width(200).Title("Thời gian TH(h)")
+                columns.Bound(f => f.ActualResourceHrs).Width(200).Title("Running Time(h)")
                     .Format("{0:n2}")
                     .HtmlAttributes(new { style = "text-align:center;" });
-                columns.Bound(f => f.MoreInfo).Title("Mô tả");
+                columns.Bound(f => f.MoreInfo).Title("Describe");
             })
             .ClientEvents(events => events.OnError("grid_OnError")
                                             .OnDataBinding("grid_OnDataBinding"))

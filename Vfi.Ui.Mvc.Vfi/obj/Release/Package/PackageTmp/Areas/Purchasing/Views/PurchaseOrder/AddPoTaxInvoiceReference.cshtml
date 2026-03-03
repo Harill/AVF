@@ -3,7 +3,8 @@
 @using Vfi.Ui.Mvc.Vfi.Models
 @model ExportFormTP_KD
 @{
-    ViewBag.Title = "Phân chi tiết hóa đơn";
+    ViewBag.Title = "Classify Detail-Invoice ";
+    //Phân chi tiết hóa đơn
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -77,13 +78,14 @@
 
 }
 
-<div class="title">Phân đơn hàng xuất kho</div>
+<div class="title">Classify Release-Order</div>
+@*Phân đơn hàng xuất kho*@
 
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
 
     <fieldset>
-        <legend>Thông tin hóa đơn</legend>
-        <div class="grid_3">Loại</div>
+        <legend>Order Information</legend>
+        <div class="grid_1">Type</div>
         <div class="grid_5">
             @{
                 Html.Telerik().DropDownList()
@@ -95,7 +97,7 @@
                     .Render();                                              
             }
         </div>
-        <div class="grid_3">Nhà cung cấp</div>
+        <div class="grid_2_5">Supplier</div>
         <div class="grid_6">
             @{
                 Html.Telerik().DropDownList()
@@ -107,7 +109,7 @@
                     .Render();                                              
             }
         </div>
-        <div class="grid_3">Số hóa đơn</div>
+        <div class="grid_2_5">Invoice Number</div>
         <div class="grid_4">
             @{
                 Html.Telerik().ComboBox()
@@ -136,7 +138,7 @@
                      <div class="grid_7">
                          <button class="t-button" id="btnPickupProductId" name="btnPickupId" onclick=" PickupId() ">
                              <span class='t-icon t-insert'></span>
-                             Chọn các sản phẩm vào lưới
+                             Select Products
                          </button>
                      </div>
                      <div class="clear"></div>
@@ -147,30 +149,28 @@
                                                      .Select("SelectTaxInvoiceReferenceById", "PurchaseOrder", new {area = "Purchasing", taxInvoiceId = 0}))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.DetailId).Title("Chọn").Width(75)
+                    columns.Bound(f => f.DetailId).Title("Select").Width(75)
                            .ClientTemplate("<input type='radio' name='chkIds' value='<#= DetailId #>' />")
                            .HtmlAttributes(new { style = "text-align:center" });
-                    columns.Bound(f => f.Note).Title("Ghi chú").Width(100);
-                    columns.Bound(f => f.Code).Title("Mã");
+                    columns.Bound(f => f.Note).Title("Note").Width(100);
+                    columns.Bound(f => f.Code).Title("Code").Width(250);
                     columns.Bound(f => f.Unit).Title("").Width(50);
-                    columns.Bound(f => f.Quantity).Title("Số lượng").Width(75)
+                    columns.Bound(f => f.Quantity).Title("Quantity").Width(75)
                            .Format("{0:n2}")
                            .HtmlAttributes(new {style = "text-align: right;"});
                     columns.Bound(f => f.UnitPriceFormat)
-                           .Title("Đơn giá").Width(75)
+                           .Title("Unit Price").Width(75)
                            .HtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.AmountFormat).Width(100).ReadOnly(true).Title("Thành tiền")
+                    columns.Bound(f => f.AmountFormat).Width(100).ReadOnly(true).Title("Total Amount")
                            .HtmlAttributes(new {style = "text-align: right;"});
-
                     columns.Bound(f => f.CurrencyCode)
-                           .Title("Tiền tệ").Width(50)
+                           .Title("Currency").Width(70)
                            .HtmlAttributes(new {style = "text-align: center;"});
                     columns.Bound(f => f.TaxPercent)
-                           .Title("Thuế").Width(50)
+                           .Title("Tax").Width(50)
                            .HtmlAttributes(new {style = "text-align: right;"});
-
                     columns.Bound(f => f.ExchangeRate)
-                           .Title("Tỉ giá").Width(75)
+                           .Title("Exchange Rate").Width(85)
                            .Format("{0:n0}")
                            .HtmlAttributes(new { style = "text-align: right;" });
                 })
@@ -185,41 +185,41 @@
     }
 </div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Chi tiết lệnh xuất nhập sản phẩm</div>
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Release Detail 
+    @*Chi tiết lệnh xuất nhập sản phẩm*@</div>
 <div class="cover-div">
     @{
         Html.Telerik().Grid<PoTaxInvoiceReferenceDetailModel>()
             .Name("gridTaxInvoiceReferenceDetail")
-            .ToolBar(bar => bar.SubmitChanges().ButtonType(GridButtonType.ImageAndText).SaveText("Lưu thay đổi").CancelText("Huỷ tất cả"))
+            .ToolBar(bar => bar.SubmitChanges().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).SaveText("Save").CancelText("Cancel"))
             .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
             .DataBinding(dataBindings => dataBindings.Ajax()
                                                      .Select("SelectTaxInvoiceReferenceDetailById", "PurchaseOrder", new { referenceId = 0 })
                                                      .Update("UpdateTaxInvoiceReferenceDetail", "PurchaseOrder"))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.IsAdd).Title("Chọn").Width(25)
+                    columns.Bound(f => f.IsAdd).Title("Select").Width(25)
                            .ClientTemplate("<input type='checkbox' disabled='disabled' name='IsAdd' <#=IsAdd? checked='checked' : '' #> />")
                            .HtmlAttributes(new {style = "text-align:center"});
-                    columns.Bound(f => f.Code).Title("Mã SP").Width(200).ReadOnly(true);
-                    columns.Bound(f => f.ImportCode).Title("Số phiếu").Width(100).ReadOnly(true);
-                    columns.Bound(f => f.ImportDate).Title("Ngày nhập").Width(75).ReadOnly(true)
+                    columns.Bound(f => f.Code).Title("Product Code").Width(200).ReadOnly(true);
+                    columns.Bound(f => f.ImportCode).Title("Code").Width(100).ReadOnly(true);
+                    columns.Bound(f => f.ImportDate).Title("Entry Date").Width(75).ReadOnly(true)
                            .ClientTemplate("<#= ImportDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ImportDate) #>")
                            //.Format("{0:dd/MM/yyyy}")
                            ;
-                    columns.Bound(f => f.Quantity).Width(75).Title("Số lượng").ReadOnly(true)
+                    columns.Bound(f => f.Quantity).Width(75).Title("Quantity").ReadOnly(true)
                            .HtmlAttributes(new {style = "text-align: right;"})
                            .Format("{0:n2}");
-                    columns.Bound(f => f.UnitPriceFormat).Width(75).Title("Đơn giá").ReadOnly(true)
+                    columns.Bound(f => f.UnitPriceFormat).Width(75).Title("Unit Price").ReadOnly(true)
                            .HtmlAttributes(new {style = "text-align: right;"});
-                    columns.Bound(f => f.AmountFormat).Width(100).Title("Tổng tiền").ReadOnly(true)
+                    columns.Bound(f => f.AmountFormat).Width(100).Title("Total Amount").ReadOnly(true)
                            .HtmlAttributes(new {style = "text-align: right;"});
-
                     columns.Bound(f => f.Note).ReadOnly(true)
-                           .HeaderTemplate("Ghi chú HĐ");
+                           .HeaderTemplate("Invoice Note");
                 })
             .ClientEvents(events => events.OnError("grid_OnError")
             )
-            .Editable(f => f.Mode(GridEditMode.InCell))
+            .Editable(f => f.Mode(Telerik.Web.Mvc.UI.GridEditMode.InCell))
             .Resizable(f => f.Columns(true))
             .Render()
             ;

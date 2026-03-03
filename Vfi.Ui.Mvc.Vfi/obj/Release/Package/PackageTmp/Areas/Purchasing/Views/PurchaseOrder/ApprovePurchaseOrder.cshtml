@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @{
-    ViewBag.Title = "Duyệt PO";
+    ViewBag.Title = "Approve PO ";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -63,9 +63,12 @@
 </script>
 }
 
-<div class="title">Duyệt phiếu mua nguyên liệu</div>
+<div class="title">Approve PO 
+    @*Duyệt phiếu mua nguyên liệu*@
 
-<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">Sổ lệnh</div>
+</div>
+
+<div class="t-info-sha" style="padding-left: 15px; width:250px; color: Maroon;">PO Sheet</div>
 <div class="cover-div">
 @{
     Html.Telerik().Grid<PurchaseOrderModel>()
@@ -84,29 +87,29 @@
         .Columns(columns =>
             {
                 columns.Command(command =>
-                                command.Edit().ButtonType(GridButtonType.Image)
-                    ).Width(50).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)
+                    ).Width(60).Title("Aprove").HtmlAttributes(new {style = "text-align:center"});
 
                 //columns.Bound(f => f.PurchaseOrderId).Title("Chọn").Width(40).ReadOnly(true)
                 //       .ClientTemplate("<input type='radio' name='chkIds' value='<#= PurchaseOrderId #>' />")
                 //       .HtmlAttributes(new {style = "text-align:center"});
-                columns.Bound(f => f.RevisionNumber).Width(100).ReadOnly(true);
-                columns.Bound(f => f.OrderDate).Width(100).ReadOnly(true)
-                    .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.MaterialClasstifiedName).Width(100).Title("Phân loại").ReadOnly(true);
-                columns.Bound(f => f.VendorCodeName).Width(100).ReadOnly(true);
-                columns.Bound(f => f.ContractNumber).Width(100).ReadOnly(true);
-                columns.Bound(f => f.ShipDate).Width(100)
+                columns.Bound(f => f.RevisionNumber).Width(100).ReadOnly(true).Title("PO Code");
+                columns.Bound(f => f.OrderDate).Width(100).ReadOnly(true).Title("PO Date")
+                       .Format("{0:dd/MM/yyyy}");
+                columns.Bound(f => f.MaterialClasstifiedName).Width(100).Title("Classify").ReadOnly(true);
+                columns.Bound(f => f.VendorCodeName).Width(100).ReadOnly(true).Title("Supplier");
+                columns.Bound(f => f.ContractNumber).Width(115).ReadOnly(true).Title("Contract Number");
+                columns.Bound(f => f.ShipDate).Width(100).Title("Delivery Date")
                        .ClientTemplate("<strong><#= ShipDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ShipDate) #></strong>");
-                columns.Bound(f => f.TotalQuality).Title("Tổng SL").Width(75)
+                columns.Bound(f => f.TotalQuality).Title("Total Quantity").Width(105)
                        .HtmlAttributes(new {style = "text-align: right;"})
                        .ClientTemplate("<#= TotalQuality == null ? 0 : $.telerik.formatString('{0:n}', TotalQuality) #>").ReadOnly(true);
-                columns.Bound(f => f.StatusName).Width(75).ReadOnly(true);
-                columns.Bound(f => f.EmployeeName).Width(75).ReadOnly(true);
+                columns.Bound(f => f.StatusName).Width(75).ReadOnly(true).Title("Status");
+                columns.Bound(f => f.EmployeeName).Width(75).ReadOnly(true).Title("Employee");
                 columns.Bound(f => f.Note).ReadOnly(true);
-                columns.Command(c => c.Delete().ButtonType(GridButtonType.Image)).Width(40);
-                columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true);
-                columns.Bound(f => f.ModifiedDate).Title("Ngày tạo").Width(90).Format("{0:dd/MM/yyyy HH:mm:ss}").ReadOnly(true);
+                columns.Command(c => c.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)).Width(40);
+                columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true).Title("M-User");
+                columns.Bound(f => f.ModifiedDate).Title("M-Date").Width(90).Format("{0:dd/MM/yyyy HH:mm:ss}").ReadOnly(true);
             })
 
         .DetailView(details => details.ClientTemplate(
@@ -114,7 +117,7 @@
                 .Name("TabStrip_<#= PurchaseOrderId #>")
                 .SelectedIndex(0)
                 .Items(items =>
-                       items.Add().Text("Thông tin chi tiết").Content(
+                       items.Add().Text("Detail").Content(
                            Html.Telerik().Grid<PurchaseOrderDetailModel>()
                                .Name("gridTransactionDetail_<#= PurchaseOrderId #>")
                                .DataKeys(keys => keys.Add(f => f.PurchaseOrderDetailId).RouteKey("purchaseOrderDetailId"))
@@ -123,7 +126,7 @@
                                         <div class="grid_7">
                                             <button class="t-button" id="btnSplit" name="btnSplit" onclick=" SplitOrderDetails('<#= PurchaseOrderId #>') ">
                                                 <span class='t-icon t-insert'></span>
-                                                Tách các đơn hàng đã chọn
+                                                Split The Selected
                                             </button>
                                         </div>
                                         <div class="clear"></div>
@@ -135,29 +138,28 @@
                                )
                                .Columns(columns =>
                                    {
-                                       columns.Bound(f => f.PurchaseOrderId).Title("Tách").Width(50)
+                                       columns.Bound(f => f.PurchaseOrderId).Title("Split").Width(50)
                                               .ClientTemplate("<input type='checkbox' name='chkDetailIds' value='<#= PurchaseOrderDetailId #>' />")
                                               .HtmlAttributes(new {style = "text-align:center"}).ReadOnly(true);
                                        columns.Bound(f => f.Name).Width(120);
                                        columns.Bound(f => f.Code).Width(200);
-                                       columns.Bound(f => f.OrderQty).Width(80).Title("SL đặt")
+                                       columns.Bound(f => f.OrderQty).Width(120).Title("Order's Quantity")
                                               .HtmlAttributes(new { style = "text-align: right;" })
                                               .ClientTemplate("<#= OrderQty == null ? 0 : $.telerik.formatString('{0:n}', OrderQty) #>");
-
-                                       columns.Bound(f => f.Unit).Width(50).Title("ĐVT"); 
-                                       columns.Bound(f => f.UnitPrice).Width(80)
+                                       columns.Bound(f => f.Unit).Width(100).Title("Unit Measure");
+                                       columns.Bound(f => f.UnitPrice).Width(110).Title("Unit Price")
                                               .HtmlAttributes(new {style = "text-align: right;"})
                                               .ClientTemplate("<#= UnitPrice == null ? 0 : $.telerik.formatString('{0:n}', UnitPrice) #>");
-                                       columns.Bound(f => f.LineTotal).Width(120)
+                                       columns.Bound(f => f.LineTotal).Width(120).Title("Total Amount")
                                               .HtmlAttributes(new {style = "text-align: right;"})
                                               .ClientTemplate("<#= LineTotal == null ? 0 : $.telerik.formatString('{0:n}', LineTotal) #>")
                                               .FooterHtmlAttributes(new { style = "text-align: right;" })
                                               .Aggregate(agg => agg.Sum())
                                               .ClientFooterTemplate("<div style='text-align: right; width: 100%;'><#= $.telerik.formatString('{0:n2}', Sum) #></div>");
-                                       columns.Bound(f => f.DueDate).Title("Ngày giao").Width(90).Format("{0:dd/MM/yyyy}");
+                                       columns.Bound(f => f.DueDate).Title("Delivery Date").Width(120).Format("{0:dd/MM/yyyy}");
 
-                                       columns.Bound(f => f.InquiryNote).Title("Ghi chú YC");
-                                       columns.Bound(f => f.SpecificNote).Title("");
+                                       columns.Bound(f => f.InquiryNote).Title("Inquiry Note");       //Ghi chú YC
+                                       columns.Bound(f => f.SpecificNote).Title("Detail Note");
                                    })
         .ClientEvents(events => events.OnError("grid_OnError"))
                                .ToHtmlString()

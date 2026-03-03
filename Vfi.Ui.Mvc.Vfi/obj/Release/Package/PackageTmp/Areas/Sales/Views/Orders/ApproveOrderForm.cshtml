@@ -1,7 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Duyệt Đơn Hàng ";
+    ViewBag.Title = "Approve Sale-Orders";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -161,11 +161,11 @@
     </script>
 }
 
-<div class="title">Duyệt đơn hàng</div>
+<div class="title">Approved Sale-Order</div>
 
               <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridOrder'); ">
                     <span class='t-icon t-insert'></span>
-                   Làm mới
+                   Find
                 </button>
 <div class="cover-div">
     @{
@@ -184,34 +184,34 @@
             .Columns(columns =>
             {
                 columns.Command(command =>
-                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Duyệt").CancelText("Trở lại")
-                    ).Width(50).Title("Duyệt").HtmlAttributes(new {style = "text-align:center"});
+                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Approve").CancelText("Cancel")
+                    ).Width(50).Title("Approve").HtmlAttributes(new {style = "text-align:center"});
 
-                columns.Bound(f => f.OrderNumber).Title("Lệnh bán").Width(100).ReadOnly(true)
-                    .Aggregate(agg => agg.Count())
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
-                columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(30).ReadOnly(true);
+                columns.Bound(f => f.OrderNumber).Title("Sale Order").Width(100).ReadOnly(true)
+                       .Aggregate(agg => agg.Count())
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>");
+                columns.Bound(f => f.CurrencyCode).Title("Currency").Width(30).ReadOnly(true);
                 //columns.Bound(f => f.PoNumber).Width(125).ReadOnly(true);
-                columns.Bound(f => f.SalesPersonName).Width(75).ReadOnly(true);
-                columns.Bound(f => f.CustomerCode).Title("Mã KH").Width(75).ReadOnly(true);
-                columns.Bound(f => f.Area).Title("Khu vực").Width(100).ReadOnly(true);
-                columns.Bound(f => f.TotalQuality).Width(75).ReadOnly(true)
-                    .HtmlAttributes(new {style = "text-align: right"})
-                    .ClientTemplate("<#= TotalQuality == null ? 0 :$.telerik.formatString('{0:n0}', TotalQuality) #>")
-                    .Aggregate(agg => agg.Sum())
-                    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
-                    .FooterHtmlAttributes(new { style = "text-align: right;" });
-                columns.Bound(f => f.OrderDate).Width(85).ReadOnly(true)
-                    .Format("{0:dd/MM/yyyy}");
-                columns.Bound(f => f.DueDate).Width(125)
-                    .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
-                columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true)
-                    .Format("{0:dd/MM/yyyy HH:mm}");
-                columns.Bound(f => f.Note).Title("Ghi Chú").ReadOnly(true);
-                columns.Bound(f => f.OrderId).Title("In Form").Width(45).ReadOnly(true)
+                columns.Bound(f => f.SalesPersonName).Width(75).ReadOnly(true).Title("Sale Employee");
+                columns.Bound(f => f.CustomerCode).Title("Customer Code").Width(75).ReadOnly(true);
+                columns.Bound(f => f.Area).Title("Area").Width(100).ReadOnly(true);
+                columns.Bound(f => f.TotalQuality).Width(75).ReadOnly(true).Title("Total Quantity")
+                       .HtmlAttributes(new {style = "text-align: right"})
+                       .ClientTemplate("<#= TotalQuality == null ? 0 :$.telerik.formatString('{0:n0}', TotalQuality) #>")
+                       .Aggregate(agg => agg.Sum())
+                       .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
+                       .FooterHtmlAttributes(new { style = "text-align: right;" });
+                columns.Bound(f => f.OrderDate).Width(85).ReadOnly(true).Title("Order Date")
+                       .Format("{0:dd/MM/yyyy}");
+                columns.Bound(f => f.DueDate).Width(125).Title("Required Date")
+                       .ClientTemplate("<#= DueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', DueDate) #>");
+                columns.Bound(f => f.ModifiedDate).Width(100).ReadOnly(true).Title("M-Date")
+                       .Format("{0:dd/MM/yyyy HH:mm}");
+                columns.Bound(f => f.Note).Title("Note").ReadOnly(true);
+                columns.Bound(f => f.OrderId).Title("Print").Width(45).ReadOnly(true)
                        .ClientTemplate("<input type='button' id='id_<#= OrderId #>' style='min-width:30px' value='In' class='t-button' onclick=PrintApproveOrderDetailForm(<#= OrderId #>) />")
                        .HtmlAttributes(new { style = "text-align:center" });
-                columns.Command(commands => commands.Delete().Text("Huỷ")).Width(50).Title("Huỷ ĐH");
+                columns.Command(commands => commands.Delete().Text("Cance")).Width(50).Title("Cancel Order");
             })
             .DetailView(details => details.ClientTemplate(
                 //Html.Telerik().TabStrip()
@@ -228,7 +228,8 @@
                             <div class="grid_7">
                                 <button class="t-button" id="btnSplit" name="btnSplit" onclick=" SplitOrderDetails('<#= OrderId #>') ">
                                     <span class='t-icon t-insert'></span>
-                                    Tách các đơn hàng đã chọn
+                                    Split Selected Orders
+@*                                    Tách các đơn hàng đã chọn*@
                                 </button>
                             </div>
                             <div class="clear"></div>
@@ -240,43 +241,43 @@
                     )
                     .Columns(columns =>
                     {
-                        columns.Bound(f => f.OrderDetailId).Title("Tách").Width(25)
+                        columns.Bound(f => f.OrderDetailId).Title("Split").Width(25)
                             .ClientTemplate("<input type='checkbox' name='chkOrderDetailIds' value='<#= OrderDetailId #>' />")
                             .HtmlAttributes(new {style = "text-align:center"}).ReadOnly(true);
                         columns.Command(command =>
-                            command.Edit().ButtonType(GridButtonType.Image)
-                                .UpdateText("Sửa").CancelText("Huỷ").Text("Cập Nhật")
+                            command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image)
+                                .UpdateText("Fix").CancelText("Cancel").Text("Update")
                             ).Width(30).Title("").HtmlAttributes(new {style = "text-align:center"});
                         // columns.Bound(f => f.OrderDetailId);
                         // columns.Bound(f => f.OrderId);
-                        columns.Bound(f => f.ProductionApprove).Width(40).Title("SX").ReadOnly(true)
-                            .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                        columns.Bound(f => f.ProductionApprove).Width(60).Title("Production").ReadOnly(true)
+                               .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
                                             "<#= ProductionApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
-                        columns.Bound(f => f.IsApprove).Width(40).Title("Kho").ReadOnly(true)
-                            .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                        columns.Bound(f => f.IsApprove).Width(60).Title("WareHouse").ReadOnly(true)
+                               .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
                                             "<#= IsApprove == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
-                        columns.Bound(f => f.DetailApproved).Width(40).Title("KD").ReadOnly(true)
-                            .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
+                        columns.Bound(f => f.DetailApproved).Width(60).Title("Sale").ReadOnly(true)
+                               .ClientTemplate("<img src='" + Url.Content("~/Resources/") +
                                             "<#= DetailApproved == 0 ? 'notapprove_icon.jpg' : 'approve_icon.jpg'  #>' height='30' width='30'/>");
-                        columns.Bound(f => f.ProductCode).Title("Mã SP").Width(85).ReadOnly(true);
-                        columns.Bound(f => f.ForecastInMonth).Width(70).ReadOnly(true).Title("Dự báo")
-                            .HtmlAttributes(new {style = "text-align: right;"})
-                            .Format("{0:n0}");
-                        columns.Bound(f => f.OrderQty).Width(70).Title("Số lượng").ReadOnly(true)
-                            .HtmlAttributes(new {style = "text-align: right;"})
-                            .Format("{0:n0}");
-                        columns.Bound(f => f.UnitPrice).ReadOnly(true).Width(70)
-                            .HtmlAttributes(new {style = "text-align: right;"});
-                        columns.Bound(f => f.CustomerDueDate).Width(70).Title("KH yêu cầu").Format("{0:dd/MM/yyyy}").ReadOnly(true);
-                        columns.Bound(f => f.VFIDueDate).Width(65).Title("VF giao hàng")
-                            .ClientTemplate("<#= VFIDueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', VFIDueDate) #>");
-                        columns.Bound(f => f.OrderNote).Title("Ghi chú ĐH").ReadOnly(true);
+                        columns.Bound(f => f.ProductCode).Title("Product Code").Width(85).ReadOnly(true);
+                        columns.Bound(f => f.ForecastInMonth).Width(70).ReadOnly(true).Title("Forecast")
+                               .HtmlAttributes(new {style = "text-align: right;"})
+                               .Format("{0:n0}");
+                        columns.Bound(f => f.OrderQty).Width(70).Title("Quantity").ReadOnly(true)
+                               .HtmlAttributes(new {style = "text-align: right;"})
+                               .Format("{0:n0}");
+                        columns.Bound(f => f.UnitPrice).ReadOnly(true).Width(70).Title("Unit Price")
+                               .HtmlAttributes(new {style = "text-align: right;"});
+                        columns.Bound(f => f.CustomerDueDate).Width(70).Title("Customer Required").Format("{0:dd/MM/yyyy}").ReadOnly(true);
+                        columns.Bound(f => f.VFIDueDate).Width(65).Title("VF Delivery")
+                               .ClientTemplate("<#= VFIDueDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', VFIDueDate) #>");
+                        columns.Bound(f => f.OrderNote).Title("Order Note").ReadOnly(true);
                         columns.Bound(f => f.Note).Title("Ghi chú khác").ReadOnly(true);
-                        columns.Bound(f => f.ProductionDate).Width(70).Title("ĐH gần nhất").ReadOnly(true)
-                            .ClientTemplate("<#= ProductionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ProductionDate) #>");
-                        columns.Bound(f => f.MachineRun).Width(50).Title("Số lượng").ReadOnly(true)
-                            .ClientTemplate("<#= MachineRun == 0 ? '' : $.telerik.formatString('{0:n0}', MachineRun) #>");
-                        columns.Bound(f => f.OrderDetailId).Title("In YCCB").Width(45).ReadOnly(true)
+                        columns.Bound(f => f.ProductionDate).Width(70).Title("Latest Order").ReadOnly(true)
+                               .ClientTemplate("<#= ProductionDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', ProductionDate) #>");
+                        columns.Bound(f => f.MachineRun).Width(50).Title("Quantity").ReadOnly(true)
+                               .ClientTemplate("<#= MachineRun == 0 ? '' : $.telerik.formatString('{0:n0}', MachineRun) #>");
+                        columns.Bound(f => f.OrderDetailId).Title("Print").Width(55).ReadOnly(true)
                                .ClientTemplate("<input type='button' id='id_<#= OrderId #>' style='min-width:30px' value='In' class='t-button' onclick=PrintPrepareDetail(<#= OrderDetailId #>) />")
                                .HtmlAttributes(new { style = "text-align:center" });
                     })
@@ -286,7 +287,7 @@
                             .SelectedIndex(0)
                             .Items(items =>
                             {
-                                items.Add().Text("Thông tin kho").Content(
+                                items.Add().Text("Warehouse").Content(
                                     Html.Telerik().Grid<SoLieuTongHopSanPham>()
                                         .Name("gridInventory_<#= OrderDetailId #>")
                                         .DataKeys(key => key.Add(f => f.ProductId).RouteKey("productId"))
@@ -295,81 +296,79 @@
 
                                         .Columns(columns => {
                                             columns.Bound(f => f.ProductCode).Width(85)
-                                                .HeaderTemplate("<strong>Tồn kho</br>hiện tại</strong>")
-                                                .Title("");
+                                                   .HeaderTemplate("<strong>Current</br>Inv</strong>")
+                                                   .Title("");
                                             columns.Bound(f => f.TonTong).Width(60)
-                                                .HeaderTemplate("Tồn</br>tổng")
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? '' : $.telerik.formatString('{0:n0}', TonTong) #>")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("Total</br>Inv")
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? '' : $.telerik.formatString('{0:n0}', TonTong) #>")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.TonKhoSX2CNC).Width(60)
-                                                .HeaderTemplate("CNC")
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2CNC) : $.telerik.formatString('{0:n0}', TonKhoSX2CNC) #>")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("CNC")
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2CNC) : $.telerik.formatString('{0:n0}', TonKhoSX2CNC) #>")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.TonKhoSX2SX2).Width(60)
-                                                .HeaderTemplate("SX2")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2SX2B) : $.telerik.formatString('{0:n0}', TonKhoSX2SX2) #>");
+                                                   .HeaderTemplate("Production2")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2SX2B) : $.telerik.formatString('{0:n0}', TonKhoSX2SX2) #>");
                                             columns.Bound(f => f.TonKhoSX2SX2B).Width(60)
-                                                .HeaderTemplate("SX2</br>(gia công)")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2SX2) : $.telerik.formatString('{0:n0}', TonKhoSX2SX2B) #>");
+                                                   .HeaderTemplate("Production2</br>(Processing)")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoSX2SX2) : $.telerik.formatString('{0:n0}', TonKhoSX2SX2B) #>");
                                             columns.Bound(f => f.TonKhoNhietLuyen).Width(60)
-                                                .HeaderTemplate("Nhiệt</br> luyện")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNhietLuyen) : $.telerik.formatString('{0:n0}', TonKhoNhietLuyen) #>");
+                                                   .HeaderTemplate("Heat</br>Treatment")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNhietLuyen) : $.telerik.formatString('{0:n0}', TonKhoNhietLuyen) #>");
                                             columns.Bound(f => f.TonKhoRungBong).Width(60)
-                                                .HeaderTemplate("Rung</br>bóng")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoRungBong) : $.telerik.formatString('{0:n0}', TonKhoRungBong) #>");
+                                                   .HeaderTemplate("Polishing")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoRungBong) : $.telerik.formatString('{0:n0}', TonKhoRungBong) #>");
                                             columns.Bound(f => f.TonKhoGCN).Width(60)
-                                                .HeaderTemplate("Chờ</br>GCN")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoGCN) : $.telerik.formatString('{0:n0}', TonKhoGCN) #>");
+                                                   .HeaderTemplate("Outsourcing</br>Pending")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoGCN) : $.telerik.formatString('{0:n0}', TonKhoGCN) #>");
                                             columns.Bound(f => f.TonKhoNCU).Width(60)
-                                                .HeaderTemplate("Xi</br>mạ")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCU) : $.telerik.formatString('{0:n0}', TonKhoNCU) #>");
+                                                   .HeaderTemplate("Plating")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCU) : $.telerik.formatString('{0:n0}', TonKhoNCU) #>");
                                             columns.Bound(f => f.TonKhoNCUKiemTra).Width(60)
-                                                .HeaderTemplate("KT</br>ngoài")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCUKiemTra) : $.telerik.formatString('{0:n0}', TonKhoNCUKiemTra) #>");
+                                                   .HeaderTemplate("Outsite</br>Testing")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoNCUKiemTra) : $.telerik.formatString('{0:n0}', TonKhoNCUKiemTra) #>");
                                             columns.Bound(f => f.TonKhoQCA).Width(60)
-                                                .HeaderTemplate("QC/A")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCA) : $.telerik.formatString('{0:n0}', TonKhoQCA) #>");
+                                                   .HeaderTemplate("QC/A")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCA) : $.telerik.formatString('{0:n0}', TonKhoQCA) #>");
                                             columns.Bound(f => f.TonKhoQCB).Width(60)
-                                                .HeaderTemplate("QC/B")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCB) : $.telerik.formatString('{0:n0}', TonKhoQCB) #>");
+                                                   .HeaderTemplate("QC/B")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCB) : $.telerik.formatString('{0:n0}', TonKhoQCB) #>");
                                             columns.Bound(f => f.TonKhoQCC).Width(60)
-                                                .HeaderTemplate("QC/C")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCC) : $.telerik.formatString('{0:n0}', TonKhoQCC) #>");
+                                                   .HeaderTemplate("QC/C")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoQCC) : $.telerik.formatString('{0:n0}', TonKhoQCC) #>");
                                             columns.Bound(f => f.Packing).Width(60)
-                                                .HeaderTemplate("Đóng</br>gói")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', Packing) : $.telerik.formatString('{0:n0}', Packing) #>");
-
+                                                   .HeaderTemplate("Packing")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', Packing) : $.telerik.formatString('{0:n0}', Packing) #>");
                                             columns.Bound(f => f.TonKhoTPA).Width(60)
-                                                .HeaderTemplate("Thành</br>phẩm")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoTPA) : $.telerik.formatString('{0:n0}', TonKhoTPA) #>");
-
+                                                   .HeaderTemplate("Finished")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoTPA) : $.telerik.formatString('{0:n0}', TonKhoTPA) #>");
                                             columns.Bound(f => f.TonKhoCXL).Width(60)
-                                                .HeaderTemplate("Chờ</br>PL")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoCXL) : $.telerik.formatString('{0:n0}', TonKhoCXL) #>");
+                                                   .HeaderTemplate("Classify</br>Pending")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', TonKhoCXL) : $.telerik.formatString('{0:n0}', TonKhoCXL) #>");
                                             columns.Bound(f => f.ReProcessing).Width(60)
-                                                .HeaderTemplate("Chờ</br>GC lại")
-                                                .HtmlAttributes(new { style = "text-align: right;" })
-                                                .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', ReProcessing) : $.telerik.formatString('{0:n0}', ReProcessing) #>");
+                                                   .HeaderTemplate("ReProcessing</br>Pending")
+                                                   .HtmlAttributes(new { style = "text-align: right;" })
+                                                   .ClientTemplate("<#= ProductCode == 'TL(g/pc)' ? $.telerik.formatString('{0:n3}', ReProcessing) : $.telerik.formatString('{0:n0}', ReProcessing) #>");
                                         })
                                         .Resizable(f => f.Columns(true))
                                         .ClientEvents(events => events.OnError("grid_OnError"))
                                         .ToHtmlString()
                                     );
 
-                                items.Add().Text("Tiến độ").Content(
+                                items.Add().Text("Progress").Content(
                                     Html.Telerik().Grid<OrderProgressModel>()
                                         .Name("gridOrderProgress_<#= OrderDetailId #>")
                                         .DataKeys(key => key.Add(f => f.ProgressId).RouteKey("progressId"))
@@ -388,52 +387,52 @@
                                         .Columns(columns =>
                                         {
                                             columns.Command(command =>
-                                                command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa").InsertText("Thêm mới")
+                                                command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Fix").InsertText("Add New")
                                                 ).Width(50).Title("").HtmlAttributes(new { style = "text-align:center" });
-                                            columns.Bound(f => f.ProgressIndex).Width(50).Title("STT").ReadOnly(true);
-                                            columns.Bound(f => f.WarehouseName).Width(120).Title("Tên công đoạn").ReadOnly(true);
-                                            columns.Bound(f => f.InvQuantity).Width(80).Title("Tồn kho").ReadOnly(true)
-                                                .Format("{0:n0}")
-                                                .HeaderTemplate("Tồn kho</br>công đoạn")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
-                                            columns.Bound(f => f.AfterInvQuantity).Width(80).Title("Tồn sau").ReadOnly(true)
-                                                .Format("{0:n0}")
-                                                .HeaderTemplate("Tồn kho</br>sau CĐ")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
-                                            columns.Bound(f => f.NumberProcess).Width(80).Title("YC TH").ReadOnly(true)
-                                                .Format("{0:n0}")
-                                                .HeaderTemplate("Sản lượng</br>cần TH")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                            columns.Bound(f => f.ProgressIndex).Width(50).Title("No.").ReadOnly(true);
+                                            columns.Bound(f => f.WarehouseName).Width(120).Title("Section Name").ReadOnly(true);
+                                            columns.Bound(f => f.InvQuantity).Width(80).Title("Inventory").ReadOnly(true)
+                                                   .Format("{0:n0}")
+                                                   .HeaderTemplate("Section</br>Inv")          // Ton kho cong doan
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
+                                            columns.Bound(f => f.AfterInvQuantity).Width(80).Title("Inv</br>After Section").ReadOnly(true)        //Tồn sau
+                                                   .Format("{0:n0}")
+                                                   .HeaderTemplate("Inv</br>After Section")               //Tồn kho</br>sau CĐ
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
+                                            columns.Bound(f => f.NumberProcess).Width(80).Title("Required Quantity").ReadOnly(true)         //YC TH
+                                                   .Format("{0:n0}")
+                                                   .HeaderTemplate("Required Quantity")             //Sản lượng</br>cần TH
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.DesignProductivityInDay).Width(80).ReadOnly(true)
-                                                .Format("{0:n0}")
-                                                .HeaderTemplate("NS TK</br>(pcs/d)")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .Format("{0:n0}")
+                                                   .HeaderTemplate("Productivity</br>(pcs/d)")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.RequiredProductivityInDay).Width(80).ReadOnly(true)
-                                                .Format("{0:n0}")
-                                                .HeaderTemplate("SL YC</br>(pcs/d)")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
-                                            columns.Bound(f => f.ExpectedFactor).Width(55).Title("Hệ số")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align:center" });
-                                            columns.Bound(f => f.ExpectedDay).Width(55).Title("Số</br>ngày")
-                                                .Format("{0:n0}")
-                                                .HtmlAttributes(new { style = "text-align:center" });
-                                            columns.Bound(f => f.StartDate).Width(100).Title("Ngày BĐ")
-                                                .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', StartDate) #>");
-                                            columns.Bound(f => f.FinishDate).Width(100).Title("Ngày HT").ReadOnly(true)
-                                                .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', FinishDate) #>");
+                                                   .Format("{0:n0}")
+                                                   .HeaderTemplate("Required Quantity</br>(pcs/d)")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
+                                            columns.Bound(f => f.ExpectedFactor).Width(55).Title("Coefficient")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(f => f.ExpectedDay).Width(55).Title("Day")
+                                                   .Format("{0:n0}")
+                                                   .HtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(f => f.StartDate).Width(100).Title("Start Date")
+                                                   .ClientTemplate("<#= StartDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', StartDate) #>");
+                                            columns.Bound(f => f.FinishDate).Width(100).Title("Completed Date").ReadOnly(true)
+                                                   .ClientTemplate("<#= FinishDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', FinishDate) #>");
                                             columns.Bound(f => f.ProgressNote).Title("Ghi chú");
-                                            columns.Bound(f => f.ModifiedUser).Width(85).Title("Người làm").ReadOnly(true);
-                                            columns.Bound(f => f.ModifiedDate).Width(85).Title("Ngày làm").ReadOnly(true)
-                                                .Format("{0:dd/MM/yyyy HH:mm}");
+                                            columns.Bound(f => f.ModifiedUser).Width(85).Title("M-User").ReadOnly(true);
+                                            columns.Bound(f => f.ModifiedDate).Width(85).Title("M-Date").ReadOnly(true)
+                                                   .Format("{0:dd/MM/yyyy HH:mm}");
                                         })
-                                        .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                         .ClientEvents(e => e.OnRowDataBound("gridOrderProgress_OnRowDataBound")
                                             .OnError("grid_OnError"))
                                         .ToHtmlString()
                                     );
 
-                                items.Add().Text("Nguyên liệu").Content(
+                                items.Add().Text("Material").Content(
                                     Html.Telerik().Grid<ExpectedProductionMaterialPlanModel>()
                                         .Name("gridOrderMaterial_<#= OrderDetailId #>")
                                         .DataKeys(key => key.Add(f => f.MaterialId).RouteKey("materialId"))
@@ -445,55 +444,53 @@
                                         .Columns(columns =>
                                         {
                                             columns.Bound(f => f.MaterialCode)
-                                                .HeaderTemplate("Mã nguyên liệu")
-                                                .HtmlAttributes(new {style = "text-align: left;font-weight: bold"});
-                                            columns.Bound(f => f.TotalInvKg).Title("Tồn kho(kg)").Width(70)
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
-                                            columns.Bound(f => f.ProductWeight).Title("TL phoi(g/pcs)").Width(65)
-                                                .Format("{0:n3}")
-                                                .HtmlAttributes(new {style = "text-align: right;"});
+                                                   .HeaderTemplate("Material Code")
+                                                   .HtmlAttributes(new {style = "text-align: left;font-weight: bold"});
+                                            columns.Bound(f => f.TotalInvKg).Title("Inv(kg)").Width(70)
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                            columns.Bound(f => f.ProductWeight).Title("Workpiece Weight(g/pcs)").Width(65)
+                                                   .Format("{0:n3}")
+                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                             columns.Bound(f => f.RequireInYearKg).Width(70)
-                                                .HeaderTemplate("Yêu cầu (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new {style = "text-align: right;"});
+                                                   .HeaderTemplate("Required(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new {style = "text-align: right;"});
                                             columns.Bound(f => f.RequireInMonthKg).Width(70)
-                                                .HeaderTemplate("Đã duyệt (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Approved(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                                             columns.Bound(f => f.RequireByMonthKg).Width(70)
-                                                .HeaderTemplate("Chưa duyệt (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
-
+                                                   .HeaderTemplate("Not Approve(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.TotalRequireKg).Width(70)
-                                                .HeaderTemplate("Tổng YC (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Total Required(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                                             columns.Bound(f => f.OnPoKg).Width(70)
-                                                .HeaderTemplate("Đã đặt (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("Ordered(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.RequirePoKg).Width(70)
-                                                .HeaderTemplate("Cần đặt (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("Order Required(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.RequirePoKg).Width(70)
-                                                .HeaderTemplate("Cần đặt (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
-                                            columns.Bound(f => f.ForecastInMonth).Width(70)
-                                                .HeaderTemplate("TB 3T SD (kg)")
-                                                .Format("{0:n2}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Order Required(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
+                                            columns.Bound(f => f.ForecastInMonth).Width(70).Title("Avg 3M Used(kg)")
+                                                   .Format("{0:n2}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                                             
                                         })
-                                        .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                         .ClientEvents(e => e.OnError("grid_OnError"))
                                         .ToHtmlString()
                                     );
 
-                                items.Add().Text("Công cụ").Content(
+                                items.Add().Text("Tools").Content(
                                     Html.Telerik().Grid<ExpectedProductionMaterialPlanModel>()
                                         .Name("gridOrderTool_<#= OrderDetailId #>")
                                         .DataKeys(key => key.Add(f => f.MaterialId).RouteKey("materialId"))
@@ -504,51 +501,50 @@
                                         )
                                         .Columns(columns => {
                                             columns.Bound(f => f.MaterialName).Width(150)
-                                                .HeaderTemplate("Loại công cụ")
-                                                .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
+                                                   .HeaderTemplate("Tool Type")
+                                                   .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
                                             columns.Bound(f => f.MaterialCode)
-                                                .HeaderTemplate("Mã công cụ")
-                                                .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
-                                            columns.Bound(f => f.TotalInv).Title("Tồn kho").Width(70)
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Tool Code")
+                                                   .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
+                                            columns.Bound(f => f.TotalInv).Title("Inv").Width(70)
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                                             columns.Bound(f => f.RequireInYear).Width(70)
-                                                .HeaderTemplate("Yêu cầu")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("Required")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.RequireInMonth).Width(70)
-                                                .HeaderTemplate("Đã duyệt")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Approved")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                                             columns.Bound(f => f.RequireByMonth).Width(70)
-                                                .HeaderTemplate("Chưa duyệt")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
-
+                                                   .HeaderTemplate("Not Approve")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.TotalRequire).Width(70)
-                                                .HeaderTemplate("Tổng YC")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Total Require")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
                                             columns.Bound(f => f.OnPoKg).Width(70)
-                                                .HeaderTemplate("Đã đặt")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("Ordered")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.RequirePoKg).Width(70)
-                                                .HeaderTemplate("Cần đặt")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;" });
+                                                   .HeaderTemplate("Order Required")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;" });
                                             columns.Bound(f => f.ForecastInMonth).Width(70)
-                                                .HeaderTemplate("TB 3T SD")
-                                                .Format("{0:n1}")
-                                                .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
+                                                   .HeaderTemplate("Avg 3M Used")
+                                                   .Format("{0:n1}")
+                                                   .HtmlAttributes(new { style = "text-align: right;border-left:1px solid black;" });
 
                                         })
-                                        .Editable(editing => editing.Mode(GridEditMode.InLine))
+                                        .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                                         .ClientEvents(e => e.OnError("grid_OnError"))
                                         .ToHtmlString()
                                     );
                                 
-                                items.Add().Text("Xuất bán").Content(
+                                items.Add().Text("Release Sale").Content(
                                     Html.Telerik().Grid<ExportFormTP_KDDetailsModel>()
                                         .Name("gridExportDetail_<#= OrderDetailId #>")
                                         .DataBinding(dataDindings =>
@@ -557,22 +553,21 @@
                                                     new {area = "Sales", orderDetailId = "<#= OrderDetailId #>"}))
                                         .Columns(columns =>
                                         {
-                                            columns.Bound(f => f.TransactionCode).Title("Phiếu xuất").Width(100);
-                                            columns.Bound(f => f.ExportDate).Title("Ngày xuất").Width(100)
-                                                .Format("{0:dd/MM/yyyy}");
-                                            columns.Bound(f => f.Quality).Width(98).Title("Số lượng (PCS)")
-                                                .HtmlAttributes(new {style = "text-align: right;"})
-                                                .Format("{0:n0}");
-                                            columns.Bound(f => f.Weight).Width(98).Title("Trọng lượng (g)")
-                                                .HtmlAttributes(new {style = "text-align: right;"})
-                                                .Format("{0:n0}");
-
-                                            columns.Bound(f => f.Note).Title("Ghi chú");
+                                            columns.Bound(f => f.TransactionCode).Title("Delivery-Note").Width(100);
+                                            columns.Bound(f => f.ExportDate).Title("Order Date").Width(100)
+                                                   .Format("{0:dd/MM/yyyy}");
+                                            columns.Bound(f => f.Quality).Width(98).Title("Quantity(PCS)")
+                                                   .HtmlAttributes(new {style = "text-align: right;"})
+                                                   .Format("{0:n0}");
+                                            columns.Bound(f => f.Weight).Width(98).Title("Weight(g)")
+                                                   .HtmlAttributes(new {style = "text-align: right;"})
+                                                   .Format("{0:n0}");
+                                            columns.Bound(f => f.Note).Title("Note");
                                         })
                                         .ClientEvents(e => e.OnError("grid_OnError"))
                                         .ToHtmlString());
 
-                                items.Add().Text("Dự báo").Content(
+                                items.Add().Text("Forecast").Content(
                                     Html.Telerik().Grid<ForecastDetailModel>()
                                         .Name("gridForecastDetail_<#= OrderDetailId #>")
                                         .DataBinding(dataDindings =>
@@ -581,11 +576,11 @@
                                                     new {area = "Sales", orderDetailId = "<#= OrderDetailId #>"}))
                                         .Columns(columns =>
                                         {
-                                            columns.Bound(f => f.ForecastDate).Title("Ngày DB").Width(100)
-                                                .Format("{0:dd/MM/yyyy}");
-                                            columns.Bound(f => f.ForecastQuantity).Width(98).Title("Số lượng (PCS)")
-                                                .HtmlAttributes(new {style = "text-align: right;"})
-                                                .Format("{0:n0}");
+                                            columns.Bound(f => f.ForecastDate).Title("Forecast Date").Width(100)
+                                                   .Format("{0:dd/MM/yyyy}");
+                                            columns.Bound(f => f.ForecastQuantity).Width(98).Title("Quantity(PCS)")
+                                                   .HtmlAttributes(new {style = "text-align: right;"})
+                                                   .Format("{0:n0}");
                                         })
                                         .ClientEvents(e => e.OnError("grid_OnError"))
                                         .ToHtmlString());
@@ -594,21 +589,21 @@
                             .ToHtmlString()
                         ))
                     .Selectable()
-                    .Editable(editing => editing.Mode(GridEditMode.InLine))
+                    .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
                     .Resizable(f => f.Columns(true))
                     .ClientEvents(events => events.OnRowDataBound("gridOrderDetail_OnRowDataBound")
-                        .OnRowSelect("grid_OnRowSelect")
-                        .OnSave("gridOrderDetail_OnSave")
-                        .OnEdit("gridOrderDetail_OnEdit")
-                        .OnError("grid_OnError"))
+                                                  .OnRowSelect("grid_OnRowSelect")
+                                                  .OnSave("gridOrderDetail_OnSave")
+                                                  .OnEdit("gridOrderDetail_OnEdit")
+                                                  .OnError("grid_OnError"))
                     .ToHtmlString()
                 ))
             .Selectable()
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             .ClientEvents(events => events.OnRowSelect("grid_OnRowSelect")
-                .OnRowDataBound("grid_OnRowDataBound")
-                .OnSave("grid_OnSave")
-                .OnError("grid_OnError"))
+                                          .OnRowDataBound("grid_OnRowDataBound")
+                                          .OnSave("grid_OnSave")
+                                          .OnError("grid_OnError"))
             .Sortable()
             .Filterable()
             .Resizable(resizing => resizing.Columns(true))

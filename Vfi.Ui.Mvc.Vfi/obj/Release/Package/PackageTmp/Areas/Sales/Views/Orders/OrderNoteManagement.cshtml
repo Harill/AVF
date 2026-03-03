@@ -3,7 +3,8 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @model Vfi.Ui.Mvc.Vfi.Areas.Sales.Models.OrderModel
 @{
-    ViewBag.Title = "Quản Lý Đổi/Trả Hàng";
+    ViewBag.Title = "Returned/Exchange Management";
+    //Quản Lý Đổi/Trả Hàng
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -69,8 +70,8 @@
             var combobox = $('#Type').data('tComboBox');
             var dataSource =
             [
-                { Text: "Trả hàng", Value: "1" },
-                { Text: "Đổi hàng", Value: "2" }
+                { Text: "Returned", Value: "1" },
+                { Text: "Exchange", Value: "2" }
             ];
             combobox.dataBind(dataSource);
         }
@@ -87,7 +88,8 @@
         }
     </script>
 }
-<div class="title">Quản lý thông tin đổi/trả hàng</div>
+<div class="title">Returned/Exchange Information Management
+  @*  Quản lý thông tin đổi/trả hàng*@</div>
 <div id="pnlInvPeriod">
      <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <div class="grid_4 prefix_14">
@@ -97,9 +99,9 @@
         </div>
          
             <fieldset>
-                <legend>Tiêu chí trích lọc</legend>
-                <div class="grid_2">
-                    Loại phiếu
+                <legend>Filters</legend>
+                <div class="grid_1">
+                   Type
                 </div>
                 <div class="grid_4">
                     @{
@@ -108,15 +110,15 @@
                             //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
                             .HtmlAttributes(new {style = "width: 150px"})
                             .DropDownHtmlAttributes(new {style = "width: 250px"})
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .HighlightFirstMatch(true)
                             .AutoFill(true)
                             .ClientEvents(events => events.OnChange("Type_OnChange").OnLoad("Type_Onload"))
                             .Render();
                     }
                 </div>
-                <div class="grid_2">
-                    Tình trạng
+                <div class="grid_1">
+                    Status
                 </div>
                 <div class="grid_4">
                     @{
@@ -125,7 +127,7 @@
                             .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTransactionStatus", "Transaction", new {area = "Inv"}))
                             .HtmlAttributes(new {style = "width: 150px"})
                             .DropDownHtmlAttributes(new {style = "width: 250px"})
-                            .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                            .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                             .HighlightFirstMatch(true)
                             .AutoFill(true)
                             .ClientEvents(events => events.OnChange("Status_onChange"))
@@ -168,27 +170,26 @@
                                           .Select("SelectOrderNoteByStatus", "Orders", new {area = "Sales"}))
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.CreatedDate).Width(50).Title("Ngày trả").ReadOnly(true)
+                    columns.Bound(f => f.CreatedDate).Width(50).Title("Returned Date").ReadOnly(true)
                            .Format("{0:dd/MM/yyyy}");
 
-                    columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true).Title("Mã KH");
-                    columns.Bound(f => f.NoteNumber).Width(50).ReadOnly(true).Title("Số Phiếu");
-                    columns.Bound(f => f.InvoiceNumber).Width(50).ReadOnly(true).Title("Số Invoice");
+                    columns.Bound(f => f.CustomerCode).Width(50).ReadOnly(true).Title("Customer Code");
+                    columns.Bound(f => f.NoteNumber).Width(50).ReadOnly(true).Title("Code");
+                    columns.Bound(f => f.InvoiceNumber).Width(50).ReadOnly(true).Title("Invoice Code");
                     //columns.Bound(f => f.OrderNumber).Width(50).ReadOnly(true).Title("Số Đơn Hàng");
-                    columns.Bound(f => f.TypeName).Title("Loại").Width(50).ReadOnly(true);
-                    columns.Bound(f => f.StatusName).Title("Tình trạng").Width(50).ReadOnly(true);
-                    columns.Bound(f => f.TotalNumber).Title("Tổng SL").Width(70)
+                    columns.Bound(f => f.TypeName).Title("Type").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.StatusName).Title("Status").Width(50).ReadOnly(true);
+                    columns.Bound(f => f.TotalNumber).Title("Total Quantity").Width(70)
                            .Format("'{0:n0}")
                            .Aggregate(agg => agg.Sum())
                            .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                            .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #></div>")
                            .HtmlAttributes(new {style = "text-align:right;"})
                            .FooterHtmlAttributes(new {style = "text-align:right;"});
-                    columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true).Title("Người làm");
-
-                    columns.Bound(f => f.ModifiedDate).Width(70).ReadOnly(true).Title("Ngày làm")
+                    columns.Bound(f => f.ModifiedUser).Width(70).ReadOnly(true).Title("M-User");
+                    columns.Bound(f => f.ModifiedDate).Width(70).ReadOnly(true).Title("M-Date")
                            .Format("{0:dd/MM/yyyy HH:mm:ss}");
-                    columns.Bound(f => f.NoteId).Title("In").Width(45).ReadOnly(true)
+                    columns.Bound(f => f.NoteId).Title("Print").Width(45).ReadOnly(true)
                            .ClientTemplate("<input type='button' id='id_<#= NoteId #>' value='In' class='t-button' onclick=Print(<#= NoteId #>) />")
                            .HtmlAttributes(new {style = "text-align:center"});
                 })
@@ -197,7 +198,7 @@
                     .Name("TabStrip_<#= NoteId #>")
                     .SelectedIndex(0)
                     .Items(items =>
-                           items.Add().Text("Thông tin chi tiết").Content(
+                           items.Add().Text("Detail").Content(
 
                                Html.Telerik().Grid<OrderNoteDetailModel>()
                                    .Name("gridTransactionDetail_<#= NoteId #>")
@@ -207,14 +208,14 @@
                                    )
                                    .Columns(columns =>
                                        {
-                                           columns.Bound(f => f.ProductCode).Title("Mã SP").Width(50).ReadOnly(true);
-                                           columns.Bound(f => f.Quantity).Width(50).ReadOnly(true).Title("Số lượng")
+                                           columns.Bound(f => f.ProductCode).Title("Product Code").Width(50).ReadOnly(true);
+                                           columns.Bound(f => f.Quantity).Width(50).ReadOnly(true).Title("Quantity")
                                                   .HtmlAttributes(new {style = "text-align: right;"})
                                                   .Format("{0:n0}");
                                            //columns.Bound(f => f.Weight).ReadOnly(true).Width(50).Title("Trọng lượng")
                                            //       .HtmlAttributes(new { style = "text-align: right;" })
                                            //       .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n}', Weight) #>");
-                                           columns.Bound(f => f.Note).Width(100).Title("Ghi chú").ReadOnly(true)
+                                           columns.Bound(f => f.Note).Width(100).Title("Note").ReadOnly(true)
                                                   .HtmlAttributes(new {style = "text-align: left;"});
                                        })
                                    .ClientEvents(events => events.OnError("grid_OnError"))
@@ -224,7 +225,7 @@
                     .ToHtmlString()
                                        ))
             .Selectable()
-            .Editable(editing => editing.Mode(GridEditMode.InLine))
+            .Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.InLine))
             .ClientEvents(events => events.OnError("grid_OnError")
                                           .OnRowSelect("grid_OnRowSelect")
                                           .OnDataBinding("Grid_OnDataBinding"))

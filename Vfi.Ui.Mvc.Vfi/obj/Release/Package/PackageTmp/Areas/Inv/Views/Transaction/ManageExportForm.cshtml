@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Utilities
 @using Telerik.Web.Mvc.UI
 @{
-    ViewBag.Title = "Manage Product Form";
+    ViewBag.Title = "Entry/Release Management";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -93,14 +93,16 @@
 >
 }
 
-<div class="title">Quản lý biểu mẫu xuất nhập</div>
+<div class="title">Entry/Release-Forms Management
+    @*Quản lý biểu mẫu xuất nhập*@</div>
 
-<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Sổ lệnh</div>
+<div class="t-info-sha" style="padding-left: 15px; width: 250px; color: Maroon;">Forms Sheet</div>
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>            
-            <div class="grid_2">
-                Công đoạn
+            <legend>Filters</legend>            
+            <div class="grid_1_5">
+                Section
+@*                Công đoạn*@
             </div>
             <div class="grid_4">
                 @{
@@ -116,8 +118,8 @@
                         .Render();
                 }
             </div>
-            <div class="grid_2">
-                Tình trạng
+            <div class="grid_1_5">
+               Status
             </div>
             <div class="grid_4">
                 @{
@@ -154,7 +156,7 @@
             <div class="grid_4 prefix_1">
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridExport'); ">
                     <span class='t-icon t-insert'></span>
-                    Làm mới
+                    Find
                 </button>
             </div>
         </fieldset>
@@ -179,24 +181,24 @@
             .Columns(columns => {
                     columns.Bound(f => f.FormType).Hidden();
                     columns.Bound(f => f.TransactionCode).Width(120)
-                           .Title("Mã Giao Dịch");
+                           .Title("Transaction Code");          // Ma giao dich
                     columns.Bound(f => f.WarehouseName).Width(150)
-                           .Title("Công đoạn");
+                           .Title("Section");               // cong doan
                     columns.Bound(f => f.ReportDate).Width(85)
                            .Format("{0:dd/MM/yyyy}")
-                           .Title("Ngày báo cáo");
-                    columns.Bound(f => f.TotalQuality).Title("Tổng SL").Width(80)
-                            .Format("{0:n0}")
-                            .HtmlAttributes(new { style = "text-align:right;" });
+                           .Title("Report Date");
+                    columns.Bound(f => f.TotalQuality).Title("Total Quantity").Width(100)
+                           .Format("{0:n0}")
+                           .HtmlAttributes(new { style = "text-align:right;" });
                     columns.Bound(f => f.Status).Width(100)
-                            .Title("Tình trạng");
+                           .Title("Status");
                     columns.Bound(f => f.Note)
-                           .Title("Ghi Chú");
-                    columns.Bound(f => f.TransactionId).Title("In").Width(50)
+                           .Title("Note");
+                    columns.Bound(f => f.TransactionId).Title("Print").Width(70)
                            .ClientTemplate("<input type='button' id='id_<#= TransactionId #>' value='In' ftype='<#= FormType #>' class='t-button' onclick=PrintForm(<#= TransactionId #>) />")
                            .HtmlAttributes(new { style = "text-align:center" });
-                    columns.Bound(f => f.ModifiedUser).Title("Người làm").Width(85);
-                    columns.Bound(f => f.ModidifiedDate).Title("Ngày làm").Width(85)
+                    columns.Bound(f => f.ModifiedUser).Title("M-User").Width(105);
+                    columns.Bound(f => f.ModidifiedDate).Title("M-Date").Width(105)
                            .Format("{0:dd/MM/yyyy HH:mm}");
                 })
             .DetailView(details => details.ClientTemplate(
@@ -204,7 +206,7 @@
                     .Name("TabStrip_<#= TransactionId #>")
                     .SelectedIndex(0)
                     .Items(items => {
-                               items.Add().Text("Thông tin").Content(
+                               items.Add().Text("Information").Content(
                                   Html.Telerik().Grid<ManageImportExportDetailModel>()
                                   .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
                                   .Name("gridTransactionInfo_<#= TransactionId #>")
@@ -216,24 +218,24 @@
                                   )
                                       .Columns(columns => {
                                           //columns.Command(c => c.Edit().Text("").ButtonType(GridButtonType.Image)).Width(50);
-                                          columns.Bound(f => f.ProductCode).Width(100).Title("Sản phẩm").ReadOnly(true);
-                                          columns.Bound(f => f.Number).Width(98).Title("Số lượng (PCS)")
-                                              .HtmlAttributes(new { style = "text-align: right;" })
-                                              .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>")
-                                              .Aggregate(agg => agg.Sum())
-                                              .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                                              .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                                              .FooterHtmlAttributes(new { style = "text-align: right;" });
-                                          columns.Bound(f => f.Weight).Width(98).Title("Trọng lượng(kg)")
-                                              .HtmlAttributes(new { style = "text-align: right;" })
-                                              .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #>")
-                                              .Aggregate(agg => agg.Sum())
-                                              .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                                              .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                                              .FooterHtmlAttributes(new { style = "text-align: right;" });
-                                          columns.Bound(f => f.FormType).Hidden();
-                                          columns.Bound(f => f.TransactionId).Hidden();
-                                          columns.Bound(f => f.Note).Title("Ghi chú");
+                                          columns.Bound(f => f.ProductCode).Width(100).Title("Product").ReadOnly(true);
+                                          columns.Bound(f => f.Number).Width(98).Title("Quantity(pcs)")             // So luong
+                                                 .HtmlAttributes(new { style = "text-align: right;" })
+                                                 .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>")
+                                                 .Aggregate(agg => agg.Sum())
+                                                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                                                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                                                 .FooterHtmlAttributes(new { style = "text-align: right;" });
+                                          columns.Bound(f => f.Weight).Width(98).Title("Weight(kg)")
+                                                 .HtmlAttributes(new { style = "text-align: right;" })
+                                                 .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #>")
+                                                 .Aggregate(agg => agg.Sum())
+                                                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                                                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                                                 .FooterHtmlAttributes(new { style = "text-align: right;" });
+                                          //columns.Bound(f => f.FormType).Hidden();
+                                          //columns.Bound(f => f.TransactionId).Hidden();
+                                          columns.Bound(f => f.Note).Title("Note");
                                           //    columns.Bound(f => f.BigBox).Title("Thùng Lớn");
                                           //    columns.Bound(f => f.SmallBox).Title("Thùng Nhỏ");
                                       })
@@ -244,7 +246,7 @@
                                       .ToHtmlString()
                                   );
 
-                               items.Add().Text("Thông tin chi tiết").Content(
+                               items.Add().Text("Detail Information").Content(
                                   Html.Telerik().Grid<ManageImportExportDetailModel>()
                                   .DataKeys(keys => keys.Add(f => f.DetailId).RouteKey("detailId"))
                                   .Name("gridTransactionDetail_<#= TransactionId #>")
@@ -256,15 +258,15 @@
                                   )
                                       .Columns(columns => {
                                           //columns.Command(c => c.Edit().Text("").ButtonType(GridButtonType.Image)).Width(50);
-                                          columns.Bound(f => f.LotNumber).Width(200).Title("Lô").ReadOnly(true);
-                                          columns.Bound(f => f.ProductCode).Width(100).Title("Sản phẩm").ReadOnly(true);
-                                          columns.Bound(f => f.Number).Width(98).Title("Số lượng (PCS)")
-                                              .HtmlAttributes(new { style = "text-align: right;" })
-                                              .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>")
-                                              .Aggregate(agg => agg.Sum())
-                                              .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                                              .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
-                                              .FooterHtmlAttributes(new { style = "text-align: right;" });
+                                          columns.Bound(f => f.LotNumber).Width(200).Title("Lot").ReadOnly(true);
+                                          columns.Bound(f => f.ProductCode).Width(100).Title("Product").ReadOnly(true);
+                                          columns.Bound(f => f.Number).Width(98).Title("Quantity(pcs)")
+                                                 .HtmlAttributes(new { style = "text-align: right;" })
+                                                 .ClientTemplate("<#= Number == null ? 0 : $.telerik.formatString('{0:n0}', Number) #>")
+                                                 .Aggregate(agg => agg.Sum())
+                                                 .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                                                 .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
+                                                 .FooterHtmlAttributes(new { style = "text-align: right;" });
                                           //columns.Bound(f => f.Weight).Width(98).Title("Trọng lượng(kg)")
                                           //    .HtmlAttributes(new { style = "text-align: right;" })
                                           //    .ClientTemplate("<#= Weight == null ? 0 : $.telerik.formatString('{0:n2}', Weight) #>")
@@ -272,9 +274,9 @@
                                           //    .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                                           //    .ClientFooterTemplate("<#= $.telerik.formatString('{0:n2}', Sum) #>")
                                           //    .FooterHtmlAttributes(new { style = "text-align: right;" });
-                                          columns.Bound(f => f.FormType).Hidden();
-                                          columns.Bound(f => f.TransactionId).Hidden();
-                                          columns.Bound(f => f.Note).Title("Ghi chú");
+                                          //columns.Bound(f => f.FormType).Hidden();
+                                          //columns.Bound(f => f.TransactionId).Hidden();
+                                          columns.Bound(f => f.Note).Title("Note");
                                           //    columns.Bound(f => f.BigBox).Title("Thùng Lớn");
                                           //    columns.Bound(f => f.SmallBox).Title("Thùng Nhỏ");
                                       })

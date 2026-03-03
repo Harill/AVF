@@ -1,6 +1,7 @@
 ﻿@using Vfi.Ui.Mvc.Vfi.Areas.Inv.Models
 @{
-    ViewBag.Title = "Khoá Sx";
+    ViewBag.Title = "Production Lock";
+    //Khoá Sx
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -26,14 +27,15 @@
     </script>
 }
 
-<div class="title">Quản lý khoá SX</div>
+<div class="title">Production-Lock Management
+    @*Quản lý khoá SX*@</div>
 <div id="pnlInvPeriod">
     <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px;">
     
         <fieldset>
-            <legend>Tiêu chí trích lọc</legend>
+            <legend>Filters</legend>
             <div class="grid_1">
-                Ngày
+                Date
             </div>
             <div class="grid_3">
                 @{
@@ -55,7 +57,7 @@
             </div>
               <button id="btnRefresh" class='t-button' onclick=" return RefreshGrid('gridLock'); ">
                     <span class='t-icon t-insert'></span>
-                   Làm mới
+                   Find
                 </button>
         </fieldset>
     </div>
@@ -67,7 +69,7 @@
             .DataKeys(key => key.Add(f => f.LockDate).RouteKey("lockDate"))
             .ToolBar(
                 toolbar =>
-                toolbar.Insert().Text("Thêm mới").ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
+                toolbar.Insert().Text("Add New").ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0px;" }))
             .DataBinding(
                 dataBinding => dataBinding.Ajax()
                                           .Select("SelectProductionLock", "Inv", new { fromDate = "", toDate = "" })
@@ -76,25 +78,25 @@
             .Columns(columns =>
                 {
                     columns.Command(command =>
-                                    command.Edit().ButtonType(GridButtonType.Image).UpdateText("Cập nhật").CancelText("Hủy").Text("Sửa")
+                                    command.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.Image).UpdateText("Update").CancelText("Cancel").Text("Edit")
                         ).Width(50).Title("").HtmlAttributes(new {style = "text-align:center"});
 
-                    columns.Bound(f => f.LockDate).Width(50).Title("Ngày")
+                    columns.Bound(f => f.LockDate).Width(50).Title("Date")
                         .ClientTemplate("<#= LockDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', LockDate) #>");
-                    columns.Bound(f => f.Shift1Name).Width(50).Title("Ca 1");
-                    columns.Bound(f => f.Shift2Name).Width(50).Title("Ca 2");
-                    columns.Bound(f => f.Production1Lock).Width(30).Title("Khoá SX1")
+                    columns.Bound(f => f.Shift1Name).Width(50).Title("Shift1");
+                    columns.Bound(f => f.Shift2Name).Width(50).Title("Shift2");
+                    columns.Bound(f => f.Production1Lock).Width(60).Title("Production1</br>Lock")                   //Khoá SX1
                         .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production1Lock' <#=Production1Lock? checked='checked' : '' #> />")
                         .HtmlAttributes(new { style = "text-align:center" });
-                    columns.Bound(f => f.CNCLock).Width(30).Title("Khoá Phay")
+                    columns.Bound(f => f.CNCLock).Width(50).Title("Milling</br>Lock")               // Khoa Phay
                         .ClientTemplate("<input type='checkbox' disabled='disabled' name='CNCLock' <#=CNCLock? checked='checked' : '' #> />")
                         .HtmlAttributes(new { style = "text-align:center" });
-                    columns.Bound(f => f.Production2Lock).Width(30).Title("Khoá SX2")
+                    columns.Bound(f => f.Production2Lock).Width(60).Title("Production2</br>Lock")
                         .ClientTemplate("<input type='checkbox' disabled='disabled' name='Production2Lock' <#=Production2Lock? checked='checked' : '' #> />")
                         .HtmlAttributes(new { style = "text-align:center" });
-                    columns.Bound(f => f.ModifiedDate).Width(50).Title("Ngày sửa").ReadOnly(true)
+                    columns.Bound(f => f.ModifiedDate).Width(50).Title("M-Date").ReadOnly(true)
                         .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy hh:mm}', ModifiedDate) #>");
-                    columns.Bound(f => f.ModifiedUser).Width(50).Title("Người sửa").ReadOnly(true);
+                    columns.Bound(f => f.ModifiedUser).Width(50).Title("M-Date").ReadOnly(true);
                 })
             .ClientEvents(events => events.OnDataBinding("gridLock_OnDataBinding")
                                           .OnError("grid_OnError"))

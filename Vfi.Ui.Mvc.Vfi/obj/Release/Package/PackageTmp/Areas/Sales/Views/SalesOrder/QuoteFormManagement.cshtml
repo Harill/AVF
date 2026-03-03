@@ -42,10 +42,10 @@
             var combobox = $('#Status').data('tComboBox');
             var dataSource =
             [
-                { Text: "Chưa duyệt", Value: "1" },
-                { Text: "Đã duyệt", Value: "2" },
-                { Text: "Huỷ", Value: "3" },
-                { Text: "Làm lại", Value: "4" }
+                { Text: "Not Approve", Value: "1" },
+                { Text: "Approved", Value: "2" },
+                { Text: "Cancel", Value: "3" },
+                { Text: "Again", Value: "4" }
             ];
 
             combobox.dataBind(dataSource);
@@ -66,13 +66,14 @@
     </script>
 }
 
-<div class="title">Quản lý thông tin báo giá</div>
+<div class="title">Quotation Management
+    @*Quản lý thông tin báo giá*@</div>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 920px;">
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
+        <legend>Filters</legend>
         
-        <div class="grid_4">
-            Tình trạng
+        <div class="grid_1">
+            Status
         </div>
         <div class="grid_4">
             @{
@@ -81,7 +82,7 @@
                     //.DataBinding(binding => binding.Ajax().Select("SelectStatus", "Orders"))
                     .HtmlAttributes(new {style = "width: 150px"})
                     .DropDownHtmlAttributes(new {style = "width: 250px"})
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .ClientEvents(events => events.OnChange("Status_onChange").OnLoad("Status_onload"))
@@ -111,7 +112,7 @@
                 </div>
         <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridQuotation'); ">
             <span class='t-icon t-insert'></span>
-            Làm mới
+            Find
         </button>
     </fieldset>
 </div>
@@ -132,26 +133,26 @@
             )
             .Columns(columns =>
                 {
-                    columns.Bound(f => f.QuoteNumber).Title("Lệnh bán").Width(75).ReadOnly(true);
-                    columns.Bound(f => f.CurrencyCode).Title("Tiền tệ").Width(30).ReadOnly(true);
-                    columns.Bound(f => f.ExchangeRate).Title("Tỉ giá").Width(45).ReadOnly(true);
+                    columns.Bound(f => f.QuoteNumber).Title("Sale Command").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.CurrencyCode).Title("Currency").Width(30).ReadOnly(true);
+                    columns.Bound(f => f.ExchangeRate).Title("Exchange Rate").Width(45).ReadOnly(true);
                     columns.Bound(f => f.QuoteCount).Title("Rev").Width(30).ReadOnly(true);
-                    columns.Bound(f => f.ProductCount).Title("SL báo giá").Width(75).ReadOnly(true);
-                    columns.Bound(f => f.QuoteDate).Width(70).Title("Ngày báo giá").ReadOnly(true)
+                    columns.Bound(f => f.ProductCount).Title("Quotation</br>Quantity").Width(75).ReadOnly(true);
+                    columns.Bound(f => f.QuoteDate).Width(70).Title("Quotation</br>Date").ReadOnly(true)
                            .ClientTemplate("<#= QuoteDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', QuoteDate) #>");
-                    columns.Bound(f => f.OutOfDate).Width(70).Title("Ngày hết hạn").ReadOnly(true)
+                    columns.Bound(f => f.OutOfDate).Width(70).Title("Expiration Date").ReadOnly(true)
                            .ClientTemplate("<#= OutOfDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy}', OutOfDate) #>");
-                    columns.Bound(f => f.Note).Title("Ghi Chú").Width(125).ReadOnly(true);
+                    columns.Bound(f => f.Note).Title("Note").Width(125).ReadOnly(true);
                     columns.Bound(f => f.QuoteId).Title("").Width(60).ReadOnly(true)
                            .ClientTemplate("<input type='button' id='re_<#= QuoteId #>' value='BG lại' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,4) />")
                            .HtmlAttributes(new {style = "text-align:center"});
-                    columns.Bound(f => f.QuoteId).Title("Hủy BG").Width(60).ReadOnly(true)
+                    columns.Bound(f => f.QuoteId).Title("Cancel</br>Quotation").Width(80).ReadOnly(true)
                            .ClientTemplate("<input type='button' id='del_<#= QuoteId #>' value='Hủy' class='t-button' onclick=ChangeQuoteStatus(<#= QuoteId #>,3) />")
                            .HtmlAttributes(new {style = "text-align:center"});
-                    columns.Bound(f => f.QuoteId).Title("In BG").Width(45).ReadOnly(true)
+                    columns.Bound(f => f.QuoteId).Title("Print</br>Quotation").Width(85).ReadOnly(true)
                            .ClientTemplate("<input type='button' id='print_<#= QuoteId #>' value='In' class='t-button' onclick=PrintForm(<#= QuoteId #>) />")
                            .HtmlAttributes(new {style = "text-align:center"});
-                    columns.Bound(f => f.ModifiedDate).Width(70).Title("Ngày tạo").ReadOnly(true)
+                    columns.Bound(f => f.ModifiedDate).Width(70).Title("M-Date").ReadOnly(true)
                            .ClientTemplate("<#= ModifiedDate == null ? '' : $.telerik.formatString('{0:dd/MM/yyyy HH:mm:ss}', ModifiedDate) #>");
                 })
             .DetailView(details => details.ClientTemplate(
@@ -159,7 +160,7 @@
                     .Name("TabStrip_<#= QuoteId #>")
                     .SelectedIndex(0)
                     .Items(items =>
-                           items.Add().Text("Thông tin chi tiết").Content(
+                           items.Add().Text("Detail").Content(
                                Html.Telerik().Grid<ProductQuotationModel>()
                                    .Name("gridQuotation_<#= QuoteId #>")
                                    .DataBinding(dataDindings => dataDindings.Ajax()
@@ -167,22 +168,22 @@
                                                                                     new { area = "Sales", quoteId = "<#= QuoteId #>" }))
                                    .Columns(columns =>
                                        {
-                                          columns.Bound(f => f.ProductName).Width(100).Title("Tên SP").ReadOnly(true);
-                                           columns.Bound(f => f.ProductCustomerCode).Width(100).Title("Mã SP KH");
-                                           columns.Bound(f => f.Dimension).Width(75).Title("Quy cách").ReadOnly(true);
-                                           columns.Bound(f => f.Quantity).Width(75).Title("SL đặt")
+                                           columns.Bound(f => f.ProductName).Width(100).Title("Product Name").ReadOnly(true);
+                                           columns.Bound(f => f.ProductCustomerCode).Width(100).Title("Customer's</br>Product Code");
+                                           columns.Bound(f => f.Dimension).Width(75).Title("Specification").ReadOnly(true);        //Quy cách
+                                           columns.Bound(f => f.Quantity).Width(75).Title("Quantity")
                                                   .ClientTemplate("<#= Quantity == null ? 0 : $.telerik.formatString('{0:n0}', Quantity) #>");
-                                           columns.Bound(f => f.MaterialDesign).Width(100).Title("Nguyên liệu").ReadOnly(true);
-                                           columns.Bound(f => f.ProcessingPrice).Width(75).Title("Giá gia công")
+                                           columns.Bound(f => f.MaterialDesign).Width(100).Title("Material").ReadOnly(true);
+                                           columns.Bound(f => f.ProcessingPrice).Width(75).Title("Processing Price")
                                                   .ClientTemplate("<#= ProcessingPrice == null ? 0 : $.telerik.formatString('{0:n0}', ProcessingPrice) #>");
-                                           columns.Bound(f => f.MaterialPrice).Width(75).Title("Giá NL(kg)")
+                                           columns.Bound(f => f.MaterialPrice).Width(75).Title("Material</br>Price(kg)")
                                                   .ClientTemplate("<#= MaterialPrice == null ? 0 : $.telerik.formatString('{0:n0}', MaterialPrice) #>");
-                                           columns.Bound(f => f.MaterialUnitPrice).Width(75).Title("Giá NL(pc)")
+                                           columns.Bound(f => f.MaterialUnitPrice).Width(75).Title("Material</br>Price(pc)")
                                                   .ClientTemplate("<#= MaterialUnitPrice == null ? 0 : $.telerik.formatString('{0:n2}', MaterialUnitPrice) #>");
-                                           columns.Bound(f => f.LastDiff).Width(75).Title("Điều chỉnh(+/-)");
-                                           columns.Bound(f => f.QuotationCost).Width(75).Title("Giá báo(pc)")
+                                           columns.Bound(f => f.LastDiff).Width(75).Title("Adjust(+/-)");
+                                           columns.Bound(f => f.QuotationCost).Width(75).Title("Quotation(pc)")
                                                   .ClientTemplate("<#= QuotationCost == null ? 0 : $.telerik.formatString('{0:n2}', QuotationCost) #>");
-                                           columns.Bound(f => f.Note).Width(75).Title("Ghi chú");
+                                           columns.Bound(f => f.Note).Width(75).Title("Note");
                                        })
             .ClientEvents(events => events.OnError("grid_OnError"))
                                    .ToHtmlString()))
@@ -195,7 +196,7 @@
             .Sortable()
             .Filterable()
             .ClientEvents(events => events.OnError("grid_OnError")
-                .OnDataBinding("grid_onDataBinding")
+                                          .OnDataBinding("grid_onDataBinding")
                                           .OnRowSelect("grid_OnRowSelect"))
             .Render();
     }

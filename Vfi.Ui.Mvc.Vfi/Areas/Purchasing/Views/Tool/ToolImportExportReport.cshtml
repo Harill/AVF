@@ -202,9 +202,6 @@
                     });
             }
             return false;
-
-
-
         }
 
         function printToolInvInMonth() {
@@ -607,8 +604,8 @@
             .Sortable()
             .Groupable()
             .ClientEvents(events => events.OnError("grid_OnError")
-                .OnDataBinding("gridInventory_OnDataBinding")
-                .OnDataBound("grid_OnDataBound"))
+                                          .OnDataBinding("gridInventory_OnDataBinding")
+                                          .OnDataBound("grid_OnDataBound"))
             .Render();
     }
 </div>

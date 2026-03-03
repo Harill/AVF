@@ -2,7 +2,7 @@
 @using Vfi.Ui.Mvc.Vfi.Areas.Purchasing.Models
 @using Vfi.Ui.Mvc.Vfi.Areas.Sales.Models
 @{
-    ViewBag.Title = "Thẻ kho công cụ";
+    ViewBag.Title = "Tools Inventory Card";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
@@ -31,15 +31,15 @@
     </script>
 }
 
-<div class="title">Thẻ kho công cụ</div>
+<div class="title">Tools Inventory Card</div>
 <div class="clear"></div>
 <br/>
 <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
     <fieldset>
-        <legend>Tiêu chí trích lọc</legend>
+        <legend>Filters</legend>
         <div class="grid_12">
         <div class="grid_2">
-            Sản phẩm
+            Product
         </div>
         <div class="grid_6">
              @{
@@ -48,7 +48,7 @@
                     .DataBinding(binding => binding.Ajax().Select("SelectComboBoxTool", "Material", new { area = "" }).Delay(350))
                     .HtmlAttributes(new { style = "width: 230px" })
                     .DropDownHtmlAttributes(new { style = "width: 300px" })
-                    .Filterable(f => f.FilterMode(AutoCompleteFilterMode.Contains))
+                    .Filterable(f => f.FilterMode(Telerik.Web.Mvc.UI.AutoCompleteFilterMode.Contains))
                     .HighlightFirstMatch(true)
                     .AutoFill(true)
                     .Render();
@@ -58,7 +58,7 @@
     <div class="grid_2 prefix_1">
         <button id="btnRefesh" class="t-button" onclick=" return RefreshGrids(); ">
             <span class='t-icon t-insert'></span>
-            Tìm
+            Find
         </button>
     </div>
 
@@ -74,11 +74,11 @@
                     )
                     .Columns(columns =>
                         {
-                            columns.Bound(f => f.VendorName).Width(150).Title("NCC");
-                            columns.Bound(f => f.LotNumber).Width(40).ReadOnly(true).Title("Lô");
-                            columns.Bound(f => f.UnitMeasure).Width(70).Title("ĐVT").ReadOnly(true);
+                            columns.Bound(f => f.VendorName).Width(150).Title("Supplier");
+                            columns.Bound(f => f.LotNumber).Width(40).ReadOnly(true).Title("Lot");
+                            columns.Bound(f => f.UnitMeasure).Width(70).Title("Unit Measure").ReadOnly(true);
                             columns.Bound(f => f.TotalInv).Width(70)
-                                .HeaderTemplate("Tồn kho")
+                                .HeaderTemplate("Inv")
                                 .Format("{0:n0}")
                                 .HtmlAttributes(new { style = "text-align:right" });
                         })
