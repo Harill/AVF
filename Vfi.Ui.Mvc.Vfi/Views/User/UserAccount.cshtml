@@ -43,7 +43,7 @@
     gridUser.DataKeys(keys => keys.Add(u => u.UserId).RouteKey("userId"));
     gridUser.ToolBar(
             commands =>
-            commands.Insert().ButtonType(GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }));
+            commands.Insert().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText).ImageHtmlAttributes(new { style = "margin-left:0" }));
     gridUser.DataBinding(dataBinding => dataBinding.Ajax()
                                             .Select("SelectUser", "User")
                                             .Insert("InsertUser", "User")
@@ -64,12 +64,12 @@
        // columns.Bound(u => u.Password).Width(5);
         columns.Command(commands =>
         {
-            commands.Edit().ButtonType(GridButtonType.ImageAndText);
-            commands.Delete().ButtonType(GridButtonType.ImageAndText);
+            commands.Edit().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText);
+            commands.Delete().ButtonType(Telerik.Web.Mvc.UI.GridButtonType.ImageAndText);
         }).Width(198).Title("Commands");
     });
     gridUser.ClientEvents(events => events.OnEdit("Grid_onEdit"));
-    gridUser.Editable(editing => editing.Mode(GridEditMode.PopUp).DisplayDeleteConfirmation(true));
+    gridUser.Editable(editing => editing.Mode(Telerik.Web.Mvc.UI.GridEditMode.PopUp).DisplayDeleteConfirmation(true));
     //gridUser.Pageable();
     gridUser.Sortable();
     gridUser.Render();
