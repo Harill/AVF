@@ -9,11 +9,11 @@
 
 
     <!-- grid Monthly -->
+    <script src="~/Scripts/OnLoad.js"></script>
     <script type="text/javascript">
         var startGrid = false;
-
         function gridProductInventoryForMonthly_onDataBinding(args) {
-            if (startGrid && !onLoading) {
+            if (startGrid) {
                 OnLoadingData();
                 var productCode = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
 
@@ -82,11 +82,10 @@
         }
 
         function RefreshGrid2(name) {
-            if (!onLoading) {
+                OnLoadingData();
                 startGrid = true;
                 RefreshGrid(name);
             }
-        }
 
     </script>
 }
@@ -375,8 +374,8 @@
                 .Filterable()
                 .Sortable()
                 .ClientEvents(events => events.OnError("grid_OnError")
-                                            .OnDataBinding("gridProductInventoryForMonthly_onDataBinding")
-                                            .OnDataBound("grid_OnDataBound"))
+                                              .OnDataBinding("gridProductInventoryForMonthly_onDataBinding")
+                                              .OnDataBound("grid_OnDataBound"))
                 //.Groupable()
                 .Render();
         }

@@ -13,7 +13,7 @@
 
         function grid_OnDataBinding(args) {
 
-            if (startGrid && !onLoading) {
+            if (startGrid) {
                 var materialType = $("#MaterialType").data('tComboBox').value();
                 if (materialType === "")
                     materialType = 0;
@@ -37,15 +37,49 @@
             }
         }
 
+        function grid_OnError(e) {
+            alert("Grid error");
+        }
+
+        function grid_OnError(e) {
+            alert("Grid error");
+        }
+
         function grid_OnDataBound() {
             OnLoadedData();
         }
 
         var startGrid = false;
         function RefreshGrid2(name) {
-            if (!onLoading) {
+                OnLoadingData();
                 startGrid = true;
                 RefreshGrid(name);
+               }
+        //Loading button
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
             }
         }
     </script>
@@ -54,6 +88,7 @@
         function printWorkpieceMaterial() {
             
             if (!onLoading) {
+                OnLoadingData();
                 var fromDate = $("#FromDate").data("tDatePicker").value();
                 if (fromDate === null)
                     fromDate = "";
@@ -95,7 +130,7 @@
             <button id="btnProductInvTotal" class="t-button" onclick=" return printWorkpieceMaterial(); ">
                 <span class='t-icon t-insert'></span>
                Print Report
-                <span class="loadButton"></span>
+                <span class="twoToneButton"></span>
             </button>
         </div>
         <br />
@@ -136,7 +171,7 @@
                 <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridWorkpieceMaterialModel'); ">
                     <span class='t-icon t-insert'></span>
                     Find
-                    <span class="loadButton"></span>
+                    <span class="twoToneButton"></span>
                 </button>
             </div>
 

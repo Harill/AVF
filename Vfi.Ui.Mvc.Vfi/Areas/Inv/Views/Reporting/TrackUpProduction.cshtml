@@ -9,6 +9,7 @@
 
 @section Scripts{
     <!-- grid Monthly -->
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
 
         function gridTrackUpProduct_OnDataBinding(args) {
@@ -23,7 +24,17 @@
                 });
             
         }
-        
+
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                RefreshGrid(name);
+            }
+        }
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+        function grid_OnError(e) { }
     </script>
 }
 
@@ -65,10 +76,11 @@
                     .Render();
             }
         </div>
-        <div class="grid_3">
-            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid(gridTrackUpProduct); ">
+        <div class="grid_5">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(gridTrackUpProduct); ">
                 <span class='t-icon t-insert'></span>
                 Find
+                <span class='loadButton'></span>
             </button>
         </div>
     </fieldset>
@@ -168,10 +180,9 @@
             .Reorderable(f => f.Columns(true))
             .Filterable()
             .Sortable()
-            .ClientEvents(events => events
-                                        .OnRowSelect("grid_OnRowSelect")
-                                        .OnDataBinding("gridTrackUpProduct_OnDataBinding")
-                                        .OnError("grid_OnError"))
+            .ClientEvents(events => events.OnDataBinding("gridTrackUpProduct_OnDataBinding")
+                                          .OnError("grid_OnError")
+                                          .OnDataBound("grid_OnDataBound"))
             .Groupable()
             .Render();
     }

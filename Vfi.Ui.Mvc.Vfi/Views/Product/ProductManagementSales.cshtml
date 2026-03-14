@@ -351,53 +351,61 @@
         }
 
         function PrintComparePriceList() {
-            var customer = $("#Customer").data("tComboBox").value();
-            if (customer === "")
-                customer = 0;
-            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
-            var productName = $("#ProductName").data("tAutoComplete").value();
-            var statusValue = $("#Status").data("tComboBox").value();
-            if (statusValue === "")
-                statusValue = 0;
-            $('#result').load('@Url.Action("PrintComparePriceList", "Product")',
-                {
-                    customerId: customer,
-                    productCode: productCodeName,
-                    status: statusValue,
-                    productName: productName
-                }, function() {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+            if (!onLoading) {
+                OnLoadingData();
+                var customer = $("#Customer").data("tComboBox").value();
+                if (customer === "")
+                    customer = 0;
+                var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+                var productName = $("#ProductName").data("tAutoComplete").value();
+                var statusValue = $("#Status").data("tComboBox").value();
+                if (statusValue === "")
+                    statusValue = 0;
+                $('#result').load('@Url.Action("PrintComparePriceList", "Product")',
+                    {
+                        customerId: customer,
+                        productCode: productCodeName,
+                        status: statusValue,
+                        productName: productName
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
 
         function PrintPriceList() {
-            var customer = $("#Customer").data("tComboBox").value();
-            if (customer === "")
-                customer = 0;
-            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
-            var productName = $("#ProductName").data("tAutoComplete").value();
-            var statusValue = $("#Status").data("tComboBox").value();
-            if (statusValue === "")
-                statusValue = 0;
+            if (!onLoading) {
+                OnLoadingData();
+                var customer = $("#Customer").data("tComboBox").value();
+                if (customer === "")
+                    customer = 0;
+                var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+                var productName = $("#ProductName").data("tAutoComplete").value();
+                var statusValue = $("#Status").data("tComboBox").value();
+                if (statusValue === "")
+                    statusValue = 0;
 
-            var fromDate = $("#FromDate").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
-            $('#result').load('@Url.Action("PrintPriceList", "Product")',
-                {
-                    customerId: customer,
-                    productCode: productCodeName,
-                    status: statusValue,
-                    fromDate: fromDate,
-                    productName: productName
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                var fromDate = $("#FromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                $('#result').load('@Url.Action("PrintPriceList", "Product")',
+                    {
+                        customerId: customer,
+                        productCode: productCodeName,
+                        status: statusValue,
+                        fromDate: fromDate,
+                        productName: productName
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
 
@@ -425,6 +433,33 @@
         }
         function customer_onChange() {
             RefreshGrid("gridProduct");
+        }
+
+        // loading button
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
         }
     </script>
 
@@ -465,10 +500,12 @@
     <button id="btnPrintList" class='t-button' onclick=" return PrintPriceList(); " style="width: 175px;visibility: @Model.PrintProductList">
         <span class='t-icon t-insert'></span>
         Price Summary List
+        <span class="twoToneButton"></span>
     </button>
     <button id="btnPrintComparePriceList" class='t-button' onclick=" return PrintComparePriceList(); " style="width: 175px;visibility: @Model.PrintProductList">
         <span class='t-icon t-insert'></span>
         Price Analysis List
+        <span class="twoToneButton"></span>
     </button>
 </div>
 <div id="pnlInvPeriod">

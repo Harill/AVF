@@ -31,9 +31,49 @@
         }
 
         function RefreshGrid2() {
+            OnLoadingData();
             startGrid = true;
             RefreshGrid("gridMaterial");
         }
+
+
+        function grid_OnError(e) {
+            alert("Grid error");
+        }
+        // loading button
+        //<span class="twoToneButton"></span>
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+
     </script>
 
 }
@@ -84,6 +124,7 @@
                 <button id="btnRefesh" class="t-button" onclick="return RefreshGrid2(); ">
                     <span class='t-icon t-insert'></span>
                     Find
+                    <span class="twoToneButton"></span>
                 </button>
             </div>
         </fieldset>
@@ -1019,7 +1060,8 @@
             .Sortable()
             .Groupable()
             .ClientEvents(events => events.OnError("grid_OnError")
-                .OnDataBinding("grid_OnDataBinding"))
+                                          .OnDataBinding("grid_OnDataBinding")
+                                          .OnDataBound("grid_OnDataBound"))
             .Render();
     }
     </div>

@@ -8,6 +8,12 @@
     <!-- grid Monthly -->
     <script type="text/javascript">
 
+        function grid_OnError(e) {
+            alert("Grid Error");
+        }
+
+
+        var startGrid = false;
         function grid_OnDataBinding(args) {
 
             var month = $("#Month").val();
@@ -61,7 +67,46 @@
             var monthCount = $("#MonthCount").val();
             e.target.getElementsByClassName("ForecastByMonthHeaderDetail")[0].innerText = (monthCount + " Month");
         }
+        function RefreshGrid2() {
+            OnLoadingData();
+            startGrid = true;
+            RefreshGrid("gridPlan");
+        }
 
+
+        // Loading button
+        //     <span class="twoToneButton"></span>
+
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (loading)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
     </script>
 }
 
@@ -142,10 +187,11 @@
                 See All @*Xem tất cả*@
             </label>
         </div>
-        <div class="grid_3 prefix_1">
-            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridPlan'); ">
+        <div class="grid_5 prefix_1">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridPlan'); ">
                 <span class='t-icon t-insert'></span>
                 Find
+                <span class="twoToneButton"></span>
             </button>
         </div>
     </fieldset>
@@ -163,15 +209,15 @@
             .Columns(columns => {
                 columns.Bound(f => f.Index).Title("No.").Width(45)
                        .ClientTemplate("<#= ++index #>")
-                       .HtmlAttributes(new { style = "font-weight: center" });
+                       .HtmlAttributes(new { style = "font-align: center" });
                 columns.Bound(f => f.MaterialTypeName).Title("Type").Width(60)
-                       .HtmlAttributes(new { style = "font-weight: center" });
+                       .HtmlAttributes(new { style = "font-align: center" });
                 columns.Bound(f => f.MaterialCode).Title("Customer</br>Code").Width(110)
                        .HeaderTemplate("Material<br/>Code")
                        .Aggregate(agg => agg.Count())
                        .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Count) #>")
                        .FooterHtmlAttributes(new { style = "text-align: right;" })
-                       .HtmlAttributes(new { style = "text-align: left;;font-weight: bold" });
+                       .HtmlAttributes(new { style = "text-align: left;font-weight: bold" });
                 columns.Bound(f => f.TotalInvKg)
                        .HeaderTemplate("Total<br/>Inv<br/>(kg)").Width(50)
                        .Aggregate(agg => agg.Sum())
@@ -287,7 +333,7 @@
                                    .Name("gridDetail_<#= MaterialId #>")
                                    .DataBinding(dataDindings => dataDindings.Ajax()
                                                                             .Select("SelectExpectedProductionMaterialPlan", "Reporting",
-                                                                                    new { materialId = "<#= MaterialId #>" }))
+                                                                                    new { materialId = "<#=MaterialId#>" }))
                                    .Columns(columns => {
                                        columns.Bound(f => f.ProductCode).Width(100)
                                               .HeaderTemplate("Product</br>Code");
@@ -363,8 +409,8 @@
             .ClientEvents(events => events
                                         .OnDataBinding("grid_OnDataBinding")
                                         .OnRowDataBound("grid_OnRowDataBound")
-                                        .OnRowSelect("grid_OnRowSelect")
-                                        .OnError("grid_OnError"))
+                                        .OnError("grid_OnError")
+                                        .OnDataBound("grid_OnDataBound"))
             .Groupable()
             .Render();
     }

@@ -11,6 +11,9 @@
             if (e.dataItem.MoreDay === 0)
                 e.row.style.backgroundColor = "#F4FA58";
         }
+        function grid_OnError(e) {
+            alert("Grid error");
+        }
 
         var startGrid = false;
 
@@ -59,8 +62,46 @@
 
         //}
         function RefreshGrid2() {
-            startGrid = true;
-            RefreshGrid("gridPlan");
+                OnLoadingData();
+                startGrid = true;
+                RefreshGrid("gridPlan");
+        }
+
+        function grid_OnError(e) {
+            alert("Grid error");
+        }
+        // Loading button
+        //     <span class="twoToneButton"></span>
+
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
         }
 
     </script>
@@ -106,10 +147,11 @@
                     .Render();
             }
         </div>
-        <div class="grid_3 prefix_1">
+        <div class="grid_2_5 prefix_1">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-insert'></span>
                 Find
+                <span class="twoToneButton"></span>
             </button>
         </div>
     </fieldset>
@@ -377,9 +419,11 @@
                                         .OnDataBinding("grid_OnDataBinding")
                                         .OnRowDataBound("grid_OnRowDataBound")
                                         .OnRowSelect("grid_OnRowSelect")
-                                        .OnError("grid_OnError"))
+                                        .OnError("grid_OnError")
+                                        .OnDataBound("grid_OnDataBound"))
             .Groupable()
             .Render();
     }
+    
     @*@{ Html.Telerik().ScriptRegistrar().OnDocumentReady("applyFrozenColumns();"); }*@
 </div>

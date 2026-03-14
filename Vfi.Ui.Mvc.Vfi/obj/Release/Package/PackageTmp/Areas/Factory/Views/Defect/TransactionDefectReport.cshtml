@@ -43,6 +43,7 @@
 
         var startGrid = false;
         function RefreshGrid2() {
+            OnLoadingData();
             startGrid = true;
             RefreshGrid("grid");
         }
@@ -51,37 +52,75 @@
     <!-- report -->
     <script type="text/javascript">
         function printProductionDefect() {
+            if (!onLoading) {
+                OnLoadingData();
+                var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
 
-            var productCodeNameForMonthly = $("#ProductCodeNameForMonthly").data("tAutoComplete").value();
+                var customerId = $("#CustomerForMonthly").data('tComboBox').value();
+                if (customerId === "")
+                    customerId = 0;
 
-            var customerId = $("#CustomerForMonthly").data('tComboBox').value();
-            if (customerId === "")
-                customerId = 0;
-
-            var fromDate = $("#FromDate").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else {
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
-            }
-            var toDate = $("#ToDate").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else {
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
-            }
-            $('#result').load('@Url.Action("PrintDefectReport", "Defect")',
-            {
-                fromDate: fromDate,
-                toDate: toDate,
-                customerId: customerId,
-                productCode: productCodeNameForMonthly,
-            }, function (data) {
-                var window = $('#windowReport').data('tWindow');
-                window.open();
-            });
+                var fromDate = $("#FromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else {
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                }
+                var toDate = $("#ToDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy 23:59:59}', toDate);
+                }
+                $('#result').load('@Url.Action("PrintDefectReport", "Defect")',
+                {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                    customerId: customerId,
+                    productCode: productCodeNameForMonthly,
+                }, function (data) {
+                    OnLoadedData();
+                    var window = $('#windowReport').data('tWindow');
+                    window.open();
+                })
+            };
             return false;
         }
+
+        function grid_OnError(e) {
+            alert("Grid error");
+        }
+        // Loading button
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
 
     </script>
 }
@@ -97,6 +136,7 @@
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printProductionDefect(); ">
                     <span class='t-icon t-insert'></span>
                     Print Report
+                   <span class="twoToneButton"></span>
                 </button>
             </div>
         
@@ -156,6 +196,7 @@
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2(); ">
                 <span class='t-icon t-insert'></span>
                 Find
+                <span class="twoToneButton"></span>
             </button>
             </div>
            
@@ -222,7 +263,8 @@
                 .Sortable()
                 .ClientEvents(events => events
                                             .OnDataBinding("grid_OnDataBinding")
-                                            .OnError("grid_OnError"))
+                                            .OnError("grid_OnError")
+                                            .OnDataBound("grid_OnDataBound"))
                 .Groupable()
                 .Render();
         }

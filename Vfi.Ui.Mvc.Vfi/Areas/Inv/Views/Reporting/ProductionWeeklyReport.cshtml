@@ -8,6 +8,7 @@
 
 @section Scripts{
 
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
 
     <!-- grid Monthly -->
     <script type="text/javascript">
@@ -45,52 +46,68 @@
         }
         var index = 0;
 
-        function gridProductionSX1Report_onDataBound() {
-            //var sum = 0;
-            //$("span[name='sumMonthly']").each(function () {
-            //    sum = sum + parseInt($(this).text());
-            //});
-            //$("#sumMonthly").text(sum);
+        //function gridProductionSX1Report_onDataBound() {
+        //    //var sum = 0;
+        //    //$("span[name='sumMonthly']").each(function () {
+        //    //    sum = sum + parseInt($(this).text());
+        //    //});
+        //    //$("#sumMonthly").text(sum);
 
-            //for (var i = 7; i <= 18; i++) {
-            //    var total = 0;
-            //    $("span[name='cot" + i + "']").each(function () {
-            //        total = total + parseInt($(this).text());
-            //    });
-            //    $("#tongcot" + i).text(total);
-            //}
-        }
+        //    //for (var i = 7; i <= 18; i++) {
+        //    //    var total = 0;
+        //    //    $("span[name='cot" + i + "']").each(function () {
+        //    //        total = total + parseInt($(this).text());
+        //    //    });
+        //    //    $("#tongcot" + i).text(total);
+        //    //}
+        //}
     </script>
     <!-- report -->
     <script type="text/javascript">
         function printProductionSx1() {
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
 
-            var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
-            if (monthlyDate === null)
-                monthlyDate = "";
-            else
-                monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
+                var remainingOrder = $("input[name='chkRemainingOrder']").attr('checked');
+                var nextOder = $("input[name='chkNextOder']").attr('checked');
+                //var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
+                //var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
 
-            var remainingOrder = $("input[name='chkRemainingOrder']").attr('checked');
-            var nextOder = $("input[name='chkNextOder']").attr('checked');
-            //var DHTK = $("input[name='chkDonHangThangKe']").attr('checked');
-            //var DHCL = $("input[name='chkDonHangConLai']").attr('checked');
-
-            $('#result').load('@Url.Action("PrintProductionWeeklyReport", "Inv")',
-                {
-                    //chkRemainingOrder: remainingOrder,
-                    //chkNextOder: nextOder,
-                    //chkDonHangThangKe: true,
-                    //chkDonHangConLai: true,
-                    monthlyDate: monthlyDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                $('#result').load('@Url.Action("PrintProductionWeeklyReport", "Inv")',
+                    {
+                        //chkRemainingOrder: remainingOrder,
+                        //chkNextOder: nextOder,
+                        //chkDonHangThangKe: true,
+                        //chkDonHangConLai: true,
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
 
+        function RefreshGrid2(name) {
+            if (!onLoading) {
+                OnLoadingData();
+                RefreshGrid(name);
+            }
+        }
+         
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
 
+        function grid_OnError(e) {
+            alert("Grid Error");
+        }
     </script>
 }
 
@@ -110,6 +127,7 @@
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printProductionSx1(); ">
                     <span class='t-icon t-insert'></span>
                    Print Report
+                     <span class='loadButton'></span>
                 </button>
             </div>
         <br />
@@ -158,9 +176,10 @@
                 }
             </div>
             <div class="grid_4 prefix_1">
-            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridProductionSX1Report'); ">
+            <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridProductionSX1Report'); ">
                 <span class='t-icon t-insert'></span>
                 Find
+                <span class='loadButton'></span>
             </button>
             </div>
 
@@ -338,8 +357,9 @@
                 .Sortable()
                 .ClientEvents(events => events
                                             .OnDataBinding("gridProductionSX1Report_onDataBinding")
-                                            .OnDataBound("gridProductionSX1Report_onDataBound")
-                                            .OnError("grid_OnError"))
+                                            //.OnDataBound("gridProductionSX1Report_onDataBound")
+                                            .OnError("grid_OnError")
+                                            .OnDataBound("grid_OnDataBound"))
                 .Groupable()
                 .Render();
         }

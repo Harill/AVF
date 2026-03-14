@@ -5,8 +5,8 @@ function OnLoadingData() {
         var loadings = document.querySelectorAll('.loadButton');
         for (var i = 0; i < loadings.length; i++) {
             var loading = loadings[i];
-            loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
-            loading.classList.add('loading');
+            loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (loading...)";
+            loading.classList.contains('loading');
         }
     }
 }

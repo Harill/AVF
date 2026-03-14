@@ -209,8 +209,7 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
             var model = new List<UserModel>();
             using (var vfi = new tammaContext()) {
                 model = (from x in vfi.Users
-                         //where x.Active.Value                           // 06/03/2026
-                        where x.Active == true                          //add 06/03/2026
+                         where x.Active.Value                       
                         orderby x.Username
                         select new UserModel { 
                             UserId =  x.UserId,
@@ -244,11 +243,9 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 // check if exist user account
                 if (result != null)
                     ModelState.AddModelError("Username", "Exist Username");
-                //else if (ModelState.IsValid) {                    // 06/03/2026
-                else {                                                      // add 06/03/2026
+                else if (ModelState.IsValid) {                    // 06/03/2026
                     //The model is valid - insert the user.
-                    //var r = _userService.CreateNewUser(userModel);                // 06/03/2026
-                    _userService.CreateNewUser(userModel);                              // add 06/03/2026
+                    var r = _userService.CreateNewUser(userModel);                // 06/03/2026
                     _unitOfWork.SaveChanges();
                 }
             }
@@ -272,7 +269,6 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
                 if (ModelState.IsValid) {
                     //The model is valid - edit the user.
                     _userService.SaveUser(userModel);                 
-                    _unitOfWork.SaveChanges();                               //add 06/03/2026
                 }
             }
             else if (ModelState.IsValid == false) {
@@ -286,11 +282,10 @@ namespace Vfi.Ui.Mvc.Vfi.Controllers.Authorization {
         [GridAction]
         public ActionResult DeleteUser(int userId) {
             var user = _userService.GetUserById(userId);
-            if (user == null)
-                return HttpNotFound();
+            
             try {
                 _userService.DeleteUser(userId);
-                _unitOfWork.SaveChanges();
+
             }
             catch (Exception) {
                 throw;

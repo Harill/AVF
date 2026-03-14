@@ -68,8 +68,8 @@
             var combobox = $('#Active').data('tComboBox');
             var dataSource =
             [
-                { Text: "Chưa duyệt", Value: "0" },
-                { Text: "Đã duyệt", Value: "1" }
+                { Text: "Not Approve", Value: "0" },
+                { Text: "Approved", Value: "1" }
             ];
 
             combobox.dataBind(dataSource);
@@ -79,9 +79,9 @@
             var combobox = $('#Status').data('tComboBox');
             var dataSource =
             [
-                { Text: "Chưa giao", Value: "1" },
-                { Text: "Đã giao", Value: "2" },
-                { Text: "Huỷ", Value: "3" }
+                { Text: "Haven't Deliver", Value: "1" },
+                { Text: "Delivered", Value: "2" },
+                { Text: "Cancel", Value: "3" }
             ];
 
             combobox.dataBind(dataSource);

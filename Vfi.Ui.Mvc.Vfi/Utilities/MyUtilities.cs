@@ -1857,10 +1857,12 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 switch (status) {
                     case (int)InquiryEnum.Pending:
                     case (int)InquiryEnum.Approved:
-                        name = "Chưa đặt";
+                        name = "Haven't Order";
+                        //name = "Chưa đặt";
                         break;
                     case (int)InquiryEnum.MakePo:
-                        name = "Đã đặt";
+                        name = "Ordered";
+                        //name = "Đã đặt";
                         break;
                 }
                 return name;
@@ -1870,16 +1872,20 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 string name = "";
                 switch (status) {
                     case (int)InquiryEnum.Pending:
-                        name = "Chờ duyệt";
+                        name = "Pending";
+                        //name = "Chờ duyệt";
                         break;
                     case (int)InquiryEnum.Approved:
-                        name = "Đã duyệt";
+                        name = "Approved";
+                        //name = "Đã duyệt";
                         break;
                     case (int)InquiryEnum.MakePo:
-                        name = "Đã có đơn mua";
+                        name = "Had PO";
+                        //name = "Đã có đơn mua";
                         break;
                     case (int)InquiryEnum.Cancel:
-                        name = "Hủy";
+                        name = "Cancel";
+                        //name = "Hủy";
                         break;
 
                 }
@@ -1907,12 +1913,13 @@ namespace Vfi.Ui.Mvc.Vfi.Utilities {
                 string name = "";
                 switch (eoi) {
                     case (int)EoILot.Import:
-                        name = "Nhập";
+                        name = "Import";
+                        //name = "Nhập";
                         if (type == 2)
-                            name += " thêm";
+                            name += " Addition";
                         break;
                     case (int)EoILot.Export:
-                        name = "Xuất ";// + Tool.GetTypeText(type);
+                        name = "Export";// + Tool.GetTypeText(type);
                         //name += " hủy";
                         break;
                 }

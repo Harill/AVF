@@ -44,6 +44,48 @@
             else if (dataItem.ProductionOrder.AlertColor === 2)
                 e.row.childNodes[1].style.backgroundColor = "#F4FA58";
         }
+
+
+        // Loading button
+        //   
+        function RefreshGrid2() {
+            OnLoadingData();
+            startGrid = true;
+            RefreshGrid("gridProductionSX1Report");
+        }
+
+        function grid_OnError(e) { }
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (loading...)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
     </script>
     }
 
@@ -55,7 +97,7 @@
         <div class="t-info-sha" style="padding-left: 15px; padding-right: 15px; width: 1000px;">
             <fieldset>
                 <legend>Filters</legend>
-                <div class="grid_2">
+                <div class="grid_1_5">
                     @Html.Label("Product")
                     @*@Html.LabelFor(f => f.ProductCodeName)*@
                 </div>
@@ -81,9 +123,10 @@
                     }
                 </div>
                 <div class="grid_3">
-                    <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridProductionSX1Report'); ">
+                    <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridProductionSX1Report'); ">
                         <span class='t-icon t-refresh'></span>
                         Find
+                        <span class="twoToneButton"></span>
                     </button>
                 </div>  
                 <div class="grid_2">
@@ -219,7 +262,8 @@
                     .ClientEvents(events => events
                                                 .OnDataBinding("grid_OnDataBinding")
                                                 .OnRowDataBound("grid_OnRowDataBound")
-                                                .OnError("grid_OnError"))
+                                                .OnError("grid_OnError")
+                                                .OnDataBound("grid_OnDataBound"))
                     .Groupable()
                     .Render();
             }

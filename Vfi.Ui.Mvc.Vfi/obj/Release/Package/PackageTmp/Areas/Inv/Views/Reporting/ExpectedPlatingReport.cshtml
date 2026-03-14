@@ -33,17 +33,60 @@
     </script>
     <!-- report -->
     <script type="text/javascript">
-        function printExpecedPlatingReport() {
 
-            $('#result').load('@Url.Action("PrintExpecedPlatingReport", "Reporting")',
-                {
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+        function printExpecedPlatingReport() {
+            if (!onLoading) {
+                OnLoadingData();
+                $('#result').load('@Url.Action("PrintExpecedPlatingReport", "Reporting")',
+                    {
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
 
+
+        // Loading button
+        function grid_OnError(e) { }
+
+        function grid_OnDataBound() {
+            OnLoadedData();
+        }
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (loading...)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
+
+        function RefreshGrid2() {
+            OnLoadingData();
+            startGrid = true;
+            RefreshGrid("gridExpectedSales");
+        }
     </script>
 }
 
@@ -56,11 +99,11 @@
 
 
         <div class="clear"></div>
-        <div class="grid_4 prefix_15">
-
+        <div class="grid_7 prefix_15">
             <button id="btnImportExportProduction" class="t-button" onclick=" return printExpecedPlatingReport(); ">
                 <span class='t-icon t-insert'></span>
                 Print Report
+                <span class="twoToneButton"></span>
             </button>
         </div>
         <br />
@@ -108,10 +151,11 @@
                             .Render();
                     }
                 </div>
-            <div class="grid_3 prefix_1">
-                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridExpectedSales'); ">
+            <div class="grid_5 prefix_1">
+                <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('gridExpectedSales'); ">
                     <span class='t-icon t-insert'></span>
                    Find
+                    <span class="twoToneButton"></span>
                 </button>
             </div>
         </fieldset>
@@ -195,7 +239,9 @@
                 .Reorderable(f => f.Columns(true))
                 .Filterable()
                 .Sortable()
-                .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding").OnError("grid_OnError"))
+                .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
+                                              .OnError("grid_OnError")
+                                              .OnDataBound("grid_OnDataBound"))
                 .Groupable()
                 .Render();
         }

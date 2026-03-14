@@ -11,7 +11,7 @@
 
     <!-- grid Monthly -->
     <script type="text/javascript">
-
+        function grid_OnError(e) { }
         function gridProductionSX1Report_onDataBinding(args) {
 
             if (!onLoading) {
@@ -449,7 +449,7 @@
                         columns.Bound(f => f.Shifts[1].DefectQuantity).Width(60)
                                .HeaderTemplate("<strong>Scrap</br>Shift2</br>(pcs)</strong>")                   //PP</br>ca 2</br>(pcs)
                                .Aggregate(agg => agg.Sum())
-                              .Format("{0:n0}")
+                               .Format("{0:n0}")
                                .ClientGroupFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .ClientFooterTemplate("<#= $.telerik.formatString('{0:n0}', Sum) #>")
                                .HtmlAttributes(new { style = "text-align: right;" });

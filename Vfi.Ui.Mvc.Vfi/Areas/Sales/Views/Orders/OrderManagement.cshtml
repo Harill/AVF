@@ -7,6 +7,7 @@
 }
 
 @section Scripts{
+    <script src="@Url.Content("~/Scripts/OnLoad.js")"></script>
     <script type="text/javascript">
 
         function grid_onDataBinding(args) {
@@ -111,21 +112,28 @@
         }
 
         function PrintOrderPlan() {
+            if (!onLoading) {
+                OnLoadingData();
+                var month = $('#Month').data('tComboBox').value();
+                var year = $('#Year').data('tAutoComplete').text();
 
-            var month = $('#Month').data('tComboBox').value();
-            var year = $('#Year').data('tAutoComplete').text();
-
-            $('#result').load('@Url.Action("PrintOrderPlan", "Inv", new {area = "Inv"})',
-                {
-                    month: month,
-                    year: year
-                },
-                function() {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                $('#result').load('@Url.Action("PrintOrderPlan", "Inv", new {area = "Inv"})',
+                    {
+                        month: month,
+                        year: year
+                    },
+                    function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
+
+
+        function grid_OnError(e) { }
+
 
         function Grid_OnRowDataBound(e) {
             //var dataItem = e.dataItem;
@@ -221,6 +229,7 @@
             <button id="btnPrintOrderPlan" class='t-button' onclick="return PrintOrderPlan();" style="width: 175px">
                 <span class='t-icon t-insert'></span>
                 Print Delivery-Schedule
+                <span class="loadButton"></span>
                @* In Lịch Giao Hàng*@
             </button>
         </div>
@@ -555,7 +564,6 @@
                 .Sortable()
                 .Filterable()
                 .ClientEvents(events => events.OnDataBinding("grid_onDataBinding")
-                                              .OnRowSelect("grid_OnRowSelect")
                                               .OnRowDataBound("Grid_OnRowDataBound")
                                               .OnError("grid_OnError"))
                 .Render();

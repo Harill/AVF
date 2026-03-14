@@ -161,6 +161,14 @@ namespace Vfi.Ui.Mvc.Vfi.Areas.Factory.Controllers {
             return View();
         }
 
+        public ActionResult MachineHistory() {
+            if (!Request.IsAuthenticated) {
+                return RedirectToAction("Index", "Home", new { area = "" });
+            }
+            ViewData = GetPageConfigData();
+            return View();
+        }
+
         public ActionResult ProductionMachineDiagram() {
             if (!Request.IsAuthenticated) {
                 return RedirectToAction("Index", "Home", new { area = "" });

@@ -36,9 +36,11 @@
                 combobox.value = "1";
             else combobox.value(new Date().getMonth() + 1);
         }
-        
+        var startGrid = false;
         function materialTypeName_onChange() {
-            RefreshGrid("gridMaterialInventory");
+            OnLoadingData();
+            startGrid = true;
+            RefreshGrid("gridMaterialDaily");
         }
 
         function autoComplete_onDataBinding(args) {
@@ -50,14 +52,13 @@
             args.data = $.extend({}, args.data, { materialTypeId: materialTypeId });
         }
 
-        //
 
         // grid
 
         function gridMaterialInventory_onDataBinding(args) {
 
             var materialTypeId = $("#MaterialTypeName").data('tDropDownList').value();
-            if (materialTypeId === "")
+            if (!materialTypeId)
                 materialTypeId = 0;
            
             var materialName = $("#MaterialCodeName").data("tAutoComplete").value();
@@ -79,24 +80,59 @@
 
     <!-- report -->
     <script type="text/javascript">
-        
+        function grid_OnError(e) {
+            alert("Grid Error");
+        }
+
         function print() {
-            var toDate = $("#toDate").data("tDatePicker").value();
-            if (toDate === null)
-                toDate = "";
-            else {
-                toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
-            }
-            $('#result').load('@Url.Action("PrintMaterialDaily", "Reporting")',
-                {
-                    date: toDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+            if (!onLoading) {
+                OnLoadingData();
+                var toDate = $("#toDate").data("tDatePicker").value();
+                if (toDate === null)
+                    toDate = "";
+                else {
+                    toDate = $.telerik.formatString('{0:dd/MM/yyyy}', toDate);
+                }
+                $('#result').load('@Url.Action("PrintMaterialDaily", "Reporting")',
+                    {
+                        date: toDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
 
+
+        // Loading button
+        //     <span class="twoToneButton"></span>
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
     </script>
 
 }
@@ -159,6 +195,7 @@
                     <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid('gridMaterialDaily'); ">
                         <span class='t-icon t-insert'></span>
                         Find
+                        <span class="twoToneButton"></span>
                     </button>
                 </div>
                 
@@ -166,6 +203,7 @@
                     <button id="btnMaterialInv" class="t-button" onclick=" return print(); ">
                         <span class='t-icon t-insert'></span>
                         Print Report
+                         <span class="twoToneButton"></span>
                     </button>
                 </div>
             </fieldset>
@@ -191,7 +229,6 @@
                                    .HeaderTemplate("Supplier ");                                                     //Nhà Cung Cấp
                             columns.Bound(f => f.MaterialName).Width(100)
                                    .HeaderTemplate("<strong>Material Name</strong>")
-                                   .HtmlAttributes(new { style = "text-align: center;" })
                                    .Aggregate(agg => agg.Count())
                                    .ClientGroupFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
                                    .ClientFooterTemplate("<div style='text-align: left; width: 100%;'><#= $.telerik.formatString('{0:n0}', Count) #></div>")
@@ -322,9 +359,9 @@
                     .Reorderable(f => f.Columns(true))
                     .Filterable()
                     .Sortable()
-                    .Groupable()
                     .ClientEvents(events => events.OnError("grid_OnError")
-                        .OnDataBinding("gridMaterialInventory_onDataBinding"))
+                                                  .OnDataBinding("gridMaterialInventory_onDataBinding")
+                                                  .OnDataBound("OnLoadedData"))
                     .Render();
             }
         </div>

@@ -11,7 +11,7 @@
         var index = 0;
         function grid_OnDataBinding(e) {
 
-            if (startGrid && !onLoading) {
+            if (startGrid) {
                 OnLoadingData();
                 var productCode = $("#ProductCode").data("tAutoComplete").value();
 
@@ -88,13 +88,39 @@
         var startGrid = false;
         function RefreshGrid2(name) {
             if (!onLoading) {
+                OnLoadingData();
                 startGrid = true;
                 RefreshGrid(name);
             }
         }
 
-        if (!onLoading) {
-            OnLoadingData();
+        function grid_OnError(e) {""}
+
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (loading...)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
         }
     </script>
 }
@@ -154,18 +180,18 @@
         </div>
         <div class="grid_3">
         </div>
-        <div class="grid_3">
+        <div class="grid_5">
             <button id="btnRefesh" class="t-button" onclick=" return RefreshGrid2('grid'); ">
                 <span class='t-icon t-insert'></span>
                 Find    
-		        <span class="loadButton"></span>
+		         <span class="twoToneButton"></span>
             </button>
         </div>
-        <div class="grid_3">
+        <div class="grid_6">
             <button id="btnProductInvTotal2" class="t-button" onclick=" return PrintExpectedProduction2Plan(); ">
                 <span class='t-icon t-insert'></span>
                 Print Report
-		        <span class="loadButton"></span>
+		        <span class="twoToneButton"></span>
             </button>
         </div>
 
@@ -328,8 +354,8 @@
             .Filterable()
             .Sortable()
             .ClientEvents(events => events.OnError("grid_OnError")
-                                            .OnDataBound("grid_OnDataBound")
-                                            .OnRowDataBound("grid_OnRowDataBound")
+                                          .OnDataBound("grid_OnDataBound")
+                                          .OnRowDataBound("grid_OnRowDataBound")
                                           .OnDataBinding("grid_OnDataBinding"))
             .Groupable()
             .Render();

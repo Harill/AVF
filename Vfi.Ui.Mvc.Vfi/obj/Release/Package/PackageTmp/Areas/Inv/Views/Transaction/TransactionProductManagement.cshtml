@@ -5,6 +5,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @section Scripts{
+    <script scr="@Url.Content("~/Scripts/OnLoad.js")"> </script>
+
     <script type="text/javascript">
         function transactionStatus_onChange() {
             RefreshGrid("gridTransaction");
@@ -118,6 +120,7 @@
             } else {
             }
         }
+
     </script>
 
 }

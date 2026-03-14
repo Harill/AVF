@@ -7,7 +7,9 @@
 
 @section Scripts{
     <!-- grid Monthly -->
-    <script type="text/javascript">
+    <script src="@Url.Content("~/Scripts/OnLoad.js")"></script>
+
+    <script>
 
         function grid_OnDataBinding(args) {
             if (startGrid && !onLoading) {
@@ -144,7 +146,8 @@
                 .Columns(columns => {
                         columns.Bound(f => f.ProductId).Width(40)
                                .ClientTemplate("<#= ++index #>")
-                               .HeaderTemplate("<strong>No.</strong>");
+                               .HeaderTemplate("<strong>No.</strong>")
+                               .FooterHtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.CustomerCode).Width(70).Title("Customer</br>Code")
                                .HtmlAttributes(new { style = "text-align: center;" });
                         columns.Bound(f => f.ProductCode).Width(100).Title("Product</br>Code")
@@ -239,10 +242,9 @@
                     
                     
                     })
-                .ClientEvents(events => events
-                                            .OnDataBinding("grid_OnDataBinding")
-                                            .OnDataBound("grid_OnDataBound")
-                                            .OnError("grid_OnError"))
+                .ClientEvents(events => events.OnDataBinding("grid_OnDataBinding")
+                                              .OnDataBound("grid_OnDataBound")
+                                              .OnError("grid_OnError"))
                 .Scrollable(f => f.Height(510))
                 //.HtmlAttributes(new { style = "width: 950px;" })
                 .Resizable(f => f.Columns(true))

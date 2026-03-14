@@ -7,6 +7,7 @@
 
 @section Scripts{
 
+    <script type="text/javascript" src="@Url.Content("~/Scripts/OnLoad.js")"></script>
 
     <!-- grid Monthly -->
     <script type="text/javascript">
@@ -47,21 +48,24 @@
     <!-- report -->
     <script type="text/javascript">
         function printProductionDefect() {
+            if (!onLoading) {
+                OnLoadingData();
+                var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
+                if (monthlyDate === null)
+                    monthlyDate = "";
+                else
+                    monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
 
-            var monthlyDate = $("#MonthlyDate").data("tDatePicker").value();
-            if (monthlyDate === null)
-                monthlyDate = "";
-            else
-                monthlyDate = $.telerik.formatString('{0:dd/MM/yyyy}', monthlyDate);
 
-
-            $('#result').load('@Url.Action("PrintProductionDefectDailyReport", "Reporting")',
-                {
-                    monthlyDate: monthlyDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                $('#result').load('@Url.Action("PrintProductionDefectDailyReport", "Reporting")',
+                    {
+                        monthlyDate: monthlyDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
 
@@ -80,10 +84,11 @@
 
         <div class="clear"></div>  
         
-            <div class="grid_4 prefix_15">
+            <div class="grid_7 prefix_15">
                 <button id="btnProductInvTotal" class="t-button" onclick=" return printProductionDefect(); ">
-                    <span class='t-icon t-insert'></span>
+                   <span class='t-icon t-insert'></span>
                    Print Report
+                   <span class='loadButton'></span>
                 </button>
             </div>
         <br />

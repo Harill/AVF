@@ -362,6 +362,32 @@
             }
         }
 
+
+        var onLoading = false;
+        function OnLoadingData() {
+            if (!onLoading) {
+                onLoading = true;
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    loading.innerHTML = "<span class='t-icon t-refresh t-loading'></span> (Chờ load)";
+                    loading.classList.add('loading');
+                }
+            }
+        }
+        function OnLoadedData() {
+            if (onLoading) {
+                var loadings = document.querySelectorAll('.twoToneButton');
+                for (var i = 0; i < loadings.length; i++) {
+                    var loading = loadings[i];
+                    if (loading && loading.className.includes("loading")) {
+                        loading.classList.remove('loading');
+                        loading.innerHTML = "<span></span>";
+                    }
+                }
+                onLoading = false;
+            }
+        }
     </script>
 
     <script type="text/javascript">
@@ -399,29 +425,33 @@
         }
         
         function PrintTechnicalList() {
-            var customer = $("#Customer").data("tComboBox").value();
-            if (customer === "")
-                customer = 0;
-            var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
-            var statusValue = $("#Status").data("tComboBox").value();
-            if (statusValue === "")
-                statusValue = 0;
+            if (!onLoading) {
+                OnLoadingData();
+                var customer = $("#Customer").data("tComboBox").value();
+                if (customer === "")
+                    customer = 0;
+                var productCodeName = $("#ProductCodeName").data("tAutoComplete").value();
+                var statusValue = $("#Status").data("tComboBox").value();
+                if (statusValue === "")
+                    statusValue = 0;
 
-            var fromDate = $("#FromDate").data("tDatePicker").value();
-            if (fromDate === null)
-                fromDate = "";
-            else
-                fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
-            $('#result').load('@Url.Action("PrintTechnicalList", "Product")',
-                {
-                    customerId: customer,
-                    productCode: productCodeName,
-                    status: statusValue,
-                    fromDate: fromDate
-                }, function () {
-                    var window = $('#windowReport').data('tWindow');
-                    window.open();
-                });
+                var fromDate = $("#FromDate").data("tDatePicker").value();
+                if (fromDate === null)
+                    fromDate = "";
+                else
+                    fromDate = $.telerik.formatString('{0:dd/MM/yyyy}', fromDate);
+                $('#result').load('@Url.Action("PrintTechnicalList", "Product")',
+                    {
+                        customerId: customer,
+                        productCode: productCodeName,
+                        status: statusValue,
+                        fromDate: fromDate
+                    }, function () {
+                        OnLoadedData();
+                        var window = $('#windowReport').data('tWindow');
+                        window.open();
+                    })
+            };
             return false;
         }
     </script>
@@ -597,6 +627,7 @@
         <button id="btnPrintList" class='t-button' onclick=" return PrintTechnicalList();">
             <span class='t-icon t-insert'></span>
             Technical List
+            <span class="twoToneButton"></span>
         </button>
         <fieldset>
             <legend>Filters</legend>

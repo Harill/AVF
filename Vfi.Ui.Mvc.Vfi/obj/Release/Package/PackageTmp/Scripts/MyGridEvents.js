@@ -57,7 +57,6 @@ function grid_OnRowSelect(e) {
 }
 
 function grid_OnError(args) {
-
     var btn = document.querySelector('#twoToneButton');
     if (btn && btn.className.includes("loading")) {
         btn.classList.remove('loading');
